@@ -35,7 +35,7 @@ Few of the highlights of Catalyst are:
  For contributions to RLCatalyst create a feature or hot fix branch and make changes. Usage of the branches shall be explained  in the following section.
 
  #Code Contributions
- *Step 1: Fork*
+ *Step 1: Fork ::*
 
  $ git clone git@github.com:username/core.git
 
@@ -49,7 +49,7 @@ Few of the highlights of Catalyst are:
 
  $ git checkout -b my-feature-branch -t origin/master
 
- *Step 3: Commit*
+ *Step 3: Commit::*
 
  Make sure git knows your name and email address:
 
@@ -57,20 +57,17 @@ Few of the highlights of Catalyst are:
 
  $ git config --global user.email "j.random.user@example.com"
 
- Writing good commit logs is important. A commit log should describe what changed and why. Follow these guidelines when writing one:
+ Writing good commit logs is important. A commit log should describe what changed and why. Follow these guidelines when writing one::
 
- 1.The first line should be 50 characters or less and contain a short description of the change prefixed with the name of the changed subsystem (e.g. "net: add localAddress and localPort to Socket").
- 2.Keep the second line blank.
- 3.Wrap all other lines at 72 columns.
- 4.A good commit log can look something like this: [subsystem: explaining the commit in one line]
- 5.Body of commit message is a few lines of text, explaining things in more detail, possibly giving some background about the  issuebeing fixed, etc. etc.
-
- 6.The body of the commit message can be several paragraphs, and please do proper word-wrap and keep columns shorter than about72 characters or so. That way `git log` will show things nicely even when it is indented.
- 7.The header line should be meaningful; it is what other people see when they run git shortlog or git log --oneline.
+1.The first line should be 50 characters or less and contain a short description of the change prefixed with the name of the changed subsystem.
+2.Keep the second line blank.
+3.A good commit log can look something like this: [subsystem: explaining the commit in one line]
+4.Body of commit message is a few lines of text, explaining things in more detail, possibly giving some background about the  issuebeing fixed, etc. etc.
+5.The header line should be meaningful; it is what other people see when they run git shortlog or git log --oneline.
 
  Check the output of git log --oneline files_that_you_changed to find out what subsystem (or subsystems) your changes touch.
 
- *Step 4: Rebase*
+ *Step 4: Rebase::*
 
  Use git rebase (not git merge) to sync your work from time to time.
 
@@ -82,7 +79,7 @@ Few of the highlights of Catalyst are:
 
  Bug fixes and features should come with tests. Add these tests in the tests directory of the repository.
 
- *Step 6: Push*
+ *Step 6: Push ::*
 
  $ git push origin my-feature-branch
 
@@ -98,8 +95,24 @@ Few of the highlights of Catalyst are:
 
  4. After merge the feature branch will be deleted.
 
- #Release Strategy
- Release from master branch will be tagged with release_<X.X>
+ *Release Strategy :: *
+Our primary shipping vehicle is operating system specific packages that includes all the requirements of RLCatalyst.
+
+Our version numbering closely follows Semantic Versioning standard. Our standard version numbers look like X.Y.Z which mean:
+
+X is a major release, which may not be fully compatible with prior major releases
+Y is a minor release, which adds both new features and bug fixes
+Z is a patch release, which adds just bug fixes
+We frequently make alpha and beta releases with version numbers that look like X.Y.Z.alpha.0 or X.Y.Z.beta.1. These releases are still well tested but not as throughly as Minor or Patch releases.
+
+We do a Minor release approximately every 3 months and Patch releases on a when-needed basis for regressions, significant bugs, and security issues.
+
+Announcements of releases are available on  Blog when they are available.
+
+ 
+ 
+ 
+ 
  #Logging Issues
  When opening new issues or commenting on existing issues please make sure discussions are related to concrete technical issues with the RLCatalyst software
 
