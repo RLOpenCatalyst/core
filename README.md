@@ -109,11 +109,7 @@ We do a Minor release approximately every 3 months and Patch releases on a when-
 
 Announcements of releases are available on  Blog when they are available.
 
- 
- 
- 
- 
- #Logging Issues
+#Logging Issues
  When opening new issues or commenting on existing issues please make sure discussions are related to concrete technical issues with the RLCatalyst software
 
  RLCatalyst Issue Tracking is handled using Github Issues.
@@ -136,8 +132,7 @@ Announcements of releases are available on  Blog when they are available.
 
   Actual Result:[What actually happens after the reproduction steps?]
 
-
-  #License
+#License
   
  RLCatalyst is licensed under Apache License 2.0. 
  
