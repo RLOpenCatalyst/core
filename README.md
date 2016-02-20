@@ -95,7 +95,7 @@ Few of the highlights of Catalyst are:
 
  4. After merge the feature branch will be deleted.
 
- *Release Strategy :: *
+#Release Strategy 
 Our primary shipping vehicle is operating system specific packages that includes all the requirements of RLCatalyst.
 
 Our version numbering closely follows Semantic Versioning standard. Our standard version numbers look like X.Y.Z which mean:
