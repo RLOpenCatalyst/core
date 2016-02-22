@@ -22,70 +22,70 @@ Few of the highlights of Catalyst are:
 * **Application Deployment:** RLcatalyst provides you a seamless experience of managing your ALM lifecycle, with its one-click application deployment, on any of your cloud providers. You can reduce your deployment time from weeks to days to hours with better quality with a focus on performance and health of the application. It works with all latest CI/CD tools- Jenkins, JIRA, BitBucket, Github, SonarQube etc to name a few.
 * **Monitoring and Tracking :** RLCatalyst provides you the near-real time information on the cost and usage of your infrastructure . This helps you to keep track of Cloud Capacity and to optimize your resources to ensure better utilization. 
 
- #Documentation
- Please see the detailed documentation at http://catalyst.readthedocs.org
+#Documentation
+Please see the detailed documentation at http://catalyst.readthedocs.org
  
- #Branching Strategy
- The central repository will have two branches with infinite lifetime
-
+#Branching Strategy
+The central repository will have two branches with infinite lifetime
 * master 
 * dev 
 
- *Supported Branches* 
- For contributions to RLCatalyst create a feature or hot fix branch and make changes. Usage of the branches shall be explained  in the following section.
+*Supported Branches* 
+For contributions to RLCatalyst create a feature or hot fix branch and make changes. Usage of the branches shall be explained  in the following section.
 
- #Code Contributions
- *Step 1: Fork ::*
+#Code Contributions
+*Step 1: Fork*
+```
+$ git clone git@github.com:username/core.git
+$ cd core
+$ git remote add upstream git://github.com/RLOpenCatalyst/core.git
+```
 
- $ git clone git@github.com:username/core.git
+*Step 2: Branch*
+Create a feature branch and start hacking
+```
+$ git checkout -b my-feature-branch -t origin/master
+```
 
- $ cd core
+*Step 3: Commit*
+Make sure git knows your name and email address
+```
+$ git config --global user.name "J. Random User"
+$ git config --global user.email "j.random.user@example.com"
+```
 
- $ git remote add upstream git://github.com/RLOpenCatalyst/core.git
+**Writing good commit logs is important. A commit log should describe what changed and why. Follow these guidelines when writing one**
 
- *Step 2: Branch*
+1. The first line should be 50 characters or less and contain a short description of the change prefixed with the name of the changed subsystem.
+2. Keep the second line blank.
+3. A good commit log can look something like this: [subsystem: explaining the commit in one line]
+4. Body of commit message is a few lines of text, explaining things in more detail, possibly giving some background about the issue being fixed, etc. etc.
+5. The header line should be meaningful; it is what other people see when they run git shortlog or git log --oneline.
 
- Create a feature branch and start hacking:
+Check the output of git log --oneline files_that_you_changed to find out what subsystem (or subsystems) your changes touch.
 
- $ git checkout -b my-feature-branch -t origin/master
-
- *Step 3: Commit::*
-
- Make sure git knows your name and email address:
-
- $ git config --global user.name "J. Random User"
-
- $ git config --global user.email "j.random.user@example.com"
-
- Writing good commit logs is important. A commit log should describe what changed and why. Follow these guidelines when writing one::
-
-1.The first line should be 50 characters or less and contain a short description of the change prefixed with the name of the changed subsystem.
-2.Keep the second line blank.
-3.A good commit log can look something like this: [subsystem: explaining the commit in one line]
-4.Body of commit message is a few lines of text, explaining things in more detail, possibly giving some background about the  issuebeing fixed, etc. etc.
-5.The header line should be meaningful; it is what other people see when they run git shortlog or git log --oneline.
-
- Check the output of git log --oneline files_that_you_changed to find out what subsystem (or subsystems) your changes touch.
-
- *Step 4: Rebase::*
+ *Step 4: Rebase*
 
  Use git rebase (not git merge) to sync your work from time to time.
-
+```
  $ git fetch upstream
 
  $ git rebase upstream/master
+```
 
- *Step 5: Tests*
-
+*Step 5: Tests*
  Bug fixes and features should come with tests. Add these tests in the tests directory of the repository.
 
- *Step 6: Push ::*
-
+*Step 6: Push*
+```
  $ git push origin my-feature-branch
+```
 
- Pull requests will usually be reviewed within a few days. If there are comments to address, apply your changes in a separate  commit and push that to your feature branch. Post a comment in the pull request afterwards; GitHub does not send out   notifications when you add commits.
-  #Code Review
-  Each Github pull request will go through 3 step before merge:
+Pull requests will usually be reviewed within a few days. If there are comments to address, apply your changes in a separate  commit and push that to your feature branch. Post a comment in the pull request afterwards; GitHub does not send out   notifications when you add commits.
+
+#Code Review
+
+Each Github pull request will go through 3 step before merge:
 
  1. We will execute our automated test cases against the pull request. If the tests failed the pull request will be rejected with comments provided on the failures.
 
@@ -105,7 +105,7 @@ Y is a minor release, which adds both new features and bug fixes
 Z is a patch release, which adds just bug fixes
 We frequently make alpha and beta releases with version numbers that look like X.Y.Z.alpha.0 or X.Y.Z.beta.1. These releases are still well tested but not as throughly as Minor or Patch releases.
 
-We do a Minor release approximately every 3 months and Patch releases on a when-needed basis for regressions, significant bugs, and security issues.
+We do a Minor release approximately every 1 months and Patch releases on a when-needed basis for regressions, significant bugs, and security issues.
 
 Announcements of releases are available on  Blog when they are available.
 
@@ -120,6 +120,7 @@ Announcements of releases are available on  Blog when they are available.
 
  To decrease the back and forth in issues, and to help us get to the bottom of them quickly, we use the issue template below.  You can copy/paste this template into the issue you are opening and edit it accordingly::
 
+```
   Version:[Version of the project installed]
 
   Environment:[Details about the environment such as the Operating System, cookbook details, etc.]
@@ -131,6 +132,7 @@ Announcements of releases are available on  Blog when they are available.
   Expected Result:[What are you expecting to happen as the consequence of the reproduction steps above?]
 
   Actual Result:[What actually happens after the reproduction steps?]
+```
 
 #License
   
