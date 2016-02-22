@@ -74,11 +74,7 @@ Check the output of git log --oneline files_that_you_changed to find out what su
  $ git rebase upstream/master
 ```
 
-*Step 5: Tests*
-
- Bug fixes and features should come with tests. Add these tests in the tests directory of the repository.
-
-*Step 6: Push*
+*Step 5: Push*
 
 ```
  $ git push origin my-feature-branch
@@ -88,7 +84,7 @@ Pull requests will usually be reviewed within a few days. If there are comments 
 
 #Code Review
 
-Each Github pull request will go through 3 step before merge:
+Each Github pull request will go through the following step before merge:
 
  1. We will execute our automated test cases against the pull request. If the tests failed the pull request will be rejected with comments provided on the failures.
 
