@@ -1,0 +1,17 @@
+engines:
+  rubocop:
+    enabled: false
+  golint:
+    enabled: false
+  eslint:
+    enabled: true
+  csslint:
+    enabled: true
+ratings:
+  paths:
+  - server/**
+  - client/**
+  - "**.js"
+exclude_paths:
+- Test/**/*
+- seed/**/*
