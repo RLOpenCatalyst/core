@@ -72,7 +72,6 @@ CMDBConfigSchema.statics.getCMDBServerById = function(serverId, callback) {
 
     logger.debug("START :: getCMDBServerById ");
     logger.debug("Servcer Id:", serverId);
-    //var config = {username:"admin",password:"admin@123",host:"https://dev13730.service-now.com"};
 
     this.findOne({
         _id: serverId
