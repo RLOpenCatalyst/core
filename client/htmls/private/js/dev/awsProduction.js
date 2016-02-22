@@ -2158,7 +2158,7 @@ function initializeBlueprintAreaNew(data) {
 						if (data[i].templateType == "Docker" || data[i].templateType == "docker") {
 							$img = $('<img />').attr('src', 'img/galleryIcons/Docker.png').attr('alt', data[i].name).addClass('cardLogo');
 						} else $img = $('<img />').attr('src', data[i].iconpath).attr('alt', data[i].name).addClass('cardLogo');
-					} else $img = $('<img />').attr('src', '').attr('alt', data[i].name).addClass('cardLogo');
+					} else $img = $('<img />').attr('src', 'img/imgo.jpg').attr('alt', data[i].name).addClass('cardLogo');
 					var $liImage = $('<li></li>').append($img);
 					$ul.append($liImage);
 					var $liCardName = $('<li title="' + data[i].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + data[i].name + '</b></u>');
