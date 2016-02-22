@@ -69,7 +69,6 @@ Check the output of git log --oneline files_that_you_changed to find out what su
  Use git rebase (not git merge) to sync your work from time to time.
 ```
  $ git fetch upstream
-
  $ git rebase upstream/master
 ```
 
@@ -100,25 +99,25 @@ Our primary shipping vehicle is operating system specific packages that includes
 
 Our version numbering closely follows Semantic Versioning standard. Our standard version numbers look like X.Y.Z which mean:
 
-X is a major release, which may not be fully compatible with prior major releases
-Y is a minor release, which adds both new features and bug fixes
-Z is a patch release, which adds just bug fixes
-We frequently make alpha and beta releases with version numbers that look like X.Y.Z.alpha.0 or X.Y.Z.beta.1. These releases are still well tested but not as throughly as Minor or Patch releases.
+* X is a major release, which may not be fully compatible with prior major releases
+* Y is a minor release, which adds both new features and bug fixes
+* Z is a patch release, which adds just bug fixes
+We frequently make releases with version numbers that look like 3.0.1 or 3.0.2. These releases are still well tested but not as throughly as Minor releases.
 
 We do a Minor release approximately every 1 months and Patch releases on a when-needed basis for regressions, significant bugs, and security issues.
 
-Announcements of releases are available on  Blog when they are available.
+Announcements of releases will be maid available to our mailing list and slack channel.
 
 #Logging Issues
- When opening new issues or commenting on existing issues please make sure discussions are related to concrete technical issues with the RLCatalyst software
+When opening new issues or commenting on existing issues please make sure discussions are related to concrete technical issues with the RLCatalyst software
 
- RLCatalyst Issue Tracking is handled using Github Issues.
+RLCatalyst Issue Tracking is handled using Github Issues.
 
- If you are familiar with RLCatalyst and know the repository that is causing you a problem or if you have a feature request on a specific component, you can file an issue in the corresponding GitHub project. All of our Open Source Software can be found in our GitHub organization.
+If you are familiar with RLCatalyst and know the repository that is causing you a problem or if you have a feature request on a specific component, you can file an issue in the corresponding GitHub project. All of our Open Source Software can be found in our GitHub organization.
 
- Otherwise you can file your issue in the RLCatalyst project and we will make sure it gets filed against the appropriate project.
+Otherwise you can file your issue in the RLCatalyst project and we will make sure it gets filed against the appropriate project.
 
- To decrease the back and forth in issues, and to help us get to the bottom of them quickly, we use the issue template below.  You can copy/paste this template into the issue you are opening and edit it accordingly::
+To decrease the back and forth in issues, and to help us get to the bottom of them quickly, we use the issue template below.  You can copy/paste this template into the issue you are opening and edit it accordingly::
 
 ```
   Version:[Version of the project installed]
