@@ -1,0 +1,986 @@
+count,project,Issue_Type,Status,Priority,Original_Estimate,RemainingEstimate,TimeSpent,Resolution,Assignee,Reporter,Created,Updated,FixVersions,Components,Epic_theme
+1,Catalyst, QA Env , Health Check,Sub-task,1,0,720,Closed,Blocker,Pass,\N,Nov-14,11/4/2014 10:43,,
+1,Catalyst, QA Env , Health Check,Sub-task,1,0,900,Closed,Major,Fixed,\N,Nov-14,11/4/2014 11:02,,
+1,Catalyst, QA Env , Health Check Up,QA Task,1,0,0,Open,Blocker,Unresolved,\N,Nov-14,,,
+1,Catalyst, UNABLE , RUNQUERY , EXCEPTION,0,3,0,Bug,Closed,Blocker,\N,\N,11/27/2014 22:50,11/27/2014 11:28,
+1,Catalyst,Bug,Cancelled,Critical,28800,28800,0,Unresolved,Arab,Sree,Jun-14,Nov-14,R2,Material Flow,SAP
+1,Catalyst,Bug,Cancelled,Major,0,0,0,Unresolved,Arab,Raj,Nov-14,Nov-14,R4,Profiling,SAP
+1,Catalyst,Bug,Cancelled,Major,0,0,0,Unresolved,Ravi Sai Kumar,Raj,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Bug,Cancelled,Major,28800,28800,0,Unresolved,Anshul,Anshul,Aug-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Bug,Cancelled,Major,3600,3600,0,Unresolved,Raj,Raj,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Bug,Cancelled,Medium,0,0,0,Unresolved,Arab,Ashna,Jan-15,Feb-15,R5,Material Flow,"GP, JDE, SAP"
+1,Catalyst,Bug,Closed,Blocker,14400,3600,14400,Fixed,Ashna,Sree,Jun-14,Nov-14,"R2, R3",Data Processing,SAP
+1,Catalyst,Bug,Closed,Blocker,7200,0,7200,Fixed,Ashna,Sree,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Blocker,14400,0,14400,Fixed,Ashna,Raj,Nov-14,Nov-14,R4,Profiling,JDE
+1,Catalyst,Bug,Closed,Blocker,14400,3600,10800,Fixed,Ashna,Raj,Nov-14,Nov-14,R4,Material Flow,JDE
+1,Catalyst,Bug,Closed,Blocker,14400,0,14400,Fixed,Ashna,Raj,Nov-14,Nov-14,R4,Material Flow,JDE
+1,Catalyst,Bug,Closed,Blocker,7200,0,7200,Fixed,Raj,Raj,Aug-14,Sep-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Blocker,7200,0,7200,Fixed,Raj,Raj,Aug-14,Sep-14,R3,Material Flow,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Cannot Reproduce,Haneep CR,Ashna,Nov-14,Dec-14,R4,Search,"PLT, SAP"
+1,Catalyst,Bug,Closed,Critical,14400,0,14400,Fixed,Ashna,Ashna,Nov-14,Dec-14,R4,Search,"GP, JDE, SAP"
+1,Catalyst,Bug,Closed,Critical,14400,0,14400,Fixed,Ashna,Ashna,Nov-14,Dec-14,R4,Material Flow,PLT
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Fixed,Ashna,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Bug,Closed,Critical,14400,10800,3600,Fixed,Ashna,Sree,Jun-14,Nov-14,"R2, R4",Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,14400,14340,60,Fixed,Ashna,Sree,Jun-14,Nov-14,"R2, R4",Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,14400,0,14400,Fixed,Ashna,Sree,Jun-14,Nov-14,"R2, R4",Profiling,JDE
+1,Catalyst,Bug,Closed,Critical,14400,0,18000,Fixed,Ashna,Sree,Jun-14,Nov-14,R2,Profiling,JDE
+1,Catalyst,Bug,Closed,Critical,14400,0,14400,Fixed,Ashna,Sree,Jun-14,Dec-14,"R2, R4",Material Flow,SAP
+1,Catalyst,Bug,Closed,Critical,3600,2700,900,Fixed,Ashna,Raj,Oct-14,Nov-14,R4,Data Processing,SAP
+1,Catalyst,Bug,Closed,Critical,14400,0,14400,Fixed,Ashna,Raj,Nov-14,Feb-15,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Fixed,Ashna,Raj,Aug-14,Nov-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,14400,Fixed,Ashna,Raj,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Fixed,Ashna,Raj,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Fixed,Ashna,Raj,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Fixed,Ashna,Raj,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,14400,7200,7200,Fixed,Ashna,Raj,Aug-14,Nov-14,R3,Material Flow,JDE
+1,Catalyst,Bug,Closed,Critical,14400,7200,7200,Fixed,Ashna,Raj,Sep-14,Dec-14,R4,Data Processing,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Fixed,Ashna,Raj,Sep-14,Dec-14,R4,Search,SAP
+1,Catalyst,Bug,Closed,Critical,28800,0,28800,Fixed,Anshul,Ashna,Dec-14,Jan-15,R4,Material Flow,JDE
+1,Catalyst,Bug,Closed,Critical,10800,0,18000,Fixed,Sree,Sree,Jul-14,Aug-14,"R2, R3",Data Processing,"JDE, SAP"
+1,Catalyst,Bug,Closed,Critical,7200,3600,3600,Fixed,Raj,Ashna,Nov-14,Dec-14,R4,Data Processing,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Fixed,Raj,Ashna,Dec-14,Dec-14,R4,"Material Flow, Profiling",JDE
+1,Catalyst,Bug,Closed,Critical,14400,10800,3600,Fixed,Raj,Sree,Jul-14,Jul-14,R2,Material Flow,SAP
+1,Catalyst,Bug,Closed,Critical,7200,0,7200,Fixed,Raj,Raj,Aug-14,Sep-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Critical,0,0,7200,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Material Flow,SAP
+1,Catalyst,Bug,Closed,Critical,7200,3600,3600,Fixed,Raj,Raj,Sep-14,Nov-14,R4,Reports,JDE
+1,Catalyst,Bug,Closed,Low,3600,0,3600,Fixed,Ashna,Raj,Sep-14,Oct-14,R4,Material Flow,SAP
+1,Catalyst,Bug,Closed,Low,7200,0,7200,Fixed,Ashna,Raj,Sep-14,Nov-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Low,7200,0,7200,Fixed,Raj,Raj,Aug-14,Sep-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Low,3600,0,7200,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Material Flow,SAP
+1,Catalyst,Bug,Closed,Low,7200,0,7200,Fixed,Raj,Raj,Aug-14,Sep-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Duplicate,Haneep CR,Raj,Sep-14,Dec-14,R4,Material Flow,SAP
+1,Catalyst,Bug,Closed,Major,28800,0,28800,Fixed,Ashna,Ashna,Oct-14,Dec-14,R4,Data Processing,"PLT, SAP"
+1,Catalyst,Bug,Closed,Major,14400,10800,3600,Fixed,Ashna,Ashna,Nov-14,Dec-14,R4,Data Processing,PLT
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ashna,Ashna,Nov-14,Nov-14,R4,Profiling,"GP, JDE, SAP"
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Ashna,Nov-14,Nov-14,R4,Search,PLT
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ashna,Ashna,Dec-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,28800,0,28800,Fixed,Ashna,Manikantan Ashokkumar,Sep-14,Dec-14,R3,Material Flow,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Arab,Nov-14,Dec-14,R4,Platform,PLT
+1,Catalyst,Bug,Closed,Major,28800,0,28800,Fixed,Ashna,Anshul,Nov-14,Nov-14,R4,Profiling,"GP, JDE, SAP"
+1,Catalyst,Bug,Closed,Major,3600,0,3600,Fixed,Ashna,Sree,Jun-14,Nov-14,"R2, R4",Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,10800,3600,Fixed,Ashna,Sree,Jun-14,Nov-14,"R2, R4",Profiling,JDE
+1,Catalyst,Bug,Closed,Major,14400,14340,60,Fixed,Ashna,Sree,Jun-14,Nov-14,"R2, R4",Profiling,JDE
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ashna,Sree,Jun-14,Nov-14,R2,Profiling,JDE
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ashna,Sree,Jun-14,Nov-14,R2,Profiling,JDE
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Sree,Aug-14,Dec-14,R3,Data Processing,PLT
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Sree,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Sree,Aug-14,Nov-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,14400,14400,Fixed,Ashna,Raj,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Bug,Closed,Major,7200,0,7320,Fixed,Ashna,Raj,Nov-14,Nov-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ashna,Raj,Nov-14,Dec-14,R4,Material Flow,JDE
+1,Catalyst,Bug,Closed,Major,240,0,14400,Fixed,Ashna,Raj,Nov-14,Dec-14,R4,Profiling,JDE
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Raj,Nov-14,Nov-14,R3,Profiling,"GP, JDE, SAP"
+1,Catalyst,Bug,Closed,Major,3600,0,3660,Fixed,Ashna,Raj,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Bug,Closed,Major,3600,0,3600,Fixed,Ashna,Raj,Nov-14,Nov-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,3600,0,3600,Fixed,Ashna,Raj,Nov-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,3600,0,3600,Fixed,Ashna,Raj,Nov-14,Nov-14,R4,Search,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Raj,Nov-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Raj,Dec-14,Dec-14,R4,Material Flow,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Raj,Dec-14,Jan-15,R4,Search,SAP
+1,Catalyst,Bug,Closed,Major,14400,7200,7200,Fixed,Ashna,Raj,Jul-14,Nov-14,"R2, R3",Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,7200,7200,Fixed,Ashna,Raj,Jul-14,Nov-14,"R2, R3",Profiling,JDE
+1,Catalyst,Bug,Closed,Major,3600,0,3600,Fixed,Ashna,Raj,Aug-14,Nov-14,R3,"Platform, Profiling",SAP
+1,Catalyst,Bug,Closed,Major,28800,21600,7200,Fixed,Ashna,Raj,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Raj,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,21600,14400,7200,Fixed,Ashna,Raj,Aug-14,Dec-14,"R3, R4",Material Flow,JDE
+1,Catalyst,Bug,Closed,Major,14400,7200,7200,Fixed,Ashna,Raj,Aug-14,Nov-14,R3,Profiling,JDE
+1,Catalyst,Bug,Closed,Major,14400,3600,10800,Fixed,Ashna,Raj,Aug-14,Nov-14,R3,Material Flow,JDE
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Raj,Sep-14,Oct-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ashna,Raj,Sep-14,Oct-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Raj,Sep-14,Dec-14,R4,Data Processing,SAP
+1,Catalyst,Bug,Closed,Major,60,0,3600,Fixed,Ashna,Raj,Sep-14,Oct-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Ashna,Raj,Sep-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Bug,Closed,Major,21600,0,21600,Fixed,Bhuvan Arun,Ashna,Nov-14,Dec-14,R3,Data Processing,JDE
+1,Catalyst,Bug,Closed,Major,14400,0,28800,Fixed,Haneep CR,Manikantan Ashokkumar,Sep-14,Dec-14,R3,Material Flow,SAP
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Haneep CR,Sree,Jun-14,Nov-14,R2,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,18000,0,18000,Fixed,Haneep CR,Sree,Jul-14,Jul-14,R2,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Arab,Sree,Jul-14,Jul-14,R2,Search,SAP
+1,Catalyst,Bug,Closed,Major,3600,0,3600,Fixed,Arab,Raj,Nov-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ravi Sai Kumar,Sree,Jun-14,Jul-14,R2,Profiling,"JDE, SAP"
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ravi Sai Kumar,Sree,Jun-14,Jul-14,R2,Profiling,"JDE, SAP"
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Ravi Sai Kumar,Sree,Jul-14,Oct-14,"R2, R3",Data Processing,"JDE, SAP"
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Anshul,Ashna,Dec-14,Dec-14,R4,Profiling,JDE
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Anshul,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Material Flow,SAP
+1,Catalyst,Bug,Closed,Major,28800,0,28800,Fixed,Anshul,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Material Flow,"PLT, SAP"
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Anshul,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Anshul,Anshul,Aug-14,Aug-14,R2,Profiling,"JDE, SAP"
+1,Catalyst,Bug,Closed,Major,21600,0,21600,Fixed,Sree,Raj,Aug-14,Aug-14,R3,Material Flow,JDE
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Raj,Ashna,Dec-14,Dec-14,R4,Material Flow,JDE
+1,Catalyst,Bug,Closed,Major,14400,10800,3600,Fixed,Raj,Anshul,Aug-14,Nov-14,R3,Reports,JDE
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Raj,Sree,Jun-14,Jul-14,R2,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,3600,0,3600,Fixed,Raj,Sree,Jun-14,Jul-14,R2,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,1800,0,1800,Fixed,Raj,Sree,Jun-14,Jul-14,R2,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,10800,3600,Fixed,Raj,Sree,Jun-14,Nov-14,R2,Profiling,JDE
+1,Catalyst,Bug,Closed,Major,18000,0,18000,Fixed,Raj,Sree,Jul-14,Jul-14,R2,Data Processing,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Raj,Raj,Dec-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Raj,Raj,Dec-14,Dec-14,R4,Material Flow,SAP
+1,Catalyst,Bug,Closed,Major,14400,10800,3600,Fixed,Raj,Raj,Jul-14,Nov-14,"R2, R3",Reports,JDE
+1,Catalyst,Bug,Closed,Major,14400,10800,3600,Fixed,Raj,Raj,Jul-14,Nov-14,"R2, R3",Profiling,JDE
+1,Catalyst,Bug,Closed,Major,14400,0,14400,Fixed,Raj,Raj,Aug-14,Sep-14,"R2, R3",Material Flow,SAP
+1,Catalyst,Bug,Closed,Major,14400,10800,3600,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Profiling,JDE
+1,Catalyst,Bug,Closed,Major,3600,0,3600,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Material Flow,JDE
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Fixed,Raj,Raj,Aug-14,Sep-14,R3,Profiling,JDE
+1,Catalyst,Bug,Closed,Major,14400,10800,3600,Fixed,Raj,Raj,Aug-14,Nov-14,"R2, R3",Material Flow,SAP
+1,Catalyst,Bug,Closed,Major,7200,0,7200,Wont Fix,Ashna,Raj,Nov-14,Nov-14,R4,Search,SAP
+1,Catalyst,Bug,Closed,Medium,7200,0,7200,Fixed,Ashna,Ashna,Nov-14,Nov-14,R4,Search,PLT
+1,Catalyst,Bug,Closed,Medium,7200,0,7200,Fixed,Ashna,Ashna,Dec-14,Dec-14,R4,Material Flow,"JDE, SAP"
+1,Catalyst,Bug,Closed,Medium,28800,0,28800,Fixed,Ashna,Ashna,Dec-14,Dec-14,R4,Material Flow,JDE
+1,Catalyst,Bug,Closed,Medium,7200,0,7200,Fixed,Ashna,Ashna,Dec-14,Dec-14,R4,Profiling,JDE
+1,Catalyst,Bug,Closed,Medium,28800,21600,7200,Fixed,Ashna,Sree,Jun-14,Nov-14,"R2, R3",Profiling,JDE
+1,Catalyst,Bug,Closed,Medium,14400,7200,7200,Fixed,Manikantan Ashokkumar,Ashna,Dec-14,Feb-15,R4,Search,"JDE, SAP"
+1,Catalyst,Bug,Closed,Medium,14400,0,14400,Fixed,Raj,Sree,Jun-14,Jul-14,R2,Material Flow,SAP
+1,Catalyst,Bug,Closed,Medium,3600,0,3600,Fixed,Raj,Sree,Jun-14,Jul-14,R2,Material Flow,SAP
+1,Catalyst,Bug,Closed,Medium,1800,0,1800,Fixed,Raj,Sree,Jun-14,Jul-14,R2,Profiling,JDE
+1,Catalyst,Bug,Closed,Medium,14400,0,14400,Fixed,Raj,Sree,Jun-14,Jul-14,R2,Search,"JDE, SAP"
+1,Catalyst,Bug,Closed,Medium,3600,0,3600,Fixed,Raj,Sree,Jun-14,Jul-14,R2,Profiling,SAP
+1,Catalyst,Bug,Closed,Medium,14400,0,14400,Fixed,Raj,Sree,Jun-14,Sep-14,R2,Material Flow,SAP
+1,Catalyst,Bug,Closed,Medium,7200,0,7200,Fixed,Raj,Raj,Aug-14,Sep-14,R3,Material Flow,SAP
+1,Catalyst,Bug,Closed,Medium,7200,0,7200,Wont Fix,Ashna,Ashna,Nov-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,In Progress,Major,28800,28800,0,Unresolved,Haneep CR,Arab,Feb-15,Mar-15,R5,Platform,PLT
+1,Catalyst,Bug,In Progress,Major,28800,28800,0,Unresolved,Haneep CR,Arab,Feb-15,Mar-15,R5,Search,SAP
+1,Catalyst,Bug,In Progress,Major,28800,28800,0,Unresolved,Arab,Ashna,Feb-15,Mar-15,R5,Profiling,JDE
+1,Catalyst,Bug,In Progress,Major,28800,28800,0,Unresolved,Arab,Arab,Feb-15,Mar-15,R5,Profiling,SAP
+1,Catalyst,Bug,In Progress,Major,28800,0,28800,Unresolved,Arab,Arab,Feb-15,Mar-15,R5,Search,SAP
+1,Catalyst,Bug,In Progress,Major,21600,21600,0,Unresolved,Anshul,Raj,Feb-15,Feb-15,R5,Profiling,SAP
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Haneep CR,Raj,Nov-14,Mar-15,R4,Profiling,JDE
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Haneep CR,Raj,Nov-14,Dec-14,R4,Data Processing,JDE
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Haneep CR,Raj,Dec-14,Jan-15,R4,Platform,PLT
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Arab,Ashna,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Arab,Ashna,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Arab,Raj,Jan-15,Jan-15,R4,Profiling,GP
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Arab,Raj,Feb-15,Feb-15,R5,Platform,SAP
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Arab,Raj,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Arab,Raj,Mar-15,Mar-15,R5,Platform,PLT
+1,Catalyst,Bug,Open,Major,0,0,0,Unresolved,Nandini Mankale,Madhan Bose,Feb-15,Feb-15,R5,Data Processing,SAP
+1,Catalyst,Bug,Open,Medium,0,0,0,Unresolved,Haneep CR,Ashna,Dec-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Resolved,Critical,14400,10800,3600,Fixed,Ashna,Ashna,Nov-14,Dec-14,R4,Data Processing,SAP
+1,Catalyst,Bug,Resolved,Critical,14400,3600,10800,Fixed,Ashna,Ashna,Nov-14,Feb-15,R4,Profiling,"JDE, SAP"
+1,Catalyst,Bug,Resolved,Critical,7200,0,7200,Fixed,Ashna,Ashna,Dec-14,Feb-15,"R4, R5",Profiling,JDE
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Ashna,Ashna,Dec-14,Feb-15,"R4, R5",Platform,PLT
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Ashna,Arab,Feb-15,Mar-15,R5,Platform,PLT
+1,Catalyst,Bug,Resolved,Major,28800,0,28800,Fixed,Ashna,Arab,Feb-15,Mar-15,R5,Material Flow,SAP
+1,Catalyst,Bug,Resolved,Major,14400,0,28800,Fixed,Ashna,Arab,Feb-15,Mar-15,R5,Material Flow,"GP, JDE, SAP"
+1,Catalyst,Bug,Resolved,Major,28800,0,28800,Fixed,Ashna,Arab,Feb-15,Mar-15,R5,Search,SAP
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Ashna,Anshul,Aug-14,Feb-15,R3,Profiling,GP
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Ashna,Raj,Nov-14,Feb-15,R4,Data Processing,JDE
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Ashna,Raj,Nov-14,Dec-14,R4,Profiling,JDE
+1,Catalyst,Bug,Resolved,Major,7200,0,7200,Fixed,Ashna,Raj,Nov-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Resolved,Major,7200,0,7200,Fixed,Ashna,Raj,Nov-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Resolved,Major,7200,0,7200,Fixed,Ashna,Raj,Nov-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Ashna,Raj,Dec-14,Mar-15,R4,Profiling,SAP
+1,Catalyst,Bug,Resolved,Major,7200,0,7200,Fixed,Ashna,Raj,Aug-14,Dec-14,R3,Profiling,SAP
+1,Catalyst,Bug,Resolved,Major,7200,0,7200,Fixed,Ashna,Raj,Aug-14,Nov-14,R3,Profiling,SAP
+1,Catalyst,Bug,Resolved,Major,7200,0,7200,Fixed,Haneep CR,Ashna,Jan-15,Mar-15,R5,"Material Flow, Profiling",GP
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Haneep CR,Ashna,Jan-15,Feb-15,R5,Profiling,GP
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Haneep CR,Ashna,Jan-15,Feb-15,R5,Profiling,GP
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Haneep CR,Ashna,Dec-14,Feb-15,R4,Profiling,SAP
+1,Catalyst,Bug,Resolved,Major,7200,0,7200,Fixed,Haneep CR,Raj,Feb-15,Mar-15,R5,Platform,PLT
+1,Catalyst,Bug,Resolved,Major,28800,0,28800,Fixed,Anshul,Ashna,Feb-15,Mar-15,R5,Search,"PLT, SAP"
+1,Catalyst,Bug,Resolved,Major,14400,10800,3600,Fixed,Anshul,Anshul,Aug-14,Dec-14,R3,Platform,JDE
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Anshul,Anshul,Aug-14,Feb-15,R3,Profiling,GP
+1,Catalyst,Bug,Resolved,Major,14400,0,14400,Fixed,Raj,Raj,Aug-14,Feb-15,"R3, R4",Material Flow,JDE
+1,Catalyst,Bug,Resolved,Medium,14400,0,14400,Fixed,Haneep CR,Ashna,Dec-14,Feb-15,R4,Profiling,"GBT, JDE, SAP"
+1,Catalyst,QA Task,Closed,Major,28800,7200,21600,Fixed,Ashna,Ashna,Aug-14,Oct-14,R3,Data Processing,SAP
+1,Catalyst,QA Task,Closed,Major,14400,5400,9000,Fixed,Ashna,Ashna,Aug-14,Oct-14,R3,Material Flow,JDE
+1,Catalyst,QA Task,Closed,Major,7200,0,7200,Fixed,Ashna,Ashna,Aug-14,Oct-14,R3,Material Flow,SAP
+1,Catalyst,QA Task,Closed,Major,3600,0,3600,Fixed,Ashna,Ashna,Aug-14,Oct-14,R3,Material Flow,"JDE, SAP"
+1,Catalyst,QA Task,Closed,Major,14400,0,14400,Fixed,Ashna,Ashna,Aug-14,Oct-14,R3,Profiling,SAP
+1,Catalyst,QA Task,Closed,Major,7200,0,7200,Fixed,Ashna,Ashna,Aug-14,Oct-14,R3,Profiling,JDE
+1,Catalyst,QA Task,Closed,Major,14400,0,14400,Fixed,Ashna,Ashna,Aug-14,Oct-14,R3,Data Processing,SAP
+1,Catalyst,QA Task,Closed,Major,28800,18000,10800,Fixed,Ashna,Ashna,Sep-14,Oct-14,R4,Search,GP
+1,Catalyst,QA Task,Closed,Major,28800,14400,14400,Fixed,Ashna,Ashna,Sep-14,Oct-14,R4,Material Flow,GP
+1,Catalyst,QA Task,Closed,Major,28800,10800,18000,Fixed,Ashna,Ashna,Sep-14,Oct-14,R4,Profiling,GP
+1,Catalyst,QA Task,Closed,Major,28800,14400,14400,Fixed,Ashna,Ashna,Sep-14,Oct-14,R4,Material Flow,GP
+1,Catalyst,QA Task,Closed,Major,28800,14400,14400,Fixed,Ashna,Ashna,Sep-14,Oct-14,R4,Material Flow,GP
+1,Catalyst,QA Task,Closed,Major,7200,0,7200,Fixed,Manikantan Ashokkumar,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Documentation,SAP
+1,Catalyst,QA Task,Closed,Major,28800,10800,18000,Fixed,Raj,Raj,Oct-14,Jan-15,R4,Profiling,SAP
+1,Catalyst,QA Task,Closed,Major,28800,18000,10800,Fixed,Raj,Raj,Oct-14,Dec-14,R4,Profiling,JDE
+1,Catalyst,QA Task,Closed,Major,28800,14400,14400,Fixed,Raj,Raj,Sep-14,Dec-14,R4,Material Flow,JDE
+1,Catalyst,QA Task,Closed,Major,28800,14400,14400,Fixed,Raj,Raj,Sep-14,Dec-14,R4,Profiling,JDE
+1,Catalyst,QA Task,Closed,Major,28800,14400,14400,Fixed,Raj,Raj,Sep-14,Dec-14,R4,Profiling,GP
+1,Catalyst,QA Task,In Progress,Major,28800,28800,0,Unresolved,Ashna,Raj,Sep-14,Mar-15,R4,Reports,GP
+1,Catalyst,QA Task,In Progress,Major,14400,7200,7200,Unresolved,Raj,Raj,Aug-14,Oct-14,R3,Platform,PLT
+1,Catalyst,QA Task,In Progress,Major,28800,21600,7200,Unresolved,Raj,Raj,Sep-14,Dec-14,R4,Profiling,GP
+1,Catalyst,QA Task,Open,Major,28800,28800,0,Unresolved,Raj,Raj,Sep-14,Mar-15,R4,Profiling,SAP
+1,Catalyst,QA Task,Open,Major,28800,28800,0,Unresolved,Raj,Raj,Sep-14,Jan-15,R4,Material Flow,SAP
+1,Catalyst,QA Task,Open,Major,28800,28800,0,Unresolved,Raj,Raj,Sep-14,Mar-15,R4,Reports,JDE
+1,Catalyst,Story,Cancelled,Critical,0,0,0,Unresolved,Arab,Ashna,Nov-14,Feb-15,R4,Platform,PLT
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Bhuvan Arun,Arab,Nov-14,Jan-15,R4,Platform,PLT
+1,Catalyst,Story,Cancelled,Major,3600,3600,0,Unresolved,Haneep CR,Arab,Jul-14,Sep-14,R2,Reports,GBT
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Haneep CR,Arab,Sep-14,Oct-14,R4,Profiling,SAP
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Haneep CR,Arab,Sep-14,Oct-14,R4,Material Flow,SAP
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Manikantan Ashokkumar,Arab,Sep-14,Oct-14,R4,Platform,PLT
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Manikantan Ashokkumar,Arab,Sep-14,Oct-14,R4,Platform,PLT
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Arab,Manikantan Ashokkumar,Oct-14,Oct-14,R4,Search,JDE
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Arab,Manikantan Ashokkumar,Dec-14,Jan-15,R4,Reports,SAP
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Arab,Arab,Oct-14,Oct-14,R4,Platform,"PLT, SAP"
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Arab,Anshul,Aug-14,Feb-15,R3,Profiling,GP
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Arab,Raj,Dec-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Nandini Mankale,Manikantan Ashokkumar,Jul-14,Oct-14,R3,Data Processing,PLT
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Ravi Sai Kumar,Sree,Jul-14,Oct-14,R2,Data Processing,SAP
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Anshul,Arab,Sep-14,Jan-15,R4,Material Flow,GP
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Anshul,Arab,Sep-14,Jan-15,R4,Profiling,GP
+1,Catalyst,Story,Cancelled,Major,28800,28800,0,Unresolved,Anshul,Anshul,Nov-14,Jan-15,R4,Profiling,JDE
+1,Catalyst,Story,Cancelled,Major,14400,14400,0,Unresolved,Anshul,Anshul,Sep-14,Nov-14,R4,Profiling,SAP
+1,Catalyst,Story,Cancelled,Major,288000,288000,0,Unresolved,Sree,Nandini Mankale,Aug-14,Sep-14,R2,Data Processing,PLT
+1,Catalyst,Story,Cancelled,Major,7200,7200,0,Unresolved,Sree,Ravi Sai Kumar,Aug-14,Oct-14,R3,Data Processing,GBT
+1,Catalyst,Story,Cancelled,Major,0,0,0,Unresolved,Raj,Arab,Sep-14,Feb-15,R4,Platform,PLT
+1,Catalyst,Story,Cancelled,Major,14400,14400,0,Unresolved,Raj,Raj,Aug-14,Sep-14,R3,Profiling,JDE
+1,Catalyst,Story,Closed,Blocker,43200,14400,28800,Fixed,Ashna,Manikantan Ashokkumar,Sep-14,Dec-14,R3,Material Flow,SAP
+1,Catalyst,Story,Closed,Critical,28800,0,28800,Fixed,Ashna,Ashna,Nov-14,Jan-15,R4,Documentation,PLT
+1,Catalyst,Story,Closed,Critical,3600,0,3600,Fixed,Haneep CR,Manikantan Ashokkumar,Oct-14,Feb-15,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Critical,28800,0,28800,Fixed,Arab,Manikantan Ashokkumar,Oct-14,Jan-15,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Ashna,Haneep CR,Oct-14,Nov-14,R3,Profiling,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Ashna,Haneep CR,Sep-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,3600,0,3600,Fixed,Ashna,Manikantan Ashokkumar,Oct-14,Jan-15,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,14400,14400,Fixed,Ashna,Arab,Nov-14,Dec-14,R4,Reports,"PLT, SAP"
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Ashna,Arab,Nov-14,Dec-14,R4,Profiling,"GP, JDE, SAP"
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Ashna,Arab,Sep-14,Dec-14,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,25200,3600,Fixed,Ashna,Arab,Sep-14,Nov-14,R4,Material Flow,GP
+1,Catalyst,Story,Closed,Major,28800,25200,3600,Fixed,Ashna,Arab,Sep-14,Nov-14,R4,Material Flow,GP
+1,Catalyst,Story,Closed,Major,28800,14400,14400,Fixed,Ashna,Arab,Sep-14,Jan-15,R4,Material Flow,GP
+1,Catalyst,Story,Closed,Major,28800,25200,3600,Fixed,Ashna,Arab,Sep-14,Jan-15,R4,Profiling,GP
+1,Catalyst,Story,Closed,Major,57600,28800,28800,Fixed,Ashna,Arab,Sep-14,Jan-15,R4,Profiling,JDE
+1,Catalyst,Story,Closed,Major,28800,25200,3600,Fixed,Ashna,Arab,Sep-14,Nov-14,R4,Search,GP
+1,Catalyst,Story,Closed,Major,28800,0,14400,Fixed,Ashna,Anshul,Nov-14,Jan-15,R4,Reports,JDE
+1,Catalyst,Story,Closed,Major,28800,7200,21600,Fixed,Ashna,Anshul,Nov-14,Jan-15,R4,Material Flow,JDE
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Ashna,Anshul,Nov-14,Jan-15,R4,Material Flow,JDE
+1,Catalyst,Story,Closed,Major,28800,18000,10800,Fixed,Ashna,Anshul,Nov-14,Jan-15,R4,Material Flow,GP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Ashna,Anshul,Dec-14,Jan-15,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Ashna,Anshul,Aug-14,Jan-15,R2,Profiling,GP
+1,Catalyst,Story,Closed,Major,0,0,14400,Fixed,Ashna,Anshul,Aug-14,Nov-14,R2,Profiling,GP
+1,Catalyst,Story,Closed,Major,0,0,28800,Fixed,Ashna,Sree,Aug-14,Oct-14,R3,Material Flow,JDE
+1,Catalyst,Story,Closed,Major,28800,7200,21600,Fixed,Ashna,Sree,Aug-14,Oct-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Ashna,Sree,Aug-14,Oct-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,28800,0,3600,Fixed,Bhuvan Arun,Arab,Sep-14,Oct-14,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,3600,0,3600,Fixed,Haneep CR,Haneep CR,Oct-14,Oct-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Haneep CR,Haneep CR,Jul-14,Aug-14,R2,Platform,PLT
+1,Catalyst,Story,Closed,Major,3600,0,3600,Fixed,Haneep CR,Manikantan Ashokkumar,Oct-14,Feb-15,R4,Search,JDE
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Haneep CR,Manikantan Ashokkumar,Dec-14,Feb-15,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,0,14400,Fixed,Haneep CR,Ravi Sai Kumar,Aug-14,Oct-14,R3,Data Processing,JDE
+1,Catalyst,Story,Closed,Major,25200,0,39600,Fixed,Haneep CR,Sree,Jul-14,Oct-14,"R2, R3",Profiling,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Manikantan Ashokkumar,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Manikantan Ashokkumar,Raj,Sep-14,Nov-14,"R3, R4","Profiling, Search",SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Manikantan Ashokkumar,Oct-14,Jan-15,R3,Material Flow,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Data Processing,PLT
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Arab,Manikantan Ashokkumar,Oct-14,Jan-15,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Manikantan Ashokkumar,Nov-14,Jan-15,R4,Reports,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Manikantan Ashokkumar,Dec-14,Jan-15,R4,Reports,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Manikantan Ashokkumar,Sep-14,Jan-15,R3,Material Flow,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Arab,Oct-14,Jan-15,R4,Documentation,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Arab,Oct-14,Jan-15,R4,Search,PLT
+1,Catalyst,Story,Closed,Major,3600,0,28800,Fixed,Arab,Arab,Oct-14,Feb-15,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Arab,Nov-14,Dec-14,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,14400,7200,7200,Fixed,Arab,Arab,Nov-14,Feb-15,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,14400,10800,3600,Fixed,Arab,Arab,Nov-14,Jan-15,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Arab,Dec-14,Dec-14,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,0,0,28800,Fixed,Arab,Arab,Aug-14,Oct-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Arab,Sep-14,Jan-15,R4,Platform,PLT
+1,Catalyst,Story,Closed,Major,480,0,28800,Fixed,Arab,Nandini Mankale,Aug-14,Oct-14,R3,Data Processing,PLT
+1,Catalyst,Story,Closed,Major,21600,0,21600,Fixed,Arab,Nandini Mankale,Aug-14,Aug-14,R3,Profiling,PLT
+1,Catalyst,Story,Closed,Major,21600,0,21600,Fixed,Arab,Nandini Mankale,Aug-14,Aug-14,R3,Profiling,PLT
+1,Catalyst,Story,Closed,Major,21600,0,21600,Fixed,Arab,Nandini Mankale,Aug-14,Aug-14,R3,Profiling,PLT
+1,Catalyst,Story,Closed,Major,21600,0,21600,Fixed,Arab,Nandini Mankale,Aug-14,Aug-14,R3,Profiling,PLT
+1,Catalyst,Story,Closed,Major,21600,0,21600,Fixed,Arab,Nandini Mankale,Aug-14,Aug-14,R3,Profiling,PLT
+1,Catalyst,Story,Closed,Major,21600,0,43260,Fixed,Arab,Nandini Mankale,Aug-14,Aug-14,R3,Profiling,PLT
+1,Catalyst,Story,Closed,Major,21600,0,21600,Fixed,Arab,Nandini Mankale,Aug-14,Aug-14,R3,Profiling,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Anshul,Nov-14,Jan-15,R4,Material Flow,"GP, JDE, SAP"
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Anshul,Nov-14,Jan-15,R4,Profiling,JDE
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Anshul,Dec-14,Jan-15,R4,Platform,GP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Anshul,Dec-14,Jan-15,R4,Platform,GP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Arab,Anshul,Aug-14,Jan-15,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,14400,14400,Fixed,Arab,Sree,Jul-14,Oct-14,R2,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,14400,0,28800,Fixed,Arab,Sree,Aug-14,Jan-15,R3,Material Flow,SAP
+1,Catalyst,Story,Closed,Major,0,0,28800,Fixed,Ravi Sai Kumar,Arab,Jul-14,Oct-14,R2,Material Flow,JDE
+1,Catalyst,Story,Closed,Major,28800,0,36000,Fixed,Ravi Sai Kumar,Nandini Mankale,Aug-14,Aug-14,R3,Data Processing,PLT
+1,Catalyst,Story,Closed,Major,28800,7200,21600,Fixed,Ravi Sai Kumar,Anshul,Jul-14,Jul-14,R2,Data Processing,JDE
+1,Catalyst,Story,Closed,Major,28800,18000,10800,Fixed,Ravi Sai Kumar,Anshul,Jul-14,Jul-14,R2,Data Processing,GP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Ravi Sai Kumar,Sree,Jun-14,Jul-14,R2,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Anshul,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Data Processing,PLT
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Anshul,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Documentation,PLT
+1,Catalyst,Story,Closed,Major,480,0,28800,Fixed,Anshul,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Data Processing,JDE
+1,Catalyst,Story,Closed,Major,28800,25200,3600,Fixed,Anshul,Manikantan Ashokkumar,Oct-14,Nov-14,R3,Data Processing,GP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Anshul,Anshul,Nov-14,Jan-15,R4,Data Processing,JDE
+1,Catalyst,Story,Closed,Major,21600,14400,7200,Fixed,Anshul,Anshul,Nov-14,Nov-14,R4,Profiling,"GP, JDE, SAP"
+1,Catalyst,Story,Closed,Major,72000,7200,64800,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,Data Processing,JDE
+1,Catalyst,Story,Closed,Major,0,0,28800,Fixed,Anshul,Anshul,Jul-14,Oct-14,R2,Material Flow,JDE
+1,Catalyst,Story,Closed,Major,7200,0,57600,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,Profiling,JDE
+1,Catalyst,Story,Closed,Major,14400,7200,7200,Fixed,Anshul,Anshul,Aug-14,Nov-14,R3,Profiling,GP
+1,Catalyst,Story,Closed,Major,3600,0,3600,Fixed,Anshul,Anshul,Aug-14,Oct-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,21600,0,21600,Fixed,Sree,Haneep CR,Aug-14,Oct-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,14400,36000,14400,Fixed,Sree,Haneep CR,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,0,43320,Fixed,Sree,Ravi Sai Kumar,Jul-14,Jul-14,R2,Data Processing,"JDE, SAP"
+1,Catalyst,Story,Closed,Major,0,0,100800,Fixed,Sree,Ravi Sai Kumar,Jul-14,Aug-14,"R2, R3",Data Processing,JDE
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Ravi Sai Kumar,Aug-14,Aug-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Sree,Anshul,Jul-14,Oct-14,R2,Profiling,SAP
+1,Catalyst,Story,Closed,Major,3600,0,10800,Fixed,Sree,Anshul,Aug-14,Oct-14,R2,Material Flow,SAP
+1,Catalyst,Story,Closed,Major,57600,0,57600,Fixed,Sree,Sree,Jul-14,Jul-14,R2,,
+1,Catalyst,Story,Closed,Major,115200,0,115200,Fixed,Sree,Sree,Jul-14,Jul-14,R2,,
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Jul-14,Jul-14,R2,,
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Jul-14,Jul-14,R2,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,57600,0,57600,Fixed,Sree,Sree,Jul-14,Aug-14,R2,Documentation,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Aug-14,Aug-14,R3,Data Processing,PLT
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Aug-14,Aug-14,R3,Data Processing,"JDE, SAP"
+1,Catalyst,Story,Closed,Major,7200,0,7200,Fixed,Sree,Sree,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,14400,14400,Fixed,Sree,Sree,Aug-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,7200,0,7200,Fixed,Sree,Sree,Aug-14,Oct-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Aug-14,Aug-14,R3,Profiling,"JDE, SAP"
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Aug-14,Aug-14,R3,Profiling,"JDE, SAP"
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Aug-14,Aug-14,R3,Profiling,"JDE, SAP"
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,7200,0,7200,Fixed,Sree,Sree,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,43200,0,43200,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Sep-14,Oct-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,7200,0,7200,Fixed,Sree,Raj,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Raj,Aug-14,Aug-14,R3,Profiling,GP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Raj,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Raj,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Raj,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,14400,0,14400,Fixed,Sree,Raj,Aug-14,Oct-14,R3,Profiling,JDE
+1,Catalyst,Story,Closed,Major,960,0,28800,Fixed,Raj,Manikantan Ashokkumar,Oct-14,Nov-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,57600,54000,3600,Fixed,Raj,Manikantan Ashokkumar,Oct-14,Oct-14,R3,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,3600,0,3600,Fixed,Raj,Manikantan Ashokkumar,Sep-14,Nov-14,R3,Material Flow,SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Raj,Manikantan Ashokkumar,Sep-14,Nov-14,R3,Material Flow,SAP
+1,Catalyst,Story,Closed,Major,28800,0,29280,Fixed,Raj,Manikantan Ashokkumar,Sep-14,Nov-14,R4,"Profiling, Search",SAP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Raj,Arab,Sep-14,Nov-14,R4,Profiling,SAP
+1,Catalyst,Story,Closed,Major,32400,0,28800,Fixed,Raj,Ravi Sai Kumar,Jul-14,Jul-14,R2,Data Processing,SAP
+1,Catalyst,Story,Closed,Major,28800,3600,25200,Fixed,Raj,Ravi Sai Kumar,Aug-14,Sep-14,R3,Platform,GP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Raj,Anshul,Nov-14,Nov-14,R4,Reports,JDE
+1,Catalyst,Story,Closed,Major,0,0,3600,Fixed,Raj,Anshul,Jul-14,Jul-14,R2,Profiling,SAP
+1,Catalyst,Story,Closed,Major,0,0,21600,Fixed,Raj,Anshul,Jul-14,Jul-14,R2,Profiling,JDE
+1,Catalyst,Story,Closed,Major,3600,3600,18000,Fixed,Raj,Anshul,Jul-14,Jul-14,R2,Profiling,JDE
+1,Catalyst,Story,Closed,Major,3600,0,3600,Fixed,Raj,Anshul,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,28800,10800,18000,Fixed,Raj,Sree,Jul-14,Aug-14,R2,Reports,JDE
+1,Catalyst,Story,Closed,Major,28800,18000,10800,Fixed,Raj,Sree,Aug-14,Aug-14,R3,Profiling,JDE
+1,Catalyst,Story,Closed,Major,14400,7200,7200,Fixed,Raj,Sree,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,28800,10800,18000,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Story,Closed,Major,14400,7200,7200,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Profiling,GP
+1,Catalyst,Story,Closed,Major,28800,0,28800,Fixed,Raj,Raj,Aug-14,Aug-14,R3,"Material Flow, Profiling, Search",SAP
+1,Catalyst,Story,Closed,Major,14400,7200,7200,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,14400,7200,7200,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Profiling,SAP
+1,Catalyst,Story,Closed,Major,14400,10800,3600,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Profiling,JDE
+1,Catalyst,Story,Closed,Major,14400,9000,5400,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Reports,JDE
+2,Catalyst,Story,Closed,Major,28800,18000,10800,Fixed,Raj,Raj,Aug-14,Aug-14,R3,Reports,JDE
+1,Catalyst,Story,Closed,Major,28800,10800,18000,Fixed,Raj,Raj,Sep-14,Oct-14,R4,Profiling,SAP
+1,Catalyst,Story,Closed,Medium,28800,0,28800,Fixed,Arab,Nandini Mankale,Aug-14,Oct-14,R3,Data Processing,PLT
+1,Catalyst,Story,Closed,Medium,10800,0,10800,Fixed,Raj,Sree,Jul-14,Jul-14,R2,Material Flow,SAP
+1,Catalyst,Story,In Progress,Blocker,28800,28800,0,Unresolved,Anshul,Manikantan Ashokkumar,Sep-14,Jan-15,R3,Material Flow,SAP
+1,Catalyst,Story,In Progress,Blocker,0,0,10800,Unresolved,Anshul,Sree,Jul-14,Mar-15,R2,Profiling,SAP
+1,Catalyst,Story,In Progress,Major,28800,28800,0,Unresolved,Ashna,Arab,Nov-14,Feb-15,R4,Platform,PLT
+1,Catalyst,Story,In Progress,Major,3600,3600,0,Unresolved,Haneep CR,Arab,Feb-15,Mar-15,R5,Platform,PLT
+1,Catalyst,Story,In Progress,Major,28800,14400,14400,Unresolved,Arab,Manikantan Ashokkumar,Oct-14,Mar-15,R4,"Profiling, Search",GP
+1,Catalyst,Story,In Progress,Major,28800,28800,0,Unresolved,Arab,Arab,Jan-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Story,In Progress,Major,28800,14400,14400,Unresolved,Anshul,Manikantan Ashokkumar,Oct-14,Mar-15,R4,"Profiling, Search",JDE
+1,Catalyst,Story,In Progress,Major,28800,28800,0,Unresolved,Anshul,Arab,Oct-14,Mar-15,R4,Material Flow,JDE
+1,Catalyst,Story,In Progress,Major,28800,28800,0,Unresolved,Anshul,Arab,Dec-14,Mar-15,R4,"Material Flow, Profiling",SAP
+1,Catalyst,Story,In Progress,Major,28800,28800,0,Unresolved,Anshul,Arab,Sep-14,Mar-15,R4,Profiling,GP
+1,Catalyst,Story,In Progress,Major,28800,28800,0,Unresolved,Anshul,Anshul,Jan-15,Mar-15,R5,Profiling,GP
+1,Catalyst,Story,In Progress,Major,28800,28800,0,Unresolved,Anshul,Anshul,Nov-14,Mar-15,R4,Profiling,GP
+1,Catalyst,Story,In Progress,Major,86400,86400,0,Unresolved,Anshul,Anshul,Feb-15,Mar-15,R5,Profiling,JDE
+1,Catalyst,Story,In Progress,Major,28800,28800,0,Unresolved,Anshul,Anshul,Feb-15,Mar-15,R5,Data Processing,SAP
+1,Catalyst,Story,In Progress,Major,28800,14400,14400,Unresolved,Anshul,Anshul,Aug-14,Mar-15,R3,Profiling,JDE
+1,Catalyst,Story,Open,Critical,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Dec-14,R4,Platform,PLT
+1,Catalyst,Story,Open,Low,0,0,0,Unresolved,Anshul,Manikantan Ashokkumar,Sep-14,Feb-15,R3,Data Processing,SAP
+1,Catalyst,Story,Open,Major,28800,28800,0,Unresolved,Bhuvan Arun,Haneep CR,Feb-15,Feb-15,R5,Search,PLT
+1,Catalyst,Story,Open,Major,28800,28800,0,Unresolved,Bhuvan Arun,Haneep CR,Feb-15,Feb-15,R5,Search,PLT
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Haneep CR,Haneep CR,Feb-15,Feb-15,R5,Data Processing,PLT
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Haneep CR,Arab,Jan-15,Jan-15,R5,Profiling,SAP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Haneep CR,Arab,Nov-14,Dec-14,R4,Platform,PLT
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Haneep CR,Arab,Nov-14,Nov-14,R4,Profiling,SAP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Haneep CR,Arab,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Haneep CR,Arab,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Story,Open,Major,14400,14400,0,Unresolved,Haneep CR,Sree,Aug-14,Oct-14,R3,Profiling,GP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Arab,Manikantan Ashokkumar,Oct-14,Mar-15,R3,Material Flow,SAP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Arab,Arab,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Arab,Arab,Sep-14,Oct-14,R4,Platform,PLT
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Nandini Mankale,Manikantan Ashokkumar,Sep-14,Oct-14,R4,Platform,PLT
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Manikantan Ashokkumar,Sep-14,Feb-15,R3,Material Flow,SAP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Manikantan Ashokkumar,Sep-14,Feb-15,R3,Material Flow,SAP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Arab,Oct-14,Nov-14,R4,Platform,SAP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Arab,Oct-14,Mar-15,R4,Platform,GP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Arab,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Anshul,Jan-15,Mar-15,R5,Profiling,JDE
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Anshul,Jan-15,Jan-15,R5,Profiling,JDE
+1,Catalyst,Story,Open,Major,28800,28800,0,Unresolved,Anshul,Anshul,Nov-14,Nov-14,R4,"Material Flow, Profiling",JDE
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Anshul,Dec-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Story,Open,Major,0,0,0,Unresolved,Anshul,Sree,Aug-14,Nov-14,R3,Profiling,JDE
+1,Catalyst,Story,Open,Medium,288000,288000,0,Unresolved,Nandini Mankale,Nandini Mankale,Oct-14,Oct-14,R3,Platform,PLT
+1,Catalyst,Story,Reopened,Major,14400,0,14400,Unresolved,Arab,Anshul,Nov-14,Dec-14,R4,Profiling,"GP, JDE, SAP"
+1,Catalyst,Story,Resolved,Blocker,28800,0,28800,Fixed,Madhan Bose,Sree,Aug-14,Mar-15,R3,Material Flow,SAP
+1,Catalyst,Story,Resolved,Major,28800,0,28800,Fixed,Ashna,Haneep CR,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Story,Resolved,Major,28800,0,28800,Fixed,Ashna,Manikantan Ashokkumar,Dec-14,Feb-15,R4,Reports,SAP
+1,Catalyst,Story,Resolved,Major,28800,0,28800,Fixed,Arab,Arab,Jan-15,Feb-15,R5,Platform,PLT
+2,Catalyst,Sub-task,Cancelled,Major,93600,93600,0,Unresolved,Nandini Mankale,Nandini Mankale,Oct-14,Dec-14,R3,Data Processing,PLT
+3,Catalyst,Sub-task,Cancelled,Major,36000,36000,0,Unresolved,Nandini Mankale,Nandini Mankale,Oct-14,Dec-14,R3,Data Processing,PLT
+1,Catalyst,Sub-task,Cancelled,Major,0,0,0,Unresolved,Sree,Sree,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Critical,14400,0,14400,Fixed,Ravi Sai Kumar,Sree,Jul-14,Jul-14,R2,Data Processing,
+1,Catalyst,Sub-task,Closed,Major,21600,0,43560,Fixed,Bhuvan Arun,Haneep CR,Nov-14,Dec-14,R3,Platform,PLT
+2,Catalyst,Sub-task,Closed,Major,39600,0,39600,Fixed,Bhuvan Arun,Arab,Sep-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,18000,0,18000,Fixed,Bhuvan Arun,Arab,Sep-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,25200,0,25200,Fixed,Bhuvan Arun,Arab,Sep-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Nov-14,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Nov-14,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Nov-14,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Nov-14,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Nov-14,R3,Profiling,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Oct-14,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Oct-14,R3,Profiling,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Oct-14,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Oct-14,R3,Profiling,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Oct-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Oct-14,Oct-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Nov-14,Feb-15,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Haneep CR,Haneep CR,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Haneep CR,Haneep CR,Nov-14,Nov-14,R3,Search,PLT
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Haneep CR,Haneep CR,Nov-14,Dec-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Haneep CR,Haneep CR,Nov-14,Dec-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,14400,28800,Fixed,Haneep CR,Haneep CR,Sep-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Sep-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Haneep CR,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Haneep CR,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Haneep CR,Anshul,Jul-14,Jul-14,R2,Profiling,
+2,Catalyst,Sub-task,Closed,Major,43200,14400,21600,Fixed,Haneep CR,Anshul,Aug-14,Nov-14,R2,Profiling,GP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Haneep CR,Anshul,Sep-14,Nov-14,R4,Profiling,SAP
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Arab,Haneep CR,Oct-14,Nov-14,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Arab,Haneep CR,Oct-14,Nov-14,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Arab,Haneep CR,Oct-14,Jan-15,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Arab,Haneep CR,Oct-14,Jan-15,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Arab,Haneep CR,Oct-14,Jan-15,R3,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Arab,Arab,Jun-14,Jun-14,R2,,
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Arab,Arab,Aug-14,Oct-14,R3,Material Flow,SAP
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Arab,Arab,Sep-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Arab,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,14400,0,21600,Fixed,Arab,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,14400,0,21600,Fixed,Arab,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,28800,21600,7200,Fixed,Anshul,Arab,Aug-14,Nov-14,R3,Material Flow,SAP
+1,Catalyst,Sub-task,Closed,Major,14400,7200,7200,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Closed,Major,28800,25200,3600,Fixed,Anshul,Anshul,Aug-14,Nov-14,R2,Profiling,JDE
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Anshul,Anshul,Aug-14,Nov-14,R2,Profiling,GP
+1,Catalyst,Sub-task,Closed,Major,21600,18000,3600,Fixed,Anshul,Anshul,Aug-14,Nov-14,R2,Profiling,GP
+3,Catalyst,Sub-task,Closed,Major,57600,36000,21600,Fixed,Anshul,Anshul,Aug-14,Nov-14,R2,Profiling,GP
+1,Catalyst,Sub-task,Closed,Major,21600,18000,3600,Fixed,Anshul,Anshul,Aug-14,Nov-14,R2,Profiling,GP
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Anshul,Anshul,Sep-14,Nov-14,R4,Profiling,SAP
+1,Catalyst,Sub-task,Closed,Major,57600,54000,3600,Fixed,Anshul,Raj,Jul-14,Nov-14,R2,Data Processing,GP
+1,Catalyst,Sub-task,Closed,Major,14400,10800,3600,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,14400,10800,3600,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+3,Catalyst,Sub-task,Closed,Major,57600,0,57600,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,60,0,60,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,60,0,60,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,60,0,60,Fixed,Sree,Sree,Sep-14,Sep-14,"R3, R4",Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,14400,0,14400,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+2,Catalyst,Sub-task,Closed,Major,25200,0,25200,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,3600,0,7200,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Sree,Sree,Sep-14,Sep-14,"R3, R4",Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,25200,3600,Fixed,Sree,Sree,Sep-14,Sep-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Raj,Raj,Aug-14,Oct-14,R3,Material Flow,SAP
+1,Catalyst,Sub-task,Closed,Major,28800,3600,25200,Fixed,Raj,Raj,Aug-14,Aug-14,R3,"Profiling, Search",SAP
+1,Catalyst,Sub-task,Closed,Major,28800,0,28800,Fixed,Raj,Raj,Aug-14,Oct-14,R3,Profiling,SAP
+1,Catalyst,Sub-task,Closed,Major,14400,3600,10800,Fixed,Raj,Raj,Aug-14,Oct-14,R3,Reports,JDE
+1,Catalyst,Sub-task,In Progress,Major,28800,0,57600,Unresolved,Haneep CR,Haneep CR,Sep-14,Sep-14,R3,Platform,SAP
+1,Catalyst,Sub-task,In Progress,Major,28800,0,28800,Unresolved,Haneep CR,Haneep CR,Sep-14,Sep-14,R3,Platform,SAP
+1,Catalyst,Sub-task,In Progress,Major,14400,14400,0,Unresolved,Arab,Arab,Oct-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,In Progress,Major,14400,14400,0,Unresolved,Arab,Arab,Oct-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,In Progress,Major,28800,28800,0,Unresolved,Arab,Arab,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,In Progress,Major,21600,7200,14400,Unresolved,Arab,Arab,Aug-14,Aug-14,R2,Profiling,SAP
+1,Catalyst,Sub-task,In Progress,Major,10800,10800,0,Unresolved,Ravi Sai Kumar,Sree,Jul-14,Aug-14,R2,Data Processing,SAP
+1,Catalyst,Sub-task,In Progress,Major,21600,21600,0,Unresolved,Anshul,Arab,Aug-14,Aug-14,R2,Material Flow,JDE
+1,Catalyst,Sub-task,In Progress,Major,14400,14400,0,Unresolved,Anshul,Arab,Aug-14,Aug-14,R2,Material Flow,JDE
+1,Catalyst,Sub-task,Open,Critical,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,"Documentation, Platform",PLT
+1,Catalyst,Sub-task,Open,Critical,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Bhuvan Arun,Haneep CR,Feb-15,Feb-15,R5,Platform,PLT
+1,Catalyst,Sub-task,Open,Major,14400,14400,0,Unresolved,Haneep CR,Haneep CR,Aug-14,Aug-14,R3,Platform,GBT
+1,Catalyst,Sub-task,Open,Major,14400,14400,0,Unresolved,Haneep CR,Haneep CR,Aug-14,Aug-14,R3,Platform,GBT
+1,Catalyst,Sub-task,Open,Major,14400,14400,0,Unresolved,Haneep CR,Haneep CR,Aug-14,Aug-14,R3,Platform,GBT
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Haneep CR,Haneep CR,Aug-14,Feb-15,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Haneep CR,Arab,Aug-14,Aug-14,R3,Material Flow,SAP
+1,Catalyst,Sub-task,Open,Major,0,0,0,Unresolved,Arab,Haneep CR,Aug-14,Aug-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Open,Major,14400,14400,0,Unresolved,Arab,Arab,Oct-14,Oct-14,R4,Platform,PLT
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Arab,Arab,Aug-14,Aug-14,R3,Material Flow,SAP
+1,Catalyst,Sub-task,Open,Major,7200,7200,0,Unresolved,Ravi Sai Kumar,Haneep CR,Aug-14,Aug-14,R3,Platform,GBT
+1,Catalyst,Sub-task,Open,Major,14400,14400,0,Unresolved,Ravi Sai Kumar,Arab,Aug-14,Aug-14,R3,Data Processing,SAP
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Ravi Sai Kumar,Nandini Mankale,Oct-14,Oct-14,R3,Data Processing,PLT
+1,Catalyst,Sub-task,Open,Major,14400,14400,0,Unresolved,Anshul,Haneep CR,Aug-14,Aug-14,R3,Platform,GBT
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Anshul,Arab,Aug-14,Aug-14,R3,Material Flow,SAP
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Raj,Raj,Aug-14,Aug-14,R3,Material Flow,JDE
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Raj,Raj,Aug-14,Aug-14,R3,"Profiling, Search",JDE
+1,Catalyst,Sub-task,Open,Major,28800,28800,0,Unresolved,Raj,Raj,Aug-14,Aug-14,R3,Profiling,JDE
+1,Catalyst,Sub-task,Resolved,Major,21600,0,21600,Fixed,Ashna,Haneep CR,Nov-14,Nov-14,R3,Search,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Nov-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Haneep CR,Nov-14,Feb-15,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,21600,7200,21600,Fixed,Haneep CR,Haneep CR,Aug-14,Aug-14,R2,Material Flow,JDE
+1,Catalyst,Sub-task,Resolved,Major,28800,0,43200,Fixed,Haneep CR,Arab,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,21600,7200,14400,Fixed,Haneep CR,Anshul,Jul-14,Aug-14,R2,Profiling,JDE
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Haneep CR,Anshul,Aug-14,Aug-14,R2,Material Flow,SAP
+1,Catalyst,Sub-task,Resolved,Major,28800,14400,14400,Fixed,Madhan Bose,Haneep CR,Aug-14,Mar-15,R3,Material Flow,PLT
+1,Catalyst,Sub-task,Resolved,Major,14400,0,14400,Fixed,Mayank Swarup,Arab,Aug-14,Aug-14,R2,Profiling,SAP
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Mayank Swarup,Anshul,Jul-14,Aug-14,"R2, R3",Profiling,JDE
+1,Catalyst,Sub-task,Resolved,Major,28800,7200,21600,Fixed,Arab,Arab,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,14400,14400,Fixed,Arab,Arab,Aug-14,Sep-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Arab,Arab,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Arab,Arab,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Arab,Arab,Aug-14,Aug-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Arab,Arab,Aug-14,Sep-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,7200,21600,Fixed,Arab,Anshul,Jul-14,Jul-14,R2,Profiling,
+1,Catalyst,Sub-task,Resolved,Major,21600,0,25380,Fixed,Arab,Anshul,Aug-14,Aug-14,R2,Material Flow,SAP
+1,Catalyst,Sub-task,Resolved,Major,10800,0,10800,Fixed,Ravi Sai Kumar,Anshul,Aug-14,Sep-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Anshul,Anshul,Jul-14,Aug-14,R2,Profiling,SAP
+1,Catalyst,Sub-task,Resolved,Major,43200,0,39600,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,,
+1,Catalyst,Sub-task,Resolved,Major,57600,28800,28800,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,,
+1,Catalyst,Sub-task,Resolved,Major,28800,18000,10800,Fixed,Anshul,Anshul,Jul-14,Aug-14,R2,,
+1,Catalyst,Sub-task,Resolved,Major,28800,25200,3600,Fixed,Anshul,Anshul,Jul-14,Aug-14,R2,,
+1,Catalyst,Sub-task,Resolved,Major,28800,25200,3600,Fixed,Anshul,Anshul,Jul-14,Aug-14,R2,,
+1,Catalyst,Sub-task,Resolved,Major,3600,0,7200,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,Profiling,JDE
+1,Catalyst,Sub-task,Resolved,Major,14400,10800,3600,Fixed,Anshul,Anshul,Jul-14,Jul-14,R2,Profiling,
+2,Catalyst,Sub-task,Resolved,Major,10800,0,28800,Fixed,Anshul,Anshul,Aug-14,Sep-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,7200,0,14400,Fixed,Anshul,Anshul,Aug-14,Sep-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Anshul,Anshul,Aug-14,Sep-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,28800,0,57600,Fixed,Anshul,Anshul,Aug-14,Sep-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,21600,0,21600,Fixed,Anshul,Anshul,Aug-14,Aug-14,R2,Material Flow,"JDE, SAP"
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Anshul,Anshul,Sep-14,Nov-14,R3,Platform,PLT
+1,Catalyst,Sub-task,Resolved,Major,14400,0,14400,Fixed,Anshul,Anshul,Sep-14,Sep-14,R3,Material Flow,SAP
+1,Catalyst,Sub-task,Resolved,Major,28800,0,36000,Fixed,Anshul,Anshul,Sep-14,Sep-14,R3,Documentation,SAP
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Sree,Arab,Aug-14,Aug-14,R2,Material Flow,JDE
+1,Catalyst,Sub-task,Resolved,Major,28800,0,57600,Fixed,Sree,Anshul,Jul-14,Aug-14,"R2, R3",Profiling,SAP
+1,Catalyst,Sub-task,Resolved,Major,28800,0,28800,Fixed,Sree,Anshul,Jul-14,Aug-14,R2,Profiling,SAP
+1,Catalyst,Sub-task,Resolved,Major,14400,0,14400,Fixed,Sree,Sree,Jul-14,Aug-14,R2,Data Processing,SAP
+1,Catalyst,Sub-task,Resolved,Major,14400,0,14400,Fixed,Sree,Sree,Jul-14,Aug-14,R2,Profiling,SAP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Jan-15,R4,Data Processing,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Jan-15,R4,Data Processing,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Jan-15,R4,Data Processing,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Arab,Sree,Jul-14,Nov-14,R2,Material Flow,JDE
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Arab,Sree,Jul-14,Dec-14,"R2, R4",Profiling,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Dec-14,R4,Profiling,JDE
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Arab,Raj,Oct-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Arab,Raj,Aug-14,Nov-14,R4,Material Flow,JDE
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,R4,Profiling,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Anshul,Ashna,Nov-14,Dec-14,R3,Data Processing,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Anshul,Ashna,Nov-14,Dec-14,R4,Data Processing,GP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Anshul,Sree,Jun-14,Oct-14,"R2, R4",Data Processing,JDE
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Anshul,Sree,Jun-14,Oct-14,"R2, R4",Data Processing,JDE
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Anshul,Sree,Jun-14,Oct-14,"R2, R4",Data Processing,JDE
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Anshul,Sree,Jun-14,Oct-14,"R2, R4",Data Processing,JDE
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Anshul,Sree,Aug-14,Dec-14,R4,Data Processing,SAP
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Raj,Raj,Oct-14,Nov-14,R4,Profiling,JDE
+1,Catalyst,Test,Cancelled,Major,0,0,0,Unresolved,Raj,Raj,Oct-14,Nov-14,R4,Profiling,JDE
+1,Catalyst,Test,Cancelled,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,R4,Profiling,JDE
+1,Catalyst,Test,In Progress,Major,7200,7200,0,Unresolved,Anshul,Sree,Sep-14,Dec-14,R4,Data Processing,SAP
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,,Data Processing,GP
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Jan-15,,Data Processing,JDE
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Ashna,Sree,Aug-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Ashna,Sree,Aug-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Critical,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+2,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R3,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+2,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+2,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Profiling,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+2,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Profiling,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Jan-15,Jan-15,R4,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Nov-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Nov-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Nov-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Nov-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Oct-14,Dec-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Nov-14,R4,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Dec-14,R3,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Dec-14,R3,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Nov-14,Dec-14,R4,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,R3,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Jan-15,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,R4,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,R4,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,R4,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,R3,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,R4,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Feb-15,Feb-15,R5,Search,"GP, JDE, SAP"
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Ashna,Ashna,Feb-15,Feb-15,R5,Search,"GP, JDE, SAP"
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Ashna,Jan-15,Mar-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Ashna,Jan-15,Feb-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Ashna,Jan-15,Jan-15,R4,Platform,
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Ashna,Jan-15,Jan-15,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Ashna,Nov-14,Nov-14,R4,Platform,PLT
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Jun-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Jun-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Jun-14,Oct-14,,Search,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Jun-14,Dec-14,,Search,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Jul-14,Nov-14,R2,Material Flow,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Jul-14,Nov-14,R2,Material Flow,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Jul-14,Oct-14,R2,Material Flow,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Nov-14,,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Sree,Aug-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Jan-15,Jan-15,R4,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Oct-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Nov-14,Nov-14,,Material Flow,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Nov-14,Nov-14,,Material Flow,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Nov-14,Nov-14,,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Dec-14,Dec-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Dec-14,Dec-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Dec-14,Dec-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Dec-14,Dec-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Dec-14,Dec-14,R4,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Dec-14,Jan-15,R4,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Jul-14,Oct-14,R2,Reports,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,R2,Reports,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,R2,Reports,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Search,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Search,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Material Flow,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Jan-15,,Material Flow,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Dec-14,,Material Flow,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Jan-15,,Material Flow,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Arab,Raj,Sep-14,Dec-14,,Material Flow,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Oct-14,Oct-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Oct-14,Nov-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Oct-14,Nov-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Oct-14,Nov-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Oct-14,Dec-14,R3,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Oct-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Nov-14,Nov-14,R3,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Nov-14,Jan-15,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Nov-14,Nov-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Nov-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,7200,7200,0,Unresolved,Anshul,Ashna,Dec-14,Dec-14,R4,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Dec-14,Dec-14,R3,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Ashna,Dec-14,Dec-14,R3,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Oct-14,Dec-14,,Data Processing,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Aug-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Aug-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Aug-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Aug-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Aug-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Aug-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Nov-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Sree,Sep-14,Oct-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Dec-14,Jan-15,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Dec-14,Dec-14,,Data Processing,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Aug-14,Dec-14,,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Aug-14,Dec-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Aug-14,Dec-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Aug-14,Dec-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Aug-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Aug-14,Nov-14,R3,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Sep-14,Nov-14,R4,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Anshul,Raj,Sep-14,Nov-14,R4,Data Processing,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Jan-15,Jan-15,,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Jan-15,Jan-15,,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Jan-15,Jan-15,,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Jan-15,Feb-15,,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Oct-14,Dec-14,R3,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Oct-14,Jan-15,R4,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Oct-14,Jan-15,R4,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Oct-14,Nov-14,R4,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Oct-14,Oct-14,R4,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Nov-14,Nov-14,R4,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Nov-14,Nov-14,R4,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Dec-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Dec-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Dec-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Dec-14,Jan-15,R4,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Nov-14,R3,Reports,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Nov-14,R3,Reports,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Nov-14,R3,Reports,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Nov-14,R3,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Nov-14,R3,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Nov-14,R3,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Nov-14,R3,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Aug-14,Nov-14,R3,Profiling,JDE
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Sep-14,Jan-15,R4,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Sep-14,Jan-15,R4,Profiling,SAP
+1,Catalyst,Test,Open,Major,0,0,0,Unresolved,Raj,Raj,Sep-14,Oct-14,R3,Profiling,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Oct-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Nov-14,,Material Flow,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Nov-14,,Material Flow,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Dec-14,,Material Flow,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Nov-14,,Material Flow,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Nov-14,,Material Flow,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Dec-14,R4,Profiling,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Profiling,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Material Flow,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Sep-14,Oct-14,,Material Flow,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Sep-14,Dec-14,,Material Flow,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Sep-14,Jan-15,,Material Flow,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Arab,Raj,Sep-14,Dec-14,,Material Flow,GP
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Raj,Raj,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Raj,Raj,Aug-14,Oct-14,,Profiling,JDE
+1,Catalyst,Test,Open,Medium,0,0,0,Unresolved,Raj,Raj,Aug-14,Jan-15,,Profiling,GP
+1,Project,Issue Type,Status,Priority,0,0,0,Resolution,Assignee,Reporter,\N,\N,Fix Version/s,Component/s,Epic/Theme

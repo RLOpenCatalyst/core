@@ -1,0 +1,100 @@
+.axisLabel {
+	padding: 4px 12px;
+	background-color: #f1f1f1;
+	color: #939393;
+	line-height: 36px;
+	-webkit-border-radius: 12px;
+	border-radius: 12px;
+	font-size: 14px;
+	font-weight: bold;
+	z-index: 2;
+	cursor: pointer;
+	text-transform: capitalize;
+	white-space: nowrap;
+	width:75%;
+	display:inline;
+}
+.axisLabel.over, .axisLabel:hover {
+background-color: #f8a918;
+color: #fff;
+}
+#content{
+	position: relative;
+	width: 99%;
+	left:0;
+	padding: 7px 10px;
+}
+.jarviswidget .widget-body{
+	min-height: 100px;
+    padding-bottom: 13px;
+    position: relative;
+}
+.clearfix::after, .clearfix::before, .inner-spacer::after, .inner-spacer::before, .jarviswidget-editbox::after, .jarviswidget-editbox::before, .jarviswidget::after, .jarviswidget::before, .jarviswidget > div::after, .jarviswidget > div::before{
+	content: " ";
+    display: block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+}
+.jarviswidget > header > .widget-icon:first-child{
+	margin-left:0;
+}
+.jarviswidget > header > .widget-icon{
+	display: block;
+    float: left;
+    font-size: 111%;
+    height: 32px;
+    line-height: 32px;
+    margin-right: -10px;
+    position: relative;
+    text-align: center;
+    width: 30px;
+}
+.jarviswidget > header > h2{
+	float: left;
+    margin-left: 10px !important;
+}
+.jarviswidget > header h2{
+	display: inline-block;
+    font-size: 14px;
+    font-weight: 400;
+    height: 100%;
+    letter-spacing: 0;
+    line-height: 34px;
+    margin: 0;
+    position: relative;
+    width: auto;
+}
+.jarviswidget > header{
+	background: #fafafa none repeat scroll 0 0;
+    border: 1px solid #c2c2c2;
+    color: #333;
+    height: 34px;
+    line-height: 40px;
+    padding: 0;
+}
+/*.jarviswidget-color-blueLight > header{
+	background: #ccdadf none repeat scroll 0 0;
+    color: #2b363c;
+    border-color:#92a2a8 !important;
+}*/
+.jarviswidget > div{
+	border-bottom-color: #ccc !important;
+    border-left-color: #ccc !important;
+    border-radius: 0;
+    border-right-color: #ccc !important;
+    border-style: none solid solid;
+    border-top: 0 none;
+    border-width: 0;
+    float: left;
+    font-size: 13px;
+    margin: 0;
+    padding: 13px 13px 0;
+    position: relative;
+    width: 100%;
+}
+.clearfix::after, .inner-spacer::after, .jarviswidget-editbox::after, .jarviswidget::after, .jarviswidget > div::after{
+	clear: both;
+}

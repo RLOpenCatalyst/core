@@ -1,0 +1,73 @@
+<style>
+.overFlowSmart{
+	overflow-y:auto;
+}
+</style>
+<!--azure arm tab-->
+<div class="tab-pane" id="l7">
+	<div class="panel-heading">
+		<h5 class="panel-title font-size-12">Azure ARM</h5>
+	</div>
+	<div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+		<div>
+			<div class="widget-body no-padding">
+				<div class="panel-group smart-accordion-default overFlowSmart">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse">Deployments</a>
+							</h4>
+						</div>
+						<div class="panel-collapse collapse in">
+							<div class="panel-body">
+								<div id="azureDeploymentContainer" class="">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<footer class="footer">
+		<div class="clearfix form-actions textCenter">
+			<button class="btn pull-right btn-danger right-button" title="Delete Stack" onclick="removeArmDeployment()"> <i class="fa fa-trash-o"></i></button>
+		</div>
+	</footer>
+	<!--Launch div ends here-->
+</div>
+<!--tab-pane l7 gets over -->
+
+<!--cloudforamtion events area-->
+<div class="modal fade" id="cftEventModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title">
+					<i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Event History
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div class="logsArea font-size-12">
+				</div>
+				<table class="templateTable table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%" style="display:none">
+					<thead>
+						<tr class="rowCustomStyle">
+							<td>Timestamp</td>
+							<td>Resource Name</td>
+							<td>Resource Type</td>
+							<td>Resource Status</td>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--cloudformation events area ends here-->

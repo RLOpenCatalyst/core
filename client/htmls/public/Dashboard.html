@@ -1,0 +1,188 @@
+<html>
+  <head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/Dashboard.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/application.css">
+  </head>
+  <body>
+    <div class="panel-group smart-accordion-default">
+      <div class="panel panel-default" id="accordion-Infrastructure">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion-Infrastructure" href="#collapseInfrastructure" > 
+                <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> 
+                <i class="fa fa-fw fa-minus-circle txt-color-blue"></i>
+                <b class="accordianName">Infrastructure</b>
+                <fieldset class="fieldsetCustomDashboard">
+                  <legend class="legendCustomDashboard legendCustomImp">Providers Annotation</legend>
+                  <span class="totalProviderLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  <span class="font-size11 marginright15">Total Provider</span>
+
+                  <span class="totalAwsLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  <span class="font-size11 marginright15">Aws</span>
+
+                  <span class="totalAzureLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  <span class="font-size11 marginright15">Azure</span>
+
+                  <span class="totalVmwareLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  <span class="font-size11 marginright15">VmWare</span>
+
+                  <span class="totalOpenstackCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  <span class="font-size11 marginright15">OpenStack</span>
+              </fieldset>
+              </a>
+           </h4>
+          </div>
+
+          <div class="row rowTemplate" style="display:none">
+          </div>
+
+          <div class="col-lg-3 col-md-3 col-xs-6 childProviderTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3>&nbsp;</h3>
+                <p>
+                  <div class="margintop-15">Provider name </div>
+                  <br>
+                  <span class="providerName font-bold"></span>
+                </p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-th"></i>
+              </div>
+              <span class="small-box-footer providerSpecificMoreInfo footer-box-css">
+                <!-- More info <i class="fa fa-arrow-circle-right"></i> -->
+              </span>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-3 col-xs-6 childTotalInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3 class="countTotalInstance">0</h3>
+                <p> <br>No. of Instances</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-laptop"></i>
+              </div>
+              <span class="small-box-footer managedUnmanagedCSS">
+              </span>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-3 col-xs-6 childManagedInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3 class="countMangedInstance">0</h3>
+                <p> <br>No. of Managed Instances</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-cube"></i>
+              </div>
+              <span class="small-box-footer managedUnmanagedCSS">
+              </span>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-3 col-xs-6 childUnmanagedInstanceTemplate" style="display:none">
+            <div class="small-box bg-aqua">
+              <div class="inner">
+                <h3 class="countUnmangedInstance">0</h3>
+                <p> <br>No. of Unmanaged Instances</p>
+              </div>
+              <div class="icon">
+                <i class="fa fa-external-link"></i>
+              </div>
+              <span class="small-box-footer convertUnmanagedtoManaged footer-box-css">
+               <!-- Convert <i class="fa fa-arrow-circle-right"></i> -->
+              </span>
+            </div>
+          </div>
+
+          <div id="collapseInfrastructure" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div id="infrastructurecardview">
+                <div class="row">
+                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Number of Providers">
+                    <div class="small-box bg-aqua">
+                      <div class="inner">
+                        <h3 id="totalProviders">&nbsp;</h3>
+                        <p>Total <br>Number of Providers</p>
+                      </div>
+                      <div class="icon">
+                        <i class="fa fa-th"></i>
+                      </div>
+                      <span id="providerMoreInfo" class="small-box-footer footer-box-css">
+                        <!-- More info <i class="fa fa-arrow-circle-right"></i> -->
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Instances">
+                    <div class="small-box bg-aqua">
+                      <div class="inner">
+                        <h3 id="totalInstances">0</h3>
+                        <p>Total <br>No. of Instances</p>
+                      </div>
+                      <div class="icon">
+                        <i class="fa fa-laptop"></i>
+                      </div>
+                      <span class="small-box-footer managedUnmanagedCSS">
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Managed Instances">
+                    <div class="small-box bg-aqua">
+                      <div class="inner">
+                        <h3 id="totalmanagedInstances">0</h3>
+                        <p>Total <br>No. of Managed Instances</p>
+                      </div>
+                      <div class="icon">
+                        <i class="fa fa-cube"></i>
+                      </div>
+                      <span class="small-box-footer managedUnmanagedCSS">
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Spend in Today">
+                    <div class="small-box bg-aqua">
+                      <div class="inner">
+                        <h3 id="totalunmanagedInstances">0</h3>
+                        <p>Total <br>No. of Unmanaged Instances</p>
+                      </div>
+                      <div class="icon">
+                        <i class="fa fa-external-link"></i>
+                      </div>
+                      <span class="small-box-footer managedUnmanagedCSS">
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="row noProviderView" style="display:none">
+                  <div id="noenvwarning" class="alert alert-warning noEnvWarning text-center">
+                      <span>Please add the provider details </span>
+                      <span>in settings to get the complete dashboard.</span>
+                  </div>
+                </div>
+                <div id="awsProviderView">
+                </div>
+                <div id="openstackProviderView">
+                </div>
+                <div id="vmwareProvidersView">
+                </div>
+                <div id="hpPlublicCloudProvidersView">
+                </div>
+                <div id="azureProvidersView">
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+    <script src="js/dashboard.js"></script>
+  </body>
+</html>

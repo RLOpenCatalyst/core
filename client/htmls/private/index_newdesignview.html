@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+        <meta charset="utf-8">
+        <!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
+        <title>Catalyst</title>
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="css/clipfont.css" >        
+        <link rel="stylesheet" type="text/css" media="screen" href="css/Catalyst.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="css/maintree.css" >
+
+<style>
+
+#clickdisabler{
+    width:100%;
+    position:absolute;
+    z-index: 100;
+    height:100px;
+    display: none;
+}
+#setting_tree > .icon{
+    font-size:18px;
+}
+/*#content{
+    height:100%!important;
+}*/
+</style>
+        <script>
+function showLoader(){
+    $('#clickdisabler').show();
+}
+function hideLoader(){
+$('#clickdisabler').hide(); 
+}
+var a,b,x;
+String.prototype.capitalizeFirstLetter = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+        </script>
+    </head>
+    <body class="custom-theme">
+    <div id="clickdisabler"></div>
+        <!-- possible classes: minified, fixed-ribbon, fixed-header, fixed-width-->
+        <!-- HEADER -->
+        <!-- Header starts here -->
+        <header>
+            <nav class="navbar navbar-default">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                    <div class="navbar-brand" style="width:220px;"><!-- <div class="logo"></div> --><img src="img/logo.png" style="width:112px;height:40px" alt="logo"></div>
+                </div>
+
+    
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <!--left side navbar-->
+                  <ul class="nav navbar-nav" style="margin-top:20px;margin-left:28px">
+                    <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
+                        <a class="active navigationTab" id="workZoneNew" style="font-size:14px!important" href="#" onclick="setleftnavigation(this,'org');">
+                            <i class="fa fa-credit-card txt-color-blue"></i>&nbsp;WORKZONE 
+                        </a>
+                    </li>
+                    <li class="left-projects-links hidden" style="margin-left:16px;" data-target="#blueprints"  navigation="blueprints">
+                            <!-- <a href="#ajax/Aws-Production.html" style="font-size:14px!important" id="designNew" onclick="setleftnavigation(this,'Design');" class="navigationTab">
+                                <i class="fa fa-puzzle-piece"></i>&nbsp;DESIGN
+                            </a> -->
+                            <a href="#" style="font-size:14px!important" id="designNew" onclick="setleftnavigation(this,'Design');" class="navigationTab">
+                                <i class="fa fa-puzzle-piece"></i>&nbsp;DESIGN
+                            </a>
+                        </li>
+
+                        <!--track-->
+                    <li class="left-projects-links hidden" style="margin-left:16px;margin-right:16px;" data-target="#Track" navigation="Track">
+                                <a class="dropdown-toggle navigationTab" style="font-size:14px!important" href="#ajax/trackSettings.html" id="trackNew"  onclick="setleftnavigation(this,'Track');"><i class="fa fa-anchor"></i>&nbsp;TRACK</a>
+                            </li>
+                            <!--track ends here-->
+                    
+                  </ul>
+                  <!--right side navbar-->
+                  <ul class="nav navbar-nav navbar-right" style="font-size:14px!important;margin-top:20px">
+                    <li class="left-projects-links active" id="liuserinfo" style="color:white;margin-right:16px;"></li>
+                    <!-- <li class="left-projects-links"></li> -->
+                    
+                    <!--Settings tab-->
+                    <li class="left-projects-links hidden" data-target="#Settings"   navigation="Settings">
+                                <a class="dropdown-toggle navigationTab" style="font-size:14px!important" href="#ajax/Settings/Dashboard.html" id="settingsNew"  onclick="setleftnavigation(this,'Settings');"><i class="fa fa-cog"></i>&nbsp;SETTINGS</a>
+                            </li>
+                            <li class="left-projects-links"><a style="font-size:14px!important" href="http://help.relevancelab.com/dokuwiki" target="_blank" id="dokuNew"><i class="fa fa-question"></i>&nbsp;Help</a>
+                            </li>
+
+                        <li id="logout" class="btn-header transparent pull-right logouttop">
+                            <!-- ../auth/signout -->
+                        <span><a href="#" logoutlink="/auth/signout" title="Sign Out" style="font-size:16px!important;">
+                            <i class="fa fa-sign-out"></i>
+                            </a></span></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+    <!--HEADER ends here -->
+    <!-- Left panel : Navigation area -->
+    <!-- Note: This width of the aside area can be adjusted through LESS variables -->
+    <aside id="left-panel">
+
+        <div id="Workspace1">
+            
+            <div style="height:40px;background-color:#40baf1;color:white;border-right:1px solid silver;"> 
+                
+                <div style="margin-top:0px;font-size:11pt;font-weight:bold;padding-left:10px;padding-top:10px" class="hiddencollapse">WORKZONE</div>
+                
+            </div>
+            <div id="tree" style="font-size:12px;"></div>
+            <!-- <span class="minifyme"> <i class="fa fa-arrow-circle-left hit"></i> </span> -->
+        </div>
+        <!--for track-->
+
+        <div id="trackShow" style="display:none;">
+            
+            <div style="height:40px;background-color:#40baf1;color:white;border-right:1px solid silver;"> 
+                
+                <div style="margin-top:0px;font-size:11pt;font-weight:bold;padding-left:10px;padding-top:10px" class="hiddencollapse">TRACK</div>
+                
+            </div>
+            <div id="trackTree" style="font-size:12px;"></div>
+            <!-- <span class="minifyme"> <i class="fa fa-arrow-circle-left hit"></i> </span> -->
+        </div>
+
+        <!--track ends here-->
+        <div id="Settings_nav" style="display:none;">
+            
+            <div style="height:40px;background-color:#40baf1;color:white;border-right:1px solid silver;"> 
+                
+                <div style="margin-top:0px;font-size:11pt;font-weight:bold;padding-left:10px;padding-top:10px" class="hiddencollapse">SETTINGS</div>
+                
+            </div>
+            <div id="setting_tree" style="font-size:12px;"></div>
+            <!-- <span class="minifyme"> <i class="fa fa-arrow-circle-left hit"></i> </span> -->
+        </div>
+       
+
+        <nav style="font-size:12px!important;">
+            
+  
+                
+                
+                
+            <!-- </ul> -->
+            <ul class="menu-item-parentdemo" id="Workspace">
+                
+                
+            </ul>
+           <ul class="menu-item-parentdemo hidden" id="Track">
+                                 
+            </ul>
+            <ul class="hidden" id="blueprints" providerselected="aws">
+                <li id="designMenu" class="tree-container active open">
+                    <a href="#">
+                        <!-- <i class="fa fa-lg fa-fw fa-sitemap"></i> -->
+                        <span class="menu-item-parent trackAlign" style="font-weight:bold">PROVIDERS</span>
+
+                        <div class="tree-toggler" id="tree-toggler">
+                            <span class="fa-chevron-left"></span> <span class="fa-chevron-right"></span>
+                        </div>
+                    </a>
+
+                    <ul id="designTree" class="tree-main-menu" style="display:block">
+                        <li class='providerType' id="treeAWSItem" data-ref="awsProviders" data-link="ajax/Aws-Production.html?provider=aws">
+                            <div class="devops_providers" onclick="$('#blueprints').attr('providerselected','aws');">
+                                <div class="iconSprite awsIcon" title="AWS"></div>
+                                <span class="title"> AWS </span>
+                                <span class="icon-arrow"></span>
+                            </div>
+                        </li>
+                        <li class='providerType' id="treeAzureItem" data-ref="azureProviders" data-link="ajax/DesignBlueprintAzure.html?provider=azure" >
+                            <div  onclick="$('#blueprints').attr('providerselected','azure');" class="devops_providers">
+                                <div class="iconSprite azureIcon" title="Azure"></div>
+                                <span class="title"> Azure </span>
+                                <span class="icon-arrow"></span>
+                            </div>                        
+                        </li>
+                        <li class='providerType' id="treeDataCentreItem" data-ref="datacenterProviders" data-link="ajax/RL-DevOps.html?provider=dataCenter">
+                            <div  class="devops_providers" onclick="$('#blueprints').attr('providerselected','dataCenter');">
+                                <div class="iconSprite dataCentreIcon" title="Data Centre"></div>
+                                <span class="title"> Data Center </span>
+                                <span class="icon-arrow"></span>
+                            </div>                    
+                       </li>
+                        <li class='providerType' id="treeOpenStackItem" data-ref="openstackProviders" data-link="ajax/DesignBlueprint.html?provider=os">
+                            <div  onclick="$('#blueprints').attr('providerselected','openstack');" class="devops_providers">
+                                <div class="iconSprite openstackIcon" title="Open Stack"></div>
+                                <span class="title"> Open Stack </span>
+                                <span class="icon-arrow"></span>
+                            </div>
+                        </li>
+                        <li class='providerType' id="treeHPItem" data-ref="hpPlublicCloudProviders" data-link="ajax/DesignBlueprintpc.html?provider=hp">
+                            <div  onclick="$('#blueprints').attr('providerselected','hppubliccloud');"  class="devops_providers">
+                                <div class="iconSprite hpIcon" title="HP Public Cloud"></div>
+                                <span class="title"> HP Helion </span>
+                                <span class="icon-arrow"></span>
+                            </div>
+                        </li>
+                        <li class='providerType' id="treeVMWareItem" data-ref="vmwareProviders" data-link="vmware.html?provider=vmw">
+                            <div onclick=""  class="devops_providers" onclick="$('#blueprints').attr('providerselected','vmw');">
+                                <div class="iconSprite awsIcon" title="AWS"></div>
+                                <span class="title"> VMWare </span>
+                                <span class="icon-arrow"></span>
+                            </div>
+                        </li>
+                        <li class='providerType' id="treeCloudStackItem" data-ref="cloudstackProviders" data-link="ajax/cloudstack.html?provider=cloudstack">
+                            <div  class="devops_providers" onclick="$('#blueprints').attr('providerselected','cloudstack');">
+                                <div class="iconSprite cloudstackIcon" title="Cloud Stack"></div>
+                                <span class="title">Cloud Stack</span>
+                                <span class="icon-arrow"></span>
+                            </div>                    
+                        </li>
+                        <li class='providerType' id="treeDockerItem" data-ref="dockerProviders" data-link="ajax/Docker.html?provider=docker">
+                            <div  class="devops_providers" onclick="$('#blueprints').attr('providerselected','docker');">
+                                <div class="iconSprite dockerIcon" title="Docker"></div>
+                                <span class="title"> DOCKER</span>
+                                <span class="icon-arrow"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+        </nav>
+        <span class="minifyme"> <i class="fa fa-arrow-circle-left hit"></i> </span>
+    </aside>
+    <!-- END NAVIGATION -->
+    <!-- MAIN PANEL -->
+    <div id="main" role="main">
+        <!-- RIBBON -->
+        <div id="ribbon">
+            <div class="demo1">
+                <div id="hide-menu" style="margin-top:-3px;">
+                    <span> <a href="javascript:void(0);" title="Collapse Menu">
+                    <i class="fa fa-sitemap txt-color-lightwhite"></i></a> </span>
+                </div>
+            </div>
+            <!-- breadcrumb -->
+            <ol class="breadcrumb">
+                <!-- This is auto generated -->
+            </ol>
+        </div>
+        
+        <!-- MAIN CONTENT -->
+        <div id="content">
+        </div> 
+        <!--hiding the comment for no org available when the organization and environments are present-->
+        <div id="noenvwarning" class="hidden alert alert-warning noEnvWarning"><img style="width:50px;height:40px" src="img/warning.png" alt="warning"/><span style="margin-left:20px;">There are no Workzone items to display. Please check your </span><ul style="list-style-type:none;text-align:center"><li class="left-projects-links hidden" data-target="#Settings" navigation="Settings">
+                                <a class="navigationTab" href="#ajax/Settings/Dashboard.html" id="settingsNewClick"  onclick="setleftnavigation(this,'Settings');">&nbsp;SETTINGS</a></li></ul>
+        </div>
+
+        <!--noEnv Error for consumer and designer-->
+        <div id="noEnvError" class="hidden alert alert-warning noEnvWarningConsumerDesigner"><img style="width:50px;height:40px" src="img/warning.png" alt="warning"/><span style="margin-left:20px;">There are no Workzone items to display.</span>
+        </div>
+        <!--error ends-->
+        <!-- END MAIN CONTENT -->
+    </div>
+    <!-- END MAIN PANEL -->
+    
+    <div id="shortcut" style="margin-left: 100px;margin-top: 90px;">
+        <ul class="orgsList">
+            
+            
+        </ul>
+    </div>
+    <!-- END SHORTCUT AREA -->
+    <div id="main-collapse" style="margin-top: 50px;">
+        <ul class="" style="width:100%">
+            
+            <li class="collapseActive">
+                <a href="#ajax/Dev.html">WORKZONE</a>
+            </li>
+            
+            <li>
+                <a href="#ajax/Aws-Production.html">DESIGN</a>
+            </li>
+            
+            <li>
+                <a href="#ajax/Dashboard.html"><span>TRACK</span></a>
+            </li>
+            
+            <li>
+                <a href="#ajax/Settings/OrgList.html"><span>SETTINGS</span></a>
+            </li>
+        </ul>
+    </div>
+    
+    <script src="js/libs/jquery-2.0.2.min.js"></script>
+    <script src="js/libs/jquery-ui-1.10.3.min.js"></script>
+    <script src="js/libs/modernizr-2.5.3.min.js"></script>
+    <script src="js/select2.min.js"></script>
+    <script src="js/bootstrap-treeview.js"></script>
+    
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <!-- CUSTOM NOTIFICATION -->
+    <script src="js/notification/SmartNotification.min.js"></script>
+    <!-- JARVIS WIDGETS -->
+    <script src="js/smartwidgets/jarvis.widget.min.js"></script>
+    <script src="js/plugin/bootstrap-wizard/jquery.bootstrap.wizard.js"></script>
+    <script src="js/plugin/bootbox/bootbox.min.js"></script>
+    
+    <script src="/private/js/jquery.dataTables.min.js"></script>
+    <script src="js/jquery.tablesorter.min.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/additional-methods.min.js"></script>
+   <script src="/socket.io/socket.io.js"></script>
+   <!-- <script src="js/plugin/modalcollapse/modalcollapse.js"></script>-->
+
+    <script src="js/app.js"></script>
+
+    <script src="js/dev/dev.js"></script>
+    
+
+    
+    
+    <!-- MAIN APP JS FILE -->
+    <script type="text/javascript">
+
+
+
+$(document).ready(function() {
+    var hasSettingsPermission = false;
+    if (haspermission("settings", "read")) {
+        hasSettingsPermission = true;
+    }
+    if (!hasSettingsPermission) {
+        $('#settingsNew').addClass('hidden');
+        $('#noenvwarning').addClass('hidden');
+        $('#noEnvError').removeClass('hidden');
+    }
+
+    var hasDesignPermission = false;
+    if (haspermission("design", "read")) {
+        hasDesignPermission = true;
+    }
+
+    if (!hasDesignPermission) {
+        $('#designNew').addClass('hidden');
+        $('#noenvwarning').addClass('hidden');
+        $('#noEnvError').removeClass('hidden');
+    }
+});
+
+function foldTreeForSetting() {
+    var list = $('#setting_tree').find('.fa-angle-down'),
+        len = list.length;
+    for (var i = 0; i < len; i++) {
+        list.eq(i).trigger('click');
+    }
+}
+function resetProviderMenu(){
+    //As soon as click on "Design" button, reset the first provider available.
+    $("#designTree > li").removeClass("open activ selectedProvider");
+    var providerLinkBool = true;
+
+
+    $("#designTree li.providerAccount").find("a").removeClass("itemSelected");
+    $("#designTree > li").each(function(index,elm){        
+        $(elm).has("ul").find("li").each(function(index,el){
+            if(providerLinkBool){
+                $(el).find("a").attr('class', 'itemSelected');
+                location.href = $(el).find("a").attr("href");
+                providerLinkBool = false;
+                $(el).parents("li").removeClass("open active").addClass("open activ");                
+                $("#designTree").attr("lastSelected", $(el).parents("li").attr("treeIndex"));
+            }
+        });
+    });
+
+
+
+}
+
+function setleftnavigation(toplink, breadcrumbHeader) {
+    var TabID = $(toplink).attr('id');
+    if (TabID === "workZoneNew") {
+        loadTreeFuncNew();
+
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+        // selectFirstEnv();
+
+    } else if (TabID === "designNew") {
+        $('#Workspace1').hide();
+        $('#Settings_nav').hide();
+        $('#trackShow').hide();
+        //resetProviderMenu();
+    } else if (TabID === "settingsNew") {
+        $('#tree').empty()
+        $('#trackTree').empty();
+        loadSettingsTree();
+        foldTreeForSetting();
+        $('#Workspace1').hide();
+        $('#trackShow').hide();
+        $('#Settings_nav').show();
+
+    } else if (TabID === "settingsNewClick") {
+        $('#tree').empty();
+        $('#trackTree').empty();
+        loadSettingsTree();
+        foldTreeForSetting();
+        $('#Workspace1').hide();
+        $('#trackShow').hide();
+        $('#Settings_nav').show();
+
+    } else if (TabID === "trackNew") {
+        $('#tree').empty();
+        $('#trackTree').empty();
+        getTrackTreeDetails();
+        loadTrackTree();
+        $('#Workspace1').hide();
+        $('#Settings_nav').hide();
+        $('#trackShow').show();
+    }
+
+    if ($(toplink).hasClass('active')) {
+        //alert('about to return setleftnavigation:' + $(toplink).attr('href'));
+        if ($(toplink).attr('id') == 'workZoneNew') {
+            //selectFirstEnv();
+            selectEnv();
+        }
+        // alert('returning');
+        return;
+    }
+    //showLoader();
+    //$('a[onclick*="setleftnavigation"]').removeClass('active').find("i").removeClass('txt-color-blue');
+    $('.navigationTab').removeClass('active').find("i").removeClass('txt-color-blue');
+    $(toplink).addClass('active').find('i').addClass('txt-color-blue');
+    $('nav > ul').addClass('hidden'); //hiding all navigation elements
+    var navbar = $(toplink).closest("li").attr('navigation');
+    $('#Workspace1').addClass('hidden');
+    if (navbar.length) {
+        var navs = navbar.split(',');
+        for (var i = 0; i < navs.length; i++) {
+            $('#' + navs[i]).removeClass('hidden').css('display', '');
+        }
+
+    }
+    if (breadcrumbHeader == 'org') {
+        window.selectedOrgName = $('.orgSelected').find('span').text();
+        //selectFirstEnv();
+        //selecting the first item in the org tree.
+    } else {
+        //Reverting the warning message when no org present
+        $('#content').removeClass('hidden').removeAttr('style','height:100% !important');
+        $('#noenvwarning').addClass('hidden');
+        $('#noEnvError').addClass('hidden');
+        $('ol.breadcrumb').removeClass('hidden');
+        window.selectedOrgName = breadcrumbHeader;
+    }
+    //Setting local storage with last selected tab
+    localStorage.setItem("lasttabselected", $(toplink).attr('id'));
+    if ($(toplink).attr('id') == 'workZoneNew') {
+        //alert('about to call selectFirstEnv');
+        // alert('selecting first env from setleftnavigation');
+        //selectFirstEnv();
+        selectEnv();
+    }
+    //alert($(toplink).attr('id'));
+
+    if (TabID === "designNew") {
+        if($("body").hasClass("minified")){
+           $("body").removeClass("minified");
+        }
+        if( ($(window).width() > 320) && ($(window).width() <= 767) ){
+            $("#left-panel").removeClass("leftPanelExpn").addClass("leftPanelMini");
+            $("#main").removeClass("mainLtExpn").addClass("mainLtMini");
+        }else if( $(window).width() > 767 ){
+            $("#left-panel").removeClass("leftPanelMini").addClass("leftPanelExpn");
+            $("#main").removeClass("mainLtMini").addClass("mainLtExpn");
+        }
+    }else{
+        $("#left-panel").attr("class","");
+        $("#main").attr("class","");
+        $("body").removeClass("close-tree");
+    }
+}
+
+//Expanding the providers tree
+
+/*$('#blueprints').find('li a').first().trigger('click');
+    $('#blueprints').find('ul li a').first().trigger('click');*/
+var serviceURL = "../d4dMasters/";
+window.selectedOrgName = $('.orgSelected').text().trim();
+//alert('in');
+var SettingTreeJson = [{
+        "name": "organizationsetup",
+        "text": "Organization Setup",
+        "icon": "fa fa-lg fa-fw fa-building",
+        "nodetype": "org",
+        "nodes": [{
+            "name": "organizations",
+            "text": "Organizations",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/OrgList.html",
+            "parent": "org",
+            "nodetype": "OrgList",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-building"
+
+        }, {
+            "name": "organizations",
+            "text": "Business Groups",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ProductGroupList.html",
+            "parent": "org",
+            "nodetype": "ProductGroupList",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-th"
+
+        }, {
+            "name": "organizations",
+            "text": "Projects",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ProjectList.html",
+            "parent": "org",
+            "nodetype": "ProjectList",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-tags"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+
+    }, {
+        "name": "devopssetup",
+        "text": "DevOps Setup",
+        "icon": "fa fa-lg fa-fw fa-qrcode",
+        "nodetype": "devops",
+        "nodes": [{
+                "name": "organizations",
+                "text": "Chef Server",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/ConfigManagementList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-random"
+
+            },{
+                "name": "organizations",
+                "text": "Puppet Server",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/PuppetServerList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-random"
+
+            },{
+                "name": "organizations",
+                "text": "Nexus Server",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/NexusServerList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-random"
+
+            },{
+                "name": "organizations",
+                "text": "Environments",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/EnvironmentConceptList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-tint",
+                "parent": "devops",
+                "nodetype": "EnvironmentConceptList"
+
+            }, {
+                "name": "organizations",
+                "text": "Docker",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/DockerTemplatesList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-hdd-o"
+
+            }, {
+                "name": "organizations",
+                "text": "Jenkins",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/JenkinsConfigList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-link"
+
+            }, {
+                "name": "organizations",
+                "text": "Providers",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/ProvidersList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-sitemap"
+            },{
+                "name": "organizations",
+                "text": "CMDB",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/cmdbList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-database"
+            },
+
+        ],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+    }, {
+        "name": "usersetup",
+        "text": "Users Setup",
+        "icon": "fa fa-lg fa-fw  fa-tasks",
+        "nodes": [{
+            "name": "organizations",
+            "text": "User Roles",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/RolesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-th-list"
+
+        }, {
+            "name": "organizations",
+            "text": "Users",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/UsersList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-user"
+
+        }, {
+            "name": "organizations",
+            "text": "Teams",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/TeamsList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-users"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+    }, {
+        "name": "gallerysetup",
+        "text": "Gallery Setup",
+        "icon": "fa fa-lg fa-fw fa-building",
+        "nodes": [{
+            "name": "templates",
+            "text": "Template Types",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/DesignTemplateTypesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-files-o"
+
+        }, {
+            "name": "organizations",
+            "text": "Templates",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/TemplatesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-files-o"
+
+        }, {
+            "name": "organizations",
+            "text": "Service Command",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ServiceCommandList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-terminal"
+
+        }, {
+            "name": "organizations",
+            "text": "VMImage",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ImagesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-image"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+    }, {
+        "name": "track",
+        "text": "Track Setup",
+        "nodes": [{
+            "name": "templates",
+            "text": "Dashboard",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/DashboardSettings.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-files-o"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa-lg fa-fw fa fa-tachometer"
+    }, {
+        "name": "userguide",
+        "text": "User Guide",
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "ajax/Settings/Catalyst-Guide.html",
+        "target": "_blank",
+        "icon": "fa-lg fa-fw fa fa-book"
+    }
+
+];
+
+function loadSettingsTree() {
+    $('#setting_tree').empty().treeview({
+        data: SettingTreeJson,
+        enableLinks: true,
+        collapseIcon: 'fa fa-angle-down',
+        expandIcon: 'fa fa-angle-right',
+        levels: -1,
+        onNodeSelected: function(event, node) {
+            /*Draw the braedcrumb from ol*/
+            //var ol = $("#ribbon ol.breadcrumb");
+            //if(ol.children().length == 0){
+
+            drawBreadCrumb1();
+            event.stopPropagation();
+            //  }
+        }
+    });
+
+}
+
+//changes for track Tree....
+
+
+
+
+var trackTree;
+function getTrackTreeDetails(){
+  //  alert('getting tree details');
+    $.ajax({
+        type: "get",
+        dataType: "json",
+        async: false,
+        url: '../track',
+        success: function(data){
+            trackTree = [];
+            var trackObj={Provider:[],Monitoring:[],Logs:[],Notifications:[]};
+           // alert(JSON.stringify(trackObj));
+            for (var i = 0; i < data.length; i++) {
+                //alert("data.type "+data[i].type);
+                if(data[i].type==='Provider'){
+                   // alert(data[i].name);
+                    trackObj.Provider.push({
+                        "name": "providerData",
+                        "text": data[i].name,
+                        "borderColor": "#000",
+                        "href": 'javascript:void(0)',
+                        "parent": "data",
+                        "data-href":data[i].url,
+                        "nodetype": "dataList",
+                        "selectable": true,
+                        "icon": "fa fa-fw fa-1x fa-desktop"
+                    });
+                }else if(data[i].type==='Monitoring'){
+                    trackObj.Monitoring.push({
+                        "name": "monitoringData",
+                        "text": data[i].name,
+                        "borderColor": "#000",
+                        "href": 'javascript:void(0)',
+                        "parent": "data",
+                        "data-href":data[i].url,
+                        "nodetype": "dataList",
+                        "selectable": true,
+                        "icon": "fa fa-fw fa-1x fa-desktop"
+                    });
+                }else if(data[i].type==='Logs'){
+                    trackObj.Logs.push({
+                        "name": "logData",
+                        "text": data[i].name,
+                        "borderColor": "#000",
+                        "href": 'javascript:void(0)',
+                        "parent": "data",
+                        "data-href":data[i].url,
+                        "nodetype": "dataList",
+                        "selectable": true,
+                        "icon": "fa fa-fw fa-1x fa-desktop"
+                    });
+                }else if(data[i].type==='Notifications'){
+                    trackObj.Notifications.push({
+                        "name": "notificationData",
+                        "text": data[i].name,
+                        "borderColor": "#000",
+                        "href": 'javascript:void(0)',
+                        "parent": "data",
+                        "data-href":data[i].url,
+                        "nodetype": "dataList",
+                        "selectable": true,
+                        "icon": "fa fa-fw fa-1x fa-desktop"
+                    });
+                }
+            }
+            
+            console.table(trackObj);
+            if (trackObj.Provider.length > 0) {
+
+                trackTree.push({
+                    "name": "providers",
+                    "text": "Providers",
+                    "icon": "fa fa-tasks",
+                    "nodetype": "providers",
+                    "nodes": trackObj.Provider,
+                    "borderColor": "#000",
+                    "selectable": false,
+                    "href": "javascript:void(0);"
+                });
+            }
+            if (trackObj.Monitoring.length > 0) {
+                trackTree.push({
+                    "name": "monitoring",
+                    "text": "Monitoring",
+                    "icon": "fa fa-line-chart",
+                    "nodetype": "monitoring",
+                    "nodes": trackObj.Monitoring,
+                    "borderColor": "#000",
+                    "selectable": false,
+                    "href": "javascript:void(0);"
+                });
+            }
+            if (trackObj.Logs.length > 0) {
+                trackTree.push({
+                    "name": "logs",
+                    "text": "Logs",
+                    "icon": "fa fa-bar-chart",
+                    "nodetype": "logs",
+                    "nodes": trackObj.Logs,
+                    "borderColor": "#000",
+                    "selectable": false,
+                    "href": "javascript:void(0);"
+                });
+            }
+            if (trackObj.Notifications.length > 0) {
+                trackTree.push({
+                    "name": "notifications",
+                    "text": "Notifications",
+                    "icon": "fa fa-bell-o",
+                    "nodetype": "notifications",
+                    "nodes": trackObj.Notifications,
+                    "borderColor": "#000",
+                    "selectable": false,
+                    "href": "javascript:void(0);"
+                });
+            }
+            
+           // }
+
+            console.log(JSON.stringify(trackTree));
+        }
+    })
+}
+
+
+
+
+function loadTrackTree(){
+   // alert('tree loading');
+    $('#trackTree').treeview({
+        data: trackTree, 
+        enableLinks: true,
+        collapseIcon: 'fa fa-angle-down',
+        expandIcon: 'fa fa-angle-right',
+        levels: -1,
+        onNodeSelected: function(event, node) {
+            //alert(JSON.stringify(node));
+            //alert('click');
+            $("#content").empty();
+            $("#content").attr('style', 'height: 100%!important').append('<iframe src='+ node['data-href']+' style="width: 101% ! important; height: 97%! important; border: medium none;"></iframe>');
+            console.log($("#content")[0].innerHTML);
+            event.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+    });
+}
+
+
+
+
+
+var treeData;
+function getTreeData(){
+    $.ajax({
+        type: "get",
+        dataType: "json",
+        async: false,
+        url: "../organizations/getTreeForbtv",
+        success: function(data1) {
+            treeData = data1;
+            console.log('ajax success');
+            //alert('New Json' + JSON.stringify(data1));
+            //lol=data1;
+                     
+            //alert('loading tree');
+            console.log(data1);
+           
+        }
+    });
+
+}
+
+function buildTree(){
+     $('#tree').empty().treeview({
+                data: treeData,
+                enableLinks: true,
+                collapseIcon: 'fa fa-angle-down',
+                expandIcon: 'fa fa-angle-right',
+                levels: 1,
+                onNodeSelected: function(event, node) {
+                     
+                    window.selectedOrgName = $('li[data-nodeid="' + node.nodeId + '"]').first().find('a').first().attr('orgname');
+                    //console.log("Org Selected:" + window.selectedOrgName );
+                    localStorage.setItem('selectedOrgName', $('li[data-nodeid="' + node.nodeId + '"]').first().find('a').first().attr('orgname'));
+                    localStorage.setItem('selectedOrgId', $('li[data-nodeid="' + node.nodeId + '"]').first().find('a').first().attr('orgid'));
+                    /*Description from the node*/
+                    localStorage.setItem("orgname", node.orgname);
+                    localStorage.setItem("projname", node.projname ? node.projname : node.text);
+                    localStorage.setItem("bgname", node.bgname);
+                    localStorage.setItem("envname", node.text);
+                    localStorage.setItem('itProjectActive', 'no');
+
+                    /*Draw the braedcrumb from ol*/
+                    var ol = $("#ribbon ol.breadcrumb");
+                    if (ol.children().length == 0) {
+                        drawBreadCrumb();
+                    }
+                    if (node.hasOwnProperty('itemtype') && node.itemtype === "proj") {
+                        localStorage.setItem('itProjectActive', 'yes');
+                    }
+
+                }
+            });
+}
+
+var loadTreeFuncNew = function(lazy) {
+   // alert('load tree');
+    console.log('Loaded a tree');
+    if(lazy) {
+        buildTree();
+    } else {
+        getTreeData();
+        buildTree();
+    }
+    
+}
+
+
+
+
+function getUrlParameter(sParam) {
+    //var u = window.location.href.split('?');
+    var u = $('#workZoneNew').attr('href').split('?');
+    var sPageURL = u[1];
+    //alert(sPageURL);
+    if (typeof sPageURL != 'undefined') {
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam) {
+                return sParameterName[1];
+            }
+        }
+    } else {
+        //check local storage for last env clicked.
+        var lastwzurl = localStorage.getItem("lastworkzoneurl");
+        if (lastwzurl) {
+            //alert('in lastwzurl' + lastwzurl);
+            u = lastwzurl.split('?');
+            sPageURL = u[1];
+            if (typeof sPageURL != 'undefined') {
+                var sURLVariables = sPageURL.split('&');
+                for (var i = 0; i < sURLVariables.length; i++) {
+                    var sParameterName = sURLVariables[i].split('=');
+                    if (sParameterName[0] == sParam) {
+                        return sParameterName[1];
+                    }
+                }
+            } else
+                return ('');
+
+        } else
+            return ('');
+    }
+    return ('');
+}
+
+//Special key to bring up the logs window
+
+$(document).keypress("l",function(e) {
+  if(e.ctrlKey && e.altKey && ( String.fromCharCode(e.which) === 'l' || String.fromCharCode(e.which) === 'L' ))
+    {
+        // viewlogger();
+        // $('#myModal').modal('show');    
+        window.open('/private/catlog.html','Catalyst Log');
+    }
+});
+
+
+
+window.getUrlParams = function(url) {
+    var urlParams = {};
+    //var url = window.location.href;
+    var indexOfQues = url.lastIndexOf("?");
+    if (indexOfQues != -1) {
+        var sub = url.substring(indexOfQues + 1);
+        console.log(sub);
+        var params = sub.split('&')
+        for (var i = 0; i < params.length; i++) {
+            var paramParts = params[i].split('=');
+            urlParams[paramParts[0]] = paramParts[1];
+        }
+    }
+    return urlParams;
+
+};
+
+function selectFirstEnvironment() {
+    //alert('selecting first env');
+    var $workspaceTree = $('#Workspace1');
+    var $orgLink = $workspaceTree.find('a[itemtype="org"][bgId][projId][envId]');
+    //alert($orgLink.length);
+    if ($orgLink.length) {
+        $orgLink = $orgLink.first().click();
+        console.log(' envIds===   ',$orgLink.attr('bgId'),$orgLink.attr('projId'),$orgLink.attr('envId'));
+        var $bgLink = $workspaceTree.find('a[rowid="' + $orgLink.attr('bgId') + '"]').click();
+        var $projLink = $workspaceTree.find('a[rowid="' + $orgLink.attr('projId') + '"]').click();
+        var $envLink = $workspaceTree.find('a[rowid="' + $orgLink.attr('envId') + '"]');
+        $('#workZoneNew').attr('href', $envLink.attr('href'));
+        $envLink.click();
+        return true;
+    } else {
+        $('#workZoneNew').attr('href','#');
+        return false;
+    }
+}
+
+function selectEnv() {
+
+
+
+    var $workspaceTree = $('#Workspace1');
+    var url = localStorage.getItem("lastworkzoneurl");
+    if (!url) {
+        url = window.location.href;
+    }
+   // alert(url);
+    var urlParams = getUrlParams(url);
+    console.log(urlParams);
+    var $orgLink;
+
+    var envFound = false;
+    if (urlParams.envid && urlParams.org && urlParams.bg && urlParams.projid) { //finding env
+        var treeNodes = [];
+
+        $orgLink = $workspaceTree.find('a[itemtype="org"][rowid="' + urlParams.org + '"]');
+        if ($orgLink.length) {
+            $orgLink.click();
+            treeNodes.push($orgLink);
+
+        }
+        var $bgLink = $workspaceTree.find('a[rowid="' + urlParams.bg + '"]');
+        if ($bgLink.length) {
+            $bgLink.click();
+            treeNodes.push($bgLink);
+        }
+        var $projLink = $workspaceTree.find('a[rowid="' + urlParams.projid + '"]');
+        if ($projLink.length) {
+            $projLink.click();
+            treeNodes.push($projLink);
+        }
+        var $envLink = $workspaceTree.find('a[rowid="' + urlParams.envid + '"]');
+        if ($envLink.length) {
+            $envLink = $envLink.first().click();
+            console.log('ancor a ==>', $envLink.attr('href'));
+            $('#workZoneNew').attr('href', $envLink.attr('href'));
+            treeNodes.push($envLink);
+            envFound = true;
+        }
+        //alert(envFound);
+        if (!envFound) {
+            console.log('treenodes',treeNodes);
+            for (var i = treeNodes.length - 1; i >= 0; i--) {
+                //alert('clicking' + treeNodes[i].text() + treeNodes[i].parents('li').length);
+
+                treeNodes[i].click();
+            }
+            loadTreeFuncNew(true);
+           envFound = selectFirstEnvironment();
+        }
+
+
+    } else { //not found ... trying to find first element in any org
+        //alert('not found');
+        envFound = selectFirstEnvironment();
+    }
+    if (!envFound) {
+        $('#content').addClass('hidden');
+        $('#noenvwarning').removeClass('hidden');
+        $('ol.breadcrumb').addClass('hidden');
+    } else {
+        $('#content').removeClass('hidden').removeAttr('style','height:100% !important');
+    }
+
+
+
+}
+
+
+/*Created a new Method for selecting any enviornment*/
+
+/*End of selectAnyEnviornment*/
+//loadTreeFuncNew();
+
+
+//Renavigate to the tab that was previously selected.
+checkandnavigatetotab = function() {
+    //has tab in LS
+    var ltab = localStorage.getItem("lasttabselected");
+    //alert(ltab);
+    if (ltab) {
+        //trigger click on tab
+        //alert('about to click on ' + ltab);
+        //alert('tab loading');
+        $('#' + ltab).trigger('click');
+        drawBreadCrumb();
+    } else { //will be a first time load
+        console.log('selecting first env');
+        //selectFirstEnv();
+        //selectEnv();
+        $('#workZoneNew').trigger('click');
+    }
+};
+checkandnavigatetotab();
+loadSettingsTree();
+//getTrackTreeDetails();
+//loadTrackTree();
+foldTreeForSetting();
+</script>
+
+<script src="js/chefmodalcommon.js"></script>
+<script src="js/jquerytemplatemin.js"></script>
+<script src="/private/js/settingscommon.js"></script>
+<script src="js/designmenu.js"></script>
+
+
+<div id="myModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                 <h4 class="modal-title">Catalyst Log</h4>
+
+            </div>
+            <div class="modal-body"  >
+                <div id="launchcatalystlogwindow" style="overflow:auto;height:400px;font-size:8pt;" >
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+
+</body>
+</html>

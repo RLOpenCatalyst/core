@@ -1,0 +1,366 @@
+<style>
+.noBorder{
+	border-top: 0px none;
+}
+.headingStyle{
+	border-bottom:1px solid rgb(221, 221, 221)!important;
+	height:40px!important;
+	background-color: #fcfcfc!important;
+}
+.titleWidth{
+	width:100%;
+}
+.btnStyle{
+	float:right;margin-top:-6px;
+}
+</style>
+<!--orchestration tab starts here-->
+<div class="tab-pane" id="l3">
+	<div class="jarviswidget jarviswidget-color-blueLight" id="orchestrationTable" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+		<div>
+			<div class="widget-body no-padding">
+				<div class="" >
+					<div class="panel panel-default noBorder">
+						<div class="panel-heading headingStyle">
+							<h4 class="panel-title titleWidth">
+								<span class="font-size-12">
+								List of Tasks
+								</span>
+								<span class="btnStyle">
+								<button class="btn btn-minier btn-primary createTaskLink" href="javascript:void(0)">
+								<i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+								New
+								</button>
+								</span>
+							</h4>
+						</div>
+						<div id="orchestrationTable_old" class="row">
+							<div class="widget-body">
+								<div class="widget-main widgetHeight">
+									<div class="col-md-12 table-responsive" style=" padding-top: 40px;">
+										<table id="tableOrchestration" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%">
+											<thead>
+												<tr class="rowCustomStyle">
+													<td style="width:64px;">Job Type</td>
+													<td>Name</td>
+													<td style="width:232px">Job Description</td>
+													<td style="width:90px;">Job Links</td>
+													<td>Execute</td>
+													<td>History</td>
+													<td style="width:80px;">Last Run</td>
+													<td>Action</td>
+												</tr>
+											</thead>
+											<tbody class="taskListArea">
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--jenkins job history start here-->
+	<div id="jenkinsJobHistory" class="row hidden">
+		<div class="col-md-12">
+			<div class="col-md-12">
+				<div class="widget-box">
+					<div class="widget-header">
+						<h5 class="widget-title jenkinsTitle" style="color:#4e5964;">
+							<strong></strong>
+						</h5>
+						<div class="widget-toolbar no-border">
+							<div>
+								<button class="btn btn-minier btn-primary hideJenkinsJob" href="javascript:void(0)">
+									<i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>
+									<!-- Close -->
+									List of Tasks
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="widget-body">
+						<div class="widget-main widgetHeight">
+							<div class="loadingContainer"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+							<div class="errorMsgContainer" style="font-size: 14px;height: 100px;padding-top: 10px;text-align: center;"></div>
+							<div class="outputArea">
+								<div class="col-md-12 table-responsive">
+									<table id="tablehistoryTaskForJenkins" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%">
+										<thead>
+											<tr class="rowCustomStyle">
+												<td>Job Number</td>
+												<td>Job Output</td>
+												<td>Status</td>
+												<td>Start Time</td>
+												<td>End Time</td>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--jenkins job history ends here-->
+
+	<!--chef history starts here-->
+	<div id="chefJobHistory" class="row hidden">
+		<div class="col-md-12">
+			<div class="col-md-12">
+				<div class="widget-box">
+					<div class="widget-header">
+						<h5 class="widget-title chefTitle" style="color:#4e5964;">
+						</h5>
+						<div class="widget-toolbar no-border">
+							<div>
+								<button class="btn btn-minier btn-primary hideChefJob" href="javascript:void(0)">
+									<i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>
+									<!-- Close -->
+									List of Tasks
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="widget-body">
+						<div class="widget-main widgetHeight">
+							<div class="loadingContainer"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+							<div class="errorMsgContainer" style="font-size: 14px;height: 100px;padding-top: 10px;text-align: center;"></div>
+							<div class="outputArea">
+								<div class="col-md-12 table-responsive">
+									<table id="tablehistoryTask" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%">
+										<thead>
+											<tr class="rowCustomStyle">
+												<td>Start Time</td>
+												<td>End Time</td>
+												<td>Status</td>
+												<td style="width: 42%">Message</td>
+												<td>User</td>
+												<td>Logs</td>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--chef history ends here-->
+
+	<!--composite history starts here-->
+	<div id="compositeJobHistory" class="row hidden">
+		<div class="col-md-12">
+			<div class="col-md-12">
+				<div class="widget-box">
+					<div class="widget-header">
+						<h5 class="widget-title compositeTitle" style="color:#4e5964;">
+						</h5>
+						<div class="widget-toolbar no-border">
+							<div>
+								<button class="btn btn-minier btn-primary hideCompositeJob" href="javascript:void(0)">
+									<i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>
+									<!-- Close -->
+									List of Tasks
+								</button>
+							</div>
+						</div>
+					</div>
+					<!--For composite history-->
+					<div class="widget-body">
+						<div class="widget-main widgetHeight">
+							<div class="loadingContainer"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+							<div class="errorMsgContainer" style="font-size: 14px;height: 100px;padding-top: 10px;text-align: center;"></div>
+							<div class="outputArea">
+								<div class="col-md-12 table-responsive">
+									<table id="compositeTablehistoryTask" class="table table-striped table-bordered table-hover dataTable no-footer text-align-center table-condensed tablesorter" cellpadding="5px" width="100%">
+										<thead>
+											<tr class="rowCustomStyle">
+												<td>Start Time</td>
+												<td>End Time</td>
+												<td>Status</td>
+												<td>User</td>
+												<td>Logs</td>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--composite job history start here-->
+</div>
+<!--l3 tab ends here-->
+<!--/.modal-assignedNode-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="assignedNode" class="modal fade" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+				x
+				</button>
+				<h4 class="modal-title">
+					<i class="fa fa-sitemap txt-color-blue"></i>&nbsp;&nbsp;Assigned Nodes
+				</h4>
+			</div>
+			<div class="modal-body no-padding">
+				<form class="smart-form" id="login-form" action="" novalidate="novalidate">
+					<fieldset style="padding-top:7px !important;">
+						<section>
+							<div class="">
+								<table align="left" style="margin-left:20px;">
+									<thead>
+										<tr style="line-height:2.3">
+											<th style="width:100px" scope="col"><u class="font-size-12">Name</u>
+											</th>
+											<th style="width:100px" scope="col"> <u class="font-size-12">IP Address</u></th>
+											<th scope="col"> <u class="font-size-12">Status</u></th>
+										</tr>
+									</thead>
+									<tbody class="taskNodeListContainer">
+									</tbody>
+								</table>
+							</div>
+						</section>
+					</fieldset>
+					<div>
+					</div>
+					<footer>
+						<button class="btn btn-primary" type="button" data-dismiss="modal">
+						&nbsp;Close
+						</button>
+					</footer>
+				</form>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedNode-->
+<!--/.modal-assignedRunlist-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="assignedRunlist" class="modal fade" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+				x
+				</button>
+				<h4 class="modal-title">
+					<i class="fa fa-list txt-color-blue"></i>&nbsp;&nbsp;Assigned Runlists
+				</h4>
+			</div>
+			<div class="modal-body no-padding">
+				<form class="smart-form" id="login-form" action="" novalidate="novalidate">
+					<fieldset style="padding-top:7px !important;">
+						<section class="col col-6">
+							<label class="label">
+							<img src="img/templateicons/Order-run-list---deployment.png">
+							<strong>RunLists</strong>
+							</label>
+							<div class="row">
+								<div class="col col-10">
+									<ul class="taskRunListContainer assignedRunlists">
+									</ul>
+								</div>
+							</div>
+						</section>
+					</fieldset>
+					<div>
+					</div>
+					<footer>
+						<button class="btn btn-primary" type="button" data-dismiss="modal">
+						&nbsp;Close
+						</button>
+					</footer>
+				</form>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedRunlist-->
+<!--execute modal-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="assignedExecute" class="modal fade" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+				x
+				</button>
+				<h4 class="modal-title">
+					<i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Execute Logs
+				</h4>
+			</div>
+			<div class="modal-body no-padding jenkinsChefModal">
+				<div class="loadingContainer"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+				<div class="errorMsgContainer" style="font-size: 14px;height: 100px;padding-top: 10px;text-align: center;"></div>
+				<form class="outputArea" action="">
+					<div role="content">
+						<div class="widget-body">
+							<ul id="taskExecuteTabsHeader" class="nav nav-tabs bordered">
+							</ul>
+							<div id="taskExecuteTabsContent" class="tab-content padding-10">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer" style="margin-top: 0px;">
+				<a type="button" class="btn btn-primary" data-dismiss="modal">Close</a>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedExecute-->
+<!--execute modal-->
+<div class="modal fade" id="modalForSelect" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog " style="">
+		<div class="modal-content">
+			<form role="form"  id="executeJob">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">
+						&nbsp;&nbsp;&nbsp;&nbsp;Select Choice Parameter &amp; Execute
+					</h4>
+				</div>
+				<div class="modal-body" style="height:auto;">
+					<table id="paramTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%">
+						<thead>
+							<tr class="rowCustomStyle">
+								<td>Name</td>
+								<td>Value</td>
+							</tr>
+						</thead>
+						<tbody id="paramTableList">
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+					<button type="submit" id="executeBtn" class="btn btn-primary" value="Ok">Ok</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

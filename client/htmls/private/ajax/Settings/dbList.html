@@ -1,0 +1,697 @@
+<style type="text/css">
+textarea{
+width:100%;
+}
+</style>
+<div class="row">
+<div class="col-md-12">
+   <div class="col-md-12">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;"></h4>
+            <button style="float:right;margin-top:-24px;margin-right:22px;" class="btn btn-minier btn-primary" onclick="window.history.back();">Close
+            </button>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main">
+               <section id="widget-grid" class="">
+                  <!-- START ROW -->
+                  <div class="row">
+                     <!-- Widget ID (each widget will need unique ID)-->
+                     <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                        <!-- widget div-->
+                        <div>
+                           <!-- widget content -->
+                           <div class="widget-body no-padding">
+                              <div class="col-lg-12 col-md-12">
+                                 <!--table-->
+                                 <div class="widget-body">
+                                    <div class="nodeListContainer"></div>
+                                    <div class="alert alert-warning dataBagFailure hidden"><img style="width:50px;height:40px" src="img/warning.png" alt="warning"/><span style="margin-left:20px;">The ChefServer credentials are incorrect.</span></div>
+                                    <div class="widget-main dataBagTable hidden">
+                                       <div class="col-md-4 table-responsive" style="padding-left:0px; padding-right:0px;">
+                                          <a href="#modalForDB" data-backdrop="false" data-toggle="modal" style="cursor:pointer;"> <img src="img/add.png" style="float:right;" class="addDB" rel="tooltip" data-placement="top" title="Add New Data Bag"/></a>
+                                          <div style="height:412px;overflow-y:auto;" id="dbNameTable_wrapper" class="dataTables_wrapper no-footer">
+                                             <table id="dbNameTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center;">
+                                                <thead>
+                                                   <tr class="rowCustomStyle">
+                                                      <td>List of Data Bags</td>
+                                                   </tr>
+                                                </thead>
+                                                <tbody id="dbNameTableTest">
+                                                </tbody>
+                                             </table>
+                                          </div>
+                                       </div>
+                                       <!--table ends here-->
+                                       <div class="spinner hidden"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+                                       <div class="col-md-4 table-responsive tableForList" id="listData" style="padding-left:10px; padding-right:0px;display:none;">
+                                          <a href="#modalForItems" data-backdrop="false" data-toggle="modal" style="cursor:pointer;"> <img src="img/add.png" style="float:right;" class="addList" rel="tooltip" data-placement="top" title="Add New Item" /></a>
+                                          <div style="height:412px;overflow-y:auto;" id="dbNameTable_wrapper" class="dataTables_wrapper no-footer">
+                                             <table id="listNameTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center">
+                                                <thead>
+                                                   <tr class="rowCustomStyle">
+                                                      <td></td>
+                                                   </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                             </table>
+                                          </div>
+                                       </div>
+                                       <div class="spinnerList hidden"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>
+                                       <div class="col-md-4 table-responsive" id="jsonData" style="padding-right:0px;margin-top:18px;display:none;">
+                                          <table id="listTable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center">
+                                             <thead>
+                                                <tr class="rowCustomStyle">
+                                                   <td></td>
+                                                </tr>
+                                             <tbody>
+                                                <tr>
+                                                   <td>
+                                                      <textarea  style="width:100%" rows="15" cols="25" name="jsonName" class="jsonName" id="jsonListName" readonly></textarea>
+                                                   </td>
+                                                </tr>
+                                             </tbody>
+                                          </table>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                              <!-- end widget content -->
+                           </div>
+                           <!-- end widget div -->
+                        </div>
+                        <!-- end widget -->
+                     </div>
+                     <!-- END ROW -->
+               </section>
+               <!-- end widget grid -->
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!--modal for DBList-->
+<div class="modal fade" id="modalForDB" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog " style="">
+      <div class="modal-content">
+         <form role="form" id="instanceDBName">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+               <h4 class="modal-title">
+                  &nbsp;Create Data Bag
+               </h4>
+            </div>
+            <div class="modal-body" style="height:78px;">
+               <div class="col-lg-6 col-md-6">
+                  <label for="">Name<span class="control-label redSpan">&nbsp;*</span></label>
+                  <input maxlength="25" type="text" name="dbName" class="form-control dbName" id="instanceDataName" autofocus/>
+               </div>
+               <input type="hidden" id="serverIDHiddenInput">
+            </div>
+            <div class="modal-footer">
+               <label id="saveSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+               <input type="submit" id="saveBTN" class="btn btn-primary" value="Save" />
+               <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<!--modal for DBlist-->
+<!--modal for ItemList-->
+<div class="modal fade" id="modalForItems" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog " style="">
+      <div class="modal-content">
+         <form role="form" id="instanceItemName">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+               <h4 class="modal-title">
+                  &nbsp;Create Item
+               </h4>
+            </div>
+            <div class="modal-body" style="height:218px;">
+               <div class="col-lg-6 col-md-6">
+                  <label for="">ID<span class="control-label redSpan">&nbsp;*</span></label>
+                  <input type="text" name="listID" class="form-control listID" id="instanceListID" autofocus/>
+               </div>
+               <div class="col-lg-6 col-md-6" style="margin-top:30px">
+                  <input id="check_id" type="checkbox" name="encryption" value="key"> Do you want to Encrypt?
+               </div>
+               <div class="col-lg-12 col-md-12" style="margin-top:10px">
+                  <label for="">Item Body</label><span style="color:red;" class="jsonError hidden">&nbsp;&nbsp;Invalid JSON</span>
+                  <br/>
+                  <textarea rows="5" cols="60" name="listName" class="listName" id="instanceListName">{}</textarea>
+               </div>
+               <input type="hidden" id="dataBagIDHiddenInput">
+               <input type="hidden" id="itemEditHiddenInput">
+            </div>
+            <div class="modal-footer">
+               <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+               <input type="submit" id="saveBTNList" class="btn btn-primary" value="Save" />
+               <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<!--modal for Itemlist-->
+
+<script>
+$(document).on('shown.bs.modal', function(e) {
+  $('[autofocus]', e.target).focus();
+});
+$('.nodeListContainer').append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+
+
+$('.addDB').click(function(e) {
+  $('#instanceDBName').trigger('reset');
+  $('.tableForList').hide();
+  $('#jsonData').hide();
+  $('#saveSpinner').addClass('hidden');
+});
+
+$('.addList').click(function(e) {
+  $('#instanceItemName').trigger('reset');
+  $('input.listID').removeAttr('disabled');
+
+  $('#jsonData').hide();
+});
+
+if (!$.fn.dataTable.isDataTable('#dbNameTable')) {
+  var $dataBagDatatable = $('#dbNameTable').DataTable({
+    "pagingType": "full_numbers",
+    "bInfo": false,
+    "bLengthChange": false,
+    "paging": false,
+    "bFilter": false,
+    "aoColumns": [{
+      "bSortable": true
+    }]
+
+  });
+}
+
+if (!$.fn.dataTable.isDataTable('#listNameTable')) {
+  var $itemDatatable = $('#listNameTable').DataTable({
+    "pagingType": "full_numbers",
+    "bInfo": false,
+    "bLengthChange": false,
+    "paging": false,
+    "bFilter": false,
+    "aoColumns": [{
+      "bSortable": true
+    }]
+
+  });
+};
+
+$(document).ready(function(e) {
+
+  var hasCreateDataBagPermission = false;
+  if (haspermission('databag', 'create')) {
+    hasCreateDataBagPermission = true;
+  }
+  if (haspermission('databag', 'modify')) {
+    hasCreateDataBagPermission = true;
+  }
+  if (haspermission('databag', 'delete')) {
+    hasCreateDataBagPermission = true;
+  }
+  if (!hasCreateDataBagPermission) {
+    $('#modalForDB').addClass('hidden');
+  }
+
+  var urlParams = {};
+  (window.onpopstate = function() {
+    var url = window.location.href;
+    var indexOfQues = url.lastIndexOf("?");
+    if (indexOfQues != -1) {
+      var sub = url.substring(indexOfQues + 1);
+      console.log(sub);
+      var params = sub.split('&')
+      for (var i = 0; i < params.length; i++) {
+        var paramParts = params[i].split('=');
+        urlParams[paramParts[0]] = paramParts[1];
+      }
+    }
+
+  })();
+  getDataBagList();
+
+
+  //for getting the chef server name
+  $.get('/d4dMasters/readmasterjsonnew/10', function(data) {
+    for (i = 0; i < data.length; i++) {
+      var rowid = urlParams.id;
+      if (rowid === data[i].rowid) {
+        console.log(data[i]);
+        $('.widget-header').find('h4.widget-margin').html('Data Bags & Items for Chef Server -&nbsp;' + data[i].configname);
+      }
+    }
+  });
+
+  function getDataBagList() {
+    //for getting the list of data-bags
+    if (!urlParams.id) {
+      return;
+    }
+    var chefServer = '../chef/servers/' + urlParams.id + '/databag/list';
+    $.get(chefServer, function(data) {
+      if (data) {
+        console.log(data);
+        $.each(data, function(k) {
+          $('.nodeListContainer').addClass('hidden');
+          $('.dataBagTable').removeClass('hidden');
+          createDataBagTable(k);
+        });
+        $('.nodeListContainer').addClass('hidden');
+        $('.dataBagTable').removeClass('hidden');
+        $('#dbNameTable tbody tr:first').trigger('click');
+      } else {
+        $('.nodeListContainer').addClass('hidden');
+        $('.dataBagTable').removeClass('hidden');
+      }
+    }).fail(function(jxhr) {
+      var msg = "Server Behaved Unexpectedly";
+      if (jxhr.responseJSON && jxhr.responseJSON.message) {
+        msg = jxhr.responseJSON.message;
+      } else if (jxhr.responseText) {
+        msg = jxhr.responseText;
+      }
+      bootbox.alert(msg);
+      $('.nodeListContainer').addClass('hidden');
+      $('.dataBagFailure').removeClass('hidden');
+    });
+  };
+
+
+
+  function createDataBagTable(k) {
+    var name = k;
+    var $dbNameList = $('#dbNameTableTest');
+    var $tr = $('<tr class="dbRow"></tr>');
+    var $tdName = $('<td class="dBNameCheck"></td>');
+    var $tdClick = $('<a id="dbNameClick" style="cursor:pointer;">' + name + '</a>');
+    $tdName.append($tdClick);
+    $tdName.append('<div class="btn-group del" style="float:right;"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+    $tr.append($tdName);
+    $dbNameList.append($tr);
+    $dataBagDatatable.row.add($tr).draw();
+
+    //deleting row
+    $tdName.find('button.deleteRow').click(function(e) {
+      var $this = $(this);
+      var $tr = $this.parents('tr');
+      console.log(name);
+      var dataBagName = name;
+      console.log(dataBagName);
+      bootbox.confirm('Are you sure you want to delete Data Bag -&nbsp;' + dataBagName, function(result) {
+        if (result) {
+          $.ajax({
+            url: '../chef/servers/' + urlParams.id + '/databag/' + dataBagName + '/delete',
+            method: 'DELETE',
+            success: function() {
+              var dataBagDatatable = $('#dbNameTable').DataTable();
+              console.log($tr, $tr.length);
+              dataBagDatatable.row($tr).remove().draw(true);
+              var $itemsTable = $('.tableForList');
+              var dataBagNameForItem = $itemsTable.data('dataBagName');
+
+              if (dataBagNameForItem === dataBagName) {
+                $itemsTable.hide();
+              }
+              $('#jsonData').hide();
+              $('#dbNameTable tbody tr:first').trigger('click');
+
+            },
+            fail: function(jxhr) {
+              var msg = "Unable to delete URL please try again later";
+              if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+              } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+              }
+              bootbox.alert(msg);
+            }
+          });
+        }
+      });
+      return false;
+
+    });
+
+    //row click
+    var dataBagDatatable = $('#dbNameTable').DataTable();
+    $tr.click(function() {
+      var $itemTable = $('#listNameTable');
+
+      if ($itemTable.data('loading')) {
+        return false;
+      } else {
+        $itemTable.data('loading', true);
+      }
+      if ($(this).hasClass('dbRow')) {
+        $(this).removeClass('dbRow');
+      } else {
+        dataBagDatatable.$('tr.dbRow').removeClass('dbRow');
+        $(this).addClass('dbRow');
+      }
+      $itemDatatable.clear().draw();
+
+      $('#dbNameTable tbody tr').removeClass('selectedOne');
+      $(this).addClass('selectedOne');
+      $('.tableForList').hide();
+      $('.spinnerList').addClass('hidden');
+      $('#jsonData').hide();
+      $('.spinner').removeClass('hidden');
+      $('#dataBagIDHiddenInput').val(k);
+      getList(k);
+      $('#listNameTable thead').find('tr.rowCustomStyle td').html('Items for -&nbsp;' + k);
+    });
+    return $tr;
+  };
+
+
+  //getting item list
+  function getList() {
+
+    var dataBagName = $('#dataBagIDHiddenInput').val();
+    console.log(dataBagName);
+    var listItems = '../chef/servers/' + urlParams.id + '/databag/' + dataBagName + '/item/list';
+    $.get(listItems, function(data) {
+      console.log(typeof data);
+      if (data.length > 0) {
+        $.each(data, function(k) {
+          console.log(k);
+          $('.spinner').addClass('hidden');
+          $('.tableForList').show().data('dataBagName', dataBagName);
+          createItemTableRow(data[k]);
+        });
+        $('#listNameTable tbody tr:first').trigger('click');
+      } else {
+        $('#listNameTable').data('loading', false);
+        $('.spinner').addClass('hidden');
+        $('.tableForList').show().data('dataBagName', dataBagName);
+      }
+    }).fail(function(jxhr) {
+      $('#listNameTable').data('loading', false);
+      var msg = "Server Behaved Unexpectedly.";
+      if (jxhr.responseJSON && jxhr.responseJSON.message) {
+        msg = jxhr.responseJSON.message;
+      } else if (jxhr.responseText) {
+        msg = jxhr.responseText;
+      }
+      bootbox.alert(msg);
+    });
+  };
+
+  $('#modalForDB').on('hidden.bs.modal', function() {
+    $('#dbNameTable tbody tr.selectedOne').trigger('click');
+    return false;
+  });
+
+  //for db name submit..
+  $('#instanceDBName').submit(function(e) {
+    $('#saveSpinner').removeClass('hidden');
+    $('#saveBTN').attr('disabled', 'disabled');
+    var reqBodyName = {};
+    var $row = $('<tr class="dbRow"/>');
+    var $form = $('#instanceDBName');
+    reqBodyName.name = $form.find('.dbName').val();
+    if (!(reqBodyName.name)) {
+      alert("Please Enter Name");
+      $('#saveSpinner').addClass('hidden');
+      $('#saveBTN').removeAttr('disabled');
+      return false;
+
+    }
+    $.ajax({
+      method: "POST",
+      url: '../chef/servers/' + urlParams.id + '/databag/create',
+      data: reqBodyName,
+      success: function(data, success) {
+        $('#modalForDB').modal('hide');
+        $('#saveSpinner').addClass('hidden');
+        $('#saveBTN').removeAttr('disabled');
+        createDataBagTable(reqBodyName.name).click();
+      },
+      error: function(jxhr) {
+        var msg = "Server Behaved Unexpectedly.";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+          msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+          msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+        $('#saveSpinner').addClass('hidden');
+        $('#saveBTN').removeAttr('disabled');
+      },
+      failure: function(jxhr) {
+        var msg = "Server Behaved Unexpectedly.";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+          msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+          msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+
+        $('#saveSpinner').addClass('hidden');
+        $('#saveBTN').removeAttr('disabled');
+      }
+    });
+    return false;
+  });
+
+  $('#modalForItems').on('hidden.bs.modal', function() {
+    $('#listNameTable tbody tr.selectedOne').trigger('click');
+    return false;
+  });
+
+  //create item table
+  function createItemTableRow(k) {
+    var itemTable = $('#listNameTable tbody');
+    var $trForItems = $('<tr class="itemsList"/>');
+    var $tdForItems = $('<td class="listData"/>');
+    $tdForItems.append('<a style="cursor:pointer;" id="listNameClickNew">' + k + '</a>').append('<div class="btn-group" style="float:right;"><button class="editRow" value="Update" title="Update"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>').append('<div style="margin-right:10px;float:right;" class="btn-group del"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+    $trForItems.append($tdForItems);
+    $('#listNameTable').find('tbody').append($trForItems);
+    $itemDatatable.row.add($trForItems).draw();
+
+    //tr click for items
+    $trForItems.click(function() {
+      if ($('#listNameTable').data('loadingItem')) {
+        return;
+      } else {
+        $('#listNameTable').data('loadingItem', true);
+      }
+      $('#listNameTable').data('loading', true);
+      $('#jsonData').hide();
+      $('#listNameTable tbody tr').removeClass('selectedOne');
+      $(this).addClass('selectedOne');
+      $('.spinnerList').removeClass('hidden');
+      $('textarea#jsonListName').val('');
+      var dataBagName = $('#dataBagIDHiddenInput').val();
+      var itemId = k;
+      $('#listNameTable').data('loading', true);
+      $.get('../chef/servers/' + urlParams.id + '/databag/' + dataBagName + '/item/' + itemId + '/find', function(data) {
+        $('#listNameTable').data('loading', false);
+        $('#listNameTable').data('loadingItem', false);
+        console.log(data);
+        var res = JSON.stringify(data, null, '\t');
+        $('.spinnerList').addClass('hidden');
+        $('#jsonData').show();
+        $('#listTable thead').find('tr.rowCustomStyle td').html(itemId);
+        $('#jsonListName').val(res);
+      }).fail(function(jxhr) {
+        $('#listNameTable').data('loadingItem', false);
+        $('#listNameTable').data('loading', false);
+        var msg = "Server Behaved Unexpectedly.";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+          msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+          msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+
+      });
+    });
+    //for edit
+    $tdForItems.find('button.editRow').click(function() {
+      $('.jsonError').addClass('hidden');
+      $('.spinnerList').addClass('hidden');
+      $('#jsonData').hide();
+      var $this = $(this);
+      var $trNew = $this.parents('tr.itemsList');
+      var $editModal = $('#modalForItems');
+      $('textarea#instanceListName').val('');
+      $editModal.modal('show');
+      $editModal.find('.listID').val(k);
+      $('input.listID').attr('disabled', 'disabled');
+      $editModal.find('.listName').val();
+      $editModal.find('#itemEditHiddenInput').val('edit');
+      var dataBagName = $('#dataBagIDHiddenInput').val();
+      console.log(dataBagName);
+      console.log(k);
+      var itemId = k;
+      console.log(itemId);
+      $.get('../chef/servers/' + urlParams.id + '/databag/' + dataBagName + '/item/' + itemId + '/find', function(data) {
+        console.log(data);
+        var res = JSON.stringify(data, null, '\t');
+        $('#instanceListName').val(res);
+      }).fail(function(jxhr) {
+        var msg = "Server Behaved Unexpectedly.";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+          msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+          msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+
+      });
+      return false;
+    });
+    //for delete
+    $tdForItems.find('button.deleteRow').click(function() {
+      $('#jsonData').hide();
+      var $this = $(this);
+      var $trNew = $this.parents('tr.itemsList');
+      var dataBagName = $('#dataBagIDHiddenInput').val();
+      console.log(dataBagName);
+      console.log(k);
+      var itemName = k;
+      console.log(itemName);
+      bootbox.confirm('Are you sure you want to Delete Item Name -&nbsp;' + itemName, function(result) {
+        if (result) {
+          $.ajax({
+            url: '../chef/servers/' + urlParams.id + '/databag/' + dataBagName + '/item/' + itemName + '/delete',
+            method: 'DELETE',
+            success: function() {
+              $itemDatatable.row($trNew).remove().draw(false);
+              $('#listNameTable tbody tr:first').trigger('click');
+            },
+            error: function(jxhr) {
+              var msg = "Unable to delete URL please try again later";
+              if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+              } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+              }
+              bootbox.alert(msg);
+            }
+          });
+        }
+      });
+      return false;
+    });
+    return $trForItems;
+  };
+
+  //for list items
+  $('.addList').click(function(e) {
+    $('#itemEditHiddenInput').val('new');
+  });
+
+  //submit for Item Name
+  $('#instanceItemName').submit(function(e) {
+    $('#saveItemSpinner').removeClass('hidden');
+    $('#saveBTNList').attr('disabled', 'disabled');
+    var $form = $('#instanceItemName');
+    var itemID = $form.find('.listID').val();
+    $('.listID').focus();
+    var jsonString = $form.find('.listName').val();
+    var jsonObj;
+    try {
+      jsonObj = JSON.parse(jsonString);
+    } catch (err) {
+      $('.jsonError').removeClass('hidden');
+      $('#saveItemSpinner').addClass('hidden');
+      $('#saveBTNList').removeAttr('disabled', 'disabled');
+      return false;
+    }
+    if (!(itemID)) {
+      alert("Please Enter ID");
+      $('#saveItemSpinner').addClass('hidden');
+      $('#saveBTNList').removeAttr('disabled', 'disabled');
+      return false;
+    }
+    var dataBagName = $form.find('#dataBagIDHiddenInput').val();
+    var itemsEditNew = $(this).find('#itemEditHiddenInput').val();
+    console.log(dataBagName);
+    var isEncrypt = false;
+    if ($('#check_id').is(":checked")) {
+      isEncrypt = true;
+    }
+    console.log($('#check_id').is(":checked"));
+    console.log(isEncrypt);
+    var url;
+    var reqBody;
+    if (itemsEditNew === 'edit') {
+      url = '../chef/servers/' + urlParams.id + '/databag/' + dataBagName + '/item/' + itemID + '/update';
+      reqBody = {
+        "isEncrypt": isEncrypt,
+        "dataBagItem": jsonObj
+      };
+    } else {
+      url = '../chef/servers/' + urlParams.id + '/databag/' + dataBagName + '/item/create';
+      reqBody = {
+        "id": itemID,
+        "isEncrypt": isEncrypt,
+        "dataBagItem": jsonObj
+      };
+    }
+
+
+    $.ajax({
+      method: "POST",
+      url: url,
+      data: reqBody,
+      success: function(data, success) {
+
+        $('#modalForItems').modal('hide');
+        $('#saveItemSpinner').addClass('hidden');
+        $('#saveBTNList').removeAttr('disabled');
+        console.log(itemsEditNew);
+
+        if (itemsEditNew === 'new') {
+          console.log(itemID);
+          createItemTableRow(itemID).click();
+          $('#saveBTNList').removeAttr('disabled');
+        }
+      },
+      error: function(jxhr) {
+        console.log(jxhr);
+        var msg = "Server Behaved Unexpectedly";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+          msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+          msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+
+        $('#saveItemSpinner').addClass('hidden');
+        $('#saveBTNList').removeAttr('disabled');
+      },
+      failure: function(jxhr) {
+        console.log(jxhr);
+        var msg = "Server Behaved Unexpectedly";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+          msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+          msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+
+        $('#saveItemSpinner').addClass('hidden');
+        $('#saveBTNList').removeAttr('disabled');
+      }
+    });
+    return false;
+  });
+
+});
+</script>
+
+

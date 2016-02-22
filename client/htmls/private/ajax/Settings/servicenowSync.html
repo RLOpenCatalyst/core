@@ -1,0 +1,579 @@
+<!-- Tab panes -->
+<div  class="tab-content nodeListContainer">
+  <div  class="tab-pane active tabContent table-responsive" id="organiz" style="display:none">
+    <table class="table table-hover table-bordered cmdbData" style="font-size:13px;margin-bottom:55px";>
+    
+    <thead>
+      <tr>
+        <th style="text-align: center">Node Name</th>
+        <th style="text-align: center">IP Address</th>
+        <th style="text-align: center">FQDN</th>
+        <th style="text-align: center">Platform</th>
+        <th style="text-align: center">Created On</th>
+      
+        <th style="text-align: center">Environment</th>
+      
+        <th style="text-align: center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+  
+
+    </tbody>
+  </table>
+   <footer class="footer">
+      <div style="text-align:center" class="clearfix form-actions">
+        <div>
+            <input type="button" id="buttonForIP" style="margin-left:200px;" value="Import Nodes" class="btn btn-primary showChefImportNodesModalBtn">
+        </div>
+      </div>
+    </footer>
+  <!-- <div style="text-align:center"> <input type="button" class="btn btn-primary showChefImportNodesModalBtn" value="Import Nodes"/> </div> -->
+
+</div>
+
+</div>  
+
+<div class="modal fade" id="chefImportNodesModal" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="" id="myForm12" autocomplete="off">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Import Nodes</h4>
+      </div>
+      <div class="modal-body modalbody-height">
+         
+          
+          <div class="col-lg-6">
+            
+              <label for="exampleInputEmail1">Organization</label>
+                <select id="chefImportOrgSelect"  class="width-100 aaa" disabled>
+                  
+                </select>
+            
+          </div>
+
+          
+
+          <div class="col-lg-6 topNew">  
+              <label for="exampleInputEmail1">Business Groups<span class="control-label redSpan">&nbsp;*</span></label>
+
+              <select id="chefImportBgSelect"  class="width-100 aaaaa" cdata="catalyst" cat-validation="required" autofocus>
+
+                
+              </select>
+            
+          </div>
+
+        <div class="col-lg-6" style="display:none">
+          
+            <label for="exampleInputEmail1">Environment<span class="control-label redSpan">&nbsp;*</span></label>
+            <div class="">
+              <select id="chefImportEnvSelect"  class="width-100" >
+                    
+              </select>
+            </div>
+          
+        </div>
+
+          <div class="col-lg-6" style="margin-top:20px;">
+            <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
+            
+              <select id="chefImportProjectSelect"  class="width-100">
+              </select>
+            
+          </div>
+
+          <div class="col-lg-6 credentialSection" style="margin-top:20px;">
+        
+            <label for="exampleInputEmail1">Username<span class="control-label redSpan">&nbsp;*</span></label>
+            
+            <input type="text" name="importUsernameInput" class="form-control" id="importUsernameInput" required value="" autofocus>
+              <b class="tooltip tooltip-top-right">
+              <i class="fa fa-user txt-color-teal"></i> Please enter Instance Username</b>
+          
+        
+          </div>
+      
+          <div class="col-lg-6" style="margin-top:20px;">
+            <label for="">Choose Authentication Type</label>
+            <select id="pemFileDropdown2"  class="authenticationType width-100" cdata="catalyst" cat-validation="required">
+              <option value="password">Password</option>
+              <option value="pemFile">Pem File</option>
+            </select>
+          
+          </div>
+
+          
+      
+      <div class="col-lg-6" style="display:none">
+        
+          <label for="exampleInputEmail1">Provider</label>
+          
+          <select id="chefImportProviderSelect"  class="form-control" cat-validation="required">
+                
+          </select>
+        
+        
+      </div>
+      
+      
+      <div class="col-lg-6 credentialSection authPassword" style="margin-top:20px;">
+        
+          <label for="exampleInputEmail1">Password</label>
+          
+          <input type="password" class="form-control" id="importPasswordInput" required="true" cdata="catalyst" cat-validation="required"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+            <b class="tooltip tooltip-top-right">
+            <i class="fa fa-lock txt-color-teal"></i> Please enter Instance Password</b>
+          
+        
+      </div>
+
+      <div class="col-lg-6 credentialSection authPemFile" style="margin-top:20px;">
+        <div class="smart-forms">
+            <label for="exampleInputEmail1">Pem File</label>
+            <label for="" name="field" class="file">
+                <span class="button btn-primary">Browse</span>
+                <input id="importPemfileInput" type="file" class="gui-file">
+                <input type="text" readonly="" class="gui-input">
+            </label>
+        </div>
+      </div>
+         
+      </div>
+      <div class="modal-footer">
+          <div class="marginForButtons">
+          <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+          <button type="button" class="btn btn-primary importNodesBtn">Import</button>
+        </div>
+      </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="chefImportNodesResultModal" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Importing Node</h4>
+      </div>
+      <div class="modal-body">
+      </div>
+       <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>  
+
+    var urlParams = {};
+    (window.onpopstate = function() {
+        var url = window.location.href;
+        var indexOfQues = url.lastIndexOf("?");
+        if (indexOfQues != -1) {
+            var sub = url.substring(indexOfQues + 1);
+            console.log(sub);
+            urlParams.servicenowId = sub;
+        }
+    })();
+
+$(function() {
+
+  $('.nodeListContainer').append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+
+    $.get('/servicenow/'+ urlParams.servicenowId +'/importData', function(data) {
+           console.log("ImportData Response:",data);
+
+           if(data.result){
+               createTableFromJson(data);
+               $('.nodeListContainer img').remove();
+               $('.nodeListContainer').find('.tabContent').attr('style','');
+
+         }else{
+               $('.nodeListContainer img').remove();
+               $('.nodeListContainer').find('.tabContent').attr('style','').append('<label>Please check your servicenow settings</label>');
+         }
+
+    }).fail(function(){
+        $('.nodeListContainer img').remove();
+        $('.nodeListContainer').append("Not able to fetch CMDB data.Please check your configuration");
+    });
+
+    var $orgListInput = $('#chefImportOrgSelect');
+    var $bgList = $('#chefImportBgSelect');
+    var $projectList = $('#chefImportProjectSelect');
+    var $envList = $('#chefImportEnvSelect');
+
+    $.get('../cmdb/servers/' + urlParams.servicenowId, function(data) {
+        console.log('chefServer ==>', data);
+        $orgListInput.append($('<option></option>').val(data.orgname_rowid).html(data.orgname).attr('selected', 'selected'));
+        $orgListInput.select2();
+
+        $bgList.empty();
+        $bgList.append($('<option></option>').val('choose').html('Choose'));
+        //alert('Org Rowid' + data.orgname_rowid);
+        var getBGs = getRelatedValues_Top(2, "orgname_rowid", data.orgname_rowid[0], "productgroupname");
+        console.log("getBGs>>",getBGs);
+        for (var i = 0; i < getBGs.length; i++) {
+            if(getBGs[i].indexOf('|') >= 0)
+            {
+              var txtval = getBGs[i].split('|');
+              $bgList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+            }
+            
+        }
+
+        $bgList.change(function(e) {
+            var bgName = $(this).val();
+            if (bgName == 'choose') {
+                return;
+            }
+            $projectList.empty();
+            $projectList.append($('<option></option>').val('choose').html('Choose'));
+
+            var getProjs = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
+            // alert(JSON.stringify(getProjs));
+            for (var i = 0; i < getProjs.length; i++) {
+               if(getProjs[i].indexOf('|') >= 0)
+                {
+                    var txtval = getProjs[i].split('|');
+                    $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                }
+            }
+        });
+
+    }); 
+
+
+    function createTableFromJson(data){
+            var $tableBody = $('.cmdbData').find('tbody');
+             $tableBody.empty();
+             
+             var nodeList = data.result; 
+
+             for(i=0;i<nodeList.length;i++){
+                 var ip_address = nodeList[i].ip_address;
+                 var fqdn = nodeList[i].fqdn;
+                 console.log(ip_address);
+                 if(!ip_address){
+                   ip_address = 'machine is down';
+                 }
+                 if(!fqdn){
+                   fqdn = '&nbsp -';
+                 }
+
+                 var $tr = $('<tr></tr>');
+                 $tr.append('<td>'+ nodeList[i].name +'</td>');
+                 $tr.append('<td>'+ ip_address +'</td>');
+                 $tr.append('<td>'+ fqdn +'</td>');
+                 $tr.append('<td>'+ nodeList[i].os +'</td>');
+                 $tr.append('<td>'+ nodeList[i].sys_created_on +'</td>');
+                 $tr.append('<td>'+ nodeList[i].classification +'</td>');
+                 
+                  $nodecheckboxlabel = $('<label></label>').addClass('checkbox');
+                  $nodecheckboxinput = $('<input class="nodeCheckBox" data-nodeName="' + nodeList[i].name + '" type="checkbox" name="nodesChecked"/><i></i>');
+                  
+                  //console.log(nodeList[i].sys_created_on);
+
+                  /*var time1 = new Date(nodeList[i].sys_created_on);
+                  var time2 = new Date();
+
+                  var diff = time1-time2;
+                  var lapse = new Date(diff);  
+
+                  console.log("diff:",diff);
+                  console.log("lapse:", lapse.getHours());*/
+
+                  /*$('.nodeCheckBox').click(function(){
+                    // alert('hi');
+                    //alert('click');
+                     $(".nodeCheckBox").attr('checked', false);
+                     $(this).attr('checked', true);
+                   //  $(this).find(".nodeCheckBox").attr('checked', true);
+                     
+                  });*/
+                  $('input.nodeCheckBox').on('change', function() {
+                      $('input.nodeCheckBox').not(this).attr('checked', false);
+                  });
+
+                  $nodecheckboxlabel.append($nodecheckboxinput);
+
+                  $tr.append($('<td></td>').addClass('chef-checkbox').append($nodecheckboxlabel));
+
+                  $tableBody.append($tr);
+             }
+    }
+
+    var serviceURL = "../d4dMasters/";
+
+    function getRelatedValues_Top(jsonID, comparedField, filterByValue, outputField) {
+        var result = [];
+        readMasterJson_Top(jsonID);
+        //formData = d4ddata.masterjson;
+        //alert('Top' + JSON.stringify(d4ddata));
+        console.log("getRelatedValues_Top...d4data",d4ddata);
+        //console.log("filterByValue",filterByValue);
+        //console.log("comparedField",comparedField);
+        if (d4ddata) {
+          //alert('grvt:' + JSON.stringify(d4ddata))  ;
+            $.each(d4ddata, function(k, v) {
+                console.log(v[comparedField] == filterByValue);
+                if (v[comparedField] == filterByValue && v[outputField]) {
+                    console.log("true:",v[outputField]);
+                    result.push(v['rowid'] + '|' + v[outputField]);
+                }
+
+            });
+
+        }
+        //alert(result.toString());
+        return (result);
+    }
+
+    function getRelatedValues_Top_rowid(jsonID, comparedField, filterByValue, outputField) {
+        var result = [];
+        readMasterJson_Top(jsonID);
+        //formData = d4ddata.masterjson;
+        //alert('Top' + JSON.stringify(d4ddata));
+        if (d4ddata) {
+          //alert('grvt:' + JSON.stringify(d4ddata))  ;
+            $.each(d4ddata, function(k, v) {
+                
+                if (v[comparedField] == filterByValue && v[outputField]) {
+                    var rowids = v[outputField + '_rowid'].split(',');
+                    var txts = v[outputField].split(',');
+                    for(var i =0; i < txts.length;i++){
+                      result.push(rowids[i] + '|' + txts[i]);
+                    }
+                    
+                }
+
+            });
+
+        }
+        //alert(result.toString());
+        return (result);
+    }
+
+    function readMasterJson_Top(section) {
+        //alert(serviceURL + "readmasterjsonnew/" + section);
+        $.ajax({
+            type: "get",
+            dataType: "text",
+            async: false,
+            url: serviceURL + "readmasterjsonnew/" + section,
+            success: function(data) {
+               // alert(JSON.stringify(data));   
+                d4ddata = JSON.parse(data);
+                //console.log("d4ddata>>", d4ddata);
+            },
+            failure: function(data) {
+                alert(data.toString());
+            }
+        });
+        return (d4ddata);
+    }
+
+      $('#importPemfileInput').change(function() {
+        //console.log(this.files);
+        $(this).next().val(this.files[0].name);
+      });
+
+    $('.importNodesBtn').click(function(e) {
+        var $checkBoxes = $('.nodeCheckBox:checked');
+        var reqBody = {};
+        reqBody.orgId = $orgListInput.val();
+        reqBody.bgId = $bgList.val();
+        reqBody.projectId = $projectList.val();
+        reqBody.envID = $envList.val();
+
+      if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
+            alert('Please Select a Business Group & Project');
+        return;
+        }
+
+        reqBody.selectedNodeName = $checkBoxes.attr('data-nodeName');
+        //alert(reqBody.selectedNodeName);
+        reqBody.credentials = {};
+        reqBody.credentials.username = $('#importUsernameInput').val();
+
+        var $dropdown = $('#pemFileDropdown2');
+        if (!($dropdown.val() === 'pemFile')) {
+            reqBody.credentials.password = $('#importPasswordInput').val();
+            if (!reqBody.credentials.username) {
+                alert('Please Enter Username');
+                return;
+            }
+            if (!reqBody.credentials.password) {
+                alert('Please Enter Password or Choose a Pem file');
+                return;
+            }
+            /*reqBody.users = $('#userListSelect').val();
+            if (!reqBody.users || !reqBody.users.length) {
+                alert('Please Choose Users');
+                return;
+            }*/
+            console.log(reqBody);
+            $('#chefImportNodesModal').modal('hide');
+            makeRequest();
+        } else {
+            var pemFileInput = $('#importPemfileInput').get(0);
+            if (!reqBody.credentials.username) {
+                alert('Please Enter Username');
+                return;
+            }
+            if (!pemFileInput.files.length) {
+                alert('Please Choose a Pem file');
+                return;
+            }
+
+            /*reqBody.users = $('#userListSelect').val();
+            if (!reqBody.users || !reqBody.users.length) {
+                alert('Please Choose Users');
+                return;
+            }*/
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                // Render thumbnail.
+                reqBody.credentials.pemFileData = e.target.result;
+
+                makeRequest();
+
+            };
+            // Read in the image file as a data URL.
+            reader.readAsText(pemFileInput.files[0]);
+
+        }
+
+        function makeRequest() {
+            $('#saveSpinner').removeClass('hidden');
+            $('.importNodesBtn').attr('disabled', 'disabled');
+            console.log(reqBody);
+            $.post('/servicenow/' + urlParams.servicenowId + '/instances/import', reqBody, function(data) {
+                console.log(data);
+                var $chefResultModalContainer = $('#chefImportNodesResultModal');
+                var $modalBody = $chefResultModalContainer.find('.modal-body');
+                $modalBody.empty();
+                var $progressBar = $('<progress value="0" max="1"></progress>').css({
+                    width: '100%'
+                });
+                var $msgDiv = $('<div class="messageDiv"></div>').css({
+                    width: '100%'
+                });
+
+                $modalBody.append($progressBar).append($msgDiv);
+                $('#saveSpinner').addClass('hidden');
+
+                $('#chefImportNodesModal').modal('hide');
+                $chefResultModalContainer.modal('show');
+                var timeout;
+                var count = 0;
+
+                function pollTaskStatus(taskId, timestamp) {
+                    timeout = setTimeout(function() {
+                        $.get('../taskstatus/' + taskId + '/status?timestamp=' + timestamp, function(data) {
+                            console.log(data);
+                            if (!data.completed) {
+                                if (data.statusList && data.statusList.length) {
+
+                                    $progressBar.val(data.statusList.length);
+                                    $msgDiv.empty();
+                                    for (var i = 0; i < data.statusList.length; i++) {
+                                        $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                    }
+
+                                    pollTaskStatus(taskId, data.statusList[data.statusList.length - 1].timestamp);
+                                } else {
+                                    pollTaskStatus(taskId, timestamp);
+                                }
+                            } else {
+                                if (data.statusList && data.statusList.length) {
+                                    $progressBar.val(data.statusList.length);
+                                    $msgDiv.empty();
+                                    for (var i = 0; i < data.statusList.length; i++) {
+                                        $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                    }
+                                }
+                                $progressBar.val(reqBody.selectedNodes.length);
+                                if (reqBody.selectedNodes.length) {
+
+                                    var nodeData = $($checkBoxes[0]).data('node');
+                                    if (nodeData && nodeData.chef_environment) {
+                                        //$chefResultModalContainer.modal('hide');
+                                        loadTreeFuncNew();
+                                        //window.location.href = '#ajax/Dev.html?org='+reqBody.orgId+'&projid='+reqBody.projectId+'&envid='+nodeData.chef_environment;
+
+                                    }
+                                }
+                            }
+                        })
+                    }, 1000);
+
+                }
+                pollTaskStatus(data.taskId, 0);
+                //Refreshing the workzone tree
+
+            }).error(function() {
+                alert('Unable to import instances. Please try again later');
+            });
+        }
+
+    });
+
+  });
+
+$('#buttonForIP').click(function(e){
+  $('#saveSpinner').addClass('hidden');
+  $('.importNodesBtn').removeAttr('disabled');
+  var perm = haspermission('instancelaunch','execute');
+  
+  //alert(perm);
+  if(!perm)
+  {
+    
+    bootbox.alert('Insufficient permission to perform operation.');
+    $('#chefImportNodesModal').modal('hide');
+    return;
+  }
+  else{
+     var $checkBoxes = $('.nodeCheckBox:checked');
+     if (!$checkBoxes.length) {
+        alert('Please Choose nodes first');
+        return;
+     }
+    $('#chefImportNodesModal').modal('show');
+    $('#chefImportBgSelect').select2('val', 'All');
+    $('#chefImportProjectSelect').select2('val', 'All');
+    $('#myForm12').trigger("reset");
+    $('#pemFileDropdown2').change();
+    }
+});
+
+$(document).ready(function() {
+    $('#pemFileDropdown2').select2();
+    $('#chefImportBgSelect').select2();
+    $('#chefImportProjectSelect').select2();
+    $('#chefImportEnvSelect').select2();
+    $(document).on('shown.bs.modal', function(e) {
+      $('[autofocus]', e.target).focus();
+    });
+});
+
+$(".authPassword").show();
+$(".authPemFile").hide();
+$('.authenticationType').change(function(e) {
+    if (this.value == "password") {
+        $(".authPassword").show();
+        $(".authPemFile").hide();
+    } else {
+        $(".authPassword").hide();
+        $(".authPemFile").show();
+    }
+});
+
+</script>

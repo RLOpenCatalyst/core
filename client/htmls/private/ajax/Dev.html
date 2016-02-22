@@ -1,0 +1,112 @@
+<!--tabs start here-->
+<div class="row">
+<article class="col-sm-12 col-md-12 col-lg-12">
+   <div id="widget_body_container" class="widget-body" style="font-size:12px;">
+      <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+         <li class="dropdown active InfrastructureLocalStorage">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="javascript:void(0);">Infrastructure<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+               <li class="active Instances">
+                  <a href="#l1" style="display:block!important" data-toggle="tab" ><i class="fa fa-reorder"></i>&nbsp;Instances <label id="instanceSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label></a>
+               </li>
+               <li class="Blueprints">
+                  <a href="#l2" style="display:block!important" data-toggle="tab"><i class="fa fa-crosshairs"></i>&nbsp;Blueprints</a>
+               </li>
+               <li class="CloudFormation">
+                  <a href="#l5" style="display:block!important" data-toggle="tab"><i class="fa fa-indent"></i>&nbsp;CloudFormation</a>
+               </li>
+               <li class="AzureArmTab">
+                  <a href="#l7" style="display:block!important" data-toggle="tab"><i class="fa fa-indent"></i>&nbsp;AzureARM</a>
+               </li>
+               <li class="Containers">
+                  <a href="#l4" style="display:block!important" data-toggle="tab"><i class="fa fa-briefcase"></i>&nbsp;Containers</a>
+               </li>
+            </ul>
+         </li>
+         <li class="pull-left Orchestration">
+            <a href="#l3" style="display:block!important" data-toggle="tab"><i class="fa fa-indent"></i>&nbsp;Orchestration</a>
+         </li>
+         <li class="pull-left Applications">
+            <a href="#l6" style="display:block!important" data-toggle="tab"><i class="fa fa-shield"></i>&nbsp;Applications</a>
+         </li>
+      </ul>
+      <div id="myTabContent3" class="nav tab-content">
+      </div>
+      <!-- Modal for chef-Runlist -->
+      <div class="modal fade" id="modalTableRunlist" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  &times;
+                  </button>
+                  <h4 class="modal-title">
+                     Chef-Runlists
+                  </h4>
+               </div>
+               <div class="modal-body no-padding">
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+               </div>
+            </div>
+            <!-- /.modal-content -->
+         </div>
+         <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+</article>
+</div>
+<script>
+$(function() {
+    var basePath = 'ajax/devHTML/';
+    var htmlTabs = {
+        docker: 'docker.html',
+        blueprint: 'blueprint.html',
+        instance: 'instance.html',
+        cloudformation: 'cloudformation.html',
+        azureArm: 'azure-arm.html',
+        orchestration: 'orchestration.html',
+        application: 'application.html'
+    };
+    window.count = 0;
+
+    $(document).on('devPagesLoaded', function() {
+        window.count++;
+        if (window.count === 4) {
+
+            devCall();
+        }
+    });
+
+    var callback = function() {
+        $(document).trigger('devPagesLoaded');
+    };
+
+
+    loadHTMLFile(basePath + htmlTabs.instance, $('#myTabContent3'));
+    loadHTMLFile(basePath + htmlTabs.blueprint, $('#myTabContent3'));
+    loadHTMLFile(basePath + htmlTabs.orchestration, $('#myTabContent3'));
+    loadHTMLFile(basePath + htmlTabs.cloudformation, $('#myTabContent3'));
+    loadHTMLFile(basePath + htmlTabs.azureArm, $('#myTabContent3'));
+    loadHTMLFile(basePath + htmlTabs.docker, $('#myTabContent3'));
+    loadHTMLFile(basePath + htmlTabs.application, $('#myTabContent3'));
+
+    function loadHTMLFile(url, parentToAppend) {
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'html',
+            cache: true,
+            success: function(data) {
+                $(parentToAppend).append(data);
+                $(document).trigger('devPagesLoaded');
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                container.html('<h4 style="margin-top:10px; display:block; text-align:left"><i class="fa fa-warning txt-color-orangeDark"></i> Error 404! Page not found.</h4>');
+            },
+            async: false
+        });
+    }
+});
+</script>

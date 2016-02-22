@@ -1,0 +1,359 @@
+<!--css styles-->
+<style>
+.bodyStyle{
+	padding:0px !important;
+}
+.tableInstance{
+	padding-left:0px; 
+	padding-right:0px;
+	padding-top:50px;
+}
+.tableBorderStyle{
+	border:1px solid #eeeeee !important;
+	text-align:center;
+}
+.ctrlBtn{
+	margin-left:200px!important;
+}
+</style>
+<!--css styles ends here-->
+
+<!--tab for instances-->
+<div class="tab-pane fade in active" id="l1">
+   <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
+      <div>
+         <div class="widget-body no-padding">
+            <div class="panel-group smart-accordion-default" id="accordion-1" style="overflow-y: auto;">
+               <div class="panel panel-default">
+                  <div class="panel-heading">
+                     <h4 class="panel-title panelStyle font-size-12">
+                        <a data-toggle="collapse">Instances</a>
+                        <div class="instanceloaderspinner hidden"><img   src="img/select2-spinner.gif"> Loading Instances</div>
+                     </h4>
+                     <span class="pull-right swap-view">
+                     <span class="pull-right importButton">
+                     <a type="reset" id="ipaddressimport" data-original-title="Import Instance" data-placement="top" title="Import By IP" rel="tooltip" href="#modalContainerimportInstance" data-backdrop="false" data-toggle="modal">
+                     <i class="fa fa-th fa-2x fa-laptop"/>
+                     </a>
+                     </span>
+                     <a class="btn1" id="defaultViewButton" onclick="showHideControl(this.id)"> <i class="fa fa-th fa-2x txt-color-deactive font-size18" title="Card View"/></a>&nbsp;
+                     <a id="instanceview" class="btn1" onclick="showHideControl(this.id)"> <i class="fa fa-align-justify fa-2x txt-color-deactive font-size18" title="Table View"/></a></span>
+                  </div>
+                  <div id="collapseOne-1" class="panel-collapse collapse in">
+                     <div class="panel-body bodyStyle">
+                        <div class="widget-box" id="divinstancestableview">
+                           <div class="widget-body">
+                              <div class="widget-main widgetHeight">
+                                 <div class="col-md-12 tableInstance">
+                                    <div class="table-responsive table-div" >
+                                       <table id="tableinstanceview" class="table table-bordered dataTable tableBorderStyle" cellpadding="5px" width="100%">
+                                          <thead>
+                                             <tr class="rowCustomStyle">
+                                                <td>Logo</td>
+                                                <td>Name</td>
+                                                <td>IPAddress</td>
+                                                <td>Runlists</td>
+                                                <td>Status</td>
+                                                <td>Log Info</td>
+                                                <td>Chef Run</td>
+                                                <td class="widthAdjustment">Action</td>
+                                             </tr>
+                                          </thead>
+                                          <tbody class="customRow" id="customRow">
+                                          </tbody>
+                                       </table>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div id="divinstancescardview" class="carousel slide">
+                           <div class="carousel-inner">
+                              <!-- Slide 1 -->
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <footer class="footer">
+      <div class="clearfix form-actions textCenter">
+         <div class="btn-group">
+            <button class="btn btn-primary actionControlPanel ctrlBtn">
+            <i class="fa fa-gears"></i>
+            Control Panel
+            </button>
+         </div>
+         <a class="btn pull-right btn-danger right-button" title="Delete Instance" id="removeInstance" >
+         <i class="fa fa-trash-o"></i>
+         </a>
+      </div>
+   </footer>
+</div>
+<!--tab-pane l1 gets over-->
+<!--ssh container-->
+<!-- Modal SSH Shell-->
+<div class="modal fade" id="modalSSHShellContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">
+               <i class="fa fa-terminal txt-color-blue"></i>&nbsp;&nbsp;SSH Terminal
+            </h4>
+         </div>
+         <div class="modal-body modalbody-height">
+            <fieldset></fieldset>
+         </div>
+      </div>
+   </div>
+</div>
+<!--SSH container ends here-->
+<!-- Modal for Import By IP tab started-->
+<div class="modal fade" id="modalContainerimportInstance" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <form role="form" class="cmxform" id="addInstanceForm" autocomplete="off">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+               &times;
+               </button>
+               <h4 class="modal-title">
+                  <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Import Instance By IP
+               </h4>
+            </div>
+            <div class="modal-body">
+               <fieldset>
+                  <span id="spanforshefserverfound">
+                  <div class="col-lg-6 col-md-6 col-sm-6">
+                     <label for="instanceFQDN">Enter IP Address<span class="control-label redSpan">&nbsp;*</span>
+                     </label>
+                     <div class="input-groups">
+                        <input type="text" name="instanceFQDN" class="form-control" id="instanceFQDN" autofocus/>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6">
+                     <label for="importinstanceOS">Choose Operating System<span class="redSpan">&nbsp;*</span></label>
+                     <div class="input-groups">
+                        <select id="importinstanceOS" name="importinstanceOS"  class="width-100 form-control" >
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                     <label for="instanceUsername">Username<span class="control-label redSpan">&nbsp;*</span></label>
+                     <div class="input-groups">
+                        <input type="text" name="instanceUsername" class="form-control" id="instanceUsername">
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                     <label for="">Config Management<span class="control-label redSpan">&nbsp;*</span></label>
+                     <select id="configManagementDropdown"  class="width-100 form-control" >
+                     </select>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                     <label for="">Choose Authentication Type<span class="control-label redSpan">&nbsp;*</span></label>
+                     <select id="pemFileDropdown"  class="authenticationType width-100 form-control">
+                        <option value="password">Password</option>
+                        <option value="pemFile">Pem File</option>
+                     </select>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 authPassword margintop15">
+                     <label for="instancePassword">Password<span class="control-label redSpan">&nbsp;*</span></label>
+                     <div class="input-groups">
+                        <input type="password" name="instancePassword" class="form-control" id="instancePassword" />
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-6 authPemFile margintop15">
+                     <label for="importPemfileInput">Pem File<span class="control-label redSpan">&nbsp;*</span><span class="redSpan hidden" id="requiredPemFile">&nbsp;Required</span></label>
+                     <div class="input-groups">
+                        <input id="importPemfileInput" class="required form-control form-controls" multiple extension="pem" name="importPemfileInput" type="file">
+                     </div>
+                  </div>
+                  <!--app series-->
+                  <div class="applicationURLContainer" id="appSeries12">
+                     <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                        <label for="">Application Name</label>
+                        <input placeholder="AppName" maxlength="8" type="text" name="appNameInput" class="form-control appName">
+                     </div>
+                     <div class="col-lg-6 col-md-6 col-sm-6 margintop15">
+                        <label for="appNameURL">Application URL<span class="redSpan hidden" id="validURL">&nbsp;Please Enter a Valid URL</span></label>
+                        <div class="input-groups">
+                           <input type="text" id="appNameURL" name="appNameURL" class="form-control appURL" placeholder="http://$host[:port]/appname">
+                        </div>
+                     </div>
+                  </div>
+                  <a href="javascript:void(0)" class="clearfix pull-right addNewApp1 appDesignNew" data-backdrop="false" data-toggle="modal">Add Application URL</a>
+               </fieldset>
+            </div>
+            <div class="modal-footer">
+               <label id="nodeimportipspinner" class=" hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+               <label id="nodeimportipresultmsg" class=" hidden"></label>
+               <div class="marginForButtons">
+                  <a class="btn btn-default" type="submit" data-dismiss="modal">
+                  <i class="fa fa-times fa-1x"></i>&nbsp;Cancel
+                  </a>
+                  <button id="addInstanceBtn" class="btn btn-primary" type="submit">
+                  <i class="fa fa-upload fa-1x"></i>&nbsp;Import
+                  </button>
+               </div>
+            </div>
+         </form>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!-- /.modal for Import by IP ended-->
+<!--instance launching pad-->
+<div class="modal fade" id="instanceLogModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">
+               <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Instance Logs
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div class="logsArea font-size-12"></div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+<!--modal for showing the tasks-->
+<div class="modal fade" id="cloneRunlistContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">
+               <i class="fa fa-bar-chart-o txt-color-blue"></i>
+               List of Tasks
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div class="taskArea font-size-12"></div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+<!--running chef client-->
+<div class="modal fade bs-example-modal-lg" id="chefRunModalContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel"><i class="fa fa-pencil-square-o txt-color-blue"></i>Update Runlist</h4>
+         </div>
+         <div class="modal-body" style="padding:0px !important">
+            <div class="panel-group smart-accordion-default" id="chefRunAccordion" role="tablist" aria-multiselectable="true">
+               <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="headingOne">
+                     <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#chefRunAccordion" href="#chefRunAccordionRunlistArea"> <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Assign Runlist</a>
+                     </h4>
+                  </div>
+                  <div id="chefRunAccordionRunlistArea" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                     <div class="panel-body">
+                        <div class="chefRunlistContainer">
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="headingOne">
+                     <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#chefRunAccordion" href="#chefRunAccordionAttributeArea" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Cookbook Attributes</a>
+                     </h4>
+                  </div>
+                  <div id="chefRunAccordionAttributeArea" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                     <div class="panel-body">
+                        <div class="col-lg-12">
+                           <div class="smart-form margin15">
+                              <label class="marginbottom4">
+                              <img src="img/templateicons/Select-nodes---deployment.png">
+                              <strong>Cookbook Attributes 
+                              <a class="bpEditBtn btn btn-primary editAttributesBtnCSS editChefClientRunAttribBtn" rel="tooltip" data-placement="top" data-original-title="Edit">
+                              <i class="ace-icon fa fa-pencil"></i>
+                              </a>
+                              <span style="color:red" id="attrmessage"></span>
+                              </strong>
+                              </label>
+                              <div class="row">
+                                 <div class="col-lg-12">
+                                    <table  class="chefRunAttributesViewTable table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                                       <thead>
+                                          <tr>
+                                             <th>Attributes</th>
+                                             <th>Values</th>
+                                          </tr>
+                                       </thead>
+                                       <tbody class="attributesViewTableBody">
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="modal-footer">
+            <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+            <button type="button" class="btn btn-default btn-primary btnUpdateInstanceRunlist">Update</button>
+         </div>
+      </div>
+   </div>
+</div>
+</div>
+<!--execute modal-->
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="chefClientRunAttributesModal" class="modal fade" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+            x
+            </button>
+            <h4 class="modal-title">
+               <i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Edit Attributes
+            </h4>
+         </div>
+         <div class="modal-body no-padding">
+            <div class="loadingContainer">
+               <img class="center-block loadingContainerimageCSS" src="img/loading.gif" />
+            </div>
+            <div class="errorMsgContainer loadingerrorMsgContainerCSS"></div>
+            <form  class="attributesEditFormArea padding10" action="">
+               <table class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter attributesListTable" cellpadding="5px" width="100%">
+                  <thead>
+                     <tr>
+                        <th>Attributes</th>
+                        <th>Values</th>
+                     </tr>
+                  </thead>
+                  <tbody class="attributesEditTableBody">
+                  </tbody>
+               </table>
+            </form>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary btnSaveInstanceRunlistAttributes">Save</button>
+         </div>
+      </div>
+      <!-- /.modal-content -->
+   </div>
+   <!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedExecute-->

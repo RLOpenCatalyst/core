@@ -1,0 +1,308 @@
+/*================ OVERRIDINGS ON CATALYST.CSS   ===============*/
+#designMenu #designTree::before{
+    border-left: 0px !important;
+}
+#designMenu #designTree>li::before{
+    border-top:0px !important;
+}
+#designMenu #blueprints>li>a>b{
+    display:none;
+}
+#designMenu #blueprints .custom-theme nav > ul > li > a {
+    padding-bottom: 0px;
+}
+.custom-theme nav ul li.open > a{
+    font-weight:normal;
+}
+.custom-theme nav ul li a {
+    font-size: default !important;
+}
+/*================================================================*/
+#designMenu {
+    padding:0; max-height:none!important;  z-index:1000;width:100% !important; background-color: #2C3638 !important;
+    position:absolute;
+}
+#designMenu>a{
+    padding:0px 0px 3px 10px; background-color:#40baf1;border-right:1px solid #C6BDBD;
+}
+#designMenu > a > #tree-toggler {
+    cursor:pointer; width:35px;height:30px; margin:6px 0px 3px 110px;
+    line-height:30px; text-align:center;/*background-color: #3b4142!important;*/
+    background-color: #1D4B53 !important;
+    color: #808080;display:inline-block;
+    border-radius:6px;
+
+    -webkit-box-shadow: -3px 3px 2px 0px #3F3F3F;
+    -moz-box-shadow: -3px 3px 2px 0px #3F3F3F;
+    box-shadow: -3px 3px 2px 0px #3F3F3F;
+}
+#designMenu > a > #tree-toggler:hover i:first-child{
+    color: black;
+}
+#designMenu > a > #tree-toggler:hover i:last-child {
+    color: #808080
+}
+#designMenu > a > span {
+    font-size:14px !important;
+}
+#designMenu > ul.tree-main-menu {
+    list-style:none; margin:0; padding:0
+}
+#designMenu > ul.tree-main-menu>li {
+    border:0 none; display:block; margin:0; padding:0
+}
+#designMenu > ul.tree-main-menu>li:last-child>.devops_providers,
+#designMenu > ul.tree-main-menu>li.last>.devops_providers {
+    border-bottom-color:transparent!important
+}
+#designMenu > ul.tree-main-menu > li > .devops_providers{
+    display:block; font-size:14px !important; font-weight:300; margin:0; padding: 3px 0px 2px 15px;
+    position:relative; text-decoration:none; border-bottom:1px solid #2C3638; /*border-top:1px solid #fff;*/
+    color: #fff; background: #3B4142;
+}
+#designMenu > ul.tree-main-menu>li:hover>.devops_providers {
+    background-color: #b3b1b1 !important;
+    color:black;
+}
+
+#designMenu > ul.tree-main-menu>li.selectedProvider>.devops_providers {
+    background:#b3b1b1 !important;
+}
+#designMenu > ul.tree-main-menu>li.activ>.devops_providers {
+    background:#77A4B9 !important; border-top:none; color: #fff;
+}
+#designMenu > ul.tree-main-menu>li.open>.devops_providers{
+    
+}
+#designMenu > ul.tree-main-menu>li:first-child>.devops_providers {
+    border-top:1px solid gray !important;
+}
+#designMenu > ul.tree-main-menu li .devops_providers .icon-arrow {
+    float:right; margin-right:6px; font-size:16px !important; display:inline-block;
+}
+#designMenu > ul.tree-main-menu>li.activ>.devops_providers .icon-arrow {
+    color: #fff
+}
+#designMenu > ul.tree-main-menu li>.devops_providers .icon-arrow:before {
+    content:"\e163"; font-family:"clip-font";line-height: 2.3;
+}
+#designMenu > ul.tree-main-menu li.open>.devops_providers .icon-arrow:before {
+    content:"\e164"
+}
+#designMenu > ul.tree-main-menu>li>.devops_providers:hover .icon-arrow,
+#designMenu > ul.tree-main-menu>li.open>.devops_providers .icon-arrow {
+    opacity:1
+}
+
+#designMenu > ul.tree-main-menu>li>ul.sub-menu{
+    background-color: #d9d9d9 !important; border:1px solid #D9D9D9;
+}
+#designMenu > ul.tree-main-menu li>ul.sub-menu {
+    clear:both; list-style:none; margin:0px; display:none; padding:0
+}
+#designMenu > ul.tree-main-menu li>ul.sub-menu>li:first-child {
+    margin-top:3px;
+}
+#designMenu > ul.tree-main-menu li>ul.sub-menu>li>a {
+    font-size:14px !important; font-weight:300; padding:5px 0px 5px 40px; text-decoration:none; color:#848484;
+    background:#D9D9D9 !important; border-bottom:1px solid #C8C3C3;
+}
+#designMenu > ul.tree-main-menu li>ul.sub-menu>li.open>a,
+#designMenu > ul.tree-main-menu li>ul.sub-menu>li.activ>a,
+#designMenu > ul.tree-main-menu li>ul.sub-menu>li>a.itemSelected,
+#designMenu > ul.tree-main-menu li>ul.sub-menu>li>a:hover {
+    color: #000!important;
+    background: #b3b1b1!important;
+
+}
+#designMenu > ul.tree-main-menu>li>ul.sub-menu li>a .icon-arrow {
+    margin-right:22px
+}
+
+#designMenu .itemSelected{
+    background:#c8c7cc !important;
+}
+.leftPanelMini{
+    width:50px!important; left:0px !important;
+}
+.leftPanelExpn{
+    width:254px !important;
+}
+.mainLtMini{
+    margin-left:50px !important;
+}
+.mainLtExpn{
+    margin-left:254px !important;
+}
+#designMenu > ul.tree-main-menu li .devops_providers{cursor: pointer;}
+@media(min-width:767px) {
+    #designMenu > ul.tree-main-menu li.open>ul.sub-menu {
+        display:block !important;  padding:0
+    }
+}
+@media(max-width:767px) {
+    #designMenu{width:50px!important;  z-index:1000;}
+    #designMenu > ul.tree-main-menu>li>.devops_providers .title {
+        display:none
+    }
+    /*#ribbon > .demo1{
+        visibility:hidden;
+    }*/
+    #designMenu > ul.tree-main-menu > li > .devops_providers {
+        padding-left:7px; padding-left:7px; border-bottom:0px;
+    }
+    #designMenu .tree-toggler {
+        margin-left: -3px !important; visibility: hidden !important;
+    }
+    #designMenu > ul.tree-main-menu>li>.devops_providers .icon-arrow {
+        display:none
+    }
+    #designMenu > ul.tree-main-menu>li>ul.sub-menu {
+        display:none!important;   /*padding-bottom:10px!important;*/  color:white; margin-left:15px;
+    }    
+    #designMenu > ul.tree-main-menu li>ul.sub-menu>li:first-child {
+        margin-top:0px;
+    }
+
+    #designMenu > ul.tree-main-menu > li:hover{
+        width:241px !important;  position:relative;  background:#77A4B9;
+    }
+    #designMenu > ul.tree-main-menu>li:hover>.devops_providers:after {
+        content:""; bottom:-1px; position:absolute; left:50px; top:-1px; width:14px;
+        background:url(../img/menu-white-arrow.png) left center no-repeat
+    }
+    #designMenu > ul.tree-main-menu>li:hover>.devops_providers .title {
+        padding-left:30px
+    }
+    #designMenu > ul.tree-main-menu>li:hover .title {
+        display:inline
+    }
+    #designMenu > ul.tree-main-menu li>ul.sub-menu>li>a {
+        padding-left:24px!important;
+    }
+    #designMenu > ul.tree-main-menu>li:hover>ul.sub-menu {
+        display:none !important; background:red !important;
+    }
+    #designMenu > ul.tree-main-menu>li:hover>ul.sub-menu {
+        width:189px; position:absolute; z-index:1000; left:36px; margin-top:0; top:100%; display:block!important;
+    }
+    #designMenu a{
+        height:42px;
+    }
+    #designMenu > a >span{
+        visibility: hidden;
+    }
+    #designMenu > a > #tree-toggler:hover i:first-child {
+        color: #808080
+    }
+    #designMenu > a > #tree-toggler:hover i:last-child {
+        color: black;
+    }
+}
+
+
+@media(min-width:768px){
+    .close-tree #designMenu {
+        width:50px!important;  z-index:1000;
+    }
+    .close-tree #designMenu > ul.tree-main-menu>li>.devops_providers .title {
+        display:none
+    }
+    .close-tree #designMenu > ul.tree-main-menu > li > .devops_providers {
+        padding-left:7px; border-bottom:0px;
+    }
+    .close-tree .tree-toggler {
+        margin-left: -3px !important;
+    }
+    .close-tree #designMenu > ul.tree-main-menu>li>.devops_providers .icon-arrow {
+        display:none
+    }
+    .close-tree #designMenu > ul.tree-main-menu > li:hover{
+        width:241px !important;  position:relative;  background:#77A4B9;
+    }
+    .close-tree #designMenu > ul.tree-main-menu>li:hover>.devops_providers:after {
+        content:""; bottom:-1px; position:absolute; left:50px; top:-1px; width:14px;
+        background:url(../img/menu-white-arrow.png) left center no-repeat
+    }
+    .close-tree #designMenu > ul.tree-main-menu>li:hover>.devops_providers .title {
+        padding-left:30px
+    }
+    .close-tree #designMenu > ul.tree-main-menu>li:hover .title {
+        display:inline
+    }
+
+    .close-tree #designMenu > ul.tree-main-menu>li>ul.sub-menu {
+        display:none!important;  /* padding-bottom:10px!important; */ color:white; margin-left:15px;
+    }
+    .close-tree #designMenu > ul.tree-main-menu li>ul.sub-menu>li:first-child {
+        margin-top:0px;
+    }
+    .close-tree #designMenu > ul.tree-main-menu li>ul.sub-menu>li>a {
+        padding-left:24px!important;
+    }
+    .close-tree #designMenu > ul.tree-main-menu>li:hover>ul.sub-menu {
+        width:190px !important;
+        position:absolute;
+        z-index:1000;
+        left:36px;
+        margin-top:0;
+        top:100%;
+        display:block!important;
+    }
+    .close-tree #designMenu > a > #tree-toggler:hover i:first-child {
+        color: #808080
+    }
+    .close-tree #designMenu > a > #tree-toggler:hover i:last-child {
+        color: black;
+    }
+    .close-tree li#designMenu > a > span{
+        display:none;
+    }
+}
+
+
+/*============= ADDING ICONS FROM SPRITES.PNG ============*/
+#designTree .iconSprite{
+    width: 40px;  height: 35px; display:inline-block;vertical-align:middle; background-image:url("../img/sprites.png");
+ }
+#designTree .iconSprite.awsIcon{
+    background-position: -6px -55px;    
+}
+#designTree .iconSprite.azureIcon{
+    background-position: -54px -56px;    
+}
+#designTree .iconSprite.dataCentreIcon{
+    background-position: -107px -55px ;
+}
+#designTree .iconSprite.openstackIcon{
+    background-position: -156px -56px ; 
+}
+#designTree .iconSprite.cloudstackIcon{
+    background-position: -207px -57px ;
+}
+#designTree .iconSprite.hpIcon{
+    background-position: -306px -56px;
+}
+#designTree .iconSprite.dockerIcon{
+    background-position: -253px -57px ;
+}
+
+
+.icon-chevron-up:before {
+    content:"\f077"
+}
+.icon-chevron-down:before {
+    content:"\f078"
+}
+.icon-arrow-left:before {
+    content:"\f060"
+}
+.icon-arrow-right:before {
+    content:"\f061"
+}
+.fa-chevron-left:before{
+    content:"\e163";font-family: "clip-font";color:#fff;
+}
+.fa-chevron-right:before{
+    content:"\e162";font-family: "clip-font";color:#fff;
+}

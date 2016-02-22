@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<title>RL-Catalyst</title>
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+		<meta http-equiv="pragma" content="no-cache">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<!-- Basic Styles -->
+		<link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="css/font-awesome.min.css">
+
+		<link rel="stylesheet" type="text/css" media="screen" href="css/jiraprofiling/dc.css">		
+		<link rel="stylesheet" type="text/css" media="screen" href="css/jiraprofiling/your_style.css">
+	</head>
+	<style type="text/css">
+	
+	</style>
+	<body class="desktop-detected smart-style-2">
+		<div id="content">
+			<section id="widget-grid" class="">
+				<div class="row">
+					<article class="col-xs-12 col-sm-6 col-md-12 col-lg-12">
+						<div class="jarviswidget jarviswidget-color-blueLight"
+							id="wid-id-header" data-widget-editbutton="false"
+							data-widget-deletebutton="false"
+							data-widget-fullscreenbutton="false" data-widget-sortable="false">
+							<header>
+								<span class="widget-icon"><i class="fa fa-fw fa-bar-chart-o">
+								</i></span>
+								<h2>Jira Profiling</h2>
+							</header>
+							<div class="backgroundcolorwidgetimp">
+								<div class="widget-body" class="backgroundcolorwidgetimp">
+									<div id="myTabContent" class="tab-content">
+										<div class="tab-pane fade active in no-padding-bottom"
+											id="materialgroup">
+											<div class="row" id="mainDivId">
+												<div class="col-md-3">
+													<div class="jarviswidget jarviswidget-color-light "
+														id="wid-id-1" data-widget-editbutton="false"
+														data-widget-deletebutton="false"
+														data-widget-fullscreenbutton="false"
+														data-widget-sortable="false" data-widget-togglebutton="false">
+														<header>
+															<span class="widget-icon"><i
+																class="fa fa-fw fa-bar-chart-o"> </i></span>
+															<h2>Project</h2>
+														</header>
+														<div>
+															<div class="widget-body">
+																<div id="row-chart-Project">
+																	<a class="reset"
+																		href="javascript:soProfiling.horzBarChartProject.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-9">
+													<div class="jarviswidget jarviswidget-color-light "
+														id="wid-id-2" data-widget-editbutton="false"
+														data-widget-deletebutton="false"
+														data-widget-fullscreenbutton="false"
+														data-widget-togglebutton="false">
+														<header>
+															<span class="widget-icon"><i
+																class="fa fa-fw fa-bar-chart-o"> </i></span>
+															<h2>Jira Analytics by Dimensions</h2>
+															<div id="getByChoice" class="btn-group pull-right"
+																data-toggle="buttons">
+															</div>
+														</header>
+														<div style="background: #FFFFFF">
+															<div class="jarviswidget-editbox">
+															</div>
+															<div class="widget-body">
+																<div id="pie-chart-IssueType" class="col-md-4"
+																	align="center">
+																	<div class="axisLabel">Issue Type</div>
+																	<a class="reset"
+																		href="javascript:soProfiling.pieChartIssueType.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+																<div id="pie-chart-Status" class="col-md-4" align="center">
+																	<div class="axisLabel">Status</div> <a class="reset"
+																		href="javascript:soProfiling.pieChartStatus.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+																<div id="pie-chart-FixVersions" class="col-md-4"
+																	align="center">
+																	<div class="axisLabel">Fix Versions</div> <a class="reset"
+																		href="javascript:soProfiling.pieChartFixVersions.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+																<div class="clearfix"></div>
+															</div>
+														</div>
+													</div>
+													<div class="jarviswidget jarviswidget-color-light "
+														id="wid-id-3" data-widget-editbutton="false"
+														data-widget-deletebutton="false"
+														data-widget-fullscreenbutton="false"
+														data-widget-togglebutton="false">
+
+														<header>
+															<span class="widget-icon"><i
+																class="fa fa-fw fa-bar-chart-o"> </i> </span>
+															<h2>Jira Analytics by Dimensions</h2>
+														</header>
+														<div style="background: #FFFFFF">
+															<div class="widget-body">
+																<div id="pie-chart-Priority" class="col-md-4"
+																	align="center">
+																	<div class="axisLabel">Priority</div> <a class="reset"
+																		href="javascript:soProfiling.pieChartPriority.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+
+																<div id="pie-chart-Resolution" class="col-md-4"
+																	align="center">
+																	<div class="axisLabel">Resolution</div> <a class="reset"
+																		href="javascript:soProfiling.pieChartResolution.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+																<div id="row-Chart-Assignee" class="col-md-4"
+																	align="center">
+																	<div class="axisLabel">Assignee</div> <a class="reset"
+																		href="javascript:soProfiling.rowChartAssignee.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+															</div>
+														</div>
+													</div>
+													
+													<div class="jarviswidget jarviswidget-color-light "
+														id="wid-id-4" data-widget-editbutton="false"
+														data-widget-deletebutton="false"
+														data-widget-fullscreenbutton="false"
+														data-widget-togglebutton="false">
+
+														<header>
+															<span class="widget-icon"><i
+																class="fa fa-fw fa-bar-chart-o"> </i> </span>
+															<h2>Jira Analytics by Dimensions</h2>
+														</header>
+
+														<div style="background: #FFFFFF">
+															<div class="widget-body">
+																<div id="pie-chart-Components" class="col-md-4"
+																	align="center">
+																	<div class="axisLabel">Components</div> <a class="reset"
+																		href="javascript:soProfiling.pieChartComponents.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+																<div id="pie-chart-EpicTheme" class="col-md-4"
+																	align="center">
+																	<div class="axisLabel">Epic Theme</div> <a class="reset"
+																		href="javascript:soProfiling.pieChartEpicTheme.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+																<div id="pie-chart-Reporter" class="col-md-4"
+																	align="center">
+																	<div class="axisLabel">Reporter</div> <a class="reset"
+																		href="javascript:soProfiling.pieChartReporter.filterAll();dc.redrawAll();"
+																		style="display: none;">reset</a>
+																	<div class="clearfix"></div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>	
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</article>
+				</div>
+			</section>
+		</div>
+		
+		<script src="js/jiraprofiling/jquery-2.0.2.min.js"></script>
+
+		
+		<!-- // <script src="js/bootstrap/bootstrap.min.js"></script> -->
+		<!-- // <script src="js/jquery.dataTables.js"></script> -->
+		
+				    
+		<script src="js/jiraprofiling/d3.min.js"></script>
+		<script src="js/jiraprofiling/dc.min.js"></script>
+		<!-- <script src="js/Common/System.js"></script> -->
+		<!-- <script src="js/Common/Common.js"></script> -->
+		<script src="js/jiraprofiling/crossfilter.js"></script>
+		<script src="js/jiraprofiling/e2e_JiraProfiling.js"></script>
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="css/cAdvisor.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/cadvisorbootstrap-3.1.1.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/cadvisorbootstarp-theme-3.1.1.min.css">
+ 
+    <script src="js/cAdvisorjquery.js"></script>
+    <script src="js/cAdvisorbootstrap.js"></script>
+    <script src="js/cAdvisorgooglejs-api.js"></script>
+    <script src="js/cAdvisor.js"></script>
+    
+    
+    
+    
+    
+    <link href="https://ajax.googleapis.com/ajax/static/modules/gviz/1.0/core/tooltip.css" rel="stylesheet" type="text/css">
+ -->
+	</body>
+
+</html>

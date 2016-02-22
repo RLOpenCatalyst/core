@@ -1,0 +1,536 @@
+<style>
+.tableStylePadding{
+    padding-left:0px; padding-right:0px;
+}
+.inlineBlock{
+    display: inline-block!important;
+}
+.marginTop5{
+    margin-top: 5px;
+}
+.marginLeft{
+    margin-left:4px
+}
+</style>
+<!-- Container tab started  -->
+<div class="tab-pane" id="l4">
+    <div class="panel-heading">
+        <h5 class="panel-title font-size-12">Containers</h5>
+    </div>
+    <div class="spinnerDocker"><img class="center-block spinnerStyle" src="img/loading.gif" /></div>
+    <div class="widget-body dockerContainerBody hidden">
+        <div class="widget-main widgetHeight">
+            <div class="col-md-12 table-responsive tableStylePadding">
+                <div class="col-md-12"><a href="#" style="float:right" title="Refresh view" id="dockercontainertablerefreshbutton"><i class="fa fa-refresh fa-lg " id="dockercontainertablerefreshspinner"></i></a></div>
+                <table class="table table-striped table-bordered table-hover dataTable no-footer" id="dockercontainertable" cellpadding="5px" width="100%;">
+                    <thead>
+                        <tr class="rowCustomStyle">
+                            <td>Actions</td>
+                            <td>State</td>
+                            <td>Created</td>
+                            <td>Name</td>
+                            <td>Instance IP</td>
+                            <td>Container ID</td>
+                            <td>Image</td>
+                            <td>Info</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="dockercontainertabletemplatetr" class="hidden dockercontainertabletemplatetr">
+                            <td class="widthContainer">
+                                <div class="container1 inlineBlock">
+                                    <div id="card1">
+                                        <div class="card1 front1 flipper hidden stop"  title="Stop">
+                                            <div id="flip1" class="marginTop5">
+                                               
+                                                    <a href="javascript:void(0);" data-original-title="Stop" dockercontaineraction="2" data-placement="top" rel="tooltip"  class="dockeractionbutton" ><i class="fa fa-power-off fa-1x txt-color-white"></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="card1 front1 flipper start"  title="Start">
+                                            <div id="flip1" class="marginTop5">
+                                                
+                                                    <a href="javascript:void(0);" data-original-title="Start"  dockercontaineraction="1"  data-placement="top" rel="tooltip"  class="dockeractionbutton"><i class="fa fa-play fa-1x txt-color-white"></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container1 inlineBlock marginLeft">
+                                    <div id="card3">
+                                        <div class="card3 front3"  title="Restart" >
+                                            <div class="marginTop5">
+                                                
+                                                    <a href="javascript:void(0);" data-original-title="Restart"  dockercontaineraction="3"  data-placement="top" rel="tooltip" class="dockeractionbutton"><i class="fa fa-undo fa-16px txt-color-white"></i></a>
+                                               
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container1 inlineBlock marginLeft">
+                                    <div id="card2">
+                                        <div class="card2 front2  hidden pause"  title="Pause" >
+                                            <div id="flip3" class="marginTop5">
+                                                
+                                                    <a href="javascript:void(0);" data-original-title="Pause"  dockercontaineraction="4"  data-placement="top" rel="tooltip" class="dockeractionbutton"><i class="fa fa-pause fa-16px txt-color-white" ></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="card2 front2  unpause">
+                                            <div id="flip3" class="marginTop5"  title="UnPause" >
+                                                
+                                                    <a href="javascript:void(0)" data-original-title="Unpause"  dockercontaineraction="5"  data-placement="top" rel="tooltip" class="dockeractionbutton"><i class="fa fa-eject fa-1x txt-color-white" style="transform:rotate(90deg)"></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container1 inlineBlock marginLeft">
+                                    <div id="card3">
+                                        <div class="card3 frontTerminate"  title="Terminate" >
+                                            <div class="marginTop5">
+                                                
+                                                    <a href="javascript:void(0);" data-original-title="Terminate"  dockercontaineraction="6"  data-placement="top" rel="tooltip" class="dockeractionbutton"><i class="fa fa-sign-out fa-16px txt-color-white"></i></a>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="" width="180px"><span class="dockercontainerstatus"></span></td>
+                            <td  class="dockercontainerstartedon"></td>
+                            <td  class="dockercontainername"></td>
+                            <td  class="dockercontainerhostip"></td>
+                            <td  class="dockercontainerid"></td>
+                            <td  class="dockercontainerimagename"></td>
+                            <td>
+                                <a href="#modalContainermoreInfo" class="moreInfo btn1 modelcontainermoreinfo" data-actiontype="start" dockercontaineraction="info"  rel="tooltip" data-placement="top" data-original-title="MoreInfo" data-toggle="modal">
+                                <img class="dockercontainerprogress hidden" style="margin-left:30px" src="img/select2-spinner.gif"></img>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="loadingimagefordockertable hidden">
+                    <img src="img/select2-spinner.gif">&nbsp; Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Container tab ended -->
+<!-- Modal -->
+<div class="modal fade" id="launchDockerInstanceSelector__" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" style="width:750px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="dockerInstanceSelectionTitle">Select Instances for </h4>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary dockerinstancestartold" style="margin-right:5px;">Start</button>
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--launching docker parameters-->
+<div class="modal fade bs-example-modal-lg" id="launchDockerInstanceSelector" tabindex="-1" style="z-index:1600" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="DockerLaunch">Launch Docker Blueprint</h4>
+            </div>
+            <div class="modal-body">
+                <section id="wizard">
+                    <form id="commentForm" action="">
+                        <div id="rootwizard">
+                            <ul style="display:none">
+                                <li><a href="#tab1" data-toggle="tab">First</a></li>
+                                <li><a href="#tab2" data-toggle="tab">Second</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane" id="tab1">
+                                    <div style="margin:0px;">
+                                        <div class="col-lg-12 col-md-12 fordocker" style="margin-top:5px;">
+                                            <label for="category">Docker Images:
+                                            </label>
+                                            <a class="btn btn-primary adddockertemplate pull-right hidden" onclick="showdockertemplateadder();">Add</a>
+                                            <table class="table table-striped table-bordered table-hover dataTable no-footer" id="compositedockertable" cellpadding="5px" width="100%">
+                                                <tr>
+                                                    <th>Order</th>
+                                                    <th>Name</th>
+                                                    <th>Image Path</th>
+                                                    <th>Tag</th>
+                                                    <th>Launch Params</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div style="margin:0px;" class="hidden oldlaunchparams">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <label for="category">Container Name<span style="color:red">*</span><span class="dockerparamrequired hidden" style="color:red">&nbsp;Required</span>
+                                            </label>
+                                            <input type="text" id="Containernamefield" name="namefield" class="form-control" placeholder="" dockerparamkey="--name" onclick="$('.dockerparamrequired').addClass('hidden')">
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <label for="category">Port Mappings
+                                            </label>
+                                            <input type="text" id="Portmappingfield" name="Portmappingfield" class=" form-control" placeholder="Map host ports to container ports" dockerparamkey="-p">
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                            <label for="category">Volumes
+                                            </label>
+                                            <input type="text" id="Volumesfield" name="Volumesfield" class=" form-control" placeholder="Map host folders to container folders" dockerparamkey="-v">
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                            <label for="category">Volumes-from
+                                            </label>
+                                            <input type="text" id="Volumes-fromfield" name="Volumes-fromfield" class=" form-control" placeholder="Comma separated container names" dockerparamkey="--volumes-from">
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                            <label for="category">Linked Container
+                                            </label>
+                                            <input type="text" id="Linkedcontainerfield" name="Linkedcontainerfield" class=" form-control" placeholder="The name of a container this one links to" dockerparamkey="--link">
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                            <label for="category">Environment Variables
+                                            </label>
+                                            <input type="text" id="Environmentvariablesfield" name="Environmentvariablesfield" class=" form-control" placeholder="Comma seperated environment variables" dockerparamkey="-e">
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                            <label for="category">Startup Command
+                                            </label>
+                                            <input type="text" id="Startupcommandfield" name="Startupcommandfield" class=" form-control" placeholder="Optional startup command for the container" dockerparamkey="-c">
+                                        </div>
+                                        <div class="col-lg-12 col-md-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal dockerLEFT">
+                                                <label for="category">Additional Startup
+                                                </label>
+                                                <input type="text" id="additionalStartupcommandfield" name="additionalStartupcommandfield" class=" form-control" placeholder="Optional startup command for the container" dockerparamkey="-exec">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 hidden">
+                                            <label class="control-label" for="category">Removed Linked Containers on Exit
+                                            </label>
+                                            <select class="chooseSelect width-100" id="Removelinkedcontainersonexitfield" placeholder="Should this &amp; linked containers be removed on exit">
+                                                <option>False</option>
+                                                <option>True</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 dockerModal hidden">
+                                            <label for="category">Remove on Exit
+                                            </label>
+                                            <select class="width-100" id="Removeonexitfield" placeholder="Should this container be removed when it exits">
+                                                <option value="False" selected>False</option>
+                                                <option value="True">True</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 hidden">
+                                            <label class="control-label" for="">Startup Script</label>
+                                            <label class="input input-file" for="file">
+                                                <div class="button">
+                                                    <input type="file" id="Startupscriptfield" name="Startupscriptfield">Browse
+                                                </div>
+                                                <input type="text" readonly="">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="tab2">
+                                    <div id="dockerinstancesselctorview" style="margin-top: 26px;">
+                                    </div>
+                                    <div class="btn-group">
+                                        <a type="button" class="btn btn-default btn-primary hidden" data-dismiss="modal">Close</a>
+                                    </div>
+                                </div>
+                                <ul class="pager wizard">
+                                    <li class="previous disabled"><a href="javascript:void(0);" class="btn btn-primary dockerModal previousModal" style="border-radius:0px">Previous</a></li>
+                                    <li class="next"><a href="javascript:void(0);" class="btn btn-primary dockerModal nextModal" style="border-radius:0px;margin-left:5px;">Next</a></li>
+                                    <button type="button" class="btn btn-primary nav nav-pills dockerinstancestart hidden dockerModal startModal"><span class="startBTN">Start</span></button>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+<!--cadvisor modal-->
+<div aria-hidden="true" aria-labelledby="cadvisorpopup" role="dialog" tabindex="-1" id="cadvisorpopup" class="modal fade" data-backdrop="static">
+    <div class="modal-dialog"  style="width:80%;">
+        <div class="modal-content" style="height:500px">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+                X
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-line-chart fa-lg txt-color-blue"></i>&nbsp;&nbsp;Monitoring Container
+                </h4>
+            </div>
+            <div class="modal-body no-padding"  style="height:480px">
+                <form class="smart-form" id="login-form" action="" novalidate="novalidate">
+                    <fieldset style="padding-top:7px !important;height:366px;">
+                        <div id="cadvisorloadingicon" class="" style="text-align:center"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;margin-left:50%" src="img/loading.gif" /></div>
+                        <iframe id="cAdvisorPageFrame"  style="width:100%;height:100%;border:0px;">
+                        </iframe>
+                    </fieldset>
+                    <footer>
+                        <button class="btn btn-primary" type="submit" data-dismiss="modal">
+                        <i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close
+                        </button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!--/.modal-assignedNode-->
+<!-- Modal for Container tab started-->
+<div class="modal fade" id="modalContainermoreInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                &times;
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Details of Container
+                </h4>
+            </div>
+            <div class="modal-body no-padding">
+                <form novalidate="novalidate" action="" id="login-form" class="smart-form">
+                    <fieldset style="padding-top:7px !important;">
+                        <section>
+                            <div class="widget-body">
+                                <ul id="myTab1" class="nav nav-tabs bordered">
+                                    <li class="active">
+                                        <a href="#s1" data-toggle="tab">General-Info</a>
+                                    </li>
+                                    <li class="">
+                                        <a href="#s2" data-toggle="tab">State</a>
+                                    </li>
+                                    <li class="">
+                                        <a href="#s3" data-toggle="tab">Image</a>
+                                    </li>
+                                </ul>
+                                <div id="myTabContent1" class="tab-content padding-10">
+                                    <div class="tab-pane fade active in" id="s1">
+                                        <div class="spinnerDockerInfo"><img class="center-block spinnerStyle" style="margin-left:256px;" src="img/loading.gif" /></div>
+                                        <div class="logsArea dockerLogsArea hidden">
+                                            <table class="table table-bordered" align="left">
+                                                <tbody>
+                                                    <tr class="trLineHeight">
+                                                        <td>Name&nbsp;:</td>
+                                                        <td containerdata="Config.Hostname"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>ContainerID&nbsp;:</td>
+                                                        <td containerdata="Id"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Created&nbsp;:</td>
+                                                        <td containerdata="Created"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Docker Repo&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Working Dir&nbsp;:</td>
+                                                        <td containerdata="Config.WorkingDir"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Entry Point&nbsp;:</td>
+                                                        <td containerdata="Config.Entrypoint">[&nbsp;]</td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Virtual Size&nbsp;:</td>
+                                                        <td containerdata="Config.Memory"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Port Specs&nbsp;:</td>
+                                                        <td containerdata="Config.ExposedPorts"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="s2">
+                                        <div class="logsArea dockerLogsArea hidden">
+                                            <table align="left" class="table table-bordered">
+                                                <tbody>
+                                                    <tr class="trLineHeight">
+                                                        <td>Running&nbsp;:</td>
+                                                        <td containerdata="State.Running"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>PID&nbsp;:</td>
+                                                        <td containerdata="State.Pid"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>ExitCode(If Stopped)&nbsp;:</td>
+                                                        <td containerdata="State.ExitCode"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Started At&nbsp;:</td>
+                                                        <td containerdata="State.StartedAt"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Finished At&nbsp;:</td>
+                                                        <td containerdata="State.FinishedAt">-</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="s3">
+                                        <div class="logsArea dockerLogsArea hidden">
+                                            <table align="left" class="table table-bordered">
+                                                <tbody>
+                                                    <tr class="trLineHeight">
+                                                        <td>ImageID&nbsp;:</td>
+                                                        <td containerdata="Image"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Storage Driver&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Execution Driver&nbsp;:</td>
+                                                        <td containerdata="ExecDriver"></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Kernel Version&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Operating System&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Pool Name&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                    <tr class="trLineHeight">
+                                                        <td>Pool Block Size&nbsp;:</td>
+                                                        <td containerdata=""></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="submit" data-dismiss="modal">
+                <i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal for Container tab ended-->
+<div class="modal fade bs-example-modal-lg" id="myModalLabelDockerContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="DockerLaunch">Launch Parameters-Docker Blueprints</h4>
+            </div>
+            <div class="modal-body dockerModalHeight">
+                <section>
+                    <form id="dockerparamsform" action="">
+                        <div style="margin:0px;">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <label for="category">Container Name<span style="color:red">*</span><span class="dockerparamrequired hidden" style="color:red">&nbsp;Required</span>
+                                </label>
+                                <input type="text" id="Containernamefield" name="namefield" class="required form-control" placeholder="" dockerparamkey="--name" onclick="$('.dockerparamrequired').addClass('hidden')">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <label for="category">Port Mappings
+                                </label>
+                                <input type="text" id="Portmappingfield" name="Portmappingfield" class=" form-control" placeholder="Map host ports to container ports" dockerparamkey="-p">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Volumes
+                                </label>
+                                <input type="text" id="Volumesfield" name="Volumesfield" class=" form-control" placeholder="Map host folders to container folders" dockerparamkey="-v">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Volumes-from
+                                </label>
+                                <input type="text" id="Volumes-fromfield" name="Volumes-fromfield" class=" form-control" placeholder="Comma separated container names" dockerparamkey="--volumes-from">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Linked Container
+                                </label>
+                                <input type="text" id="Linkedcontainerfield" name="Linkedcontainerfield" class=" form-control" placeholder="The name of a container this one links to" dockerparamkey="--link">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Environment Variables
+                                </label>
+                                <input type="text" id="Environmentvariablesfield" name="Environmentvariablesfield" class=" form-control" placeholder="" dockerparamkey="-e">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Startup Command
+                                </label>
+                                <input type="text" id="Startupcommandfield" name="Startupcommandfield" class=" form-control" placeholder="Optional startup command for the container" dockerparamkey="-c">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal">
+                                <label for="category">Additional Startup
+                                </label>
+                                <input type="text" id="additionalStartupcommandfield" name="additionalStartupcommandfield" class=" form-control" placeholder="Additional startup command for the container" dockerparamkey="-exec">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 hidden">
+                                <label for="category">Removed Linked Containers on Exit
+                                </label>
+                                <select class="chooseSelect width-100" id="Removelinkedcontainersonexitfield" placeholder="Should this &amp; linked containers be removed on exit">
+                                    <option>False</option>
+                                    <option>True</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 dockerModal hidden">
+                                <label for="category">Remove on Exit
+                                </label>
+                                <select class="chooseSelectExit width-100 " id="Removeonexitfield" placeholder="Should this container be removed when it exits">
+                                    <option>False</option>
+                                    <option>True</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 hidden">
+                                <label for="">Startup Script</label>
+                                <label class="input input-file" for="file">
+                                    <div class="button">
+                                        <input type="file" id="Startupscriptfield" name="Startupscriptfield">Browse
+                                    </div>
+                                    <input type="text" readonly="">
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary btnaddDockerLaunchParams">
+                <i class="fa fa-save fa-1x"></i>&nbsp;Add</button>
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">
+                <i class="fa fa-undo fa-1x"></i>&nbsp;Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

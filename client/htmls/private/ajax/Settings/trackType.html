@@ -1,0 +1,352 @@
+<style type="text/css">
+textarea{
+width:100%;
+}
+</style>
+<div class="row">
+    
+        <div class="col-md-12">
+
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h5 class="widget-title widgetColor">
+                        <strong>List of Dashboard Types</strong>
+                    </h5>
+                    <div class="widget-toolbar no-border">
+                        <div>
+
+                          <!--new button for adding a new item-->
+                        <a href="#modalForTrackTypeEdit" type="reset" data-backdrop="false" data-toggle="modal" class="btn btn-minier btn-primary addDashboardTypeItem">
+                            <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;New
+                        </a>                                                                                                            
+                    </div>
+                </div>
+
+            </div>
+            <div class="widget-body">
+                <div class="widget-main widgetHeight">
+                    <div class="col-md-12 table-responsive tablePadding">
+                         <table id="trackTypeTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+                             
+                                <thead>
+                                    <tr class="rowCustomStyle">
+                                        <td>Type</td>
+                                        <td>Description</td>
+                                        <td>Action</td>
+                                    </tr>
+                                </thead>
+                                <tbody id="trackTypeTableInput">
+                
+                                </tbody>
+                                    
+                            </table>
+                          
+                        
+                    </div>
+                </div> <!--widget main ends here-->
+              </div> <!--widget body ends here-->
+            </div> <!--widget box ends here-->  
+        </div>  <!-- col-lg-12 ends here-->
+</div>   <!--row ends here-->     
+     
+<!--modal for ItemList-->
+<div class="modal fade" id="modalForTrackTypeEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog " style="">
+      <div class="modal-content">
+         <form role="form" id="trackTypeForm">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+               <h4 class="modal-title">
+               </h4>
+            </div>
+            <div class="modal-body">
+                <fieldset class="fieldsetCustom">
+                <div class="col-lg-6 col-md-6">
+                  <label for="">Create Type:</label>
+                  <div class="input-groups">
+                  <input autofocus type="text" name="trackTypeCreate" class="required trackType form-control" id="trackType"/>
+                  </div>
+               </div>
+               <div class="col-lg-6 col-md-6">
+                  <label for="">Description:</label>
+                  <input type="text" name="trackTypeDescription" class="trackTypeDescription form-control" id="trackTypeDescription">
+               </div>
+               <div class="itemURLContainer" id="itemSeries"> 
+                     <div class="col-lg-6 col-md-6 margintop15">
+                        <label for="">Parent Name:</label>
+                        <div class="input-groups">
+                        <input type="text" name="trackTypeName" class="trackTypeName form-control" id="trackTypeName"/>
+                        </div>
+                     </div>
+              </div>
+                <input type="hidden" id="trackTypeHiddenInputId"/>
+                <input type="hidden" id="trackTypeEditHiddenInput"/>
+            </fieldset>
+            </div>
+            <div class="modal-footer">
+               <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+               <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
+               <button type="submit" id="saveBtnTrack" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+<!--modal for Itemlist-->   
+
+
+<script>
+
+
+
+
+//initialising the datatable...
+if (!$.fn.dataTable.isDataTable('#trackTypeTable')) {
+    //var $taskListArea = $('.taskListArea').empty();
+    var $trackTypeDatatable = $('#trackTypeTable').DataTable({
+        "pagingType": "full_numbers",
+        "bInfo": false,
+        "bLengthChange": false,
+        "paging": false,
+        "bFilter": false,
+        "aoColumns": [{
+            "bSortable": false
+        }, {
+            "bSortable": false
+        },{
+            "bSortable": false
+        }]
+    });
+}
+
+//calling the global track functionality when track params are available..
+$(document).ready(function(e) {
+    getTrackType();
+});
+
+//when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
+$('.addDashboardTypeItem').click(function(e) {
+    $('#trackTypeForm').trigger('reset');
+    $('.modal-header').find('.modal-title').html('Create New Dashboard Type');
+    $('#trackTypeEditHiddenInput').val('new');   
+});
+
+//to show the focus on first input ....
+$(document).on('shown.bs.modal', function(e) {
+    $('[autofocus]', e.target).focus();
+});
+
+
+//form validation for dashboard save
+var validator = $('#trackTypeForm').validate({
+    onkeyup: false,
+    errorClass: "error",
+
+    //put error message behind each form element
+    errorPlacement: function(error, element) {
+        console.log(error, element);
+        var elem = $(element);
+        if (element.parent('.input-groups').length) {
+            error.insertBefore(element.parent());
+        } else {
+            if (element.parent('div.inputGroups')) {
+                console.log(element);
+                console.log(element.parent);
+                error.insertBefore('div.inputGroups');
+            }
+        }
+    },
+});
+$('a.addDashboardTypeItem[type="reset"]').on('click',function(e) {
+    validator.resetForm();
+});
+
+//this is a functionality to get the list of track type items that have been created....
+function getTrackType() {
+    //for getting the list of track types.
+
+    var trackTypeDetails = '../trackType';
+    $.get(trackTypeDetails, function(data) {
+        alert(JSON.stringify(data));
+        console.log(data);
+        if (data && data.length) {
+            for (var kk = 0; kk < data.length; kk++) {
+                createTableForTrackType(data[kk]);
+            }
+        }
+    }).fail(function(jxhr) {
+        var msg = "Server Behaved Unexpectedly";
+        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+            msg = jxhr.responseJSON.message;
+        } else if (jxhr.responseText) {
+            msg = jxhr.responseText;
+        }
+        bootbox.alert(msg);
+    });
+};
+
+
+//creating a table for showcasing the list of track type items on the dashboard page..
+function createTableForTrackType(trackTypeData) {
+
+    var $trackTypeList = $('#trackTypeTableInput tbody');
+    var $tr = $('<tr class="trackTypeRow"></tr>').attr('data-trackId', trackTypeData._id);
+    $tr.data('trackTypeData', trackTypeData);
+
+
+    var $tdType = $('<td class="trackType">' + trackTypeData.type + '</td>');
+    var $tdDescription = $('<td class="trackTypeDescription">' + trackTypeData.description + '</td>');
+
+    var $tdAction = $('<td/>');
+
+    $tdAction.append('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackTypeRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+    //for deletion of track type items from the table..
+    $tdAction.find('button.globalTrackTypeRemove').click(function() {
+
+        var $this = $(this);
+        var $tr = $this.parents('tr.trackTypeRow');
+        var trackTypeId = trackTypeData._id;
+        bootbox.confirm({
+            message: 'Are you sure you want to Delete Dashboard Type Item -&nbsp;' + trackTypeData.type,
+            title: "Warning",
+            callback: function(result) {
+                if (result) {
+                    $.ajax({
+                        url: '../trackType/' + trackTypeId,
+                        method: 'DELETE',
+                        success: function() {
+                            $trackTypeDatatable.row($tr).remove().draw(false);
+                        },
+                        error: function(jxhr) {
+                            bootbox.alert(result);
+                            var msg = "Unable to Delete URL please try again later";
+                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                msg = jxhr.responseJSON.message;
+                            } else if (jxhr.responseText) {
+                                msg = jxhr.responseText;
+                            }
+                            bootbox.alert(msg);
+                        }
+                    });
+                } else {
+                    return;
+                }
+            }
+        });
+        return false;
+    });
+
+    $tr.append($tdType).append($tdDescription).append($tdAction);
+    $trackTypeList.append($tr);
+    $trackTypeDatatable.row.add($tr).draw();
+};
+
+//save form for creating a new Dashboard item and updation of the item(name,url & description)..
+$('#trackTypeForm').submit(function(e) {
+    var isValidator = $('#trackTypeForm').valid();
+    if (!isValidator) {
+        e.preventDefault();
+        return false;
+    } else {
+        e.preventDefault();
+        $('#saveItemSpinner').removeClass('hidden');
+        var $form = $('#trackTypeForm');
+        var trackTypeData = {};
+        var subType = [];
+        $this = $(this);
+        var subTypeName = $this.find('#trackTypeName').val().trim();
+        trackTypeData.description = $this.find('#trackTypeDescription').val().trim();
+        trackTypeData.type = $form.find('#trackType').val();
+
+        if (subTypeName) {
+            subType.push({
+                name: subTypeName
+            });
+        }
+
+        trackTypeData.subType = subType;
+        var dashboardEditNew = $(this).find('#trackTypeEditHiddenInput').val();
+        var trackTypeId = $form.find('#trackTypeHiddenInputId').val();
+        var url;
+
+        var reqBody = {};
+
+        //for edit
+        if (dashboardEditNew === 'edit') {
+            console.log(dashboardEditNew);
+            url = '../trackType/' + trackTypeId + '/update';
+            reqBody = {
+                "type": trackTypeData.type,
+                "description": trackTypeData.description
+            };
+        } else {
+            url = '../trackType';
+            reqBody = {
+                "subType":trackTypeData.subType,
+                "type": trackTypeData.type,
+                "description": trackTypeData.description
+            };
+        }
+
+        $.ajax({
+            method: "POST",
+            url: url,
+            data: {
+                trackTypeData: reqBody
+            },
+            success: function(data, success) {
+                $('#modalForTrackTypeEdit').modal('hide');
+                $('#saveItemSpinner').addClass('hidden');
+                $('#saveBtnTrack').removeAttr('disabled');
+                console.log(dashboardEditNew);
+
+                if (dashboardEditNew === 'new') {
+                    createTableForTrackType(data);
+                    $('#saveBtnTrack').removeAttr('disabled');
+                } else {
+                    console.log(dashboardEditNew);
+                    var $tr = $('tr[data-trackId="' + trackTypeId + '"]');
+                    $tr.find('.trackType').html(reqBody.type);
+                    $tr.find('.trackTypeDescription').html(reqBody.description);
+
+                    $tr.data('trackTypeData', {
+                        _id: trackTypeId,
+                        type: trackTypeData.type,
+                        description: trackTypeData.description
+                    });
+                }
+            },
+            error: function(jxhr) {
+                console.log(jxhr);
+                var msg = "Server Behaved Unexpectedly";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+
+                $('#saveItemSpinner').addClass('hidden');
+                $('#saveBtnTrack').removeAttr('disabled');
+            },
+            failure: function(jxhr) {
+                console.log(jxhr);
+                var msg = "Server Behaved Unexpectedly";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+
+                $('#saveItemSpinner').addClass('hidden');
+                $('#saveBtnTrack').removeAttr('disabled');
+            }
+        });
+
+        return false;
+    }
+});
+</script>
+                             
