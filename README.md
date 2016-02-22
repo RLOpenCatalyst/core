@@ -42,12 +42,14 @@ $ git remote add upstream git://github.com/RLOpenCatalyst/core.git
 ```
 
 *Step 2: Branch*
+
 Create a feature branch and start hacking
 ```
 $ git checkout -b my-feature-branch -t origin/master
 ```
 
 *Step 3: Commit*
+
 Make sure git knows your name and email address
 ```
 $ git config --global user.name "J. Random User"
@@ -73,9 +75,11 @@ Check the output of git log --oneline files_that_you_changed to find out what su
 ```
 
 *Step 5: Tests*
+
  Bug fixes and features should come with tests. Add these tests in the tests directory of the repository.
 
 *Step 6: Push*
+
 ```
  $ git push origin my-feature-branch
 ```
