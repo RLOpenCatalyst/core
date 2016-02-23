@@ -1953,9 +1953,9 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
           //$("#grid0").addClass("role-Selected");
           //Proceeding to next step when selected type is docker
           //Uncomment below code to skip to last step 
-          // if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
-          //   $('li.next').find('a').trigger('click');
-          // }
+          if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
+            $('li.next').find('a').trigger('click');
+          }
         }
 
 
