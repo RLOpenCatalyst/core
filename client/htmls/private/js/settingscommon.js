@@ -2848,10 +2848,11 @@ function loadactioncheckboxes(receipectrls) {
 		var $servicecookbookcheckbox = $('#' + v1 + 'checkbox'),
 			attr = $servicecookbook.attr('savedvalue');
 		if ($servicecookbook.length && $servicecookbookcheckbox.length) {
-			if (attr && (attr.trim() === 'none' || attr.trim() === '')) {
-				$servicecookbookcheckbox.removeAttr('checked');
-			} else {
+			if(typeof attr != "undefined" && attr.trim() != 'none' && attr.trim() != ''){
 				$servicecookbookcheckbox.attr('checked','checked');
+			}
+			else{
+				$servicecookbookcheckbox.removeAttr('checked');
 			}
 
 		}

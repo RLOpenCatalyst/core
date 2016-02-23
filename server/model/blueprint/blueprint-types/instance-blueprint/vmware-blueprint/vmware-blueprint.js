@@ -171,10 +171,13 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                     }
                     if (!err) {
                         //send the response back and create the instance 
+                        
+
                         var credentials = {
                             username: anImage.userName,
                             password: anImage.instancePassword
                         };
+
 
                         var paramRunList = [];
                         if (launchParams && launchParams.version) {
@@ -225,7 +228,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 },
                                 credentials: {
                                     username: encryptedCredentials.username,
-                                    password: encryptedCredentials.password
+                                    password: credentials.password
                                 },
                                 chef: {
                                     serverId: self.infraManagerId,
