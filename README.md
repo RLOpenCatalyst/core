@@ -1,4 +1,4 @@
-# Catalyst Core Repository
+# RLCatalyst Core Repository
 Repository for RLCatalyst core
 
 
