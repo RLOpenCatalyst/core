@@ -197,7 +197,7 @@
                                               <div class="col-lg-12 col-md-12 forDocker notforCFT" style="margin-top:5px;">
                                                 <label for="category">Docker Images<span style="color:red">*</span>
                                                 </label>
-                                                <a class="btn btn-primary adddockertemplate pull-right" onclick="showdockertemplateadder();">Add</a>
+                                                <a class="btn btn-primary adddockertemplate pull-right" onclick="showdockertemplateadder();" style="margin-bottom:5px;">Add</a>
                                                 <table class="table table-striped table-bordered table-hover dataTable no-footer" id="compositedockertable" cellpadding="5px" width="100%" style="text-align:center">
                                                   <tr>
                                                     <th>Order</th>
@@ -572,6 +572,9 @@
               <label id="dockertemplateSpinner" class="hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
               <select class="chooseSelect width-100" id="dockertemplatetagselector">
               </select>
+              <div class="small pull-right" style="margin-right:10px">
+                  To get private repo tags, add a hub account in Settings > DevOps Setup > Docker
+              </div>
             </div>
           </form>
         </section>
@@ -1764,7 +1767,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 
                         console.log('here end ' + dockercontainerpathstitle);
                         //added to the docker template adder pop-up : Vinod
-                        $('#dockertemplateselector').append('<option value="' + dockercontainerpaths + '" title="' + dockercontainerpaths + '" reponame="' + dockerreponame + '">' + dockercontainerpathstitle + '</option>');
+                        $('#dockertemplateselector').append('<option value="' + dockercontainerpaths + '" title="' + dockercontainerpaths + '" reponame="' + dockerreponame + '">' + getTempName  + '</option>'); //dockercontainerpathstitle
                         var templateImgUrl = "img/logo.png";
                         if (getImage) {
                             templateImgUrl = "/d4dMasters/image/" + getRowID + "__templatesicon__" + getImage
@@ -1811,14 +1814,14 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 
 
                     }
-                    $("#individualTemplateNameGrid").html("");
+                    $("#individualTemplateNameGrid").html("").css('display','block');
                     //$("#individualTemplateNameGrid").append(getParent);
                     $("#individualTemplateNameGrid").append(getIndividualData).find('.productdiv2').first().click();
                     //$("#grid0").addClass("role-Selected");
                     //Proceeding to next step when selected type is docker
-                    if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
-                        $('li.next').find('a').trigger('click');
-                    }
+                    // if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
+                    //     $('li.next').find('a').trigger('click');
+                    // }
                 }
 
 
@@ -1855,6 +1858,11 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                 if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
                     //Checking if docker then only Edit organization paramerters are to be shown
                     //Checking if docker then only Edit organization paramerters are to be shown
+                    var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
+                    $('.dockerimagesrow').detach();
+                    addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
+
+
                     if (!$('#CollapseEditorgParam').hasClass('in')) {
                         $('a[href="#CollapseEditorgParam"]').click();
                     }
@@ -2570,11 +2578,11 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
             $('#viewCreateNew').removeClass('hidden');
         } else if (index === 1) {
             $("#tabheader").html('Choose Templates');
-            if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
-                $('#bootstrap-wizard-1').bootstrapWizard('show', 0);
-                var validatorForm = $("#wizard-1").validate();
-                validatorForm.resetForm();
-            }
+            // if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
+            //     $('#bootstrap-wizard-1').bootstrapWizard('show', 0);
+            //     var validatorForm = $("#wizard-1").validate();
+            //     validatorForm.resetForm();
+            // }
         } else if (index === 2) {
             $("#tabheader").html('Choose Template');
         } else if (index === 3) {
