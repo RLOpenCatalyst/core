@@ -1074,7 +1074,7 @@ function addrows() { //only for testing to be removed
   addDockerTemplateToTable('three', 'three/three', "latest");
 }
 
-function imagechanged() {
+function imagechanged__() {
   $('#btnaddDockerTemplateToTable').attr('disabled', 'disabled');
   $('#dockertemplateSpinner').removeClass('hidden');
   $('#dockertemplatetagselector').empty().select2('val', '');
@@ -1092,6 +1092,32 @@ function imagechanged() {
       });
       $dockertemplatetagselector.change();
     }
+  });
+}
+
+function imagechanged() {
+  $('#btnaddDockerTemplateToTable').attr('disabled', 'disabled');
+  $('#dockertemplateSpinner').removeClass('hidden');
+  $('#dockertemplatetagselector').empty().val('');
+  if($('#dockertemplateselector option:selected').attr('reponame') == '')
+    $('#dockertemplateselector option:selected').attr('reponame','null');
+
+  //alert('url:' + '/d4dmasters/getdockertags/' + encodeURIComponent($('#dockertemplateselector').val().replace(/\//g, "$$$")) + '/' + $('#dockertemplateselector option:selected').attr('reponame'));
+  $.get('/d4dmasters/getdockertags/' + encodeURIComponent($('#dockertemplateselector').val().replace(/\//g, "$$$")) + '/' + $('#dockertemplateselector option:selected').attr('reponame'), function(data) {
+    $('#dockertemplateSpinner').addClass('hidden');
+    if (data) {
+      var tagJson = JSON.parse(data);
+      var $dockertemplatetagselector = $('#dockertemplatetagselector');
+      $dockertemplatetagselector.empty();
+      tagJson.forEach(function(k, v) {
+        $dockertemplatetagselector.append('<option value="' + tagJson[v].name + '">' + tagJson[v].name + '</option>');
+        if (v >= tagJson.length - 1) {
+          $('#btnaddDockerTemplateToTable').removeAttr('disabled');
+        }
+      });
+      $dockertemplatetagselector.change();
+    }
+    
   });
 }
 
@@ -1947,9 +1973,9 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
             dockeremail = '';
 
 
-            console.log('here end ' + dockercontainerpathstitle);
+            //console.log('here end ' + dockercontainerpathstitle);
             //added to the docker template adder pop-up : Vinod
-            $('#dockertemplateselector').append('<option value="' + dockercontainerpaths + '" title="' + dockercontainerpaths + '" reponame="' + dockerreponame + '">' + dockercontainerpathstitle + '</option>');
+            $('#dockertemplateselector').append('<option value="' + dockercontainerpaths + '" title="' + dockercontainerpaths + '" reponame="' + dockerreponame + '">' + getTempName  + '</option>'); //dockercontainerpathstitle
             var templateImgUrl = "img/logo.png";
             if (getImage) {
               templateImgUrl = "/d4dMasters/image/" + getRowID + "__templatesicon__" + getImage
