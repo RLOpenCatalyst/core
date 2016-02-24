@@ -102,7 +102,7 @@ var mongoStore = new MongoStore({
 app.set('port', process.env.PORT || appConfig.app_run_port);
 app.set('sport', appConfig.app_run_secure_port);
 app.use(expressCompression());
-app.use(expressFavicon(__dirname + '/../client/htmls/private/img/favicons/favicon.ico'));
+app.use(expressFavicon(__dirname + '/../../client/htmls/private/img/favicons/favicon.ico'));
 app.use(expressCookieParser());
 logger.debug("Initializing Session store in mongo");
 
