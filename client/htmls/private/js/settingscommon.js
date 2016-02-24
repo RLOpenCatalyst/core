@@ -3032,6 +3032,7 @@ function getProjectsForOrg(orgname) {
 //function injects a error label for the input control and puts the message
 function errormessageforInput(id, msg) {
 	// alert(id);
+	
 	var errlabel = $('#errmsg_' + id);
 	var uniquelbl = $('#unique_' + id);
 
@@ -3117,7 +3118,7 @@ function isFormValidAzure(formid, option) {
 			}
 		});
 	}
-
+   
 	$('[' + option + ']').each(function(itm) {
 		var currCtrl = $(this);
 		var valiarr = $(this).attr(option).split(',');

@@ -517,15 +517,15 @@ function getSecurityGroup() {
 		secretKey = $provider.find("option:selected").attr('secretKey');
 		region = $('#region').val();
 		vpcId = $('#vpcId').val();
+		var providerId = $provider.val();
 		var $spinnerSecurityGroup = $('#spinnerSecurityGroup').addClass('hidden');
-		if (accessKey && secretKey && region && vpcId) {
+		if (providerId && region && vpcId) {
 			$spinnerSecurityGroup.removeClass('hidden');
 			$.ajax({
 				url: '/aws/providers/vpc/' + vpcId + '/securitygroups',
 				method: "post",
 				data: {
-					"accessKey": accessKey,
-					"secretKey": secretKey,
+					"providerId": providerId,
 					"region": region
 				},
 				success: function(list) {
@@ -584,18 +584,18 @@ function getkeypairList() {
 function getVPC() {
 	function populateData() {
 		var $provider = $('#providerId');
+		var providerId = $provider.val();
 		var $spinner = $('#vpcSpinner').addClass('hidden');
 		var accessKey = $provider.find("option:selected").attr('accessKey'),
 			secretKey = $provider.find("option:selected").attr('secretKey'),
 			region = $('#region').val();
-		if (accessKey && secretKey && region) {
+		if (providerId && region) {
 			$spinner.removeClass('hidden');
 			$.ajax({
 				url: "/aws/providers/describe/vpcs",
 				method: "post",
 				data: {
-					"accessKey": accessKey,
-					"secretKey": secretKey,
+					"providerId": providerId,
 					"region": region
 				},
 				success: function(data) {
@@ -637,14 +637,14 @@ function getSubnet() {
 			secretKey = $provider.find("option:selected").attr('secretKey'),
 			region = $('#region').val(),
 			vpcId = $('#vpcId').val();
-		if (accessKey && secretKey && region && vpcId) {
+		var providerId = $provider.val();
+		if (providerId && region && vpcId) {
 			$spinnerSubnet.removeClass('hidden');
 			$.ajax({
 				url: "/aws/providers/vpc/" + vpcId + "/subnets",
 				method: "post",
 				data: {
-					"accessKey": accessKey,
-					"secretKey": secretKey,
+					"providerId": providerId,
 					"region": region
 				},
 				success: function(data) {

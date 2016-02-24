@@ -88,11 +88,11 @@
                                     <div class="row foraws">
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <label for="">Access Key:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                          <input name="accessKey" id="accessKey" class="form-control" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the Access Key">
+                                          <input name="accessKey" id="accessKey" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the Access Key">
                                        </div>
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <label for="">Secret Key:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                          <input name="secretKey" id="secretKey" class="form-control" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the Secret Key">
+                                          <input name="secretKey" id="secretKey" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the Secret Key">
                                        </div>
                                     </div>
                                     <div class="row forvmware">
@@ -199,15 +199,15 @@
                                        </div>
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <label for="">Enter Client Id:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                          <input name="azureClientId" id="azureClientId" class="form-control" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Client Id">
+                                          <input name="azureClientId" id="azureClientId" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Client Id">
                                        </div>
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <label for="">Enter Client Secret:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                          <input name="azureClientSecret" id="azureClientSecret" class="form-control" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Client Secret">
+                                          <input name="azureClientSecret" id="azureClientSecret" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Client Secret">
                                        </div>
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <label for="">Enter Tenant Id:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                          <input name="azureTenantId" id="azureTenantId" class="form-control" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Tenant Id">
+                                          <input name="azureTenantId" id="azureTenantId" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Tenant Id">
                                        </div>
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <div class="smart-forms">
@@ -423,65 +423,75 @@ function removeLoader() {
 }
 
 
-
 function KeyChangeHandler(e) {
-    var accessKey = $('#accessKey').val().trim(),
-        secretKey = $('#secretKey').val().trim();
-
-    if (accessKey && secretKey) {
-        $('select.region').trigger('change');
-    } else {
-        UtilityMethods.emptyRegion();
-        UtilityMethods.emptyKeyPairs();
-    }
+  var accessKey = $('#accessKey').val().trim(),
+    secretKey = $('#secretKey').val().trim();
+  var providerId = UtilityMethods.getIdFromURL();
+  if ((accessKey && secretKey)) {
+    $('select.region').trigger('change');
+  } else if (providerId && providerId !== 'new') {
+    $('select.region').trigger('change');
+  } else {
+    UtilityMethods.emptyRegion();
+    UtilityMethods.emptyKeyPairs();
+  }
 }
 
-
 function checkForKeyPair(e) {
-    function loadKeyPair(accessKey, secretKey, regionValue) {
-        appendLoader();
-        var data1 = new FormData();
-        data1.append('accessKey', accessKey);
-        data1.append('secretKey', secretKey);
-        data1.append('region', regionValue);
-        $.ajax({
-            method: "POST",
-            url: "/aws/providers/keypairs/list",
-            data: data1,
-            processData: false,
-            contentType: false,
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                $('.modal-dialog').find('.close').trigger('click');
-                bootbox.alert(XMLHttpRequest.responseText);
-                $('#btnsubmit').attr('disabled','disabled');
-                $region.parents('.addNewRegion').find('select.keyvalue').html('<option value=""> Select Keypair</option>').val("").select2();
-                removeLoader();
-            }
-        }).done(function(msg) {
-            var str = '<option value="">Choose Any Key Pair</option>',
-                val = msg['KeyPairs'],
-                len = val.length;
-            for (var i = 0; i < len; i++) {
-                str = str + '<option value="' + val[i].KeyName + '">' + val[i].KeyName + '</option>';
-            }
-            $region.parents('.addNewRegion').find('select.keyvalue').html(str).val('').select2().each(function() {
-                console.log($(this).attr('answer'));
-                $(this).attr('answer') ? $(this).val($(this).attr('answer')).select2() : "";
-            });
-            $('#btnsubmit').removeAttr('disabled');
-            removeLoader();
-        });
-    }
-
-    var accessKey = $('#accessKey').val(),
-        secretKey = $('#secretKey').val(),
-        $region = $(this);
-    region = $region.val();
-    if (accessKey && secretKey && accessKey !== '' && secretKey !== '' && region && region !== '') {
-        loadKeyPair(accessKey, secretKey, region);
+  function loadKeyPair(accessKey, secretKey, regionValue, providerId) {
+    appendLoader();
+    var data1 = new FormData();
+    if (!providerId) {
+      data1.append('accessKey', accessKey);
+      data1.append('secretKey', secretKey);
+      data1.append('region', regionValue);
     } else {
-        $('#btnsubmit').attr('disabled', 'disabled');
+      data1.append('region', regionValue);
+      data1.append('providerId', providerId);
     }
+    $.ajax({
+      method: "POST",
+      url: "/aws/providers/keypairs/list",
+      data: data1,
+      processData: false,
+      contentType: false,
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        $('.modal-dialog').find('.close').trigger('click');
+        bootbox.alert(XMLHttpRequest.responseText);
+        $('#btnsubmit').attr('disabled', 'disabled');
+        $region.parents('.addNewRegion').find('select.keyvalue').html('<option value=""> Select Keypair</option>').val("").select2();
+        removeLoader();
+      }
+    }).done(function(msg) {
+      var str = '<option value="">Choose Any Key Pair</option>',
+        val = msg['KeyPairs'],
+        len = val.length;
+      for (var i = 0; i < len; i++) {
+        str = str + '<option value="' + val[i].KeyName + '">' + val[i].KeyName + '</option>';
+      }
+      $region.parents('.addNewRegion').find('select.keyvalue').html(str).val('').select2().each(function() {
+        console.log($(this).attr('answer'));
+        $(this).attr('answer') ? $(this).val($(this).attr('answer')).select2() : "";
+      });
+      $('#btnsubmit').removeAttr('disabled');
+      removeLoader();
+    });
+  }
+
+  var accessKey = $('#accessKey').val(),
+    secretKey = $('#secretKey').val(),
+    $region = $(this);
+  region = $region.val();
+  var providerId = UtilityMethods.getIdFromURL();
+ 
+  if (accessKey && secretKey && accessKey !== '' && secretKey !== '' && region && region !== '') {
+    loadKeyPair(accessKey, secretKey, region, null);
+  } else if (providerId && providerId !== 'new') {
+    loadKeyPair(null, null, region, providerId);
+  } else {
+    $('#btnsubmit').attr('disabled', 'disabled');
+  }
+
 }
 
 function setValueshppubliccloud(data) {
@@ -616,6 +626,19 @@ function setValues(data) {
 
 
 $(document).ready(function() {
+
+     // removing required for edit mode for secret data
+
+    var providerId = UtilityMethods.getIdFromURL();
+    if (providerId && providerId !== 'new') {
+
+      $('.secretInfo').removeAttr('cat-validation');
+      $('.secretInfo').removeAttr('cat-validation-azure');
+      
+      
+    }
+
+
     $("input[type='password']").val('');
     $("#name").focus();
     $('#accessKey').blur(KeyChangeHandler);
@@ -886,13 +909,13 @@ function createTemplate(parentToAttach) {
             return '<img src="img/remove.png" class="removeimage ' + (classs ? classs : '') + '" ' + titile + ' rel="tooltip"  />'
         },
         getKeyValueList = function() {
-            return '<div class="col-lg-6 col-md-6" style="width:47%;">' + '<label for="name">Select Key Pair:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="keyPairName" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100 keyvalue" ' + 'style="vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '  <option value="">Select Any Key Pair</option></select>' + '</div>';
+            return '<div class="col-lg-6 col-md-6" style="width:47%;">' + '<label for="name">Select Key Pair:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="keyPairName" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100 keyvalue secretInfo" ' + 'style="vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '  <option value="">Select Any Key Pair</option></select>' + '</div>';
         };
     var getRegion = function() {
-        return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="region chooseOrganization width-100" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '</div></div>';
+        return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="region chooseOrganization width-100 secretInfo" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '</div></div>';
     };
     var getPemFileRow = function() {
-        return '<div class="col-lg-6 col-md-6 authPemFile" style="display: block;"><div class="smart-forms" style="  margin-left: 7%;"><label for="">Upload .pem file for Provider<span class="control-label redSpan">&nbsp;*</span></label>' + '<label for="templatesicon" name="field" class="file">' + '<span class="button btn-primary btn-importbyIP" style="height:26px;line-height:22px;  padding: 1px ' + '14px;position: absolute;right:4px;margin-top: 4.5%;">Browse</span>' + '<input id="' + UtilityMethods.getRandomNumber() + '" type="file" class="gui-file file" cdata="catalyst" cat-validation="required" name="fileObject">' + '<input type="text" readonly="" class="gui-input filename" name="fileName">' + '<input type="text" class="folderpath" style="display:none;" cdata="catalyst" />' + '</label></div></div>';
+        return '<div class="col-lg-6 col-md-6 authPemFile" style="display: block;"><div class="smart-forms" style="  margin-left: 7%;"><label for="">Upload .pem file for Provider<span class="control-label redSpan">&nbsp;*</span></label>' + '<label for="templatesicon" name="field" class="file">' + '<span class="button btn-primary btn-importbyIP" style="height:26px;line-height:22px;  padding: 1px ' + '14px;position: absolute;right:4px;margin-top: 4.5%;">Browse</span>' + '<input id="' + UtilityMethods.getRandomNumber() + '" type="file" class="gui-file file secretInfo" cdata="catalyst" cat-validation="required" name="fileObject">' + '<input type="text" readonly="" class="gui-input filename" name="fileName">' + '<input type="text" class="folderpath" style="display:none;" cdata="catalyst" />' + '</label></div></div>';
     };
 
     this.getRow = function(isAdd, isRemove, notrequired) {
