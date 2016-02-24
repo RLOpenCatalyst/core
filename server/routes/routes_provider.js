@@ -257,7 +257,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 										_id: provider._id,
 										id: 9,
 										username: vmwareusername,
-										password: vmwarepassword,
+										//password: vmwarepassword,
 										host: vmwarehost,
 										dc: vmwaredc,
 										providerName: provider.providerName,
@@ -310,6 +310,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							}
 							if (providers != null) {
 								if (providers.length > 0) {
+									for (var i = 0; i < providers.length; i++) {
+										providers[i].password = undefined;
+									}
 									res.send(providers);
 									return;
 								}
@@ -342,6 +345,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (providers.length > 0) {
+								for (var i = 0; i < providers.length; i++) {
+									providers[i].password = undefined;
+								}
 								res.send(providers);
 								return;
 							} else {
@@ -380,6 +386,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					}
 					aProvider.orgname = orgs[0].orgname;
 					if (orgs.length > 0) {
+						aProvider.password = undefined;
 						res.send(aProvider);
 						return;
 					}
@@ -472,10 +479,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			res.status(400).send("Please Enter Username.");
 			return;
 		}
-		if (typeof vmwarepassword === 'undefined' || vmwarepassword.length === 0) {
-			res.status(400).send("Please Enter Password.");
-			return;
-		}
+		// if (typeof vmwarepassword === 'undefined' || vmwarepassword.length === 0) {
+		// 	res.status(400).send("Please Enter Password.");
+		// 	return;
+		// }
 		if (typeof vmwarehost === 'undefined' || vmwarehost.length === 0) {
 			res.status(400).send("Please Enter a Host.");
 			return;
@@ -494,16 +501,39 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			return;
 		}
 
-		var providerData = {
-			id: 9,
-			username: vmwareusername,
-			password: vmwarepassword,
-			host: vmwarehost,
-			providerName: providerName,
-			tenantid: vmwaredc,
-			orgId: orgId
-		};
-		logger.debug("provider data %s", JSON.stringify(providerData));
+
+		function updateDb(providerData) {
+			vmwareProvider.updatevmwareProviderById(req.params.providerId, providerData, function(err, updateCount) {
+				if (err) {
+					logger.error(err);
+					res.status(500).send(errorResponses.db.error);
+					return;
+				}
+				masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+					if (err) {
+						res.status(500).send("Not able to fetch org.");
+						return;
+					}
+					if (orgs.length > 0) {
+						var dommyProvider = {
+							_id: req.params.providerId,
+							id: 9,
+							username: vmwareusername,
+							//password: vmwarepassword,
+							host: vmwarehost,
+							providerName: providerName,
+							dc: vmwaredc,
+							orgId: orgs[0].rowid,
+							orgName: orgs[0].orgname
+						};
+						res.send(dommyProvider);
+						return;
+					}
+				});
+			});
+		}
+
+
 
 		usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
 			if (!err) {
@@ -524,35 +554,38 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send("Failed to fetch User.");
 				}
 				if (anUser) {
-					vmwareProvider.updatevmwareProviderById(req.params.providerId, providerData, function(err, updateCount) {
-						if (err) {
-							logger.error(err);
-							res.status(500).send(errorResponses.db.error);
-							return;
-						}
-						masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+					if (vmwarepassword) {
+						var providerData = {
+							id: 9,
+							username: vmwareusername,
+							password: vmwarepassword,
+							host: vmwarehost,
+							providerName: providerName,
+							tenantid: vmwaredc,
+							orgId: orgId
+						};
+						logger.debug("provider data %s", JSON.stringify(providerData));
+						updateDb(providerData);
+					} else {
+						vmwareProvider.getvmwareProviderById(req.params.providerId, function(err, aProvider) {
 							if (err) {
 								res.status(500).send("Not able to fetch org.");
 								return;
 							}
-							if (orgs.length > 0) {
-								var dommyProvider = {
-									_id: req.params.providerId,
-									id: 9,
-									username: vmwareusername,
-									password: vmwarepassword,
-									host: vmwarehost,
-									providerName: providerName,
-									dc: vmwaredc,
-									orgId: orgs[0].rowid,
-									orgName: orgs[0].orgname
-								};
-								res.send(dommyProvider);
-								return;
-							}
+							var providerData = {
+								id: 9,
+								username: vmwareusername,
+								password: aProvider.password,
+								host: vmwarehost,
+								providerName: providerName,
+								tenantid: vmwaredc,
+								orgId: orgId
+							};
+							logger.debug("provider data %s", JSON.stringify(providerData));
+							updateDb(providerData);
 						});
-					});
 
+					}
 				}
 			});
 		});
@@ -2868,6 +2901,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									}
 									if (vmwareProviders != null) {
 										if (vmwareProviders.length > 0) {
+											for (var i = 0; i < vmwareProviders.length; i++) {
+												vmwareProviders[i].password = undefined;
+											}
 											providersList.vmwareProviders = vmwareProviders;
 										}
 									} else {
@@ -2990,6 +3026,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									}
 									if (vmwareProviders != null) {
 										if (vmwareProviders.length > 0) {
+											for (var i = 0; i < vmwareProviders.length; i++) {
+												vmwareProviders[i].password = undefined;
+											}
 											providersList.vmwareProviders = vmwareProviders;
 										}
 									} else {
