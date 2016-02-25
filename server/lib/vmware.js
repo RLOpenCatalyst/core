@@ -260,7 +260,7 @@ var vmwareservice = function(options) {
                             return;
 
                         }
-                        logger.debug('anshul ==> calling callback');
+                        logger.debug('About to callback');
                         callback(null, data.ip, data);
                         return;
 
