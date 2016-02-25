@@ -2280,13 +2280,17 @@ function initializeBlueprintAreaNew(data) {
 									getOrgProjDetails($blueprintReadContainer);
 								});
 							})(data[i]);
-						} else if (data[i].templateType === 'cft') {
+						} else if (data[i].templateType === 'cft' || data[i].templateType === 'arm') {
 							$selectVerEdit.hide();
 							$selectVer.hide();
 							(function(blueprint) {
 								$liRead.click(function(e) {
 									var $blueprintReadContainerCFT = $('#modalForReadCFT');
-									$('.modal-title').html('Blueprint Information-CFT');
+									if (blueprint.templateType == 'arm') {
+										$blueprintReadContainerCFT.find('.modal-title').html('Blueprint Information-ARM');
+									} else {
+										$blueprintReadContainerCFT.find('.modal-title').html('Blueprint Information-CFT');
+									}
 									$blueprintReadContainerCFT.modal('show');
 									//for getting the blueprint name
 									$blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);

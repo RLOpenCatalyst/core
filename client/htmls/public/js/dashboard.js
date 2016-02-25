@@ -49,6 +49,8 @@ $(document).ready(function() {
     $('#azureProvidersView').empty();
 
     if(totalcountproviders > 0){
+      var $presentProviderView = $('.infrastructureClass');
+      $presentProviderView.show();
       $('#totalProviders').append(totalcountproviders);
       var awstotalinstancecount = 0;
 
@@ -323,9 +325,10 @@ $(document).ready(function() {
         })(m);
       }
     }else{
-      var $presentProviderView = $('.infrastructureClass');
-      $presentProviderView.hide();
+      
       $('.noProviderView').show();
     }
-  }).fail(function() {});
+  }).fail(function() {
+
+  });
 });
