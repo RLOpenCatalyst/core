@@ -120,7 +120,7 @@
                                        </div>
                                        <div class="col-lg-6 col-md-6 appNameLabel">
                                           <label for="">Password:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                          <input name="openstackpassword" id="openstackpassword" class="form-control" type="password" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Password">
+                                          <input name="openstackpassword" id="openstackpassword" class="form-control secretInfo" type="password" cdata="catalyst" cat-validation-openstack="required" placeholder="Enter the Password">
                                        </div>
                                        <div class="col-lg-6 col-md-6 appNameLabel margintop20">
                                           <label for="">Host:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
@@ -632,7 +632,7 @@ $(document).ready(function() {
     var providerId = UtilityMethods.getIdFromURL();
     if (providerId && providerId !== 'new') {
 
-      $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure');
+      $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
       
     }
 
