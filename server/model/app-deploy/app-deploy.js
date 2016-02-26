@@ -255,6 +255,24 @@ AppDeploySchema.statics.getAppDeployListByEnvId = function(envId, callback) {
     });
 };
 
+AppDeploySchema.statics.getAppDeployListByEnvIdAndProjectId = function(envId,projectId, callback) {
+    this.find({
+        envId: envId,
+        projectId:projectId
+    }, function(err, appDeploys) {
+        if (err) {
+            logger.debug("Got error while fetching AppDeploy: ", err);
+            callback(err, null);
+        }
+        if (appDeploys.length) {
+            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploys));
+            callback(null, appDeploys);
+        } else {
+            callback(null, []);
+        }
+    });
+};
+
 // Get all AppDeploy informations by Project.
 AppDeploySchema.statics.getAppDeployByProjectId = function(projectId, appName, callback) {
     this.find({
