@@ -227,8 +227,8 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     os: self.instanceOS
                                 },
                                 credentials: {
-                                    username: encryptedCredentials.username,
-                                    password: credentials.password
+                                    username: anImage.userName,
+                                    password: anImage.instancePassword
                                 },
                                 chef: {
                                     serverId: self.infraManagerId,
@@ -345,145 +345,147 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                             }
 
                                             logger.debug("runlist: ", JSON.stringify(runlist));
-                                            launchParams.infraManager.bootstrapInstance({
-                                                instanceIp: publicip,
-                                                runlist: runlist,
-                                                instanceUsername: anImage.userName,
-                                                instancePassword: anImage.instancePassword, //should be the encryped file 
-                                                nodeName: createserverdata["vm_name"],
-                                                environment: launchParams.envName,
-                                                instanceOS: instance.hardware.os,
-                                                jsonAttributes: jsonAttributes
-                                            }, function(err, code) {
-                                                var timestampEnded = new Date().getTime();
-                                                if (err) {
-                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
-                                                        if (err) {
-                                                            logger.error("Unable to set instance bootstarp status. code 0", err);
-                                                        } else {
-
-
-                                                            logger.debug("Instance bootstrap status set to success");
-                                                        }
-                                                    });
-                                                    logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
-                                                        err: true,
-                                                        log: 'Bootstrap failed',
-                                                        timestamp: timestampEnded
-                                                    });
-                                                    instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                    return;
-                                                }
-                                                if (code == 0) {
-
-                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function(err, updateData) {
-                                                        if (err) {
-                                                            logger.error("Unable to set instance bootstarp status. code 0", err);
-                                                        } else {
-
-
-                                                            logger.debug("Instance bootstrap status set to success");
-                                                        }
-                                                    });
-
-
-                                                    launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
-                                                        if (err) {
-                                                            logger.error("Failed chef.getNode", err);
-                                                            return;
-                                                        }
-                                                        var hardwareData = {};
-                                                        hardwareData.architecture = nodeData.automatic.kernel.machine;
-                                                        hardwareData.platform = nodeData.automatic.platform;
-                                                        hardwareData.platformVersion = nodeData.automatic.platform_version;
-                                                        hardwareData.memory = {
-                                                            total: 'unknown',
-                                                            free: 'unknown'
-                                                        };
-                                                        if (nodeData.automatic.memory) {
-                                                            hardwareData.memory.total = nodeData.automatic.memory.total;
-                                                            hardwareData.memory.free = nodeData.automatic.memory.free;
-                                                        }
-                                                        hardwareData.os = instance.hardware.os;
-                                                        instancesDao.setHardwareDetails(instance.id, hardwareData, function(err, updateData) {
+                                            credentialcryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
+                                                launchParams.infraManager.bootstrapInstance({
+                                                    instanceIp: publicip,
+                                                    runlist: runlist,
+                                                    instanceUsername: anImage.userName,
+                                                    instancePassword: decryptedCredentials.password, 
+                                                    nodeName: createserverdata["vm_name"],
+                                                    environment: launchParams.envName,
+                                                    instanceOS: instance.hardware.os,
+                                                    jsonAttributes: jsonAttributes
+                                                }, function(err, code) {
+                                                    var timestampEnded = new Date().getTime();
+                                                    if (err) {
+                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
                                                             if (err) {
-                                                                logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                                                                logger.error("Unable to set instance bootstarp status. code 0", err);
                                                             } else {
-                                                                logger.debug("Instance hardware details set successessfully");
+
+
+                                                                logger.debug("Instance bootstrap status set to success");
                                                             }
                                                         });
-                                                        //Checking docker status and updating
-                                                        var _docker = new Docker();
-                                                        _docker.checkDockerStatus(instance.id,
-                                                            function(err, retCode) {
+                                                        logsDao.insertLog({
+                                                            referenceId: logsReferenceIds,
+                                                            err: true,
+                                                            log: 'Bootstrap failed',
+                                                            timestamp: timestampEnded
+                                                        });
+                                                        instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                        return;
+                                                    }
+                                                    if (code == 0) {
+
+                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function(err, updateData) {
+                                                            if (err) {
+                                                                logger.error("Unable to set instance bootstarp status. code 0", err);
+                                                            } else {
+
+
+                                                                logger.debug("Instance bootstrap status set to success");
+                                                            }
+                                                        });
+
+
+                                                        launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
+                                                            if (err) {
+                                                                logger.error("Failed chef.getNode", err);
+                                                                return;
+                                                            }
+                                                            var hardwareData = {};
+                                                            hardwareData.architecture = nodeData.automatic.kernel.machine;
+                                                            hardwareData.platform = nodeData.automatic.platform;
+                                                            hardwareData.platformVersion = nodeData.automatic.platform_version;
+                                                            hardwareData.memory = {
+                                                                total: 'unknown',
+                                                                free: 'unknown'
+                                                            };
+                                                            if (nodeData.automatic.memory) {
+                                                                hardwareData.memory.total = nodeData.automatic.memory.total;
+                                                                hardwareData.memory.free = nodeData.automatic.memory.free;
+                                                            }
+                                                            hardwareData.os = instance.hardware.os;
+                                                            instancesDao.setHardwareDetails(instance.id, hardwareData, function(err, updateData) {
                                                                 if (err) {
-                                                                    logger.error("Failed _docker.checkDockerStatus", err);
-                                                                    res.send(500);
-                                                                    return;
-                                                                    //res.end('200');
-
-                                                                }
-                                                                logger.debug('Docker Check Returned:' + retCode);
-                                                                if (retCode == '0') {
-                                                                    instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
-                                                                        logger.debug('Instance Docker Status set to Success');
-                                                                    });
-
+                                                                    logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                                                                } else {
+                                                                    logger.debug("Instance hardware details set successessfully");
                                                                 }
                                                             });
+                                                            //Checking docker status and updating
+                                                            var _docker = new Docker();
+                                                            _docker.checkDockerStatus(instance.id,
+                                                                function(err, retCode) {
+                                                                    if (err) {
+                                                                        logger.error("Failed _docker.checkDockerStatus", err);
+                                                                        res.send(500);
+                                                                        return;
+                                                                        //res.end('200');
 
-                                                    });
+                                                                    }
+                                                                    logger.debug('Docker Check Returned:' + retCode);
+                                                                    if (retCode == '0') {
+                                                                        instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
+                                                                            logger.debug('Instance Docker Status set to Success');
+                                                                        });
+
+                                                                    }
+                                                                });
+
+                                                        });
+                                                        logsDao.insertLog({
+                                                            referenceId: logsReferenceIds,
+                                                            err: false,
+                                                            log: 'Instance Bootstraped Successfully.',
+                                                            timestamp: timestampEnded
+                                                        });
+                                                        instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+
+
+
+                                                    } else {
+                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
+                                                            if (err) {
+                                                                logger.error("Unable to set instance bootstarp status. code 0", err);
+                                                            } else {
+
+
+                                                                logger.debug("Instance bootstrap status set to success");
+                                                            }
+                                                        });
+                                                        logsDao.insertLog({
+                                                            referenceId: logsReferenceIds,
+                                                            err: true,
+                                                            log: 'Bootstrap failed',
+                                                            timestamp: timestampEnded
+                                                        });
+                                                        instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                        return;
+
+                                                    }
+                                                }, function(stdOutData) {
+
                                                     logsDao.insertLog({
                                                         referenceId: logsReferenceIds,
                                                         err: false,
-                                                        log: 'Instance Bootstraped Successfully.',
-                                                        timestamp: timestampEnded
+                                                        log: stdOutData.toString('ascii'),
+                                                        timestamp: new Date().getTime()
                                                     });
-                                                    instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
 
 
+                                                }, function(stdErrData) {
 
-                                                } else {
-                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
-                                                        if (err) {
-                                                            logger.error("Unable to set instance bootstarp status. code 0", err);
-                                                        } else {
-
-
-                                                            logger.debug("Instance bootstrap status set to success");
-                                                        }
-                                                    });
+                                                    //retrying 4 times before giving up.
                                                     logsDao.insertLog({
                                                         referenceId: logsReferenceIds,
                                                         err: true,
-                                                        log: 'Bootstrap failed',
-                                                        timestamp: timestampEnded
+                                                        log: stdErrData.toString('ascii'),
+                                                        timestamp: new Date().getTime()
                                                     });
-                                                    instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                    return;
 
-                                                }
-                                            }, function(stdOutData) {
-
-                                                logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
-                                                    err: false,
-                                                    log: stdOutData.toString('ascii'),
-                                                    timestamp: new Date().getTime()
                                                 });
-
-
-                                            }, function(stdErrData) {
-
-                                                //retrying 4 times before giving up.
-                                                logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
-                                                    err: true,
-                                                    log: stdErrData.toString('ascii'),
-                                                    timestamp: new Date().getTime()
-                                                });
-
                                             });
                                         });
 

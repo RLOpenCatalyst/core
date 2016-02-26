@@ -6,6 +6,28 @@
 <link rel="stylesheet" type="text/css" href="css/jquery.gridster.min.css">
 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 <style>
+.noTrackItems {
+    margin-top: 50px;
+    float: left;
+    font-size: 14px;
+    height:20px!important;
+    color:#8a6d3b!important;
+}
+.alert {
+    padding: 15px;
+    margin-bottom: 18px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+.alert h4 {
+    margin-top: 0;
+    color: inherit;
+}
+.alert-warning {
+    background-color: #fcf8e3;
+    border-color: #fbeed5;
+    color: #c09853;
+}
 .form-control{
   display: inline;
     height: 32px;
@@ -35,9 +57,9 @@ ul {
 </style>
 </head>
 <body>
-<label for="">Choose Providers:&nbsp;</label><select class="form-control" id ="dropdown" disabled></select>
+<span class="providerSelect hidden"><label for="">Choose Providers:&nbsp;</label><select class="form-control" id ="dropdown" disabled></select></span>
 <div class="gridster">
-    <ul>
+    <ul class="gridBox hidden">
     <li class="logo" data-row="1" data-col="1" data-sizex="1" data-sizey="1">
         <span><img class="center-block" align ="middle" style="height:200px;width:200px;margin-top: 15%;margin-bottom: 10%;" src="img/cat_logo.png" /></span>
     </li>
@@ -80,6 +102,7 @@ ul {
     </li>
 
 </ul>
+<div class="alert alert-warning noTrackItems hidden" style="text-align:center"><span style="margin-left:20px;font-size:15px;font-family:Helvetica Neue,Helvetica,Arial,sans-serif">Navigate to Settings to add Providers to get the cost dashboard.</span></div>
 </div>
 <script>
 $(function() { //DOM Ready
@@ -113,7 +136,7 @@ $(document).ready(function() {
 
   function getdetails(id) {
     $.get("/aws/dashboard/providers/" + id, function(data) {
-      $('#dropdown').attr('disabled',false);
+      $('#dropdown').attr('disabled', false);
       $(".spinner").addClass("hidden");
       $("#costMonth").html("$" + Math.round(data.costOfMonth));
       $('#forecastedCost').html(function() {
@@ -144,29 +167,40 @@ $(document).ready(function() {
     });
 
   }
-  $.get('/aws/providers', function(data) {
-    for (var i = 0; i < data.length; i++) {
-      $("#dropdown").append($("<option></option>").val(data[i]._id).html(data[i].providerName));
+  $.ajax({
+    type: 'GET',
+    url: '../aws/providers',
+    success: function(data, success) {
+      if (data.length === 0) {
+        $('.providerSelect').addClass('hidden');
+        $('.gridBox').addClass('hidden');
+        $('.noTrackItems').removeClass('hidden');
+      } else {
+        for (var i = 0; i < data.length; i++) {
+          $('.providerSelect').removeClass('hidden');
+          $('.gridBox').removeClass('hidden');
+          $("#dropdown").append($("<option></option>").val(data[i]._id).html(data[i].providerName));
+        }
+        var id = data[0]._id;
+        getdetails(id);
+        $("#dropdown").change(function() {
+          $('#dropdown').attr('disabled', true);
+          $('.spinner').removeClass('hidden');
+          $("#costMonth").empty();
+          $('#forecastedCost').empty();
+          $('#costDay').empty();
+          $('#costYest').empty();
+          $("#instances").empty();
+          $("#volumes").empty();
+          $("#groups").empty();
+          $("#ips").empty();
+          $("#buckets").empty();
+          $("#zones").empty();
+          var id = $("#dropdown").val();
+          getdetails(id);
+        });
+      }
     }
-    var id = data[0]._id;
-    getdetails(id);
-    $("#dropdown").change(function() {
-      $('#dropdown').attr('disabled',true);
-      $('.spinner').removeClass('hidden');
-      $("#costMonth").empty();
-      $('#forecastedCost').empty();
-      $('#costDay').empty();
-      $('#costYest').empty();
-      $("#instances").empty();
-      $("#volumes").empty();
-      $("#groups").empty();
-      $("#ips").empty();
-      $("#buckets").empty();
-      $("#zones").empty();
-      var id = $("#dropdown").val();
-      getdetails(id);
-    });
-
   });
 });
 
