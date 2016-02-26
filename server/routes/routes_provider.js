@@ -3275,15 +3275,39 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var client = new rc();
 		var id = req.params.id;
 		console.log(id);
-		client.get('http://localhost:3001/aws/providers/' + id,
-			function(body, response) {
-				var json = JSON.parse(body);
-				var access = json.accessKey;
-				var secret = json.secretKey;
 
-				cost.getcost(access, secret, function(err, cost) {
-					res.send(cost);
-				});
+		function makeRequest(accessKey, secretKey) {
+			cost.getcost(accessKey, secretKey, function(err, cost) {
+				res.status(200).send(cost);
 			});
+		}
+
+		if (id) {
+			AWSProvider.getAWSProviderById(id, function(err, aProvider) {
+				if (err) {
+					logger.error(err);
+					res.status(500).send(errorResponses.db.error);
+					return;
+				}
+				if (aProvider) {
+					var keys = [];
+					keys.push(aProvider.accessKey);
+					keys.push(aProvider.secretKey);
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+						if (err) {
+							logger.error("Failed to decrypt accessKey or secretKey: ", err);
+							res.status(500).send("Failed to decrypt accessKey or secretKey");
+							return;
+						}
+						makeRequest(decryptedKeys[0], decryptedKeys[1]);
+					});
+				} else {
+					res.status(404).send("Provider not found");
+				}
+			});
+
+		} else {
+			makeRequest(req.body.accessKey, req.body.secretKey);
+		}
 	});
 }
