@@ -259,13 +259,16 @@
                </fieldset>
                </div>
                <div class="widget-toolbox clearfix">
+                <span class=""><input type="checkbox" id="updateSecretInfo"> Update Confidential Data</span>
                   <div class="btn-group pull-right">
+                     
                      <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
                      <i class="ace-icon fa fa-times bigger-110"></i> Cancel
                      </a>
                      <button class="btn btn-primary btn-mini">
                      <i class="ace-icon fa fa-check bigger-110"></i> Save
                      </button>
+
                   </div>
                </div>
             </div>
@@ -624,18 +627,46 @@ function setValues(data) {
 }
 
 
+   
+
 
 $(document).ready(function() {
+  
+  var $secretInfo  = $('.secretInfo');
+  var $awsInputs = $secretInfo.filter('[cat-validation]');
+  var $vmwareInputs = $secretInfo.filter('[cat-validation-vmware]');
+  var $azureInputs = $secretInfo.filter('[cat-validation-azure]');
+  var $openStack = $secretInfo.filter('[cat-validation-openstack]');
+
+
+  $('#updateSecretInfo').change(function() {
+    if (this.checked) {
+       $secretInfo.removeAttr('disabled');
+      $awsInputs.attr('cat-validation', 'required');
+      $vmwareInputs.attr('cat-validation-vmware', 'required');
+      $azureInputs.attr('cat-validation-azure', 'required');
+      $openStack.attr('cat-validation-openstack', 'required');
+     
+    } else {
+      
+       $secretInfo.attr('disabled', 'disabled');
+       $secretInfo.removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
+       $secretInfo.val('');
+    }
+  });
 
      // removing required for edit mode for secret data
 
-    var providerId = UtilityMethods.getIdFromURL();
-    if (providerId && providerId !== 'new') {
+  var providerId = UtilityMethods.getIdFromURL();
+  if (providerId && providerId !== 'new') {
+    $('#updateSecretInfo').parent().show();
+    $('.secretInfo').attr('disabled', 'disabled');
 
-      $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
-      
-    }
+    $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
 
+  } else {
+    $('#updateSecretInfo').parent().hide();
+  }
 
     $("input[type='password']").val('');
     $("#name").focus();

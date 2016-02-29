@@ -86,7 +86,6 @@ taskHistorySchema.statics.getHistoryByTaskId = function(taskId, callback) {
         },
         $orderby: {
             "buildNumber": -1
-        }
     }, function(err, tHistories) {
         if (err) {
             callback(err, null);
