@@ -24,121 +24,122 @@ var schemaValidator = require('../../dao/schema-validator');
 var Schema = mongoose.Schema;
 
 var taskHistorySchema = new Schema({
-    taskId: String,
-    taskType: String,
-    runlist: [String],
-    nodeIds: [String],
-    nodeIdsWithActionLog: [{
-        nodeId: String,
-        actionLogId: String
-    }],
-    attributes: Schema.Types.Mixed,
-    jenkinsServerId: String,
-    jobName: String,
-    buildNumber: Number,
-    previousBuildNumber: Number,
-    status: String,
-    user: String,
-    timestampStarted: Number,
-    timestampEnded: Number,
-    jobResultURL: [String],
-    executionResults: [Schema.Types.Mixed],
-    assignedTaskIds: [String],
-    taskHistoryIds: [{
-        taskId: String,
-        historyId: String
-    }],
+	taskId: String,
+	taskType: String,
+	runlist: [String],
+	nodeIds: [String],
+	nodeIdsWithActionLog: [{
+		nodeId: String,
+		actionLogId: String
+	}],
+	attributes: Schema.Types.Mixed,
+	jenkinsServerId: String,
+	jobName: String,
+	buildNumber: Number,
+	previousBuildNumber: Number,
+	status: String,
+	user: String,
+	timestampStarted: Number,
+	timestampEnded: Number,
+	jobResultURL: [String],
+	executionResults: [Schema.Types.Mixed],
+	assignedTaskIds: [String],
+	taskHistoryIds: [{
+		taskId: String,
+		historyId: String
+	}],
 
-    blueprintExecutionResults: Schema.Types.Mixed
+	blueprintExecutionResults: Schema.Types.Mixed
 });
 
 taskHistorySchema.method.update = function(status, timestampEnded, callback) {
-    var self = this;
-    var taskHistory = new self(historyData);
+	var self = this;
+	var taskHistory = new self(historyData);
 
-    taskHistory.save(function(err, tHistory) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        callback(null, tHistory);
-    });
+	taskHistory.save(function(err, tHistory) {
+		if (err) {
+			callback(err, null);
+			return;
+		}
+		callback(null, tHistory);
+	});
 };
 
 taskHistorySchema.statics.createNew = function(historyData, callback) {
-    var self = this;
-    var taskHistory = new self(historyData);
+	var self = this;
+	var taskHistory = new self(historyData);
 
-    taskHistory.save(function(err, tHistory) {
-        logger.debug('saving task history ==>');
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        callback(null, tHistory);
-    });
+	taskHistory.save(function(err, tHistory) {
+		logger.debug('saving task history ==>');
+		if (err) {
+			callback(err, null);
+			return;
+		}
+		callback(null, tHistory);
+	});
 };
 
 taskHistorySchema.statics.getHistoryByTaskId = function(taskId, callback) {
-    this.find({
-        $query: {
-            taskId: taskId
-        },
-        $orderby: {
-            "buildNumber": -1
-    }, function(err, tHistories) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        callback(null, tHistories);
-    });
+	this.find({
+		$query: {
+			taskId: taskId
+		},
+		$orderby: {
+			"buildNumber": -1
+		}
+	}, function(err, tHistories) {
+		if (err) {
+			callback(err, null);
+			return;
+		}
+		callback(null, tHistories);
+	});
 };
 
 
 
 taskHistorySchema.statics.getHistoryByTaskIdAndHistoryId = function(taskId, historyId, callback) {
-    this.find({
-        taskId: taskId,
-        _id: new ObjectId(historyId)
-    }, function(err, tHistories) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        if (tHistories.length) {
-            callback(null, tHistories[0]);
-        } else {
-            callback(null, null);
-        }
-    });
+	this.find({
+		taskId: taskId,
+		_id: new ObjectId(historyId)
+	}, function(err, tHistories) {
+		if (err) {
+			callback(err, null);
+			return;
+		}
+		if (tHistories.length) {
+			callback(null, tHistories[0]);
+		} else {
+			callback(null, null);
+		}
+	});
 };
 
 
 taskHistorySchema.statics.getLast100HistoriesByTaskId = function(taskId, callback) {
 
-    this.find({
-        taskId: taskId
-    }, function(err, tHistories) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        callback(null, tHistories);
-    }).sort({
-        buildNumber: -1
-    }).limit(100);
+	this.find({
+		taskId: taskId
+	}, function(err, tHistories) {
+		if (err) {
+			callback(err, null);
+			return;
+		}
+		callback(null, tHistories);
+	}).sort({
+		buildNumber: -1
+	}).limit(100);
 };
 
 taskHistorySchema.statics.listHistory = function(callback) {
 
-    this.find(function(err, tHistories) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        callback(null, tHistories);
-    });
+	this.find(function(err, tHistories) {
+		if (err) {
+			callback(err, null);
+			return;
+		}
+		callback(null, tHistories);
+	});
 };
 
 var TaskHistory = mongoose.model('taskHistory', taskHistorySchema);
