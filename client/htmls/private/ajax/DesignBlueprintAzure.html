@@ -13,6 +13,12 @@
       </ul>
       <div id="myTabContent3" class="nav tab-content">
         <div class="tab-pane fade in active" id="l2">
+          <span class="spanName pull-right">
+              <label class="orgSelectDropDown"><b>Choose Organisation</b>:</label>
+              <select id="selectOrgName" class="form-controlSelect">
+              </select>
+           </span>
+          <input type="hidden" id="orgIDCheck"/>
           <section id="widget-grid" class="">
             <div class="row">
               <article class="col-sm-12 col-md-12 col-lg-12">
@@ -852,6 +858,7 @@ $(document).ready(function() {
   $(".chooseBGExisting").select2();
   $(".chooseProjectExisting").select2();
   $(".chooseEnvExisting").select2();
+  $('#selectOrgName').trigger('change');
   var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
   if (window.url.indexOf('addnew') > 0)
     $addal.attr('href', '#ajax/DesignBlueprintAzure.html?addanother');
@@ -1667,7 +1674,7 @@ function getVPC() {
 
       });
     } else {
-      $('#vpcId').html('<option value="">Select VPC</option>').select2()
+      $('#vpcId').html('<option value="">Select VPC</option>').select2();
     }
   }
 
@@ -1724,15 +1731,13 @@ function getSubnet() {
 }
 
 function resetForm() {
-  $('input').val('');
-  $('select').val('').select2();
   $('[multiselect]').empty();
 }
 
 var blueprintstartup = function() {
+  azureLoadData();
   getProviderList();
   getImageInstances();
-
   getSecurityGroup();
   getkeypairList();
   getVPC();
@@ -1768,6 +1773,8 @@ var blueprintstartup = function() {
   });
 
   $(".chooseOrgselect2").select2();
+  $("#vpcId").select2();
+  $('#subnetId').select2();
   $(".chooseOS").select2();
   $(".chooseOSProvider").select2();
   $(".chooseSecurity").select2();
@@ -1777,25 +1784,23 @@ var blueprintstartup = function() {
   $(".chooseEnv").select2();
   $(".chooseDockerContainer").select2();
   $(".chooseSelectExit").select2();
-  $('select').select2();
 
   var sortbyid = function SortByID(x, y) {
     return x.position - y.position;
   }
-
-  $.ajax({
-    url: "/d4dMasters/readmasterjsonnew/16",
-    dataType: "json",
-    type: "GET",
-    cache: "true",
-    success: function(data) {
-      var rowLength = JSON.stringify(data.length);
+  $('#selectOrgName').change(function(e) {
+    azureLoadData();
+  });
+  function azureLoadData() {
+    $.get('/d4dMasters/readmasterjsonnew/16', function(data) {
+      data = JSON.parse(data);
+      var rowLength = data.length;
       var containerTemp = "";
       var selectedrow = false;
       var getDesignTypeImg;
       var getDesignTypeRowID;
-      for (var i = 0; i < rowLength; i += 1) {
 
+      for (var i = 0; i < rowLength; i += 1) {
         switch (data[i]['templatetype']) {
           case "chef":
             data[i]['position'] = 0;
@@ -1803,45 +1808,40 @@ var blueprintstartup = function() {
           case "ami":
             data[i]['position'] = 1;
             break;
-          case "cft":
+          case "arm":
             data[i]['position'] = 2;
             break;
           case "docker":
             data[i]['position'] = 3;
             break;
         }
-
       }
       data.sort(sortbyid);
 
-
+      var selectCheck = $('#selectOrgName').val();
+      $('#orgIDCheck').val(selectCheck);
       for (var i = 0; i < rowLength; i += 1) {
-        //skipping cft if not aws provider
-        if (providerselected && (providerselected == 'vmware' || providerselected == 'azure' || providerselected == 'openstack' || providerselected == 'hppubliccloud') && data[i]['templatetype'] && data[i]['templatetype'] == 'cft')
+        $("#templateContent").empty();
+        if (data[i]['templatetype'] && data[i]['templatetype'] == 'cft')
           continue;
-
         getDesignTypeImg = data[i]['templatetype'];
-
-        switch (data[i].templatetype) {
-          case "chef":
-            getDesignTypeImg = '/d4dMasters/image/16ae9c94-19f6-485a-8c17-9af7a0f5f23d__designtemplateicon__Appfactory.png';
-            break;
-          case "ami":
-            getDesignTypeImg = '/d4dMasters/image/9d14d362-493e-4d62-b029-a6761610b017__designtemplateicon__DevopsRoles.png';
-            break;
-          case "docker":
-            getDesignTypeImg = '/d4dMasters/image/b02de7dd-6101-4f0e-a95e-68d74cec86c0__designtemplateicon__Docker.png';
-            break;
-          case "arm":
+        if (selectCheck == data[i].orgname_rowid) {
+          switch (data[i].templatetype) {
+            case "chef":
+              getDesignTypeImg = '/d4dMasters/image/16ae9c94-19f6-485a-8c17-9af7a0f5f23d__designtemplateicon__Appfactory.png';
+              break;
+            case "ami":
+              getDesignTypeImg = '/d4dMasters/image/9d14d362-493e-4d62-b029-a6761610b017__designtemplateicon__DevopsRoles.png';
+              break;
+            case "docker":
+              getDesignTypeImg = '/d4dMasters/image/b02de7dd-6101-4f0e-a95e-68d74cec86c0__designtemplateicon__Docker.png';
+              break;
+            case "arm":
               getDesignTypeImg = '/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png';
-            break;
-          case "cft":
-              getDesignTypeImg = '/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png';
-            break;
-        }
-        getDesignTypeRowID = data[i]['rowid'];
-
-        if (getDesignTypeImg) {
+              break;
+          }
+          getDesignTypeRowID = data[i]['rowid'];
+          if (getDesignTypeImg) {
             if (getDesignTypeImg.indexOf('/d4dMasters/image') === -1) {
               getDesignTypeImg = "/d4dMasters/image/" + getDesignTypeRowID + "__designtemplateicon__" + getDesignTypeImg;
             }
@@ -1858,12 +1858,12 @@ var blueprintstartup = function() {
               'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' + '<div style="padding-top:10px;padding-left:27px;">' +
               '<img style="height:40px;width:auto;" alt="" ' + 'src="img/logo.png">' + '</div></div></div>';
           }
+        }
       }
-
       $("#templateContent").append(containerTemp);
       $("#templateContent #grid0").addClass("role-Selected");
-    }
-  });
+    });
+  };
 
   $('#templateContent').on("click", '.blueprintdiv', function() {
     $('#templateContent .role-Selected').removeClass('role-Selected');
@@ -1893,6 +1893,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
     console.log(navigation, index)
     if (index === 1) {
       $('#viewCreateNew').addClass('hidden');
+      $('#selectOrgName').attr('disabled', true);
       $("#tabheader").html('Choose Templates');
       var $selectedItem = $('.role-Selected');
       if (!$selectedItem.length) {
@@ -2024,11 +2025,16 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
           }
           $("#individualTemplateNameGrid").html("").css('display','block');
           $("#individualTemplateNameGrid").append(getIndividualData).find('.productdiv2').first().click();
-
-          //Proceeding to next step when selected type is docker
-          // if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
-          //   $('li.next').find('a').trigger('click');
-          // }
+          var wizard = $wizard.data('bootstrapWizard');
+          if ($('#individualTemplateNameGrid').children('div').length) {
+            wizard.enableNextBtn();
+          } else {
+            bootbox.alert({
+              message: "There are no templates available. Navigate to Settings to add a few.",
+              title: "Warning"
+            });
+            wizard.disableNextBtn();
+          }
         }
 
 
@@ -2832,13 +2838,11 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
     if (index === 0) {
       $("#tabheader").html('Choose Template Type');
       $('#viewCreateNew').removeClass('hidden');
+      $('#selectOrgName').attr('disabled', false);
+      var wizard = $wizard.data('bootstrapWizard');
+      wizard.enableNextBtn();
     } else if (index === 1) {
       $("#tabheader").html('Choose Templates');
-      // if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
-      //   $('#bootstrap-wizard-1').bootstrapWizard('show', 0);
-      //   var validatorForm = $("#wizard-1").validate();
-      //   validatorForm.resetForm();
-      // }
     } else if (index === 2) {
       $("#tabheader").html('Choose Template');
     } else if (index === 3) {
@@ -2880,11 +2884,13 @@ $.ajax({
   url: "../organizations/getTreeForbtv",
   success: function(data) {
     console.log(data);
+    $('#selectOrgName').trigger('change');
     data = JSON.parse(JSON.stringify(data));
     var $orgListInput = $('#orgnameSelect');
     $bgList = $('#bgListInput');
     var $envList = $('#envList');
     for (var i = 0; i < data.length; i++) {
+      $('#selectOrgName').append($('<option></option>').val(data[i].rowid).html(data[i].name));
       $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].nodes).data('project', data[i].nodes[0].nodes).data('envList', data[i]
         .nodes[0].nodes));
     }

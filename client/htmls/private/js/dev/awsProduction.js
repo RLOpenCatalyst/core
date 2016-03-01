@@ -677,7 +677,7 @@ function resetForm() {
 	$('[multiselect]').empty();
 }
 $(document).ready(function() {
-	$('#selectOrgName').trigger('change');
+	awsLoadData();
 	getProviderList();
 	getImageInstances();
 	getSecurityGroup();
@@ -714,6 +714,9 @@ $(document).ready(function() {
 	}
 
 	$('#selectOrgName').change(function(e) {
+		awsLoadData();
+	});
+		function awsLoadData(){
 		$.get('/d4dMasters/readmasterjsonnew/16', function(data) {
 			data = JSON.parse(data);
 			var rowLength = data.length;
@@ -784,7 +787,7 @@ $(document).ready(function() {
 			$("#templateContent").append(containerTemp);
 			$("#templateContent #grid0").addClass("role-Selected");
 		});
-	});
+	}
 
 	$('#templateContent').on("click", '.blueprintdiv', function() {
 		$('#templateContent .role-Selected').removeClass('role-Selected');
@@ -910,8 +913,8 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 						wizard.enableNextBtn();
 					} else {
 						bootbox.alert({
-							message: "There are no templates available",
-							title: "Error!"
+							message: "There are no templates available. Navigate to Settings to add a few.",
+							title: "Warning"
 						});
 						wizard.disableNextBtn();
 					}
