@@ -376,7 +376,10 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
     this.getCountByParentId(blueprintData.id, function(err, count) {
         if(count <= 0){
             count = 1;
-        }        
+        }  
+        else{
+            count++;
+        }      
 
         var blueprintObj = {
             orgId: blueprintData.orgId,
@@ -424,13 +427,17 @@ BlueprintSchema.statics.getById = function(id, callback) {
 
 BlueprintSchema.statics.getCountByParentId = function(parentid, callback) {
     if(parentid){
-        logger.debug('finding blueprint by id ===>' + parentid);
-        this.find({$or:[{parentId:parentid},{id:parentid}]}, function(err, blueprint) {
+        logger.debug('finding blueprint by parentid or id ===>' + parentid);
+        this.find({$or:[{parentId:parentid},{_id:ObjectId(parentid)}]}, function(err, blueprint) {
             if (err) {
                 callback(err, 0);
                 return;
             }
-            callback(null, blueprint.length);
+            else{
+                logger.debug('Found bp.[',blueprint.length,']');
+                callback(null, blueprint.length);
+            }
+            
         });
     }
     else{
