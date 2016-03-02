@@ -474,8 +474,32 @@ BlueprintSchema.statics.removeById = function(id, callback) {
 
 };
 
+var getBlueprintVersionObject = function(blueprints,parentId){
+            var versions = [];
+            logger.debug('Entering getBlueprintVersionObject');
+            for(var bpi = 0; bpi < blueprints.length;bpi++){
+                if(blueprints[bpi]["parentId"] == parentId){
+                    logger.debug('Hit a parentID');
+                    versions.push({id:blueprints[bpi]["_id"],version:blueprints[bpi]["version"]});
+                   // delete blueprints[bpi];
+                }
+            }
+            for(var bpi = 0; bpi < blueprints.length;bpi++){
+                if(blueprints[bpi]["_id"] == parentId){
+                    
+                    blueprints[bpi].versions = versions;
+                    logger.debug('Found a parentID');
+                    
+                }
+            }
+            logger.debug('Exiting getBlueprintVersionObject');
+
+            return(blueprints);
+    }
+
+
 BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, projId, filterBlueprintType, callback) {
-    logger.debug("Enter getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
+    logger.debug("Enter getBlueprintsByOrgBgProject(%s,%s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
     var queryObj = {
         orgId: orgId,
         bgId: bgId,
@@ -490,8 +514,28 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, proj
             callback(err, null);
             return;
         }
+        var counter = 0;
+        logger.debug('About to scan:------------------------------------------',blueprints.length);
+        //logger.debug(blueprints);
+        for(var bpi = 0; bpi < blueprints.length;bpi++){
+             counter++;
+            if(blueprints[bpi].parentId){
+                blueprints = getBlueprintVersionObject(blueprints,blueprints[bpi].parentId);
+            }
+            if(counter >= blueprints.length){
+                
+                
+            }
+        }
+        logger.debug('About to return:------------------------------------------');
+        logger.debug(blueprints);
+        
+        
         logger.debug("Exit getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
         callback(null, blueprints);
+
+
+
     });
 };
 
