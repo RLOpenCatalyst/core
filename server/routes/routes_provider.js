@@ -2327,7 +2327,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var user = req.session.user;
 		var category = configmgmtDao.getCategoryFromID("9");
 		var permissionto = 'modify';
+
+		if (req.body.accessKey != undefined)
 		var accessKey = req.body.accessKey.trim();
+
+	 	if (req.body.secretKey != undefined)
 		var secretKey = req.body.secretKey.trim();
 		var providerName = req.body.providerName.trim();
 		var providerId = req.params.providerId.trim();
