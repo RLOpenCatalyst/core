@@ -372,6 +372,7 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
     }
     logger.debug('blueprint type ', blueprintData);
     //Set the version if blueprint id is null
+    logger.debug('blueprint id ..... ', blueprintData.id);
     this.getCountByParentId(blueprintData.id, function(err, count) {
         if(count <= 0){
             count = 1;
@@ -422,14 +423,20 @@ BlueprintSchema.statics.getById = function(id, callback) {
 };
 
 BlueprintSchema.statics.getCountByParentId = function(parentid, callback) {
-    logger.debug('finding blueprint by id ===>' + id);
-    this.find({parentId:parentid}, function(err, blueprint) {
-        if (err) {
-            callback(err, 0);
-            return;
-        }
-        callback(null, blueprint.length);
-    });
+    if(parentid){
+        logger.debug('finding blueprint by id ===>' + parentid);
+        this.find({$or:[{parentId:parentid},{id:parentid}]}, function(err, blueprint) {
+            if (err) {
+                callback(err, 0);
+                return;
+            }
+            callback(null, blueprint.length);
+        });
+    }
+    else{
+        callback(null, 0);
+        return;
+    }
 };
 
 BlueprintSchema.statics.getByIds = function(ids, callback) {
