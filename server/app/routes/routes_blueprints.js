@@ -91,8 +91,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				templateId: req.body.blueprintData.templateId,
 				templateType: req.body.blueprintData.templateType,
 				users: req.body.blueprintData.users,
-				blueprintType: blueprintType
-
+				blueprintType: blueprintType,
+				id:req.body.blueprintData.id
 			};
 
 			var dockerData, instanceData, cloudFormationData;
