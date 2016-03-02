@@ -10,8 +10,8 @@ engines:
 ratings:
   paths:
   - server/**
-  - client/**
   - "**.js"
 exclude_paths:
 - Test/**/*
 - seed/**/*
+- client/**/*
