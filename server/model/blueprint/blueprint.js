@@ -123,7 +123,16 @@ var BlueprintSchema = new Schema({
         containerId: String,
         containerPort: String
     },
-    blueprintConfig: Schema.Types.Mixed
+    blueprintConfig: Schema.Types.Mixed,
+    version:{
+        type: String,
+        required: true,
+        trim: true,
+    },
+    parentId:{
+        type: String,
+        required: false
+    }
 });
 
 function getBlueprintConfigType(blueprint) {
@@ -361,33 +370,43 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
         });
         return;
     }
-    logger.debug('blueprin type ', blueprintData);
-    var blueprintObj = {
-        orgId: blueprintData.orgId,
-        bgId: blueprintData.bgId,
-        projectId: blueprintData.projectId,
-        name: blueprintData.name,
-        appUrls: blueprintData.appUrls,
-        iconpath: blueprintData.iconpath,
-        templateId: blueprintData.templateId,
-        templateType: blueprintData.templateType,
-        users: blueprintData.users,
-        blueprintConfig: blueprintConfig,
-        blueprintType: blueprintType,
-        nexus: blueprintData.nexus,
-        docker: blueprintData.docker
-    };
-    var blueprint = new Blueprints(blueprintObj);
-    logger.debug('saving');
-    blueprint.save(function(err, blueprint) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
-        }
-        logger.debug('save Complete');
-        callback(null, blueprint);
+    logger.debug('blueprint type ', blueprintData);
+    //Set the version if blueprint id is null
+    this.getCountByParentId(blueprintData.id, function(err, count) {
+        if(count <= 0){
+            count = 1;
+        }        
+
+        var blueprintObj = {
+            orgId: blueprintData.orgId,
+            bgId: blueprintData.bgId,
+            projectId: blueprintData.projectId,
+            name: blueprintData.name,
+            appUrls: blueprintData.appUrls,
+            iconpath: blueprintData.iconpath,
+            templateId: blueprintData.templateId,
+            templateType: blueprintData.templateType,
+            users: blueprintData.users,
+            blueprintConfig: blueprintConfig,
+            blueprintType: blueprintType,
+            nexus: blueprintData.nexus,
+            docker: blueprintData.docker,
+            version: count,
+            parentId: blueprintData.id
+        };
+        var blueprint = new Blueprints(blueprintObj);
+        logger.debug('saving');
+        blueprint.save(function(err, blueprint) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+            }
+            logger.debug('save Complete');
+            callback(null, blueprint);
+        });
     });
+
 };
 
 
@@ -399,6 +418,17 @@ BlueprintSchema.statics.getById = function(id, callback) {
             return;
         }
         callback(null, blueprint);
+    });
+};
+
+BlueprintSchema.statics.getCountByParentId = function(parentid, callback) {
+    logger.debug('finding blueprint by id ===>' + id);
+    this.find({parentId:parentid}, function(err, blueprint) {
+        if (err) {
+            callback(err, 0);
+            return;
+        }
+        callback(null, blueprint.length);
     });
 };
 
