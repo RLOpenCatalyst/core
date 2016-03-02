@@ -1118,12 +1118,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 		var providerName = req.body.providerName;
 		var providerType = req.body.providerType.toLowerCase();
-        var pemFileName = null;
-        if(req.files && req.files.azurepem)
-		   pemFileName = req.files.azurepem.originalFilename;
+
+		var pemFileName = null;
+    	if(req.files && req.files.azurepem)
+ 		   pemFileName = req.files.azurepem.originalFilename;
         var keyFileName = null;
         if(req.files && req.files.azurekey)
-		  keyFileName = req.files.azurekey.originalFilename;
+ 		  keyFileName = req.files.azurekey.originalFilename;
 		var orgId = req.body.orgId;
 
 		if (typeof azureSubscriptionId === 'undefined' || azureSubscriptionId.length === 0) {
@@ -2329,7 +2330,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var user = req.session.user;
 		var category = configmgmtDao.getCategoryFromID("9");
 		var permissionto = 'modify';
+
+		if (req.body.accessKey != undefined)
 		var accessKey = req.body.accessKey.trim();
+
+	 	if (req.body.secretKey != undefined)
 		var secretKey = req.body.secretKey.trim();
 		var providerName = req.body.providerName.trim();
 		var providerId = req.params.providerId.trim();
