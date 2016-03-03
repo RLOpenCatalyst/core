@@ -4338,3 +4338,38 @@ form.cmxform .gray * {
 .colorRed{
     color:red;
 }
+
+#selectOrgName{
+    width:56%;
+}
+@media(max-width:978px){
+  #selectOrgName{
+    width:48%;
+}
+.orgSelectDropDown{
+    font-size: 11px;
+}
+.spanName{
+    width:43%;
+    margin-top: -40px;
+}
+
+}
+@media(min-width:979px) and (max-width:1199px){
+.spanName{
+    width:40%;
+    margin-top:-40px;
+}
+}
+@media(min-width:1200px) and (max-width:1400px){
+.spanName{
+    width:34%;
+    margin-top:-40px;
+}
+}
+@media(min-width:1401px){
+.spanName{
+    width:26%;
+    margin-top:-40px;
+}
+}

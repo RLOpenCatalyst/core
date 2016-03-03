@@ -1,3 +1,8 @@
+<style>
+.authCheck{
+  margin-top: 10px;
+}
+</style>
 <div class="row">
    <div class="col-md-12">
       <div class="col-md-12">
@@ -27,18 +32,18 @@
                                           <label for="name">User Name:<span class="control-label redSpan">&nbsp;*</span></label>
                                           <input name="ctl00$MainContent$orgname" value="" id="username" class="form-control" type="text"  cdata="catalyst"  cat-validation="required,max15">
                                        </div>
-                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                       <div class="col-lg-6 col-md-6 appNameLabel">
                                           <label for="link">Host Name:<span class="control-label redSpan">&nbsp;*</span></label>
                                           <input type="text" unique="true" uniqueconditionedbyUrl="hostname" name="ctl00$MainContent$orgname" value="" id="hostname" class="form-control" type="url"  name="website"  cdata="catalyst"  cat-validation="required">
                                        </div>
-                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                       <div class="col-lg-6 col-md-6 appNameLabel">
                                           <label for="name">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
                                           <select id="orgname" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
                                              <option value="">Select an Organization</option>
                                           </select>
                                           <span data-val-controltovalidate="domainname" id="MainContent_Req_domainname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
                                        </div>
-                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                       <div class="col-lg-6 col-md-6 authCheck">
                                           <label for ="name">
                                           Choose Authentication Type: <span class="control-label redSpan">&nbsp;*</span></label>
                                           <select id="authType" class="chooseAuthType width-100">
@@ -46,7 +51,7 @@
                                              <option id="pemfile" value="pemfile">Pem File</option>
                                           </select>
                                        </div>
-                                       <div class="col-lg-6 col-md-6" id="frmconfigmanagement" style="margin-top:25px">
+                                       <div class="col-lg-6 col-md-6 authCheck" id="frmconfigmanagement">
                                           <div class="smart-forms">
                                              <label>User Pem File:<span class="control-label redSpan">&nbsp;*</span></label>
                                              <label for="userpemfile" class="field file">
@@ -56,7 +61,7 @@
                                           </div>
                                        </div>
                                        <!--for password-->
-                                       <div class="col-lg-6 col-md-6" id="passwordShow" style="margin-top:25px">
+                                       <div class="col-lg-6 col-md-6 authCheck" id="passwordShow">
                                           <label for="name">Password:<span class="control-label redSpan">&nbsp;*</span></label>
                                           <input value="" id="puppetpassword" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
                                        </div>
