@@ -150,7 +150,7 @@ module.exports.setRoutes = function(app) {
 	});
 
 	//for public html files
-	app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(__dirname)), 'client/htmls/public')));
+	app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'client/htmls/public')));
 
 	app.get('/public/login.html', function(req, res, next) {
 		if (req.session && req.session.user) {
@@ -183,7 +183,7 @@ module.exports.setRoutes = function(app) {
 			res.redirect('/public/login.html');
 		}
 	});
-	app.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(__dirname)), 'client/htmls/private')));
+	app.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'client/htmls/private')));
 
 
 	// for upload dir

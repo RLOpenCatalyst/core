@@ -70,7 +70,7 @@ function getDefaultsConfig() {
             }
         },
         aws: {
-            pemFileLocation: __dirname + '/config/',
+            pemFileLocation: __dirname + '/app/config/',
             pemFile: "catalyst.pem",
             instanceUserName: "root",
             virtualizationType: [{
@@ -358,7 +358,7 @@ function createConfigFile(config) {
     console.log('creating configuration json file');
     configJson = JSON.stringify(config);
     var fs = require('fs');
-    fs.writeFileSync('config/catalyst-config.json', configJson);
+    fs.writeFileSync('app/config/catalyst-config.json', configJson);
 }
 console.log('Installing node packages required for installation');
 proc = spawn('npm', ['install', "command-line-args@0.5.3", 'mkdirp@0.5.0', 'fs-extra@0.18.0', 'ldapjs@0.7.1', 'mongodb@2.1.4']);
