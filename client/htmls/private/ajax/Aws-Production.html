@@ -3,16 +3,17 @@
     <div class="widget-body font-size-12">
       
       <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
-        <li class="pull-left active">
-          <a href="#l2" id="tabheader" data-toggle="tab">Choose Template Type</a>
+        <li class="pull-left  active">
+          <a href="#viewCreate" id="viewCreateNew" data-toggle="tab">Blueprints</a>
+        </li>
+        <li class="pull-left View blueprintnewbutton">
+          <a href="#l2" id="tabheader" data-toggle="tab">New</a>
         </li>
         <!--new tab for CRUD operations for Blueprint-->
-        <li class="pull-left View">
-          <a href="#viewCreate" id="viewCreateNew" data-toggle="tab">Existing Blueprints</a>
-        </li>
+        
       </ul>
       <div id="myTabContent3" class="nav tab-content">
-        <div class="tab-pane fade in active" id="l2">
+        <div class="tab-pane" id="l2">
           <span class="spanName pull-right">
               <label class="orgSelectDropDown"><b>Choose Organisation</b>:</label>
               <select id="selectOrgName" class="form-controlSelect">
@@ -542,14 +543,14 @@
         <!--tab-pane l2 gets over -->
         <!--view for blueprints-->
         <!--blueprint tab-->
-        <div class="tab-pane" id="viewCreate">
+        <div class="tab-pane fade in active" id="viewCreate">
           <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
             <div>
               <div class="widget-body no-padding">
                 <form action="">
                   <div class="col-lg-12 awsExisting">
                     <div class="col-lg-4 col-md-4">
-                      <label for="">Choose Organization <span style="color:red">*</span></label>
+                      <label for="">Organization <!-- <span style="color:red">*</span> --></label>
                       <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100 form-control">
                       </select>
                     </div>

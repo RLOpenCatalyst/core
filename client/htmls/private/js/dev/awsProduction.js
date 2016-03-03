@@ -97,8 +97,9 @@ $(document).ready(function() {
 				reqBodyNew.bgId = $bgList.val();
 				reqBodyNew.projectId = $projectList.val();
 				reqBodyNew.envId = $envList.val();
+				//alert('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/');
 				$.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/', function(data) {
-					console.log('success---3---4');
+					console.log('success---3---4' + data.blueprints.length);
 					//Syncing up the tree view based on url
 					initializeBlueprintAreaNew(data.blueprints);
 					$spinnerProject.addClass('hidden');
@@ -809,7 +810,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 		if (index === 1) {
 			$('#viewCreateNew').addClass('hidden');
 			$('#selectOrgName').attr('disabled', true);
-			$("#tabheader").html('Choose Templates');
+			//$("#tabheader").html('Choose Templates');
 			var $selectedItem = $('.role-Selected');
 			if (!$selectedItem.length) {
 				alert('please choose a blueprint design');
@@ -923,7 +924,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 			$('#tab' + (index + 1)).find('.temp').empty().append($clone);
 			$('.' + $selectedItem.attr('data-templateType')).find('.productdiv2:first').trigger('click');
 		} else if (index == 2) {
-			$("#tabheader").html('Choose Template');
+			//$("#tabheader").html('Choose Template');
 			//If a docker type of template selected then select the Org 
 			var $selectedItem = $('.role-Selected');
 			// alert('in ' + $selectedItem.length);
@@ -1184,7 +1185,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 					title: "Confirm",
 					callback: function(result) {
 						if (result) {
-							$("#tabheader").html('Create Blueprint');
+							//$("#tabheader").html('Create Blueprint');
 							var $selectedTemplateArea = $('.selectedTemplateArea');
 							var $selectedItem = $selectedTemplateArea.find('.productdiv2');
 							console.log($selectedItem.length);
@@ -1560,21 +1561,21 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 	},
 	'onPrevious': function(tab, navigation, index) {
 		if (index === 0) {
-			$("#tabheader").html('Choose Template Type');
+			//$("#tabheader").html('Choose Template Type');
 			$('#viewCreateNew').removeClass('hidden');
 			$('#selectOrgName').attr('disabled', false);
 			var wizard = $wizard.data('bootstrapWizard');
 			wizard.enableNextBtn();
 		} else if (index === 1) {
-			$("#tabheader").html('Choose Templates');
+			//$("#tabheader").html('Choose Templates');
 			if ($('#tab1').find('.role-Selected').attr('data-templatetype') === "Docker" || $('#tab1').find('.role-Selected').attr('data-templatetype') === "docker") {
 				$('#bootstrap-wizard-1').bootstrapWizard('show', 2);
 				var validatorForm = $("#wizard-1").validate();
 			}
 		} else if (index === 2) {
-			$("#tabheader").html('Choose Template');
+			//$("#tabheader").html('Choose Template');
 		} else if (index === 3) {
-			$("#tabheader").html('Create Blueprint');
+			//$("#tabheader").html('Create Blueprint');
 			var validatorForm = $("#wizard-1").validate();
 			validatorForm.resetForm();
 		}
@@ -2140,7 +2141,7 @@ function initializeBlueprintAreaNew(data) {
 			}
 			console.log(tdata);
 			if ($("div." + tdata[i]['templatetype']).length === 0) {
-				$containerTempNew = '<div class="panel panel-default blueprintContainer hidden">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapse' + i + '" data-parent="#accordion-2" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>' + getDesignTypeName + '</a>' + '</h4></div><div class="panel-collapse collapse" id="collapse' + i + '">' + '<div class="panel-body ' + getDesignType + '"></div>' + '</div>';
+				$containerTempNew = '<div class="panel panel-default blueprintContainer hidden">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapse' + i + '" data-parent="#accordion-2" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>' + getDesignTypeName + '</a>' + '</h4></div><div class="panel-collapse collapse bpeditas" id="collapse' + i + '">' + '<div class="panel-body ' + getDesignType + '"></div>' + '</div>';
 				$('#accordion-2').append($containerTempNew);
 			}
 		}
@@ -2168,6 +2169,24 @@ function initializeBlueprintAreaNew(data) {
 					$ul.append($liCardName);
 					var $selecteditBtnContainer = $('<div style="position:absolute;padding-left:27px;bottom:11px;"></div>');
 					var $selectVerEdit = $('<a style="padding:0px 4px;margin-left:3px;border-radius:5px;" class="bpEditBtn"><i class="ace-icon fa fa-pencil"></i></a>').addClass('btn btn-primary').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'Edit');
+					var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Versions"></button>');
+					var $selectbpcheckbox = $('<input type="checkbox" class="cbbpselect" id="bp_' + data[i]._id + '"/>');
+					
+					$linkVersions.append('<i class="fa fa-list-ol bpvi"></i>')
+					if(data[i].versions){	
+						$linkVersions.attr('versions',JSON.stringify(data[i].versions));
+					} else{
+						$linkVersions.attr('versions','[]');
+					}
+					$selectbpcheckbox.click(function(e){
+						if($(this).is(':checked')){
+							$(this).closest('.productdiv1.cardimage').addClass('role-Selected1');
+						}
+						else{
+							$(this).closest('.productdiv1.cardimage').removeClass('role-Selected1');
+						}
+					});
+					
 					var $selectVer = null;
 					var tagLabel = '';
 					//Docker Check
@@ -2364,6 +2383,8 @@ function initializeBlueprintAreaNew(data) {
 						}
 					}
 					$selecteditBtnContainer.append($li);
+					$ul.append($selectbpcheckbox);
+					$ul.append($linkVersions);
 					$itemBody.append($ul);
 					$itemBody.append($selecteditBtnContainer);
 					$itemContainer.append($itemBody);
