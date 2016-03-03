@@ -3881,10 +3881,38 @@ span.icon {
     margin-left: -12px;
 }
 .awsExisting {
-    margin-top: 15px;
-    border: solid gray 1px;
-    padding-top: 12px;
-    padding-bottom: 17px;
+    margin-left: -12px;
+    padding-bottom: 7px;
+    padding-top: 7px;
+}
+.blueprintnewbutton{
+    text-align: center;
+    width: 89px;
+}
+.bpeditas{
+    margin-left: -29px;
+}
+.bpvicon{
+    border-radius: 50%;
+    height:29px;
+    width:29px;
+    margin-left: 0px;
+    margin-top: 38px;
+}
+.cbbpselect{
+    border-radius: 50%;
+    height: 0;
+    margin-left: -46px !important;
+    margin-top: 46px !important;
+    position: absolute;
+}
+.bpvi{
+    margin-left: -7px;
+    margin-top: -7px;
+    position: absolute;
+}
+.dockerimagetext{
+    position: absolute;
 }
 .appNameLabel {
     margin-top: 25px;

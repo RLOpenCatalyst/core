@@ -1026,6 +1026,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 							}
 
 							Blueprints.getBlueprintsByOrgBgProject(req.params.orgId, req.params.bgId, req.params.projectId, req.query.blueprintType, function(err, blueprintsData) {
+								
 								logger.debug(req.params.orgId, req.params.projectId, req.params.envId);
 								if (err) {
 									res.send(500);
@@ -1043,7 +1044,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
 											res.send(500);
 											return;
 										}
-
+										// for(var bpi = 0; bpi < blueprintsData.length;bpi++){
+								  //           if(blueprintsData[bpi].versions)
+								  //           {
+							   //              	logger.debug('blueprint version found:', blueprintsData[bpi].name);
+							   //                  logger.debug(JSON.stringify(blueprintsData[bpi]));
+							   //              }
+		        // 						}
 										res.send({
 											tasks: tasksData,
 											instances: instancesData,

@@ -474,7 +474,7 @@ BlueprintSchema.statics.removeById = function(id, callback) {
 
 };
 
-var getBlueprintVersionObject = function(blueprints,parentId){
+var findBlueprintVersionObject = function(blueprints,parentId){
             var versions = [];
             logger.debug('Entering getBlueprintVersionObject', parentId);
             for(var bpi = 0; bpi < blueprints.length;bpi++){
@@ -485,6 +485,7 @@ var getBlueprintVersionObject = function(blueprints,parentId){
                 }
             }
             for(var bpi = 0; bpi < blueprints.length;bpi++){
+                blueprints[bpi] = JSON.parse(JSON.stringify(blueprints[bpi])); 
                 if(blueprints[bpi]["_id"] == parentId){
                     
                     blueprints[bpi].versions = versions;
@@ -497,9 +498,32 @@ var getBlueprintVersionObject = function(blueprints,parentId){
             return(blueprints);
     }
 
+var consolidateVersionOnBlueprint = function(blueprints){
+    logger.debug('About to scan:------------------------------------------',blueprints.length);
+        //logger.debug(blueprints);
+        for(var bpi = 0; bpi < blueprints.length;bpi++){
+            
+            if(blueprints[bpi].parentId){
+                blueprints = findBlueprintVersionObject(blueprints,blueprints[bpi].parentId);
+            }
+           
+        }
+        logger.debug('About to return:------------------------------------------');
+        //logger.debug(blueprints);
+        for(var bpi = 0; bpi < blueprints.length;bpi++){
+            if(blueprints[bpi].parentId)
+                {
+                    logger.debug('Found with parent id splising',blueprints[bpi].parentId);
+                    blueprints.splice(bpi,1)
+                    bpi = 0; //resetting to avoid skips
+                }
+        }
+        return(blueprints);
+}
+
 
 BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, projId, filterBlueprintType, callback) {
-    logger.debug("Enter getBlueprintsByOrgBgProject(%s,%s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
+    logger.debug("Enter +++++  getBlueprintsByOrgBgProject(%s,%s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
     var queryObj = {
         orgId: orgId,
         bgId: bgId,
@@ -515,28 +539,11 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, proj
             return;
         }
         
-        logger.debug('About to scan:------------------------------------------',blueprints.length);
-        //logger.debug(blueprints);
-        for(var bpi = 0; bpi < blueprints.length;bpi++){
-            
-            if(blueprints[bpi].parentId){
-                blueprints = getBlueprintVersionObject(blueprints,blueprints[bpi].parentId);
-            }
-           
-        }
-        logger.debug('About to return:------------------------------------------');
-        //logger.debug(blueprints);
-        for(var bpi = 0; bpi < blueprints.length;bpi++){
-            if(blueprints[bpi].parentId)
-                {
-                    logger.debug('Found with parent id splising',blueprints[bpi].parentId);
-                    blueprints.splice(bpi,1)
-                    bpi = 0; //resetting to avoid skips
-                }
-        }
+        //function will cleanup the blueprint array and inject version object.
+        var blueprints1 = consolidateVersionOnBlueprint(blueprints);
         
         logger.debug("Exit getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
-        callback(null, blueprints);
+        callback(null, blueprints1);
 
 
 

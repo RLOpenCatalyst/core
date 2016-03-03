@@ -322,31 +322,13 @@ var BlueprintsDao = function() {
 
     };
 
-    var getBlueprintVersionObject = function(blueprints,parentId){
-            var versions = [];
-            for(var bpi = 0; bpi < blueprints.length;bpi++){
-                if(blueprints[bpi]["parentId"] == parentId){
-                    versions.push({id:blueprints[bpi]["_id"],version:blueprints[bpi]["version"]});
-                    delete blueprints[bpi];
-                }
-            }
-            for(var bpi = 0; bpi < blueprints.length;bpi++){
-                if(blueprints[bpi]["_id"] == parentId){
-                    blueprints[bpi].versions = versions;
-                }
-            }
-
-
-            return(blueprints);
-    }
-
+    
     this.getBlueprintsByOrgBgProject = function(orgId, bgId, projectId, blueprintType, userName, callback) {
         logger.debug("Enter getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projectId, blueprintType, userName);
         var queryObj = {
             orgId: orgId,
             bgId: bgId,
             projectId: projectId,
-
         }
         if (blueprintType) {
             queryObj.templateType = blueprintType;
@@ -357,27 +339,12 @@ var BlueprintsDao = function() {
                 callback(err, null);
                 return;
             }
-            
-            //Cleaning up data
-            var counter = 0;
-           
-            for(var bpi = 0; bpi < data.length;bpi++){
-                 counter++;
-                if(data[bpi].parentId){
-                    data = getBlueprintVersionObject(data,bpItem.parentId);
-                }
-                if(counter >= data.length){
-                    logger.debug("Exit getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projectId, blueprintType, userName);
-                    logger.debug('About to return:------------------------------------------');
-                    logger.debug(data);
-                    
-                    callback(null, data);
-                }
-            }
-            
+            logger.debug("Exit getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projectId, blueprintType, userName);
+            callback(null, data);
         });
 
     };
+
     this.createBlueprint = function(blueprintData, callback) {
         logger.debug("Enter createBlueprint >> " + JSON.stringify(blueprintData));
         var blueprint = new Blueprint({
