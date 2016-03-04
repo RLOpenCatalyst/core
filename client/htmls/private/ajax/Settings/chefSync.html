@@ -43,7 +43,7 @@
         <th style="text-align: center">IP Address</th>
         <th style="text-align: center">FQDN</th>
         <th style="text-align: center">Platform</th>
-        <th style="text-align: center">Uptime</th>
+        
       
         <th style="text-align: center">Environment</th>
       
@@ -411,7 +411,7 @@ $(function() {
                         $tr.append($('<td></td>').addClass('chef-ip').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
                         $tr.append($('<td></td>').addClass('chef-fqdn').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
                         $tr.append($('<td></td>').addClass('chef-platform').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
-                        $tr.append($('<td></td>').addClass('chef-uptime').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
+                        // $tr.append($('<td></td>').addClass('chef-uptime').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
 
                         $tr.append($('<td></td>').addClass('chef-env').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
                         $nodecheckboxlabel = $('<label></label>').addClass('checkbox');
@@ -444,11 +444,11 @@ $(function() {
                             }
                             $tr.find('.chef-platform').empty().append('<span>' + platform + '</span>');
 
-                            var uptime = 'unknown';
-                            if (node.automatic.uptime) {
-                                uptime = node.automatic.uptime;
-                            }
-                            $tr.find('.chef-uptime').empty().append('<span>' + uptime + '</span>');
+                            // var uptime = 'unknown';
+                            // if (node.automatic.uptime) {
+                            //     uptime = node.automatic.uptime;
+                            // }
+                            // $tr.find('.chef-uptime').empty().append('<span>' + uptime + '</span>');
 
 
 
