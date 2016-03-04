@@ -2169,6 +2169,8 @@ function initializeBlueprintAreaNew(data) {
 					$ul.append($liCardName);
 					var $selecteditBtnContainer = $('<div style="position:absolute;padding-left:27px;bottom:11px;"></div>');
 					var $selectVerEdit = $('<a style="padding:0px 4px;margin-left:3px;border-radius:5px;" class="bpEditBtn"><i class="ace-icon fa fa-pencil"></i></a>').addClass('btn btn-primary').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'Edit');
+					
+					//Versions sections
 					var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Versions"></button>');
 					var $selectbpcheckbox = $('<input type="checkbox" class="cbbpselect" id="bp_' + data[i]._id + '"/>');
 					
@@ -2186,7 +2188,9 @@ function initializeBlueprintAreaNew(data) {
 							$(this).closest('.productdiv1.cardimage').removeClass('role-Selected1');
 						}
 					});
-					
+					//Versions sections End
+
+
 					var $selectVer = null;
 					var tagLabel = '';
 					//Docker Check
