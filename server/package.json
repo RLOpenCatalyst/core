@@ -2,7 +2,7 @@
     "name": "Catalyst",
     "version": "0.0.1",
     "description": "DevOps Platform for DevOps",
-    "main": "app.js",
+    "main": "app/app.js",
     "config": {
         "unsafe-perm": true
     },
@@ -57,16 +57,17 @@
         "mongoose-paginate": "5.0.0",
         "adal-node": "0.1.17",
         "node-string-pad": "0.0.4",
-        "farmhash": "1.1.0"
+        "farmhash": "1.1.0",
+        "mocha": "2.4.5"
     },
     "devDependencies": {
         "grunt": "0.4.5",
         "grunt-contrib-jshint": "0.10.0"
     },
     "scripts": {
-        "install": "node bin/postInstallscript",
-        "start": "node app.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "install": "node app/bin/postInstallscript",
+        "start": "node app/app.js",
+        "test": "mocha --recursive"
     },
     "keywords": [
         "DevOps4Devops"
