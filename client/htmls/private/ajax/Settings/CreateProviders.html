@@ -85,6 +85,12 @@
                                           <input name="providerName" placeholder="Enter Name of the Provider" id="name" class="form-control" type="text" cdata="catalyst" cat-validation="required" cat-validation-openstack="required" cat-validation-azure="required" cat-validation-vmware="required">
                                        </div>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-6 margintop20">
+                                            <span class="control-label"><input type="checkbox" id="isDefault"> Default Provider</span>
+                                            <input name="isDefault" type="hidden" value=false />
+                                        </div>
+                                    </div>
                                     <div class="row foraws">
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <label for="">Access Key:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
@@ -611,6 +617,18 @@ function setValues(data) {
 
     }
 
+    if(data.isDefault) {
+        $('#isDefault').prop('checked', true);
+        $('.foraws').hide();
+        $("input[name='isDefault']").val(true);
+        $('.secretInfo').removeAttr('cat-validation');
+    } else {
+        $('#isDefault').prop('checked', false);
+        $('.foraws').show();
+        $("input[name='isDefault']").val(false);
+        $('.secretInfo').prop('cat-validation', 'required');
+    }
+
     var parentList = $('.addNewRegion');
     $('select.region').on('change', checkForKeyPair);
     for (var i = 0; i < data.keyPairs.length; i++) {
@@ -638,6 +656,17 @@ $(document).ready(function() {
   var $azureInputs = $secretInfo.filter('[cat-validation-azure]');
   var $openStack = $secretInfo.filter('[cat-validation-openstack]');
 
+  $('#isDefault').change(function() {
+      if(this.checked) {
+          $('.foraws').hide();
+          $("input[name='isDefault']").val(true);
+          $('.secretInfo').removeAttr('cat-validation');
+      } else {
+          $('.foraws').show();
+          $("input[name='isDefault']").val(false);
+          $('.secretInfo').prop('cat-validation', 'required');
+      }
+  });
 
   $('#updateSecretInfo').change(function() {
     if (this.checked) {
@@ -707,6 +736,7 @@ $(document).ready(function() {
                     return false;
             } else {
                 if (isFormValid()) {
+                    console.log(arr);
                     appendLoader();
                     return true;
                 } else {
