@@ -2172,22 +2172,29 @@ function initializeBlueprintAreaNew(data) {
 					
 					//Versions sections
 					var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Versions"></button>');
-					var $selectbpcheckbox = $('<input type="checkbox" class="cbbpselect" id="bp_' + data[i]._id + '"/>');
+					
 					
 					$linkVersions.append('<i class="fa fa-list-ol bpvi"></i>')
 					if(data[i].versions){	
 						$linkVersions.attr('versions',JSON.stringify(data[i].versions));
+
 					} else{
 						$linkVersions.attr('versions','[]');
 					}
-					$selectbpcheckbox.click(function(e){
-						if($(this).is(':checked')){
-							$(this).closest('.productdiv1.cardimage').addClass('role-Selected1');
+					$linkVersions.click(function(e){
+						//Loading data into select dropdown before ui display
+						$('#selbpv').html('');
+						var vjson = JSON.parse($(this).attr('versions'));
+						//adding version 1 base. This will include backward compatibiltiy
+						vjson.unshift({id:data[i]._id,version:"1"});
+						for(var vji = 0; vji < vjson.length;vji++){
+							$('#selbpv').append('<option value="' + vjson[vji].id + '">' + vjson[vji].version + '</option>');
 						}
-						else{
-							$(this).closest('.productdiv1.cardimage').removeClass('role-Selected1');
-						}
+						$("#selbpv").val($("#selbpv option:first").val());
+						$('#versionModalContainer').modal('show');
+
 					});
+					
 					//Versions sections End
 
 
@@ -2387,7 +2394,7 @@ function initializeBlueprintAreaNew(data) {
 						}
 					}
 					$selecteditBtnContainer.append($li);
-					$ul.append($selectbpcheckbox);
+					
 					$ul.append($linkVersions);
 					$itemBody.append($ul);
 					$itemBody.append($selecteditBtnContainer);
@@ -2400,8 +2407,29 @@ function initializeBlueprintAreaNew(data) {
 					if (i == (data.length - 1)) {
 						var $productdiv1 = $('.productdiv1');
 						$productdiv1.click(function(e) {
-							$productdiv1.removeClass('role-Selected1');
+							//Check if the checkbox is chekced before removing highlight
+							//alert($productdiv1.find('.cbbpselect').first().is(':checked'));
+							//alert('product click');
+							if($(this).hasClass('role-Selected1')){
+								$(this).removeClass('role-Selected1');
+							}else{
 							$(this).addClass('role-Selected1');
+							}
+							// $productdiv1.removeClass('role-Selected1');
+							// $(this).addClass('role-Selected1');
+							// $productdiv1.each(function(){
+							// 		console.log($(this).find('.cbbpselect').is(':checked'));
+							// 		if($(this).find('.cbbpselect').is(':checked')){
+							// 			$(this).addClass('role-Selected1');
+							// 		}
+							// 		else
+							// 			$(this).removeClass('role-Selected1');
+							// });
+
+
+								
+
+							
 						});
 					}
 				}

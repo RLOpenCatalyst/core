@@ -489,7 +489,7 @@ var findBlueprintVersionObject = function(blueprints,parentId){
             for(var bpi = 0; bpi < blueprints.length;bpi++){
                 blueprints[bpi] = JSON.parse(JSON.stringify(blueprints[bpi])); 
                 if(blueprints[bpi]["_id"] == parentId){
-                    
+                  //  versions.push({id:blueprints[bpi]["_id"].toString(),version:"1"});
                     blueprints[bpi].versions = versions;
                     logger.debug('Found a parentID: for ',parentId,blueprints[bpi].versions);
                     break;
