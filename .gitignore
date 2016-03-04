@@ -1,13 +1,13 @@
-server/node_modules/
+server/app/node_modules/
 .idea/
-server/logs
+server/app/logs
 node_modules/
 server/config/catalyst-config.json
 server/.idea/
 tempfiles/
 seed/copychefidtoinstance.js
-server/catdata/
-server/vspheretest.js
+server/app/catdata/
+server/app/vspheretest.js
 *.pem
 *.key
 *.cert
