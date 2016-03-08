@@ -959,7 +959,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             if (startparams != 'null') {
                                 startparams = decodeURIComponent(startparams);
                             } else
-                                startparams = '/bin/bash';
+                                startparams = ''; //startparams = '/bin/bash';
 
                             cmd += ' && sudo docker run -i -t -d ' + runparams + ' ' + decodeURIComponent(imagename) + ':' + tagname + ' ' + startparams;
                             logger.debug('Docker command to be executed : ', cmd);
