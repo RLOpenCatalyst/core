@@ -85,15 +85,16 @@
                                           <input name="providerName" placeholder="Enter Name of the Provider" id="name" class="form-control" type="text" cdata="catalyst" cat-validation="required" cat-validation-openstack="required" cat-validation-azure="required" cat-validation-vmware="required">
                                        </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row foraws">
+                                        <input name="isDefault" type="hidden" value=false />
                                         <div class="col-lg-6 col-md-6 margintop20">
                                             <span class="control-label"><input type="checkbox" id="accessCredentialsRequired" checked> Requires access credentials </span>
-                                            <input name="isDefault" type="hidden" value=false />
-
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 margintop20">
                                             <span class=""><input type="checkbox" id="updateSecretInfo"> Update access credentials </span>
                                         </div>
                                     </div>
-                                    <div class="row foraws">
+                                    <div class="row foraws aws-secret-info">
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <label for="">Access Key:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
                                           <input name="accessKey" id="accessKey" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the Access Key">
@@ -662,11 +663,11 @@ $(document).ready(function() {
 
   $('#accessCredentialsRequired').change(function() {
       if(this.checked) {
-          $('.foraws').show();
+          $('.aws-secret-info').show();
           $("input[name='isDefault']").val(false);
           $('.secretInfo').prop('cat-validation', 'required');
       } else {
-          $('.foraws').hide();
+          $('.aws-secret-info').hide();
           $("input[name='isDefault']").val(true);
           $('.secretInfo').removeAttr('cat-validation');
       }
@@ -693,6 +694,7 @@ $(document).ready(function() {
   var providerId = UtilityMethods.getIdFromURL();
   if (providerId && providerId !== 'new') {
     $('#updateSecretInfo').parent().show();
+      $('#accessCredentialsRequired').parent().parent().remove();
     $('.secretInfo').attr('disabled', 'disabled');
 
     $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
