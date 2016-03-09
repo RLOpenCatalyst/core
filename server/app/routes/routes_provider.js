@@ -2086,7 +2086,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var providerName = req.body.providerName;
 		var providerType = req.body.providerType;
 		var orgId = req.body.orgId;
-		var isDefault = (typeof req.body.isDefault === 'undefined') ? false : req.body.isDefault;
+		var isDefault = (req.body.isDefault === 'true') ? true : false;
 
 		if ((typeof accessKey === 'undefined' || accessKey.length === 0) && !isDefault) {
 			res.status(400).send("Please Enter AccessKey.");
@@ -2115,7 +2115,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send("Internal error.");
 					return;
 				} else if (result) {
-					res.status(200).send("Default provider exists for organization " + orgId);
+					res.status(409).send("Default provider exists for this organization");
 					return;
 				}
 			});
@@ -2273,7 +2273,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									var keys = [];
 									keys.push(providers[i].accessKey);
 									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+										cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
 										if (err) {
 											res.status(500).send("Failed to decrypt accessKey or secretKey");
 											return;
@@ -2613,8 +2614,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var params = new Object();
 		var ec2;
 
+		if(typeof req.body.isDefault === 'undefined') {
+			res.status(500).send("Invalid request");
+			return;
+		}
+		var isDefault = (req.body.isDefault === 'true')?true:false
 
-		if(req.body.isDefault == true) {
+		if(isDefault) {
 			params.isDefault = true;
 		} else if(req.body.providerId) {
 			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
@@ -2667,7 +2673,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var params = new Object();
 		var ec2;
 
-		if(req.body.isDefault == true) {
+		if(req.body.isDefault === true) {
 			params.isDefault = true;
 		} else if (req.body.providerId) {
 			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
