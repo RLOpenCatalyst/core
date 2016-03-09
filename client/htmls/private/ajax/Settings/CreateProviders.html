@@ -87,8 +87,10 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-lg-6 col-md-6 margintop20">
-                                            <span class="control-label"><input type="checkbox" id="isDefault"> Default Provider</span>
+                                            <span class="control-label"><input type="checkbox" id="accessCredentialsRequired" checked> Requires access credentials </span>
                                             <input name="isDefault" type="hidden" value=false />
+
+                                            <span class=""><input type="checkbox" id="updateSecretInfo"> Update access credentials </span>
                                         </div>
                                     </div>
                                     <div class="row foraws">
@@ -265,7 +267,6 @@
                </fieldset>
                </div>
                <div class="widget-toolbox clearfix">
-                <span class=""><input type="checkbox" id="updateSecretInfo"> Update Confidential Data</span>
                   <div class="btn-group pull-right">
                      
                      <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
@@ -487,19 +488,21 @@ function checkForKeyPair(e) {
     });
   }
 
-  var accessKey = $('#accessKey').val(),
-    secretKey = $('#secretKey').val(),
-    $region = $(this);
-  region = $region.val();
-  var providerId = UtilityMethods.getIdFromURL();
- 
-  if (accessKey && secretKey && accessKey !== '' && secretKey !== '' && region && region !== '') {
-    loadKeyPair(accessKey, secretKey, region, null);
-  } else if (providerId && providerId !== 'new') {
-    loadKeyPair(null, null, region, providerId);
-  } else {
-    $('#btnsubmit').attr('disabled', 'disabled');
-  }
+    var accessKey = $('#accessKey').val(),
+            secretKey = $('#secretKey').val(),
+            $region = $(this);
+    region = $region.val();
+    var providerId = UtilityMethods.getIdFromURL();
+    var isDefault = $('#accessCredentialsRequired').is(':checked')?false:true;
+
+    if (((accessKey && secretKey && accessKey !== '' && secretKey !== '') || (isDefault === true))
+            && region && region !== '') {
+        loadKeyPair(accessKey, secretKey, region, null);
+    } else if (providerId && providerId !== 'new') {
+        loadKeyPair(null, null, region, providerId);
+    } else {
+        $('#btnsubmit').attr('disabled', 'disabled');
+    }
 
 }
 
@@ -618,12 +621,13 @@ function setValues(data) {
     }
 
     if(data.isDefault) {
-        $('#isDefault').prop('checked', true);
+        $('#accessCredentialsRequired').prop('checked', false);
+        $('#accessCredentialsRequired').hide();
         $('.foraws').hide();
         $("input[name='isDefault']").val(true);
         $('.secretInfo').removeAttr('cat-validation');
     } else {
-        $('#isDefault').prop('checked', false);
+        $('#accessCredentialsRequired').prop('checked', true);
         $('.foraws').show();
         $("input[name='isDefault']").val(false);
         $('.secretInfo').prop('cat-validation', 'required');
@@ -656,15 +660,15 @@ $(document).ready(function() {
   var $azureInputs = $secretInfo.filter('[cat-validation-azure]');
   var $openStack = $secretInfo.filter('[cat-validation-openstack]');
 
-  $('#isDefault').change(function() {
+  $('#accessCredentialsRequired').change(function() {
       if(this.checked) {
-          $('.foraws').hide();
-          $("input[name='isDefault']").val(true);
-          $('.secretInfo').removeAttr('cat-validation');
-      } else {
           $('.foraws').show();
           $("input[name='isDefault']").val(false);
           $('.secretInfo').prop('cat-validation', 'required');
+      } else {
+          $('.foraws').hide();
+          $("input[name='isDefault']").val(true);
+          $('.secretInfo').removeAttr('cat-validation');
       }
   });
 
