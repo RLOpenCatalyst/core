@@ -3906,10 +3906,38 @@ span.icon {
     margin-top: 46px !important;
     position: absolute;
 }
+.versionModalBody{
+   height: 272px;
+    margin-top: -13px;
+    overflow-x: scroll;
+}
+.selbpv{
+    /*border: 1px solid silver;
+    margin-bottom: 15px;
+    margin-left: 15px;
+    margin-right: 0;
+    width: 162px;*/
+   
+}
+.versionoption{
+    border-top: 1px solid #eeeeee;
+    padding-bottom: 7px;
+    padding-top: 7px;
+}
+.labelversion{
+    width:100%;
+}
+/*.versionpopupContainer label{
+    margin-left:15px;
+     margin-top:15px;
+}*/
 .bpvi{
     margin-left: -7px;
     margin-top: -7px;
     position: absolute;
+}
+.modal-vs{
+    width:200px !important;
 }
 .dockerimagetext{
     position: absolute;

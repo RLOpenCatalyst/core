@@ -453,6 +453,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var chefRepoPath = settings.chefReposLocation;
         logger.debug(chefRepoPath);
         var file = chefRepoPath + 'catalyst_files/' + req.params.imagename;
+        logger.debug(file);
         fs.exists(file, function(exists) {
             if (exists) {
                 fs.readFile(chefRepoPath + 'catalyst_files/' + req.params.imagename, function(err, data) {
