@@ -48,6 +48,51 @@ var ProviderUtil = function(){
 		});
 		callback(null,true);
 	}
+
+	this.createAwsEc2ClientForProvider = function createAwsEc2ClientForProvider(providerId, callback) {
+
+	}
+
+	this.createAwsEc2ClientForProvider = function createAwsEc2ClientForProvider(provider, callback) {
+		var ec2;
+
+		if(provider.isDefault == true) {
+			params.isDefault = true;
+		} else if(provider.providerId) {
+			AWSProvider.getAWSProviderById(provider.providerId, function(err, aProvider) {
+				if (err) {
+					logger.error(err);
+					res.status(500).send(errorResponses.db.error);
+					return;
+				}
+				if (aProvider) {
+					var keys = [];
+					keys.push(aProvider.accessKey);
+					keys.push(aProvider.secretKey);
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+						cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+							if (err) {
+								logger.error("Failed to decrypt accessKey or secretKey: ", err);
+								res.status(500).send("Failed to decrypt accessKey or secretKey");
+								return;
+							}
+							params.access_key = decryptedKeys[0];
+							params.secret_key = decryptedKeys[1];
+						});
+				} else {
+					res.status(404).send("Provider not found");
+				}
+			});
+		} else {
+			params.access_key = provider.accessKey;
+			params.access_key = provider.secretKey;
+		}
+		params.region = provider.region;
+
+		ec2 = new EC2(params);
+
+		callback(null, ec2);
+	}
 }
 
 module.exports = new ProviderUtil();
