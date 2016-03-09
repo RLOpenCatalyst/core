@@ -2085,6 +2085,22 @@ $('#appURLForm').submit(function(e) {
 });
 //Initializing the blueprint area according to the Template-Type and showing
 //the differnt template types whenever a blueprint is added
+function loadblueprintedit(blueprintId) {
+    $('#myTab3 li').addClass('hidden');
+    $('#myTab3 li.blueprintEditbutton').removeClass('hidden');
+    $('#myTab3 a[href="#viewEdit"]').tab('show');
+    $('#versionModalContainer').modal('hide');
+    //To Do
+    //Show Save and Cancel button.
+
+    $('#bpeditcontent').html('').append(blueprintId);
+}
+
+function closeblueprintedit(blueprintId) {
+    $('#myTab3 li').removeClass('hidden');
+    $('#myTab3 li.blueprintEditbutton').addClass('hidden');
+    $('#myTab3 a[href="#viewCreate"]').tab('show');
+}
 
 function initializeBlueprintAreaNew(data) {
 	var reqBodyNew = {};
@@ -2197,6 +2213,17 @@ function initializeBlueprintAreaNew(data) {
 						}
 						//$("#selbpv").val($("#selbpv option:first").val());
 						$('#versionModalContainer').modal('show');
+						$('.btnVersionEdit').unbind().on('click', function() {
+						    var editBPId = $("input:radio[name='versionselect']:checked").val();
+						    if (editBPId) {
+						        loadblueprintedit(editBPId);
+						    } else {
+						        bootbox.alert({
+						            message: 'Please select a version to edit.',
+						            title: 'Warning'
+						        });
+						    }
+						});
 
 					});
 					
