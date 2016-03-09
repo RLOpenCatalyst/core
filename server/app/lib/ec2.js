@@ -34,22 +34,21 @@ var instanceStateList = {
 
 var EC2 = function(awsSettings) {
 
-	var params = new Object();
 	var that = this;
-	var ec;
+	var params = new Object();
 
-	if (awsSettings.region != undefined) {
+	if (typeof awsSettings.region !== undefined) {
 		params.region = awsSettings.region;
 	}
 
-	if (typeof awsSettings.isDefault !== undefined && awsSettings.isDefault == true) {
+	if (typeof awsSettings.isDefault !== undefined && awsSettings.isDefault === true) {
 		params.credentials = new aws.EC2MetadataCredentials({httpOptions: {timeout: 5000}});
 	} else if (typeof awsSettings.access_key !== undefined && typeof awsSettings.secret_key !== undefined) {
 		params.accessKeyId = awsSettings.access_key;
 		params.secretAccessKey = awsSettings.secret_key;
 	}
 
-	ec = new aws.EC2(params);
+	var ec = new aws.EC2(params);
 
 	this.describeInstances = function(instanceIds, callback) {
 		//logger.debug('fetching instances for ==>',instanceIds);
