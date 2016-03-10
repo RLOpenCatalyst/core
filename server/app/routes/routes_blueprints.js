@@ -244,6 +244,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 
+	app.get('/blueprints/:blueprintId', function(req, res) {
+		logger.debug("Enter /blueprints/%s/versions/%s", req.params.blueprintId, req.params.version);
+
+		Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
+			if (err) {
+				logger.error("Failed to get blueprint versions ", err);
+				res.send(500, errorResponses.db.error);
+				return;
+			}
+			logger.debug(blueprint);
+		
+			res.send(200, blueprint);
+
+		});
+
+	});
+
 	app.delete('/blueprints/:blueprintId', function(req, res) {
 		logger.debug("Enter /blueprints/delete/%s", req.params.blueprintId);
 		Blueprints.removeById(req.params.blueprintId, function(err, data) {
