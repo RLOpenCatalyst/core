@@ -44,12 +44,12 @@ var awsProviderSchema = new Schema({
 	},
 	accessKey: {
 		type: String,
-		required: true,
+		required: false,
 		trim: true
 	},
 	secretKey: {
 		type: String,
-		required: true,
+		required: false,
 		trim: true
 	},
 	isDefault: {
