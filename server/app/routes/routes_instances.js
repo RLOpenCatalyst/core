@@ -1761,7 +1761,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         }
 
                                         var ec2;
-                                        if(aProvider.isDefault == true) {
+                                        if(aProvider.isDefault) {
                                             ec2 = new EC2({
                                                 "isDefault": true,
                                                 "region": region
@@ -1770,21 +1770,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             var cryptoConfig = appConfig.cryptoSettings;
                                             var cryptography = new Cryptography(cryptoConfig.algorithm,
                                                 cryptoConfig.password);
-                                            var keys = [];
-                                            keys.push(aProvider.accessKey);
-                                            keys.push(aProvider.secretKey);
-                                            cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                                                cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-                                                if (err) {
-                                                    res.sned(500, "Failed to decrypt accessKey or secretKey");
-                                                    return;
-                                                }
 
-                                                ec2 = new EC2({
-                                                    "access_key": decryptedKeys[0],
-                                                    "secret_key": decryptedKeys[1],
-                                                    "region": region
-                                                });
+                                            var decryptedAccessKey = cryptography.decryptText(aProvider.accessKey,
+                                                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                            var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
+                                                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+                                            ec2 = new EC2({
+                                                "access_key": decryptedAccessKey,
+                                                "secret_key": decryptedSecretKey,
+                                                "region": region
                                             });
                                         }
 
@@ -2158,29 +2153,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         });
 
                                         var ec2;
-                                        if(aProvider.isDefault == true) {
+                                        if(aProvider.isDefault) {
                                             ec2 = new EC2({
                                                 "isDefault": true,
                                                 "region": region
                                             });
                                         } else {
                                             var cryptoConfig = appConfig.cryptoSettings;
-                                            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                            var keys = [];
-                                            keys.push(aProvider.accessKey);
-                                            keys.push(aProvider.secretKey);
-                                            cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                                                cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-                                                if (err) {
-                                                    res.sned(500, "Failed to decrypt accessKey or secretKey");
-                                                    return;
-                                                }
+                                            var cryptography = new Cryptography(cryptoConfig.algorithm,
+                                                cryptoConfig.password);
 
-                                                ec2 = new EC2({
-                                                    "access_key": decryptedKeys[0],
-                                                    "secret_key": decryptedKeys[1],
-                                                    "region": region
-                                                });
+                                            var decryptedAccessKey = cryptography.decryptText(aProvider.accessKey,
+                                                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                            var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
+                                                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+                                            ec2 = new EC2({
+                                                "access_key": decryptedAccessKey,
+                                                "secret_key": decryptedSecretKey,
+                                                "region": region
                                             });
                                         }
 
