@@ -2076,6 +2076,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 	// Create AWS Provider.
+	// TODO Use async to reduce callbacks
 	app.post('/aws/providers', function(req, res) {
 		logger.debug("Enter post() for /providers.", typeof req.body.fileName);
 		var user = req.session.user;
@@ -2087,6 +2088,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var providerType = req.body.providerType;
 		var orgId = req.body.orgId;
 		var isDefault = (req.body.isDefault === 'true') ? true : false;
+		var hasDefaultProvider = false;
 
 		if ((typeof accessKey === 'undefined' || accessKey.length === 0) && !isDefault) {
 			res.status(400).send("Please Enter AccessKey.");
@@ -2109,135 +2111,142 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			res.send("Please Select Any Organization.");
 			return;
 		}
-		if (isDefault) {
-			AWSProvider.hasDefault(orgId, function (err, result) {
-				if (err) {
-					res.status(500).send("Internal error.");
-					return;
-				} else if (result) {
-					res.status(409).send("Default provider exists for this organization");
-					return;
-				}
-			});
-		}
-		var region;
-		if (typeof req.body.region === 'string') {
-			logger.debug("inside single region: ", req.body.region);
-			region = req.body.region;
-		} else {
-			region = req.body.region[0];
-		}
-		logger.debug("Final Region:  ", region);
-
-
-		var ec2;
-		if(isDefault == true) {
-			ec2 = new EC2({
-				"isDefault": true,
-				"region": region
-			});
-		} else {
-			ec2 = new EC2({
-				"access_key": accessKey,
-				"secret_key": secretKey,
-				"region": region
-			});
-		}
-
-		var keys = [];
-		keys.push(accessKey);
-		keys.push(secretKey);
-		cryptography.encryptMultipleText(keys, cryptoConfig.encryptionEncoding,
-			cryptoConfig.decryptionEncoding, function(err, encryptedKeys) {
+		AWSProvider.hasDefault(orgId, function (err, result) {
 			if (err) {
-				res.status(400).send("Failed to encrypt accessKey or secretKey");
+				logger.debug("Error trying to get default user");
+				res.status(500).send("Internal error.");
 				return;
-			}
-			logger.debug("Returned encrypted keys: ", encryptedKeys);
-			var providerData = {
-				id: 9,
-				accessKey: encryptedKeys[0],
-				secretKey: encryptedKeys[1],
-				providerName: providerName,
-				providerType: providerType,
-				orgId: orgId,
-				isDefault: isDefault
-			};
+			} else if (result && isDefault) {
+				logger.debug("Default user already exists");
+				res.status(400).send("Default provider already exists for this organization");
+				return;
+			} else {
+				logger.debug("Adding provider");
 
-			usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
-				if (!err) {
-					if (data == false) {
-						logger.debug('No permission to ' + permissionto + ' on ' + category);
-						res.send(401, "You don't have permission to perform this operation.");
-						return;
-					}
+				var region;
+				if (typeof req.body.region === 'string') {
+					logger.debug("inside single region: ", req.body.region);
+					region = req.body.region;
 				} else {
-					logger.error("Hit and error in haspermission:", err);
-					res.send(500);
-					return;
+					region = req.body.region[0];
+				}
+				logger.debug("Final Region:  ", region);
+
+				var ec2;
+				if (isDefault == true) {
+					ec2 = new EC2({
+						"isDefault": true,
+						"region": region
+					});
+				} else {
+					ec2 = new EC2({
+						"access_key": accessKey,
+						"secret_key": secretKey,
+						"region": region
+					});
 				}
 
-				masterUtil.getLoggedInUser(user.cn, function(err, anUser) {
-					if (err) {
-						res.status(500).send("Failed to fetch User.");
-						return;
-					}
-					if (anUser) {
-						ec2.describeKeyPairs(function(err, data) {
-							if (err) {
-								logger.debug("Unable to get AWS Keypairs");
-								res.status(500).send("Invalid AccessKey or SecretKey.");
-								return;
-							}
-							logger.debug("Able to get AWS Keypairs. %s", JSON.stringify(data));
-							AWSProvider.getAWSProviderByName(providerData.providerName, providerData.orgId, function(err, prov) {
-								if (err) {
-									logger.error("err. ", err);
-								}
-								if (prov) {
-									logger.debug("getAWSProviderByName: ", JSON.stringify(prov));
-									res.status(409).send("Provider name already exist.");
-									return;
-								}
-								AWSProvider.createNew(providerData, function(err, provider) {
-									if (err) {
-										logger.error("err. ", err);
-										res.status(500).send("Failed to create Provider.");
+				var keys = [];
+				keys.push(accessKey);
+				keys.push(secretKey);
+				cryptography.encryptMultipleText(keys, cryptoConfig.encryptionEncoding,
+					cryptoConfig.decryptionEncoding, function (err, encryptedKeys) {
+						if (err) {
+							res.status(400).send("Failed to encrypt accessKey or secretKey");
+							return;
+						}
+						logger.debug("Returned encrypted keys: ", encryptedKeys);
+						var providerData = {
+							id: 9,
+							providerName: providerName,
+							providerType: providerType,
+							orgId: orgId,
+							isDefault: isDefault
+						};
+
+						if (!isDefault) {
+							providerData.accessKey = encryptedKeys[0];
+							providerData.secretKey = encryptedKeys[1];
+						}
+
+						usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset,
+							function (err, data) {
+								if (!err) {
+									if (data == false) {
+										logger.debug('No permission to ' + permissionto + ' on ' + category);
+										res.send(401, "You don't have permission to perform this operation.");
 										return;
 									}
-									AWSKeyPair.createNew(req, provider._id, function(err, keyPair) {
-										masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+								} else {
+									logger.error("Hit and error in haspermission:", err);
+									res.send(500);
+									return;
+								}
+
+								masterUtil.getLoggedInUser(user.cn, function (err, anUser) {
+									if (err) {
+										res.status(500).send("Failed to fetch User.");
+										return;
+									}
+									if (anUser) {
+										ec2.describeKeyPairs(function (err, data) {
 											if (err) {
-												res.status(500).send("Not able to fetch org.");
+												logger.debug("Unable to get AWS Keypairs");
+												res.status(500).send("Invalid AccessKey or SecretKey.");
 												return;
 											}
-											if (orgs.length > 0) {
-												if (keyPair) {
-													var dommyProvider = {
-														_id: provider._id,
-														id: 9,
-														//accessKey: provider.accessKey,
-														//secretKey: provider.secretKey,
-														providerName: provider.providerName,
-														providerType: provider.providerType,
-														orgId: orgs[0].rowid,
-														orgName: orgs[0].orgname,
-														__v: provider.__v,
-														keyPairs: keyPair
-													};
-													res.send(dommyProvider);
-													return;
-												}
-											}
-										})
-									});
-									logger.debug("Exit post() for /providers");
+											logger.debug("Able to get AWS Keypairs. %s", JSON.stringify(data));
+											AWSProvider.getAWSProviderByName(providerData.providerName, providerData.orgId,
+												function (err, prov) {
+													if (err) {
+														logger.error("err. ", err);
+													}
+													if (prov) {
+														logger.debug("getAWSProviderByName: ", JSON.stringify(prov));
+														res.status(409).send("Provider name already exist.");
+														return;
+													}
+													AWSProvider.createNew(providerData, function (err, provider) {
+														if (err) {
+															logger.error("err. ", err);
+															res.status(500).send("Failed to create Provider.");
+															return;
+														}
+														AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
+															masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
+																if (err) {
+																	res.status(500).send("Not able to fetch org.");
+																	return;
+																}
+																if (orgs.length > 0) {
+																	if (keyPair) {
+																		var dommyProvider = {
+																			_id: provider._id,
+																			id: 9,
+																			//accessKey: provider.accessKey,
+																			//secretKey: provider.secretKey,
+																			providerName: provider.providerName,
+																			providerType: provider.providerType,
+																			orgId: orgs[0].rowid,
+																			orgName: orgs[0].orgname,
+																			__v: provider.__v,
+																			keyPairs: keyPair
+																		};
+																		res.send(dommyProvider);
+																		return;
+																	}
+																}
+															})
+														});
+														logger.debug("Exit post() for /providers");
+													});
+												});
+										});
+									}
 								});
 							});
-						});
-					}
-				});
-			});
+					});
+			}
 		});
 	});
 
