@@ -1,12 +1,9 @@
 server/app/node_modules/
 .idea/
-<<<<<<< HEAD
-=======
-server/logs
->>>>>>> 70f81e9
 server/app/logs
 node_modules/
 server/config/catalyst-config.json
+server/app/config/catalyst-config.json
 server/.idea/
 tempfiles/
 seed/copychefidtoinstance.js
