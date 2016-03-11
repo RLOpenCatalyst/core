@@ -2097,7 +2097,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				return;
 			} else if (result && isDefault) {
 				logger.debug("Default user already exists");
-				res.status(400).send("Default provider already exists for this organization");
+				res.status(400).send("Cannot add multiple providers without access credentials for the same organization");
 				return;
 			} else {
 				logger.debug("Adding provider");
