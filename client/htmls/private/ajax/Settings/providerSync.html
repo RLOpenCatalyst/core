@@ -608,6 +608,9 @@ if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
     reqBody.orgId = $orgListInput.val();
     reqBody.bgId = $bgList.val();
     reqBody.projectId = $projectList.val();
+    //Added By Durgesh For Project Name
+    reqBody.projectName = $projectList.find('option:selected').text();
+    //End By Durgesh
     reqBody.envId = $envList.val();
     reqBody.configManagmentId = $infraManagerList.val();
 
