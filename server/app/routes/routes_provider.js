@@ -57,36 +57,26 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					(function(i) {
 
 						AWSKeyPair.getAWSKeyPairByProviderId(providers[i]._id, function(err, keyPair) {
-							var keys = [];
-							keys.push(providers[i].accessKey);
-							keys.push(providers[i].secretKey);
-							cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-								if (err) {
-									logger.error("Failed to decrypt accessKey or secretKey: ", err);
-									res.status(500).send("Failed to decrypt accessKey or secretKey");
+							count++;
+							if (keyPair) {
+								var dommyProvider = {
+									_id: providers[i]._id,
+									id: 9,
+									providerName: providers[i].providerName,
+									providerType: providers[i].providerType,
+									orgId: providers[i].orgId,
+									__v: providers[i].__v,
+									keyPairs: keyPair,
+									isDefault: aProvider.isDefault
+								};
+								providerList.push(dommyProvider);
+								logger.debug("count: ", count);
+								if (count === providers.length) {
+									res.send(providerList);
 									return;
 								}
-								count++;
-								if (keyPair) {
-									var dommyProvider = {
-										_id: providers[i]._id,
-										id: 9,
-										//accessKey: decryptedKeys[0],
-										//secretKey: decryptedKeys[1],
-										providerName: providers[i].providerName,
-										providerType: providers[i].providerType,
-										orgId: providers[i].orgId,
-										__v: providers[i].__v,
-										keyPairs: keyPair
-									};
-									providerList.push(dommyProvider);
-									logger.debug("count: ", count);
-									if (count === providers.length) {
-										res.send(providerList);
-										return;
-									}
-								}
-							});
+							}
+
 						});
 					})(i);
 				}
@@ -117,34 +107,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							res.status(500).send("Not able to fetch org.");
 							return;
 						}
-						var keys = [];
-						keys.push(aProvider.accessKey);
-						keys.push(aProvider.secretKey);
-						cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-							if (err) {
-								logger.error("Failed to decrypt accessKey or secretKey: ", err);
-								res.status(500).send("Failed to decrypt accessKey or secretKey");
-								return;
+
+						if (orgs.length > 0) {
+							if (keyPair) {
+								var dommyProvider = {
+									_id: aProvider._id,
+									id: 9,
+									providerName: aProvider.providerName,
+									providerType: aProvider.providerType,
+									orgId: aProvider.orgId,
+									orgName: orgs[0].orgname,
+									__v: aProvider.__v,
+									keyPairs: keyPair,
+									isDefault: aProvider.isDefault
+								};
+								res.send(dommyProvider);
 							}
-							if (orgs.length > 0) {
-								if (keyPair) {
-									var dommyProvider = {
-										_id: aProvider._id,
-										id: 9,
-										//accessKey: decryptedKeys[0],
-										//secretKey: decryptedKeys[1],
-										providerName: aProvider.providerName,
-										providerType: aProvider.providerType,
-										orgId: aProvider.orgId,
-										orgName: orgs[0].orgname,
-										__v: aProvider.__v,
-										keyPairs: keyPair,
-										isDefault: aProvider.isDefault
-									};
-									res.send(dommyProvider);
-								}
-							}
-						});
+						}
 					});
 				});
 			} else {
