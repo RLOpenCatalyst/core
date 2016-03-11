@@ -30,6 +30,9 @@ if (!$.fn.dataTable.isDataTable('#tableRunlistForBlueprint')) {
 	});
 }
 
+var $formBPEdit;
+var $formBPNew;
+
 function createRunlistTable(runlist) {
 	$tasksRunlist.clear().draw();
 	for (i = 0; i < runlist.length; i++) {
@@ -135,11 +138,6 @@ $(document).ready(function() {
 		}
 	}); //getTreeNew gets over here
 
-	//Cloning tab3 into tab5 for Editing
-	var $tabEdit = $('#tab3').clone();
-    $tabEdit.attr('id','tab5');
-    $('#bpeditcontent').html('').append($tabEdit);
-
 	//form validation for blueprint save
 	var validator = $('#wizard-1').validate({
 		ignore: [],
@@ -218,6 +216,14 @@ $(document).ready(function() {
 			$(".select2-drop ul").removeClass("myErrorClass");
 		}
 	});
+	//removing Edit and New BP forms from DOM
+	//Cloning tab3 into tab5 for Editing
+	$formBPNew = $('#tab3').clone(true,true);
+	$formBPEdit = $('#tab3').clone(true,true).append('<input type="hidden" id="blueprintId">');
+	
+    
+
+
 }); //document.ready gets over here
 //the blueprint section gets over here.
 $('#launchParamDocker').click(function() {
@@ -809,6 +815,260 @@ $(document).ready(function() {
 	});
 });
 var reqBody;
+//Used for maintaining one copy of the form for edit or new
+var bpNewForm;
+var bpEditForm;
+
+var formInitializer = function() {
+        var $selectedItem = $('.role-Selected');
+        // alert('in ' + $selectedItem.length);
+        if (!$selectedItem.length) {
+            bootbox.alert('please choose a blueprint design');
+            return false;
+        }
+        //Selection of Orgname from localstorage 
+        $('#orgnameSelect').val($('#orgIDCheck').val());
+        $('#orgnameSelect').attr('disabled', true);
+        console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
+        if ($('.productdiv2.role-Selected').length > 0) {
+            //Setting controls connected to docker to hidden
+            $('.forDocker').hide();
+            $('.notForDocker').show();
+            $('.forCFT').hide();
+            $('.cookbookShow').parent().show();
+            $('.divconfigureparameterrunlist').show();
+            $('.divchefrunlist').show();
+            if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
+                //Auto adding the selected template by default
+                var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
+                $('.dockerimagesrow').detach();
+                addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
+                //Checking if docker then only Edit organization paramerters are to be shown
+                if (!$('#CollapseEditorgParam').hasClass('in')) {
+                    $('a[href="#CollapseEditorgParam"]').click();
+                }
+                $('div.selectedTemplateArea').first().addClass('hidden').parent().addClass('hidden'); //hiding card view in template
+                $('.divconfigureparameterrunlist').hide();
+                $('.divchefrunlist').hide();
+                //When docker stepping to 4th tab
+                $('#orgnameSelect').trigger('change');
+                //populating the docker repo titles
+                var $dockerrepotitles = $('.productdiv2.role-Selected').attr('dockercontainerpathstitle').split(',');
+                var $dockerrepopaths = $('.productdiv2.role-Selected').attr('dockercontainerpaths').split(',');
+                var $dockerreponame = $('.productdiv2.role-Selected').attr('dockerreponame');
+                var $dockerrepoListInput = $('#dockerrepoListInput');
+                $dockerrepoListInput.empty();
+                $dockerrepotitles.forEach(function(k, v) {
+                    var $opt = $('<option value="' + $dockerrepotitles[v] + '" repopath="' + $dockerrepopaths[v] + '">' + $dockerrepotitles[v] + '</option>');
+                    $dockerrepoListInput.append($opt);
+                });
+                updatecompositedockertableemptymessage();
+                //Setting the appropriate tags
+                //Attaching the change event to pull tags for the select repo
+                $dockerrepoListInput.change(function(e) {
+                    $.get('/d4dmasters/getdockertags/' + encodeURIComponent($(this).find('option:selected').attr('repopath')) + '/' + $dockerreponame, function(data) {
+                        if (data) {
+                            var tagJson = JSON.parse(data);
+                            var $dockerrepotagsdiv = $('#dockerrepotagsdiv');
+                            $dockerrepotagsdiv.empty();
+                            var dockerrepotags = [];
+                            tagJson.forEach(function(k, v) {
+                                if (v < 3) {
+                                    $('#dockerrepotagsdiv').append('<div class="codelistitem" style="margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;"><p class="bg-success"><i style="padding-left:10px;padding-right:10px" class="ace-icon fa fa-check"></i>' + tagJson[v].name + '</p></div>');
+                                    if (dockerrepotags == '') dockerrepotags += tagJson[v].name;
+                                    else dockerrepotags += ',' + tagJson[v].name;
+                                }
+                                //limiting the number to the top 5
+                            });
+                            $('.productdiv2.role-Selected').first().attr('dockerrepotags', dockerrepotags);
+                            $('.productdiv2.role-Selected').first().attr('dockerimagename', $dockerrepoListInput.val());
+                        }
+                    });
+                });
+                $dockerrepoListInput.trigger('change');
+                //End Setting appropriate tags
+                //polulate the docker tags
+                var $dockerrepotagsul = $('#dockerrepotagsul');
+                $('.forDocker').show();
+                $('.notForDocker').hide();
+            } else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation") {
+                $('.notforCFT').hide();
+                $('.forCFT').show();
+                $('.divconfigureparameterrunlist').hide();
+                $('.divchefrunlist').hide();
+                if (!$('#CollapseEditorgParam').hasClass('in')) {
+                    $('a[href="#CollapseEditorgParam"]').click();
+                }
+                var $panelBody = $('#CollapseStackParameters').find('.panel-body').empty();;
+                var cftTemplateFileName = $('.productdiv2.role-Selected').attr('cftTemplateFileName');
+                $panelBody.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+                $.ajax({
+                    type: "GET",
+                    url: "/aws/providers",
+                    success: function(data) {
+                        data = typeof data == "string" ? JSON.parse(data) : data;
+                        console.log(data);
+                        var providerStr = '<option value="">Select Provider</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].providerType === 'AWS') {
+                                providerStr = providerStr + '<option value="' + data[i]._id + '">' + data[i].providerName + '</option>';
+                            }
+                        }
+                        var $providerInput = $('<select id="cftProviderInput" class="form-control"></select>').append(providerStr);
+                        var $providerInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel">Choose Provider</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
+                        $providerInputContainer.find('.input-groups').append($providerInput);
+                        $.get('/vmimages/regions/list', function(regionList) {
+                            regionList = typeof regionList == "string" ? JSON.parse(regionList) : regionList;
+                            var regionOptStr = '<option value="">Select Region</option>';
+                            for (var i = 0; i < regionList.length; i++) {
+                                regionOptStr = regionOptStr + '<option value="' + regionList[i].region + '">' + regionList[i].region_name + '</option>';
+                            }
+                            var $regionInput = $('<select id="cftRegionInput" class="form-control"></select>').append(regionOptStr);
+                            var $regionInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel required">Choose Region</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
+                            $regionInputContainer.find('.input-groups').append($regionInput);
+                            $.get('/d4dMasters/cftTemplate?templateFile=' + cftTemplateFileName, function(data) {
+                                var templateData = {};
+                                try {
+                                    templateData = JSON.parse(data);
+                                } catch (err) {
+                                    console.log(err);
+                                    bootbox.alert("Invalid template file");
+                                    return;
+                                }
+                                var formHtmlDivHtml = '';
+                                $panelBody.empty().append($regionInputContainer).append($providerInputContainer).append(formHtmlDivHtml).append('<input type="hidden" id="cftTemplateFileInput" value="' + cftTemplateFileName + '"/>');
+                                var parameters = templateData.Parameters;
+                                if (parameters) {
+                                    var keys = Object.keys(parameters);
+                                    for (var i = 0; i < keys.length; i++) {
+                                        var parameter = parameters[keys[i]];
+                                        var $parameterInput;
+                                        if (parameter.AllowedValues) {
+                                            $parameterInput = $('<select class="cftParameterInput form-control"></select>');
+                                            for (var j = 0; j < parameter.AllowedValues.length; j++) {
+                                                var $option = $('<option></option>').val(parameter.AllowedValues[j]).html(parameter.AllowedValues[j]);
+                                                $parameterInput.append($option);
+                                            }
+                                        } else {
+                                            $parameterInput = $('<input class="cftParameterInput form-control" type="text" autofocus="autofocus">');
+                                        }
+                                        if (parameter.Default) {
+                                            $parameterInput.val(parameter.Default);
+                                        }
+                                        $parameterInput.attr('data-cftParameter-type', parameter.type);
+                                        $parameterInput.attr('data-cftParameter-name', keys[i]);
+                                        var $inputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
+                                        $inputContainer.find('.input-groups').append($parameterInput);
+                                        $inputContainer.find('.cftParameterLabel').append(keys[i]);
+                                        if (parameter.Description) {
+                                            var $desc = $('<span></span>').attr('title', parameter.Description).append('&nbsp;&nbsp;<img src="img/help.png"/>');
+                                            $inputContainer.find('.cftParameterLabelContainer').append($desc);
+                                        }
+                                        $panelBody.append($inputContainer);
+                                    }
+                                }
+                                var resources = templateData.Resources;
+                                var resourceKeys = Object.keys(resources);
+                                var $panelGroup = $('<div class="panel-group smart-accordion-default col-lg-12 col-md-12" id="cft-resource-editArea" style="margin-top:5px"></div>');
+                                var $panel = $('<div class="panel panel-default cft-resource-editPanel"><div class="panel-heading"><h4 class="panel-title"><a class="panel-toggle" data-toggle="collapse" data-parent="#cft-resource-editArea" href="#" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><span class="heading-text"></span></a></h4></div><div id="CollapseEditorgParam" class="panel-collapse collapse" style="height: auto;"><div class="panel-body" style="padding-left: 8px;"></div></div></div>');
+                                var $inputContainerTemplate = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftResourceLabelContainer" for=""><span class="cftResourceLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
+                                var $resourceInputTemplate = $('<input class="cftResourceInput form-control" type="text" autofocus="autofocus">');
+                                var hasResource = false;
+                                // for runlist input
+                                var $orgListInput = $('#orgnameSelect');
+                                $orgListInput.change(function() {
+                                    $this = $(this);
+                                    if ($this.val() === 'choose') {
+                                        return;
+                                    }
+                                    var $ccrs = $chefCookbookRoleSelector($this.val(), function(data) {}, null);
+                                    $('.cftResourceRunlistInput').empty().append($ccrs).data('$ccrs', $ccrs);
+                                });
+                                for (var i = 0; i < resourceKeys.length; i++) {
+                                    if (resources[resourceKeys[i]].Type === "AWS::EC2::Instance" || resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
+                                        var resourceName = resourceKeys[i];
+                                        if (resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
+                                            resourceName = "AutoScaleInstanceResource"
+                                        }
+                                        var $clone = $panel.clone();
+                                        $clone.find('.heading-text').html('Configure Resource : ' + resourceName);
+                                        $clone.find('.panel-collapse').attr('id', 'cftResource-' + resourceName);
+                                        $clone.find('.panel-toggle').attr('href', '#cftResource-' + resourceName);
+                                        // for username
+                                        var $inputUsernameContainer = $inputContainerTemplate.clone();
+                                        var $inputUsername = $resourceInputTemplate.clone();
+                                        $inputUsername.addClass('cftResourceUsernameInput');
+                                        $inputUsernameContainer.find('.input-groups').append($inputUsername);
+                                        $inputUsernameContainer.find('.cftResourceLabel').html('Instance Username');
+                                        //for resourceLogicalId 
+                                        var $inputLogicalId = $resourceInputTemplate.clone();
+                                        $inputLogicalId.addClass('cftResourceLogicalIdInput');
+                                        $inputLogicalId.attr('type', 'hidden');
+                                        $inputLogicalId.val(resourceName);
+                                        // for chefRunlist
+                                        var $inputChefRunlistContainer = $('<div class="col-lg-12 col-md-12 cftResourceRunlistInput"></div>');
+                                        if ($orgListInput.val().toLowerCase() !== 'choose') {
+                                            var $ccrs = $chefCookbookRoleSelector($orgListInput.val(), function(data) {}, []);
+                                            $inputChefRunlistContainer.empty().append($ccrs).data('$ccrs', $ccrs);
+                                        }
+                                        $clone.find('.panel-body').append($inputUsernameContainer);
+                                        $clone.find('.panel-body').append($inputLogicalId);
+                                        $clone.find('.panel-body').append($inputChefRunlistContainer);
+                                        $panelGroup.append($clone);
+                                        hasResource = true;
+                                    }
+                                }
+                                if (hasResource) {
+                                    $panelBody.append($panelGroup);
+                                }
+                            });
+                        });
+                    },
+                    failure: function(data) {
+                        alert(data.toString());
+                    }
+                });
+            } else {
+                //setting the instance count drop down
+                $('#instanceCount').val("1");
+                if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
+                    var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
+                    $('#instanceOS').val(vmimage.osName);
+                    $('#instanceOS').change().attr('disabled', 'disabled');
+                    $('#providerId').val(vmimage.providerId);
+                    $('#providerId').change().attr('disabled', 'disabled');
+                    $('#orgnameSelect').attr('disabled', 'disabled');
+                } else {
+                    $('#instanceOS').removeAttr('disabled');
+                    $('#providerId').removeAttr('disabled');
+                    $('#orgnameSelect').removeAttr('disabled');
+                }
+                if (!$('#CollapseConfigureproviderParameter').hasClass('in')) {
+                    $('a[href="#CollapseConfigureproviderParameter"]').click();
+                }
+            }
+        }
+        console.log('role-Selected after ==> ', $('#tab2 .role-Selected').length);
+        var $clone = $selectedItem.clone().removeClass('role-Selected');
+        var selectedText = $clone.attr("data-templateType");
+        if ($selectedItem.attr('data-templateType') == 'desktopProvisoning') {
+            wizard.show(4);
+            return false;
+        }
+        if ($('#tab2 .role-Selected').length > 0) {
+            console.log('cloning');
+            $('#tab3 .selectedTemplateArea').empty().append($('#tab2 .role-Selected').clone());
+        }
+        //force clicking orgnameSelect
+        $('#orgnameSelect').trigger('change');
+        $(".chooseBG").change();
+        $(".chooseDockerContainer").change();
+        var validatorForm = $("#wizard-1").validate();
+        validatorForm.resetForm();
+    } // end of formInitializer
+
+
+
 var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 	'tabClass': 'form-wizard',
 	'onNext': function(tab, navigation, index) {
@@ -932,251 +1192,8 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 		} else if (index == 2) {
 			//$("#tabheader").html('Choose Template');
 			//If a docker type of template selected then select the Org 
-			var $selectedItem = $('.role-Selected');
-			// alert('in ' + $selectedItem.length);
-			if (!$selectedItem.length) {
-				bootbox.alert('please choose a blueprint design');
-				return false;
-			}
-			//Selection of Orgname from localstorage 
-			$('#orgnameSelect').val($('#orgIDCheck').val());
-			$('#orgnameSelect').attr('disabled', true);
-			console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
-			if ($('.productdiv2.role-Selected').length > 0) {
-				//Setting controls connected to docker to hidden
-				$('.forDocker').hide();
-				$('.notForDocker').show();
-				$('.forCFT').hide();
-				$('.cookbookShow').parent().show();
-				$('.divconfigureparameterrunlist').show();
-				$('.divchefrunlist').show();
-				if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
-					//Auto adding the selected template by default
-					var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
-					$('.dockerimagesrow').detach();
-					addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
-					//Checking if docker then only Edit organization paramerters are to be shown
-					if (!$('#CollapseEditorgParam').hasClass('in')) {
-						$('a[href="#CollapseEditorgParam"]').click();
-					}
-					$('div.selectedTemplateArea').first().addClass('hidden').parent().addClass('hidden'); //hiding card view in template
-					$('.divconfigureparameterrunlist').hide();
-					$('.divchefrunlist').hide();
-					//When docker stepping to 4th tab
-					$('#orgnameSelect').trigger('change');
-					//populating the docker repo titles
-					var $dockerrepotitles = $('.productdiv2.role-Selected').attr('dockercontainerpathstitle').split(',');
-					var $dockerrepopaths = $('.productdiv2.role-Selected').attr('dockercontainerpaths').split(',');
-					var $dockerreponame = $('.productdiv2.role-Selected').attr('dockerreponame');
-					var $dockerrepoListInput = $('#dockerrepoListInput');
-					$dockerrepoListInput.empty();
-					$dockerrepotitles.forEach(function(k, v) {
-						var $opt = $('<option value="' + $dockerrepotitles[v] + '" repopath="' + $dockerrepopaths[v] + '">' + $dockerrepotitles[v] + '</option>');
-						$dockerrepoListInput.append($opt);
-					});
-					updatecompositedockertableemptymessage();
-					//Setting the appropriate tags
-					//Attaching the change event to pull tags for the select repo
-					$dockerrepoListInput.change(function(e) {
-						$.get('/d4dmasters/getdockertags/' + encodeURIComponent($(this).find('option:selected').attr('repopath')) + '/' + $dockerreponame, function(data) {
-							if (data) {
-								var tagJson = JSON.parse(data);
-								var $dockerrepotagsdiv = $('#dockerrepotagsdiv');
-								$dockerrepotagsdiv.empty();
-								var dockerrepotags = [];
-								tagJson.forEach(function(k, v) {
-									if (v < 3) {
-										$('#dockerrepotagsdiv').append('<div class="codelistitem" style="margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;"><p class="bg-success"><i style="padding-left:10px;padding-right:10px" class="ace-icon fa fa-check"></i>' + tagJson[v].name + '</p></div>');
-										if (dockerrepotags == '') dockerrepotags += tagJson[v].name;
-										else dockerrepotags += ',' + tagJson[v].name;
-									}
-									//limiting the number to the top 5
-								});
-								$('.productdiv2.role-Selected').first().attr('dockerrepotags', dockerrepotags);
-								$('.productdiv2.role-Selected').first().attr('dockerimagename', $dockerrepoListInput.val());
-							}
-						});
-					});
-					$dockerrepoListInput.trigger('change');
-					//End Setting appropriate tags
-					//polulate the docker tags
-					var $dockerrepotagsul = $('#dockerrepotagsul');
-					$('.forDocker').show();
-					$('.notForDocker').hide();
-				} else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation") {
-					$('.notforCFT').hide();
-					$('.forCFT').show();
-					$('.divconfigureparameterrunlist').hide();
-					$('.divchefrunlist').hide();
-					if (!$('#CollapseEditorgParam').hasClass('in')) {
-						$('a[href="#CollapseEditorgParam"]').click();
-					}
-					var $panelBody = $('#CollapseStackParameters').find('.panel-body').empty();;
-					var cftTemplateFileName = $('.productdiv2.role-Selected').attr('cftTemplateFileName');
-					$panelBody.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
-					$.ajax({
-						type: "GET",
-						url: "/aws/providers",
-						success: function(data) {
-							data = typeof data == "string" ? JSON.parse(data) : data;
-							console.log(data);
-							var providerStr = '<option value="">Select Provider</option>';
-							for (var i = 0; i < data.length; i++) {
-								if (data[i].providerType === 'AWS') {
-									providerStr = providerStr + '<option value="' + data[i]._id + '">' + data[i].providerName + '</option>';
-								}
-							}
-							var $providerInput = $('<select id="cftProviderInput" class="form-control"></select>').append(providerStr);
-							var $providerInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel">Choose Provider</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-							$providerInputContainer.find('.input-groups').append($providerInput);
-							$.get('/vmimages/regions/list', function(regionList) {
-								regionList = typeof regionList == "string" ? JSON.parse(regionList) : regionList;
-								var regionOptStr = '<option value="">Select Region</option>';
-								for (var i = 0; i < regionList.length; i++) {
-									regionOptStr = regionOptStr + '<option value="' + regionList[i].region + '">' + regionList[i].region_name + '</option>';
-								}
-								var $regionInput = $('<select id="cftRegionInput" class="form-control"></select>').append(regionOptStr);
-								var $regionInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel required">Choose Region</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-								$regionInputContainer.find('.input-groups').append($regionInput);
-								$.get('/d4dMasters/cftTemplate?templateFile=' + cftTemplateFileName, function(data) {
-									var templateData = {};
-									try {
-										templateData = JSON.parse(data);
-									} catch (err) {
-										console.log(err);
-										bootbox.alert("Invalid template file");
-										return;
-									}
-									var formHtmlDivHtml = '';
-									$panelBody.empty().append($regionInputContainer).append($providerInputContainer).append(formHtmlDivHtml).append('<input type="hidden" id="cftTemplateFileInput" value="' + cftTemplateFileName + '"/>');
-									var parameters = templateData.Parameters;
-									if (parameters) {
-										var keys = Object.keys(parameters);
-										for (var i = 0; i < keys.length; i++) {
-											var parameter = parameters[keys[i]];
-											var $parameterInput;
-											if (parameter.AllowedValues) {
-												$parameterInput = $('<select class="cftParameterInput form-control"></select>');
-												for (var j = 0; j < parameter.AllowedValues.length; j++) {
-													var $option = $('<option></option>').val(parameter.AllowedValues[j]).html(parameter.AllowedValues[j]);
-													$parameterInput.append($option);
-												}
-											} else {
-												$parameterInput = $('<input class="cftParameterInput form-control" type="text" autofocus="autofocus">');
-											}
-											if (parameter.Default) {
-												$parameterInput.val(parameter.Default);
-											}
-											$parameterInput.attr('data-cftParameter-type', parameter.type);
-											$parameterInput.attr('data-cftParameter-name', keys[i]);
-											var $inputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-											$inputContainer.find('.input-groups').append($parameterInput);
-											$inputContainer.find('.cftParameterLabel').append(keys[i]);
-											if (parameter.Description) {
-												var $desc = $('<span></span>').attr('title', parameter.Description).append('&nbsp;&nbsp;<img src="img/help.png"/>');
-												$inputContainer.find('.cftParameterLabelContainer').append($desc);
-											}
-											$panelBody.append($inputContainer);
-										}
-									}
-									var resources = templateData.Resources;
-									var resourceKeys = Object.keys(resources);
-									var $panelGroup = $('<div class="panel-group smart-accordion-default col-lg-12 col-md-12" id="cft-resource-editArea" style="margin-top:5px"></div>');
-									var $panel = $('<div class="panel panel-default cft-resource-editPanel"><div class="panel-heading"><h4 class="panel-title"><a class="panel-toggle" data-toggle="collapse" data-parent="#cft-resource-editArea" href="#" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><span class="heading-text"></span></a></h4></div><div id="CollapseEditorgParam" class="panel-collapse collapse" style="height: auto;"><div class="panel-body" style="padding-left: 8px;"></div></div></div>');
-									var $inputContainerTemplate = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftResourceLabelContainer" for=""><span class="cftResourceLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-									var $resourceInputTemplate = $('<input class="cftResourceInput form-control" type="text" autofocus="autofocus">');
-									var hasResource = false;
-									// for runlist input
-									var $orgListInput = $('#orgnameSelect');
-									$orgListInput.change(function() {
-										$this = $(this);
-										if ($this.val() === 'choose') {
-											return;
-										}
-										var $ccrs = $chefCookbookRoleSelector($this.val(), function(data) {}, null);
-										$('.cftResourceRunlistInput').empty().append($ccrs).data('$ccrs', $ccrs);
-									});
-									for (var i = 0; i < resourceKeys.length; i++) {
-										if (resources[resourceKeys[i]].Type === "AWS::EC2::Instance" || resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
-											var resourceName = resourceKeys[i];
-											if (resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
-												resourceName = "AutoScaleInstanceResource"
-											}
-											var $clone = $panel.clone();
-											$clone.find('.heading-text').html('Configure Resource : ' + resourceName);
-											$clone.find('.panel-collapse').attr('id', 'cftResource-' + resourceName);
-											$clone.find('.panel-toggle').attr('href', '#cftResource-' + resourceName);
-											// for username
-											var $inputUsernameContainer = $inputContainerTemplate.clone();
-											var $inputUsername = $resourceInputTemplate.clone();
-											$inputUsername.addClass('cftResourceUsernameInput');
-											$inputUsernameContainer.find('.input-groups').append($inputUsername);
-											$inputUsernameContainer.find('.cftResourceLabel').html('Instance Username');
-											//for resourceLogicalId 
-											var $inputLogicalId = $resourceInputTemplate.clone();
-											$inputLogicalId.addClass('cftResourceLogicalIdInput');
-											$inputLogicalId.attr('type', 'hidden');
-											$inputLogicalId.val(resourceName);
-											// for chefRunlist
-											var $inputChefRunlistContainer = $('<div class="col-lg-12 col-md-12 cftResourceRunlistInput"></div>');
-											if ($orgListInput.val().toLowerCase() !== 'choose') {
-												var $ccrs = $chefCookbookRoleSelector($orgListInput.val(), function(data) {}, []);
-												$inputChefRunlistContainer.empty().append($ccrs).data('$ccrs', $ccrs);
-											}
-											$clone.find('.panel-body').append($inputUsernameContainer);
-											$clone.find('.panel-body').append($inputLogicalId);
-											$clone.find('.panel-body').append($inputChefRunlistContainer);
-											$panelGroup.append($clone);
-											hasResource = true;
-										}
-									}
-									if (hasResource) {
-										$panelBody.append($panelGroup);
-									}
-								});
-							});
-						},
-						failure: function(data) {
-							alert(data.toString());
-						}
-					});
-				} else {
-					//setting the instance count drop down
-					$('#instanceCount').val("1");
-					if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
-						var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
-						$('#instanceOS').val(vmimage.osName);
-						$('#instanceOS').change().attr('disabled', 'disabled');
-						$('#providerId').val(vmimage.providerId);
-						$('#providerId').change().attr('disabled', 'disabled');
-						$('#orgnameSelect').attr('disabled', 'disabled');
-					} else {
-						$('#instanceOS').removeAttr('disabled');
-						$('#providerId').removeAttr('disabled');
-						$('#orgnameSelect').removeAttr('disabled');
-					}
-					if (!$('#CollapseConfigureproviderParameter').hasClass('in')) {
-						$('a[href="#CollapseConfigureproviderParameter"]').click();
-					}
-				}
-			}
-			console.log('role-Selected after ==> ', $('#tab2 .role-Selected').length);
-			var $clone = $selectedItem.clone().removeClass('role-Selected');
-			var selectedText = $clone.attr("data-templateType");
-			if ($selectedItem.attr('data-templateType') == 'desktopProvisoning') {
-				wizard.show(4);
-				return false;
-			}
-			if ($('#tab2 .role-Selected').length > 0) {
-				console.log('cloning');
-				$('#tab3 .selectedTemplateArea').empty().append($('#tab2 .role-Selected').clone());
-			}
-			//force clicking orgnameSelect
-			$('#orgnameSelect').trigger('change');
-			$(".chooseBG").change();
-			$(".chooseDockerContainer").change();
-			var validatorForm = $("#wizard-1").validate();
-			validatorForm.resetForm();
+			
+			formInitializer();
 		} else if (index == 3) {
 			if ($wizard.data('secondClick')) {
 				return true;
@@ -2097,9 +2114,11 @@ function loadblueprintedit(blueprintId) {
     $('#versionModalContainer').modal('hide');
     $.get('/blueprints/' + blueprintId,function(err,blueprintdata){
     	if(blueprintdata){
+    		$('#tab3').detach();
     		$('#myTab3 a[href="#viewEdit"]').tab('show');
-    		$('#myTab5').attr('blueprintdata',JSON.stringify(blueprintdata));
-
+    		$('#bpeditcontent').append($formBPEdit);
+    		//$('#myTab5').attr('blueprintdata',JSON.stringify(blueprintdata));
+    		formInitializer();
     	}
     	else{
 
@@ -2112,258 +2131,13 @@ function loadblueprintedit(blueprintId) {
 
 }
 
-function bindEditFormEvents(blueprintdata){
-
-			var $selectedItem = $('.role-Selected');
-			
-			// alert('in ' + $selectedItem.length);
-			
-			//Selection of Orgname from localstorage 
-			$('#orgnameSelect').val($('#orgnameSelectExisting').val());
-			//$('#orgnameSelect').attr('disabled', true);
-			console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
-			if (1) { //$('.productdiv2.role-Selected').length > 0
-				//Setting controls connected to docker to hidden
-				$('#tab5 .forDocker').hide();
-				$('#tab5 .notForDocker').show();
-				$('#tab5 .forCFT').hide();
-				$('#tab5 .cookbookShow').parent().show();
-				$('#tab5 .divconfigureparameterrunlist').show();
-				$('#tab5 .divchefrunlist').show();
-				if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
-					//Auto adding the selected template by default
-					var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
-					$('.dockerimagesrow').detach();
-					addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
-					//Checking if docker then only Edit organization paramerters are to be shown
-					if (!$('#CollapseEditorgParam').hasClass('in')) {
-						$('a[href="#CollapseEditorgParam"]').click();
-					}
-					$('div.selectedTemplateArea').first().addClass('hidden').parent().addClass('hidden'); //hiding card view in template
-					$('.divconfigureparameterrunlist').hide();
-					$('.divchefrunlist').hide();
-					//When docker stepping to 4th tab
-					$('#orgnameSelect').trigger('change');
-					//populating the docker repo titles
-					var $dockerrepotitles = $('.productdiv2.role-Selected').attr('dockercontainerpathstitle').split(',');
-					var $dockerrepopaths = $('.productdiv2.role-Selected').attr('dockercontainerpaths').split(',');
-					var $dockerreponame = $('.productdiv2.role-Selected').attr('dockerreponame');
-					var $dockerrepoListInput = $('#dockerrepoListInput');
-					$dockerrepoListInput.empty();
-					$dockerrepotitles.forEach(function(k, v) {
-						var $opt = $('<option value="' + $dockerrepotitles[v] + '" repopath="' + $dockerrepopaths[v] + '">' + $dockerrepotitles[v] + '</option>');
-						$dockerrepoListInput.append($opt);
-					});
-					updatecompositedockertableemptymessage();
-					//Setting the appropriate tags
-					//Attaching the change event to pull tags for the select repo
-					$dockerrepoListInput.change(function(e) {
-						$.get('/d4dmasters/getdockertags/' + encodeURIComponent($(this).find('option:selected').attr('repopath')) + '/' + $dockerreponame, function(data) {
-							if (data) {
-								var tagJson = JSON.parse(data);
-								var $dockerrepotagsdiv = $('#dockerrepotagsdiv');
-								$dockerrepotagsdiv.empty();
-								var dockerrepotags = [];
-								tagJson.forEach(function(k, v) {
-									if (v < 3) {
-										$('#dockerrepotagsdiv').append('<div class="codelistitem" style="margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;"><p class="bg-success"><i style="padding-left:10px;padding-right:10px" class="ace-icon fa fa-check"></i>' + tagJson[v].name + '</p></div>');
-										if (dockerrepotags == '') dockerrepotags += tagJson[v].name;
-										else dockerrepotags += ',' + tagJson[v].name;
-									}
-									//limiting the number to the top 5
-								});
-								$('.productdiv2.role-Selected').first().attr('dockerrepotags', dockerrepotags);
-								$('.productdiv2.role-Selected').first().attr('dockerimagename', $dockerrepoListInput.val());
-							}
-						});
-					});
-					$dockerrepoListInput.trigger('change');
-					//End Setting appropriate tags
-					//polulate the docker tags
-					var $dockerrepotagsul = $('#dockerrepotagsul');
-					$('.forDocker').show();
-					$('.notForDocker').hide();
-				} else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation") {
-					$('.notforCFT').hide();
-					$('.forCFT').show();
-					$('.divconfigureparameterrunlist').hide();
-					$('.divchefrunlist').hide();
-					if (!$('#CollapseEditorgParam').hasClass('in')) {
-						$('a[href="#CollapseEditorgParam"]').click();
-					}
-					var $panelBody = $('#CollapseStackParameters').find('.panel-body').empty();;
-					var cftTemplateFileName = $('.productdiv2.role-Selected').attr('cftTemplateFileName');
-					$panelBody.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
-					$.ajax({
-						type: "GET",
-						url: "/aws/providers",
-						success: function(data) {
-							data = typeof data == "string" ? JSON.parse(data) : data;
-							console.log(data);
-							var providerStr = '<option value="">Select Provider</option>';
-							for (var i = 0; i < data.length; i++) {
-								if (data[i].providerType === 'AWS') {
-									providerStr = providerStr + '<option value="' + data[i]._id + '">' + data[i].providerName + '</option>';
-								}
-							}
-							var $providerInput = $('<select id="cftProviderInput" class="form-control"></select>').append(providerStr);
-							var $providerInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel">Choose Provider</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-							$providerInputContainer.find('.input-groups').append($providerInput);
-							$.get('/vmimages/regions/list', function(regionList) {
-								regionList = typeof regionList == "string" ? JSON.parse(regionList) : regionList;
-								var regionOptStr = '<option value="">Select Region</option>';
-								for (var i = 0; i < regionList.length; i++) {
-									regionOptStr = regionOptStr + '<option value="' + regionList[i].region + '">' + regionList[i].region_name + '</option>';
-								}
-								var $regionInput = $('<select id="cftRegionInput" class="form-control"></select>').append(regionOptStr);
-								var $regionInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel required">Choose Region</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-								$regionInputContainer.find('.input-groups').append($regionInput);
-								$.get('/d4dMasters/cftTemplate?templateFile=' + cftTemplateFileName, function(data) {
-									var templateData = {};
-									try {
-										templateData = JSON.parse(data);
-									} catch (err) {
-										console.log(err);
-										bootbox.alert("Invalid template file");
-										return;
-									}
-									var formHtmlDivHtml = '';
-									$panelBody.empty().append($regionInputContainer).append($providerInputContainer).append(formHtmlDivHtml).append('<input type="hidden" id="cftTemplateFileInput" value="' + cftTemplateFileName + '"/>');
-									var parameters = templateData.Parameters;
-									if (parameters) {
-										var keys = Object.keys(parameters);
-										for (var i = 0; i < keys.length; i++) {
-											var parameter = parameters[keys[i]];
-											var $parameterInput;
-											if (parameter.AllowedValues) {
-												$parameterInput = $('<select class="cftParameterInput form-control"></select>');
-												for (var j = 0; j < parameter.AllowedValues.length; j++) {
-													var $option = $('<option></option>').val(parameter.AllowedValues[j]).html(parameter.AllowedValues[j]);
-													$parameterInput.append($option);
-												}
-											} else {
-												$parameterInput = $('<input class="cftParameterInput form-control" type="text" autofocus="autofocus">');
-											}
-											if (parameter.Default) {
-												$parameterInput.val(parameter.Default);
-											}
-											$parameterInput.attr('data-cftParameter-type', parameter.type);
-											$parameterInput.attr('data-cftParameter-name', keys[i]);
-											var $inputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-											$inputContainer.find('.input-groups').append($parameterInput);
-											$inputContainer.find('.cftParameterLabel').append(keys[i]);
-											if (parameter.Description) {
-												var $desc = $('<span></span>').attr('title', parameter.Description).append('&nbsp;&nbsp;<img src="img/help.png"/>');
-												$inputContainer.find('.cftParameterLabelContainer').append($desc);
-											}
-											$panelBody.append($inputContainer);
-										}
-									}
-									var resources = templateData.Resources;
-									var resourceKeys = Object.keys(resources);
-									var $panelGroup = $('<div class="panel-group smart-accordion-default col-lg-12 col-md-12" id="cft-resource-editArea" style="margin-top:5px"></div>');
-									var $panel = $('<div class="panel panel-default cft-resource-editPanel"><div class="panel-heading"><h4 class="panel-title"><a class="panel-toggle" data-toggle="collapse" data-parent="#cft-resource-editArea" href="#" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><span class="heading-text"></span></a></h4></div><div id="CollapseEditorgParam" class="panel-collapse collapse" style="height: auto;"><div class="panel-body" style="padding-left: 8px;"></div></div></div>');
-									var $inputContainerTemplate = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftResourceLabelContainer" for=""><span class="cftResourceLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-									var $resourceInputTemplate = $('<input class="cftResourceInput form-control" type="text" autofocus="autofocus">');
-									var hasResource = false;
-									// for runlist input
-									var $orgListInput = $('#orgnameSelect');
-									$orgListInput.change(function() {
-										$this = $(this);
-										if ($this.val() === 'choose') {
-											return;
-										}
-										var $ccrs = $chefCookbookRoleSelector($this.val(), function(data) {}, null);
-										$('.cftResourceRunlistInput').empty().append($ccrs).data('$ccrs', $ccrs);
-									});
-									for (var i = 0; i < resourceKeys.length; i++) {
-										if (resources[resourceKeys[i]].Type === "AWS::EC2::Instance" || resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
-											var resourceName = resourceKeys[i];
-											if (resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
-												resourceName = "AutoScaleInstanceResource"
-											}
-											var $clone = $panel.clone();
-											$clone.find('.heading-text').html('Configure Resource : ' + resourceName);
-											$clone.find('.panel-collapse').attr('id', 'cftResource-' + resourceName);
-											$clone.find('.panel-toggle').attr('href', '#cftResource-' + resourceName);
-											// for username
-											var $inputUsernameContainer = $inputContainerTemplate.clone();
-											var $inputUsername = $resourceInputTemplate.clone();
-											$inputUsername.addClass('cftResourceUsernameInput');
-											$inputUsernameContainer.find('.input-groups').append($inputUsername);
-											$inputUsernameContainer.find('.cftResourceLabel').html('Instance Username');
-											//for resourceLogicalId 
-											var $inputLogicalId = $resourceInputTemplate.clone();
-											$inputLogicalId.addClass('cftResourceLogicalIdInput');
-											$inputLogicalId.attr('type', 'hidden');
-											$inputLogicalId.val(resourceName);
-											// for chefRunlist
-											var $inputChefRunlistContainer = $('<div class="col-lg-12 col-md-12 cftResourceRunlistInput"></div>');
-											if ($orgListInput.val().toLowerCase() !== 'choose') {
-												var $ccrs = $chefCookbookRoleSelector($orgListInput.val(), function(data) {}, []);
-												$inputChefRunlistContainer.empty().append($ccrs).data('$ccrs', $ccrs);
-											}
-											$clone.find('.panel-body').append($inputUsernameContainer);
-											$clone.find('.panel-body').append($inputLogicalId);
-											$clone.find('.panel-body').append($inputChefRunlistContainer);
-											$panelGroup.append($clone);
-											hasResource = true;
-										}
-									}
-									if (hasResource) {
-										$panelBody.append($panelGroup);
-									}
-								});
-							});
-						},
-						failure: function(data) {
-							alert(data.toString());
-						}
-					});
-				} else {
-					//setting the instance count drop down
-					$('#instanceCount').val("1");
-					if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
-						var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
-						$('#instanceOS').val(vmimage.osName);
-						$('#instanceOS').change().attr('disabled', 'disabled');
-						$('#providerId').val(vmimage.providerId);
-						$('#providerId').change().attr('disabled', 'disabled');
-						$('#orgnameSelect').attr('disabled', 'disabled');
-					} else {
-						$('#instanceOS').removeAttr('disabled');
-						$('#providerId').removeAttr('disabled');
-						$('#orgnameSelect').removeAttr('disabled');
-					}
-					if (!$('#CollapseConfigureproviderParameter').hasClass('in')) {
-						$('a[href="#CollapseConfigureproviderParameter"]').click();
-					}
-				}
-			}
-			console.log('role-Selected after ==> ', $('#tab2 .role-Selected').length);
-			var $clone = $selectedItem.clone().removeClass('role-Selected');
-			var selectedText = $clone.attr("data-templateType");
-			if ($selectedItem.attr('data-templateType') == 'desktopProvisoning') {
-				wizard.show(4);
-				return false;
-			}
-			if ($('#tab2 .role-Selected').length > 0) {
-				console.log('cloning');
-				$('#tab3 .selectedTemplateArea').empty().append($('#tab2 .role-Selected').clone());
-			}
-			//force clicking orgnameSelect
-			$('#orgnameSelect').trigger('change');
-			$(".chooseBG").change();
-			$(".chooseDockerContainer").change();
-			var validatorForm = $("#wizard-1").validate();
-			validatorForm.resetForm();
-
-}
-
 function closeblueprintedit(blueprintId) {
     $('#myTab3 li').removeClass('hidden');
     $('#myTab3 li.blueprintEditbutton').addClass('hidden');
     $('#myTab3 a[href="#viewCreate"]').tab('show');
+    $('#tab3').detach();
+    $('#newbpcontainer').append($formBPNew);
+    formInitializer();
 }
 
 function initializeBlueprintAreaNew(data) {
