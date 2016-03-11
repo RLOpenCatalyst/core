@@ -2988,25 +2988,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							if (providers && providers.length > 0) {
 								var awsProviderList = [];
 								for (var i = 0; i < providers.length; i++) {
-									var keys = [];
-									keys.push(providers[i].accessKey);
-									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-										if (err) {
-											res.status(500).send("Failed to decrypt accessKey or secretKey");
-											return;
-										}
-										// providers[i].accessKey = decryptedKeys[0];
-										// providers[i].secretKey = decryptedKeys[1];
-										logger.debug('typeof ', typeof providers[i]);
-
-										// delete providers[i].accessKey;
-										// delete providers[i].secretKey;
-										providers[i].accessKey = undefined;
-										providers[i].secretKey = undefined;
-
-										awsProviderList.push(providers[i]);
-									});
+									awsProviderList.push(providers[i]);
 								}
 								providersList.awsProviders = awsProviderList;
 							} else {
@@ -3121,20 +3103,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							if (providers.length > 0) {
 								var awsProviderList = [];
 								for (var i = 0; i < providers.length; i++) {
-									var keys = [];
-									keys.push(providers[i].accessKey);
-									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-										if (err) {
-											res.status(500).send("Failed to decrypt accessKey or secretKey");
-											return;
-										}
-										// providers[i].accessKey = decryptedKeys[0];
-										// providers[i].secretKey = decryptedKeys[1];
-										providers[i].accessKey = undefined;
-										providers[i].secretKey = undefined;
-										awsProviderList.push(providers[i]);
-									});
+									awsProviderList.push(providers[i]);
 								}
 								providersList.awsProviders = awsProviderList;
 							} else {
