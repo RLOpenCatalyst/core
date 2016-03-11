@@ -23,15 +23,15 @@ console.log('Running post installation script');
 
 
 
-var shortLinkPath = __dirname + '/../node_modules/_pr';
+var shortLinkPath = __dirname + '/../../node_modules/_pr';
 var osName = os.type();
 console.log(osName + ' detected');
 console.log('Removing previous shortlink');
 fs.unlink(shortLinkPath, function(err) {
     console.log('Creating short links'); 
-    var cmd = 'ln -s ../../server ' + shortLinkPath;
+    var cmd = 'ln -s ../app ' + shortLinkPath;
     if (osName === 'Windows') {
-        cmd = 'mklink /D ' + shortLinkPath + ' ..\\..\\server';
+        cmd = 'mklink /D ' + shortLinkPath + ' ..\\app';
     }
 
     childProcess.exec(cmd, {
