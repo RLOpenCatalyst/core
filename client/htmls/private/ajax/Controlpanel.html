@@ -36,8 +36,8 @@
                       <div>
                         <div class="instance-details-list">
                           <span class="instance-details-id instance-details-ip">IP : <strong></strong></span>
-                          <span class="instance-details-id">status : 
-                          <span class="instance-state instance-state-text-pending"></span>
+                          <span class="instance-details-id">Last updated time : 
+                          <span class="instance-state"></span>
                           </span>
                         </div>
                       </div>
@@ -340,14 +340,7 @@
                 <a class="btn btn-primary addServiceBtn" style="float:right;padding-right:10px;margin-right:10px;margin-top:32px;" data-toggle="modal" href="#serviceModalContainer">Add New Service</a>
               </table>
             </div>
-            <div class="col-lg-6 col-md-6" style="margin-top:20px;border:1px solid black;padding:5px 5px 5px 5px;width:380px;">
-              <label class="serviceClass">Special Services:</label>
-              <label id="saveSpinner" class="hidden" style="float:left"><img style="margin-left:8px;margin-top:8px;" src="img/select2-spinner.gif"></label>
-              <a class="btn btn-primary workstationBtn" data-toggle="modal" style="float: left; margin-left:32px; margin-top:2px;">
-              <i class="fa fa-check" style="font-size:14px;"></i>
-              Convert To Workstation
-              </a>
-            </div>
+           
             <!-- end widget content -->
           </div>
           <!-- end widget div -->
@@ -809,45 +802,7 @@ $('.inspectBtn').click(function() {
   $('div').find('#paragraphs').empty();
 });
 
-function populateWorkstation() {
-  $('.workstationBtn').attr('disabled', 'disabled');
-  $('#saveSpinner').removeClass('hidden');
-  var $div = $('.domain-roles-caption');
-  var instanceId = $div.attr('data-instanceid');
-  $.ajax({
-    type: "GET",
-    url: "../instances/" + instanceId + "/setAsWorkStation",
-    success: function(data) {
-      console.log(data);
-      bootbox.alert("Your workstation has been setup successfully. The .chef folder is available in Home");
-      $('#saveSpinner').addClass('hidden');
-      $('.workstationBtn').removeAttr('disabled');
-    },
-    error: function(jqxhr) {
-      var failureText = "Server Behaved Unexpectedly. Please try again later";
-      if (jqxhr.responseJSON && jqxhr.responseJSON.message) {
-        failureText = jqxhr.responseJSON.message;
-      }
-      bootbox.alert(failureText);
-      $('#saveSpinner').addClass('hidden');
-      $('.workstationBtn').removeAttr('disabled');
 
-    }
-  });
-}
-
-//bootbox alert for setting it as a workstation..
-$('.workstationBtn').click(function() {
-  bootbox.confirm({
-    message: "Are you sure you want to Convert this to a Workstation?",
-    title: "Confirmation",
-    callback: function(result) {
-      if (result) {
-        populateWorkstation();
-      }
-    }
-  });
-});
 
 function disableSSHBtn(instanceId) {
   var $cardViewInstanceId = $(".domain-roles-caption[data-instanceId='" + instanceId + "']");
@@ -957,6 +912,17 @@ function pollInstanceBootstrapState(instanceId, delay) {
 
             }
             $parent.find('.card_os').empty().append('<img src="' + basePath + imgPath + '" height="25" width="25" data-placement="top" data-original-title="' + title.capitalizeFirstLetter() + '" rel="tooltip"/>');
+
+            $.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+              var lastActionLog = actionLogs[actionLogs.length - 1];
+              var actionLogTimestamp = lastActionLog.timeStarted;
+              if (lastActionLog.completed) {
+                actionLogTimestamp = lastActionLog.timeEnded;
+              }
+              var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+              var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+              $parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+            });
           }
         }
       }
@@ -1239,18 +1205,33 @@ $.get('../instances/' + urlParams.id, function(data) {
 
   if (data.instanceState == 'running') {
     $domainRolesCaption.find('.componentlistContainer').addClass('started');
-    $domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-started');
+    //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-started');
   } else if (data.instanceState == 'terminated') {
     $domainRolesCaption.find('.componentlistContainer').addClass('stopped');
-    $domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-stopped');
+    //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-stopped');
 
   } else if (data.instanceState == 'stopped') {
     $domainRolesCaption.find('.componentlistContainer').addClass('stopped');
-    $domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-stopped');
+    //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-stopped');
   } else {
     $domainRolesCaption.find('.componentlistContainer').addClass('pending');
-    $domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-pending');
+    //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-pending');
   }
+
+  $.get('/instances/' + data._id + '/actionLogs', function(actionLogs) {
+
+    var lastActionLog = actionLogs[actionLogs.length - 1];
+
+    var actionLogTimestamp = lastActionLog.timeStarted;
+    if (lastActionLog.completed) {
+      actionLogTimestamp = lastActionLog.timeEnded;
+    }
+    var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+    var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+
+    $domainRolesCaption.find('.instance-state').html(actionLogDate);
+
+  });
 
   if (data.hardware.os !== 'linux') {
     disableSSHBtn(data._id);
@@ -1548,7 +1529,7 @@ $.get('../instances/' + urlParams.id, function(data) {
 
         $parent.find('.componentlistContainer').removeClass().addClass('componentlistContainer').addClass(cssClassed.ringClass);
 
-        $parent.find('.instance-state').removeClass().addClass('instance-state').addClass(cssClassed.textClass).html(data.instanceCurrentState);
+        //$parent.find('.instance-state').removeClass().addClass('instance-state').addClass(cssClassed.textClass).html(data.instanceCurrentState);
 
         function pollInstanceState(state, delay) {
           stateTimeout = setTimeout(function() {
@@ -1589,6 +1570,19 @@ $.get('../instances/' + urlParams.id, function(data) {
                       $('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url).attr('data-instanceIP', data.instanceIP);
                     }
                   }
+
+                  
+                  $.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+                    var lastActionLog = actionLogs[actionLogs.length - 1];
+                    var actionLogTimestamp = lastActionLog.timeStarted;
+                    if (lastActionLog.completed) {
+                      actionLogTimestamp = lastActionLog.timeEnded;
+                    }
+                    var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+                    var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+                    $parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+                  });
+
                   window.instanceIPForAppLink = data.instanceIP;
                 }
               }
@@ -2009,127 +2003,179 @@ $.get('../instances/' + urlParams.id, function(data) {
   var $blueprintTbody = $('#collapseBlueprints').find('tbody');
   $blueprintTbody.empty();
 
-  $.get('../instances/' + instanceId, function(data1) {
-    if (data1.orgId) {
-      $.get('../organizations/' + data1.orgId + '/businessgroups/' + data1.bgId + '/projects/' + data1.projectId + '/environments/' + data1.envId + '/', function(data2) {
-        console.log('success---3---4===');
-        var urls;
-        var instanceIp;
-        for (var i in data2.instances) {
-          console.log(data2.instances[i]);
-          if (data2.instances[i]._id == instanceId) {
-            urls = data2.instances[i].appUrls;
-            instanceIp = data2.instances[i].instanceIP;
-            break;
+  if(data.blueprintData && data.blueprintData.blueprintId) {
+
+    $.get('../blueprints/'+data.blueprintData.blueprintId,function(blueprint){
+      var imageId;
+      var providerUrl;
+      $tr = $('<tr style="line-height:2.3"></tr>');
+      $tr.append('<td scope="col" style="font-size:12px;">Blueprint Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.name + '</td>');
+      $blueprintTbody.append($tr);
+     
+      switch (blueprint.blueprintType) {
+
+        case 'instance_launch':
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.cloudProviderData.instanceType + '</td>');
+          $blueprintTbody.append($tr);
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">VPC ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.cloudProviderData.vpcId + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Subnet ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.cloudProviderData.subnetId + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.cloudProviderData.securityGroupIds + '</td>');
+          $blueprintTbody.append($tr);
+          imageId = blueprint.blueprintConfig.cloudProviderData.imageId;
+          providerUrl = "/aws/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+        case 'azure_launch':
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.instanceType + '</td>');
+          $blueprintTbody.append($tr);
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">VPC ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.vpcId + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Subnet ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.subnetId + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.securityGroupIds + '</td>');
+          $blueprintTbody.append($tr);
+          imageId = blueprint.blueprintConfig.imageId;
+          providerUrl = "/azure/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+        case 'vmware_launch':
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">DataStore</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.dataStore + '</td>');
+          $blueprintTbody.append($tr);
+
+          imageId = blueprint.blueprintConfig.imageId;
+          providerUrl = "/vmware/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+        case 'openstack_launch':
+          var providerId = blueprint.blueprintConfig.cloudProviderId;
+
+
+
+        $.get('/openstack/'+providerId+'/flavors/' + blueprint.blueprintConfig.flavor, function(flavour) {
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' +flavour.name + '</td>');
+          $blueprintTbody.append($tr);
+        });
+
+        $.get('/openstack/'+providerId+'/networks/' + blueprint.blueprintConfig.network, function(network) {
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Network</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + network.name + '</td>');
+          $blueprintTbody.append($tr);
+        });
+
+
+  
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Subnet ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.subnet + '</td>');
+          $blueprintTbody.append($tr);
+
+        $.get('/openstack/' + providerId + '/securityGroups/' + blueprint.blueprintConfig.securityGroupIds, function(securityGroup) {
+         $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + securityGroup.name + '</td>');
+          $blueprintTbody.append($tr);
+        });
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.securityGroupIds + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          imageId = blueprint.blueprintConfig.instanceImageID;
+          providerUrl = "/openstack/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+
+      }
+
+      $.ajax({
+        type: "GET",
+        url:providerUrl,
+        success: function(data3) {
+          var providerTYPE = data3.providerType
+          var providerNAME = data3.providerName;
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Provider Type</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + providerTYPE + '</td>');
+          $blueprintTbody.append($tr);
+
+
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Provider Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + providerNAME + '</td>');
+          $blueprintTbody.append($tr);
+
+          if (providerTYPE === 'aws') {
+            var regionNAME = data3.keyPairs[0].region;
+            var keypairNAME = data3.keyPairs[0].keyPairName;
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Region Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + regionNAME + '</td>');
+            $blueprintTbody.append($tr);
+
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Keypair Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + keypairNAME + '</td>');
+            $blueprintTbody.append($tr);
           }
+
+        },
+        failure: function(data) {
+          bootbox.alert(data.toString());
         }
-        var subnetID;
-        var instanceType;
-        for (var j in data2.blueprints) {
-          console.log(data2.blueprints[j]);
-          if (data2.blueprints[j]._id == data.blueprintData.blueprintId) {
-            if (typeof data2.blueprints[j].blueprintConfig.cloudProviderData != "undefined") {
-
-              securityGroupIDs = data2.blueprints[j].blueprintConfig.cloudProviderData.securityGroupIds || '';
-              if (securityGroupIDs && securityGroupIDs.length) {
-                securityGroupIDs = securityGroupIDs.join(',');
-              }
-              instanceSIZE = data2.blueprints[j].blueprintConfig.cloudProviderData.instanceType || '';
-              vpcTYPE = data2.blueprints[j].blueprintConfig.cloudProviderData.vpcId || '';
-              subnetID = data2.blueprints[j].blueprintConfig.cloudProviderData.subnetId || '';
-              versionLatest = data2.blueprints[j].blueprintConfig.infraManagerData.latestVersion || '';
-
-
-              $tr = $('<tr style="line-height:2.3"></tr>');
-              $tr.append('<td scope="col" style="font-size:12px;">Blueprint Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + data2.blueprints[j].name + '</td>');
-              $blueprintTbody.append($tr);
-
-              if (data1.providerType && data1.providerType == 'vmware') {
-                $tr = $('<tr style="line-height:2.3"></tr>');
-                $tr.append('<td scope="col" style="font-size:12px;">DataStore</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + data2.blueprints[j].blueprintConfig.cloudProviderData.dataStore + '</td>');
-                $blueprintTbody.append($tr);
-              } else {
-                $tr = $('<tr style="line-height:2.3"></tr>');
-                $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + instanceSIZE + '</td>');
-                $blueprintTbody.append($tr);
-
-                $tr = $('<tr style="line-height:2.3"></tr>');
-                $tr.append('<td scope="col" style="font-size:12px;">VPC ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + vpcTYPE + '</td>');
-                $blueprintTbody.append($tr);
-
-
-                $tr = $('<tr style="line-height:2.3"></tr>');
-                $tr.append('<td scope="col" style="font-size:12px;">Subnet ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + subnetID + '</td>');
-                $blueprintTbody.append($tr);
-
-
-                $tr = $('<tr style="line-height:2.3"></tr>');
-                $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + securityGroupIDs + '</td>');
-                $blueprintTbody.append($tr);
-              }
-
-
-              $tr = $('<tr style="line-height:2.3"></tr>');
-              $tr.append('<td scope="col" style="font-size:12px;">Version</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + versionLatest + '</td>');
-              $blueprintTbody.append($tr);
-              //for getting the Provider name,Type,Region,KeyPair
-              $.ajax({
-                type: "GET",
-                url: "/aws/providers/" + data2.blueprints[j].blueprintConfig.cloudProviderId,
-                success: function(data3) {
-                  var providerTYPE = data3.providerType
-                  var providerNAME = data3.providerName;
-                  var regionNAME = data3.keyPairs[0].region;
-                  var keypairNAME = data3.keyPairs[0].keyPairName;
-                  $tr = $('<tr style="line-height:2.3"></tr>');
-                  $tr.append('<td scope="col" style="font-size:12px;">Provider Type</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + providerTYPE + '</td>');
-                  $blueprintTbody.append($tr);
-
-
-                  $tr = $('<tr style="line-height:2.3"></tr>');
-                  $tr.append('<td scope="col" style="font-size:12px;">Provider Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + providerNAME + '</td>');
-                  $blueprintTbody.append($tr);
-
-                  $tr = $('<tr style="line-height:2.3"></tr>');
-                  $tr.append('<td scope="col" style="font-size:12px;">Region Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + regionNAME + '</td>');
-                  $blueprintTbody.append($tr);
-
-                  $tr = $('<tr style="line-height:2.3"></tr>');
-                  $tr.append('<td scope="col" style="font-size:12px;">Keypair Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + keypairNAME + '</td>');
-                  $blueprintTbody.append($tr);
-
-                  console.log("Provider Details:" + data3);
-                },
-                failure: function(data) {
-                  bootbox.alert(data.toString());
-                }
-              });
-              $.ajax({
-                type: "GET",
-                url: "/vmimages/" + data2.blueprints[j].blueprintConfig.cloudProviderData.imageId,
-                success: function(data4) {
-                  var imageNAME = data4.name;
-                  var imageIDENTIFIER = data4.imageIdentifier;
-                  $tr = $('<tr style="line-height:2.3"></tr>');
-                  $tr.append('<td scope="col" style="font-size:12px;">Image Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + imageNAME + '</td>');
-                  $blueprintTbody.append($tr);
-
-
-                  $tr = $('<tr style="line-height:2.3"></tr>');
-                  $tr.append('<td scope="col" style="font-size:12px;">Image Identifier</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + imageIDENTIFIER + '</td>');
-                  $blueprintTbody.append($tr);
-                },
-                failure: function(data) {
-                  bootbox.alert(data.toString());
-                }
-              });
-            }
-          }
-        }
-
       });
-    }
-  });
+
+      if (imageId) {
+        $.ajax({
+          type: "GET",
+          url: "/vmimages/" + imageId,
+          success: function(data4) {
+            var imageNAME = data4.name;
+            var imageIDENTIFIER = data4.imageIdentifier;
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Image Name</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + imageNAME + '</td>');
+            $blueprintTbody.append($tr);
+
+
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Image Identifier</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + imageIDENTIFIER + '</td>');
+            $blueprintTbody.append($tr);
+          },
+          failure: function(data) {
+            bootbox.alert(data.toString());
+          }
+        });
+      }
+
+
+
+
+    });
+
+  }
+ 
 
 
   $tr = $('<tr style="line-height:2.3"></tr>');
