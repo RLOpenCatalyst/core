@@ -88,10 +88,24 @@
                                     <div class="row foraws">
                                         <input name="isDefault" type="hidden" value=false />
                                         <div class="col-lg-6 col-md-6 margintop20">
-                                            <span class="control-label"><input type="checkbox" id="accessCredentialsRequired" checked> Requires access credentials </span>
+                                            <span>
+                                                <input type="checkbox" style="vertical-align: middle;" id="accessCredentialsRequired" checked="checked">
+                                                <label for="accessCredentialsRequired" style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
+                                                    Requires access credentials
+                                                </label>
+                                            </span>
+                                            <span>
+                                                <img style="margin-top:2px; margin-left:10px;" data-toggle="popover" data-placement="left"
+                                                     title="AWS API requests will be signed with the credentials of the IAM role attached to the catalyst instance if credentials are not provided" src="img/help.png"/>
+                                            </span>
                                         </div>
                                         <div class="col-lg-6 col-md-6 margintop20">
-                                            <span class=""><input type="checkbox" id="updateSecretInfo"> Update access credentials </span>
+                                            <span>
+                                                <input type="checkbox" style="vertical-align: middle;" id="updateSecretInfo">
+                                                <label for="updateSecretInfo" style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
+                                                    Update access credentials
+                                                </label>
+                                            </span>
                                         </div>
                                     </div>
                                     <div class="row foraws aws-secret-info">
@@ -767,7 +781,8 @@ $(document).ready(function() {
             if (jqxhr.status == 409) {
                 errormessageforInput('name', jqxhr.responseText);
             } else {
-                bootbox.alert(jqxhr.status + " :: " + jqxhr.responseText);
+                // bootbox.alert(jqxhr.status + " :: " + jqxhr.responseText);
+                bootbox.alert(jqxhr.responseText);
             }
         },
         failure: function(data) {
@@ -776,7 +791,8 @@ $(document).ready(function() {
             if (jqxhr.status == 409) {
                 errormessageforInput('name', jqxhr.responseText);
             } else {
-                bootbox.alert(jqxhr.status + " :: " + jqxhr.responseText);
+                // bootbox.alert(jqxhr.status + " :: " + jqxhr.responseText);
+                bootbox.alert(jqxhr.responseText);
             }
         }
     });
