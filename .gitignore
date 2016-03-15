@@ -1,3 +1,5 @@
+server/app/logs
+server/app/config/catalyst-config.json
 server/node_modules/
 .idea/
 server/logs
