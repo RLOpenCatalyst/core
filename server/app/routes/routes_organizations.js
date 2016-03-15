@@ -902,12 +902,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				});
 				return;
 			}
-			if (!blueprintData.users || !blueprintData.users.length) {
-				res.status(400).send({
-					message: "User is empty"
-				});
-				return;
-			}
+			// if (!blueprintData.users || !blueprintData.users.length) {
+			// 	res.status(400).send({
+			// 		message: "User is empty"
+			// 	});
+			// 	return;
+			// }
 			Blueprints.createNew(blueprintData, function(err, data) {
 				if (err) {
 					logger.error('error occured while saving blueorint', err);
