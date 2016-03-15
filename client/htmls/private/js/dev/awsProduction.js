@@ -689,8 +689,9 @@ function getSubnet() {
 function resetForm() {
 	$('[multiselect]').empty();
 }
-$(document).ready(function() {
-	awsLoadData();
+
+function dataLoader(){
+	
 	getProviderList();
 	getImageInstances();
 	getSecurityGroup();
@@ -701,7 +702,7 @@ $(document).ready(function() {
 	console.log("Orgname===>" + localStorage.getItem('selectedOrgName'));
 	$.get('../aws/ec2/amiids', function(data) {
 		var $instanceOS = $('#instanceOS');
-		$instanceOS.append('<option value="">Select Operating System</option>')
+		$instanceOS.html('').append('<option value="">Select Operating System</option>')
 		for (var i = 0; i < data.length; i++) {
 			$option = $('<option data-instanceOS="' + data[i].osType + '" value="' + data[i].os_name + '">' + data[i].os_name + '</option>');
 			$option.data('supportedInstanceType', data[i].supportedInstanceType);
@@ -722,14 +723,21 @@ $(document).ready(function() {
 		});
 		$instanceOS.trigger('change');
 	});
-	var sortbyid = function SortByID(x, y) {
-		return x.position - y.position;
-	}
+	
 
+	
+}
+
+$(document).ready(function() {
+	awsLoadData();
 	$('#selectOrgName').change(function(e) {
 		awsLoadData();
 	});
-		function awsLoadData(){
+	
+	function awsLoadData(){
+		var sortbyid = function SortByID(x, y) {
+			return x.position - y.position;
+		}
 		$.get('/d4dMasters/readmasterjsonnew/16', function(data) {
 			data = JSON.parse(data);
 			var rowLength = data.length;
@@ -814,24 +822,32 @@ $(document).ready(function() {
 		}
 	});
 });
+
+
+
 var reqBody;
 //Used for maintaining one copy of the form for edit or new
 var bpNewForm;
 var bpEditForm;
 
-var formInitializer = function() {
+var formInitializer = function(editing) {
         var $selectedItem = $('.role-Selected');
         // alert('in ' + $selectedItem.length);
         if (!$selectedItem.length) {
             bootbox.alert('please choose a blueprint design');
             return false;
         }
+        alert('Updating Dropdowns');
+        //
+		dataLoader();
+		//end updating dropdowns
         //Selection of Orgname from localstorage 
         $('#orgnameSelect').val($('#orgIDCheck').val());
         $('#orgnameSelect').attr('disabled', true);
         console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
         if ($('.productdiv2.role-Selected').length > 0) {
             //Setting controls connected to docker to hidden
+            alert('in');
             $('.forDocker').hide();
             $('.notForDocker').show();
             $('.forCFT').hide();
@@ -2137,7 +2153,15 @@ function closeblueprintedit(blueprintId) {
     $('#myTab3 a[href="#viewCreate"]').tab('show');
     $('#tab3').detach();
     $('#newbpcontainer').append($formBPNew);
-    formInitializer();
+   // formInitializer();
+}
+
+function sortResults(versions,prop, asc) {
+    versions = versions.sort(function(a, b) {
+        if (asc) return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
+        else return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
+    });
+    return(versions);
 }
 
 function initializeBlueprintAreaNew(data) {
@@ -2227,42 +2251,64 @@ function initializeBlueprintAreaNew(data) {
 					var $selectVerEdit = $('<a style="padding:0px 4px;margin-left:3px;border-radius:5px;" class="bpEditBtn"><i class="ace-icon fa fa-pencil"></i></a>').addClass('btn btn-primary').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'Edit');
 					
 					//Versions sections
-					var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Versions"></button>');
+					var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Edit"></button>');
+
+					var _versions = [];
+
+					if(data[i].versions)
+						_versions = sortResults(data[i].versions,'version');
 					
-					
-					$linkVersions.append('<i class="fa fa-list-ol bpvi"></i>')
+					$linkVersions.append('<i class="fa fa-pencil bpvi"></i>')
+					$linkVersions.attr('blueprintId',data[i]._id);
 					if(data[i].versions){	
-						$linkVersions.attr('versions',JSON.stringify(data[i].versions));
+						$linkVersions.attr('versions',JSON.stringify(_versions));
 
 					} else{
 						$linkVersions.attr('versions','[]');
 					}
 					$linkVersions.click(function(e){
-						//Loading data into select dropdown before ui display
-						$('#selbpv').html('');
-						var vjson = JSON.parse($(this).attr('versions'));
-						//adding version 1 base. This will include backward compatibiltiy
-						vjson.unshift({id:data[i]._id,version:"1"});
-						for(var vji = 0; vji < vjson.length;vji++){
-							$selbpv = $('<div class="row versionoption"></div>');
-							$selbpv.append('<div class="col-md-10 "><label class="pull-left labelversion"  for="sel_' + vjson[vji].id + '">' + vjson[vji].version + '</label>' );
-							$selbpv.append('<div class="col-md-2"><input type="radio" name="versionselect" class="pull-right " id="sel_' + vjson[vji].id + '" value="' + vjson[vji].id + '"></div>')
-							$('#selbpv').append($selbpv);
-						}
-						//$("#selbpv").val($("#selbpv option:first").val());
-						$('#versionModalContainer').modal('show');
-						$('.btnVersionEdit').unbind().on('click', function() {
-						    var editBPId = $("input:radio[name='versionselect']:checked").val();
-						    if (editBPId) {
-						        loadblueprintedit(editBPId);
-						    } else {
-						        bootbox.alert({
-						            message: 'Please select a version to edit.',
-						            title: 'Warning'
-						        });
-						    }
-						});
+						//Loading data into select dropdown before ui display //DEPRECATED due to design change
+						// $('#selbpv').html('');
+						// var vjson = JSON.parse($(this).attr('versions'));
+						// //adding version 1 base. This will include backward compatibiltiy
+						// vjson.unshift({id:data[i]._id,version:"1"});
+						// for(var vji = 0; vji < vjson.length;vji++){
+						// 	$selbpv = $('<div class="row versionoption"></div>');
+						// 	$selbpv.append('<div class="col-md-10 "><label class="pull-left labelversion"  for="sel_' + vjson[vji].id + '">' + vjson[vji].version + '</label>' );
+						// 	$selbpv.append('<div class="col-md-2"><input type="radio" name="versionselect" class="pull-right " id="sel_' + vjson[vji].id + '" value="' + vjson[vji].id + '"></div>')
+						// 	$('#selbpv').append($selbpv);
+						// }
+						// //$("#selbpv").val($("#selbpv option:first").val());
+						// $('#versionModalContainer').modal('show');
+						// $('.btnVersionEdit').unbind().on('click', function() {
+						//     var editBPId = $("input:radio[name='versionselect']:checked").val();
+						//     if (editBPId) {
+						//         loadblueprintedit(editBPId);
+						//     } else {
+						//         bootbox.alert({
+						//             message: 'Please select a version to edit.',
+						//             title: 'Warning'
+						//         });
+						//     }
+						// });
 
+						//Get the lastest version
+						var lastversion = $(this).attr('blueprintId'); //default version
+
+						if(JSON.parse($(this).attr('versions')).length >= 1){
+							var vjson = JSON.parse($(this).attr('versions'));
+							lastversion = vjson[0].id; //its sorted to have latest on top.
+						}
+						//alert(lastversion); //56d6aba3e220755c5519cf33
+						//load the edit screen. Currently loaded from popup. Call that funcction.
+						if (lastversion) {
+						        loadblueprintedit(lastversion);
+					    } else {
+					        bootbox.alert({
+					            message: 'Blueprint data error. Could not read.',
+					            title: 'Warning'
+					        });
+					    }
 					});
 					
 					//Versions sections End
