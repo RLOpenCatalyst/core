@@ -2075,30 +2075,29 @@ $.get('../instances/' + urlParams.id, function(data) {
 
 
 
-        $.get('/openstack/'+providerId+'/flavors/' + blueprint.blueprintConfig.flavor, function(flavour) {
-          $tr = $('<tr style="line-height:2.3"></tr>');
-          $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' +flavour.name + '</td>');
-          $blueprintTbody.append($tr);
-        });
+          $.get('/openstack/' + providerId + '/flavors/' + blueprint.blueprintConfig.flavor, function(flavour) {
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Instance Size</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + flavour.name + '</td>');
+            $blueprintTbody.append($tr);
+          });
 
-        $.get('/openstack/'+providerId+'/networks/' + blueprint.blueprintConfig.network, function(network) {
-          $tr = $('<tr style="line-height:2.3"></tr>');
-          $tr.append('<td scope="col" style="font-size:12px;">Network</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + network.name + '</td>');
-          $blueprintTbody.append($tr);
-        });
+          $.get('/openstack/' + providerId + '/networks/' + blueprint.blueprintConfig.network, function(network) {
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Network</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + network.name + '</td>');
+            $blueprintTbody.append($tr);
+          });
 
 
-  
 
           $tr = $('<tr style="line-height:2.3"></tr>');
           $tr.append('<td scope="col" style="font-size:12px;">Subnet ID</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.subnet + '</td>');
           $blueprintTbody.append($tr);
 
-        $.get('/openstack/' + providerId + '/securityGroups/' + blueprint.blueprintConfig.securityGroupIds, function(securityGroup) {
-         $tr = $('<tr style="line-height:2.3"></tr>');
-          $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + securityGroup.name + '</td>');
-          $blueprintTbody.append($tr);
-        });
+          $.get('/openstack/' + providerId + '/securityGroups/' + blueprint.blueprintConfig.securityGroupIds, function(securityGroup) {
+            $tr = $('<tr style="line-height:2.3"></tr>');
+            $tr.append('<td scope="col" style="font-size:12px;">Security Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + securityGroup.name + '</td>');
+            $blueprintTbody.append($tr);
+          });
 
 
           $tr = $('<tr style="line-height:2.3"></tr>');
@@ -2108,6 +2107,18 @@ $.get('../instances/' + urlParams.id, function(data) {
 
           imageId = blueprint.blueprintConfig.instanceImageID;
           providerUrl = "/openstack/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+
+        case 'aws_cf':
+          providerUrl = "/aws/providers/" + blueprint.blueprintConfig.cloudProviderId;
+          break;
+
+        case 'azure_arm':
+          $tr = $('<tr style="line-height:2.3"></tr>');
+          $tr.append('<td scope="col" style="font-size:12px;">Resource Group</td><td scope="col"> : </td><td scope="col" style="font-size:12px;"> ' + blueprint.blueprintConfig.resourceGroup + '</td>');
+          $blueprintTbody.append($tr);
+          providerUrl = "/azure/providers/" + blueprint.blueprintConfig.cloudProviderId;
           break;
 
 
