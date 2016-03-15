@@ -1002,6 +1002,80 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/applications", req.params.orgId, req.params.bgId, req.params.projectId);
 	});
 
+	//Duplicated with provider filter for BP Edit
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
+		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
+			if (orgbuprojs.length === 0) {
+				logger.debug('User not part of team to see project.');
+				res.send(401, "User not part of team to see project.");
+				return;
+			}
+
+			if (!err) {
+				if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
+					Task.getTasksByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, tasksData) {
+						if (err) {
+							res.send(500);
+							return;
+						}
+						instancesDao.getInstancesByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, req.query.instanceType, req.session.user.cn, function(err, instancesData) {
+							if (err) {
+								res.send(500);
+								return;
+							}
+
+							Blueprints.getBlueprintsByOrgBgProjectProvider(req.params.orgId, req.params.bgId, req.params.projectId, req.query.blueprintType,req.params.provider, function(err, blueprintsData) {
+								
+								logger.debug(req.params.orgId, req.params.projectId, req.params.envId,req.params.provider);
+								if (err) {
+									res.send(500);
+									return;
+								}
+								CloudFormation.findByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, stacks) {
+									if (err) {
+										res.send(500);
+										return;
+									}
+
+									AzureArm.findByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, arms) {
+
+										if (err) {
+											res.send(500);
+											return;
+										}
+
+										res.send({
+											tasks: tasksData,
+											instances: instancesData,
+											blueprints: blueprintsData,
+											stacks: stacks,
+											arms: arms
+										});
+
+									});
+
+								});
+
+								logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+							});
+
+						});
+
+					});
+				} //if(orgbuprojs.orgbuprojs.indexOf(req.params.projectId) >= 0)
+				else {
+					logger.debug('User not part of team to see project.');
+					res.send(401);
+					return;
+				}
+			} else {
+				res.send(500);
+				logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+				return;
+			}
+		}); //end getTeamsOrgBuProjForUser
+	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
 		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
@@ -1026,7 +1100,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 							}
 
 							Blueprints.getBlueprintsByOrgBgProject(req.params.orgId, req.params.bgId, req.params.projectId, req.query.blueprintType, function(err, blueprintsData) {
-								
 								logger.debug(req.params.orgId, req.params.projectId, req.params.envId);
 								if (err) {
 									res.send(500);
@@ -1044,13 +1117,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 											res.send(500);
 											return;
 										}
-										// for(var bpi = 0; bpi < blueprintsData.length;bpi++){
-								  //           if(blueprintsData[bpi].versions)
-								  //           {
-							   //              	logger.debug('blueprint version found:', blueprintsData[bpi].name);
-							   //                  logger.debug(JSON.stringify(blueprintsData[bpi]));
-							   //              }
-		        // 						}
+
 										res.send({
 											tasks: tasksData,
 											instances: instancesData,

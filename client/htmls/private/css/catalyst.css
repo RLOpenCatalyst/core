@@ -3936,6 +3936,9 @@ span.icon {
     margin-top: -7px;
     position: absolute;
 }
+.bpeditcontainer{
+    padding-top: 15px;
+}
 .modal-vs{
     width:200px !important;
 }

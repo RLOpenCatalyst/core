@@ -552,6 +552,51 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, proj
     });
 };
 
+BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bgId, projId, filterBlueprintType,provider, callback) {
+    logger.debug("Enter +++++  getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType,provider);
+    var options = [];
+    options.push({"blueprintConfig.cloudProviderType":provider});
+
+    
+    //Handle cft, arm 
+   
+    if(provider == 'aws'){
+        options.push({"templateType":"cft"});
+    }else if(provider == 'azure'){
+        options.push({"templateType":"arm"});
+    }
+    //handking docker
+    options.push({"templateType":"docker"});
+
+    var queryObj = {
+        orgId: orgId,
+        bgId: bgId,
+        projectId: projId,
+        $or:options
+    }
+
+    logger.debug("Query Obj ",JSON.stringify(queryObj));
+    // if (filterBlueprintType) {
+    //     queryObj.templateType = filterBlueprintType;
+    // }
+
+    this.find(queryObj, function(err, blueprints) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        
+        //function will cleanup the blueprint array and inject version object.
+        var blueprints1 = consolidateVersionOnBlueprint(blueprints);
+        
+        logger.debug("Exit getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType,provider);
+        callback(null, blueprints1);
+
+
+
+    });
+};
+
 BlueprintSchema.methods.getCookBookAttributes = function(instanceIP, repoData, callback) {
     var blueprint = this;
     //merging attributes Objects

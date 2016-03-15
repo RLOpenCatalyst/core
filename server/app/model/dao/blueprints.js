@@ -344,7 +344,7 @@ var BlueprintsDao = function() {
         });
 
     };
-
+    
     this.createBlueprint = function(blueprintData, callback) {
         logger.debug("Enter createBlueprint >> " + JSON.stringify(blueprintData));
         var blueprint = new Blueprint({
