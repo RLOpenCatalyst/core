@@ -80,15 +80,32 @@ taskHistorySchema.statics.createNew = function(historyData, callback) {
 };
 
 taskHistorySchema.statics.getHistoryByTaskId = function(taskId, callback) {
+	// this.find({
+	// 	$query: {
+	// 		taskId: taskId
+	// 	},
+	// 	$orderby: {
+	// 		"buildNumber": -1
+	// 	}
+	// }, function(err, tHistories) {
+	// 	if (err) {
+	// 		logger.debug('err = >', err);
+	// 		callback(err, null);
+	// 		return;
+	// 	}
+	// 	tHistories.sort({
+	// 		"buildNumber": -1
+	// 	})
+	// 	callback(null, tHistories);
+	// });
+
 	this.find({
-		$query: {
-			taskId: taskId
-		},
-		$orderby: {
-			"buildNumber": -1
-		}
-	}, function(err, tHistories) {
+		taskId: taskId
+	}).sort({
+		"buildNumber": 'asc'
+	}).exec(function(err, tHistories) {
 		if (err) {
+			logger.debug('err', err);
 			callback(err, null);
 			return;
 		}
