@@ -510,11 +510,12 @@ function checkForKeyPair(e) {
     var providerId = UtilityMethods.getIdFromURL();
     var isDefault = $('#accessCredentialsRequired').is(':checked')?false:true;
 
-    if (((accessKey && secretKey && accessKey !== '' && secretKey !== '') || (isDefault === true))
+    if ((providerId && providerId !== 'new')
+            || (isDefault === true && region && region !== '')) {
+        loadKeyPair(null, null, region, providerId);
+    } else if (accessKey && secretKey && accessKey !== '' && secretKey !== ''
             && region && region !== '') {
         loadKeyPair(accessKey, secretKey, region, null);
-    } else if (providerId && providerId !== 'new') {
-        loadKeyPair(null, null, region, providerId);
     } else {
         $('#btnsubmit').attr('disabled', 'disabled');
     }
