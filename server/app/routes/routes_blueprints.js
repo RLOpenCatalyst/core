@@ -118,6 +118,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					instanceAmiid: req.body.blueprintData.instanceAmiid,
 					instanceUsername: 'root',
 					vpcId: req.body.blueprintData.vpcId,
+					region: req.body.blueprintData.region,
 					subnetId: req.body.blueprintData.subnetId,
 					imageId: req.body.blueprintData.imageId,
 					cloudProviderType: 'aws',

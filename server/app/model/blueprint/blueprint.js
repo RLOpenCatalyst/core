@@ -399,6 +399,7 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             parentId: blueprintData.id
         };
         var blueprint = new Blueprints(blueprintObj);
+        logger.debug(blueprint);
         logger.debug('saving');
         blueprint.save(function(err, blueprint) {
             if (err) {

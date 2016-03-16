@@ -590,6 +590,8 @@ function getkeypairList() {
 					str1 = str1 + '<option value="' + keylist[i].region + '">' + getRegionName(keylist[i].region) + ' | ' + keylist[i].region + '</option>';
 				}
 				$('#region').html(str1);
+				//Adding data reader
+				$('#region').val($('#region').attr('savedval')).trigger('change');
 			});
 		}
 	});
@@ -1377,6 +1379,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 							reqBody.subnetId = subnetId;
 							reqBody.imageId = imageId;
 							reqBody.providerId = providerId;
+							reqBody.region = region;
 							reqBody.name = $('#blueprintNameInput').val();
 							$('#userListSelect').find('option').attr('selected', 'selected');
 							reqBody.users = $('#userListSelect').val();
@@ -1402,7 +1405,8 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 							reqBody.appUrls = appUrls;
 							// for cft templates
 							reqBody.cftProviderId = $('#cftProviderInput').val();
-							reqBody.region = $('#cftRegionInput').val();
+							if(typeof $('#cftRegionInput').val() != "undefined")
+								reqBody.region = $('#cftRegionInput').val();
 							var cftParameters = [];
 							$('.cftParameterInput').each(function() {
 								var $this = $(this);
@@ -2158,6 +2162,7 @@ function cachesavedvalues(blueprintdata){
 				$content.find('#instancesize').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.instanceType);
 				$content.find('#securityGroupIds').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.securityGroupIds);
 				$content.find('#instanceCount').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.instanceCount);
+				$content.find('#region').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.region)
 				if(blueprintdata.blueprintConfig.cloudProviderData.infraManagerData)
 					if(blueprintdata.blueprintConfig.cloudProviderData.infraManagerData.versionsList[0])
 						$content.find('#tableRunlistForBlueprint').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.infraManagerData.versionsList[0].runlist);
@@ -2165,19 +2170,21 @@ function cachesavedvalues(blueprintdata){
 
 			}
 			$content.find('#providerId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderId);
-			$content.find('#region').attr('savedval',blueprintdata.blueprintConfig.region)
+			
 		}
 	 }
 }
 
 function helpersetselectvalue($selectctrl,prop,propvalue){
-	alert(prop,propvalue);
+	//alert(prop + ' ' + propvalue);
 	$selectctrl.find('option').each(function(){
 		if($(this).attr(prop) == propvalue)
 		{
 			$selectctrl.val($(this).attr('value'));
+
 		}
 	});
+	$selectctrl.trigger('change');
 }
 
 function displaySavedBPValues(){
@@ -2185,7 +2192,8 @@ function displaySavedBPValues(){
 	//$content.find('#instanceOS').val($content.find('#instanceOS').attr('data-instanceos')).trigger('change');
 	helpersetselectvalue($content.find('#instanceOS'),'data-instanceos',$content.find('#instanceOS').attr('savedval'));
 	$content.find('#providerId').val($content.find('#providerId').attr('savedval')).trigger('change');
-	$content.find('#imageId').val($content.find('#imageId').attr('savedval')).trigger('change');
+	helpersetselectvalue($content.find('#imageId'),'_id',$content.find('#imageId').attr('savedval'));
+	//$content.find('#imageId').val($content.find('#imageId').attr('savedval')).trigger('change');
 }
 //Initializing the blueprint area according to the Template-Type and showing
 //the differnt template types whenever a blueprint is added

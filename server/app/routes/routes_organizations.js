@@ -716,6 +716,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var blueprintType = req.body.blueprintData.blueprintType;
         var nexus = req.body.blueprintData.nexus;
         var docker = req.body.blueprintData.docker;
+        var region = req.body.blueprintData.region;
 
 		// a temp fix for invalid appurl data. will be removed in next iteration
 		var tempAppUrls = [];
@@ -779,6 +780,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 			} else if (blueprintType === 'instance_launch') {
 				logger.debug('req.body.blueprintData.blueprintType ==>', blueprintType);
+				logger.debug('req.body.blueprintData.region ==>', req.body.blueprintData.region);
 				instanceData = {
 					keyPairId: req.body.blueprintData.keyPairId,
 					securityGroupIds: req.body.blueprintData.securityGroupIds,
@@ -787,6 +789,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					instanceUsername: 'root',
 					vpcId: req.body.blueprintData.vpcId,
 					subnetId: req.body.blueprintData.subnetId,
+					region: req.body.blueprintData.region,
 					imageId: req.body.blueprintData.imageId,
 					cloudProviderType: 'aws',
 					cloudProviderId: req.body.blueprintData.providerId,
@@ -908,6 +911,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				});
 				return;
 			}
+			logger.log('Blueprint Data before save');
+			logger.log(blueprintData);
 			Blueprints.createNew(blueprintData, function(err, data) {
 				if (err) {
 					logger.error('error occured while saving blueorint', err);
