@@ -512,12 +512,13 @@ function checkForKeyPair(e) {
     var providerId = UtilityMethods.getIdFromURL();
     var isDefault = $('#accessCredentialsRequired').is(':checked')?false:true;
 
-    if ((providerId && providerId !== 'new')
-            || (isDefault === true && region && region !== '')) {
-        loadKeyPair(null, null, isDefault, region, providerId);
-    } else if (accessKey && secretKey && accessKey !== '' && secretKey !== ''
+    if(providerId && providerId != 'new' && region && region !== '') {
+        loadKeyPair(null, null, false, region, providerId);
+    } else if(accessKey && secretKey && accessKey !== '' && secretKey !== ''
             && region && region !== '') {
         loadKeyPair(accessKey, secretKey, false, region, null);
+    } else if(isDefault && region && region != '') {
+        loadKeyPair(null, null, true, region, null);
     } else {
         $('#btnsubmit').attr('disabled', 'disabled');
     }
