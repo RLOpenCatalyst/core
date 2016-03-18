@@ -96,7 +96,7 @@
                                             </span>
                                             <span>
                                                 <img style="margin-top:2px; margin-left:10px;" data-toggle="popover" data-placement="left"
-                                                     title="AWS API requests will be signed with the credentials of the IAM role attached to the catalyst instance if credentials are not provided" src="img/help.png"/>
+                                                     title="Credentials are not required if catalyst instance is launched with an IAM role which has permissions to launch instances" src="img/help.png"/>
                                             </span>
                                         </div>
                                         <div class="col-lg-6 col-md-6 margintop20">
@@ -463,16 +463,18 @@ function KeyChangeHandler(e) {
 }
 
 function checkForKeyPair(e) {
-  function loadKeyPair(accessKey, secretKey, regionValue, providerId) {
+  function loadKeyPair(accessKey, secretKey, isDefault, regionValue, providerId) {
     appendLoader();
     var data1 = new FormData();
     if (!providerId) {
       data1.append('accessKey', accessKey);
       data1.append('secretKey', secretKey);
       data1.append('region', regionValue);
+        data1.append('isDefault', isDefault);
     } else {
       data1.append('region', regionValue);
       data1.append('providerId', providerId);
+        data1.append('isDefault', isDefault);
     }
     $.ajax({
       method: "POST",
@@ -510,11 +512,13 @@ function checkForKeyPair(e) {
     var providerId = UtilityMethods.getIdFromURL();
     var isDefault = $('#accessCredentialsRequired').is(':checked')?false:true;
 
-    if (((accessKey && secretKey && accessKey !== '' && secretKey !== '') || (isDefault === true))
+    if(providerId && providerId != 'new' && region && region !== '') {
+        loadKeyPair(null, null, false, region, providerId);
+    } else if(accessKey && secretKey && accessKey !== '' && secretKey !== ''
             && region && region !== '') {
-        loadKeyPair(accessKey, secretKey, region, null);
-    } else if (providerId && providerId !== 'new') {
-        loadKeyPair(null, null, region, providerId);
+        loadKeyPair(accessKey, secretKey, false, region, null);
+    } else if(isDefault && region && region != '') {
+        loadKeyPair(null, null, true, region, null);
     } else {
         $('#btnsubmit').attr('disabled', 'disabled');
     }
