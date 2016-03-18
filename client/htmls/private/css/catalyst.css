@@ -3942,6 +3942,12 @@ span.icon {
 .modal-vs{
     width:200px !important;
 }
+.modal-copybp{
+    height: 339px;
+}
+.modal-copybp > label{
+    padding-top: 10px;
+}
 .dockerimagetext{
     position: absolute;
 }

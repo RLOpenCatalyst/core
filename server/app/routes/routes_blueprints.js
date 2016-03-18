@@ -263,6 +263,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
+	app.delete('/blueprints', function(req, res) {
+		var blueprintIds = req.body.blueprints;
+		logger.debug("Enter /blueprints/delete/%s", req.body.blueprints);
+		if(blueprintIds.length > 0)
+		Blueprints.removeByIds(blueprintIds, function(err, data) {
+			if (err) {
+				logger.error("Failed to delete blueprint ", err);
+				res.send(500, errorResponses.db.error);
+				return;
+			}
+			res.send(200, {
+				message: "deleted"
+			});
+		});
+	});
+
 	//for testing
 	app.get('/blueprints/azure/tryssh/:ip', function(req, res) {
 		var azureCloud = new AzureCloud();

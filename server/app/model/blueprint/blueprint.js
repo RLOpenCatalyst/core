@@ -477,6 +477,40 @@ BlueprintSchema.statics.removeById = function(id, callback) {
 
 };
 
+BlueprintSchema.statics.removeByIds = function(ids, callback) {
+
+    var objids = [];
+    ids.forEach(function(v){
+
+        objids.push(ObjectId(v));
+    });
+    this.remove({
+    $or:[{"_id": {$in:objids}},{"parentId":ids}]
+    }, function(err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+
+};
+
+BlueprintSchema.statics.copyByIds = function(ids,orgid,bgid,projid, callback) {
+    var objids = [];
+    ids.forEach(function(v){
+        objids.push(ObjectId(v));
+    });
+    var self = this;
+    this.findAll({
+        $or:[{"_id": {$in:objids}},{"parentId":ids}]
+    },function(err,data){
+        logger.debug(data);
+    });
+
+};
+
+
 var findBlueprintVersionObject = function(blueprints,parentId){
             var versions = [];
             logger.debug('Entering getBlueprintVersionObject', parentId);
