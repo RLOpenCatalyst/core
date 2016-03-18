@@ -1954,12 +1954,31 @@ function devCall() {
 
 			});*/
             var platformId = 'unknown';
+            var providerIdText = 'Instance Id : ';
             if(data.platformId) {
 			  platformId = data.platformId;
+			  switch(data.providerType){
+			  	 case 'aws': 
+			  	    providerIdText = 'AWS Id : '; 
+			  	    break;
+				case 'azure':
+					providerIdText = 'Azure Id : ';
+					break;
+				case 'vmware':
+					providerIdText = 'VMware Id : ';
+					break;
+				case 'openstack':
+				    providerIdText = 'openstack Id : ';	
+				    break;
+				default:
+				    platformId = 'unknown';
+                    providerIdText = 'Instance Id : ';
+
+			  }
             } 
 
 			//$instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span class="instance-state instance-details-id" style="text-overflow: ellipsis;width: 65px;overflow: hidden;display: inline-block;white-space: nowrap;"> Provider Id : ' + platformId + '</span>');
-            $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> Provider Id : ' + platformId + '</span>');
+            $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> '+ providerIdText + platformId + '</span>');
             $instanceDetailsList.append($instanceDetailItemStatus);
 			//$instanceDetailsList.append('<span class="instance-state" style="text-overflow: ellipsis;width: 65px;overflow: hidden;display: inline-block;white-space: nowrap;">' + platformId + '</span>');
 
