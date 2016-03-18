@@ -89,25 +89,43 @@
                                         <input name="isDefault" type="hidden" value=false />
                                         <div class="col-lg-6 col-md-6 margintop20">
                                             <span>
-                                                <input type="checkbox" style="vertical-align: middle;" id="accessCredentialsRequired" checked="checked">
-                                                <label for="accessCredentialsRequired" style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
-                                                    Requires access credentials
+                                                <label style="margin-bottom: 0px; vertical-align: middle; margin-top: 5px;">
+                                                    Credentials:
+                                                    <span style="color: Red;" class="control-label">&nbsp;*</span>
                                                 </label>
                                             </span>
-                                            <span>
-                                                <img style="margin-top:2px; margin-left:10px;" data-toggle="popover" data-placement="left"
-                                                     title="Credentials are not required if catalyst instance is launched with an IAM role which has permissions to launch instances" src="img/help.png"/>
-                                            </span>
-                                        </div>
-                                        <div class="col-lg-6 col-md-6 margintop20">
-                                            <span>
-                                                <input type="checkbox" style="vertical-align: middle;" id="updateSecretInfo">
-                                                <label for="updateSecretInfo" style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
-                                                    Update access credentials
+                                            <span style="margin-right: 20px; margin-left: 20px;">
+                                                <input type="radio" name="isDefault" value="false"
+                                                       style="vertical-align: middle;" id="credentials-accessKeys" checked>
+                                                <label for="credentials-accessKeys" style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
+                                                    Use access keys
                                                 </label>
+                                            </span>
+                                            <span style="margin-right: 20px;">
+                                                <input type="radio" name="isDefault" value="true"
+                                                       style="vertical-align: middle;" id="credentials-IAMRole">
+                                                <label for="credentials-IAMRole" style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
+                                                    Use IAM role
+                                                </label>
+                                                <span>
+                                                    <img style="margin-top:2px; margin-left:2px;" data-toggle="popover" data-placement="left"
+                                                         title="Credentials are not required if catalyst instance is launched with an IAM role which has permissions to launch instances" src="img/help.png"/>
+                                                </span>
                                             </span>
                                         </div>
                                     </div>
+                                     <div class="row foraws aws-secret-info">
+                                         <div class="col-lg-6 col-md-6 margintop20">
+                                            <span>
+                                                <input type="checkbox" style="vertical-align: middle;"
+                                                       id="updateSecretInfo">
+                                                <label for="updateSecretInfo"
+                                                       style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
+                                                    Update access credentials
+                                                </label>
+                                            </span>
+                                         </div>
+                                     </div>
                                     <div class="row foraws aws-secret-info">
                                        <div class="col-lg-6 col-md-6 margintop20">
                                           <label for="">Access Key:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
@@ -510,7 +528,7 @@ function checkForKeyPair(e) {
             $region = $(this);
     region = $region.val();
     var providerId = UtilityMethods.getIdFromURL();
-    var isDefault = $('#accessCredentialsRequired').is(':checked')?false:true;
+    var isDefault = $('#credentails-IAMRole').is(':checked')?true:false;
 
     if(providerId && providerId != 'new' && region && region !== '') {
         loadKeyPair(null, null, false, region, providerId);
@@ -639,17 +657,11 @@ function setValues(data) {
 
     }
 
+    $("input[name='isDefault'][value="+data.isDefault+"]").attr('checked', true);
+    $("input[name='isDefault']").attr('disabled', true);
     if(data.isDefault) {
-        $('#accessCredentialsRequired').prop('checked', false);
-        $('#accessCredentialsRequired').hide();
-        $('.foraws').hide();
-        $("input[name='isDefault']").val(true);
+        $('.aws-secret-info').hide();
         $('.secretInfo').removeAttr('cat-validation');
-    } else {
-        $('#accessCredentialsRequired').prop('checked', true);
-        $('.foraws').show();
-        $("input[name='isDefault']").val(false);
-        $('.secretInfo').prop('cat-validation', 'required');
     }
 
     var parentList = $('.addNewRegion');
@@ -679,15 +691,14 @@ $(document).ready(function() {
   var $azureInputs = $secretInfo.filter('[cat-validation-azure]');
   var $openStack = $secretInfo.filter('[cat-validation-openstack]');
 
-  $('#accessCredentialsRequired').change(function() {
-      if(this.checked) {
-          $('.aws-secret-info').show();
-          $("input[name='isDefault']").val(false);
-          $('.secretInfo').prop('cat-validation', 'required');
-      } else {
+
+    $("input[name='isDefault']").change(function() {
+      if($("#credentials-IAMRole").is(":checked")) {
           $('.aws-secret-info').hide();
-          $("input[name='isDefault']").val(true);
           $('.secretInfo').removeAttr('cat-validation');
+      } else {
+          $('.aws-secret-info').show();
+          $('.secretInfo').prop('cat-validation', 'required');
       }
   });
 
@@ -718,7 +729,7 @@ $(document).ready(function() {
     $('.secretInfo').removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
 
   } else {
-    $('#updateSecretInfo').parent().hide();
+    $('#updateSecretInfo').parent().parent().hide();
   }
 
     $("input[type='password']").val('');
