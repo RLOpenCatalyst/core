@@ -2,13 +2,15 @@
   <head>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" type="text/css" media="screen" href="css/Dashboard.css">
     <link rel="stylesheet" type="text/css" media="screen" href="css/application.css">
   </head>
   <body>
-    <div class="panel-group smart-accordion-default">
+    <div class="panel-group smart-accordion-default" id="mainPanelId">
       <div class="panel panel-default" id="accordion-Infrastructure">
           <div class="panel-heading">
             <h4 class="panel-title">
@@ -82,7 +84,8 @@
               <div class="icon">
                 <i class="fa fa-cube"></i>
               </div>
-              <span class="small-box-footer managedUnmanagedCSS">
+              <span class="small-box-footer managedInstSpecificMoreInfo managedUnmanagedCSS">
+                More info <i class="fa fa-arrow-circle-right"></i>
               </span>
             </div>
           </div>
@@ -106,7 +109,7 @@
             <div class="panel-body">
               <div id="infrastructurecardview">
                 <div class="row">
-                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass hidden" data-text="Total Number of Providers">
+                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Number of Providers">
                     <div class="small-box bg-aqua">
                       <div class="inner">
                         <h3 id="totalProviders">&nbsp;</h3>
@@ -120,7 +123,7 @@
                       </span>
                     </div>
                   </div>
-                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass hidden" data-text="Total Instances">
+                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Instances">
                     <div class="small-box bg-aqua">
                       <div class="inner">
                         <h3 id="totalInstances">0</h3>
@@ -133,7 +136,7 @@
                       </span>
                     </div>
                   </div>
-                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass hidden" data-text="Total Managed Instances">
+                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Managed Instances">
                     <div class="small-box bg-aqua">
                       <div class="inner">
                         <h3 id="totalmanagedInstances">0</h3>
@@ -147,7 +150,7 @@
                     </div>
                   </div>
                   
-                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass hidden" data-text="Total Spend in Today">
+                  <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Spend in Today">
                     <div class="small-box bg-aqua">
                       <div class="inner">
                         <h3 id="totalunmanagedInstances">0</h3>
@@ -181,6 +184,35 @@
               </div>
             </div>
           </div>
+      </div>
+    </div>
+    <div id="managedTableContainer" style="display:none">
+      <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+          <h4 class="panel-title padding2">
+            <span class="panelh4spanCSS">Managed Instances Details for the Provider :&nbsp;</span>
+            <span id="providerforManagedInstId" class="panelh4spanCSS"></span>
+          </h4>
+          <a id="backfrmManagedInstance" class="btn btn-primary panelh4aCSS">
+            <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+          </a>                                 
+        </div>     
+      </div>
+      <div  class="table-responsive table-responsiveCSS">
+         <table id="managedinstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+            <thead>
+               <tr>
+                  <th style="text-align: center">InstanceId</th>
+                  <th style="text-align: center">OS</th>
+                  <th style="text-align: center">IP Address</th>
+                  <th style="text-align: center">Region</th>
+                  <th style="text-align: center">Status</th>
+                  <th style="text-align: center">Project Name</th>
+               </tr>
+            </thead>
+            <tbody class="managedInstance">
+            </tbody>
+         </table>
       </div>
     </div>
     <script src="js/dashboard.js"></script>

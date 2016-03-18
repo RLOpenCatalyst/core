@@ -26,11 +26,22 @@ if (process.env.http_proxy) {
     });
 }
 var AWSCloudFormation = function(awsSettings) {
-    var cloudFormation = new aws.CloudFormation({
-        "accessKeyId": awsSettings.access_key,
-        "secretAccessKey": awsSettings.secret_key,
-        "region": awsSettings.region
-    });
+
+    var that = this;
+    var params = new Object();
+
+    if (typeof awsSettings.region !== undefined) {
+        params.region = awsSettings.region;
+    }
+
+    if (typeof awsSettings.isDefault !== undefined && awsSettings.isDefault == true) {
+        params.credentials = new aws.EC2MetadataCredentials({httpOptions: {timeout: 5000}});
+    } else if (typeof awsSettings.access_key !== undefined && typeof awsSettings.secret_key !== undefined) {
+        params.accessKeyId = awsSettings.access_key;
+        params.secretAccessKey = awsSettings.secret_key;
+    }
+
+    var cloudFormation = new aws.CloudFormation(params);
 
     var that = this;
     this.createStack = function(stackOptions, callback) {
