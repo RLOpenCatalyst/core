@@ -1121,7 +1121,7 @@ var formInitializer = function(editing) {
         validatorForm.resetForm();
     } // end of formInitializer
 
-var saveblueprint = function() {
+var saveblueprint = function(tempType) {
     bootbox.confirm({
         message: "Are you sure want to submit this Blueprint Data? Press Ok to Continue",
         title: "Confirm",
@@ -1140,8 +1140,14 @@ var saveblueprint = function() {
                     return false;
                 }
                 reqBody = {};
+                if($('#bpeditcontent').find('input#blueprintId')){
+                	reqBody.blueprintId = $('#bpeditcontent').find('input#blueprintId').val();
+                }
+
                 reqBody.templateId = $selectedItem.attr('data-templateId');
                 reqBody.templateType = $selectedItem.attr('data-templateType');
+                if(!tempType) //setting when on edit mode
+                	tempType = $selectedItem.attr('data-templateType');
                 reqBody.templateComponents = $selectedItem.attr('data-templateComponent').split(',');
                 reqBody.dockercontainerpathstitle = $selectedItem.attr('dockercontainerpathstitle');
                 reqBody.dockercontainerpaths = $selectedItem.attr('dockercontainerpaths');
@@ -1636,7 +1642,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 			if (tempType !== "docker" && tempType !== 'cloudformation' && !isValid) {
 				return false;
 			} else {
-				saveblueprint();
+				saveblueprint(tempType);
 			}
 			return false;
 		}
@@ -2279,15 +2285,30 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     		$('#orgnameSelect').trigger('change'); 
     		$('#bpeditcontent .productdiv2').detach(); //removing existing cardview on edit screen
     		//Add a productdiv2 with required elements for form rendering
-    		var $pdiv2 = $('<div class=".productdiv2></div>');
+    		
 
     		var $card = $('#viewCreate .productdiv1[data-blueprintid="' + baseblueprintId + '"]').clone();
+
     		$card.find('button').detach();
     		$card.find('.moreInfo').detach();
     		$('#bpeditcontent .selectedTemplateArea').html('');
     		$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
     		displaySavedBPValues();
-    		$('#bpeditcontent').find('#blueprintId').val(blueprintId); //setting the blueprintid for edit
+    		$('#bpeditcontent').find('input#blueprintId').val(baseblueprintId); //setting the blueprintid for edit
+    		//adding produtdiv2 for saving
+
+    		 var $prod2 = $('<div class="hidden productdiv2 role-Selected"></div>');
+
+    		$prod2.attr('dockerreponame',blueprintdata.blueprintConfig.dockerRepoName);
+    		$prod2.attr('data-templateId', blueprintdata.templateId);
+    		$prod2.attr('data-templateType',blueprintdata.templateType);
+    		$prod2.attr('templatetype',blueprintdata.templateType);
+
+    		$prod2.attr('data-templateComponent', 'component1'); //to check
+    		$prod2.attr('dockerrepotags', blueprintdata.blueprintConfig.dockerRepoTags);
+    		// $prod2.append('<img src="' + $('.selectedTemplateArea').find('img[src*="__templatesicon__"]').first().attr('src') + '">');
+    		$('#bpeditcontent .selectedTemplateArea').append($prod2);
+    		
     	}
     	else{
 
