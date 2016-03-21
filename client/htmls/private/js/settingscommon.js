@@ -481,7 +481,6 @@ function CreateTableFromJson__(formID, idFieldName, createFileName) {
 
 function CreateTableFromJson(formID, idFieldName, createFileName) {
 
-
 	//To Do SAve...
 	// var d4djson = $.parseJSON(d4ddata);
 	// alert(d4ddata.sections.section[0].name);
@@ -526,6 +525,8 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 	//alert(JSON.stringify(formData));
 
 	var formSchema = null;
+
+	var $chefUrlAnchor;
 	$.each(d4ddata, function(i, item) {
 		console.log("Top:" + JSON.stringify(item)); //rows
 		var editButton = null;
@@ -558,6 +559,7 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 				idFieldValue = v;
 			}
 			inputC = $('.rowtemplate').find("[datafield='" + k + "']");
+			console.log('inputC ==>', inputC, ' v==> ', v);
 			if (inputC) {
 				console.log('Inputc===>' + inputC.attr('datafield'));
 				if (inputC.attr('datafield') == 'active') {
@@ -584,7 +586,20 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 							}
 							inputC.html(v);
 						} else {
-							inputC.html(v);
+							// for configmanagemt list
+							if (formID === 10) {
+								if (k === 'configname') {
+									$chefUrlAnchor = $('<a target="_blank">' + v + '</a>');
+									inputC.html($chefUrlAnchor);
+								} else if (k === 'url') {
+									$chefUrlAnchor.attr('href',v)
+								} else {
+									inputC.html(v);
+								}
+							} else {
+								inputC.html(v);
+							}
+
 						}
 
 					}
@@ -752,7 +767,7 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 				importbutton.addClass('tableactionbutton');
 			}
 
-			
+
 
 			var dataBags = $('.rowtemplate').find('a[title="DataBag"]');
 
@@ -1720,7 +1735,7 @@ function readform(formID) {
 		$(this).attr('initialvalue', $(this).val());
 
 	});
-	
+
 	return (true);
 } //end readform
 
@@ -2700,9 +2715,9 @@ function addToTargetList(inputctrl, inputctrl1) {
 		if (inputctrl.val() == '' || inputctrl1.val() == '') //validating if both the controls have values
 		{
 			bootbox.alert({
-                message:'Ensure you have a Valid Docker Path before adding',
-                title:'Warning'
-            });
+				message: 'Ensure you have a Valid Docker Path before adding',
+				title: 'Warning'
+			});
 			inputctrl.focus();
 			return;
 		}
@@ -2842,16 +2857,15 @@ function loadreceipesinto(receipectrls, cookbook, chefserverid, finalfunction) {
 }
 
 function loadactioncheckboxes(receipectrls) {
-	
+
 	$.each(receipectrls, function(k1, v1) {
 		var $servicecookbook = $('#' + v1);
 		var $servicecookbookcheckbox = $('#' + v1 + 'checkbox'),
 			attr = $servicecookbook.attr('savedvalue');
 		if ($servicecookbook.length && $servicecookbookcheckbox.length) {
-			if(typeof attr != "undefined" && attr.trim() != 'none' && attr.trim() != ''){
-				$servicecookbookcheckbox.attr('checked','checked');
-			}
-			else{
+			if (typeof attr != "undefined" && attr.trim() != 'none' && attr.trim() != '') {
+				$servicecookbookcheckbox.attr('checked', 'checked');
+			} else {
 				$servicecookbookcheckbox.removeAttr('checked');
 			}
 
@@ -3032,7 +3046,7 @@ function getProjectsForOrg(orgname) {
 //function injects a error label for the input control and puts the message
 function errormessageforInput(id, msg) {
 	// alert(id);
-	
+
 	var errlabel = $('#errmsg_' + id);
 	var uniquelbl = $('#unique_' + id);
 
@@ -3118,7 +3132,7 @@ function isFormValidAzure(formid, option) {
 			}
 		});
 	}
-   
+
 	$('[' + option + ']').each(function(itm) {
 		var currCtrl = $(this);
 		var valiarr = $(this).attr(option).split(',');
