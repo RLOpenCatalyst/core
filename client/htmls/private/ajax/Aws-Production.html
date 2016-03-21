@@ -577,6 +577,7 @@
                 </form>
                 <div class="col-lg-12">
                   <label id="spinnerProject" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                  <label id="npbpmsg" class="npbpmsg hidden">No blueprints found</label>
                   <div class="panel-group smart-accordion-default hidden" id="accordion-2" style="height:444px;overflow-y: auto;">                                 
                   </div>
                 </div>
@@ -587,8 +588,8 @@
           <div class="clearfix form-actions" style="text-align:center">
               
             
-              <button class="btn pull-right btn-danger right-button" title="Remove Blueprint" onClick="removeSelectedBlueprint()" > <i class="fa fa-trash-o"></i></button>
-              <button class="btn pull-right btn-primary right-button" title="Copy Blueprint" onClick="copySelectedBlueprint()" > <i class="fa fa-copy"></i></button>
+              <button class="btn pull-right btn-danger right-button" title="Remove Blueprint" onClick="removeSelectedBlueprint();" > <i class="fa fa-trash-o"></i></button>
+              <button class="btn pull-right btn-primary right-button" title="Copy Blueprint" onClick="showbpcopydialog();" > <i class="fa fa-copy"></i></button>
             </div>
           </footer>
         </div>
@@ -601,7 +602,7 @@
           <footer class="footer">
                 <div style="text-align:center;height:60px;margin-bottom: -3px" class="clearfix form-actions">
                   <div class="btn-group">
-                  
+                      
                       <button class="btn btn-primary" onclick="closeblueprintedit();">Cancel</button>
                    
                       <button class="btn btn-primary marginleft15" onclick="saveblueprint();">Save</button>
@@ -635,20 +636,20 @@
                           
                           
                             <div class="col-lg-12 col-md-12">
-                                <label for="">Business Group</label>
+                                <label for="" class="lblbpc">Business Group</label>
                                 <select id="bgListInputExistingforcopy" class="chooseBGExistingforcopy width-100 form-control">
                                 </select>
                             </div>
                           
                             <div class="col-lg-12 col-md-12">
-                                <label for="category">Project
+                                <label for="projectListInputExistingforcopy"  class="lblbpc">Project
                                 </label>
                                 <select id="projectListInputExistingforcopy" class="chooseProjectExistingforcopy width-100 form-control">
                                 </select>
                             </div>
                         
                             <div class="col-lg-12 col-md-12 hidden">
-                                <label for="category">Environment</label>
+                                <label for="envListExistingforcopy"  class="lblbpc">Environment</label>
                                 <select id="envListExistingforcopy" class="chooseEnvExistingforcopy hidden width-100 form-control">
                                 </select>
                             </div>
@@ -659,8 +660,9 @@
                         
                 </div>
                 <div class="modal-footer" style="margin-top: 0px !important; padding-right: 8px; padding-top: 7px;">
-                    <button type="button" class="btn btn-default btn-primary" onclick="copySelectedBlueprint();">Copy</button>
-                     <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+                    <label class="pull-left bpcopycount">3 blueprints selected</label>
+                    <button type="button" class="btn btn-default btn-primary btncopybp" onclick="copySelectedBlueprint();">Copy</button>
+                    <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
                  </div>
 
               </div>

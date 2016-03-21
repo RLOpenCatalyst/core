@@ -138,8 +138,11 @@ $(document).ready(function() {
 					if (data.blueprints.length > 0) {
 						$('#accordion-2').removeClass('hidden');
 						$spinnerProject.addClass('hidden');
+						$('#npbpmsg').addClass('hidden');
 					} else {
 						$spinnerProject.addClass('hidden');
+						//show no blueprints found message
+						$('#npbpmsg').removeClass('hidden');
 					}
 				});
 			}); //choose env gets over
@@ -2769,12 +2772,12 @@ function initializeBlueprintAreaNew(data) {
 		}
 		if ($('#accordion-2').length > 0) {
 			console.log('object ==>', $('#accordion-2').find('.blueprintContainer:not(.hidden)').first().find('.panel-heading a'));
-			$('#accordion-2').find('.blueprintContainer:not(.hidden)').first().find('.panel-heading a').click();
+			//$('#accordion-2').find('.blueprintContainer:not(.hidden)').first().find('.panel-heading a').click(); //removed click to avoid accidental copy
 		}
 	}); //end of readmasterjson to be pushed to the end of the function.
 	$('#accordion-2').on('show.bs.collapse', function(e) {
 		console.log(e.target);
-		$(e.target).find('.productdiv1').first().click();
+		//$(e.target).find('.productdiv1').first().click(); //removed click to avoid accidental copy
 	});
 	//Expanding the fist Accordion.
 };
@@ -2797,6 +2800,13 @@ function removeSelectedBlueprint() {
 						if (data) {
 							var $bcc = $('.productdiv1.role-Selected1').closest('.blueprintContainer');
 							$('.productdiv1.role-Selected1').parent().detach();
+							//Check if any blueprints are found else display empty message
+							if($('#accordion-2').find('.productdiv1').length <= 0){
+								$('#npbpmsg').removeClass('hidden');
+							}
+							else{
+								$('#npbpmsg').addClass('hidden');
+							}
 							if ($bcc.find('.panel-body').children().length <= 0) {
 								$bcc.addClass('hidden');
 							}
@@ -2813,19 +2823,42 @@ function removeSelectedBlueprint() {
 	}
 }
 
-function copySelectedBlueprint(){
+function showbpcopydialog(){
 	var blueprintId = [];
 	$('.productdiv1.role-Selected1').each(function(){
 		blueprintId.push($(this).attr('data-blueprintid'));
 	});
 	if (blueprintId.length > 0) {
-			$('#copyBlueprintModal').modal('show');			
+			$('#copyBlueprintModal').modal('show');	
+			$('#copyBlueprintModal').find('label.bpcopycount').html(blueprintId.length + ' blueprint(s) selected.');
 	}else {
 		bootbox.alert({
 			message: 'Please select a blueprint to copy.',
 			title: 'Warning'
 		});
 	}
+}
+
+function copySelectedBlueprint(){
+	var blueprintId = [];
+	$('.productdiv1.role-Selected1').each(function(){
+		blueprintId.push($(this).attr('data-blueprintid'));
+	});
+	var orgid = $('#orgnameSelectExistingforcopy').val();
+	var buid = $('#bgListInputExistingforcopy').val();
+	var projid = $('#projectListInputExistingforcopy').val();
+	
+	var copyobj = {
+		orgid : orgid,
+		buid : buid,
+		projid: projid,
+		blueprints : blueprintId
+	}
+	$.post('/blueprints/copy',copyobj,function(msg,data){
+		if(data == 'success'){
+			$('#copyBlueprintModal').modal('hide');
+		}
+	});
 }
 
 
