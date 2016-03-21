@@ -130,6 +130,11 @@ var InstanceSchema = new Schema({
         trim: true,
         validate: schemaValidator.projIdValidator
     },
+    projectName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     envId: {
         type: String,
         required: true,

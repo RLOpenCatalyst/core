@@ -34,13 +34,21 @@ var instanceStateList = {
 
 var EC2 = function(awsSettings) {
 
-	var ec = new aws.EC2({
-		"accessKeyId": awsSettings.access_key,
-		"secretAccessKey": awsSettings.secret_key,
-		"region": awsSettings.region
-	});
-
 	var that = this;
+	var params = new Object();
+
+	if (typeof awsSettings.region !== undefined) {
+		params.region = awsSettings.region;
+	}
+
+	if (typeof awsSettings.isDefault !== undefined && awsSettings.isDefault === true) {
+		params.credentials = new aws.EC2MetadataCredentials({httpOptions: {timeout: 5000}});
+	} else if (typeof awsSettings.access_key !== undefined && typeof awsSettings.secret_key !== undefined) {
+		params.accessKeyId = awsSettings.access_key;
+		params.secretAccessKey = awsSettings.secret_key;
+	}
+
+	var ec = new aws.EC2(params);
 
 	this.describeInstances = function(instanceIds, callback) {
 		//logger.debug('fetching instances for ==>',instanceIds);
@@ -61,6 +69,7 @@ var EC2 = function(awsSettings) {
 		});
 
 	};
+
 
 	this.getInstanceState = function(instanceId, callback) {
 		this.describeInstances([instanceId], function(err, data) {
@@ -100,6 +109,7 @@ var EC2 = function(awsSettings) {
 			/* required */
 			SubnetId: subnetId /* required if use vpc*/
 		};
+
 		ec.runInstances(param, function(err, data) {
 			if (err) {
 				logger.debug("error occured while launching instance");

@@ -1,37 +1,22 @@
 $(document).ready(function() {
-  var managedTotal =0, unmanagedTotal=0, managedunmanagedTotal=0;
-  function updateTotalCount(type, id, count){
-    if(type==="managed"){
+  var managedTotal = 0,
+    unmanagedTotal = 0,
+    managedunmanagedTotal = 0;
+
+  function updateTotalCount(type, id, count) {
+    if (type === "managed") {
       managedTotal += count;
       $('#totalmanagedInstances').html(managedTotal);
     }
-    if(type==="unmanaged"){
+    if (type === "unmanaged") {
       unmanagedTotal += count;
       $('#totalunmanagedInstances').html(unmanagedTotal);
     }
-    if(type==="managedunmanaged"){
-      managedunmanagedTotal +=count;
+    if (type === "managedunmanaged") {
+      managedunmanagedTotal += count;
       $('#totalInstances').html(managedunmanagedTotal);
     }
   }
-  $('#providerMoreInfo').click(function(){
-    var providerListLink = "/private/index.html#ajax/Settings/ProvidersList.html";
-    if (top.location != location) {
-      window.top.location.href = providerListLink;
-    }else{
-      window.location.href = providerListLink;
-    }
-  });
-
-  $('#noProviderCard').click(function(){
-    //var noproviderListLink = "/private/index.html#ajax/Settings/CreateProviders.html?new&t="+Math.random();
-    var noproviderListLink = "/private/index.html#ajax/Settings/CreateProviders.html?new";
-    if (top.location != location) {
-      window.top.location.href = noproviderListLink;
-    }else{
-      window.location.href = noproviderListLink;
-    }
-  });
   $.get('../allproviders/list', function(totalProviders) {
     var totalcountproviders;
     var awsproviderscount = totalProviders.awsProviders.length;
@@ -48,14 +33,14 @@ $(document).ready(function() {
     $('#hpPlublicCloudProvidersView').empty();
     $('#azureProvidersView').empty();
 
-    if(totalcountproviders > 0){
+    if (totalcountproviders > 0) {
       var $presentProviderView = $('.infrastructureClass');
       $presentProviderView.show();
       $('#totalProviders').append(totalcountproviders);
       var awstotalinstancecount = 0;
 
-      for(var i=0;i<awsproviderscount;i++){
-        (function(i){
+      for (var i = 0; i < awsproviderscount; i++) {
+        (function(i) {
           var $rowTemplate = $('.rowTemplate').clone();
           $rowTemplate.removeClass('rowTemplate');
 
@@ -66,14 +51,6 @@ $(document).ready(function() {
           $childProviderTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-green');
 
           var providerid = totalProviders.awsProviders[i]._id;
-          var providerSpecificHref = "/private/index.html#ajax/Settings/CreateProviders.html?"+providerid;
-          $childProviderTemplate.find('.providerSpecificMoreInfo').click(function(){
-            if (top.location != location) {
-              window.top.location.href = providerSpecificHref;
-            }else{
-              window.location.href = providerSpecificHref;
-            }
-          });
 
           var $childManagedInstanceTemplate = $('.childManagedInstanceTemplate').clone();
           $childManagedInstanceTemplate.removeClass('childManagedInstanceTemplate');
@@ -87,34 +64,33 @@ $(document).ready(function() {
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-green');
 
-          $.get('../providers/'+providerid+'/managedInstances', function(dataManaged) {
+          $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
             var managedInstancesLength = dataManaged.length;
             $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
 
             var totalManagedUnmanagedData;
             var managedData = dataManaged.length;
-            updateTotalCount("managed",providerid,managedData);
+            updateTotalCount("managed", providerid, managedData);
 
-            $.get('../providers/'+providerid+'/unmanagedInstances', function(dataUnmanaged) {
+            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+              $('#mainPanelId').hide();
+              $('#managedTableContainer').show();
+              $('#providerforManagedInstId').empty().append(awsSpecificProvName);
+              //Managned data passed to loadManagedInstances function to populate data in table.
+              loadManagedInstances(dataManaged);
+            });
+
+            $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
               $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(dataUnmanaged.length);
-              
-              var convertHrefmanaged = "/private/index.html#ajax/Settings/providerSync.html?"+providerid;
-              $childUnmanagedInstanceTemplate.find('.convertUnmanagedtoManaged').click(function(){
-                if (top.location != location) {
-                  window.top.location.href = convertHrefmanaged;
-                }else{
-                  window.location.href = convertHrefmanaged;
-                }
-              });
               var unmanagedData = dataUnmanaged.length;
 
-              updateTotalCount("unmanaged",providerid,unmanagedData);
+              updateTotalCount("unmanaged", providerid, unmanagedData);
 
               totalManagedUnmanagedData = managedData + unmanagedData;
 
-              updateTotalCount("managedunmanaged",providerid,totalManagedUnmanagedData);
+              updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
               awstotalinstancecount = awstotalinstancecount + totalManagedUnmanagedData;
-              
+
               $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
             });
           });
@@ -125,11 +101,21 @@ $(document).ready(function() {
           $rowTemplate.append($childUnmanagedInstanceTemplate);
 
 
-          $childUnmanagedInstanceTemplate.css({display:'block'});
-          $childManagedInstanceTemplate.css({display:'block'});
-          $childTotalInstanceTemplate.css({display:'block'});
-          $childProviderTemplate.css({display:'block'});
-          $rowTemplate.css({display:'block'});
+          $childUnmanagedInstanceTemplate.css({
+            display: 'block'
+          });
+          $childManagedInstanceTemplate.css({
+            display: 'block'
+          });
+          $childTotalInstanceTemplate.css({
+            display: 'block'
+          });
+          $childProviderTemplate.css({
+            display: 'block'
+          });
+          $rowTemplate.css({
+            display: 'block'
+          });
           $('#awsProviderView').append($rowTemplate);
         })(i);
       }
@@ -324,11 +310,73 @@ $(document).ready(function() {
           $('#openstackProviderView').append($rowTemplate);
         })(m);
       }
-    }else{
-      
+    } else {
       $('.noProviderView').show();
     }
   }).fail(function() {
 
   });
+  $('#backfrmManagedInstance').click(function() {
+    $('#mainPanelId').show();
+    $('#managedTableContainer').hide();
+  });
+
+  function loadManagedInstances(managnedData) {
+    $instanceManagedDatatable.clear().draw();
+    var $tbody = $('#managedInstance tbody').empty();
+    for (var i = 0; i < managnedData.length; i++) {
+      var $tr = $('<tr class="managedInstance"></tr>').attr('data-id', managnedData[i]._id);
+      var $tdId = $('<td></td>').append(managnedData[i].platformId);
+      $tr.append($tdId);
+
+      var $tdOs = $('<td></td>').append(managnedData[i].hardware.os);
+      $tr.append($tdOs);
+
+      var $tdIpAddress = $('<td></td>').append(managnedData[i].instanceIP);
+      $tr.append($tdIpAddress);
+
+      var region = '';
+      if (managnedData[i].providerData && managnedData[i].providerData.region) {
+        region = managnedData[i].providerData.region;
+      }
+      var $tdRegion = $('<td></td>').append(region);
+      $tr.append($tdRegion);
+      var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
+      $tr.append($tdStatus);
+
+      var $tdProjectName = $('<td></td>').append(managnedData[i].projectName);
+      $tr.append($tdProjectName);
+
+      $tbody.append($tr);
+      $instanceManagedDatatable.row.add($tr).draw();
+    }
+  }
+  if (!$.fn.dataTable.isDataTable('#managedinstanceListTable')) {
+    var $instanceManagedDatatable = $('#managedinstanceListTable').DataTable({
+      "pagingType": "full_numbers",
+      "bInfo": true,
+      "bLengthChange": true,
+      "paging": true,
+      "bFilter": true,
+      "aaSorting": [
+        [4, "asc"]
+      ],
+      "aoColumns": [{
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      },{
+        "bSortable": false
+      }]
+
+    });
+  }
+  $('#managedinstanceListTable_info').addClass('font-size12');
+  $('#managedinstanceListTable_paginate').addClass('font-size12');
 });

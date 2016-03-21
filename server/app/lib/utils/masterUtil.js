@@ -27,6 +27,7 @@ var configmgmtDao = require('../../model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
+var constantData = require('_pr/lib/utils/constant.js');
 
 var MasterUtil = function() {
 	// Return All Orgs specific to User
@@ -2088,6 +2089,59 @@ var MasterUtil = function() {
 			}
 		});
 	};
+	this.paginationResponse=function(data, callback) {
+		var response={
+			paginationData:data.docs,
+			totalRecords:data.total,
+			pageSize:data.limit,
+			page:data.page,
+			totalPages:data.pages
+		};
+		callback(null, response);
+		return;
+	}
+
+	this.paginationRequest=function(data, callback) {
+		var pageSize,page;
+		if(data.pageSize)
+			pageSize = parseInt(data.pageSize);
+		else
+			pageSize = constantData.record_limit;
+		if(data.page)
+			page = parseInt(data.page)-1;
+		else
+			page = constantData.skip_Records;
+
+		var skip = pageSize * page;
+		var searchParameter,searchParameterValue;
+		var sortBy={};
+		if(data.sortBy)
+			sortBy=data.sortBy;
+		else
+			sortBy=constantData.sort_by;
+		var filterBy={};
+		if(data.filterBy){
+			for(var i = 0;i < data.filterBy.length; i++){
+				var key=Object.keys(data.filterBy[i]);
+				filterBy[key]=data.filterBy[i][key];
+			}
+		}
+		else{
+			for(var i = 0;i < constantData.filter_records.length; i++){
+				var key=Object.keys(constantData.filter_records[i]);
+				filterBy[key]=constantData.filter_records[i][key];
+			}
+		}
+		var request={
+			'sortBy':sortBy,
+			'record_Skip':skip,
+			'record_Limit':pageSize,
+			'filterBy':filterBy,
+			'searchBy':data.searchBy
+		};
+		callback(null, request);
+		return;
+	}
 }
 
 module.exports = new MasterUtil();

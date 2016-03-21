@@ -31,6 +31,8 @@ var fileIo = require('_pr/lib/utils/fileio');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
+var constantData = require('_pr/lib/utils/constant.js');
+var tagsDao = require('_pr/model/tags');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -98,7 +100,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 
 	});
-	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
+
+	//Added By Durgesh for Tags Information
+	app.get('/providers/:providerId/tags', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
 				res.status(500).send({
@@ -112,14 +116,99 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				});
 				return;
 			}
-			unManagedInstancesDao.getByProviderId(provider._id, function(err, unmanagedInstances) {
+
+			tagsDao.getTagByProviderId(provider._id, function(err, tag) {
+				if (err) {
+					res.status(500).send(tag);
+					return;
+				}
+				res.status(200).send(tag);
+			});
+		});
+
+	});
+	//End By Durgesh
+
+	//Added By Durgesh for Tags Information
+	app.post('/providers/:providerId/updateTags', function(req, res) {
+		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+			if (err) {
+				res.status(500).send({
+					message: "Server Behaved Unexpectedly"
+				});
+				return;
+			}
+			if (!provider) {
+				res.status(404).send({
+					message: "provider not found"
+				});
+				return;
+			}
+
+			tagsDao.getTagByProviderId(provider._id,data, function(err, tag) {
+				if (err) {
+					res.status(500).send(tag);
+					return;
+				}
+				res.status(200).send(tag);
+			});
+		});
+
+	});
+	//End By Durgesh
+
+
+
+	app.post('/providers/:providerId/unmanagedInstances', function(req, res) {
+		MasterUtils.paginationRequest(req.body,function(err, paginationReq){
+			if (err) {
+				res.status(500).send({
+					message: "Server Behaved Unexpectedly"
+				});
+				return;
+			}
+			paginationReq['providerId']=req.params.providerId;
+
+		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+
+			if (err) {
+				res.status(500).send({
+					message: "Server Behaved Unexpectedly"
+				});
+				return;
+			}
+			if (!provider) {
+				res.status(404).send({
+					message: "provider not found"
+				});
+				return;
+			}
+			unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
 				if (err) {
 					res.status(500).send(unmanagedInstances);
 					return;
 				}
-				res.status(200).send(unmanagedInstances);
+				MasterUtils.paginationResponse(unmanagedInstances,function(err, paginationRes){
+						if (err) {
+							res.status(500).send({
+								message: "Server Behaved Unexpectedly"
+							});
+							return;
+						}
+						if (!paginationRes) {
+							res.status(404).send({
+								message: "data not found"
+							});
+							return;
+						}
+					console.log(paginationRes);
+					    res.status(200).send(paginationRes);
+					});
+
+
 			});
 		});
+	});
 	});
 
 	app.post('/providers/:providerId/sync', function(req, res) {
@@ -306,6 +395,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 														orgId: req.body.orgId,
 														bgId: req.body.bgId,
 														projectId: req.body.projectId,
+														//Added by Durgesh For Project Name
+														projectName: req.body.projectName,
+														//End By Durgesh
 														envId: req.body.envId,
 														providerId: provider._id,
 														providerType: 'aws',
