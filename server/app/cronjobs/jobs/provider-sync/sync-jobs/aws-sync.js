@@ -5,9 +5,7 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var EC2 = require('_pr/lib/ec2.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
-
 var unManagedInstancesDao = require('_pr/model/unmanaged-instance')
-
 
 var socketIo = require('_pr/socket.io').getInstance();
 
@@ -20,11 +18,7 @@ socketCloudFormationAutoScate.on('connection', function(socket) {
 	});
 
 });
-
 function sync() {
-
-
-
 	var orgs = MasterUtils.getAllActiveOrg(function(err, orgs) {
 		if (err) {
 			logger.error('Unable to fetch orgs ==>', err);
@@ -81,15 +75,14 @@ function sync() {
 													"secret_key": decryptedKeys[1],
 													"region": region
 												});
-												
-												ec2.describeInstances(null, function(err, awsRes) { 
+
+												ec2.describeInstances(null, function(err, awsRes) {
 													regionCount++;
 													if (err) {
 														logger.error("Unable to fetch instances from aws", err);
 														return;
 													}
 													var reservations = awsRes.Reservations;
-
 													logger.debug('res==> ', reservations.length, ' region==> ', region);
 
 
@@ -100,6 +93,14 @@ function sync() {
 															var awsInstances = reservations[l].Instances;
 															for (var m = 0; m < awsInstances.length; m++) {
 																var found = false;
+																//Added By Durgesh
+																var tags=awsInstances[m].Tags;
+																var tagInfo={};
+																for(var i = 0; i < tags.length; i++){
+																	var jsonData=tags[i];
+																	tagInfo[jsonData.Key]=jsonData.Value;
+																}
+																//End By Durgesh
 																for (var n = 0; n < instances.length; n++) {
 																	if (instances[n].platformId === awsInstances[m].InstanceId) {
 																		instances[n].instanceState = awsInstances[m].State.Name;
@@ -153,10 +154,16 @@ function sync() {
 																				ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
 																				os: os,
 																				state: awsInstances[m].State.Name,
+																				tags:tagInfo,
 																			});
 																		}
 
 																	}
+																	//Added By Durgesh
+																	else{
+																		unManagedInstancesDao.updateInstance(awsInstances[m].InstanceId,tagInfo);
+																	}
+																	//End By Durgesh
 
 																}
 															}
