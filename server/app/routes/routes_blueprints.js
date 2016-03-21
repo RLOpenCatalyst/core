@@ -168,7 +168,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			logger.debug("Exit post() for /blueprints");
 		});
 	});
+	app.get('/blueprints/:blueprintId', function(req, res) {
 
+		Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
+			if (err) {
+				res.status(500).send({
+					message: "Blueprint fetch failed"
+				});
+				return;
+			}
+
+			res.status(200).send(blueprint);
+		});
+
+	});
 	app.post('/blueprints/:blueprintId/update', function(req, res) {
 		logger.debug("Enter /blueprints/%s/update", req.params.blueprintId);
 
@@ -264,7 +277,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		})
 	});
 
-	
+
 	app.get('/blueprints/:blueprintId/launch', function(req, res) {
 		logger.debug("Enter /blueprints/%s/launch -- ", req.params.blueprintId);
 		//verifying if the user has permission

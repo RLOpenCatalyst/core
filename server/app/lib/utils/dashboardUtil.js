@@ -59,18 +59,24 @@ var totalInstancesCronJob = crontab.scheduleJob("0 * * * *", function() {
             var countRegion = 0;
             var totalcount = 0;
             for (var i = 0; i < providers.length; i++) {
-                var keys = [];
-                keys.push(providers[i].accessKey);
-                keys.push(providers[i].secretKey);
-                cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-                    countProvider++;
-                    if (err) {
-                        return;
-                    }
-                    providers[i].accessKey = decryptedKeys[0];
-                    providers[i].secretKey = decryptedKeys[1];
+                if(providers[i].isDefault) {
                     providersList.push(providers[i]);
-                });
+                } else {
+                    var keys = [];
+                    keys.push(providers[i].accessKey);
+                    keys.push(providers[i].secretKey);
+                    cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+                        cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+                        countProvider++;
+                        if (err) {
+                            return;
+                        }
+                        providers[i].accessKey = decryptedKeys[0];
+                        providers[i].secretKey = decryptedKeys[1];
+                        providersList.push(providers[i]);
+                    });
+                }
+
                 //logger.debug("providers>>> ", JSON.stringify(providers));
                 if (providers.length === providersList.length) {
                     var exists = {},
@@ -87,11 +93,19 @@ var totalInstancesCronJob = crontab.scheduleJob("0 * * * *", function() {
                     for (var n = 0; n < uniqueProviderList.length; n++) {
                         var regions = ["us-east-1", "us-west-1", "us-west-2"];
                         for (var j = 0; j < regions.length; j++) {
-                            var ec2 = new EC2({
-                                "access_key": uniqueProviderList[n].accessKey,
-                                "secret_key": uniqueProviderList[n].secretKey,
-                                "region": regions[j]
-                            });
+                            if(uniqueProviderList[n].isDefault) {
+                                var ec2 = new EC2({
+                                    "isDefault": true,
+                                    "region": regions[j]
+                                });
+                            } else {
+                                var ec2 = new EC2({
+                                    "access_key": uniqueProviderList[n].accessKey,
+                                    "secret_key": uniqueProviderList[n].secretKey,
+                                    "region": regions[j]
+                                });
+                            }
+
                             ec2.listInstances(function(err, nodes) {
                                 countRegion++;
                                 if (err) {

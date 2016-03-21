@@ -381,44 +381,48 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				res.send(500, errorResponses.db.error);
 				return;
 			}
+
 			if (cloudFormation) {
 				AWSProvider.getAWSProviderById(cloudFormation.cloudProviderId, function(err, aProvider) {
 					if (err) {
 						logger.error("Unable to fetch provider", err);
 						res.send(500, errorResponses.db.error);
 					}
-					var cryptoConfig = appConfig.cryptoSettings;
-					var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-					var keys = [];
-					keys.push(aProvider.accessKey);
-					keys.push(aProvider.secretKey);
 
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+					var awsSettings;
+					if(aProvider.isDefault) {
+						awsSettings = {
+							"isDefault": true,
+							"region": cloudFormation.region
+						};
+					} else {
+						var cryptoConfig = appConfig.cryptoSettings;
+						var cryptography = new Cryptography(cryptoConfig.algorithm,
+							cryptoConfig.password);
+
+						var decryptedAccessKey = cryptography.decryptText(aProvider.accessKey,
+							cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+						var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
+							cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+						awsSettings = {
+							"access_key": decryptedAccessKey,
+							"secret_key": decryptedSecretKey,
+							"region": cloudFormation.region
+						};
+					}
+
+					var awsCF = new AWSCloudFormation(awsSettings);
+					//var nextToken = req.query.nextToken;
+					awsCF.getAllStackEvents(cloudFormation.stackId, function (err, data) {
+
 						if (err) {
 							res.send(500, {
-								message: "Failed to decrypt accessKey or secretKey"
+								message: "Failed to fetch stack events from aws"
 							});
 							return;
 						}
-
-
-						var awsSettings = {
-							"access_key": decryptedKeys[0],
-							"secret_key": decryptedKeys[1],
-							"region": cloudFormation.region,
-						};
-						var awsCF = new AWSCloudFormation(awsSettings);
-						//var nextToken = req.query.nextToken;
-						awsCF.getAllStackEvents(cloudFormation.stackId, function(err, data) {
-
-							if (err) {
-								res.send(500, {
-									message: "Failed to fetch stack events from aws"
-								});
-								return;
-							}
-							res.send(200, data);
-						});
+						res.send(200, data);
 					});
 				});
 			} else {
@@ -443,33 +447,38 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 						logger.error("Unable to fetch provide", err);
 						res.send(500, errorResponses.db.error);
 					}
-					var cryptoConfig = appConfig.cryptoSettings;
-					var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-					var keys = [];
-					keys.push(aProvider.accessKey);
-					keys.push(aProvider.secretKey);
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-						if (err) {
-							res.send(500, {
-								message: "Failed to decrypt accessKey or secretKey"
-							});
-							return;
-						}
 
-						var awsSettings = {
-							"access_key": decryptedKeys[0],
-							"secret_key": decryptedKeys[1],
-							"region": cloudFormation.region,
+					var awsSettings;
+					if(aProvider.isDefault) {
+						awsSettings = {
+							"isDefault": true,
+							"region": cloudFormation.region
 						};
-						var awsCF = new AWSCloudFormation(awsSettings);
-						awsCF.listAllStackResources(cloudFormation.stackId, function(err, resources) {
-							if (err) {
-								logger.error("Unable to fetch provide", err);
-								res.send(500, errorResponses.db.error);
-							}
-							res.send(200, resources);
+					} else {
+						var cryptoConfig = appConfig.cryptoSettings;
+						var cryptography = new Cryptography(cryptoConfig.algorithm,
+							cryptoConfig.password);
 
-						});
+						var decryptedAccessKey = cryptography.decryptText(aProvider.accessKey,
+							cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+						var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
+							cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+						awsSettings = {
+							"access_key": decryptedAccessKey,
+							"secret_key": decryptedSecretKey,
+							"region": cloudFormation.region
+						};
+					}
+
+					var awsCF = new AWSCloudFormation(awsSettings);
+					awsCF.listAllStackResources(cloudFormation.stackId, function (err, resources) {
+						if (err) {
+							logger.error("Unable to fetch provide", err);
+							res.send(500, errorResponses.db.error);
+						}
+						res.send(200, resources);
+
 					});
 				});
 
