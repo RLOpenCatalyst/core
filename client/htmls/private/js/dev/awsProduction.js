@@ -923,6 +923,7 @@ var formInitializer = function(editing) {
         $('#orgnameSelect').val($('#orgIDCheck').val());
         $('#orgnameSelect').attr('disabled', true);
         console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
+        alert($('.productdiv2.role-Selected').length);
         if ($('.productdiv2.role-Selected').length > 0) {
             //Setting controls connected to docker to hidden
             $('.forDocker').hide();
@@ -931,11 +932,23 @@ var formInitializer = function(editing) {
             $('.cookbookShow').parent().show();
             $('.divconfigureparameterrunlist').show();
             $('.divchefrunlist').show();
+            alert('in');
             if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
                 //Auto adding the selected template by default
                 var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
                 $('.dockerimagesrow').detach();
-                addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
+                alert(editing);
+                if(editing){
+                	var compdock = $('#compositedockertable').attr('savedval');
+                	if(compdock){
+                		compdock = JSON.parse(compdock);
+                		for(var dci =0; dci < compdock.length;dci++){
+                			addDockerTemplateToTable(compdock[dci].dockercontainerpathstitle, compdock[dci].dockercontainerpaths, compdock[dci].dockerrepotags, compdock[dci].dockerreponame, compdock[dci].dockerlaunchparameters);
+                		}
+                	}
+                }
+                else
+                	addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
                 //Checking if docker then only Edit organization paramerters are to be shown
                 if (!$('#CollapseEditorgParam').hasClass('in')) {
                     $('a[href="#CollapseEditorgParam"]').click();
@@ -946,42 +959,44 @@ var formInitializer = function(editing) {
                 //When docker stepping to 4th tab
                 $('#orgnameSelect').trigger('change');
                 //populating the docker repo titles
-                var $dockerrepotitles = $('.productdiv2.role-Selected').attr('dockercontainerpathstitle').split(',');
-                var $dockerrepopaths = $('.productdiv2.role-Selected').attr('dockercontainerpaths').split(',');
-                var $dockerreponame = $('.productdiv2.role-Selected').attr('dockerreponame');
-                var $dockerrepoListInput = $('#dockerrepoListInput');
-                $dockerrepoListInput.empty();
-                $dockerrepotitles.forEach(function(k, v) {
-                    var $opt = $('<option value="' + $dockerrepotitles[v] + '" repopath="' + $dockerrepopaths[v] + '">' + $dockerrepotitles[v] + '</option>');
-                    $dockerrepoListInput.append($opt);
-                });
-                updatecompositedockertableemptymessage();
-                //Setting the appropriate tags
-                //Attaching the change event to pull tags for the select repo
-                $dockerrepoListInput.change(function(e) {
-                    $.get('/d4dmasters/getdockertags/' + encodeURIComponent($(this).find('option:selected').attr('repopath')) + '/' + $dockerreponame, function(data) {
-                        if (data) {
-                            var tagJson = JSON.parse(data);
-                            var $dockerrepotagsdiv = $('#dockerrepotagsdiv');
-                            $dockerrepotagsdiv.empty();
-                            var dockerrepotags = [];
-                            tagJson.forEach(function(k, v) {
-                                if (v < 3) {
-                                    $('#dockerrepotagsdiv').append('<div class="codelistitem" style="margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;"><p class="bg-success"><i style="padding-left:10px;padding-right:10px" class="ace-icon fa fa-check"></i>' + tagJson[v].name + '</p></div>');
-                                    if (dockerrepotags == '') dockerrepotags += tagJson[v].name;
-                                    else dockerrepotags += ',' + tagJson[v].name;
-                                }
-                                //limiting the number to the top 5
-                            });
-                            $('.productdiv2.role-Selected').first().attr('dockerrepotags', dockerrepotags);
-                            $('.productdiv2.role-Selected').first().attr('dockerimagename', $dockerrepoListInput.val());
-                        }
-                    });
-                });
-                $dockerrepoListInput.trigger('change');
-                //End Setting appropriate tags
-                //polulate the docker tags
-                var $dockerrepotagsul = $('#dockerrepotagsul');
+                // var $dockerrepotitles = $('.productdiv2.role-Selected').attr('dockercontainerpathstitle').split(',');
+                // var $dockerrepopaths = $('.productdiv2.role-Selected').attr('dockercontainerpaths').split(',');
+                // var $dockerreponame = $('.productdiv2.role-Selected').attr('dockerreponame');
+                // if($('#dockerrepoListInput')){
+	               //  var $dockerrepoListInput = $('#dockerrepoListInput');
+	               //  $dockerrepoListInput.empty();
+	               //  $dockerrepotitles.forEach(function(k, v) {
+	               //      var $opt = $('<option value="' + $dockerrepotitles[v] + '" repopath="' + $dockerrepopaths[v] + '">' + $dockerrepotitles[v] + '</option>');
+	               //      $dockerrepoListInput.append($opt);
+	               //  });
+	               //  updatecompositedockertableemptymessage();
+	               //  //Setting the appropriate tags
+	               //  //Attaching the change event to pull tags for the select repo
+	               //  $dockerrepoListInput.change(function(e) {
+	               //      $.get('/d4dmasters/getdockertags/' + encodeURIComponent($(this).find('option:selected').attr('repopath')) + '/' + $dockerreponame, function(data) {
+	               //          if (data) {
+	               //              var tagJson = JSON.parse(data);
+	               //              var $dockerrepotagsdiv = $('#dockerrepotagsdiv');
+	               //              $dockerrepotagsdiv.empty();
+	               //              var dockerrepotags = [];
+	               //              tagJson.forEach(function(k, v) {
+	               //                  if (v < 3) {
+	               //                      $('#dockerrepotagsdiv').append('<div class="codelistitem" style="margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;"><p class="bg-success"><i style="padding-left:10px;padding-right:10px" class="ace-icon fa fa-check"></i>' + tagJson[v].name + '</p></div>');
+	               //                      if (dockerrepotags == '') dockerrepotags += tagJson[v].name;
+	               //                      else dockerrepotags += ',' + tagJson[v].name;
+	               //                  }
+	               //                  //limiting the number to the top 5
+	               //              });
+	               //              $('.productdiv2.role-Selected').first().attr('dockerrepotags', dockerrepotags);
+	               //              $('.productdiv2.role-Selected').first().attr('dockerimagename', $dockerrepoListInput.val());
+	               //          }
+	               //      });
+	               //  });
+	               //  $dockerrepoListInput.trigger('change');
+	               //  //End Setting appropriate tags
+	               //  //polulate the docker tags
+	               //  var $dockerrepotagsul = $('#dockerrepotagsul');
+                // }
                 $('.forDocker').show();
                 $('.notForDocker').hide();
             } else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation") {
@@ -2309,33 +2324,22 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     $('#versionModalContainer').modal('hide');
     //alert(blueprintId);
     $('#tab3').remove();
+    //removing selection of template from new screen
+    $('#tab2').find('.productdiv2').removeClass('role-Selected');
+
     $.get('/blueprints/' + blueprintId,function(blueprintdata){
     	if(blueprintdata){
     		
     		$('#myTab3 a[href="#viewEdit"]').tab('show');
-    		$('#bpeditcontent').append($formBPEdit);
+    		var $newformBPEdit = $formBPEdit.clone();
+    		$('#bpeditcontent').append($newformBPEdit);
     		$('#bpeditcontent').find('#tab3 *').unbind();
     		cachesavedvalues(blueprintdata);
     		//$('#myTab5').attr('blueprintdata',JSON.stringify(blueprintdata));
-    		formInitializer(true);
-    		checkandupdateRunlistTable();
-    		OrgdataLoader(); //reloading Org params section 
-    		$('#orgnameSelect').trigger('change'); 
     		$('#bpeditcontent .productdiv2').detach(); //removing existing cardview on edit screen
-    		//Add a productdiv2 with required elements for form rendering
-    		
-
-    		var $card = $('#viewCreate .productdiv1[data-blueprintid="' + baseblueprintId + '"]').clone();
-
-    		$card.find('button').detach();
-    		$card.find('.moreInfo').detach();
-    		$('#bpeditcontent .selectedTemplateArea').html('');
-    		$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
-    		displaySavedBPValues();
     		$('#bpeditcontent').find('input#blueprintId').val(baseblueprintId); //setting the blueprintid for edit
-    		//adding produtdiv2 for saving
 
-    		 var $prod2 = $('<div class="hidden productdiv2 role-Selected"></div>');
+    		var $prod2 = $('<div class="hidden productdiv2 role-Selected"></div>');
 
     		$prod2.attr('dockerreponame',blueprintdata.blueprintConfig.dockerRepoName);
     		$prod2.attr('data-templateId', blueprintdata.templateId);
@@ -2346,6 +2350,27 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     		$prod2.attr('dockerrepotags', blueprintdata.blueprintConfig.dockerRepoTags);
     		// $prod2.append('<img src="' + $('.selectedTemplateArea').find('img[src*="__templatesicon__"]').first().attr('src') + '">');
     		$('#bpeditcontent .selectedTemplateArea').append($prod2);
+
+
+    		formInitializer(true);
+    		checkandupdateRunlistTable();
+    		OrgdataLoader(); //reloading Org params section 
+    		$('#orgnameSelect').trigger('change'); 
+    		
+    		//Add a productdiv2 with required elements for form rendering
+    		
+
+    		var $card = $('#viewCreate .productdiv1[data-blueprintid="' + baseblueprintId + '"]').clone();
+
+    		$card.find('button').detach();
+    		$card.find('.moreInfo').detach();
+    		$('#bpeditcontent .selectedTemplateArea').html('');
+    		$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
+    		displaySavedBPValues();
+    		
+    		//adding produtdiv2 for saving
+
+    		 
     		
     	}
     	else{
@@ -2364,7 +2389,9 @@ function closeblueprintedit(blueprintId) {
     $('#myTab3 li.blueprintEditbutton').addClass('hidden');
     $('#myTab3 a[href="#viewCreate"]').tab('show');
     $('#tab3').remove();
-    $('#newbpcontainer').append($formBPNew);
+    var $newformBPNew = $formBPNew.clone();
+    $('#bpeditcontent .productdiv2').detach(); //removing existing cardview on edit screen
+    $('#newbpcontainer').append($newformBPNew);
    // formInitializer();
    OrgdataLoader(); //reloading Org params section 
    $('#orgnameSelect').trigger('change'); 
