@@ -25,26 +25,36 @@
                                                     <div class="col-lg-6 col-md-6">
                                                         <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
                                                         </label>
-                                                        <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname','projectname','puppetservername']" onchange="$('#configname').change();$('#puppetservername').change();">
+                                                        <!-- <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname','projectname','puppetservername']" onchange="$('#configname').change();$('#puppetservername').change();">
+                                                            <option value="">Select an Organization</option>
+                                                        </select> -->
+                                                        <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="[]">
                                                             <option value="">Select an Organization</option>
                                                         </select>
                                                     </div>
-                                                    <div class="col-lg-6 col-md-6">
+                                                   <!--  <div class="col-lg-6 col-md-6">
                                                         <label for="category">Chef Server:
                                                         </label>
                                                         <select id="configname" class="chooseOrganization width-100" sourcepath="10" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" linkedto="orgname">
                                                             <option value="">Select a Chef Server</option>
                                                         </select>
-                                                    </div>
-                                                    <div class="col-lg-6 col-md-6" style="margin-top:25px;">
-                                                        <label for="category">Chef Environment:
-                                                        </label>
-                                                        <a href="javascript:void(0)" class="clearfix pull-right" onclick="if(preprocess()) {$('#myModalCreateChefEnv').modal('show')}">Add</a>
-                                                        <select id="environmentname" class="chooseOrganization width-100" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" unique="true" uniqueconditionedby="environmentname,orgname">
+                                                    </div> -->
+                                                  <!--   <div class="col-lg-6 col-md-6">
+                                                <label for="name">User Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <i class="icon-append fa fa-building"></i>
+                                                <input name="ctl00$MainContent$orgname" value="" id="loginname" class="form-control" type="text" cdata="catalyst" cat-validation="required,max15">
+                                             </div> -->
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <label for="name">Environment Name: <span class="control-label redSpan">&nbsp;*</span></label>
+                                                       
+                                                       <!--  <select id="environmentname" class="chooseOrganization width-100" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" unique="true" uniqueconditionedby="environmentname,orgname">
                                                             <option value="">Select an Chef Environment</option>
-                                                        </select>
+                                                        </select> -->
+                                                        <input type="text" id="environmentname" class="form-control" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" unique="true" uniqueconditionedby="environmentname,orgname">
+                                                        </input>
+
                                                     </div>
-                                                    <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                                    <!-- <div class="col-lg-6 col-md-6" style="margin-top:25px;">
                                                         <label for="category">Puppet Server:
                                                         </label>
                                                         <select id="puppetservername" class="chooseOrganization width-100" sourcepath="25" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" linkedto="orgname">
@@ -58,17 +68,17 @@
                                                         <select id="puppetenvironmentname" class="chooseOrganization width-100" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst">
                                                             <option value="">Select an Puppet Environment</option>
                                                         </select>
-                                                    </div>
+                                                    </div> -->
                                                     <!-- <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
                                                         <label for="category">Assign Teams:<span class="control-label redSpan">&nbsp;*</span></label>
                                                         <div id="teamname" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row" class="input-group from-control col-md-12 widthBox"  sourcepath="21" cdata="catalyst" cat-validation="onechecked" linkedto="orgname">
                                                         </div>
                                                     </div> -->
-                                                    <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
+                                                    <!-- <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
                                                         <label for="category">Assign Projects:</label>
                                                         <div id="projectname" sourcepath="4" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row" class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" cdata="catalyst" linkedto="orgname">
                                                         </div>
-                                                    </div>
+                                                    </div> -->
                                                 </div>
                                                 <!-- end widget content -->
                                             </div>
@@ -340,16 +350,16 @@ function inLineReady() {
         $(this).select();
         $("#msgOrgName").hide()
     });
-    $('#configname').change(function() {
-        var chefid = $(this).find('option:selected').attr('rowid');
-        if (chefid)
-            loadChefEnvs(chefid);
-    });
-    $('#puppetservername').change(function() {
-         var puppetId = $(this).find('option:selected').attr('rowid');
-        if (puppetId)
-            loadPuppetEnvs(puppetId);
-    });
+    // $('#configname').change(function() {
+    //     var chefid = $(this).find('option:selected').attr('rowid');
+    //     if (chefid)
+    //         loadChefEnvs(chefid);
+    // });
+    // $('#puppetservername').change(function() {
+    //      var puppetId = $(this).find('option:selected').attr('rowid');
+    //     if (puppetId)
+    //         loadPuppetEnvs(puppetId);
+    // });
 
 
     readform(3);
@@ -735,26 +745,13 @@ $(document).ready(function() {
 
         if ($(this).valid) {
             /* alert('valid form submitted'); // for demo*/
-            var chefEnv = $('#environmentname option:selected').val();
-            var puppetEnv = $('#puppetenvironmentname option:selected').val();
-            if (!chefEnv && !puppetEnv) {
-                alert('Either Chef or Puppet Environment Required.');
+            var chefEnv = $('#environmentname').val();
+            if (!chefEnv) {
+                alert('Please Enter Environment Name.');
                 return false;
             }
 
-            if(chefEnv && puppetEnv){
-                if(chefEnv != puppetEnv){
-                    alert('Both Chef and Puppet should have same Environment.');
-                    return false;
-                }
-            }
-
-            if (!puppetEnv) {
-                $('#puppetservername').val('');
-            }
-            if (!chefEnv) {
-                $('#configname').val('');
-            }
+            
             if (!saveform('3')) return false;
         } else {
             alert('invalid valid form submitted'); // for demo

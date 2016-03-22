@@ -187,9 +187,9 @@ var d4dMastersEnvironments = new mongoose.Schema({
         type: String,
         trim: true
     },
-    puppetenvironmentname: {
-        type: String
-    },
+    // puppetenvironmentname: {
+    //     type: String
+    // },
     description: {
         type: String,
         trim: true,
@@ -200,30 +200,30 @@ var d4dMastersEnvironments = new mongoose.Schema({
         trim: true,
         default: true
     },
-    configname: {
-        type: String,
-        trim: true
-    },
-    configname_rowid: {
-        type: String,
-        trim: true
-    },
-    puppetservername: {
-        type: String,
-        trim: true
-    },
-    puppetservername_rowid: {
-        type: String,
-        trim: true
-    },
-    projectname: {
-        type: String,
-        trim: true
-    },
-    projectname_rowid: {
-        type: String,
-        trim: true
-    },
+    // configname: {
+    //     type: String,
+    //     trim: true
+    // },
+    // configname_rowid: {
+    //     type: String,
+    //     trim: true
+    // },
+    // puppetservername: {
+    //     type: String,
+    //     trim: true
+    // },
+    // puppetservername_rowid: {
+    //     type: String,
+    //     trim: true
+    // },
+    // projectname: {
+    //     type: String,
+    //     trim: true
+    // },
+    // projectname_rowid: {
+    //     type: String,
+    //     trim: true
+    // },
     rowid: {
         type: String,
         required: true,

@@ -266,7 +266,6 @@ BlueprintSchema.methods.launch = function(opts, callback) {
 				}
 
 				if (!env) {
-					logger.debug("Blueprint env ID = ", req.query.envId);
 					chef.createEnvironment(envName, function(err) {
 						if (err) {
 							logger.error("Failed chef.createEnvironment", err);
