@@ -927,7 +927,7 @@ var formInitializer = function(editing) {
         $('#orgnameSelect').val($('#orgIDCheck').val());
         $('#orgnameSelect').attr('disabled', true);
         console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
-        alert($('.productdiv2.role-Selected').length);
+        
         if ($('.productdiv2.role-Selected').length > 0) {
             //Setting controls connected to docker to hidden
             $('.forDocker').hide();
@@ -936,12 +936,11 @@ var formInitializer = function(editing) {
             $('.cookbookShow').parent().show();
             $('.divconfigureparameterrunlist').show();
             $('.divchefrunlist').show();
-            alert('in');
-            if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
+            if ($('.productdiva2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
                 //Auto adding the selected template by default
                 var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
                 $('.dockerimagesrow').detach();
-                alert(editing);
+                
                 if(editing){
                 	var compdock = $('#compositedockertable').attr('savedval');
                 	if(compdock){
@@ -1003,7 +1002,8 @@ var formInitializer = function(editing) {
                 // }
                 $('.forDocker').show();
                 $('.notForDocker').hide();
-            } else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation") {
+            } else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation" || $('.productdiv2.role-Selected').first().attr('templatetype') == "cft" ) {
+               
                 $('.notforCFT').hide();
                 $('.forCFT').show();
                 $('.divconfigureparameterrunlist').hide();
@@ -2355,8 +2355,7 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     		$prod2.attr('dockerrepotags', blueprintdata.blueprintConfig.dockerRepoTags);
     		// $prod2.append('<img src="' + $('.selectedTemplateArea').find('img[src*="__templatesicon__"]').first().attr('src') + '">');
     		$('#bpeditcontent .selectedTemplateArea').append($prod2);
-
-
+    		
     		formInitializer(true);
     		checkandupdateRunlistTable();
     		OrgdataLoader(); //reloading Org params section 
