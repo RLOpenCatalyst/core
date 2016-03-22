@@ -959,7 +959,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             if (startparams != 'null') {
                                 startparams = decodeURIComponent(startparams);
                             } else
-                                startparams = '/bin/bash';
+                                startparams = ''; //startparams = '/bin/bash';
 
                             cmd += ' && sudo docker run -i -t -d ' + runparams + ' ' + decodeURIComponent(imagename) + ':' + tagname + ' ' + startparams;
                             logger.debug('Docker command to be executed : ', cmd);
@@ -1759,73 +1759,80 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         if (err) {
                                             res.status(500).send("Error getting to fetch Keypair.")
                                         }
-                                        var cryptoConfig = appConfig.cryptoSettings;
-                                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                        var keys = [];
-                                        keys.push(aProvider.accessKey);
-                                        keys.push(aProvider.secretKey);
-                                        cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-                                            if (err) {
-                                                res.sned(500, "Failed to decrypt accessKey or secretKey");
-                                                return;
-                                            }
 
-                                            var ec2 = new EC2({
-                                                "access_key": decryptedKeys[0],
-                                                "secret_key": decryptedKeys[1],
+                                        var ec2;
+                                        if(aProvider.isDefault) {
+                                            ec2 = new EC2({
+                                                "isDefault": true,
                                                 "region": region
                                             });
-                                            ec2.stopInstance([data[0].platformId], function(err, stoppingInstances) {
-                                                if (err) {
-                                                    var timestampEnded = new Date().getTime();
-                                                    logsDao.insertLog({
-                                                        referenceId: logReferenceIds,
-                                                        err: true,
-                                                        log: "Unable to stop instance",
-                                                        timestamp: timestampEnded
-                                                    });
-                                                    instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
-                                                    res.status(500).send({
-                                                        actionLogId: actionLog._id
-                                                    });
-                                                    return;
-                                                }
-                                                logger.debug("Exit get() for /instances/%s/stopInstance", req.params.instanceId);
-                                                res.send(200, {
-                                                    instanceCurrentState: stoppingInstances[0].CurrentState.Name,
-                                                    actionLogId: actionLog._id
-                                                });
+                                        } else {
+                                            var cryptoConfig = appConfig.cryptoSettings;
+                                            var cryptography = new Cryptography(cryptoConfig.algorithm,
+                                                cryptoConfig.password);
 
-                                                instancesDao.updateInstanceState(req.params.instanceId, stoppingInstances[0].CurrentState.Name, function(err, updateCount) {
-                                                    if (err) {
-                                                        logger.error("update instance state err ==>", err);
-                                                        return;
-                                                    }
-                                                    logger.debug('instance state upadated');
-                                                });
+                                            var decryptedAccessKey = cryptography.decryptText(aProvider.accessKey,
+                                                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                            var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
+                                                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
 
-                                            }, function(err, state) {
-                                                if (err) {
-                                                    return;
-                                                }
+                                            ec2 = new EC2({
+                                                "access_key": decryptedAccessKey,
+                                                "secret_key": decryptedSecretKey,
+                                                "region": region
+                                            });
+                                        }
 
-                                                instancesDao.updateInstanceState(req.params.instanceId, state, function(err, updateCount) {
-                                                    if (err) {
-                                                        logger.error("update instance state err ==>", err);
-                                                        return;
-                                                    }
-                                                    logger.debug('instance state upadated');
-                                                });
+                                        ec2.stopInstance([data[0].platformId], function (err, stoppingInstances) {
+                                            if (err) {
                                                 var timestampEnded = new Date().getTime();
                                                 logsDao.insertLog({
                                                     referenceId: logReferenceIds,
-                                                    err: false,
-                                                    log: "Instance Stopped",
+                                                    err: true,
+                                                    log: "Unable to stop instance",
                                                     timestamp: timestampEnded
                                                 });
-                                                instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
-
+                                                instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                res.status(500).send({
+                                                    actionLogId: actionLog._id
+                                                });
+                                                return;
+                                            }
+                                            logger.debug("Exit get() for /instances/%s/stopInstance", req.params.instanceId);
+                                            res.send(200, {
+                                                instanceCurrentState: stoppingInstances[0].CurrentState.Name,
+                                                actionLogId: actionLog._id
                                             });
+
+                                            instancesDao.updateInstanceState(req.params.instanceId, stoppingInstances[0].CurrentState.Name, function (err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance state err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance state upadated');
+                                            });
+
+                                        }, function (err, state) {
+                                            if (err) {
+                                                return;
+                                            }
+
+                                            instancesDao.updateInstanceState(req.params.instanceId, state, function (err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance state err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance state upadated');
+                                            });
+                                            var timestampEnded = new Date().getTime();
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Stopped",
+                                                timestamp: timestampEnded
+                                            });
+                                            instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+
                                         });
                                     });
                                 });
@@ -2145,88 +2152,94 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             timestamp: timestampStarted
                                         });
 
-                                        var cryptoConfig = appConfig.cryptoSettings;
-                                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                        var keys = [];
-                                        keys.push(aProvider.accessKey);
-                                        keys.push(aProvider.secretKey);
-                                        cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-                                            if (err) {
-                                                res.sned(500, "Failed to decrypt accessKey or secretKey");
-                                                return;
-                                            }
-
-                                            var ec2 = new EC2({
-                                                "access_key": decryptedKeys[0],
-                                                "secret_key": decryptedKeys[1],
+                                        var ec2;
+                                        if(aProvider.isDefault) {
+                                            ec2 = new EC2({
+                                                "isDefault": true,
                                                 "region": region
                                             });
-                                            ec2.startInstance([data[0].platformId], function(err, startingInstances) {
-                                                if (err) {
-                                                    var timestampEnded = new Date().getTime();
-                                                    logsDao.insertLog({
-                                                        referenceId: logReferenceIds,
-                                                        err: true,
-                                                        log: "Unable to start instance",
-                                                        timestamp: timestampEnded
-                                                    });
-                                                    instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
-                                                    res.status(500).send({
-                                                        actionLogId: actionLog._id
-                                                    });
-                                                    return;
-                                                }
-                                                logger.debug("Exit get() for /instances/%s/startInstance", req.params.instanceId);
-                                                res.send(200, {
-                                                    instanceCurrentState: startingInstances[0].CurrentState.Name,
-                                                    actionLogId: actionLog._id
-                                                });
+                                        } else {
+                                            var cryptoConfig = appConfig.cryptoSettings;
+                                            var cryptography = new Cryptography(cryptoConfig.algorithm,
+                                                cryptoConfig.password);
 
-                                                instancesDao.updateInstanceState(req.params.instanceId, startingInstances[0].CurrentState.Name, function(err, updateCount) {
-                                                    if (err) {
-                                                        logger.error("update instance state err ==>", err);
-                                                        return;
-                                                    }
-                                                    logger.debug('instance state upadated');
-                                                });
+                                            var decryptedAccessKey = cryptography.decryptText(aProvider.accessKey,
+                                                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                            var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
+                                                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
 
-                                            }, function(err, state) {
-                                                if (err) {
-                                                    return;
-                                                }
-                                                instancesDao.updateInstanceState(req.params.instanceId, state, function(err, updateCount) {
-                                                    if (err) {
-                                                        logger.error("update instance state err ==>", err);
-                                                        return;
-                                                    }
-                                                    logger.debug('instance state upadated');
-                                                });
-                                                var timestampEnded = new Date().getTime()
+                                            ec2 = new EC2({
+                                                "access_key": decryptedAccessKey,
+                                                "secret_key": decryptedSecretKey,
+                                                "region": region
+                                            });
+                                        }
+
+                                        ec2.startInstance([data[0].platformId], function (err, startingInstances) {
+                                            if (err) {
+                                                var timestampEnded = new Date().getTime();
                                                 logsDao.insertLog({
                                                     referenceId: logReferenceIds,
-                                                    err: false,
-                                                    log: "Instance Started",
+                                                    err: true,
+                                                    log: "Unable to start instance",
                                                     timestamp: timestampEnded
                                                 });
-                                                instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
-
-
-                                                ec2.describeInstances([data[0].platformId], function(err, data) {
-                                                    if (err) {
-                                                        logger.error("Hit some error: ", err);
-                                                        return;
-                                                    }
-                                                    if (data.Reservations.length && data.Reservations[0].Instances.length) {
-                                                        logger.debug("ip =>", data.Reservations[0].Instances[0].PublicIpAddress);
-                                                        instancesDao.updateInstanceIp(req.params.instanceId, data.Reservations[0].Instances[0].PublicIpAddress, function(err, updateCount) {
-                                                            if (err) {
-                                                                logger.error("update instance ip err ==>", err);
-                                                                return;
-                                                            }
-                                                            logger.debug('instance ip upadated');
-                                                        });
-                                                    }
+                                                instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                res.status(500).send({
+                                                    actionLogId: actionLog._id
                                                 });
+                                                return;
+                                            }
+                                            logger.debug("Exit get() for /instances/%s/startInstance", req.params.instanceId);
+                                            res.send(200, {
+                                                instanceCurrentState: startingInstances[0].CurrentState.Name,
+                                                actionLogId: actionLog._id
+                                            });
+
+                                            instancesDao.updateInstanceState(req.params.instanceId, startingInstances[0].CurrentState.Name, function (err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance state err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance state upadated');
+                                            });
+
+                                        }, function (err, state) {
+                                            if (err) {
+                                                return;
+                                            }
+                                            instancesDao.updateInstanceState(req.params.instanceId, state, function (err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance state err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance state upadated');
+                                            });
+                                            var timestampEnded = new Date().getTime()
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Started",
+                                                timestamp: timestampEnded
+                                            });
+                                            instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+
+
+                                            ec2.describeInstances([data[0].platformId], function (err, data) {
+                                                if (err) {
+                                                    logger.error("Hit some error: ", err);
+                                                    return;
+                                                }
+                                                if (data.Reservations.length && data.Reservations[0].Instances.length) {
+                                                    logger.debug("ip =>", data.Reservations[0].Instances[0].PublicIpAddress);
+                                                    instancesDao.updateInstanceIp(req.params.instanceId, data.Reservations[0].Instances[0].PublicIpAddress, function (err, updateCount) {
+                                                        if (err) {
+                                                            logger.error("update instance ip err ==>", err);
+                                                            return;
+                                                        }
+                                                        logger.debug('instance ip upadated');
+                                                    });
+                                                }
                                             });
                                         });
                                     });

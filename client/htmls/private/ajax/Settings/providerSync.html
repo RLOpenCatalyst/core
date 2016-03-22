@@ -572,30 +572,31 @@
 
 
         function loadUnmanagedInstances(unManagnedData) {
+            var unmanagedInstanceData=unManagnedData['paginationData'];
             $instanceUnManagedDatatable.clear().draw();
             var $tbody = $('#unManagedInstance tbody').empty();
-            for (var i = 0; i < unManagnedData.length; i++) {
-                var $tr = $('<tr></tr>').attr('instanceId', unManagnedData[i]._id);
-                var $tdId = $('<td></td>').append(unManagnedData[i].platformId);
+            for (var i = 0; i < unmanagedInstanceData.length; i++) {
+                var $tr = $('<tr></tr>').attr('instanceId', unmanagedInstanceData[i]._id);
+                var $tdId = $('<td></td>').append(unmanagedInstanceData[i].platformId);
                 $tr.append($tdId);
 
-                var $tdOs = $('<td></td>').append(unManagnedData[i].os);
+                var $tdOs = $('<td></td>').append(unmanagedInstanceData[i].os);
                 $tr.append($tdOs);
 
-                var $tdIpAddress = $('<td></td>').append(unManagnedData[i].ip);
+                var $tdIpAddress = $('<td></td>').append(unmanagedInstanceData[i].ip);
                 $tr.append($tdIpAddress);
 
                 var region = '';
-                if (unManagnedData[i].providerData && unManagnedData[i].providerData.region) {
-                    region = unManagnedData[i].providerData.region;
+                if (unmanagedInstanceData[i].providerData && unmanagedInstanceData[i].providerData.region) {
+                    region = unmanagedInstanceData[i].providerData.region;
                 }
                 var $tdRegion = $('<td></td>').append(region);
                 $tr.append($tdRegion);
-                var $tdStatus = $('<td></td>').append(unManagnedData[i].state);
+                var $tdStatus = $('<td></td>').append(unmanagedInstanceData[i].state);
                 $tr.append($tdStatus);
                 var $input = '';
-                if (unManagnedData[i].state === 'running') {
-                    $input = $('<input class="nodeCheckBox" type="checkbox">').val(unManagnedData[i]._id);
+                if (unmanagedInstanceData[i].state === 'running') {
+                    $input = $('<input class="nodeCheckBox" type="checkbox">').val(unmanagedInstanceData[i]._id);
                 }
                 var $tdAction = $('<td></td>').append($input);
                 $tr.append($tdAction);
@@ -666,7 +667,14 @@
 
         //loading UnManaged Data
         function getUnmanagedInstances() {
-            $.get('/providers/' + urlParams.providerId + '/unmanagedInstances', function(unmanagnedInstances) {
+            var reqBody={
+                page:1,
+                pageSize:5,
+                sortBy:{'state':1},
+                filterBy:[{os:'linux'}],
+                // searchBy:'10.10.10.74'
+            };
+            $.post('/providers/' + urlParams.providerId + '/unmanagedInstances', reqBody, function(unmanagnedInstances) {
                 loadUnmanagedInstances(unmanagnedInstances);
                 $('#unmanagedinstanceListDiv').show();
             }).fail(function(jxhr) {
