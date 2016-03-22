@@ -31,6 +31,7 @@ var fileIo = require('_pr/lib/utils/fileio');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
+var tagsDao = require('_pr/model/tags');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -99,6 +100,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
+		console.log("Provider Id>>>"+req.params.providerId);
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
 				res.status(500).send({
@@ -121,6 +123,63 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		});
 	});
+
+	//Added By Durgesh for Tags Information
+	app.get('/providers/:providerId/tags', function(req, res) {
+		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+			if (err) {
+				res.status(500).send({
+					message: "Server Behaved Unexpectedly"
+				});
+				return;
+			}
+			if (!provider) {
+				res.status(404).send({
+					message: "provider not found"
+				});
+				return;
+			}
+
+			tagsDao.getTagByProviderId(provider._id, function(err, tag) {
+				if (err) {
+					res.status(500).send(tag);
+					return;
+				}
+				res.status(200).send(tag);
+			});
+		});
+
+	});
+	//End By Durgesh
+
+	//Added By Durgesh for Tags Information
+	app.post('/providers/:providerId/updateTags', function(req, res) {
+		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+			if (err) {
+				res.status(500).send({
+					message: "Server Behaved Unexpectedly"
+				});
+				return;
+			}
+			if (!provider) {
+				res.status(404).send({
+					message: "provider not found"
+				});
+				return;
+			}
+
+			tagsDao.getTagByProviderId(provider._id,data, function(err, tag) {
+				if (err) {
+					res.status(500).send(tag);
+					return;
+				}
+				res.status(200).send(tag);
+			});
+		});
+
+	});
+	//End By Durgesh
+
 
 	app.post('/providers/:providerId/sync', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
