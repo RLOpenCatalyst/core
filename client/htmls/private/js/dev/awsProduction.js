@@ -1338,12 +1338,12 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 							reqBody.imageId = imageId;
 							reqBody.providerId = providerId;
 							reqBody.name = $('#blueprintNameInput').val();
-							$('#userListSelect').find('option').attr('selected', 'selected');
+							/*$('#userListSelect').find('option').attr('selected', 'selected');
 							reqBody.users = $('#userListSelect').val();
 							if (!reqBody.users) {
 								alert("Please choose users");
 								return false;
-							}
+							}*/
 							//Checking for docker blueprint images
 							if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
 								//no rows found add empty message
@@ -2001,6 +2001,7 @@ $.ajax({
 		});
 	}
 });
+/*
 (function() {
 	var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
 	$.get('../users', function(userList) {
@@ -2023,7 +2024,7 @@ $.ajax({
 	}).error(function() {
 		$loadingContainer.empty().append('Unable to load users. Please try again later.');
 	});
-})();
+})();*/
 $(document).ready(function() {
 	$("#blueprintNameInput").focus();
 });
