@@ -24,7 +24,7 @@ describe("Unit Test Case for RL Catalyst ",function(){
     it("Check Login Details with existing User Account",function(done){
         server
             .post('/auth/signin')
-            .send({username : 'superadmin', pass : 'superadmin@123'})
+            .send({username : '', pass : ''})
             .end(function(err,res){
                 assert.equal(res.status, 302);
                 assert.equal(res.redirect, true);
