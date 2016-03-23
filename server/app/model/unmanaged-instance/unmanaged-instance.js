@@ -83,7 +83,6 @@ UnmanagedInstanceSchema.statics.getByOrgProviderId = function(opts, callback) {
 	});
 };
 
-
 UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,callback) {
 	this.find({"orgId": opts.orgId,
 		"providerId": opts.providerId
@@ -99,8 +98,9 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 	});
 };
 
-UnmanagedInstanceSchema.statics.getByProviderId = function(providerId, callback) {
-	if (!providerId) {
+
+UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
+	if (!jsonData.providerId) {
 		process.nextTick(function() {
 			callback({
 				message: "Invalid providerId"
@@ -108,8 +108,11 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(providerId, callback)
 		});
 		return;
 	}
-
-	this.find({"providerId": providerId}, function(err, instances) {
+	var obj = {};
+	obj["providerId"] = jsonData.providerId;
+	if(jsonData.searchParameter==='undefined')
+		obj[jsonData.searchParameter]=jsonData.searchParameterValue;
+	this.find(obj, function(err, instances) {
 		if (err) {
 			logger.error("Failed getByOrgProviderId (%s)", err);
 			callback(err, null);

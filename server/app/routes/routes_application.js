@@ -30,7 +30,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     app.get('/applications/latest/version', function(req, res) {
         var appVersion;
         try {
-            appVersion = fs.readFileSync(currentDirectory + '/../../version.json', {
+            appVersion = fs.readFileSync(currentDirectory + '/version.json', {
                 'encoding': 'utf8'
             });
 

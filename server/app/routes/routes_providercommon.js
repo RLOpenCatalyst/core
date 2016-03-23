@@ -32,6 +32,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
 var tagsDao = require('_pr/model/tags');
+var constantData = require('_pr/lib/utils/constant.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -100,8 +101,36 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		console.log("Provider Id>>>"+req.params.providerId);
+		logger.debug("Provider ID is >>>>>"+req.params.providerId);
+		var pageSize,page;
+		if(req.query.pageSize)
+			pageSize = parseInt(req.query.pageSize);
+		else
+			pageSize = constantData.record_limit;
+		if(req.query.page)
+			page = parseInt(req.query.page)-1;
+		else
+			page = constantData.skip_Records;
+
+		var skip = pageSize * page;
+		var searchParameter,searchParameterValue;
+		if(req.query.status){
+			searchParameter = "state";
+			searchParameterValue = req.query.status+"";
+		}
+		else if(req.query.osType){
+			searchParameter = "os";
+			searchParameterValue = req.query.osType+"";
+		}
+		var jsonData={
+			'providerId':req.params.providerId,
+			'searchParameter':searchParameter,
+			'searchParameterValue':searchParameterValue,
+			'record_Skip':skip,
+			'record_Limit':pageSize
+		};
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+
 			if (err) {
 				res.status(500).send({
 					message: "Server Behaved Unexpectedly"
@@ -114,12 +143,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				});
 				return;
 			}
-			unManagedInstancesDao.getByProviderId(provider._id, function(err, unmanagedInstances) {
+			unManagedInstancesDao.getByProviderId(jsonData, function(err, unmanagedInstances) {
 				if (err) {
 					res.status(500).send(unmanagedInstances);
 					return;
 				}
-				res.status(200).send(unmanagedInstances);
+				if(unmanagedInstances.length > 0)
+					res.status(200).send(unmanagedInstances);
+				else
+					res.status(404).send({
+						message: "No Data Found"
+					});
+
 			});
 		});
 	});
@@ -365,6 +400,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 														orgId: req.body.orgId,
 														bgId: req.body.bgId,
 														projectId: req.body.projectId,
+														//Added by Durgesh For Project Name
+														projectName: req.body.projectName,
+														//End By Durgesh
 														envId: req.body.envId,
 														providerId: provider._id,
 														providerType: 'aws',

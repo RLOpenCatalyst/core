@@ -215,11 +215,11 @@
 }
 .managedUnmanagedCSS{
   height:27px;
-  pointer-events:none;
+  /*pointer-events:none;*/
 }
 .footer-box-css{
   height:26px;
-  pointer-events:none;
+  /*pointer-events:none;*/
 }
 .noProviderCardCSS{
   position: absolute !important;
@@ -292,6 +292,9 @@
 .font-size11{
   font-size: 11px !important;
 }
+.font-size12{
+  font-size: 12px !important;
+}
 .totalProviderLegendCSS{
   background: #40baf1 none repeat scroll 0% 0%; 
   font-size: 12px;
@@ -319,4 +322,55 @@
 }
 .marginright15{
   margin-right: 15px !important;
+}
+.panel-default-CSS{
+  border-color: rgb(255, 255, 255); 
+  margin-bottom: 0px;
+}
+.panel-heading-CSS{
+  border-bottom:1px solid rgb(221, 221, 221);
+  height:40px;
+  background-color:#fcfcfc;
+}
+.padding2{
+  padding: 2px !important;
+}
+.panelh4spanCSS{
+  float:left;
+  padding:0px !important;
+  color:#666 !important;
+  font-size:13px !important;
+}
+.panelh4aCSS{
+  margin-right:5px;
+  float:right;
+  margin-top:-9px;
+  padding: 6px;
+  font-size: 12px;
+}
+.panelh4aiCSS{
+  color:#fff;
+  margin-right:4px;
+  font-size: 12px;
+}
+.managedinstanceListTableCSS{
+  font-size: 12px !important;
+  text-align: center !important;
+}
+table.dataTable thead th, table.dataTable thead td{
+  border-bottom: 1px solid #ddd !important;
+}
+table.dataTable.no-footer{
+  border-bottom: 1px solid #ddd !important;
+}
+table.dataTable thead .sorting_asc{
+  background-image: none !important;
+}
+.table-responsive label{
+  font-weight: normal !important;
+  font-size: 12px !important
+}
+.table-responsiveCSS{
+  margin-top: 10px;
+  padding: 4px;
 }
