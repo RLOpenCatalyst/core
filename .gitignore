@@ -2,7 +2,6 @@ server/app/node_modules/
 .idea/
 server/app/logs
 node_modules/
-server/config/catalyst-config.json
 server/app/config/catalyst-config.json
 server/.idea/
 tempfiles/

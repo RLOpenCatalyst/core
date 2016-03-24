@@ -16,6 +16,7 @@ limitations under the License.
 
 
 // This file act as a Controller which contains provider related all end points.
+/* TODO AWS EC2 client creation code replication to be reduced */
 
 var logger = require('_pr/logger')(module);
 var EC2 = require('../lib/ec2.js');
@@ -56,36 +57,26 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					(function(i) {
 
 						AWSKeyPair.getAWSKeyPairByProviderId(providers[i]._id, function(err, keyPair) {
-							var keys = [];
-							keys.push(providers[i].accessKey);
-							keys.push(providers[i].secretKey);
-							cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-								if (err) {
-									logger.error("Failed to decrypt accessKey or secretKey: ", err);
-									res.status(500).send("Failed to decrypt accessKey or secretKey");
+							count++;
+							if (keyPair) {
+								var dommyProvider = {
+									_id: providers[i]._id,
+									id: 9,
+									providerName: providers[i].providerName,
+									providerType: providers[i].providerType,
+									orgId: providers[i].orgId,
+									__v: providers[i].__v,
+									keyPairs: keyPair,
+									isDefault: aProvider.isDefault
+								};
+								providerList.push(dommyProvider);
+								logger.debug("count: ", count);
+								if (count === providers.length) {
+									res.send(providerList);
 									return;
 								}
-								count++;
-								if (keyPair) {
-									var dommyProvider = {
-										_id: providers[i]._id,
-										id: 9,
-										//accessKey: decryptedKeys[0],
-										//secretKey: decryptedKeys[1],
-										providerName: providers[i].providerName,
-										providerType: providers[i].providerType,
-										orgId: providers[i].orgId,
-										__v: providers[i].__v,
-										keyPairs: keyPair
-									};
-									providerList.push(dommyProvider);
-									logger.debug("count: ", count);
-									if (count === providers.length) {
-										res.send(providerList);
-										return;
-									}
-								}
-							});
+							}
+
 						});
 					})(i);
 				}
@@ -116,33 +107,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							res.status(500).send("Not able to fetch org.");
 							return;
 						}
-						var keys = [];
-						keys.push(aProvider.accessKey);
-						keys.push(aProvider.secretKey);
-						cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-							if (err) {
-								logger.error("Failed to decrypt accessKey or secretKey: ", err);
-								res.status(500).send("Failed to decrypt accessKey or secretKey");
-								return;
+
+						if (orgs.length > 0) {
+							if (keyPair) {
+								var dommyProvider = {
+									_id: aProvider._id,
+									id: 9,
+									providerName: aProvider.providerName,
+									providerType: aProvider.providerType,
+									orgId: aProvider.orgId,
+									orgName: orgs[0].orgname,
+									__v: aProvider.__v,
+									keyPairs: keyPair,
+									isDefault: aProvider.isDefault
+								};
+								res.send(dommyProvider);
 							}
-							if (orgs.length > 0) {
-								if (keyPair) {
-									var dommyProvider = {
-										_id: aProvider._id,
-										id: 9,
-										//accessKey: decryptedKeys[0],
-										//secretKey: decryptedKeys[1],
-										providerName: aProvider.providerName,
-										providerType: aProvider.providerType,
-										orgId: aProvider.orgId,
-										orgName: orgs[0].orgname,
-										__v: aProvider.__v,
-										keyPairs: keyPair
-									};
-									res.send(dommyProvider);
-								}
-							}
-						});
+						}
 					});
 				});
 			} else {
@@ -2077,6 +2058,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 	// Create AWS Provider.
+	// TODO Use async to reduce callbacks
 	app.post('/aws/providers', function(req, res) {
 		logger.debug("Enter post() for /providers.", typeof req.body.fileName);
 		var user = req.session.user;
@@ -2087,12 +2069,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var providerName = req.body.providerName;
 		var providerType = req.body.providerType;
 		var orgId = req.body.orgId;
+		var isDefault = (req.body.isDefault === 'true') ? true : false;
+		var hasDefaultProvider = false;
 
-		if (typeof accessKey === 'undefined' || accessKey.length === 0) {
+		if ((typeof accessKey === 'undefined' || accessKey.length === 0) && !isDefault) {
 			res.status(400).send("Please Enter AccessKey.");
 			return;
 		}
-		if (typeof secretKey === 'undefined' || secretKey.length === 0) {
+		if ((typeof secretKey === 'undefined' || secretKey.length === 0) && !isDefault) {
 			res.status(400).send("Please Enter SecretKey.");
 			return;
 		}
@@ -2109,111 +2093,142 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			res.send("Please Select Any Organization.");
 			return;
 		}
-		var region;
-		if (typeof req.body.region === 'string') {
-			logger.debug("inside single region: ", req.body.region);
-			region = req.body.region;
-		} else {
-			region = req.body.region[0];
-		}
-		logger.debug("Final Region:  ", region)
-
-		var keys = [];
-		keys.push(accessKey);
-		keys.push(secretKey);
-		cryptography.encryptMultipleText(keys, cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding, function(err, encryptedKeys) {
+		AWSProvider.hasDefault(orgId, function (err, result) {
 			if (err) {
-				res.sned(500, "Failed to encrypt accessKey or secretKey");
+				logger.debug("Error trying to get default user");
+				res.status(500).send("Internal error.");
 				return;
-			}
-			logger.debug("Returned encrypted keys: ", encryptedKeys);
-			var providerData = {
-				id: 9,
-				accessKey: encryptedKeys[0],
-				secretKey: encryptedKeys[1],
-				providerName: providerName,
-				providerType: providerType,
-				orgId: orgId
-			};
-			var ec2 = new EC2({
-				"access_key": accessKey,
-				"secret_key": secretKey,
-				"region": region
-			});
-			usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
-				if (!err) {
-					if (data == false) {
-						logger.debug('No permission to ' + permissionto + ' on ' + category);
-						res.send(401, "You don't have permission to perform this operation.");
-						return;
-					}
+			} else if (result && isDefault) {
+				logger.debug("Default user already exists");
+				res.status(400).send("Cannot add multiple providers without access credentials for the same organization");
+				return;
+			} else {
+				logger.debug("Adding provider");
+
+				var region;
+				if (typeof req.body.region === 'string') {
+					logger.debug("inside single region: ", req.body.region);
+					region = req.body.region;
 				} else {
-					logger.error("Hit and error in haspermission:", err);
-					res.send(500);
-					return;
+					region = req.body.region[0];
+				}
+				logger.debug("Final Region:  ", region);
+
+				var ec2;
+				if (isDefault == true) {
+					ec2 = new EC2({
+						"isDefault": true,
+						"region": region
+					});
+				} else {
+					ec2 = new EC2({
+						"access_key": accessKey,
+						"secret_key": secretKey,
+						"region": region
+					});
 				}
 
-				masterUtil.getLoggedInUser(user.cn, function(err, anUser) {
-					if (err) {
-						res.status(500).send("Failed to fetch User.");
-						return;
-					}
-					if (anUser) {
-						ec2.describeKeyPairs(function(err, data) {
-							if (err) {
-								logger.debug("Unable to get AWS Keypairs");
-								res.status(500).send("Invalid AccessKey or SecretKey.");
-								return;
-							}
-							logger.debug("Able to get AWS Keypairs. %s", JSON.stringify(data));
-							AWSProvider.getAWSProviderByName(providerData.providerName, providerData.orgId, function(err, prov) {
-								if (err) {
-									logger.error("err. ", err);
-								}
-								if (prov) {
-									logger.debug("getAWSProviderByName: ", JSON.stringify(prov));
-									res.status(409).send("Provider name already exist.");
-									return;
-								}
-								AWSProvider.createNew(providerData, function(err, provider) {
-									if (err) {
-										logger.error("err. ", err);
-										res.status(500).send("Failed to create Provider.");
+				var keys = [];
+				keys.push(accessKey);
+				keys.push(secretKey);
+				cryptography.encryptMultipleText(keys, cryptoConfig.encryptionEncoding,
+					cryptoConfig.decryptionEncoding, function (err, encryptedKeys) {
+						if (err) {
+							res.status(400).send("Failed to encrypt accessKey or secretKey");
+							return;
+						}
+						logger.debug("Returned encrypted keys: ", encryptedKeys);
+						var providerData = {
+							id: 9,
+							providerName: providerName,
+							providerType: providerType,
+							orgId: orgId,
+							isDefault: isDefault
+						};
+
+						if (!isDefault) {
+							providerData.accessKey = encryptedKeys[0];
+							providerData.secretKey = encryptedKeys[1];
+						}
+
+						usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset,
+							function (err, data) {
+								if (!err) {
+									if (data == false) {
+										logger.debug('No permission to ' + permissionto + ' on ' + category);
+										res.send(401, "You don't have permission to perform this operation.");
 										return;
 									}
-									AWSKeyPair.createNew(req, provider._id, function(err, keyPair) {
-										masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+								} else {
+									logger.error("Hit and error in haspermission:", err);
+									res.send(500);
+									return;
+								}
+
+								masterUtil.getLoggedInUser(user.cn, function (err, anUser) {
+									if (err) {
+										res.status(500).send("Failed to fetch User.");
+										return;
+									}
+									if (anUser) {
+										ec2.describeKeyPairs(function (err, data) {
 											if (err) {
-												res.status(500).send("Not able to fetch org.");
+												logger.debug("Unable to get AWS Keypairs");
+												res.status(500).send("Invalid AccessKey or SecretKey.");
 												return;
 											}
-											if (orgs.length > 0) {
-												if (keyPair) {
-													var dommyProvider = {
-														_id: provider._id,
-														id: 9,
-														//accessKey: provider.accessKey,
-														//secretKey: provider.secretKey,
-														providerName: provider.providerName,
-														providerType: provider.providerType,
-														orgId: orgs[0].rowid,
-														orgName: orgs[0].orgname,
-														__v: provider.__v,
-														keyPairs: keyPair
-													};
-													res.send(dommyProvider);
-													return;
-												}
-											}
-										})
-									});
-									logger.debug("Exit post() for /providers");
+											logger.debug("Able to get AWS Keypairs. %s", JSON.stringify(data));
+											AWSProvider.getAWSProviderByName(providerData.providerName, providerData.orgId,
+												function (err, prov) {
+													if (err) {
+														logger.error("err. ", err);
+													}
+													if (prov) {
+														logger.debug("getAWSProviderByName: ", JSON.stringify(prov));
+														res.status(409).send("Provider name already exist.");
+														return;
+													}
+													AWSProvider.createNew(providerData, function (err, provider) {
+														if (err) {
+															logger.error("err. ", err);
+															res.status(500).send("Failed to create Provider.");
+															return;
+														}
+														AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
+															masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
+																if (err) {
+																	res.status(500).send("Not able to fetch org.");
+																	return;
+																}
+																if (orgs.length > 0) {
+																	if (keyPair) {
+																		var dommyProvider = {
+																			_id: provider._id,
+																			id: 9,
+																			//accessKey: provider.accessKey,
+																			//secretKey: provider.secretKey,
+																			providerName: provider.providerName,
+																			providerType: provider.providerType,
+																			orgId: orgs[0].rowid,
+																			orgName: orgs[0].orgname,
+																			__v: provider.__v,
+																			keyPairs: keyPair
+																		};
+																		res.send(dommyProvider);
+																		return;
+																	}
+																}
+															})
+														});
+														logger.debug("Exit post() for /providers");
+													});
+												});
+										});
+									}
 								});
 							});
-						});
-					}
-				});
-			});
+					});
+			}
 		});
 	});
 
@@ -2246,22 +2261,26 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							var providersList = [];
 							if (providers && providers.length > 0) {
 								for (var i = 0; i < providers.length; i++) {
-									var keys = [];
+
+									providersList.push(providers[i]);
+									if (providers.length === providersList.length) {
+										res.send(providersList);
+										return;
+									}
+
+									/*var keys = [];
 									keys.push(providers[i].accessKey);
 									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+										cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
 										if (err) {
 											res.status(500).send("Failed to decrypt accessKey or secretKey");
 											return;
 										}
-										//providers[i].accessKey = decryptedKeys[0];
-										//providers[i].secretKey = decryptedKeys[1];
-										providersList.push(providers[i]);
-										if (providers.length === providersList.length) {
-											res.send(providersList);
-											return;
-										}
-									});
+										providers[i].accessKey = decryptedKeys[0];
+										providers[i].secretKey = decryptedKeys[1];
+
+									});*/
 								}
 							} else {
 								res.send(200, []);
@@ -2293,10 +2312,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							}
 							if (providers.length > 0) {
 								for (var i = 0; i < providers.length; i++) {
-									var keys = [];
+
+									providersList.push(providers[i]);
+									if (providers.length === providersList.length) {
+										res.send(providersList);
+										return;
+									}
+									/*var keys = [];
 									keys.push(providers[i].accessKey);
 									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+										cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
 										if (err) {
 											res.sned(500, "Failed to decrypt accessKey or secretKey");
 											return;
@@ -2308,7 +2334,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 											res.send(providersList);
 											return;
 										}
-									});
+									});*/
 								}
 							} else {
 								res.send(providersList);
@@ -2585,15 +2611,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	});
 	// Return all available security groups from AWS.
 	app.post('/aws/providers/securitygroups', function(req, res) {
+		logger.debug("Get security groups");
 
-		function makeRequest(accessKey, secretKey) {
-			var ec2 = new EC2({
-				"access_key": accessKey,
-				"secret_key": secretKey,
-				"region": req.body.region
-			});
+		var defaultProvider = (req.body.isDefault === 'true')?true:false;
 
-			ec2.getSecurityGroups(function(err, data) {
+		function makeRequest(accessKey, secretKey, isDefault) {
+			if(isDefault) {
+				var ec2 = new EC2({
+					"isDefault": true,
+					"region": req.body.region
+				});
+			} else {
+				var ec2 = new EC2({
+					"access_key": accessKey,
+					"secret_key": secretKey,
+					"region": req.body.region
+				});
+			}
+
+			ec2.getSecurityGroups(function (err, data) {
 				if (err) {
 					logger.error("Unable to get securitygroups Keypairs: ", err);
 					res.status(500).send("Invalid AccessKey or SecretKey.");
@@ -2603,74 +2639,57 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		}
 
-		if (req.body.providerId) {
+		if(defaultProvider) {
+			makeRequest(null, null, true);
+		} else if (req.body.providerId) {
 			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
 				if (err) {
 					logger.error(err);
 					res.status(500).send(errorResponses.db.error);
 					return;
-				}
-				if (aProvider) {
+				} else if(aProvider && aProvider.isDefault) {
+					makeRequest(null, null, true);
+				} else if (aProvider) {
 					var keys = [];
 					keys.push(aProvider.accessKey);
 					keys.push(aProvider.secretKey);
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-						if (err) {
-							logger.error("Failed to decrypt accessKey or secretKey: ", err);
-							res.status(500).send("Failed to decrypt accessKey or secretKey");
-							return;
-						}
-						makeRequest(decryptedKeys[0], decryptedKeys[1]);
-					});
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+						cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+							if (err) {
+								logger.error("Failed to decrypt accessKey or secretKey: ", err);
+								res.status(500).send("Failed to decrypt accessKey or secretKey");
+								return;
+							}
+							makeRequest(decryptedKeys[0], decryptedKeys[1], false);
+						});
 				} else {
 					res.status(404).send("Provider not found");
 				}
 			});
-
 		} else {
-			makeRequest(req.body.accessKey, req.body.secretKey);
+			makeRequest(req.body.accessKey, req.body.secretKey, false);
 		}
-
-
 	});
 
 	// Return all available keypairs from AWS.
 	app.post('/aws/providers/keypairs/list', function(req, res) {
-		logger.debug("Enter for Provider keypairs.");
-		if (req.body.providerId) {
-			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
-				if (err) {
-					logger.error(err);
-					res.status(500).send(errorResponses.db.error);
-					return;
-				}
-				if (aProvider) {
-					var keys = [];
-					keys.push(aProvider.accessKey);
-					keys.push(aProvider.secretKey);
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-						if (err) {
-							logger.error("Failed to decrypt accessKey or secretKey: ", err);
-							res.status(500).send("Failed to decrypt accessKey or secretKey");
-							return;
-						}
-						makeRequest(decryptedKeys[0], decryptedKeys[1]);
-					});
-				} else {
-					res.status(404).send("Provider not found");
-				}
-			});
+		logger.debug("Get provider keypairs for a region");
 
-		} else {
-			makeRequest(req.body.accessKey, req.body.secretKey);
-		}
+		var defaultProvider = (req.body.isDefault === 'true')?true:false;
 
-		function makeRequest(accessKey, secretKey) {
-			var ec2 = new EC2({
-				"access_key": accessKey,
-				"secret_key": secretKey,
-				"region": req.body.region
-			});
+		function makeRequest(accessKey, secretKey, isDefault) {
+			if(isDefault) {
+				var ec2 = new EC2({
+					"isDefault": true,
+					"region": req.body.region
+				});
+			} else {
+				var ec2 = new EC2({
+					"access_key": accessKey,
+					"secret_key": secretKey,
+					"region": req.body.region
+				});
+			}
 
 			ec2.describeKeyPairs(function(err, data) {
 				if (err) {
@@ -2682,17 +2701,56 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		}
 
+		if(defaultProvider) {
+			makeRequest(null, null, true);
+		} else if (req.body.providerId) {
+			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
+				if (err) {
+					logger.error(err);
+					res.status(500).send(errorResponses.db.error);
+					return;
+				} else if(aProvider && aProvider.isDefault) {
+					makeRequest(null, null, true);
+				} else if (aProvider) {
+					var keys = [];
+					keys.push(aProvider.accessKey);
+					keys.push(aProvider.secretKey);
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+						cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+							if (err) {
+								logger.error("Failed to decrypt accessKey or secretKey: ", err);
+								res.status(500).send("Failed to decrypt accessKey or secretKey");
+								return;
+							}
+							makeRequest(decryptedKeys[0], decryptedKeys[1], false);
+						});
+				} else {
+					res.status(404).send("Provider not found");
+				}
+			});
+		} else {
+			makeRequest(req.body.accessKey, req.body.secretKey, false);
+		}
 	});
 
 	// Return all available security groups from AWS for VPC.
 	app.post('/aws/providers/vpc/:vpcId/securitygroups', function(req, res) {
 
-		function makeRequest(accessKey, secretKey) {
-			var ec2 = new EC2({
-				"access_key": accessKey,
-				"secret_key": secretKey,
-				"region": req.body.region
-			});
+		var defaultProvider = (req.body.isDefault === 'true')?true:false;
+
+		function makeRequest(accessKey, secretKey, isDefault) {
+			if(isDefault) {
+				var ec2 = new EC2({
+					"isDefault": true,
+					"region": req.body.region
+				});
+			} else {
+				var ec2 = new EC2({
+					"access_key": accessKey,
+					"secret_key": secretKey,
+					"region": req.body.region
+				});
+			}
 
 			ec2.getSecurityGroupsForVPC(req.params.vpcId, function(err, data) {
 				if (err) {
@@ -2704,32 +2762,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		}
 
-		if (req.body.providerId) {
+		if(defaultProvider) {
+			makeRequest(null, null, true);
+		} else if (req.body.providerId) {
 			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
 				if (err) {
 					logger.error(err);
 					res.status(500).send(errorResponses.db.error);
 					return;
-				}
-				if (aProvider) {
+				} else if(aProvider && aProvider.isDefault) {
+					makeRequest(null, null, true);
+				} else if (aProvider) {
 					var keys = [];
 					keys.push(aProvider.accessKey);
 					keys.push(aProvider.secretKey);
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-						if (err) {
-							logger.error("Failed to decrypt accessKey or secretKey: ", err);
-							res.status(500).send("Failed to decrypt accessKey or secretKey");
-							return;
-						}
-						makeRequest(decryptedKeys[0], decryptedKeys[1]);
-					});
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+						cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+							if (err) {
+								logger.error("Failed to decrypt accessKey or secretKey: ", err);
+								res.status(500).send("Failed to decrypt accessKey or secretKey");
+								return;
+							}
+							makeRequest(decryptedKeys[0], decryptedKeys[1], false);
+						});
 				} else {
 					res.status(404).send("Provider not found");
 				}
 			});
-
 		} else {
-			makeRequest(req.body.accessKey, req.body.secretKey);
+			makeRequest(req.body.accessKey, req.body.secretKey, false);
 		}
 
 	});
@@ -2738,12 +2799,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.post('/aws/providers/describe/vpcs', function(req, res) {
 		logger.debug("Enter describeVpcs ");
 
-		function makeRequest(accessKey, secretKey) {
-			var ec2 = new EC2({
-				"access_key": accessKey,
-				"secret_key": secretKey,
-				"region": req.body.region
-			});
+		var defaultProvider = (req.body.isDefault === 'true')?true:false;
+
+		function makeRequest(accessKey, secretKey, isDefault) {
+			if(isDefault) {
+				var ec2 = new EC2({
+					"isDefault": true,
+					"region": req.body.region
+				});
+			} else {
+				var ec2 = new EC2({
+					"access_key": accessKey,
+					"secret_key": secretKey,
+					"region": req.body.region
+				});
+			}
 
 			ec2.describeVpcs(function(err, data) {
 				if (err) {
@@ -2755,48 +2825,57 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		}
 
-		if (req.body.providerId) {
+		if(defaultProvider) {
+			makeRequest(null, null, true);
+		} else if (req.body.providerId) {
 			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
 				if (err) {
 					logger.error(err);
 					res.status(500).send(errorResponses.db.error);
 					return;
-				}
-				if (aProvider) {
+				} else if(aProvider && aProvider.isDefault) {
+					makeRequest(null, null, true);
+				} else if (aProvider) {
 					var keys = [];
 					keys.push(aProvider.accessKey);
 					keys.push(aProvider.secretKey);
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-						if (err) {
-							logger.error("Failed to decrypt accessKey or secretKey: ", err);
-							res.status(500).send("Failed to decrypt accessKey or secretKey");
-							return;
-						}
-						makeRequest(decryptedKeys[0], decryptedKeys[1]);
-					});
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+						cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+							if (err) {
+								logger.error("Failed to decrypt accessKey or secretKey: ", err);
+								res.status(500).send("Failed to decrypt accessKey or secretKey");
+								return;
+							}
+							makeRequest(decryptedKeys[0], decryptedKeys[1], false);
+						});
 				} else {
 					res.status(404).send("Provider not found");
 				}
 			});
-
 		} else {
-			makeRequest(req.body.accessKey, req.body.secretKey);
+			makeRequest(req.body.accessKey, req.body.secretKey, false);
 		}
-
-
-
 	});
 
 	// Return all Subnets w.r.t. vpc
 	app.post('/aws/providers/vpc/:vpcId/subnets', function(req, res) {
 		logger.debug("Enter describeSubnets ");
 
-		function makeRequest(accessKey, secretKey) {
-			var ec2 = new EC2({
-				"access_key": accessKey,
-				"secret_key": secretKey,
-				"region": req.body.region
-			});
+		var defaultProvider = (req.body.isDefault === 'true')?true:false
+
+		function makeRequest(accessKey, secretKey, isDefault) {
+			if(isDefault) {
+				var ec2 = new EC2({
+					"isDefault": true,
+					"region": req.body.region
+				});
+			} else {
+				var ec2 = new EC2({
+					"access_key": accessKey,
+					"secret_key": secretKey,
+					"region": req.body.region
+				});
+			}
 
 			ec2.describeSubnets(req.params.vpcId, function(err, data) {
 				if (err) {
@@ -2808,35 +2887,36 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		}
 
-		if (req.body.providerId) {
+		if(defaultProvider) {
+			makeRequest(null, null, true);
+		} else if (req.body.providerId) {
 			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
 				if (err) {
 					logger.error(err);
 					res.status(500).send(errorResponses.db.error);
 					return;
-				}
-				if (aProvider) {
+				} else if(aProvider && aProvider.isDefault) {
+					makeRequest(null, null, true);
+				} else if (aProvider) {
 					var keys = [];
 					keys.push(aProvider.accessKey);
 					keys.push(aProvider.secretKey);
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-						if (err) {
-							logger.error("Failed to decrypt accessKey or secretKey: ", err);
-							res.status(500).send("Failed to decrypt accessKey or secretKey");
-							return;
-						}
-						makeRequest(decryptedKeys[0], decryptedKeys[1]);
-					});
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+						cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+							if (err) {
+								logger.error("Failed to decrypt accessKey or secretKey: ", err);
+								res.status(500).send("Failed to decrypt accessKey or secretKey");
+								return;
+							}
+							makeRequest(decryptedKeys[0], decryptedKeys[1], false);
+						});
 				} else {
 					res.status(404).send("Provider not found");
 				}
 			});
-
 		} else {
-			makeRequest(req.body.accessKey, req.body.secretKey);
+			makeRequest(req.body.accessKey, req.body.secretKey, false);
 		}
-
-
 	});
 
 	app.get('/aws/providers/permission/set', function(req, res) {
@@ -2911,25 +2991,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							if (providers && providers.length > 0) {
 								var awsProviderList = [];
 								for (var i = 0; i < providers.length; i++) {
-									var keys = [];
-									keys.push(providers[i].accessKey);
-									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-										if (err) {
-											res.status(500).send("Failed to decrypt accessKey or secretKey");
-											return;
-										}
-										// providers[i].accessKey = decryptedKeys[0];
-										// providers[i].secretKey = decryptedKeys[1];
-										logger.debug('typeof ', typeof providers[i]);
-
-										// delete providers[i].accessKey;
-										// delete providers[i].secretKey;
-										providers[i].accessKey = undefined;
-										providers[i].secretKey = undefined;
-
-										awsProviderList.push(providers[i]);
-									});
+									awsProviderList.push(providers[i]);
 								}
 								providersList.awsProviders = awsProviderList;
 							} else {
@@ -3044,20 +3106,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							if (providers.length > 0) {
 								var awsProviderList = [];
 								for (var i = 0; i < providers.length; i++) {
-									var keys = [];
-									keys.push(providers[i].accessKey);
-									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-										if (err) {
-											res.status(500).send("Failed to decrypt accessKey or secretKey");
-											return;
-										}
-										// providers[i].accessKey = decryptedKeys[0];
-										// providers[i].secretKey = decryptedKeys[1];
-										providers[i].accessKey = undefined;
-										providers[i].secretKey = undefined;
-										awsProviderList.push(providers[i]);
-									});
+									awsProviderList.push(providers[i]);
 								}
 								providersList.awsProviders = awsProviderList;
 							} else {
@@ -3162,12 +3211,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.post('/aws/providers/node/list', function(req, res) {
 		logger.debug("Enter List AWS Nodes: ");
 
-		function makeRequest(accessKey, secretKey) {
-			var ec2 = new EC2({
-				"access_key": accessKey,
-				"secret_key": secretKey,
-				"region": req.body.region
-			});
+		var isDefault = (req.body.isDefault === 'true')?true:false;
+
+		function makeRequest(accessKey, secretKey, isDefault) {
+			if(isDefault) {
+				var ec2 = new EC2({
+					"isDefault": true,
+					"region": req.body.region
+				});
+			} else {
+				var ec2 = new EC2({
+					"access_key": accessKey,
+					"secret_key": secretKey,
+					"region": req.body.region
+				});
+			}
 
 			ec2.listInstances(function(err, nodes) {
 				if (err) {
@@ -3192,32 +3250,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		}
 
-		if (req.body.providerId) {
+		if(isDefault) {
+			makeRequest(null, null, true);
+		} else if (req.body.providerId) {
 			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
 				if (err) {
 					logger.error(err);
 					res.status(500).send(errorResponses.db.error);
 					return;
-				}
-				if (aProvider) {
+				} else if(aProvider && aProvider.isDefault) {
+					makeRequest(null, null, true);
+				} else if (aProvider) {
 					var keys = [];
 					keys.push(aProvider.accessKey);
 					keys.push(aProvider.secretKey);
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-						if (err) {
-							logger.error("Failed to decrypt accessKey or secretKey: ", err);
-							res.status(500).send("Failed to decrypt accessKey or secretKey");
-							return;
-						}
-						makeRequest(decryptedKeys[0], decryptedKeys[1]);
-					});
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+						cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+							if (err) {
+								logger.error("Failed to decrypt accessKey or secretKey: ", err);
+								res.status(500).send("Failed to decrypt accessKey or secretKey");
+								return;
+							}
+							makeRequest(decryptedKeys[0], decryptedKeys[1], false);
+						});
 				} else {
 					res.status(404).send("Provider not found");
 				}
 			});
-
 		} else {
-			makeRequest(req.body.accessKey, req.body.secretKey);
+			makeRequest(req.body.accessKey, req.body.secretKey, false);
 		}
 
 
@@ -3226,6 +3287,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.post('/aws/providers/activenode/list', function(req, res) {
 		logger.debug("Enter List Active AWS Nodes: ");
 
+		var defaultProvider = (req.body.isDefault === 'true')?true:false;
 
 		function makeRequest(accessKey, secretKey) {
 			var ec2 = new EC2({
@@ -3257,32 +3319,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		}
 
-		if (req.body.providerId) {
+		if(defaultProvider) {
+			makeRequest(null, null, true);
+		} else if (req.body.providerId) {
 			AWSProvider.getAWSProviderById(req.body.providerId, function(err, aProvider) {
 				if (err) {
 					logger.error(err);
 					res.status(500).send(errorResponses.db.error);
 					return;
-				}
-				if (aProvider) {
+				} else if(aProvider && aProvider.isDefault) {
+					makeRequest(null, null, true);
+				} else if (aProvider) {
 					var keys = [];
 					keys.push(aProvider.accessKey);
 					keys.push(aProvider.secretKey);
-					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-						if (err) {
-							logger.error("Failed to decrypt accessKey or secretKey: ", err);
-							res.status(500).send("Failed to decrypt accessKey or secretKey");
-							return;
-						}
-						makeRequest(decryptedKeys[0], decryptedKeys[1]);
-					});
+					cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+						cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+							if (err) {
+								logger.error("Failed to decrypt accessKey or secretKey: ", err);
+								res.status(500).send("Failed to decrypt accessKey or secretKey");
+								return;
+							}
+							makeRequest(decryptedKeys[0], decryptedKeys[1], false);
+						});
 				} else {
 					res.status(404).send("Provider not found");
 				}
 			});
-
 		} else {
-			makeRequest(req.body.accessKey, req.body.secretKey);
+			makeRequest(req.body.accessKey, req.body.secretKey, false);
 		}
 	});
 
@@ -3290,6 +3355,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var client = new rc();
 		var id = req.params.id;
 		console.log(id);
+
+		var defaultProvider = (req.body.isDefault === 'true')?true:false;
 
 		function makeRequest(accessKey, secretKey) {
 			cost.getcost(accessKey, secretKey, function(err, cost) {

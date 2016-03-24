@@ -44,13 +44,19 @@ var awsProviderSchema = new Schema({
 	},
 	accessKey: {
 		type: String,
-		required: true,
+		required: false,
 		trim: true
 	},
 	secretKey: {
 		type: String,
-		required: true,
+		required: false,
 		trim: true
+	},
+	isDefault: {
+		type: Boolean,
+		required: true,
+		trim: false,
+		default: false
 	},
 	orgId: {
 		type: [String],
@@ -244,6 +250,27 @@ awsProviderSchema.statics.getAWSProvidersByOrgId = function(orgId, callback) {
 			return;
 		}
 
+	});
+};
+
+awsProviderSchema.statics.hasDefault = function hasDefault(orgId, callback) {
+	logger.debug("organization id: ", orgId);
+	this.find({orgId: orgId, isDefault: true}).then(function (providers) {
+		if (providers.length) {
+			logger.debug("Default user present for organization ", orgId);
+			callback(null, true);
+			return;
+		} else {
+			logger.debug("Default user not present for organization ", orgId);
+			callback(null, false);
+			return;
+		}
+	}, function (error) {
+		if(err) {
+			logger.error(err);
+			callback(err, null);
+			return;
+		}
 	});
 };
 

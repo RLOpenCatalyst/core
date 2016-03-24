@@ -2359,7 +2359,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         designtemplateicon_filename = "Appfactory.png";
                                                         templatetype = "chef";
                                                     } else if (x1 === 1) {
-                                                        templatetypename = "OSImages";
+                                                        templatetypename = "OSImage";
                                                         designtemplateicon_filename = "Desktop Provisining.png";
                                                         templatetype = "ami";
                                                     } else if (x1 === 2) {

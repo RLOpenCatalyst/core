@@ -909,14 +909,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				});
 				return;
 			}
-			if (!blueprintData.users || !blueprintData.users.length) {
-				res.status(400).send({
-					message: "User is empty"
-				});
-				return;
-			}
-			logger.log('Blueprint Data before save');
-			logger.log(blueprintData);
+  		    // if (!blueprintData.users || !blueprintData.users.length) {
+			// 	res.status(400).send({
+			// 		message: "User is empty"
+			// 	});
+			// 	return;
+			// }
 			Blueprints.createNew(blueprintData, function(err, data) {
 				if (err) {
 					logger.error('error occured while saving blueorint', err);
@@ -1376,9 +1374,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 	app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/addInstance', function(req, res) {
 		logger.debug("Enter post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-
+		logger.debug("Body::::"+req.body);
+		logger.debug("JSON Body::::"+JSON.stringify(req.body));
 		if (!(req.body.fqdn && req.body.os)) {
 			res.send(400);
+			return;
 		}
 		logger.debug('Verifying User permission set');
 		var user = req.session.user;

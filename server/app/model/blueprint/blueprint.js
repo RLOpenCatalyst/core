@@ -570,7 +570,7 @@ var findBlueprintVersionObject = function(blueprints,parentId){
             for(var bpi = 0; bpi < blueprints.length;bpi++){
                 if(blueprints[bpi]["parentId"] == parentId){
                     logger.debug('Hit a parentID');
-                    versions.push({id:blueprints[bpi]["_id"].toString(),version:blueprints[bpi]["version"]});
+                    versions.push({id:blueprints[bpi]["_id"].toString(),version:blueprints[bpi]["version"],name:blueprints[bpi]["name"]});
                    // delete blueprints[bpi];
                 }
             }
