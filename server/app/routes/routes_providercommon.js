@@ -101,60 +101,52 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		logger.debug("Provider ID is >>>>>"+req.params.providerId);
-		var pageSize,page;
-		if(req.query.pageSize)
-			pageSize = parseInt(req.query.pageSize);
-		else
-			pageSize = constantData.record_limit;
-		if(req.query.page)
-			page = parseInt(req.query.page)-1;
-		else
-			page = constantData.skip_Records;
-
-		var skip = pageSize * page;
-		var searchParameter,searchParameterValue;
-		if(req.query.status){
-			searchParameter = "state";
-			searchParameterValue = req.query.status+"";
-		}
-		else if(req.query.osType){
-			searchParameter = "os";
-			searchParameterValue = req.query.osType+"";
-		}
-		var jsonData={
-			'providerId':req.params.providerId,
-			'searchParameter':searchParameter,
-			'searchParameterValue':searchParameterValue,
-			'record_Skip':skip,
-			'record_Limit':pageSize
-		};
-		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-
+		MasterUtils.paginationRequest(req.query,function(err, paginationReq){
 			if (err) {
 				res.status(500).send({
 					message: "Server Behaved Unexpectedly"
 				});
 				return;
 			}
-			if (!provider) {
-				res.status(404).send({
-					message: "provider not found"
-				});
-				return;
-			}
-			unManagedInstancesDao.getByProviderId(jsonData, function(err, unmanagedInstances) {
+			paginationReq['providerId']=req.params.providerId;
+
+			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+
 				if (err) {
-					res.status(500).send(unmanagedInstances);
+					res.status(500).send({
+						message: "Server Behaved Unexpectedly"
+					});
 					return;
 				}
-				if(unmanagedInstances.length > 0)
-					res.status(200).send(unmanagedInstances);
-				else
+				if (!provider) {
 					res.status(404).send({
-						message: "No Data Found"
+						message: "provider not found"
+					});
+					return;
+				}
+				unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
+					if (err) {
+						res.status(500).send(unmanagedInstances);
+						return;
+					}
+					MasterUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
+						if (err) {
+							res.status(500).send({
+								message: "Server Behaved Unexpectedly"
+							});
+							return;
+						}
+						if (!paginationRes) {
+							res.status(404).send({
+								message: "data not found"
+							});
+							return;
+						}
+						res.status(200).send(paginationRes);
 					});
 
+
+				});
 			});
 		});
 	});

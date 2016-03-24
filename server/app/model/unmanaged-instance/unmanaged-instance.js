@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
@@ -26,7 +27,7 @@ var UnmanagedInstanceSchema = new Schema({
 	state: String,
 	tags: Schema.Types.Mixed,
 });
-
+UnmanagedInstanceSchema.plugin(mongoosePaginate);
 
 UnmanagedInstanceSchema.statics.createNew = function createNew(data, callback) {
 	var self = this;
@@ -108,11 +109,34 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 		});
 		return;
 	}
-	var obj = {};
-	obj["providerId"] = jsonData.providerId;
-	if(jsonData.searchParameter==='undefined')
-		obj[jsonData.searchParameter]=jsonData.searchParameterValue;
-	this.find(obj, function(err, instances) {
+
+	var queryObj={};
+	var queryArr=[];
+	var objAnd = {}
+	var objOr=[];
+	console.log(jsonData);
+	console.log(jsonData.filterBy);
+	if(jsonData.search) {
+		objAnd["providerId"] = jsonData.providerId;
+		queryArr.push(objAnd);
+		objOr.push({'platformId':jsonData.search});
+		objOr.push({'ip':jsonData.search});
+		queryArr.push({$or:objOr});
+	}
+	else{
+		var objAnd = jsonData.filterBy;
+		objAnd["providerId"] = jsonData.providerId;
+		queryArr.push(objAnd);
+	}
+	queryObj['$and']=queryArr;
+	var options = {
+		sort: jsonData.sortBy,
+		lean: false,
+		skip: jsonData.record_Skip >0 ? jsonData.record_Skip :1,
+		limit: jsonData.record_Limit
+	};
+
+	this.paginate(queryObj, options, function(err, instances) {
 		if (err) {
 			logger.error("Failed getByOrgProviderId (%s)", err);
 			callback(err, null);

@@ -11,7 +11,7 @@ var TagSchema = new Schema({
     },
     providerId: {
         type: String,
-        required: false,
+        required: true,
         trim: true
     },
     tagsInfo: Schema.Types.Mixed
