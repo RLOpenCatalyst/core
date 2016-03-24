@@ -242,7 +242,6 @@ function loadPipeline() {
             envId[indexedList[n]] = appDeployDataObj.envId[n];
             appLogs[indexedList[n]] = appDeployDataObj.appLogs[n];
         }
-        console.log(applicationLastDeploy);
         var sortedappDeployDataObj = {
             "applicationName": applicationName,
             "applicationVersion": versionNumber,
@@ -411,10 +410,12 @@ function loadPipeline() {
             $tableClone.find('thead th').addClass('padding-left5per theadcolor');
             var $tableapplicationTest = $tableClone;
             var $tableapplicationTbody = $tableClone.find('tbody');
-
             $tableapplicationTbody.on('click', '.applicationChildDetails', moreinfoDetailsPipelineViewClickHandler);
             $tableapplicationTbody.on('click', '.btn-approve', btnApproveDetailsPipelineViewClickHandler);
             $tableapplicationTbody.on('click', '.btn-promote', btnPromoteDetailsPipelineViewClickHandler);
+            $('#envSpecificDataTable').on('click', '.appSpecificLogs', appSpecificLogsViewClickHandler);
+
+
         } else {
             var $noAppEnvironment = $('.noAppEnvironment').clone();
             if ($('.noAppEnvironmentSelected').length) {
@@ -429,6 +430,27 @@ function loadPipeline() {
     };
 }
 loadPipeline();
+
+function appSpecificLogsViewClickHandler() {
+    var dataLogs = $(this).attr('data-logs');
+    var $modal = $('#modallogsSpecificDetails');
+    var datahttp = dataLogs.indexOf("http://");
+    if (datahttp == 0) {
+        $modal.find('.appLogsSpecific').empty();
+        window.open(dataLogs, "_blank");
+        return false;
+    } else {
+        $modal.find('.appLogsSpecific').empty();
+        var nodeIp = $(this).attr('data-nodeIp');
+        var $modal = $('#modallogsSpecificDetails');
+        var projectId = urlParams.projid;
+        $.get('/instances/' + nodeIp + '/project/' + projectId + '/logs', function(data) {
+            $modal.find('.appLogsSpecific').html(data);
+            $modal.modal('show');
+            return false;
+        });
+    }
+}
 
 
 function btnApproveDetailsPipelineViewClickHandler(e) {
@@ -743,7 +765,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 }
                                 //tasksData.taskType = tasksData.taskConfig.taskType;
                             $.post('../tasks/' + taskId + '/update', reqBody, function(updatedTask) {
-                                console.log(JSON.stringify(updatedTask));
                             });
                         }
                     });
@@ -792,7 +813,6 @@ function moreinfoDetailsPipelineViewClickHandler(e) {
 
     var $row = $(this).closest("tr");
     var rowSetDataDetailsObj = $row.data("appNameVer");
-    console.log(rowSetDataDetailsObj);
     var applicationNamePipelineText = $(this).parents().eq(5).find('.applicationEnvNamePipelineView').html();
     var $envSpecificDataArr = $('#envSpecificDataTable').DataTable({
         "order": [
@@ -828,30 +848,9 @@ function moreinfoDetailsPipelineViewClickHandler(e) {
     }
     $('#envSpecificDataTable_length').hide();
     $('#envSpecificDataTable_filter').hide();
-    $envSpecificDataArr.on('click', '.appSpecificLogs', appSpecificLogsViewClickHandler);
 
-    function appSpecificLogsViewClickHandler(e) {
-        var dataLogs = $(this).attr('data-logs');
-        var $modal = $('#modallogsSpecificDetails');
-        var datahttp = dataLogs.indexOf("http://");
-        if (datahttp == 0) {
-            $modal.find('.appLogsSpecific').empty();
-            window.open(dataLogs, "_blank");
-            return false;
-        } else {
-            $modal.find('.appLogsSpecific').empty();
-            var nodeIp = $(this).attr('data-nodeIp');
-            var $modal = $('#modallogsSpecificDetails');
-            var projectId = urlParams.projid;
-            $.get('/instances/' + nodeIp + '/project/' + projectId + '/logs', function(data) {
-                $modal.find('.appLogsSpecific').html(data);
-                $modal.modal('show');
-                return false;
-            });
-        }
-        e.preventDefault();
 
-    }
+
     $modal.modal('show');
 }
 
@@ -918,9 +917,6 @@ $('.createAppConfigure').click(function() {
                 }
                 var individualenvNamePrnt = dataforenvName[0].environmentname;
                 individualenvNamePrnt = individualenvNamePrnt.split(",");
-
-                console.log("allsequenceEnvironments", allEnvironments);
-                console.log("individualenvNamePrnt", individualenvNamePrnt);
                 for (var x = 0; x < individualenvNamePrnt.length; x++) {
                     if ($.inArray(individualenvNamePrnt[x], allEnvironments) == -1) {
                         allEnvironments.push(individualenvNamePrnt[x]);
@@ -1933,53 +1929,46 @@ function constructUI(data) {
                 var $clone = $accordianTemplate.clone(true);
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].projectId) {
-                        /*if ($('#' + data[i].projectId + data[i].applicationName + data[i].envId + '_parentAccordian').length == 0) {
-                            if (typeof data[i].projectId + data[i].applicationName + data[i].envId == 'undefined') {
-                                dataenvAccordianName = '';
-                                $clone.find('.envAppDeployName').html(dataenvAccordianName);
-                            } else {
-                                var dataenvAccordianName = "Application Deployment for : " + projectNameUrlParams;
-                                $clone.find('.envAppDeployName').html(dataenvAccordianName);
-                            }*/
-                            $clone.find('.panel-title').addClass('padding10');
-                            $('#accordion-AppDeploy').append($clone);
-                            if (!$.fn.dataTable.isDataTable('#tableappDeploydetails')) {
-                                $('#tableappDeploydetails').DataTable({
-                                    "pagingType": "full_numbers",
-                                    "iDisplayLength": 5,
-                                    "aLengthMenu": [
-                                        [5, 40, 100, -1],
-                                        [5, 40, 100, "All"]
-                                    ],
-                                    "aaSorting": [
-                                        [5, 'desc']
-                                    ],
-                                    "aoColumns": [{
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": true
-                                    }, {
-                                        "bSortable": false
-                                    }, {
-                                        "bSortable": false
-                                    }]
-                                });
-                            }
-                        //}
+                        var dataenvAccordianName = "Application Deployment for : " + projectNameUrlParams;
+                        $clone.find('.envAppDeployName').html(dataenvAccordianName);
+                        $clone.find('.panel-title').addClass('padding10');
+                        $('#accordion-AppDeploy').append($clone);
+                        if (!$.fn.dataTable.isDataTable('#tableappDeploydetails')) {
+                            $('#tableappDeploydetails').DataTable({
+                                "pagingType": "full_numbers",
+                                "iDisplayLength": 5,
+                                "aLengthMenu": [
+                                    [5, 40, 100, -1],
+                                    [5, 40, 100, "All"]
+                                ],
+                                "aaSorting": [
+                                    [5, 'desc']
+                                ],
+                                "aoColumns": [{
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": true
+                                }, {
+                                    "bSortable": false
+                                }, {
+                                    "bSortable": false
+                                }]
+                            });
+                        }
                         var $taskenvArray = $('#tableappDeploydetails');
                         var upgradeAppDeploy;
                         if (!data[i]._id) {
@@ -2052,9 +2041,6 @@ function constructUI(data) {
                             upgradeAppDeploy
                         ]);
                     }
-                    /*if (typeof data[i].envId == 'undefined') {
-                        $('#' + data[i].projectId + data[i].applicationName + data[i].envId + '_parentAccordian').hide();
-                    }*/
                 }
             });
         }
