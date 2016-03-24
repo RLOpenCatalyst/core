@@ -2122,8 +2122,14 @@ console.log(data);
             var a=data.filterBy.split(" ");
             for(var i = 0;i < a.length; i++){
                 var b=a[i].split(":");
-                if(b[0]=='region')
-                    filterBy['providerData']={region:b[1]};
+                if(b[0]=='region'){
+                    var c=b[1].split(",");
+                    if(c.length > 1)
+                        filterBy['providerData.region'] =  {'$in':c};
+                    else
+                        filterBy['providerData.region']=b[1];
+                }
+
                 else {
                     var c=b[1].split(",");
                     if(c.length > 1)
