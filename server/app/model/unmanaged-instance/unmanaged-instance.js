@@ -126,6 +126,7 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 	}
 	queryObj['$and']=queryArr;
 	var options = {
+		select: '_id platformId os ip providerData state',
 		sort: jsonData.sortBy,
 		lean: false,
 		skip: jsonData.record_Skip >0 ? jsonData.record_Skip :1,

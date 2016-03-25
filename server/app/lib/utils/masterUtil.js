@@ -2082,21 +2082,24 @@ var MasterUtil = function() {
         });
     };
     this.paginationResponse=function(data,req, callback) {
-        var response={
-            metaData:{totalRecords:data.total,
+        var response={};
+        response[req.id]=data.docs;
+        response['metaData']={
+            totalRecords:data.total,
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
             sortBy:Object.keys(req.sortBy)[0],
             sortOrder:req[Object.keys(req.sortBy)]==1 ?'desc' :"asc",
-            filterBy:req.filterBy}
+            filterBy:req.filterBy
         };
-        response[req.id]=data.docs;
+
         callback(null, response);
         return;
     };
 
     this.paginationRequest=function(data, callback) {
+        console.log("*******************");
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
