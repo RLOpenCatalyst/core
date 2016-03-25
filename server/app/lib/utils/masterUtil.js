@@ -2083,7 +2083,6 @@ var MasterUtil = function() {
     };
     this.paginationResponse=function(data,req, callback) {
         var response={
-            unmanagedInstances:data.docs,
             metaData:{totalRecords:data.total,
             pageSize:data.limit,
             page:data.page,
@@ -2092,12 +2091,12 @@ var MasterUtil = function() {
             sortOrder:req[Object.keys(req.sortBy)]==1 ?'desc' :"asc",
             filterBy:req.filterBy}
         };
+        response[req.id]=data.docs;
         callback(null, response);
         return;
     };
 
     this.paginationRequest=function(data, callback) {
-console.log(data);
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);

@@ -103,45 +103,47 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
 		MasterUtils.paginationRequest(req.query,function(err, paginationReq){
 			if (err) {
-				res.status(500).send({
-					message: "Server Behaved Unexpectedly"
+				res.status(400).send({
+					message: "Bad Request"
 				});
 				return;
 			}
 			paginationReq['providerId']=req.params.providerId;
+			paginationReq['id']='unmanagedInstances';
 
 			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 
 				if (err) {
 					res.status(500).send({
-						message: "Server Behaved Unexpectedly"
+						message: "Internal Server Error"
 					});
 					return;
 				}
 				if (!provider) {
-					res.status(404).send({
-						message: "provider not found"
+					res.status(204).send({
+						message: "The server successfully processed the request and is not returning any content"
 					});
 					return;
 				}
 				unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
 					if (err) {
-						res.status(500).send(unmanagedInstances);
+						res.status(400).send(unmanagedInstances);
 						return;
 					}
 					MasterUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
 						if (err) {
-							res.status(500).send({
-								message: "Server Behaved Unexpectedly"
+							res.status(400).send({
+								message: "Bad Request"
 							});
 							return;
 						}
-						if (!paginationRes) {
-							res.status(404).send({
-								message: "data not found"
+						if (!paginationRes.unmanagedInstances.length>0) {
+							res.status(204).send({
+								message: "The server successfully processed the request and is not returning any content"
 							});
 							return;
 						}
+						console.log(paginationRes);
 						res.status(200).send(paginationRes);
 					});
 
@@ -189,8 +191,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				return;
 			}
 			if (!provider) {
-				res.status(404).send({
-					message: "provider not found"
+				res.status(204).send({
+					message: "The server successfully processed the request and is not returning any content"
 				});
 				return;
 			}

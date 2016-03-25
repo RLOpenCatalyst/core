@@ -667,7 +667,7 @@
 
         //loading UnManaged Data
         function getUnmanagedInstances() {
-            $.get('/providers/' + urlParams.providerId + '/unmanagedInstances?'+'page=1&pageSize=60&filterBy=region:us-west-1,us-west-2+state:running,stopped&sortBy=state&sortOrder=desc', function(unmanagnedInstances) {
+            $.get('/providers/' + urlParams.providerId + '/unmanagedInstances?'+'page=1&pageSize=60&search=54.67.35.103&filterBy=region:us-west-1,us-west-2+state:running,stopped&sortBy=state&sortOrder=desc', function(unmanagnedInstances) {
                 loadUnmanagedInstances(unmanagnedInstances);
                 $('#unmanagedinstanceListDiv').show();
             }).fail(function(jxhr) {

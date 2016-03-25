@@ -93,7 +93,6 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 			callback(err, null);
 			return;
 		}
-		console.log(instancesTag);
 		callback(null, instancesTag);
 
 	});
@@ -109,13 +108,10 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 		});
 		return;
 	}
-
 	var queryObj={};
 	var queryArr=[];
 	var objAnd = {}
 	var objOr=[];
-	console.log(jsonData);
-	console.log(jsonData.filterBy);
 	if(jsonData.search) {
 		objAnd["providerId"] = jsonData.providerId;
 		queryArr.push(objAnd);

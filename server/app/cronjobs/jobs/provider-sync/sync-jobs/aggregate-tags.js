@@ -33,7 +33,7 @@ function aggregation() {
                                         return;
                                     }
                                     else{
-                                               var tagInfo = [];
+                                                var tagInfo = [];
                                                 var objTag = {};
                                                 for (var k = 0; k < unManagedInstancesTag.length; k++) {
                                                     var jsonObj = unManagedInstancesTag[k].tags;
