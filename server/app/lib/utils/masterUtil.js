@@ -2099,7 +2099,6 @@ var MasterUtil = function() {
     };
 
     this.paginationRequest=function(data, callback) {
-        console.log("*******************");
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);

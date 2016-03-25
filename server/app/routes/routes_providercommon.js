@@ -110,7 +110,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='unmanagedInstances';
-
 			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 
 				if (err) {
@@ -143,7 +142,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							});
 							return;
 						}
-						console.log(paginationRes);
 						res.status(200).send(paginationRes);
 					});
 
