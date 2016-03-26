@@ -16,6 +16,7 @@ limitations under the License.
 
 
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('./../../dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
@@ -255,6 +256,7 @@ var InstanceSchema = new Schema({
 
 InstanceSchema.plugin(uniqueValidator);
 InstanceSchema.plugin(textSearch);
+InstanceSchema.plugin(mongoosePaginate);
 InstanceSchema.index({
     "$**": "text"
 });
@@ -1555,32 +1557,50 @@ var InstancesDao = function() {
         });
     };
 
-    this.getByProviderId = function(providerId, callback) {
-        if (!providerId) {
-            process.nextTick(function() {
-                callback({
-                    message: "Invalid provider id"
-                });
-
+    this.getByProviderId = function(jsonData, callback) {
+        if (!jsonData.providerId) {
+        process.nextTick(function() {
+            callback({
+                message: "Invalid providerId"
             });
+        });
+        return;
+    }
+    var queryObj={};
+    var queryArr=[];
+    var objAnd = {}
+    var objOr=[];
+    if(jsonData.search) {
+        objAnd["providerId"] = jsonData.providerId;
+        queryArr.push(objAnd);
+        objOr.push({'platformId':jsonData.search});
+        objOr.push({'instanceIP':jsonData.search});
+        queryArr.push({$or:objOr});
+    }
+    else{
+        var objAnd = jsonData.filterBy;
+        objAnd["providerId"] = jsonData.providerId;
+        queryArr.push(objAnd);
+    }
+    queryObj['$and']=queryArr;
+    var options = {
+        select: '_id platformId hardware instanceIP providerData instanceState projectName',
+        sort: jsonData.sortBy,
+        lean: false,
+        skip: jsonData.record_Skip >0 ? jsonData.record_Skip :1,
+        limit: jsonData.record_Limit
+    };
+
+    this.paginate(queryObj, options, function(err, instances) {
+        if (err) {
+            logger.error("Failed getByOrgProviderId (%s)", err);
+            callback(err, null);
             return;
         }
-
-        Instances.find({
-            "providerId": providerId
-        }, {
-            'actionLogs': false
-        }, function(err, instances) {
-            if (err) {
-                logger.error("Failed getByOrgProviderId (%s)", opts, err);
-                callback(err, null);
-                return;
-            }
-
-            callback(null, instances);
-
-        });
-    };
+        callback(null, instances);
+    });
+};
+//End By Durgesh
 
     this.getInstanceByIPAndProject = function(instanceIp,projectId, callback) {
         instanceIp = instanceIp.trim();

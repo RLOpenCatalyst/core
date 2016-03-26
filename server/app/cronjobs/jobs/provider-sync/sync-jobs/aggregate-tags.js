@@ -49,6 +49,7 @@ function aggregation() {
                                                 for(var m = 0; m < tagInfo.length; m++){
                                                         objTag[tagInfo[m]]='';
                                                 }
+                                                if(tagInfo.length > 0){
                                                  tagsDao.getTagByOrgProviderId({
                                                  orgId: org.rowid,
                                                  providerId: provider._id,
@@ -96,7 +97,7 @@ function aggregation() {
                                                    }
                                                  });
 
-
+                                           }
 
                                     }
                                 });
