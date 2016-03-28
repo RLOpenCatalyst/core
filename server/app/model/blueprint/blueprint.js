@@ -398,6 +398,7 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             parentId: blueprintData.id
         };
         var blueprint = new Blueprints(blueprintObj);
+        logger.debug(blueprint);
         logger.debug('saving');
         blueprint.save(function(err, blueprint) {
             if (err) {
@@ -595,7 +596,6 @@ var findBlueprintVersionObject = function(blueprints,parentId){
             for(var bpi = 0; bpi < blueprints.length;bpi++){
                 blueprints[bpi] = JSON.parse(JSON.stringify(blueprints[bpi])); 
                 if(blueprints[bpi]["_id"] == parentId){
-                    
                     blueprints[bpi].versions = versions;
                     logger.debug('Found a parentID: for ',parentId,blueprints[bpi].versions);
                     break;

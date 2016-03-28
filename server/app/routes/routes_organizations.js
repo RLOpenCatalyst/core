@@ -784,6 +784,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 			} else if (blueprintType === 'instance_launch') {
 				logger.debug('req.body.blueprintData.blueprintType ==>', blueprintType);
+				logger.debug('req.body.blueprintData.region ==>', req.body.blueprintData.region);
 				instanceData = {
 					keyPairId: req.body.blueprintData.keyPairId,
 					securityGroupIds: req.body.blueprintData.securityGroupIds,
@@ -792,6 +793,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					instanceUsername: 'root',
 					vpcId: req.body.blueprintData.vpcId,
 					subnetId: req.body.blueprintData.subnetId,
+					region: req.body.blueprintData.region,
 					imageId: req.body.blueprintData.imageId,
 					cloudProviderType: 'aws',
 					cloudProviderId: req.body.blueprintData.providerId,
@@ -907,7 +909,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				});
 				return;
 			}
-			// if (!blueprintData.users || !blueprintData.users.length) {
+  		    // if (!blueprintData.users || !blueprintData.users.length) {
 			// 	res.status(400).send({
 			// 		message: "User is empty"
 			// 	});

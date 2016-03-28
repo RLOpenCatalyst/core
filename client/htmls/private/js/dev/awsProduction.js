@@ -826,9 +826,7 @@ function dataLoader(){
 		});
 		$instanceOS.trigger('change');
 	});
-	
 
-	
 }
 
 $(document).ready(function() {
@@ -1823,7 +1821,6 @@ var OrgdataLoader = function(editing){
 				
 				if ($card.length) {
 					var templatescookbooks = $card.attr('templatescookbooks');
-					
 					if (templatescookbooks) {
 						tcb = templatescookbooks.split(',');
 					}else{ //should be edit mode
@@ -1878,6 +1875,7 @@ var OrgdataLoader = function(editing){
 							$bgList.attr('disabled','disabled');
 							$projectList.attr('disabled','disabled');
 						}
+
 			});
 			$('#chooseNexusServer').click(function(e) {
 				var projectSelName = $('#projectListInput option:selected').val();
@@ -2372,6 +2370,7 @@ function displaySavedBPValues(){
 	///$contnet.find('#blueprintNameInput').val($contnet.find('#blueprintNameInput').attr('savedval'));
 	//$content.find('#imageId').val($content.find('#imageId').attr('savedval')).trigger('change');
 
+
 }
 //Initializing the blueprint area according to the Template-Type and showing
 //the differnt template types whenever a blueprint is added
@@ -2418,12 +2417,12 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     		
     		//Add a productdiv2 with required elements for form rendering
     		
-
+    		alert(baseblueprintId);
     		var $card = $('#viewCreate .productdiv1[data-blueprintid="' + baseblueprintId + '"]').clone();
 
     		$card.find('button').detach();
     		$card.find('.moreInfo').detach();
-    		//$('#bpeditcontent .selectedTemplateArea').html('');
+
     		$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
     		displaySavedBPValues();
     		
@@ -2558,8 +2557,6 @@ function initializeBlueprintAreaNew(data) {
 
 					if(data[i].versions)
 						_versions = sortResults(data[i].versions,'version');
-					
-
 					$linkVersions.append('<i class="fa fa-pencil bpvi"></i>')
 					$linkVersions.attr('blueprintId',data[i]._id);
 					if(data[i].versions){	
