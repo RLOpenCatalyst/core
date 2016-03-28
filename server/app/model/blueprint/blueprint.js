@@ -432,11 +432,11 @@ BlueprintSchema.statics.getCountByParentId = function(parentid, callback) {
                 callback(err, 0);
                 return;
             }
+
             else{
                 logger.debug('Found bp.[',blueprint.length,']');
                 callback(null, blueprint.length);
             }
-            
         });
     }
     else{
