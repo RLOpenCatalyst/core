@@ -2085,6 +2085,26 @@ $('#appURLForm').submit(function(e) {
 });
 //Initializing the blueprint area according to the Template-Type and showing
 //the differnt template types whenever a blueprint is added
+<<<<<<< HEAD
+=======
+function loadblueprintedit(blueprintId) {
+    $('#myTab3 li').addClass('hidden');
+    $('#myTab3 li.blueprintEditbutton').removeClass('hidden');
+    $('#myTab3 a[href="#viewEdit"]').tab('show');
+    $('#versionModalContainer').modal('hide');
+    //To Do
+    //Show Save and Cancel button.
+
+    $('#bpeditcontent').html('').append(blueprintId);
+}
+
+function closeblueprintedit(blueprintId) {
+    $('#myTab3 li').removeClass('hidden');
+    $('#myTab3 li.blueprintEditbutton').addClass('hidden');
+    $('#myTab3 a[href="#viewCreate"]').tab('show');
+}
+
+>>>>>>> Navigation for edit done
 function initializeBlueprintAreaNew(data) {
 	var reqBodyNew = {};
 	var $orgListInput = $('#orgnameSelectExisting');

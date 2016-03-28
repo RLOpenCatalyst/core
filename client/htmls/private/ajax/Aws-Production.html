@@ -9,6 +9,9 @@
         <li class="pull-left View blueprintnewbutton">
           <a href="#l2" id="tabheader" data-toggle="tab">New</a>
         </li>
+        <li class="pull-left View blueprintEditbutton hidden">
+          <a href="#viewEdit" id="tabheader" data-toggle="tab">Edit</a>
+        </li>
         <!--new tab for CRUD operations for Blueprint-->
         
       </ul>
@@ -518,6 +521,9 @@
                               <footer class="footer">
                                 <div style="text-align:center;" class="clearfix form-actions no-padding">
                                   <div class="btn-group">
+                                      <a classs="btn btn-primary" href="#">Cancel</a>
+                                  </div>
+                                  <div class="btn-group">
                                     <ul class="pager wizard no-margin" style="margin-left:200px">
                                       <li class="previous disabled">
                                         <a style="border-radius:0px" class="btn btn-primary" href="javascript:void(0);"> Previous </a>
@@ -586,6 +592,24 @@
             </div>
           </footer>
         </div>
+
+        <div class="tab-pane fade in" id="viewEdit">
+          <div class="" id="bpeditcontent">
+          </div>
+
+          <footer class="footer">
+                <div style="text-align:center;height:60px;margin-bottom: -3px" class="clearfix form-actions">
+                  <div class="btn-group">
+                  
+                      <button class="btn btn-primary" onclick="closeblueprintedit();">Cancel</button>
+                   
+                      <button class="btn btn-primary marginleft15" onclick="saveblueprint();">Save</button>
+                   
+                  </div>
+                </div>
+          </footer>
+        </div>
+
         <!--modal for blueprint edit ends-->
         <!--assign runlist modal-->
         <div class="modal fade" id="chefRunlistModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
