@@ -11,6 +11,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+var urlParams = {};
+    (window.onpopstate = function() {
+        var url = window.location.href;
+        var indexOfQues = url.lastIndexOf("?");
+        if (indexOfQues != -1) {
+            var sub = url.substring(indexOfQues + 1);
+            var params = sub.split('&')
+            for (var i = 0; i < params.length; i++) {
+                var paramParts = params[i].split('=');
+                urlParams[paramParts[0]] = paramParts[1];
+            }
+        }
+    })();
+
 $('#syncAppPipelineView').on("click", function() {
     loadPipeline();
     getAllApplicationData();
@@ -96,20 +110,6 @@ $(document).ready(function() {
 
 
 function loadPipeline() {
-    var urlParams = {};
-    (window.onpopstate = function() {
-        var url = window.location.href;
-        var indexOfQues = url.lastIndexOf("?");
-        if (indexOfQues != -1) {
-            var sub = url.substring(indexOfQues + 1);
-            var params = sub.split('&')
-            for (var i = 0; i < params.length; i++) {
-                var paramParts = params[i].split('=');
-                urlParams[paramParts[0]] = paramParts[1];
-            }
-        }
-    })();
-
     // fething application
     var projectId = urlParams['projid'];
     $.get('/app/deploy/project/' + projectId + '/list', function(deployData) {
