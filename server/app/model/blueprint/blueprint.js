@@ -380,7 +380,6 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
         else{
             count++;
         }      
-
         var blueprintObj = {
             orgId: blueprintData.orgId,
             bgId: blueprintData.bgId,
