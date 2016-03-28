@@ -40,7 +40,7 @@ var ARMTemplateBlueprint = require('./blueprint-types/arm-template-blueprint/arm
 var utils = require('../classes/utils/utils.js');
 var nexus = require('_pr/lib/nexus.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
-
+var uuid = require('node-uuid');
 
 
 var BLUEPRINT_TYPE = {
@@ -545,7 +545,7 @@ BlueprintSchema.statics.copyByIds = function(ids,orgid,bgid,projid, callback) {
                         //finding any duplicates and renaming before save
                         for(var dbpi =0; dbpi < dupbp.length; dbpi++){
                             if(dupbp[dbpi]["name"] == data[bpi]["name"]) {
-                                data[bpi]["name"] = data[bpi]["name"] + '_copy';
+                                data[bpi]["name"] = data[bpi]["name"] + '_copy_' + uuid.v4().split('-')[0];
                                 logger.debug('Found a duplicate. Renaming',data[bpi]["name"]);
                                 logger.debug(JSON.stringify([{"orgId":orgid},{"bgId":bgid},{"projectId":projid}]));
                             }                  
@@ -588,7 +588,7 @@ var findBlueprintVersionObject = function(blueprints,parentId){
             for(var bpi = 0; bpi < blueprints.length;bpi++){
                 if(blueprints[bpi]["parentId"] == parentId){
                     logger.debug('Hit a parentID');
-                    versions.push({id:blueprints[bpi]["_id"].toString(),version:blueprints[bpi]["version"]});
+                    versions.push({id:blueprints[bpi]["_id"].toString(),version:blueprints[bpi]["version"],name:blueprints[bpi]["name"]});
                    // delete blueprints[bpi];
                 }
             }

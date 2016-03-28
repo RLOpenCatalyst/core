@@ -138,8 +138,11 @@ $(document).ready(function() {
 					if (data.blueprints.length > 0) {
 						$('#accordion-2').removeClass('hidden');
 						$spinnerProject.addClass('hidden');
+						$('#npbpmsg').addClass('hidden');
 					} else {
 						$spinnerProject.addClass('hidden');
+						//show no blueprints found message
+						$('#npbpmsg').removeClass('hidden');
 					}
 				});
 			}); //choose env gets over
@@ -308,7 +311,28 @@ function addDockerTemplateToTable(title, repopath, tagname, reponame, optionalla
 function showdockertemplateadder() {
 	$('#dockertemplateselector').val('');
 	$('#dockertemplatetagselector').empty().val('');
-	$('#myModalDockerTemplateContainer').modal('show');
+	//populating template selector with templates
+	var templateurl = "/d4dMasters/readmasterjsonnew/17";
+	$('#dockertemplateselector').empty().val('');
+	$('#dockertemplatetagselector').empty().val('');
+	$.get('/d4dMasters/readmasterjsonnew/17',function(data){
+	  if(data.length > 0)
+	  {
+	   var rowGridLength = (data.length);
+	   for (var z = 0; z < rowGridLength; z += 1) {
+	     //console.log(data[z]["templatetypename"].toLowerCase());
+	     var dockercontainerpathstitle = data[z]['dockercontainerpathstitle'];
+	     var dockercontainerpaths = data[z]['dockercontainerpaths'];
+	     var dockerreponame = data[z]['dockerreponame'];
+	     var getTempName = data[z]['templatename']
+	     if(data[z]["templatetypename"].toLowerCase() === 'docker'){
+	       $('#dockertemplateselector').append('<option value="' + dockercontainerpaths + '" title="' + dockercontainerpaths + '" reponame="' + dockerreponame + '">' + getTempName  + '</option>'); //dockercontainerpathstitle
+	     }
+	   }
+	  }
+	  $('#myModalDockerTemplateContainer').modal('show');
+	});
+	
 }
 
 function addrows() { //only for testing to be removed
@@ -663,6 +687,7 @@ function getkeypairList() {
 				//Adding data reader
 				if($('#region').attr('savedval'))
 						helpersetselectvalue($('#region'),'value',$('#region').attr('savedval'));	
+				
 			});
 		}
 	});
@@ -1397,17 +1422,24 @@ var saveblueprint = function(tempType) {
                 });
                 reqBody.cftInstances = cftInstances;
                 $('.blueprintMsgContainer').hide();
-                if (($('.role-Selected').data('templatetype')).toLowerCase() != "docker") {
+                if (($('.productdiv2.role-Selected').data('templatetype')).toLowerCase() != "docker") {
                     reqBody.blueprintType = "instance_launch";
-                    if (($('.role-Selected').data('templatetype')).toLowerCase() === 'cloudformation') {
+                    if (($('.productdiv2.role-Selected').data('templatetype')).toLowerCase() === 'cloudformation') {
                         reqBody.blueprintType = 'aws_cf';
                     }
-                    //alert(reqBody);
-                    console.log(reqBody);
+                    alert(JSON.stringify(reqBody));
+                    //console.log(reqBody);
                     $.post('/organizations/' + reqBody.orgId + '/businessgroups/' + reqBody.bgId + '/projects/' + reqBody.projectId + '/blueprints', {
                         blueprintData: reqBody
                     }, function(data) {
                         console.log(data);
+
+                        //in edit mode refresh the blueprints page
+                        if(reqBody.blueprintId){
+                        	$('#projectListInputExisting').trigger('change'); //refresh the blueprints page
+                        	closeblueprintedit(reqBody.blueprintId);
+                        }
+
                         var validatorForm = $("#wizard-1").validate();
                         validatorForm.resetForm();
                         $('.blueprintSaveSuccess').show();
@@ -1537,11 +1569,18 @@ var saveblueprint = function(tempType) {
                     });
                     console.log('final', reqBody);
                 } else {
-                    reqBody.blueprintType = "docker";
+                    reqBody.blueprintType = "docker"; 
                     $.post('/organizations/' + reqBody.orgId + '/businessgroups/' + reqBody.bgId + '/projects/' + reqBody.projectId + '/blueprints', {
                         blueprintData: reqBody
                     }, function(data) {
                         console.log(data);
+
+                        //in edit mode refresh the blueprints page
+                        if(reqBody.blueprintId){
+                        	$('#projectListInputExisting').trigger('change'); //refresh the blueprints page
+                        	closeblueprintedit(reqBody.blueprintId);
+                        }
+
                         var validatorFormDocker = $("#wizard-1").validate();
                         validatorFormDocker.resetForm();
                         $('.blueprintSaveSuccess').show();
@@ -1623,11 +1662,9 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 						getTemplateType = data[z]['templatetypename'];
 						console.log(getTemplateType);
 						if (selectedText.trim() != getTemplateType.trim()) continue;
-						gettemplatescookbooks = data[z]
-							['templatescookbooks'].replace(/"/g, "");
+						gettemplatescookbooks = data[z]['templatescookbooks'].replace(/"/g, "");
 						dockercontainerpathstitle = data[z]['dockercontainerpathstitle'];
-						dockercontainerpaths = data[z]
-							['dockercontainerpaths'];
+						dockercontainerpaths = data[z]['dockercontainerpaths'];
 						dockerreponame = data[z]['dockerreponame'];
 						//To be removed and converted to reference when the new master model is implemented.
 						dockerusername = '';
@@ -1751,6 +1788,7 @@ var OrgdataLoader = function(editing){
 		success: function(data) {
 			console.log(data);
 			$('#selectOrgName').html('');
+			$('#orgnameSelect').html('');
 			data = JSON.parse(JSON.stringify(data));
 			var $orgListInput = $('#orgnameSelect');
 			$bgList = $('#bgListInput');
@@ -1785,8 +1823,12 @@ var OrgdataLoader = function(editing){
 				
 				if ($card.length) {
 					var templatescookbooks = $card.attr('templatescookbooks');
+					
 					if (templatescookbooks) {
 						tcb = templatescookbooks.split(',');
+					}else{ //should be edit mode
+						if($('#tableRunlistForBlueprint').attr('savedval'))
+							tcb = $('#tableRunlistForBlueprint').attr('savedval').split(',');
 					}
 				}else{
 
@@ -1829,7 +1871,13 @@ var OrgdataLoader = function(editing){
 				}
 				//setting the read values
 					if($projectList.attr('savedval'))
-						helpersetselectvalue($projectList,'value',$projectList.attr('savedval'));
+						{
+							helpersetselectvalue($projectList,'value',$projectList.attr('savedval'));
+							//locking Org BG and Project during edit
+							$('#orgnameSelect').attr('disabled','disabled');
+							$bgList.attr('disabled','disabled');
+							$projectList.attr('disabled','disabled');
+						}
 			});
 			$('#chooseNexusServer').click(function(e) {
 				var projectSelName = $('#projectListInput option:selected').val();
@@ -2295,29 +2343,38 @@ function cachesavedvalues(blueprintdata){
 }
 
 function helpersetselectvalue($selectctrl,prop,propvalue){
-	alert(prop,propvalue);
+	//alert(prop + ' ' + propvalue);
 	$selectctrl.find('option').each(function(){
 		if($(this).attr(prop) == propvalue)
 		{
 			$selectctrl.val($(this).attr('value'));
+
 		}
 	});
+	$selectctrl.trigger('change');
 }
 
 function displaySavedBPValues(){
 	var $content = $('#bpeditcontent');
 	//$content.find('#instanceOS').val($content.find('#instanceOS').attr('data-instanceos')).trigger('change');
 	helpersetselectvalue($content.find('#instanceOS'),'data-instanceos',$content.find('#instanceOS').attr('savedval'));
-	
+		
 	//Blueprint Name
 	$content.find('#blueprintNameInput').val($content.find('#blueprintNameInput').attr('savedval'));
+	//updating the runlist table
+	// if($('#tableRunlistForBlueprint').attr('savedval'))
+	// {
+	// 	var rlist = $('#tableRunlistForBlueprint').attr('savedval').split(',');
+	// 	createRunlistTable(rlist);
+	// }
+
 	//alert($content.find('#blueprintNameInput').val());
 	///$contnet.find('#blueprintNameInput').val($contnet.find('#blueprintNameInput').attr('savedval'));
 	//$content.find('#imageId').val($content.find('#imageId').attr('savedval')).trigger('change');
+
 }
 //Initializing the blueprint area according to the Template-Type and showing
 //the differnt template types whenever a blueprint is added
-
 function loadblueprintedit(blueprintId,baseblueprintId) {
     $('#myTab3 li').addClass('hidden');
     $('#myTab3 li.blueprintEditbutton').removeClass('hidden');
@@ -2349,9 +2406,12 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     		$prod2.attr('data-templateComponent', 'component1'); //to check
     		$prod2.attr('dockerrepotags', blueprintdata.blueprintConfig.dockerRepoTags);
     		// $prod2.append('<img src="' + $('.selectedTemplateArea').find('img[src*="__templatesicon__"]').first().attr('src') + '">');
+    		$('#bpeditcontent .selectedTemplateArea').html('');
+    		//adding produtdiv2 for saving
     		$('#bpeditcontent .selectedTemplateArea').append($prod2);
     		
     		formInitializer(true);
+
     		checkandupdateRunlistTable();
     		OrgdataLoader(); //reloading Org params section 
     		$('#orgnameSelect').trigger('change'); 
@@ -2363,11 +2423,11 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
 
     		$card.find('button').detach();
     		$card.find('.moreInfo').detach();
-    		$('#bpeditcontent .selectedTemplateArea').html('');
+    		//$('#bpeditcontent .selectedTemplateArea').html('');
     		$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
     		displaySavedBPValues();
     		
-    		//adding produtdiv2 for saving
+    		
 
     		 
     		
@@ -2499,6 +2559,7 @@ function initializeBlueprintAreaNew(data) {
 					if(data[i].versions)
 						_versions = sortResults(data[i].versions,'version');
 					
+
 					$linkVersions.append('<i class="fa fa-pencil bpvi"></i>')
 					$linkVersions.attr('blueprintId',data[i]._id);
 					if(data[i].versions){	
@@ -2548,7 +2609,7 @@ function initializeBlueprintAreaNew(data) {
 						if (typeof data[i].blueprintConfig.dockerCompose != 'undefined') {
 							data[i].blueprintConfig.dockerCompose.forEach(function(k, v) {
 								var $liDockerRepoName = $('<li title="Docker Repo Name" class="dockerimagetext" style="text-align:left;margin-left:15px" ><i class="fa fa-check-square" style="padding-right:5px"/>' + data[i].blueprintConfig.dockerCompose[v]["dockercontainerpathstitle"] + '</li>');
-								$ul.append($liDockerRepoName);
+								//$ul.append($liDockerRepoName);
 							});
 						}
 						if (data[i].dockerrepotags && data[i].dockerrepotags != '') {
@@ -2803,6 +2864,13 @@ function removeSelectedBlueprint() {
 						if (data) {
 							var $bcc = $('.productdiv1.role-Selected1').closest('.blueprintContainer');
 							$('.productdiv1.role-Selected1').parent().detach();
+							//Check if any blueprints are found else display empty message
+							if($('#accordion-2').find('.productdiv1').length <= 0){
+								$('#npbpmsg').removeClass('hidden');
+							}
+							else{
+								$('#npbpmsg').addClass('hidden');
+							}
 							if ($bcc.find('.panel-body').children().length <= 0) {
 								$bcc.addClass('hidden');
 							}
@@ -2819,19 +2887,42 @@ function removeSelectedBlueprint() {
 	}
 }
 
-function copySelectedBlueprint(){
+function showbpcopydialog(){
 	var blueprintId = [];
 	$('.productdiv1.role-Selected1').each(function(){
 		blueprintId.push($(this).attr('data-blueprintid'));
 	});
 	if (blueprintId.length > 0) {
-			$('#copyBlueprintModal').modal('show');			
+			$('#copyBlueprintModal').modal('show');	
+			$('#copyBlueprintModal').find('label.bpcopycount').html(blueprintId.length + ' blueprint(s) selected.');
 	}else {
 		bootbox.alert({
 			message: 'Please select a blueprint to copy.',
 			title: 'Warning'
 		});
 	}
+}
+
+function copySelectedBlueprint(){
+	var blueprintId = [];
+	$('.productdiv1.role-Selected1').each(function(){
+		blueprintId.push($(this).attr('data-blueprintid'));
+	});
+	var orgid = $('#orgnameSelectExistingforcopy').val();
+	var buid = $('#bgListInputExistingforcopy').val();
+	var projid = $('#projectListInputExistingforcopy').val();
+	
+	var copyobj = {
+		orgid : orgid,
+		buid : buid,
+		projid: projid,
+		blueprints : blueprintId
+	}
+	$.post('/blueprints/copy',copyobj,function(msg,data){
+		if(data == 'success'){
+			$('#copyBlueprintModal').modal('hide');
+		}
+	});
 }
 
 

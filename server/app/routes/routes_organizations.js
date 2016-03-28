@@ -716,11 +716,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var blueprintType = req.body.blueprintData.blueprintType;
         var nexus = req.body.blueprintData.nexus;
         var docker = req.body.blueprintData.docker;
-<<<<<<< HEAD
-=======
         var region = req.body.blueprintData.region;
         var blueprintId = req.body.blueprintData.blueprintId;
->>>>>>> BP Edit save done. UI pending
 
 		// a temp fix for invalid appurl data. will be removed in next iteration
 		var tempAppUrls = [];
