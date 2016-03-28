@@ -3911,15 +3911,19 @@ span.icon {
     margin-top: -7px;
     position: absolute;
 }
-<<<<<<< HEAD
-=======
 .bpeditcontainer{
     padding-top: 15px;
 }
 .modal-vs{
     width:200px !important;
 }
->>>>>>> Saved values added to controls
+.modal-copybp{
+    height: 339px;
+}
+.modal-copybp > label{
+    padding-top: 10px;
+}
+>>>>>>> Copy dialog and backned  in progress
 .dockerimagetext{
     position: absolute;
 }

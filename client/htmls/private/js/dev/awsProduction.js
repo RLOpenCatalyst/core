@@ -83,6 +83,12 @@ $(document).ready(function() {
 			var $projectList = $('#projectListInputExisting');
 			var $envList = $('#envListExisting');
 			var $projectList = $('#projectListInputExisting');
+			//Dropdowns on the copy popup
+			var $orgListInputforcopy = $('#orgnameSelectExistingforcopy');
+			var $bgListforcopy = $('#bgListInputExistingforcopy');
+			var $projectListforcopy = $('#projectListInputExistingforcopy');
+			var $envListforcopy = $('#envListExistingforcopy');
+
 			$bgList.change(function(e) {
 				var bgName = $(this).val();
 				if (bgName == 'choose') {
@@ -97,6 +103,24 @@ $(document).ready(function() {
 				}
 				$projectList.trigger('change');
 			});
+
+			$bgListforcopy.change(function(e) {
+				var bgName = $(this).val();
+				if (bgName == 'choose') {
+					return;
+				}
+				var $selectedOrgOption = $(this).find(":selected");
+				$projectListforcopy.empty();
+				var getProjs = bgProjects[bgName];
+				for (var i = 0; i < getProjs.length; i++) {
+					var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+					$projectListforcopy.append($option);
+				}
+				$projectListforcopy.trigger('change');
+			});
+
+
+
 			var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
 			$('#projectListInputExisting').change(function(e) {
 				var reqBodyNew = {};
@@ -119,6 +143,9 @@ $(document).ready(function() {
 					}
 				});
 			}); //choose env gets over
+
+			
+
 			var bgProjects = {};
 			for (var i = 0; i < data.length; i++) {
 				console.log(data[i].businessGroups);
@@ -126,17 +153,30 @@ $(document).ready(function() {
 				for (var j = 0; j < data[i].businessGroups.length; j++) {
 					var rowid = data[i].businessGroups[j].rowid;
 					$bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+					//Dropdowns on the copy popup
+					$bgListforcopy.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+					
+
 					bgProjects[rowid] = data[i].businessGroups[j].projects;
 				}
 				for (var k = 0; k < data[i].environments.length; k++) {
 					$envList.append($('<option></option').val(data[i].environments[k].rowid).html(data[i].environments[k].name))
 				}
+
+				//Dropdowns on the copy popup
+				$orgListInputforcopy.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
 			}
 			$bgList.trigger('change');
+			$bgListforcopy.trigger('change');
 			$('.chooseOrgSelectExisting').change(function(e) {
 				if ($(this).val() == 'choose') {
 					$('#accordion-2').addClass('hidden');
 				}
+				$('.chooseBGExisting').change();
+				$('.chooseProjectExisting').change();
+			});
+			$('.chooseOrgSelectExistingforcopy').change(function(e) {
+				
 				$('.chooseBGExisting').change();
 				$('.chooseProjectExisting').change();
 			});
@@ -2720,14 +2760,18 @@ function initializeBlueprintAreaNew(data) {
 };
 //for removing the selected blueprint in the Existing Blueprints tab
 function removeSelectedBlueprint() {
-	var blueprintId = $('.productdiv1.role-Selected1').attr('data-blueprintid');
-	if (blueprintId) {
-		bootbox.confirm("Are you sure you would like to remove this blueprint?", function(result) {
+	var blueprintId = [];
+	$('.productdiv1.role-Selected1').each(function(){
+		blueprintId.push($(this).attr('data-blueprintid'));
+	});
+	if (blueprintId.length > 0) {
+		bootbox.confirm("Are you sure you would like to remove the selected blueprints?", function(result) {
 			if (!result) {
 				return;
 			} else {
 				$.ajax({
-					url: '/blueprints/' + blueprintId,
+					url: '/blueprints',
+					data:{blueprints:blueprintId},
 					type: 'DELETE',
 					success: function(data) {
 						if (data) {
@@ -2748,6 +2792,23 @@ function removeSelectedBlueprint() {
 		});
 	}
 }
+
+function copySelectedBlueprint(){
+	var blueprintId = [];
+	$('.productdiv1.role-Selected1').each(function(){
+		blueprintId.push($(this).attr('data-blueprintid'));
+	});
+	if (blueprintId.length > 0) {
+			$('#copyBlueprintModal').modal('show');			
+	}else {
+		bootbox.alert({
+			message: 'Please select a blueprint to copy.',
+			title: 'Warning'
+		});
+	}
+}
+
+
 $('#dockerRepoInputId').trigger('click');
 $(".repoTypeSelectorRadioBtn").click(function() {
 	var val = $(this).attr('data-repotype');

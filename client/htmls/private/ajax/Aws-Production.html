@@ -584,8 +584,11 @@
             </div>
           </div>
           <footer class="footer">
-            <div class="clearfix form-actions" style="text-align:center">
+          <div class="clearfix form-actions" style="text-align:center">
+              
+            
               <button class="btn pull-right btn-danger right-button" title="Remove Blueprint" onClick="removeSelectedBlueprint()" > <i class="fa fa-trash-o"></i></button>
+              <button class="btn pull-right btn-primary right-button" title="Copy Blueprint" onClick="copySelectedBlueprint()" > <i class="fa fa-copy"></i></button>
             </div>
           </footer>
         </div>
@@ -607,8 +610,66 @@
                 </div>
           </footer>
         </div>
-
+        
         <!--modal for blueprint edit ends-->
+
+
+        <!-- Copy bp pop-up -->
+        <div class="modal fade bs-example-modal-lg" id="copyBlueprintModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content modal-copybp" >
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list-ol txt-color-blue"></i>&nbsp;Select target</h4>
+              </div>
+              <div class="modal-body" style="height:232px;">
+                <div class="bpcopyContainer">
+                    
+                              
+                            <div class="col-lg-12 col-md-12">
+                                <label for="">Organization
+                                    <!-- <span style="color:red">*</span> --></label>
+                                <select id="orgnameSelectExistingforcopy" class="chooseOrgSelectExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                          
+                          
+                            <div class="col-lg-12 col-md-12">
+                                <label for="">Business Group</label>
+                                <select id="bgListInputExistingforcopy" class="chooseBGExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                          
+                            <div class="col-lg-12 col-md-12">
+                                <label for="category">Project
+                                </label>
+                                <select id="projectListInputExistingforcopy" class="chooseProjectExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                        
+                            <div class="col-lg-12 col-md-12 hidden">
+                                <label for="category">Environment</label>
+                                <select id="envListExistingforcopy" class="chooseEnvExistingforcopy hidden width-100 form-control">
+                                </select>
+                            </div>
+                         
+                        </div>
+                    
+                        
+                        
+                </div>
+                <div class="modal-footer" style="margin-top: 0px !important; padding-right: 8px; padding-top: 7px;">
+                    <button type="button" class="btn btn-default btn-primary" onclick="copySelectedBlueprint();">Copy</button>
+                     <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+                 </div>
+
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+
         <!--assign runlist modal-->
         <div class="modal fade" id="chefRunlistModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
           <div class="modal-dialog">
