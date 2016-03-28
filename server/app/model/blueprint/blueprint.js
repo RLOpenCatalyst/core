@@ -499,12 +499,86 @@ BlueprintSchema.statics.copyByIds = function(ids,orgid,bgid,projid, callback) {
         objids.push(ObjectId(v));
     });
     var self = this;
-    this.findAll({
-        $or:[{"_id": {$in:objids}},{"parentId":ids}]
-    },function(err,data){
-        logger.debug(data);
-    });
+    logger.debug(objids);
+    logger.debug(ids);
 
+    self.find({
+                $and:[{"orgId":orgid},{"bgId":bgid},{"projectId":projid}]
+            },function(err,dupbp){
+                if(err){
+                    logger.debug("Error in find",err);
+                    return;
+                }
+
+                self.find({
+                    $or:[{"_id": {$in:objids}},{"parentId":{$in:ids}}]
+                },function(err,data){
+
+                    logger.debug('Found:',data.length);
+                    var count = 0;
+                    for(var bpi = 0; bpi < data.length;bpi++){
+                        //Generate a new ID
+                        var newBPID = new ObjectId();
+                        //set new orgid, buid and projid
+                        data[bpi].orgId = orgid;
+                        data[bpi].bgId = bgid;
+                        data[bpi].projectId = projid;
+                        logger.debug('Name:',data[bpi]["name"]);
+                        for(var _bpi = 0; _bpi < data.length;_bpi++){
+                            if(data[bpi]["_id"] == data[_bpi]["parentId"]){
+                                var oldpid = data[_bpi]["parentId"];
+                                data[_bpi]["parentId"] = newBPID;
+                                logger.debug("Updated parent for " + data[_bpi]["name"] + ":",data[_bpi]["_id"], "from " , oldpid ," to ", data[_bpi]["parentId"]);
+                            }
+                        }
+                        //UPdate current objects ID
+                        logger.debug("Old ID:",data[bpi]["_id"]);
+                        data[bpi]["_id"] = newBPID;
+                        logger.debug("New ID:",data[bpi]["_id"]);
+                        //Including the version field if not present - backward compatibility
+                        if(!data[bpi]["version"])
+                            data[bpi]["version"] = "1";
+                         //About to save
+                        
+                        
+                        logger.debug('About to write',bpi);
+                        //finding any duplicates and renaming before save
+                        for(var dbpi =0; dbpi < dupbp.length; dbpi++){
+                            if(dupbp[dbpi]["name"] == data[bpi]["name"]) {
+                                data[bpi]["name"] = data[bpi]["name"] + '_copy';
+                                logger.debug('Found a duplicate. Renaming',data[bpi]["name"]);
+                                logger.debug(JSON.stringify([{"orgId":orgid},{"bgId":bgid},{"projectId":projid}]));
+                            }                  
+                        }
+                        
+                            
+                        var blueprint = new Blueprints(data[bpi]);
+
+                        blueprint.save(function(err,docs){
+                            logger.debug(' docs ==> ',JSON.stringify(docs));
+                            count++;
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                return;
+                            }
+                            else{
+                                logger.debug('Count:',count,'Data len',data.length);
+                                 if(count >= data.length)
+                                 {
+                                    logger.debug('Count:',count,'Data len',data.length);
+                                    logger.debug('Inserted all documents');
+                                    callback(null, docs);
+                                  }
+                            }
+                        });
+                      
+                        
+                    }
+
+                    //logger.debug(data);
+                });
+     }); //find all blueprints
 };
 
 
