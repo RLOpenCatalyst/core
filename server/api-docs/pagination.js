@@ -34,21 +34,28 @@
  *     }
  *
  *
- * @apiError 200 The ProviderID of the Active Organization was not found.
+ * @apiError 204 The ProviderID of the Active Organization was not found.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 200 Not Found
+ *     HTTP/1.1 204 Not Found
  *     {
- *       "error": "provider not found"
+ *       "error": "The server successfully processed the request and is not returning any content"
  *     }
- * @apiError 200 Data is not present for respective search parameter.
+ * @apiError 204 Data is not present for respective search parameter.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 200 Not Found
+ *     HTTP/1.1 204 Not Found
  *     {
- *       "error": "data not found"
+ *       "error": "The server successfully processed the request and is not returning any content"
  *     }
- * @apiError 500 Server Behaved Unexpectedly.
+ * @apiError 404 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "error": "Bad Request"
+ *     }
+ * @apiError 500 InternalServerError.
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 500
