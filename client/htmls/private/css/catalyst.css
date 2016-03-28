@@ -3911,6 +3911,15 @@ span.icon {
     margin-top: -7px;
     position: absolute;
 }
+<<<<<<< HEAD
+=======
+.bpeditcontainer{
+    padding-top: 15px;
+}
+.modal-vs{
+    width:200px !important;
+}
+>>>>>>> Saved values added to controls
 .dockerimagetext{
     position: absolute;
 }

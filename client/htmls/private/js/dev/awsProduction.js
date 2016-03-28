@@ -60,6 +60,7 @@ function updatecompositedockertableemptymessage() {
 		$('#compositedockertable').append('<tr id="dockerimageemptytr"><td colspan="6" align="center">No images added</td></tr>');
 	}
 }
+
 $(document).ready(function() {
 	$('#selectOrgName').trigger('change');
 	var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
@@ -100,8 +101,8 @@ $(document).ready(function() {
 				reqBodyNew.bgId = $bgList.val();
 				reqBodyNew.projectId = $projectList.val();
 				reqBodyNew.envId = $envList.val();
-				//alert('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/');
-				$.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/', function(data) {
+				//alert('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws' );
+				$.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws', function(data) {
 					console.log('success---3---4' + data.blueprints.length);
 					//Syncing up the tree view based on url
 					initializeBlueprintAreaNew(data.blueprints);
@@ -837,7 +838,7 @@ var formInitializer = function(editing) {
             bootbox.alert('please choose a blueprint design');
             return false;
         }
-        alert('Updating Dropdowns');
+       
         //
 		dataLoader();
 		//end updating dropdowns
@@ -847,7 +848,6 @@ var formInitializer = function(editing) {
         console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
         if ($('.productdiv2.role-Selected').length > 0) {
             //Setting controls connected to docker to hidden
-            alert('in');
             $('.forDocker').hide();
             $('.notForDocker').show();
             $('.forCFT').hide();
@@ -1638,435 +1638,442 @@ var $selectedTemplate = $('.productdiv2').click(function(e) {
 	}));
 	$this.addClass('role-Selected');
 });
-$.ajax({
-	type: "get",
-	dataType: "json",
-	async: false,
-	url: "../organizations/getTreeForbtv",
-	success: function(data) {
-		console.log(data);
-		$('#selectOrgName').trigger('change');
-		data = JSON.parse(JSON.stringify(data));
-		var $orgListInput = $('#orgnameSelect');
-		$bgList = $('#bgListInput');
-		var $envList = $('#envList');
-		for (var i = 0; i < data.length; i++) {
-			$('#selectOrgName').append($('<option></option>').val(data[i].rowid).html(data[i].name));
-			$orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].nodes).data('project', data[i].nodes[0].nodes).data('envList', data[i].nodes[0].nodes));
-		}
-		$orgListInput.change(function(e) {
-			var orgName = $(this).val();
-			if (orgName == 'choose') {
-				return;
+
+var OrgdataLoader = function(editing){
+	$.ajax({
+		type: "get",
+		dataType: "json",
+		async: false,
+		url: "../organizations/getTreeForbtv",
+		success: function(data) {
+			console.log(data);
+			$('#selectOrgName').trigger('change');
+			data = JSON.parse(JSON.stringify(data));
+			var $orgListInput = $('#orgnameSelect');
+			$bgList = $('#bgListInput');
+			var $envList = $('#envList');
+			for (var i = 0; i < data.length; i++) {
+				$('#selectOrgName').append($('<option></option>').val(data[i].rowid).html(data[i].name));
+				$orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].nodes).data('project', data[i].nodes[0].nodes).data('envList', data[i].nodes[0].nodes));
 			}
-			var $selectedOrgOption = $(this).find(":selected");
-			$bgList.empty();
-			$bgList.append($('<option></option>').val('choose').html('Choose'));
-			var getBGs = $selectedOrgOption.data('bglist');
-			if (getBGs != null) {
-				for (var i = 0; i < getBGs.length; i++) {
-					$bgList.append($('<option></option>').val(getBGs[i].rowid).html(getBGs[i].name).data('projList', getBGs[i].nodes));
+			$orgListInput.change(function(e) {
+				var orgName = $(this).val();
+				if (orgName == 'choose') {
+					return;
 				}
-			}
-			var $cookbookShow = $('.cookbookShow').empty();
-			$cookbookShow.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
-			var tcb = [];
-			var $card = $('#tab3').find('div[class*="productdiv2"]').first();
-			if ($card.length) {
-				var templatescookbooks = $card.attr('templatescookbooks');
-				if (templatescookbooks) {
-					tcb = templatescookbooks.split(',');
+				var $selectedOrgOption = $(this).find(":selected");
+				$bgList.empty();
+				$bgList.append($('<option></option>').val('choose').html('Choose'));
+				var getBGs = $selectedOrgOption.data('bglist');
+				if (getBGs != null) {
+					for (var i = 0; i < getBGs.length; i++) {
+						$bgList.append($('<option></option>').val(getBGs[i].rowid).html(getBGs[i].name).data('projList', getBGs[i].nodes));
+					}
 				}
-			}
-			console.log(tcb);
-			console.log('tcbdhd == >', tcb);
-			var $ccrs = $chefCookbookRoleSelector(orgName, function(data) {}, tcb);
-			console.log("Variables>>>>>" + $ccrs);
-			$cookbookShow.empty();
-			$cookbookShow.append($ccrs);
-			var currentRunlistNames = $ccrs.getRunlistNames(tcb);
-			$tasksRunlist.clear().draw();
-			for (var i = 0; i < currentRunlistNames.length; i++) {
-				var $runlistList = $('#tableRunlistForBlueprint');
-				var $tr = $('<tr class="runlistRow"></tr>');
-				var $tdName = $('<td class="runlistDescription">' + currentRunlistNames[i] + '</td>');
-				$tr.append($tdName);
-				$runlistList.append($tr);
-				$tasksRunlist.row.add($tr).draw();
-			}
-			$cookbookShow.data('$ccrs', $ccrs)
-		});
-		var $projectList = $('#projectListInput');
-		$bgList.change(function(e) {
-			var bgName = $(this).val();
-			if (bgName == 'choose') {
-				return;
-			}
-			var $selectedOrgOption = $(this).find(":selected");
-			$projectList.empty();
-			$projectList.append($('<option></option>').val('choose').html('Choose'));
-			var getProjs = $selectedOrgOption.data('projList');
-			for (var i = 0; i < getProjs.length; i++) {
-				$projectList.append($('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name));
-			}
-		});
-		$('#chooseNexusServer').click(function(e) {
-			var projectSelName = $('#projectListInput option:selected').val();
-			if (!projectSelName || projectSelName == 'choose') {
-				alert("Please Choose Project Before Proceeding....");
-			}
-		});
-		$projectList.change(function(e) {
-			var $nexusServer = $('#chooseNexusServer');
-			var $chooseRepository = $('#chooseRepository');
-			var $chooseGroupId = $('#chooseGroupId');
-			var $chooseArtifacts = $('#chooseArtifacts');
-			var $chooseVersions = $('#chooseVersions');
-			var projectId = $(this).val();
-			if ($('.checkConfigApp').prop("checked")) {
-				getNexusServer();
-			} else {
-				$nexusServer.empty();
-				$nexusServer.append('<option value="">Choose Server</option>');
-				resetAllFields();
-			}
-			$('.checkConfigApp').click(function() {
-				if ($(this).prop("checked")) {
+				var $cookbookShow = $('.cookbookShow').empty();
+				$cookbookShow.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+				var tcb = [];
+				var $card = $('#tab3').find('div[class*="productdiv2"]').first();
+				if ($card.length) {
+					var templatescookbooks = $card.attr('templatescookbooks');
+					if (templatescookbooks) {
+						tcb = templatescookbooks.split(',');
+					}
+				}
+				console.log(tcb);
+				console.log('tcbdhd == >', tcb);
+				var $ccrs = $chefCookbookRoleSelector(orgName, function(data) {}, tcb);
+				console.log("Variables>>>>>" + $ccrs);
+				$cookbookShow.empty();
+				$cookbookShow.append($ccrs);
+				var currentRunlistNames = $ccrs.getRunlistNames(tcb);
+				$tasksRunlist.clear().draw();
+				for (var i = 0; i < currentRunlistNames.length; i++) {
+					var $runlistList = $('#tableRunlistForBlueprint');
+					var $tr = $('<tr class="runlistRow"></tr>');
+					var $tdName = $('<td class="runlistDescription">' + currentRunlistNames[i] + '</td>');
+					$tr.append($tdName);
+					$runlistList.append($tr);
+					$tasksRunlist.row.add($tr).draw();
+				}
+				$cookbookShow.data('$ccrs', $ccrs)
+			});
+			var $projectList = $('#projectListInput');
+			$bgList.change(function(e) {
+				var bgName = $(this).val();
+				if (bgName == 'choose') {
+					return;
+				}
+				var $selectedOrgOption = $(this).find(":selected");
+				$projectList.empty();
+				$projectList.append($('<option></option>').val('choose').html('Choose'));
+				var getProjs = $selectedOrgOption.data('projList');
+				for (var i = 0; i < getProjs.length; i++) {
+					$projectList.append($('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name));
+				}
+			});
+			$('#chooseNexusServer').click(function(e) {
+				var projectSelName = $('#projectListInput option:selected').val();
+				if (!projectSelName || projectSelName == 'choose') {
+					alert("Please Choose Project Before Proceeding....");
+				}
+			});
+			$projectList.change(function(e) {
+				var $nexusServer = $('#chooseNexusServer');
+				var $chooseRepository = $('#chooseRepository');
+				var $chooseGroupId = $('#chooseGroupId');
+				var $chooseArtifacts = $('#chooseArtifacts');
+				var $chooseVersions = $('#chooseVersions');
+				var projectId = $(this).val();
+				if ($('.checkConfigApp').prop("checked")) {
 					getNexusServer();
 				} else {
 					$nexusServer.empty();
 					$nexusServer.append('<option value="">Choose Server</option>');
 					resetAllFields();
 				}
-			});
-
-			function resetAllFields() {
-				$chooseRepository.empty();
-				$chooseRepository.append('<option value="">Choose Repositories</option>');
-				$chooseGroupId.empty();
-				$('#chooseGroupId').append('<option value="">Choose Group ID</option>');
-				$chooseArtifacts.empty();
-				$chooseArtifacts.append('<option value="">Choose Artifacts</option>');
-				$chooseVersions.empty();
-				$chooseVersions.append('<option value="">Choose Versions</option>');
-				var $repositoryUrl = $('#repositoryUrl');
-				$repositoryUrl.val("");
-				var $containerId = $('#containerIdDiv');
-				$containerId.val("");
-				var $containerPort = $('#containerPort');
-				$containerPort.val("");
-			}
-
-			function resetSpinners() {
-				$('.reposerverspinner').css('display', 'none');
-				$('.repospinner').css('display', 'none');
-				$('.repourlspinner').css('display', 'none');
-				$('.artifactsspinner').css('display', 'none');
-				$('.versionspinner').css('display', 'none');
-				$('.jobdetailsspinner').css('display', 'none');
-			}
-
-			function getNexusServer() {
-				resetAllFields();
-				$nexusServer.empty();
-				$nexusServer.append('<option value="">Choose Server</option>');
-				var $chooseJobType = $('#chooseJobType');
-				$chooseJobType.empty();
-				$('#chooseJobType').append('<option value="">Choose Job</option>');
-				$('.reposerverspinner').css('display', 'inline-block');
-				$.get('/d4dMasters/readmasterjsonnew/26', function(nexus) {
-					$('.reposerverspinner').css('display', 'none');
-					if (nexus.length) {
-						for (var i = 0; i < nexus.length; i++) {
-							$('#chooseNexusServer').append('<option data-groupId = "' + nexus[i].groupid + '" data-nexusUrl = "' + nexus[i].hostname + '" value=' + nexus[i].rowid + ' data-serverType = "' + nexus[i].configType + '">' + nexus[i].nexusservername + '</option>');
-						}
+				$('.checkConfigApp').click(function() {
+					if ($(this).prop("checked")) {
+						getNexusServer();
+					} else {
+						$nexusServer.empty();
+						$nexusServer.append('<option value="">Choose Server</option>');
+						resetAllFields();
 					}
-					$.get('/d4dMasters/readmasterjsonnew/18', function(dockerData) {
-						if (dockerData.length) {
-							for (var i = 0; i < dockerData.length; i++) {
-								$nexusServer.append('<option value=' + dockerData[i].rowid + ' data-serverType = "' + dockerData[i].configType + '">' + dockerData[i].dockerreponame + '</option>');
-							}
-						}
-						var exists = {},
-							elm;
-						$nexusServer.find('option').each(function() {
-							if (nexus.length) {
-								if ($(this).attr('data-serverType') == 'nexus') {
-									elm = $(this).attr('data-serverType');
-									if (!exists[elm]) {
-										$(this).attr('selected', true).change();
-										exists[elm] = true;
-									}
-								}
-							} else {
-								if ($(this).attr('data-serverType') == 'docker') {
-									elm = $(this).attr('data-serverType');
-									if (!exists[elm]) {
-										$(this).attr('selected', true).change();
-										exists[elm] = true;
-									}
-								}
-							}
-						});
-					});
 				});
-			}
-			$nexusServer.change(function(e) {
 
-				var nexusServerType = $nexusServer.find('option:selected').attr('data-serverType');
-				if ($nexusServer.find('option:selected').text() == 'Choose Server') {
-					$('.groupClass').hide();
-					$('.containerIdClass').hide();
-					$('.containerPortClass').hide();
-					$('.repoUrlClass').hide();
-					$('.artifactClass').hide();
-					$('.versionClass').hide();
-					$('.createTaskLinkUpgrade').attr('disabled', 'disabled');
-					// Reset all values
-					resetAllFields();
-				} else if (nexusServerType == 'nexus') {
-					$('.groupClass').show();
-					$('.repoUrlClass').show();
-					$('.artifactClass').show();
-					$('.versionClass').show();
-					$('.containerIdClass').hide();
-					$('.containerPortClass').hide();
-					resetAllFields();
-
-					getNexusServerGroupId();
-					getNexusServerRepo($(this).val());
-				} else { // It's Docker
-					resetAllFields();
-					$('.groupClass').hide();
-					$('.repoUrlClass').hide();
-					$('.artifactClass').hide();
-					$('.versionClass').hide();
-					$('.containerIdClass').show();
-					$('.containerPortClass').show();
-					var containerId = $('#containerIdInput').val();
-					getDockerRepoes();
+				function resetAllFields() {
+					$chooseRepository.empty();
+					$chooseRepository.append('<option value="">Choose Repositories</option>');
+					$chooseGroupId.empty();
+					$('#chooseGroupId').append('<option value="">Choose Group ID</option>');
+					$chooseArtifacts.empty();
+					$chooseArtifacts.append('<option value="">Choose Artifacts</option>');
+					$chooseVersions.empty();
+					$chooseVersions.append('<option value="">Choose Versions</option>');
+					var $repositoryUrl = $('#repositoryUrl');
+					$repositoryUrl.val("");
+					var $containerId = $('#containerIdDiv');
+					$containerId.val("");
+					var $containerPort = $('#containerPort');
+					$containerPort.val("");
 				}
-			});
 
-			function getDockerRepoes() {
-				$('.repospinner').css('display', 'inline-block');
-				if (projectId) {
-					$.get('/d4dMasters/project/' + projectId, function(anProject) {
-						$('.repospinner').css('display', 'none');
-						if (anProject.length) {
-							anProject = anProject[0];
-							if (anProject.repositories) {
-								var repositories = anProject.repositories.docker;
-								if (repositories.length) {
-									for (var x = 0; x < repositories.length; x++) {
-										$chooseRepository.append('<option value="' + repositories[x] + '">' + repositories[x] + '</option>');
-									}
-								}
+				function resetSpinners() {
+					$('.reposerverspinner').css('display', 'none');
+					$('.repospinner').css('display', 'none');
+					$('.repourlspinner').css('display', 'none');
+					$('.artifactsspinner').css('display', 'none');
+					$('.versionspinner').css('display', 'none');
+					$('.jobdetailsspinner').css('display', 'none');
+				}
+
+				function getNexusServer() {
+					resetAllFields();
+					$nexusServer.empty();
+					$nexusServer.append('<option value="">Choose Server</option>');
+					var $chooseJobType = $('#chooseJobType');
+					$chooseJobType.empty();
+					$('#chooseJobType').append('<option value="">Choose Job</option>');
+					$('.reposerverspinner').css('display', 'inline-block');
+					$.get('/d4dMasters/readmasterjsonnew/26', function(nexus) {
+						$('.reposerverspinner').css('display', 'none');
+						if (nexus.length) {
+							for (var i = 0; i < nexus.length; i++) {
+								$('#chooseNexusServer').append('<option data-groupId = "' + nexus[i].groupid + '" data-nexusUrl = "' + nexus[i].hostname + '" value=' + nexus[i].rowid + ' data-serverType = "' + nexus[i].configType + '">' + nexus[i].nexusservername + '</option>');
 							}
 						}
-					});
-				} else {
-					$('.repospinner').css('display', 'none');
-				}
-			}
-
-			function getNexusServerRepo(nexusId) {
-				$('.repospinner').css('display', 'inline-block');
-				if (nexusId) {
-					$.get('/nexus/' + nexusId + '/repositories', function(nexusRepos) {
-						$('.repospinner').css('display', 'none');
-						if (nexusRepos.length) {
-							$.get('/d4dMasters/project/' + projectId, function(anProject) {
-								if (anProject.length) {
-									project = anProject[0];
-									if (project.repositories) {
-										var repositories = project.repositories.nexus;
-										if (repositories.length) {
-											for (var x = 0; x < repositories.length; x++) {
-												(function(x) {
-													for (var i = 0; i < nexusRepos.length; i++) {
-														if (repositories[x] === nexusRepos[i].name) {
-															$chooseRepository.append('<option data-repoName="' + nexusRepos[i].name + '" data-repoUrl="' + nexusRepos[i].resourceURI + '" value="' + nexusRepos[i].id + '">' + nexusRepos[i].name + '</option>');
-														}
-													}
-												})(x);
-											}
-
-											$('#chooseRepository > option:eq(1)').attr('selected', true).change();
+						$.get('/d4dMasters/readmasterjsonnew/18', function(dockerData) {
+							if (dockerData.length) {
+								for (var i = 0; i < dockerData.length; i++) {
+									$nexusServer.append('<option value=' + dockerData[i].rowid + ' data-serverType = "' + dockerData[i].configType + '">' + dockerData[i].dockerreponame + '</option>');
+								}
+							}
+							var exists = {},
+								elm;
+							$nexusServer.find('option').each(function() {
+								if (nexus.length) {
+									if ($(this).attr('data-serverType') == 'nexus') {
+										elm = $(this).attr('data-serverType');
+										if (!exists[elm]) {
+											$(this).attr('selected', true).change();
+											exists[elm] = true;
+										}
+									}
+								} else {
+									if ($(this).attr('data-serverType') == 'docker') {
+										elm = $(this).attr('data-serverType');
+										if (!exists[elm]) {
+											$(this).attr('selected', true).change();
+											exists[elm] = true;
 										}
 									}
 								}
 							});
-						}
+						});
 					});
-				} else {
-					$('.repospinner').css('display', 'none');
 				}
-			}
+				$nexusServer.change(function(e) {
 
-			$chooseRepository.change(function(e) {
-				var nexusServerType = $nexusServer.find('option:selected').attr('data-serverType');
+					var nexusServerType = $nexusServer.find('option:selected').attr('data-serverType');
+					if ($nexusServer.find('option:selected').text() == 'Choose Server') {
+						$('.groupClass').hide();
+						$('.containerIdClass').hide();
+						$('.containerPortClass').hide();
+						$('.repoUrlClass').hide();
+						$('.artifactClass').hide();
+						$('.versionClass').hide();
+						$('.createTaskLinkUpgrade').attr('disabled', 'disabled');
+						// Reset all values
+						resetAllFields();
+					} else if (nexusServerType == 'nexus') {
+						$('.groupClass').show();
+						$('.repoUrlClass').show();
+						$('.artifactClass').show();
+						$('.versionClass').show();
+						$('.containerIdClass').hide();
+						$('.containerPortClass').hide();
+						resetAllFields();
 
-				if (nexusServerType === 'nexus') {
-					$('.containerIdClass').hide();
-					$('.containerPortClass').hide();
-					$('.repoUrlClass').show();
-					$('.artifactClass').show();
-					$('.versionClass').show();
-					var $repositoryUrl = $('#repositoryUrl');
-					$repositoryUrl.val("");
+						getNexusServerGroupId();
+						getNexusServerRepo($(this).val());
+					} else { // It's Docker
+						resetAllFields();
+						$('.groupClass').hide();
+						$('.repoUrlClass').hide();
+						$('.artifactClass').hide();
+						$('.versionClass').hide();
+						$('.containerIdClass').show();
+						$('.containerPortClass').show();
+						var containerId = $('#containerIdInput').val();
+						getDockerRepoes();
+					}
+				});
 
+				function getDockerRepoes() {
+					$('.repospinner').css('display', 'inline-block');
+					if (projectId) {
+						$.get('/d4dMasters/project/' + projectId, function(anProject) {
+							$('.repospinner').css('display', 'none');
+							if (anProject.length) {
+								anProject = anProject[0];
+								if (anProject.repositories) {
+									var repositories = anProject.repositories.docker;
+									if (repositories.length) {
+										for (var x = 0; x < repositories.length; x++) {
+											$chooseRepository.append('<option value="' + repositories[x] + '">' + repositories[x] + '</option>');
+										}
+									}
+								}
+							}
+						});
+					} else {
+						$('.repospinner').css('display', 'none');
+					}
+				}
+
+				function getNexusServerRepo(nexusId) {
+					$('.repospinner').css('display', 'inline-block');
+					if (nexusId) {
+						$.get('/nexus/' + nexusId + '/repositories', function(nexusRepos) {
+							$('.repospinner').css('display', 'none');
+							if (nexusRepos.length) {
+								$.get('/d4dMasters/project/' + projectId, function(anProject) {
+									if (anProject.length) {
+										project = anProject[0];
+										if (project.repositories) {
+											var repositories = project.repositories.nexus;
+											if (repositories.length) {
+												for (var x = 0; x < repositories.length; x++) {
+													(function(x) {
+														for (var i = 0; i < nexusRepos.length; i++) {
+															if (repositories[x] === nexusRepos[i].name) {
+																$chooseRepository.append('<option data-repoName="' + nexusRepos[i].name + '" data-repoUrl="' + nexusRepos[i].resourceURI + '" value="' + nexusRepos[i].id + '">' + nexusRepos[i].name + '</option>');
+															}
+														}
+													})(x);
+												}
+
+												$('#chooseRepository > option:eq(1)').attr('selected', true).change();
+											}
+										}
+									}
+								});
+							}
+						});
+					} else {
+						$('.repospinner').css('display', 'none');
+					}
+				}
+
+				$chooseRepository.change(function(e) {
+					var nexusServerType = $nexusServer.find('option:selected').attr('data-serverType');
+
+					if (nexusServerType === 'nexus') {
+						$('.containerIdClass').hide();
+						$('.containerPortClass').hide();
+						$('.repoUrlClass').show();
+						$('.artifactClass').show();
+						$('.versionClass').show();
+						var $repositoryUrl = $('#repositoryUrl');
+						$repositoryUrl.val("");
+
+
+						$chooseArtifacts.empty();
+						$chooseArtifacts.append('<option value="">Choose Artifacts</option>');
+
+						$chooseVersions.empty();
+						$chooseVersions.append('<option value="">Choose Versions</option>');
+						$('#repositoryUrl').val($(this).find('option:selected').attr('data-repoUrl'));
+						var repoName = $(this).find('option:selected').attr('data-repoName');
+						var nexusId = $nexusServer.val();
+						var groupId = $('#chooseGroupId').val();
+						var $chooseGroupId = $('#chooseGroupId');
+
+						if (!repoName) {
+							$chooseGroupId.empty();
+							$('#chooseGroupId').append('<option value="">Choose Group ID</option>');
+
+							var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
+							for (var g = 0; g < groupId.length; g++) {
+								$('#chooseGroupId').append('<option value="' + groupId[g] + '">' + groupId[g] + '</option>');
+							}
+						} else {
+							$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
+						}
+					} else {
+						$('.groupClass').hide();
+						$('.containerIdClass').show();
+						$('.containerPortClass').show();
+						$('.repoUrlClass').hide();
+						$('.artifactClass').hide();
+						$('.versionClass').hide();
+					}
+				});
+
+				function getNexusServerGroupId() {
+					var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
+					for (var g = 0; g < groupId.length; g++) {
+						$('#chooseGroupId').append('<option value="' + groupId[g] + '">' + groupId[g] + '</option>');
+					}
+					$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
+				}
+
+				$chooseGroupId.change(function(e) {
+					var repoName = $('#chooseRepository').find('option:selected').attr('data-repoName');
+					var nexusId = $('#chooseNexusServer').val();
+					var groupId = $('#chooseGroupId').val();
+					getNexusServerRepoArtifact(nexusId, repoName, groupId);
+				});
+
+				function getNexusServerRepoArtifact(nexusId, repoName, groupId) {
+					$('.artifactsspinner').css('display', 'inline-block');
 
 					$chooseArtifacts.empty();
 					$chooseArtifacts.append('<option value="">Choose Artifacts</option>');
+					if (nexusId && repoName) {
+						$.get('/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact', function(artifacts) {
+							$('.artifactsspinner').css('display', 'none');
+							if (artifacts.length) {
+								var repoList = [];
+								var uniqueArtifacts = [];
+								var checker;
+								for (var i = 0; i < artifacts.length; i++) {
+									var repoObj = {};
+									repoObj['resourceURI'] = artifacts[i].resourceURI;
+									repoObj['version'] = artifacts[i].version;
+									repoObj['artifactId'] = artifacts[i].artifactId;
+									repoList.push(repoObj);
+									if (!checker || comparer(checker, artifacts[i]) != 0) {
+										checker = artifacts[i];
+										uniqueArtifacts.push(checker);
+									}
+								}
+								$("#chooseArtifacts").data("repoObj", repoList);
+								for (var j = 0; j < uniqueArtifacts.length; j++) {
+									$('#chooseArtifacts').append('<option data-groupId="' + uniqueArtifacts[j].groupId + '" value=' + uniqueArtifacts[j].artifactId + '>' + uniqueArtifacts[j].artifactId + '</option>');
+								}
+								$('#chooseArtifacts > option:eq(1)').attr('selected', true).change();
+							}
+						});
+					} else {
+						$('.artifactsspinner').css('display', 'none');
+					}
+				}
 
+				$chooseArtifacts.change(function(e) {
 					$chooseVersions.empty();
 					$chooseVersions.append('<option value="">Choose Versions</option>');
-					$('#repositoryUrl').val($(this).find('option:selected').attr('data-repoUrl'));
-					var repoName = $(this).find('option:selected').attr('data-repoName');
+					var repoName = $chooseRepository.find('option:selected').attr('data-repoName');
 					var nexusId = $nexusServer.val();
-					var groupId = $('#chooseGroupId').val();
-					var $chooseGroupId = $('#chooseGroupId');
-
-					if (!repoName) {
-						$chooseGroupId.empty();
-						$('#chooseGroupId').append('<option value="">Choose Group ID</option>');
-
-						var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
-						for (var g = 0; g < groupId.length; g++) {
-							$('#chooseGroupId').append('<option value="' + groupId[g] + '">' + groupId[g] + '</option>');
-						}
+					var groupId = $(this).find('option:selected').attr('data-groupId');
+					var artifactId = $(this).val();
+					getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId);
+				});
+				var comparer = function compareObject(a, b) {
+					if (a.artifactId === b.artifactId) {
+						return 0;
 					} else {
-						$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
+						return 1;
 					}
-				} else {
-					$('.groupClass').hide();
-					$('.containerIdClass').show();
-					$('.containerPortClass').show();
-					$('.repoUrlClass').hide();
-					$('.artifactClass').hide();
-					$('.versionClass').hide();
 				}
-			});
 
-			function getNexusServerGroupId() {
-				var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
-				for (var g = 0; g < groupId.length; g++) {
-					$('#chooseGroupId').append('<option value="' + groupId[g] + '">' + groupId[g] + '</option>');
-				}
-				$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
-			}
-
-			$chooseGroupId.change(function(e) {
-				var repoName = $('#chooseRepository').find('option:selected').attr('data-repoName');
-				var nexusId = $('#chooseNexusServer').val();
-				var groupId = $('#chooseGroupId').val();
-				getNexusServerRepoArtifact(nexusId, repoName, groupId);
-			});
-
-			function getNexusServerRepoArtifact(nexusId, repoName, groupId) {
-				$('.artifactsspinner').css('display', 'inline-block');
-
-				$chooseArtifacts.empty();
-				$chooseArtifacts.append('<option value="">Choose Artifacts</option>');
-				if (nexusId && repoName) {
-					$.get('/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact', function(artifacts) {
-						$('.artifactsspinner').css('display', 'none');
-						if (artifacts.length) {
-							var repoList = [];
-							var uniqueArtifacts = [];
-							var checker;
-							for (var i = 0; i < artifacts.length; i++) {
-								var repoObj = {};
-								repoObj['resourceURI'] = artifacts[i].resourceURI;
-								repoObj['version'] = artifacts[i].version;
-								repoObj['artifactId'] = artifacts[i].artifactId;
-								repoList.push(repoObj);
-								if (!checker || comparer(checker, artifacts[i]) != 0) {
-									checker = artifacts[i];
-									uniqueArtifacts.push(checker);
-								}
-							}
-							$("#chooseArtifacts").data("repoObj", repoList);
-							for (var j = 0; j < uniqueArtifacts.length; j++) {
-								$('#chooseArtifacts').append('<option data-groupId="' + uniqueArtifacts[j].groupId + '" value=' + uniqueArtifacts[j].artifactId + '>' + uniqueArtifacts[j].artifactId + '</option>');
-							}
-							$('#chooseArtifacts > option:eq(1)').attr('selected', true).change();
-						}
-					});
-				} else {
-					$('.artifactsspinner').css('display', 'none');
-				}
-			}
-
-			$chooseArtifacts.change(function(e) {
-				$chooseVersions.empty();
-				$chooseVersions.append('<option value="">Choose Versions</option>');
-				var repoName = $chooseRepository.find('option:selected').attr('data-repoName');
-				var nexusId = $nexusServer.val();
-				var groupId = $(this).find('option:selected').attr('data-groupId');
-				var artifactId = $(this).val();
-				getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId);
-			});
-			var comparer = function compareObject(a, b) {
-				if (a.artifactId === b.artifactId) {
-					return 0;
-				} else {
-					return 1;
-				}
-			}
-
-			function getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId) {
-				$('.versionspinner').css('display', 'inline-block');
-				var $chooseVersions = $('#chooseVersions');
-				$chooseVersions.empty();
-				$('#chooseVersions').append('<option value="">Choose Versions</option>');
-				if (nexusId && repoName && groupId && artifactId) {
-					$.get('/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact/' + artifactId + '/versions', function(data) {
-						$('.versionspinner').css('display', 'none');
-						if (data) {
-							var versions = data.metadata.versioning[0].versions[0].version;
-							for (var i = 0; i < versions.length; i++) {
-								$('#chooseVersions').append('<option value=' + versions[i] + '>' + versions[i] + '</option>');
-							}
-							$chooseVersions.find('option:last-child').attr('selected', true).change();
-						} else {
+				function getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId) {
+					$('.versionspinner').css('display', 'inline-block');
+					var $chooseVersions = $('#chooseVersions');
+					$chooseVersions.empty();
+					$('#chooseVersions').append('<option value="">Choose Versions</option>');
+					if (nexusId && repoName && groupId && artifactId) {
+						$.get('/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact/' + artifactId + '/versions', function(data) {
 							$('.versionspinner').css('display', 'none');
-						}
-					});
-				} else {
-					$('.versionspinner').css('display', 'none');
+							if (data) {
+								var versions = data.metadata.versioning[0].versions[0].version;
+								for (var i = 0; i < versions.length; i++) {
+									$('#chooseVersions').append('<option value=' + versions[i] + '>' + versions[i] + '</option>');
+								}
+								$chooseVersions.find('option:last-child').attr('selected', true).change();
+							} else {
+								$('.versionspinner').css('display', 'none');
+							}
+						});
+					} else {
+						$('.versionspinner').css('display', 'none');
+					}
 				}
-			}
-		});
-	}
-});
-(function() {
-	var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
-	$.get('../users', function(userList) {
-		var $userListSelect = $('#userListSelect').empty();
-		userList = JSON.parse(userList);
-		userList.sort(function(a, b) {
-			var keyA = Object.keys(a);
-			var keyB = Object.keys(b);
-			if (keyA[0] < keyB[0]) return -1;
-			if (keyA[0] > keyB[0]) return 1;
-			return 0;
-		});
-		for (var i = 0; i < userList.length; i++) {
-			var keys = Object.keys(userList[i]);
-			var $option = $('<option></option>').append(keys[0]).val(keys[0]);
-			$userListSelect.append($option);
+			});
 		}
-		$loadingContainer.hide();
-		$userListSelect.show();
-	}).error(function() {
-		$loadingContainer.empty().append('Unable to load users. Please try again later.');
 	});
-})();
+	(function() {
+		var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
+		$.get('../users', function(userList) {
+			var $userListSelect = $('#userListSelect').empty();
+			userList = JSON.parse(userList);
+			userList.sort(function(a, b) {
+				var keyA = Object.keys(a);
+				var keyB = Object.keys(b);
+				if (keyA[0] < keyB[0]) return -1;
+				if (keyA[0] > keyB[0]) return 1;
+				return 0;
+			});
+			for (var i = 0; i < userList.length; i++) {
+				var keys = Object.keys(userList[i]);
+				var $option = $('<option></option>').append(keys[0]).val(keys[0]);
+				$userListSelect.append($option);
+			}
+			$loadingContainer.hide();
+			$userListSelect.show();
+		}).error(function() {
+			$loadingContainer.empty().append('Unable to load users. Please try again later.');
+		});
+	})();
+}
+
+OrgdataLoader(); //Wrapped for editing
+
 $(document).ready(function() {
 	$("#blueprintNameInput").focus();
 });
+
 $('#newAppSeries').click(function(e) {
 	$('#appURLForm').trigger("reset");
 });
@@ -2122,21 +2129,94 @@ $('#appURLForm').submit(function(e) {
 	$('#appEntry').addClass('hidden');
 	return false;
 });
+
+
+function cachesavedvalues(blueprintdata){
+	var $content = $('#tab3');
+	if(blueprintdata){
+	 	$content.find('#orgnameSelect').attr('savedval',blueprintdata.orgId);
+	 	$content.find('#blueprintNameInput').attr('savedval',blueprintdata.name);
+		$content.find('#bgListInput').attr('savedval',blueprintdata.bgId);
+		$content.find('#projectListInput').attr('savedval',blueprintdata.projectId);
+		$content.find('#appUrlTable').attr('savedval',JSON.stringify(blueprintdata.appUrls));
+		if(blueprintdata.nexus){
+			$content.find('#chooseNexusServer').attr('savedval',blueprintdata.nexus.repoId);
+			//$content.find('#chooseRepository').attr('savedval',blueprintdata.nexus.url); //To be checked.
+			$content.find('#chooseGroupId').attr('savedval',blueprintdata.nexus.groupId);
+			$content.find('#chooseArtifacts').attr('savedval',blueprintdata.nexus.artifactId);
+			$content.find('#chooseVersions').attr('savedval',blueprintdata.nexus.version);
+			$content.find('#repositoryUrl').attr('savedval',blueprintdata.nexus.url);
+		}
+		if(blueprintdata.blueprintConfig){
+			$content.find('#compositedockertable').attr('savedval',JSON.stringify(blueprintdata.blueprintConfig.dockerCompose));
+			if(blueprintdata.blueprintConfig.cloudProviderData){
+				$content.find('#instanceOS').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.instanceOS);
+				$content.find('#imageId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.imageId);
+				$content.find('#vpcId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.vpcId);
+				$content.find('#subnetId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.subnetId);
+				$content.find('#keypairId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.keyPairId);
+				$content.find('#instancesize').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.instanceType);
+				$content.find('#securityGroupIds').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.securityGroupIds);
+				$content.find('#instanceCount').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.instanceCount);
+				if(blueprintdata.blueprintConfig.cloudProviderData.infraManagerData)
+					if(blueprintdata.blueprintConfig.cloudProviderData.infraManagerData.versionsList[0])
+						$content.find('#tableRunlistForBlueprint').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.infraManagerData.versionsList[0].runlist);
+
+
+			}
+			$content.find('#providerId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderId);
+			$content.find('#region').attr('savedval',blueprintdata.blueprintConfig.region)
+		}
+	 }
+}
+
+function helpersetselectvalue($selectctrl,prop,propvalue){
+	alert(prop,propvalue);
+	$selectctrl.find('option').each(function(){
+		if($(this).attr(prop) == propvalue)
+		{
+			$selectctrl.val($(this).attr('value'));
+		}
+	});
+}
+
+function displaySavedBPValues(){
+	var $content = $('#bpeditcontent');
+	//$content.find('#instanceOS').val($content.find('#instanceOS').attr('data-instanceos')).trigger('change');
+	helpersetselectvalue($content.find('#instanceOS'),'data-instanceos',$content.find('#instanceOS').attr('savedval'));
+	$content.find('#providerId').val($content.find('#providerId').attr('savedval')).trigger('change');
+	$content.find('#imageId').val($content.find('#imageId').attr('savedval')).trigger('change');
+}
 //Initializing the blueprint area according to the Template-Type and showing
 //the differnt template types whenever a blueprint is added
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 function loadblueprintedit(blueprintId) {
+=======
+function loadblueprintedit(blueprintId,baseblueprintId) {
+>>>>>>> Saved values added to controls
     $('#myTab3 li').addClass('hidden');
     $('#myTab3 li.blueprintEditbutton').removeClass('hidden');
     $('#versionModalContainer').modal('hide');
-    $.get('/blueprints/' + blueprintId,function(err,blueprintdata){
+    //alert(blueprintId);
+    $.get('/blueprints/' + blueprintId,function(blueprintdata){
     	if(blueprintdata){
     		$('#tab3').detach();
     		$('#myTab3 a[href="#viewEdit"]').tab('show');
     		$('#bpeditcontent').append($formBPEdit);
+    		cachesavedvalues(blueprintdata);
     		//$('#myTab5').attr('blueprintdata',JSON.stringify(blueprintdata));
     		formInitializer();
+    		OrgdataLoader(); //reloading Org params section 
+    		$('#orgnameSelect').trigger('change'); 
+    		$('#bpeditcontent .productdiv2').detach(); //removing existing cardview on edit screen
+    		var $card = $('#viewCreate .productdiv1[data-blueprintid="' + baseblueprintId + '"]').clone();
+    		$card.find('button').detach();
+    		$card.find('.moreInfo').detach();
+    		$('#bpeditcontent .selectedTemplateArea').html('');
+    		$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
+    		displaySavedBPValues();
     	}
     	else{
 
@@ -2156,6 +2236,8 @@ function closeblueprintedit(blueprintId) {
     $('#tab3').detach();
     $('#newbpcontainer').append($formBPNew);
    // formInitializer();
+   OrgdataLoader(); //reloading Org params section 
+   $('#orgnameSelect').trigger('change'); 
 }
 
 function sortResults(versions,prop, asc) {
@@ -2166,7 +2248,6 @@ function sortResults(versions,prop, asc) {
     return(versions);
 }
 
->>>>>>> Navigation for edit done
 function initializeBlueprintAreaNew(data) {
 	var reqBodyNew = {};
 	var $orgListInput = $('#orgnameSelectExisting');
@@ -2178,6 +2259,7 @@ function initializeBlueprintAreaNew(data) {
 	var $desktopProvisioningPanelBody = $('.desktopProvisioningPanel').find('.panel-body');
 	$devopsRolepanelBody.empty();
 	//Displaying the Template Types.
+
 	$.get("/d4dMasters/readmasterjsonnew/16", function(tdata) {
 		tdata = JSON.parse(tdata);
 		var rowLength = tdata.length;
@@ -2247,31 +2329,54 @@ function initializeBlueprintAreaNew(data) {
 					} else $img = $('<img />').attr('src', 'img/imgo.jpg').attr('alt', data[i].name).addClass('cardLogo');
 					var $liImage = $('<li></li>').append($img);
 					$ul.append($liImage);
+
 					var $liCardName = $('<li title="' + data[i].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + data[i].name + '</b></u>');
-					$ul.append($liCardName);
+
 					var $selecteditBtnContainer = $('<div style="position:absolute;padding-left:27px;bottom:11px;"></div>');
 					var $selectVerEdit = $('<a style="padding:0px 4px;margin-left:3px;border-radius:5px;" class="bpEditBtn"><i class="ace-icon fa fa-pencil"></i></a>').addClass('btn btn-primary').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'Edit');
 					
 					//Versions sections
-					var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Versions"></button>');
-					var $selectbpcheckbox = $('<input type="checkbox" class="cbbpselect" id="bp_' + data[i]._id + '"/>');
+					var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Edit"></button>');
 
+					var _versions = [];
+
+					if(data[i].versions)
+						_versions = sortResults(data[i].versions,'version');
 					
 					$linkVersions.append('<i class="fa fa-pencil bpvi"></i>')
 					$linkVersions.attr('blueprintId',data[i]._id);
 					if(data[i].versions){	
-						$linkVersions.attr('versions',JSON.stringify(data[i].versions));
+						$linkVersions.attr('versions',JSON.stringify(_versions));
+						if(_versions[0].name)
+							$liCardName = $('<li title="' + _versions[0].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + _versions[0].name + '</b></u>');
+
 					} else{
 						$linkVersions.attr('versions','[]');
 					}
-					$selectbpcheckbox.click(function(e){
-						if($(this).is(':checked')){
-							$(this).closest('.productdiv1.cardimage').addClass('role-Selected1');
+
+					
+					$ul.append($liCardName);
+
+					$linkVersions.click(function(e){
+						//Get the lastest version
+						var lastversion = $(this).attr('blueprintId'); //default version
+
+						if(JSON.parse($(this).attr('versions')).length >= 1){
+							var vjson = JSON.parse($(this).attr('versions'));
+							lastversion = vjson[0].id; //its sorted to have latest on top.
 						}
-						else{
-							$(this).closest('.productdiv1.cardimage').removeClass('role-Selected1');
-						}
+						//alert(lastversion); //56d6aba3e220755c5519cf33
+						//load the edit screen. Currently loaded from popup. Call that funcction.
+						if (lastversion) {
+						        loadblueprintedit(lastversion,$(this).attr('blueprintId')); //base version required for UI
+					    } else {
+					        bootbox.alert({
+					            message: 'Blueprint data error. Could not read.',
+					            title: 'Warning'
+					        });
+					    }
 					});
+					
 					//Versions sections End
 
 
@@ -2471,7 +2576,7 @@ function initializeBlueprintAreaNew(data) {
 						}
 					}
 					$selecteditBtnContainer.append($li);
-					$ul.append($selectbpcheckbox);
+					
 					$ul.append($linkVersions);
 					$itemBody.append($ul);
 					$itemBody.append($selecteditBtnContainer);
@@ -2484,8 +2589,29 @@ function initializeBlueprintAreaNew(data) {
 					if (i == (data.length - 1)) {
 						var $productdiv1 = $('.productdiv1');
 						$productdiv1.click(function(e) {
-							$productdiv1.removeClass('role-Selected1');
+							//Check if the checkbox is chekced before removing highlight
+							//alert($productdiv1.find('.cbbpselect').first().is(':checked'));
+							//alert('product click');
+							if($(this).hasClass('role-Selected1')){
+								$(this).removeClass('role-Selected1');
+							}else{
 							$(this).addClass('role-Selected1');
+							}
+							// $productdiv1.removeClass('role-Selected1');
+							// $(this).addClass('role-Selected1');
+							// $productdiv1.each(function(){
+							// 		console.log($(this).find('.cbbpselect').is(':checked'));
+							// 		if($(this).find('.cbbpselect').is(':checked')){
+							// 			$(this).addClass('role-Selected1');
+							// 		}
+							// 		else
+							// 			$(this).removeClass('role-Selected1');
+							// });
+
+
+								
+
+							
 						});
 					}
 				}
@@ -2493,12 +2619,12 @@ function initializeBlueprintAreaNew(data) {
 		}
 		if ($('#accordion-2').length > 0) {
 			console.log('object ==>', $('#accordion-2').find('.blueprintContainer:not(.hidden)').first().find('.panel-heading a'));
-			$('#accordion-2').find('.blueprintContainer:not(.hidden)').first().find('.panel-heading a').click();
+			//$('#accordion-2').find('.blueprintContainer:not(.hidden)').first().find('.panel-heading a').click(); //removed click to avoid accidental copy
 		}
 	}); //end of readmasterjson to be pushed to the end of the function.
 	$('#accordion-2').on('show.bs.collapse', function(e) {
 		console.log(e.target);
-		$(e.target).find('.productdiv1').first().click();
+		//$(e.target).find('.productdiv1').first().click(); //removed click to avoid accidental copy
 	});
 	//Expanding the fist Accordion.
 };
