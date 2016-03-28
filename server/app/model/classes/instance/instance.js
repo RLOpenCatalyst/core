@@ -1557,48 +1557,31 @@ var InstancesDao = function() {
         });
     };
 
-    this.getByProviderId = function(jsonData, callback) {
-        if (!jsonData.providerId) {
-        process.nextTick(function() {
-            callback({
-                message: "Invalid providerId"
-            });
-        });
-        return;
-    }
-    var queryObj={};
-    var queryArr=[];
-    var objAnd = {}
-    var objOr=[];
-    if(jsonData.search) {
-        objAnd["providerId"] = jsonData.providerId;
-        queryArr.push(objAnd);
-        objOr.push({'platformId':jsonData.search});
-        objOr.push({'instanceIP':jsonData.search});
-        queryArr.push({$or:objOr});
-    }
-    else{
-        var objAnd = jsonData.filterBy;
-        objAnd["providerId"] = jsonData.providerId;
-        queryArr.push(objAnd);
-    }
-    queryObj['$and']=queryArr;
-    var options = {
-        select: '_id platformId hardware instanceIP providerData instanceState projectName',
-        sort: jsonData.sortBy,
-        lean: false,
-        skip: jsonData.record_Skip >0 ? jsonData.record_Skip :1,
-        limit: jsonData.record_Limit
-    };
+    this.getByProviderId = function(providerId, callback) {
+        if (!providerId) {
+            process.nextTick(function() {
+                callback({
+                    message: "Invalid provider id"
+                });
 
-    this.paginate(queryObj, options, function(err, instances) {
-        if (err) {
-            logger.error("Failed getByOrgProviderId (%s)", err);
-            callback(err, null);
+            });
             return;
         }
-        callback(null, instances);
-    });
+
+        Instances.find({
+            "providerId": providerId
+        }, {
+            'actionLogs': false
+        }, function(err, instances) {
+            if (err) {
+                logger.error("Failed getByOrgProviderId (%s)", opts, err);
+                callback(err, null);
+                return;
+            }
+
+            callback(null, instances);
+
+        });
 };
 //End By Durgesh
 

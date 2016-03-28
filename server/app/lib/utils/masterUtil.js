@@ -27,7 +27,6 @@ var configmgmtDao = require('../../model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
-var constantData = require('_pr/lib/utils/constant.js');
 
 var MasterUtil = function() {
     // Return All Orgs specific to User
@@ -2081,83 +2080,7 @@ var MasterUtil = function() {
             }
         });
     };
-    this.paginationResponse=function(data,req, callback) {
-        var response={};
-        response[req.id]=data.docs;
-        response['metaData']={
-            totalRecords:data.total,
-            pageSize:data.limit,
-            page:data.page,
-            totalPages:data.pages,
-            sortBy:Object.keys(req.sortBy)[0],
-            sortOrder:req[Object.keys(req.sortBy)]==1 ?'desc' :"asc",
-            filterBy:req.filterBy
-        };
-
-        callback(null, response);
-        return;
-    };
-
-    this.paginationRequest=function(data, callback) {
-        var pageSize,page;
-        if(data.pageSize) {
-            pageSize = parseInt(data.pageSize);
-            if (pageSize > constantData.max_record_limit)
-                pageSize = constantData.max_record_limit;
-        }
-        else
-            pageSize = constantData.record_limit;
-        if(data.page)
-            page = parseInt(data.page)-1;
-        else
-            page = constantData.skip_Records;
-
-        var skip = pageSize * page;
-        var sortBy={};
-        if(data.sortBy)
-            sortBy[data.sortBy]=data.sortOrder=='desc' ? -1 : 1;
-        else
-            sortBy[constantData.sort_instances]=constantData.order=='desc' ? -1 :1;
-        var filterBy={};
-        if(data.filterBy){
-            var a=data.filterBy.split(" ");
-            for(var i = 0;i < a.length; i++){
-                var b=a[i].split(":");
-                if(b[0]=='region'){
-                    var c=b[1].split(",");
-                    if(c.length > 1)
-                        filterBy['providerData.region'] =  {'$in':c};
-                    else
-                        filterBy['providerData.region']=b[1];
-                }
-
-                else {
-                    var c=b[1].split(",");
-                    if(c.length > 1)
-                         filterBy[b[0]] =  {'$in':c};
-                    else
-                         filterBy[b[0]] = b[1];
-                }
-            }
-        }
-        else{
-            for(var i = 0;i < constantData.filter_records.length; i++){
-                var key=Object.keys(constantData.filter_records[i]);
-                filterBy[key]=constantData.filter_records[i][key];
-            }
-        }
-        var request={
-            'sortBy':sortBy,
-            'record_Skip':skip,
-            'record_Limit':pageSize,
-            'filterBy':filterBy
-        };
-        if(data.search){
-            request['search']=data.search;
-        }
-        callback(null, request);
-        return;
-    };
+   
 }
 
 module.exports = new MasterUtil();

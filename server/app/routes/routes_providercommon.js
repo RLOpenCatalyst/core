@@ -23,6 +23,7 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var instancesDao = require('_pr/model/classes/instance/instance');
 var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var waitForPort = require('wait-for-port');
 var uuid = require('node-uuid');
 var taskStatusModule = require('_pr/model/taskstatus');
@@ -32,7 +33,6 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
 var tagsDao = require('_pr/model/tags');
-var constantData = require('_pr/lib/utils/constant.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -76,61 +76,33 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
-		MasterUtils.paginationRequest(req.query,function(err, paginationReq){
+		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
-				res.status(400).send({
-					message: "Bad Request"
+				res.status(500).send({
+					message: "Server Behaved Unexpectedly"
 				});
 				return;
 			}
-			paginationReq['providerId']=req.params.providerId;
-			paginationReq['id']='managedInstances';
-			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-
-				if (err) {
-					res.status(500).send({
-						message: "Internal Server Error"
-					});
-					return;
-				}
-				if (!provider) {
-					res.status(204).send({
-						message: "The server successfully processed the request and is not returning any content"
-					});
-					return;
-				}
-				instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
-					if (err) {
-						res.status(400).send(managedInstances);
-						return;
-					}
-					MasterUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
-						if (err) {
-							res.status(400).send({
-								message: "Bad Request"
-							});
-							return;
-						}
-						if (!paginationRes.managedInstances.length>0) {
-							res.status(204).send({
-								message: "The server successfully processed the request and is not returning any content"
-							});
-							return;
-						}
-						res.status(200).send(paginationRes);
-					});
-
-
+			if (!provider) {
+				res.status(404).send({
+					message: "provider not found"
 				});
+				return;
+			}
+
+			instancesDao.getByProviderId(provider._id, function(err, managedInstances) {
+				if (err) {
+					res.status(500).send(managedInstances);
+					return;
+				}
+				res.status(200).send(managedInstances);
 			});
 		});
 	});
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		MasterUtils.paginationRequest(req.query,function(err, paginationReq){
+		ApiUtils.paginationRequest(req.query,function(err, paginationReq){
 			if (err) {
-				res.status(400).send({
-					message: "Bad Request"
-				});
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
 			}
 			paginationReq['providerId']=req.params.providerId;
@@ -138,33 +110,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 
 				if (err) {
-					res.status(500).send({
-						message: "Internal Server Error"
-					});
+					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
 					return;
 				}
 				if (!provider) {
-					res.status(204).send({
-						message: "The server successfully processed the request and is not returning any content"
-					});
+					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
 					return;
 				}
 				unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
 					if (err) {
-						res.status(400).send(unmanagedInstances);
+						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
 						return;
 					}
-					MasterUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
+					ApiUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
 						if (err) {
-							res.status(400).send({
-								message: "Bad Request"
-							});
+							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
 							return;
 						}
 						if (!paginationRes.unmanagedInstances.length>0) {
-							res.status(204).send({
-								message: "The server successfully processed the request and is not returning any content"
-							});
+							res.status(204).send(ApiUtils.errorResponse(204,'paginationResponse'));
 							return;
 						}
 						res.status(200).send(paginationRes);

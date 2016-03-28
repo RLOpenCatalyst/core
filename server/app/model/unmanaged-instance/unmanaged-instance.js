@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 
 var UnmanagedInstanceSchema = new Schema({
@@ -100,47 +101,25 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 
 
 UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
-	if (!jsonData.providerId) {
-		process.nextTick(function() {
-			callback({
-				message: "Invalid providerId"
-			});
-		});
-		return;
-	}
-	var queryObj={};
-	var queryArr=[];
-	var objAnd = {}
-	var objOr=[];
-	if(jsonData.search) {
-		objAnd["providerId"] = jsonData.providerId;
-		queryArr.push(objAnd);
-		objOr.push({'platformId':jsonData.search});
-		objOr.push({'ip':jsonData.search});
-		queryArr.push({$or:objOr});
-	}
-	else{
-		var objAnd = jsonData.filterBy;
-		objAnd["providerId"] = jsonData.providerId;
-		queryArr.push(objAnd);
-	}
-	queryObj['$and']=queryArr;
-	var options = {
-		select: '_id platformId os ip providerData state',
-		sort: jsonData.sortBy,
-		lean: false,
-		skip: jsonData.record_Skip >0 ? jsonData.record_Skip :1,
-		limit: jsonData.record_Limit
-	};
-
-	this.paginate(queryObj, options, function(err, instances) {
-		if (err) {
-			logger.error("Failed getByOrgProviderId (%s)", err);
-			callback(err, null);
+	var databaseReq={};
+	jsonData['searchColumns']=['ip','platformId'];
+	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+		if(err){
+			console.log("Error");
 			return;
 		}
-		callback(null, instances);
+		databaseReq=databaseCall;
 	});
+		this.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
+			if (err) {
+				logger.error("Failed getByOrgProviderId (%s)", err);
+				callback(err, null);
+				return;
+			}
+			callback(null, instances);
+		});
+	//});
+
 };
 //End By Durgesh
 

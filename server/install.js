@@ -61,6 +61,14 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
+        constantData:  {
+            record_limit : 10,
+            max_record_limit : 100,
+            skip_Records:0, 
+            sort_instances:'state',
+            sort_order:'desc',
+            filter_records : [{state:'running'},{region:'us-west-1'}]
+        },
         puppet: {
             puppetReposDirName: 'puppet-repos',
 
