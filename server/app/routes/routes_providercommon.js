@@ -75,6 +75,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 		});
 	});
+
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
@@ -100,6 +101,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 
 	});
+
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
 		logger.debug("Provider ID is >>>>>"+req.params.providerId);
 		var pageSize,page;
@@ -214,7 +216,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 	//End By Durgesh
-
 
 	app.post('/providers/:providerId/sync', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
@@ -782,4 +783,147 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		});
 	});
+
+	/**
+	 * @api {get} /providers/:providerId/tags 	Get tags list
+	 * @apiName getTags
+	 * @apiGroup Provider tags
+	 *
+	 * @apiParam {Number} providerId 			Provider ID
+	 *
+	 * @apiSuccess {Object[]} tags				List of tags
+	 * @apiSuccess {String} tags.name			Tag name
+	 * @apiSuccess {String} tags.description 	Tag description
+	 * @apiSuccess {Number} count				Number of tags in the result set
+	 * @apiSuccess {pageSize} pageSize			Page size
+	 * @apiSuccess {pageIndex} pageIndex		Page index
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"tags": [
+	 * 				0: {
+	 * 					"name":	"environment",
+	 * 					"description": "Deployment environment"
+	 * 				},
+	 *				1: {
+	 * 					"name":	"environment",
+	 * 					"description": "Deployment environment"
+	 * 				},
+	 * 			],
+	 *			"count": 2
+	 *			"pageSize": 10,
+	 *			"pageIndex": 1
+	 * 		}
+	 *
+	 */
+	app.get('/providers/:providerId/tags', function(req, res) {});
+
+	/**
+	 * @api {get} /providers/:providerId/tags/:tagName Get tag details
+	 * @apiName getTagDetails
+	 * @apiGroup Provider tags
+	 *
+	 * @apiParam {Number} providerId 			Provider ID
+	 * @apiParam {String} tagName 				Tag Name
+	 *
+	 * @apiSuccess {Object} tag					Tag details
+	 * @apiSuccess {String} tag.name 			Tag name
+	 * @apiSuccess {String} tag.description 	Tag description
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"name":	"environment",
+	 * 			"description": "Deployment environment"
+	 * 		}
+	 *
+	 */
+	app.get('/providers/:providerId/tags/:tagName', function(req, res) {});
+
+	/**
+	 * @api {post} /providers/:providerId/tags Add tags
+	 * @apiName addTags
+	 * @apiGroup Provider tags
+	 *
+	 * @apiParam {Number} providerId 		Provider ID
+	 * @apiParam {Object[]} tags			Tags in request body
+	 * @apiParam {String} tags.name 		Tag name
+	 * @apiParam {String} tags.description	Tag description
+	 *
+	 * @apiSuccess {Object[]} tags				List of tags
+	 * @apiSuccess {String} tags.name			Tag name
+	 * @apiSuccess {String} tags.description 	Tag description
+	 * @apiSuccess {Number} count				Number of tags in the result set
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"tags": [
+	 * 				0: {
+	 * 					"name":	"environment",
+	 * 					"description": "Deployment environment"
+	 * 				},
+	 *				1: {
+	 * 					"name":	"environment",
+	 * 					"description": "Deployment environment"
+	 * 				},
+	 * 			],
+	 *			"count": 2
+	 * 		}
+	 *
+	 */
+	app.post('/providers/:providerId/tags', function(req, res) {});
+
+	/**
+	 * @api {post} /providers/:providerId/tags  Update tag
+	 * @apiName addTags
+	 * @apiGroup Provider tags
+	 *
+	 * @apiParam {Number} providerId 		Provider ID
+	 * @apiParam {String} tagName			Tags name
+	 * @apiParam {Object[]} tag					Tag object in request body
+	 * @apiParam {String} tag.description		Tag description
+	 *
+	 * @apiSuccess {Object} tag					Tag details
+	 * @apiSuccess {String} tags.name			Tag name
+	 * @apiSuccess {String} tags.description 	Tag description
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"name":	"environment",
+	 * 			"description": "Deployment environment"
+	 * 		}
+	 */
+	app.put('/providers/:providerId/tags/:tagName', function(req, res) {});
+
+
+	/**
+	 * @api {delete} /providers/:providerId/tags/:tagName Delete tag
+	 * @apiName deleteTag
+	 * @apiGroup Provider tags
+	 *
+	 * @apiParam {Number} providerId 	Provider ID
+	 *
+	 * @apiSuccess {Object} response	Empty response object
+	 *
+	 */
+	app.delete('/providers/:providerId/tags/:tagName', function(req, res) {});
+
+	app.get('/providers/:providerId/tags/names/mapping', function(req, res) {});
+	app.get('/providers/:providerId/tags/names/mapping/:catalystEntityType', function(req, res) {});
+	app.post('/providers/:providerId/tags/names/mapping', function(req, res) {});
+	app.put('/providers/:providerId/tags/names/mapping/:catalystEntityType', function(req, res) {});
+	app.delete('/providers/:providerId/tags/names/mapping/:catalystEntityType', function(req, res) {});
+
+	app.get('/providers/:providerId/tags/values/mapping', function(req, res) {});
+	app.get('/providers/:providerId/tags/values/mapping/:catalystEntityType', function(req, res) {});
+	app.get('/providers/:providerId/tags/values/mapping/:catalystEntity', function(req, res) {});
+	app.post('/providers/:providerId/tags/values/mapping', function(req, res) {});
+	app.put('/providers/:providerId/tags/values/mapping/:catalystEntity', function(req, res) {});
+	app.delete('/providers/:providerId/tags/values/mapping/:catalystEntity', function(req, res) {});
+
+	app.get('/providers/:providerId/instances', function(req, res) {});
+	app.get('/providers/:providerId/instances/:instanceId', function(req, res) {});
 };
