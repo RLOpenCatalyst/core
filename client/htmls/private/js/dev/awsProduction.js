@@ -689,8 +689,9 @@ function getSubnet() {
 function resetForm() {
 	$('[multiselect]').empty();
 }
-$(document).ready(function() {
-	awsLoadData();
+
+function dataLoader(){
+	
 	getProviderList();
 	getImageInstances();
 	getSecurityGroup();
@@ -701,7 +702,7 @@ $(document).ready(function() {
 	console.log("Orgname===>" + localStorage.getItem('selectedOrgName'));
 	$.get('../aws/ec2/amiids', function(data) {
 		var $instanceOS = $('#instanceOS');
-		$instanceOS.append('<option value="">Select Operating System</option>')
+		$instanceOS.html('').append('<option value="">Select Operating System</option>')
 		for (var i = 0; i < data.length; i++) {
 			$option = $('<option data-instanceOS="' + data[i].osType + '" value="' + data[i].os_name + '">' + data[i].os_name + '</option>');
 			$option.data('supportedInstanceType', data[i].supportedInstanceType);
@@ -722,14 +723,21 @@ $(document).ready(function() {
 		});
 		$instanceOS.trigger('change');
 	});
-	var sortbyid = function SortByID(x, y) {
-		return x.position - y.position;
-	}
+	
 
+	
+}
+
+$(document).ready(function() {
+	awsLoadData();
 	$('#selectOrgName').change(function(e) {
 		awsLoadData();
 	});
-		function awsLoadData(){
+	
+	function awsLoadData(){
+		var sortbyid = function SortByID(x, y) {
+			return x.position - y.position;
+		}
 		$.get('/d4dMasters/readmasterjsonnew/16', function(data) {
 			data = JSON.parse(data);
 			var rowLength = data.length;
@@ -814,24 +822,32 @@ $(document).ready(function() {
 		}
 	});
 });
+
+
+
 var reqBody;
 //Used for maintaining one copy of the form for edit or new
 var bpNewForm;
 var bpEditForm;
 
-var formInitializer = function() {
+var formInitializer = function(editing) {
         var $selectedItem = $('.role-Selected');
         // alert('in ' + $selectedItem.length);
         if (!$selectedItem.length) {
             bootbox.alert('please choose a blueprint design');
             return false;
         }
+        alert('Updating Dropdowns');
+        //
+		dataLoader();
+		//end updating dropdowns
         //Selection of Orgname from localstorage 
         $('#orgnameSelect').val($('#orgIDCheck').val());
         $('#orgnameSelect').attr('disabled', true);
         console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
         if ($('.productdiv2.role-Selected').length > 0) {
             //Setting controls connected to docker to hidden
+            alert('in');
             $('.forDocker').hide();
             $('.notForDocker').show();
             $('.forCFT').hide();
@@ -2139,7 +2155,15 @@ function closeblueprintedit(blueprintId) {
     $('#myTab3 a[href="#viewCreate"]').tab('show');
     $('#tab3').detach();
     $('#newbpcontainer').append($formBPNew);
-    formInitializer();
+   // formInitializer();
+}
+
+function sortResults(versions,prop, asc) {
+    versions = versions.sort(function(a, b) {
+        if (asc) return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
+        else return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
+    });
+    return(versions);
 }
 
 >>>>>>> Navigation for edit done
@@ -2231,8 +2255,10 @@ function initializeBlueprintAreaNew(data) {
 					//Versions sections
 					var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Versions"></button>');
 					var $selectbpcheckbox = $('<input type="checkbox" class="cbbpselect" id="bp_' + data[i]._id + '"/>');
+
 					
-					$linkVersions.append('<i class="fa fa-list-ol bpvi"></i>')
+					$linkVersions.append('<i class="fa fa-pencil bpvi"></i>')
+					$linkVersions.attr('blueprintId',data[i]._id);
 					if(data[i].versions){	
 						$linkVersions.attr('versions',JSON.stringify(data[i].versions));
 					} else{
