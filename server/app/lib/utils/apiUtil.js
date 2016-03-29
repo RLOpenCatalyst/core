@@ -19,7 +19,7 @@ var ApiUtil = function() {
         }
         else if(code==500){
             errObj['code']=code;
-            errObj['message']='Interal Server Error';
+            errObj['message']='Internal Server Error';
             errObj['fields']={errorMessage:'Server Behaved Unexpectedly',attribute:field};
         }
         else if(code==204){
