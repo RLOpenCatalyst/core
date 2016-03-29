@@ -826,7 +826,6 @@ function dataLoader(){
 		});
 		$instanceOS.trigger('change');
 	});
-
 }
 
 $(document).ready(function() {
@@ -1875,7 +1874,6 @@ var OrgdataLoader = function(editing){
 							$bgList.attr('disabled','disabled');
 							$projectList.attr('disabled','disabled');
 						}
-
 			});
 			$('#chooseNexusServer').click(function(e) {
 				var projectSelName = $('#projectListInput option:selected').val();
@@ -2369,8 +2367,6 @@ function displaySavedBPValues(){
 	//alert($content.find('#blueprintNameInput').val());
 	///$contnet.find('#blueprintNameInput').val($contnet.find('#blueprintNameInput').attr('savedval'));
 	//$content.find('#imageId').val($content.find('#imageId').attr('savedval')).trigger('change');
-
-
 }
 //Initializing the blueprint area according to the Template-Type and showing
 //the differnt template types whenever a blueprint is added
@@ -2416,20 +2412,11 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     		$('#orgnameSelect').trigger('change'); 
     		
     		//Add a productdiv2 with required elements for form rendering
-    		
-    		alert(baseblueprintId);
     		var $card = $('#viewCreate .productdiv1[data-blueprintid="' + baseblueprintId + '"]').clone();
-
     		$card.find('button').detach();
     		$card.find('.moreInfo').detach();
-
     		$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
     		displaySavedBPValues();
-    		
-    		
-
-    		 
-    		
     	}
     	else{
 
