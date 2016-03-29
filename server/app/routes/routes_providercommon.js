@@ -801,20 +801,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
-	 * 			"result": {
-	 * 				"tags": [
-	 * 					{
-	 * 						"name":	"env",
-	 * 						"description": "Deployment environment"
-	 * 						"url": "http://localhost:3001/providers/:providerId/tags/evn
-	 * 					},
-	 *					{
-	 * 						"name":	"application",
-	 * 						"description": "Project name"
-	 * 						"url": "http://localhost:3001/providers/:providerId/tags/application
-	 * 					}
-	 * 				]
-	 * 			},
+	 *
+	 * 			"tags": [
+	 * 				{
+	 * 					"name":	"env",
+	 * 					"description": "Deployment environment",
+	 * 					"url": "http://localhost:3001/providers/:providerId/tags/evn
+	 * 				},
+	 *				{
+	 * 					"name":	"application",
+	 * 					"description": "Project name",
+	 * 					"url": "http://localhost:3001/providers/:providerId/tags/application
+	 * 				}
+	 * 			],
 	 *			"count": 2,
 	 *			"pageSize": 10,
 	 *			"pageIndex": 1
@@ -846,7 +845,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/providers/:providerId/tags/:tagName', function(req, res) {});
 
 	/**
-	 * @api {put} /providers/:providerId/tags  Update tag
+	 * @api {put} /providers/:providerId/tags/:tagName  Update tag
 	 * @apiName addTags
 	 * @apiGroup Provider tags
 	 *
@@ -887,7 +886,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 	/**
-	 * @api {get} /providers/:providerId/tags/mapping	Get tag name mappings
+	 * @api {get} /providers/:providerId/tags/mapping			Get tag name mappings
 	 * @apiName getTagNamesMappingsList
 	 * @apiGroup Provider tags
 	 *
@@ -907,12 +906,36 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 					{
 	 * 						"tagName":	"application",
 	 * 						"tagValues": ["proj1", "proj2"],
-	 * 						"catalystEntityType": "PROJECT"
+	 * 						"catalystEntityType": "project",
+	 * 						"catalystEntityMapping": [
+	 *							{
+	 *		 						"catalystEntityId": "<MongoID>",
+	 *		 						"catalystEntityName": "Project1",
+	 *			 					"tagValue": "proj1"
+	 *							},
+	 *							{
+	 *								"catalystEntityId": "<MongoID>",
+	 *			 					"catalystEntityName": "Project2",
+	 *			 					"tagValue": "proj2"
+	 *			 				}
+	 *			 			]
 	 * 					},
 	 *					{
 	 * 						"tagName":	"environment",
 	 * 						"tagValues": ["prod", "dev"],
-	 * 						"catalystEntityType": "ENVIRONMENT"
+	 * 						"catalystEntityType": "environment"
+	 * 						"catalystEntityMapping": [
+	 *							{
+	 *		 						"catalystEntityId": "<MongoID>",
+	 *		 						"catalystEntityName": "Development",
+	 *			 					"tagValue": "dev"
+	 *							},
+	 *							{
+	 *								"catalystEntityId": "<MongoID>",
+	 *			 					"catalystEntityName": "Production",
+	 *			 					"tagValue": "prod"
+	 *			 				}
+	 *			 			]
 	 * 					}
 	 * 				]
 	 * 			},
@@ -924,31 +947,47 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/providers/:providerId/tags/mapping', function(req, res) {});
 
 	/**
-	 * @api {get} /providers/:providerId/tags/names/mapping/:catalystEntityType		Get tag name mapping
+	 * @api {get} /providers/:providerId/tags/mapping/:catalystEntityType		Get tags mapping for an entity type
 	 * @apiName getTagNameMapping
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerId			Provider ID
-	 * @apiParam {String} catalystEntityType  	Catalyst entity type. Currently PROJECT and ENVIRONMENT are the
+	 * @apiParam {String} catalystEntityType  	Catalyst entity type. Currently "project" and "environment" are the
 	 * 											available options
 	 *
-	 * @apiSuccess {Object} tagNameMapping 						Tag name mapping
-	 * @apiSuccess {String}	tagNameMapping.tagName 				Tag name
-	 * @apiSuccess {String[]} tagValues							Encountered tag values
-	 * @apiSuccess {String} tagNameMapping.catalystEntityType	Catalyst entity type
+	 * @apiSuccess {Object} tagNameMapping 											Tag name mapping
+	 * @apiSuccess {String}	tagNameMapping.tagName 									Tag name
+	 * @apiSuccess {String[]} tagNameMapping.tagValues								Encountered tag values
+	 * @apiSuccess {Object[]} tagNameMapping.catalystEntityMapping 					Catalyst entity mapping
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityName Catalyst entity name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue			Tag value
 	 *
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
 	 * 			"tagName": "application",
 	 *			"tagValues": ["proj1", "proj2"]
-	 * 			"catalystEntityType": "PROJECT"
+	 * 			"catalystEntityType": "project",
+	 *			"catalystEntityMapping": [
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "Project1",
+	 *					"tagValue": "proj1"
+	 *				},
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "Project2",
+	 *					"tagValue": "proj2"
+	 *
+	 *				}
+	 *			]
 	 * 		}
 	 */
-	app.get('/providers/:providerId/tags/mapping/:catalystEntityType/', function(req, res) {});
+	app.get('/providers/:providerId/tags/mapping/:catalystEntityType', function(req, res) {});
 
 	/**
-	 * @api {post} /providers/:providerId/tags/names/mapping	Create tag name mapping
+	 * @api {post} /providers/:providerId/tags/mapping			Create tag mapping
 	 * @apiName createTagNameMapping
 	 * @apiGroup Provider tags
 	 *
@@ -958,27 +997,73 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {String} tagNameMapping.catalystEntityType	Catalyst entity type
 	 * @apiParamExample {json} Request-Example:
 	 * 		{
-	 * 			"catalystEntityType": "PROJECT",
+	 * 			"catalystEntityType": "project",
 	 * 			"tagName": "application"
 	 * 		}
 	 *
-	 * @apiSuccess {Object} tagNameMapping 						Tag name mapping
-	 * @apiSuccess {String}	tagNameMapping.tagName 				Tag name
-	 * @apiSuccess {String} tagNameMapping.catalystEntityType	Catalyst entity type
+	 * @apiSuccess {Object} tagNameMapping 											Tag name mapping
+	 * @apiSuccess {String}	tagNameMapping.tagName 									Tag name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityType						Catalyst entity type
 	 *
 	 * @apiSuccessExample {json} Success-Response:
-	 * 		HTTP/1.1 200 OK
+	 * 		HTTP/1.1 201 OK
 	 * 		{
-	 * 			"catalystEntityType": "PROJECT",
+	 * 			"catalystEntityType": "project",
 	 * 			"tagName":	"application",
 	 * 			"tagValues": ["proj1", "proj2"]
 	 * 		}
 	 */
-	app.post('/providers/:providerId/tags/names/mapping', function(req, res) {});
+	app.post('/providers/:providerId/tags/mapping', function(req, res) {});
 
 	/**
-	 * @api {delete} /providers/:providerId/tags/names/mapping/:catalystEntityType	 Delete tag name mapping
-	 * @apiName deleteTagNameMapping
+	 * @api {put} /providers/:providerId/tags/mapping/:catalystEntityType	Update tag mapping
+	 * @apiName createTagNameMapping
+	 * @apiGroup Provider tags
+	 *
+	 * @apiParam {Number} providerId							Provider ID
+	 * @apiParam {Object} tagNameMapping						Tag name mapping
+	 * @apiSuccess {String}	tagNameMapping.tagName 				Tag name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityType	Catalyst entity type
+	 * @apiParamExample {json} Request-Example:
+	 * 		{
+	 * 			"tagName": "application"
+	 * 		}
+	 *
+	 * @apiSuccess {Object} tagNameMapping 											Tag name mapping
+	 * @apiSuccess {String}	tagNameMapping.tagName 									Tag name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityType						Catalyst entity type
+	 * @apiSuccess {String[]} tagNameMapping.tagValues								Encountered tag values
+	 * @apiSuccess {Object[]} tagNameMapping.catalystEntityMapping 					Catalyst entity mapping
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityName Catalyst entity name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue			Tag value
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"catalystEntityType": "project",
+	 * 			"tagName":	"application",
+	 * 			"tagValues": ["proj1", "proj2"],
+	 * 			"catalystEntityMapping": [
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "Project1",
+	 *					"tagValue": "proj1"
+	 *				},
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "Project2",
+	 *					"tagValue": "proj2"
+	 *
+	 *				}
+	 *			]
+	 * 		}
+	 */
+	app.put('/providers/:providerId/tags/mapping/:catalystEntityType', function(req, res) {});
+
+	/**
+	 * @api {delete} /providers/:providerId/tags/mapping/:catalystEntityType	 Delete tag mapping
+	 * @apiName deleteTagMapping
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerID							Provider ID
@@ -987,48 +1072,40 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {Object} response							Empty response object
 	 *
 	 */
-	app.delete('/providers/:providerId/tags/names/mapping/:catalystEntityType', function(req, res) {});
+	app.delete('/providers/:providerId/tags/mapping/:catalystEntityType', function(req, res) {});
 
 
 
 	/**
-	 * @api {get} /providers/:providerId/tags/values/mapping/:catalystEntityType 	Get tag value mappings
+	 * @api {get} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntity 	Get tag value mapping
 	 * @apiName getTagValueMappingList
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerID							Provider ID
 	 * @apiParam {String} catalystEntityType					Catalyst entity type
+	 * @apiParam {String} catalystEntityId						Catalyst entity id
 	 *
-	 * @apiSuccess {Object[]} tagValueMapping					Tag value mapping
-	 * @apiSuccess {String} tagValueMapping.catalystEntity		Catalyst Entity
-	 * @apiSuccess {String} tagValueMapping.tagValue			Tag value
+	 * @apiSuccess {Object} tagValueMapping 						Tag value mapping
+	 * @apiSuccess {String}	tagNameMapping.catalystEntityType 		Catalyst Entity type
+	 * @apiSuccess {String}	tagNameMapping.tagName 					Tag name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityId 		Catalyst entity id
+	 * @apiSuccess {String} tagNameMapping.catalystEntityName 		Catalyst entity name
+	 * @apiSuccess {String} tagNameMapping.tagValue					Tag value
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
-	 * 			"result": {
-	 * 				"catalystEntityType": "ENVIRONMENT",
-	 * 				"tagName": "env",
-	 *	 			"tagValuesMapping": [
-	 *	 				{
-	 * 						"catalystEntityId": "<MongoID>",
-	 * 						"tagValue": "prod"
-	 * 					},
-	 * 					{
-	 * 						"catalystEntityId": "<MongoID>"
-	 * 						"tagValue": "dev"
-	 * 					}
-	 * 				]
-	 * 			}
-	 * 			"count": 2,
-	 * 			"pageSize": 10,
-	 *			"pageIndex": 1
+	 * 			"catalystEntityType": "project",
+	 * 			"tagName":	"application",
+	 *			"catalystEntityId": "<MongoID>",
+	 *			"catalystEntityName": "Development",
+	 *			"tagValue": "proj1"
 	 * 		}
 	 *
 	 */
-	app.get('/providers/:providerId/tags/values/mapping/:catalystEntityType', function(req, res) {});
+	app.get('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntity', function(req, res) {});
 
 	/**
-	 * @api {post} /providers/:providerId/tags/values/mapping/:catalystEntityType  Update tag value mappings
+	 * @api {post} /providers/:providerId/tags/mapping/:catalystEntityType  Create tag value mapping
 	 * @apiName getTagValueMappingList
 	 * @apiGroup Provider tags
 	 *
@@ -1045,45 +1122,87 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 					"tagValue": "prod"
 	 * 				},
 	 * 				{
-	 * 					"catalystEntityId": "<MongoID>"
+	 * 					"catalystEntityId": "<MongoID>",
 	 * 					"tagValue": "dev"
 	 * 				}
 	 * 			]
 	 * 		}
 	 *
-	 * @apiSuccess {Object[]} tagValueMapping					Tag value mapping
-	 * @apiSuccess {String} tagValueMapping.catalystEntity		Catalyst Entity
-	 * @apiSuccess {String} tagValueMapping.tagValue			Tag value
+	 * @apiSuccess {Object} tagNameMapping 											Tag name mapping
+	 * @apiSuccess {String}	tagNameMapping.tagName 									Tag name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityType						Catalyst entity type
+	 * @apiSuccess {String[]} tagNameMapping.tagValues								Encountered tag values
+	 * @apiSuccess {Object[]} tagNameMapping.catalystEntityMapping 					Catalyst entity mapping
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityName Catalyst entity name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue			Tag value
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 201 OK
+	 * 		{
+	 * 			"catalystEntityType": "project",
+	 * 			"tagName":	"application",
+	 * 			"tagValues": ["proj1", "proj2"],
+	 * 			"catalystEntityMapping": [
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "Project1",
+	 *					"tagValue": "proj1"
+	 *				},
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "Project2",
+	 *					"tagValue": "proj2"
+	 *
+	 *				}
+	 *			]
+	 * 		}
+	 */
+	app.post('/providers/:providerId/tags/mapping/:catalystEntityType', function(req, res) {});
+
+	/**
+	 * @api {put} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId  Update tag value mapping
+	 * @apiName getTagValueMappingList
+	 * @apiGroup Provider tags
+	 *
+	 * @apiParam {Number} providerID							Provider ID
+	 * @apiParam {String} catalystEntityType					Catalyst entity type
+	 * @apiParam {String} catalystEntityId						Catalyst entity id
+	 * @apiParam {Object} tagValueMapping						Tag value mappings
+	 * @apiParam {String} tagValueMappings.tagValue				Tag value
+	 * @apiParam {json} Request-example:
+	 * 		{
+	 * 			"tagValue": "dev"
+	 * 		}
+	 *
+	 * @apiSuccess {Object} tagValueMapping 						Tag value mapping
+	 * @apiSuccess {String}	tagNameMapping.catalystEntityType 		Catalyst Entity type
+	 * @apiSuccess {String}	tagNameMapping.tagName 					Tag name
+	 * @apiSuccess {String} tagNameMapping.catalystEntityId 		Catalyst entity id
+	 * @apiSuccess {String} tagNameMapping.catalystEntityName 		Catalyst entity name
+	 * @apiSuccess {String} tagNameMapping.tagValue					Tag value
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
-	 * 			"result": {
-	 * 				"catalystEntityType": "ENVIRONMENT",
-	 * 				"tagName": "env",
-	 *	 			"tagValuesMapping": [
-	 *	 				{
-	 * 						"catalystEntityId": "<MongoID>",
-	 * 						"tagValue": "prod"
-	 * 					},
-	 * 					{
-	 * 						"catalystEntityId": "<MongoID>"
-	 * 						"tagValue": "dev"
-	 * 					},
-	 * 				]
-	 * 			},
-	 * 			"count": 2,
-	 * 			"pageSize": 10,
-	 *			"pageIndex": 1
+	 * 			"catalystEntityType": "project",
+	 * 			"tagName":	"application",
+	 *			"catalystEntityId": "<MongoID>",
+	 *			"catalystEntityName": "Development",
+	 *			"tagValue": "proj1"
 	 * 		}
-	 *
 	 */
-	app.post('/providers/:providerId/tags/values/mapping/:catalystEntityType', function(req, res) {});
+	app.put('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
 
 	/**
+	 * @api {delete} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId	Delete tag value mapping
+	 * @apiName deleteTagMapping
+	 * @apiGroup Provider tags
 	 *
+	 * @apiParam {Number} providerID							Provider ID
+	 * @apiParam {String} catalystEntityType					Catalyst entity type
+	 * @apiParam {String} catalystEntityType					Catalyst entity type
+	 *
+	 * @apiSuccess {Object} response							Empty response object
 	 */
-	app.delete('/providers/:providerId/tags/values/mapping/:catalystEntity', function(req, res) {});
+	app.delete('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
 
-	app.get('/providers/:providerId/instances', function(req, res) {});
-	app.get('/providers/:providerId/instances/:instanceId', function(req, res) {});
 };
