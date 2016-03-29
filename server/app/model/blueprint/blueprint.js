@@ -510,9 +510,9 @@ BlueprintSchema.statics.copyByIds = function(ids,orgid,bgid,projid, callback) {
                     logger.debug("Error in find",err);
                     return;
                 }
-
+                //$or:[{"_id": {$in:objids}},{"parentId":{$in:ids}}]
                 self.find({
-                    $or:[{"_id": {$in:objids}},{"parentId":{$in:ids}}]
+                    $or:[{"_id": {$in:objids}}]
                 },function(err,data){
 
                     logger.debug('Found:',data.length);
@@ -525,21 +525,21 @@ BlueprintSchema.statics.copyByIds = function(ids,orgid,bgid,projid, callback) {
                         data[bpi].bgId = bgid;
                         data[bpi].projectId = projid;
                         logger.debug('Name:',data[bpi]["name"]);
-                        for(var _bpi = 0; _bpi < data.length;_bpi++){
-                            if(data[bpi]["_id"] == data[_bpi]["parentId"]){
-                                var oldpid = data[_bpi]["parentId"];
-                                data[_bpi]["parentId"] = newBPID;
-                                logger.debug("Updated parent for " + data[_bpi]["name"] + ":",data[_bpi]["_id"], "from " , oldpid ," to ", data[_bpi]["parentId"]);
-                            }
-                        }
+                        // for(var _bpi = 0; _bpi < data.length;_bpi++){
+                        //     if(data[bpi]["_id"] == data[_bpi]["parentId"]){
+                        //         var oldpid = data[_bpi]["parentId"];
+                        //         data[_bpi]["parentId"] = newBPID;
+                        //         logger.debug("Updated parent for " + data[_bpi]["name"] + ":",data[_bpi]["_id"], "from " , oldpid ," to ", data[_bpi]["parentId"]);
+                        //     }
+                        // }
                         //UPdate current objects ID
                         logger.debug("Old ID:",data[bpi]["_id"]);
                         data[bpi]["_id"] = newBPID;
                         logger.debug("New ID:",data[bpi]["_id"]);
                         //Including the version field if not present - backward compatibility
-                        if(!data[bpi]["version"])
-                            data[bpi]["version"] = "1";
-                         //About to save
+                        //if(!data[bpi]["version"])
+                        data[bpi]["version"] = "1";
+                        data[bpi].parentId = undefined;
                         
                         
                         logger.debug('About to write',bpi);
@@ -551,9 +551,12 @@ BlueprintSchema.statics.copyByIds = function(ids,orgid,bgid,projid, callback) {
                                 logger.debug(JSON.stringify([{"orgId":orgid},{"bgId":bgid},{"projectId":projid}]));
                             }                  
                         }
+
+
                         
                             
                         var blueprint = new Blueprints(data[bpi]);
+
 
                         blueprint.save(function(err,docs){
                             logger.debug(' docs ==> ',JSON.stringify(docs));

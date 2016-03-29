@@ -2344,10 +2344,20 @@ function devCall() {
 
 		}
 
+		function sortResults(versions, prop, asc) {
+		    versions = versions.sort(function(a, b) {
+		        a[prop] = parseInt(a[prop]);
+		        b[prop] = parseInt(b[prop]);
+		        if (asc) return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
+		        else return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
+		    });
+		    return (versions);
+		}
+
+
 		//Initializing the blueprint area according to the Template-Type and showing
 		//the differnt template types whenever a blueprint is added
 		function initializeBlueprintArea(data) {
-
 			var $AppFactpanelBody = $('.appFactoryPanel').find('.panel-body');
 			$AppFactpanelBody.empty();
 
@@ -2518,6 +2528,20 @@ function devCall() {
 							$ul.append($liImage);
 
 							var $liCardName = $('<li title="' + data[i].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + data[i].name + '</b></u>');
+							//checking if version is found 
+							var _versions = [];
+
+							if(data[i].versions)
+							{
+								_versions = sortResults(data[i].versions,'version');
+								if(_versions[0].name)
+									{
+										$liCardName = $('<li title="' + _versions[0].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + _versions[0].name + '</b></u>');
+										//update blueprint ID
+										$itemBody.attr('data-blueprintId', _versions[0].id);
+										$itemBody.attr('data-versions', JSON.stringify(_versions));
+									}
+							}
 
 							$ul.append($liCardName).append($imgprovider);
 							var $selecteditBtnContainer = $('<div style="position:absolute;padding-left:45px;bottom:11px;"></div>');

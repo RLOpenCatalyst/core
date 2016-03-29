@@ -1424,7 +1424,6 @@ var saveblueprint = function(tempType) {
                     if (($('.productdiv2.role-Selected').data('templatetype')).toLowerCase() === 'cloudformation') {
                         reqBody.blueprintType = 'aws_cf';
                     }
-                    alert(JSON.stringify(reqBody));
                     //console.log(reqBody);
                     $.post('/organizations/' + reqBody.orgId + '/businessgroups/' + reqBody.bgId + '/projects/' + reqBody.projectId + '/blueprints', {
                         blueprintData: reqBody
@@ -1435,6 +1434,7 @@ var saveblueprint = function(tempType) {
                         if(reqBody.blueprintId){
                         	$('#projectListInputExisting').trigger('change'); //refresh the blueprints page
                         	closeblueprintedit(reqBody.blueprintId);
+                        	return;
                         }
 
                         var validatorForm = $("#wizard-1").validate();
@@ -2412,7 +2412,7 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     		$('#orgnameSelect').trigger('change'); 
     		
     		//Add a productdiv2 with required elements for form rendering
-    		var $card = $('#viewCreate .productdiv1[data-blueprintid="' + baseblueprintId + '"]').clone();
+    		var $card = $('#viewCreate .productdiv1[data-blueprintid="' + blueprintId + '"]').clone();
     		$card.find('button').detach();
     		$card.find('.moreInfo').detach();
     		$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
@@ -2444,11 +2444,14 @@ function closeblueprintedit(blueprintId) {
 
 function sortResults(versions,prop, asc) {
     versions = versions.sort(function(a, b) {
+    	a[prop] = parseInt(a[prop]);
+    	b[prop] = parseInt(b[prop]);
         if (asc) return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
         else return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
     });
     return(versions);
 }
+
 
 function initializeBlueprintAreaNew(data) {
 	var reqBodyNew = {};
@@ -2461,7 +2464,7 @@ function initializeBlueprintAreaNew(data) {
 	var $desktopProvisioningPanelBody = $('.desktopProvisioningPanel').find('.panel-body');
 	$devopsRolepanelBody.empty();
 	//Displaying the Template Types.
-
+	$('#accordion-2').empty();
 	$.get("/d4dMasters/readmasterjsonnew/16", function(tdata) {
 		tdata = JSON.parse(tdata);
 		var rowLength = tdata.length;
@@ -2471,7 +2474,7 @@ function initializeBlueprintAreaNew(data) {
 		var getDesignTypeRowID;
 		var getDesignTypeName;
 		var getDesignType;
-		$('#accordion-2').empty();
+		
 		for (var i = 0; i < rowLength; i += 1) {
 			getDesignTypeImg = tdata[i]['designtemplateicon_filename'];
 			getDesignTypeRowID = tdata[i]['rowid'];
@@ -2549,7 +2552,10 @@ function initializeBlueprintAreaNew(data) {
 					if(data[i].versions){	
 						$linkVersions.attr('versions',JSON.stringify(_versions));
 						if(_versions[0].name)
-							$liCardName = $('<li title="' + _versions[0].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + _versions[0].name + '</b></u>');
+							{
+								$liCardName = $('<li title="' + _versions[0].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + _versions[0].name + '</b></u>');
+								$itemBody.attr('data-blueprintId', _versions[0].id);
+							}
 
 					} else{
 						$linkVersions.attr('versions','[]');
@@ -2833,7 +2839,7 @@ function initializeBlueprintAreaNew(data) {
 function removeSelectedBlueprint() {
 	var blueprintId = [];
 	$('.productdiv1.role-Selected1').each(function(){
-		blueprintId.push($(this).attr('data-blueprintid'));
+		blueprintId.push($(this).find('button[title="Edit"]').first().attr('blueprintid'));
 	});
 	if (blueprintId.length > 0) {
 		bootbox.confirm("Are you sure you would like to remove the selected blueprints?", function(result) {
