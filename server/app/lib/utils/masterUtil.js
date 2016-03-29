@@ -1666,101 +1666,67 @@ var MasterUtil = function() {
     // Get all appData informations.
     this.getAppDataWithDeployList = function(envName, projectId, callback) {
         logger.debug("projectId: ", projectId);
-        AppDeploy.getAppDeployListByEnvIdAndProjectId(envName, projectId, function(err, data) {
+        AppDeploy.getAppDeployListByEnvId(envName, function(err, data) {
             if (err) {
                 logger.debug("App deploy fetch error.", err);
-                return;
             }
-            var appDataList = [];
+            logger.debug("App deploy: ", JSON.stringify(data));
             if (data.length) {
+                var appDataList = [];
+                var count = 0;
                 for (var i = 0; i < data.length; i++) {
-                    var dummyData = {
-                        _id: data[i].id,
-                        applicationName: data[i].applicationName,
-                        applicationInstanceName: data[i].applicationInstanceName,
-                        applicationVersion: data[i].applicationVersion,
-                        applicationNodeIP: data[i].applicationNodeIP,
-                        applicationLastDeploy: data[i].applicationLastDeploy,
-                        applicationStatus: data[i].applicationStatus,
-                        projectId: projectId,
-                        envId: data[i].envId,
-                        description: '',
-                        applicationType: data[i].applicationType,
-                        containerId: data[i].containerId,
-                        hostName: data[i].hostName
-                    };
-                    appDataList.push(dummyData);
+                    (function(i) {
+                        var appName = [];
+                        appName.push(data[i].applicationName);
+                        d4dModelNew.d4dModelMastersProjects.find({
+                            appdeploy: {
+                                $elemMatch: {
+                                    // The regex will enable case-insensitive
+                                    applicationname: {
+                                        $regex: new RegExp(appName, "i")
+                                    }
+                                }
+                            },
+                            rowid: projectId
+                        }, function(err, appData) {
+                            count++;
+                            if (err) {
+                                logger.debug("Failed to fetch app data", err);
+                                callback(err, null);
+                            }
+                            if (appData.length) {
+                                var dummyData = {
+                                    _id: data[i].id,
+                                    applicationName: data[i].applicationName,
+                                    applicationInstanceName: data[i].applicationInstanceName,
+                                    applicationVersion: data[i].applicationVersion,
+                                    applicationNodeIP: data[i].applicationNodeIP,
+                                    applicationLastDeploy: data[i].applicationLastDeploy,
+                                    applicationStatus: data[i].applicationStatus,
+                                    projectId: appData[0].rowid,
+                                    envId: data[i].envId,
+                                    description: appData[0].description,
+                                    applicationType: data[i].applicationType,
+                                    containerId: data[i].containerId,
+                                    hostName: data[i].hostName
+                                };
+                                appDataList.push(dummyData);
+                                if (count === data.length) {
+                                    callback(null, appDataList);
+                                }
+                            } else {
+                                if (count === data.length) {
+                                    callback(null, appDataList);
+                                }
+                            }
+
+                        });
+                    })(i);
                 }
-
+            } else {
+                callback(null, []);
             }
-            callback(null, appDataList);
-
         });
-        /*
-		AppDeploy.getAppDeployListByEnvId(envName, function(err, data) {
-			if (err) {
-				logger.debug("App deploy fetch error.", err);
-				return;
-			}
-			logger.debug("App deploy: ", JSON.stringify(data));
-			if (data.length) {
-				var appDataList = [];
-				var count = 0;
-				for (var i = 0; i < data.length; i++) {
-					(function(i) {
-						var appName = [];
-						appName.push(data[i].applicationName);
-						logger.debug(appName);
-						d4dModelNew.d4dModelMastersProjects.find({
-							appdeploy: {
-								$elemMatch: {
-									// The regex will enable case-insensitive
-									applicationname: {
-										$regex: new RegExp(appName, "i")
-									}
-								}
-							},
-							rowid: projectId
-						}, function(err, appData) {
-							count++;
-							if (err) {
-								logger.debug("Failed to fetch app data", err);
-								callback(err, null);
-							}
-							if (appData.length) {
-								var dummyData = {
-									_id: data[i].id,
-									applicationName: data[i].applicationName,
-									applicationInstanceName: data[i].applicationInstanceName,
-									applicationVersion: data[i].applicationVersion,
-									applicationNodeIP: data[i].applicationNodeIP,
-									applicationLastDeploy: data[i].applicationLastDeploy,
-									applicationStatus: data[i].applicationStatus,
-									projectId: appData[0].rowid,
-									envId: data[i].envId,
-									description: appData[0].description,
-									applicationType: data[i].applicationType,
-									containerId: data[i].containerId,
-									hostName: data[i].hostName
-								};
-								appDataList.push(dummyData);
-								if (count === data.length) {
-									callback(null, appDataList);
-								}
-							} else {
-								if (count === data.length) {
-									callback(null, appDataList);
-								}
-							}
-
-						});
-					})(i);
-				}
-			} else {
-				callback(null, []);
-			}
-		});
-*/
     };
 
     // Get AppDeploy by name.
