@@ -1,6 +1,6 @@
 
 /**
- * @api {get} /providers/:providerId/unmanagedInstances?page=1&pageSize=5&search=i-656ae2a3&filterBy=region:us-west-2+state:running&sortBy=state&sortOrder=asc
+ * @api {get} /providers/:providerId/unmanagedInstances?page=1&pageSize=5&search=i-656ae2a3&filterBy=region:us-west-2+state:running,stopped&sortBy=state&sortOrder=asc
  * @apiName /providers/:providerId/unmanagedInstances
  * @apiGroup UnmanagedInstance List with Pagination,Sorting,Searching and Filtering
  *
@@ -37,29 +37,49 @@
  * @apiError 204 The ProviderID of the Active Organization was not found.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 204 Not Found
  *     {
- *       "error": "The server successfully processed the request and is not returning any content"
- *     }
+ *      code:204,
+ *      message:'The server successfully processed the request and is not returning any content',
+ *      fields={errorMessage:'Based on the search parameters,Data is present in database',attribute:'providerId'}
+ *     };
  * @apiError 204 Data is not present for respective search parameter.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 204 Not Found
  *     {
- *       "error": "The server successfully processed the request and is not returning any content"
- *     }
- * @apiError 404 Bad Request.
+ *      code:204,
+ *      message:'The server successfully processed the request and is not returning any content',
+ *      fields={errorMessage:'Based on the search parameters,Data is present in database',attribute:'paginationResponse'}
+ *     };
+ * @apiError 400 Not Found.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- *     {
- *       "error": "Bad Request"
- *     }
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields={errorMessage:'Bad Request',attribute:'paginationRequest'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields={errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'paginationRequest'}
+ *     };
+ * @apiError 404 Not Found.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:404,
+ *      message:'Not Found',
+ *      fields={errorMessage:'The requested resource could not be found but may be available in the future',attribute:'providerId'}
+ *     };
  * @apiError 500 InternalServerError.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 500
  *     {
- *       "error": "Server Behaved Unexpectedly"
- *     }
+ *      code:500,
+ *      message:'Interal Server Error',
+ *      fields={errorMessage:'Server Behaved Unexpectedly',attribute:'providerId'}
+ *     };
  */
