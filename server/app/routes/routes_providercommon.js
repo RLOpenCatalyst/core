@@ -1017,7 +1017,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	/**
 	 * @api {put} /providers/:providerId/tags/mapping/:catalystEntityType	Update tag mapping
-	 * @apiName createTagNameMapping
+	 * @apiName updateTagNameMapping
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerId							Provider ID
@@ -1063,7 +1063,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	/**
 	 * @api {delete} /providers/:providerId/tags/mapping/:catalystEntityType	 Delete tag mapping
-	 * @apiName deleteTagMapping
+	 * @apiName deleteTagNameMapping
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerID							Provider ID
@@ -1078,7 +1078,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	/**
 	 * @api {get} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntity 	Get tag value mapping
-	 * @apiName getTagValueMappingList
+	 * @apiName getTagValueMapping
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerID							Provider ID
@@ -1106,7 +1106,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	/**
 	 * @api {post} /providers/:providerId/tags/mapping/:catalystEntityType  Create tag value mapping
-	 * @apiName getTagValueMappingList
+	 * @apiName createTagValueMappings
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerID							Provider ID
@@ -1161,7 +1161,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	/**
 	 * @api {put} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId  Update tag value mapping
-	 * @apiName getTagValueMappingList
+	 * @apiName updateTagValueMapping
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerID							Provider ID
@@ -1194,7 +1194,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	/**
 	 * @api {delete} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId	Delete tag value mapping
-	 * @apiName deleteTagMapping
+	 * @apiName deleteTagValueMapping
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerID							Provider ID
