@@ -105,7 +105,9 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 	jsonData['searchColumns']=['ip','platformId'];
 	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
 		if(err){
-			console.log("Error");
+			process.nextTick(function() {
+				callback(null, []);
+			});
 			return;
 		}
 		databaseReq=databaseCall;
@@ -118,8 +120,6 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 			}
 			callback(null, instances);
 		});
-	//});
-
 };
 //End By Durgesh
 

@@ -76,31 +76,46 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
-		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+		ApiUtils.paginationRequest(req.query,'managedInstances',function(err, paginationReq){
 			if (err) {
-				res.status(500).send({
-					message: "Server Behaved Unexpectedly"
-				});
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
 			}
-			if (!provider) {
-				res.status(404).send({
-					message: "provider not found"
-				});
-				return;
-			}
-
-			instancesDao.getByProviderId(provider._id, function(err, managedInstances) {
+			paginationReq['providerId']=req.params.providerId;
+			paginationReq['id']='managedInstances';
+			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 				if (err) {
-					res.status(500).send(managedInstances);
+					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
 					return;
 				}
-				res.status(200).send(managedInstances);
+				if (!provider) {
+					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
+					return;
+				}
+				instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
+					if (err) {
+						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
+						return;
+					}
+					ApiUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
+						if (err) {
+							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+							return;
+						}
+						if (!paginationRes.managedInstances.length>0) {
+							res.status(204).send(ApiUtils.errorResponse(204,'paginationResponse'));
+							return;
+						}
+						res.status(200).send(paginationRes);
+					});
+
+
+				});
 			});
 		});
 	});
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		ApiUtils.paginationRequest(req.query,function(err, paginationReq){
+		ApiUtils.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;

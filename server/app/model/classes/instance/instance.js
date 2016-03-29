@@ -23,6 +23,7 @@ var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var ChefClientExecution = require('./chefClientExecution/chefClientExecution');
 var textSearch = require('mongoose-text-search');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 
 
 var Schema = mongoose.Schema;
@@ -1557,32 +1558,27 @@ var InstancesDao = function() {
         });
     };
 
-    this.getByProviderId = function(providerId, callback) {
-        if (!providerId) {
-            process.nextTick(function() {
-                callback({
-                    message: "Invalid provider id"
+    this.getByProviderId = function(jsonData, callback) {
+        var databaseReq={};
+        jsonData['searchColumns']=['instanceIP','platformId'];
+        ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+            if(err){
+                process.nextTick(function() {
+                    callback(null, []);
                 });
-
-            });
-            return;
-        }
-
-        Instances.find({
-            "providerId": providerId
-        }, {
-            'actionLogs': false
-        }, function(err, instances) {
+                return;
+            }
+            databaseReq=databaseCall;
+        });
+        Instances.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
             if (err) {
-                logger.error("Failed getByOrgProviderId (%s)", opts, err);
+                logger.error("Failed getByOrgProviderId (%s)", err);
                 callback(err, null);
                 return;
             }
-
             callback(null, instances);
-
         });
-};
+    };
 //End By Durgesh
 
     this.getInstanceByIPAndProject = function(instanceIp,projectId, callback) {

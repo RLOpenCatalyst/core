@@ -91,7 +91,7 @@ var ApiUtil = function() {
 
     };
 
-    this.paginationRequest=function(data, callback) {
+    this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
@@ -110,7 +110,10 @@ var ApiUtil = function() {
         if(data.sortBy)
             sortBy[data.sortBy]=data.sort_order=='desc' ? -1 : 1;
         else
-            sortBy[constantData.sort_instances]=constantData.sort_order=='desc' ? -1 :1;
+            if(key=='unmanagedInstances')
+                sortBy[constantData.sort_unmanaged_instances]=constantData.sort_order=='desc' ? -1 :1;
+            else if(key=='managedInstances')
+                sortBy[constantData.sort_managed_instances]=constantData.sort_order=='desc' ? -1 :1;
         var filterBy={};
         if(data.filterBy){
             var a=data.filterBy.split(" ");
@@ -133,10 +136,18 @@ var ApiUtil = function() {
                 }
             }
         }
-        else{
-            for(var i = 0;i < constantData.filter_records.length; i++){
-                var key=Object.keys(constantData.filter_records[i]);
-                filterBy[key]=constantData.filter_records[i][key];
+        else {
+            if (key == 'unmanagedInstances') {
+                for (var i = 0; i < constantData.filter_unmanaged_instances_records.length; i++) {
+                    var key = Object.keys(constantData.filter_unmanaged_instances_records[i]);
+                    filterBy[key] = constantData.filter_unmanaged_instances_records[i][key];
+                }
+            }
+            else if (key == 'managedInstances') {
+                for (var i = 0; i < constantData.filter_managed_instances_records.length; i++) {
+                    var key = Object.keys(constantData.filter_managed_instances_records[i]);
+                    filterBy[key] = constantData.filter_managed_instances_records[i][key];
+                }
             }
         }
         var request={

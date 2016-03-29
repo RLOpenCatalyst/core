@@ -65,9 +65,11 @@ function getDefaultsConfig() {
             record_limit : 10,
             max_record_limit : 100,
             skip_Records:0, 
-            sort_instances:'state',
+            sort_unmanaged_instances:'state',
+            sort_managed_instances:'instanceState',
             sort_order:'desc',
-            filter_records : [{state:'running'},{region:'us-west-1'}]
+            filter_unmanaged_instances_records : [{state:'running'},{os:'linux'}],
+            filter_managed_instances_records : [{instanceState:'running'}]
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
