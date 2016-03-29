@@ -262,12 +262,12 @@ function loadPipeline() {
         var envnamePresent = appDeployDataObj.envnamePresent;
         var appNamePresent = appDeployDataObj.appNamePresent;
         var appVersionPresent = appDeployDataObj.appVersionPresent;
-        // $.ajax({
-        //     url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '/application/' + appNamePresent + '?version=' + appVersionPresent,
-        //     type: 'GET',
-        //     contentType: "application/json",
-        //     async: true,
-        //     success: function(data) {
+        $.ajax({
+            url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '/application/' + appNamePresent + '?version=' + appVersionPresent,
+            type: 'GET',
+            contentType: "application/json",
+            async: true,
+            success: function(data) {
         var tempStr = '';
         var $childCardTemplate = $('.childCardTemplate');
         var $childPresentCard = $childCardTemplate.clone(true);
@@ -288,11 +288,11 @@ function loadPipeline() {
             $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-success').addClass('btn-danger');
         }
         $childPresentCard.find('.applicationEnvNamePipelineView').html(envnamePresent);
-        // if (data.length && (data[0].isApproved == "true")) {
-        //     $childPresentCard.find('.btn-promote').removeAttr('disabled');
-        // } else if (data.length && (data[0].isApproved == "false")) {
-        //     $childPresentCard.find('.btn-promote').attr('disabled', 'disabled');
-        // }
+        if (data.length && (data[0].isApproved == "true")) {
+            $childPresentCard.find('.btn-promote').removeAttr('disabled');
+        } else if (data.length && (data[0].isApproved == "false")) {
+            $childPresentCard.find('.btn-promote').attr('disabled', 'disabled');
+        }
 
         var promoteBtnId = envnamePresent + "_" + appNamePresent + "_" + appVersionPresent;
         $childPresentCard.find('.btn-promote').attr('id', promoteBtnId);
@@ -300,9 +300,9 @@ function loadPipeline() {
             $childPresentCard.find('.secondChildSpanTemplate').remove();
         }
         $td.append($childPresentCard);
-        //     },
-        //     error: function(jqxhr) {}
-        // });
+             },
+             error: function(jqxhr) {}
+         });
     };
 
     function createEmptyCard(env, last) {
@@ -727,7 +727,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                 return;
             }
             if (targetEnvName != choosedEnvName) {
-                alert("Please click on correct Environment on Tree view.");
+                alert("Please click on target Environment on Tree view.");
                 return;
             }
             if (!choosedEnvName) {
@@ -765,6 +765,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 }
                                 //tasksData.taskType = tasksData.taskConfig.taskType;
                             $.post('../tasks/' + taskId + '/update', reqBody, function(updatedTask) {
+                                console.log(updatedTask);
                             });
                         }
                     });
