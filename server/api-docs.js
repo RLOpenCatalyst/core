@@ -11,7 +11,7 @@
  * @apiParam {String} [search]  User is able to search for specific attribute. User can enter Instance ID or IP Address for specific search.
  * @apiParam {String} [sortBy]   User can sort the records for any field. Default: results are sorted by state.
  * @apiParam {String} [sortOrder]  The sort order if sort parameter is provided. One of asc or desc. Default: desc
- * @apiParam {String} [filterBy]  User is able to filter the records for a set of attributes.Default:{state:'running',os:'linux'}
+ * @apiParam {String} [filterBy]  User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped. Default:{state:'running',os:'linux'}
  *
  * @apiSuccess [JSONObject]
  *
@@ -34,7 +34,7 @@
  *     }
  *
  *
- * @apiError 204 The ProviderID of the Active Organization was not found.
+ * @apiError 204 No Contents.
  *
  * @apiErrorExample Error-Response:
  *     {
@@ -42,7 +42,7 @@
  *      message:'The server successfully processed the request and is not returning any content',
  *      fields={errorMessage:'Based on the search parameters,Data is present in database',attribute:'providerId'}
  *     };
- * @apiError 204 Data is not present for respective search parameter.
+ * @apiError 204 No Contents.
  *
  * @apiErrorExample Error-Response:
  *     {
@@ -50,7 +50,7 @@
  *      message:'The server successfully processed the request and is not returning any content',
  *      fields={errorMessage:'Based on the search parameters,Data is present in database',attribute:'paginationResponse'}
  *     };
- * @apiError 400 Not Found.
+ * @apiError 400 Bad Request.
  *
  * @apiErrorExample Error-Response:
  *    {
