@@ -33,6 +33,9 @@ var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
 var tagsDao = require('_pr/model/tags');
 var constantData = require('_pr/lib/utils/constant.js');
+var tagsValidator = require('_pr/validators/tagsValidator.js');
+var validate = require('express-validation');
+var	providerService = require('_pr/services/providerService.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -162,7 +165,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	});
 
 	//Added By Durgesh for Tags Information
-	app.get('/providers/:providerId/tags', function(req, res) {
+	/*app.get('/providers/:providerId/tags', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
 				res.status(500).send({
@@ -186,7 +189,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		});
 
-	});
+	});*/
 	//End By Durgesh
 
 	//Added By Durgesh for Tags Information
@@ -805,13 +808,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 			"tags": [
 	 * 				{
 	 * 					"name":	"env",
-	 * 					"description": "Deployment environment",
-	 * 					"url": "http://localhost:3001/providers/:providerId/tags/evn
+	 * 					"description": "Deployment environment"
 	 * 				},
 	 *				{
 	 * 					"name":	"application",
-	 * 					"description": "Project name",
-	 * 					"url": "http://localhost:3001/providers/:providerId/tags/application
+	 * 					"description": "Project name"
 	 * 				}
 	 * 			],
 	 *			"count": 2,
@@ -820,7 +821,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
 	 *
 	 */
-	app.get('/providers/:providerId/tags', function(req, res) {});
+	app.get('/providers/:providerId/tags',
+		validate(tagsValidator.get), getTags, sendGetResponse);
 
 	/**
 	 * @api {get} /providers/:providerId/tags/:tagName Get tag details
@@ -845,8 +847,37 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/providers/:providerId/tags/:tagName', function(req, res) {});
 
 	/**
+	 * @api {post} /providers/:providerId/tags  Add tag
+	 * @apiName addTag
+	 * @apiGroup Provider tags
+	 *
+	 * @apiParam {Number} providerId 			Provider ID
+	 * @apiParam {String} tagName				Tags name
+	 * @apiParam {Object} tag					Tag object in request body
+	 * @apiParam {String} tag.name				Tag name
+	 * @apiParam {String} tag.description		Tag description
+	 * @apiParamExample {json} Request-Example:
+	 * 		{
+	 * 			"name": "environment",
+	 * 			"description": "Tag description"
+	 * 		}
+	 *
+	 * @apiSuccess {Object} tag					Tag details
+	 * @apiSuccess {String} tags.name			Tag name
+	 * @apiSuccess {String} tags.description 	Tag description
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"name":	"environment",
+	 * 			"description": "Deployment environment"
+	 * 		}
+	 */
+	app.post('/providers/:providerId/tags', function(req, res) {});
+
+	/**
 	 * @api {put} /providers/:providerId/tags/:tagName  Update tag
-	 * @apiName addTags
+	 * @apiName updateTag
 	 * @apiGroup Provider tags
 	 *
 	 * @apiParam {Number} providerId 		Provider ID
@@ -987,19 +1018,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/providers/:providerId/tags/mapping/:catalystEntityType', function(req, res) {});
 
 	/**
-	 * @api {post} /providers/:providerId/tags/mapping			Create tag mapping
+	 * @api {post} /providers/:providerId/tags/mapping			Create tag mappings
 	 * @apiName createTagNameMapping
 	 * @apiGroup Provider tags
 	 *
-	 * @apiParam {Number} providerId							Provider ID
-	 * @apiParam {Object} tagNameMapping						Tag name mapping
-	 * @apiSuccess {String}	tagNameMapping.tagName 				Tag name
-	 * @apiSuccess {String} tagNameMapping.catalystEntityType	Catalyst entity type
+	 * @apiParam {Number} providerId										Provider ID
+	 * @apiParam {Object} tagMappings										Tag mappings
+	 * @apiParam {Object[]} tagMappings.tagNameMappings						Tag name mappings
+	 * @apiSuccess {String}	tagMappings.tagNameMappings.tagName 			Tag name
+	 * @apiSuccess {String} tagMappings.tagNameMappings.catalystEntityType	Catalyst entity type
 	 * @apiParamExample {json} Request-Example:
 	 * 		{
-	 * 			"catalystEntityType": "project",
-	 * 			"tagName": "application"
-	 * 		}
+	 *	 		tagNameMappings: [
+	 *	 			{
+	 *		  			"catalystEntityType": "project",
+	 *		  			"tagName": "application"
+	 *		  		},
+	 *		  		{
+	 *		  			"catalystEntityType": "environment",
+	 *		  			"tagName": "env"
+	 *		  		}
+	 *		  	]
+	 *		}
 	 *
 	 * @apiSuccess {Object} tagNameMapping 											Tag name mapping
 	 * @apiSuccess {String}	tagNameMapping.tagName 									Tag name
@@ -1077,7 +1117,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 	/**
-	 * @api {get} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntity 	Get tag value mapping
+	 * @api {get} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId 	Get tag value mapping
 	 * @apiName getTagValueMapping
 	 * @apiGroup Provider tags
 	 *
@@ -1102,7 +1142,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
 	 *
 	 */
-	app.get('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntity', function(req, res) {});
+	app.get('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
 
 	/**
 	 * @api {post} /providers/:providerId/tags/mapping/:catalystEntityType  Create tag value mapping
@@ -1204,5 +1244,40 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {Object} response							Empty response object
 	 */
 	app.delete('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
+
+	function getTags(req, res, next) {
+		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+			if (err) {
+				return res.status(500).send({
+					message: "Server Behaved Unexpectedly"
+				});
+			}
+			if (!provider) {
+				return res.status(404).send({
+					message: "provider not found"
+				});
+			}
+
+			providerService.getTags(provider, next);
+		});
+	}
+
+	function sendGetResponse(err, results) {
+		if(err) {
+			err.status = 500;
+			return res.send(500).send(err);
+		} else {
+			return res.status(200).send(results);
+		}
+	}
+
+	function sendPostResponse(err, results) {
+		if(err) {
+			err.status = 500;
+			return res.send(500).send(err);
+		} else {
+			return res.status(201).send(results);
+		}
+	}
 
 };
