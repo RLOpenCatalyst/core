@@ -238,8 +238,9 @@ AppDeploySchema.statics.getAppDeployByEnvId = function(envId, callback) {
 };
 
 // Get all AppDeploy informations.
-AppDeploySchema.statics.getAppDeployListByEnvId = function(envId, callback) {
+AppDeploySchema.statics.getAppDeployListByEnvId = function(projectId,envId, callback) {
     this.find({
+        projectId: projectId,
         envId: envId
     }, function(err, appDeploys) {
         if (err) {

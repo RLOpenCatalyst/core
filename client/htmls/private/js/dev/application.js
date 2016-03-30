@@ -1629,26 +1629,6 @@ function upgradeOrDeploy() {
         }
     };
 
-    $.get('/d4dMasters/project/' + projectId, function(projData) {
-        if (projData.length) {
-            var reqBody = {
-                "appName": repoId,
-                "description": repoId + " deployed."
-            };
-            $.ajax({
-                url: '/d4dMasters/project/' + projectId + '/appdeploy/appName/update',
-                data: JSON.stringify(reqBody),
-                type: 'POST',
-                contentType: "application/json",
-                success: function(data) {
-
-                },
-                error: function(jqxhr) {
-                    //alert("Failed to update update appName in Project.")
-                }
-            });
-        }
-    });
 
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
@@ -1661,14 +1641,14 @@ function upgradeOrDeploy() {
                         nodeIps.push(instance.instanceIP);
                     }
 
-
+                    alert(tasks.taskConfig.nodeIds.length);
                     if (tasks.taskConfig.nodeIds.length === count) {
                         getenvName(function(envName) {
                             var appData = {
                                 "appData": {
                                     "projectId": instance.projectId,
                                     "envId": envName,
-                                    "appName": repoId,
+                                    "appName": artifactId,
                                     "version": versionId,
                                     "nexus": {
                                         "repoURL": nexusRepoUrl,
@@ -1685,7 +1665,7 @@ function upgradeOrDeploy() {
                                     console.log("Successfully updated app-data");
                                 },
                                 error: function(jqxhr) {
-                                    //alert("Failed to update update appName in Project.")
+                                    alert("Failed to update update appName in Project.")
                                 }
                             });
                         });
