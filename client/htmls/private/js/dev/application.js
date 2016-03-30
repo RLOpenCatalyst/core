@@ -183,7 +183,7 @@ function loadPipeline() {
         $mainCard.find('.applicationMainIP').html(applicationName);
         $mainCard.find('.versionMain').html(versionNumber);
 
-        if (applicationName === "catalyst" || applicationName === "Catalyst") {
+        if (applicationName === "catalyst" || applicationName === "Catalyst" || applicationName === "D4D" || applicationName === "core") {
             $mainCard.find('.mainImageHeight').attr("src", "img/rsz_logo.png");
         } else {
             $mainCard.find('.mainImageHeight').attr("src", "img/petclinic.png");
