@@ -16,16 +16,6 @@
 
 var apiErrorUtil = module.exports = {};
 
-apiErrorUtil.success = function success(fields) {
-    this.status = 200;
-    this.message = "Success";
-    this.fields = fields;
-};
-apiErrorUtil.successCreated = function successCreated(fields) {
-    this.status = 201;
-    this.message = "Created successfully";
-    this.fields = fields;
-};
 apiErrorUtil.malformedRequest = function malformedRequest(fields) {
     this.status = 400;
     this.message = "Malformed request";
