@@ -17,7 +17,7 @@
         <div class="tab-pane " id="l2">
           <span class="spanName pull-right">
               <label class="orgSelectDropDown"><b>Choose Organisation</b>:</label>
-              <select id="selectOrgName" class="form-controlSelect">
+              <select id="selectOrgName" class="form-controlSelect form-control">
               </select>
            </span>
           <input type="hidden" id="orgIDCheck"/>
@@ -98,7 +98,7 @@
                                                 <span style="color:red">*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="instanceOS" name="instanceOS" class="required chooseOS width-100">
+                                                  <select id="instanceOS" name="instanceOS" class="required chooseOS width-100 form-control">
                                                   </select>
                                                 </div>
                                               </div>
@@ -106,8 +106,8 @@
                                                 <label for="providerId">Choose Provider:
                                                 <span style="color:red">*</span>
                                                 </label>
-                                                <div class="input-groups">
-                                                  <select id="providerId" name="providerId" class="required chooseOSProvider width-100">
+                                                <div class="input-groups"> 
+                                                  <select id="providerId" name="providerId" class="required chooseOSProvider width-100 form-control">
                                                   </select>
                                                 </div>
                                               </div>
@@ -116,7 +116,7 @@
                                                 <span style="color:red">*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="imageId" name="imageId" class="required chooseSecurity width-100">
+                                                  <select id="imageId" name="imageId" class="required chooseSecurity width-100 form-control">
                                                   </select>
                                                 </div>
                                               </div>
@@ -131,7 +131,7 @@
                                                 <span style="color:red">*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="location" name="location" class="required chooseSecurity width-100">
+                                                  <select id="location" name="location" class="required chooseSecurity width-100 form-control">
                                                     <option value="">Select Region</option>
                                                   </select>
                                                 </div>
@@ -144,7 +144,7 @@
                                                 <img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif">
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="vpcId" name="vpcId" class="required chooseSelect chooseImage width-100">
+                                                  <select id="vpcId" name="vpcId" class="required chooseSelect chooseImage width-100 form-control">
                                                     <option value="">Select VPC</option>
                                                   </select>
                                                 </div>
@@ -157,7 +157,7 @@
                                                 <img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif">
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="subnetId" name="subnetId" class="required chooseSelect chooseImage width-100">
+                                                  <select id="subnetId" name="subnetId" class="required chooseSelect chooseImage width-100 form-control">
                                                     <option value="">Select Subnet</option>
                                                   </select>
                                                 </div>
@@ -170,7 +170,7 @@
                                                 <img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif">
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="instancesize" name="instancesize" class="required chooseOrganization width-100 chooseSelect" style="vertical-align:central">
+                                                  <select id="instancesize" name="instancesize" class="required chooseOrganization width-100 chooseSelect form-control" style="vertical-align:central">
                                                     <option value="">Choose Instanace Size</option>
                                                   </select>
                                                 </div>
@@ -180,7 +180,7 @@
                                                 <span class="control-label redSpan">&nbsp;*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="instanceCount" name="instanceCount" class="required chooseOrganization width-100 chooseSelect" style="vertical-align:central">
+                                                  <select id="instanceCount" name="instanceCount" class="required chooseOrganization width-100 chooseSelect form-control" style="vertical-align:central">
                                                     <option value="1">1</option>
                                                     <option value="2">2</option>
                                                     <option value="3">3</option>
@@ -207,7 +207,7 @@
                                                 <span style="color:red">*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="orgnameSelect" name="orgnameSelect" class="required chooseOrgselect2 width-100">
+                                                  <select id="orgnameSelect" name="orgnameSelect" class="required chooseOrgselect2 width-100 form-control">
                                                   </select>
                                                 </div>
                                               </div>
@@ -224,7 +224,7 @@
                                                 <span style="color:red">*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="bgListInput" name="bgListInput" class="required chooseBG width-100">
+                                                  <select id="bgListInput" name="bgListInput" class="required chooseBG width-100 form-control">
                                                   </select>
                                                 </div>
                                               </div>
@@ -233,7 +233,7 @@
                                                 <span style="color:red">*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="projectListInput" name="projectListInput" class="required chooseProject width-100">
+                                                  <select id="projectListInput" name="projectListInput" class="required chooseProject width-100 form-control">
                                                   </select>
                                                 </div>
                                               </div>
@@ -243,14 +243,14 @@
                                                 </label>
                                                 <div class="userListLoadingContainer">
                                                 </div>
-                                                <select class="custom-scroll width-100" multiple="" id="userListSelect" style="display:none">
+                                                <select class="custom-scroll width-100 form-control" multiple="" id="userListSelect" style="display:none">
                                                 </select>
                                               </div>
                                               <div class="col-lg-6 col-md-6 forDocker dockerProjPort hidden notforCFT">
                                                 <label for="category">Select Docker Image
                                                 <span style="color:red">*</span>
                                                 </label>
-                                                <select id="dockerrepoListInput" class="chooseDockerContainer width-100">
+                                                <select id="dockerrepoListInput" class="chooseDockerContainer width-100 form-control">
                                                 </select>
                                               </div>
                                               <div class="col-lg-6 col-md-6 forDocker dockerProjPort hidden notforCFT">
@@ -504,23 +504,23 @@
                       <label for="">Choose Organization
                       <span style="color:red">*</span>
                       </label>
-                      <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100">
+                      <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100 form-control">
                       </select>
                     </div>
                     <div class="col-lg-4 col-md-4">
                       <label for="">Business Group</label>
-                      <select id="bgListInputExisting" class="chooseBGExisting width-100">
+                      <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control">
                       </select>
                     </div>
                     <div class="col-lg-4 col-md-4">
                       <label for="category">Project
                       </label>
-                      <select id="projectListInputExisting" class="chooseProjectExisting width-100">
+                      <select id="projectListInputExisting" class="chooseProjectExisting width-100 form-control">
                       </select>
                     </div>
                     <div class="col-lg-3 col-md-3 hidden">
                       <label for="category">Environment</label>
-                      <select id="envListExisting" class="chooseEnvExisting width-100">
+                      <select id="envListExisting" class="chooseEnvExisting width-100 form-control">
                       </select>
                     </div>
                     <div class="col-lg-12">
@@ -752,7 +752,7 @@
               <span style="color:red">*</span>
               <span class="dockerparamrequired hidden" style="color:red">&nbsp;Required</span>
               </label>
-              <select class="chooseSelect width-100" id="dockertemplateselector" onchange="imagechanged();">
+              <select class="chooseSelect width-100 form-control" id="dockertemplateselector" onchange="imagechanged();">
               </select>
             </div>
             <div class="col-lg-6 col-md-6">
@@ -763,7 +763,7 @@
               <label id="dockertemplateSpinner" class="hidden">
               <img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif">
               </label>
-              <select class="chooseSelect width-100" id="dockertemplatetagselector">
+              <select class="chooseSelect width-100 form-control" id="dockertemplatetagselector">
               </select>
                <div class="small pull-right" style="margin-right:10px">
                   To get private repo tags, add a hub account in Settings > DevOps Setup > Docker
@@ -840,7 +840,7 @@
               <div class="col-lg-6 hidden">
                 <label for="category">Removed Linked Containers on Exit
                 </label>
-                <select class="chooseSelect width-100" id="Removelinkedcontainersonexitfield" placeholder="Should this & linked containers be removed on exit">
+                <select class="chooseSelect width-100 form-control" id="Removelinkedcontainersonexitfield" placeholder="Should this & linked containers be removed on exit">
                   <option>False</option>
                   <option>True</option>
                 </select>
@@ -848,7 +848,7 @@
               <div class="col-lg-6 dockerModal hidden">
                 <label for="category">Remove on Exit
                 </label>
-                <select class="chooseSelectExit width-100 " id="Removeonexitfield" placeholder="Should this container be removed when it exits">
+                <select class="chooseSelectExit width-100 form-control " id="Removeonexitfield" placeholder="Should this container be removed when it exits">
                   <option>False</option>
                   <option>True</option>
                 </select>
@@ -1159,28 +1159,44 @@ function generateDockerLaunchParams() {
 }
 
 
-function addDockerTemplateToTable(title, repopath, tagname, reponame) {
+function addDockerTemplateToTable(title, repopath, tagname, reponame,optionallaunchparams) {
   var $cdt = $('#compositedockertable');
   var uniqueid = (Math.floor(Math.random() * 9000) + 1000).toString();
   //remove any empty row message from table
   $('#dockerimageemptytr').detach();
-  var $dockertemplaterow = '<tr class="dockerimagesrow"><td >' + $cdt.find('tr').length + '</td><td paramtype="dockercontainerpathstitle">' + title + '</td><td  paramtype="dockercontainerpaths">' + repopath + '</td><td paramtype="dockerrepotags">' +
-    tagname + '</td><td><input type="text" paramtype="dockerlaunchparameters" id="launchparam' + uniqueid + '" class=""><input type="hidden" paramtype="dockerreponame" id="dockerreponame' + uniqueid + '" class="" value="' + reponame +
-    '"><a onclick="loadLaunchParams(\'launchparam' + uniqueid + '\');" href="javascript:void(0);"><i class="icon-append fa fa-list-alt fa-lg" title="Launch Parameters"></i></a></td><td ><a class="dockerimageselectorup" id="dockerimageselectorup' +
-    uniqueid + '"  href="javascript:movetablerow(\'dockerimageselectorup\',' + uniqueid + ');"><i class="fa fa-chevron-circle-up fa-lg"></i></a><a class="dockerimageselectordown" id="dockerimageselectordown' + uniqueid +
-    '" href="javascript:movetablerow(\'dockerimageselectordown\',' + uniqueid +
-    ');" style="padding-left:5px;"><i class="fa fa-chevron-circle-down fa-lg"></i></a><button class="btn btn-xs btn-danger pull-right" value="Remove" title="Remove" id="dockerimageremove' + uniqueid +
-    '" onClick="javascript:removeimage(\'dockerimageremove\',' + uniqueid + ');"><i class="ace-icon fa fa-trash-o fa-lg"></i></button></td></tr>';
+  if (!optionallaunchparams) {
+    optionallaunchparams = '';
+  }
+  var $dockertemplaterow = '<tr class="dockerimagesrow"><td >' + $cdt.find('tr').length + '</td><td paramtype="dockercontainerpathstitle">' + title + '</td><td  paramtype="dockercontainerpaths">' + repopath + '</td><td paramtype="dockerrepotags">' + tagname + '</td><td><input type="text" paramtype="dockerlaunchparameters" id="launchparam' + uniqueid + '" class="" value=" ' + optionallaunchparams + '"><input type="hidden" paramtype="dockerreponame" id="dockerreponame' + uniqueid + '" class="" value="' + reponame + '"><a onclick="loadLaunchParams(\'launchparam' + uniqueid + '\');" href="javascript:void(0);"><i class="icon-append fa fa-list-alt fa-lg" title="Launch Parameters"></i></a></td><td ><a class="dockerimageselectorup" id="dockerimageselectorup' + uniqueid + '"  href="javascript:movetablerow(\'dockerimageselectorup\',' + uniqueid + ');"><i class="fa fa-chevron-circle-up fa-lg"></i></a><a class="dockerimageselectordown" id="dockerimageselectordown' + uniqueid + '" href="javascript:movetablerow(\'dockerimageselectordown\',' + uniqueid + ');" style="padding-left:5px;"><i class="fa fa-chevron-circle-down fa-lg"></i></a><button class="btn btn-xs btn-danger pull-right" value="Remove" title="Remove" id="dockerimageremove' + uniqueid + '" onClick="javascript:removeimage(\'dockerimageremove\',' + uniqueid + ');"><i class="ace-icon fa fa-trash-o fa-lg"></i></button></td></tr>';
 
   $cdt.append($dockertemplaterow);
 
 }
 
 function showdockertemplateadder() {
-
-  $('#dockertemplateselector').select2('val', '');
-  $('#dockertemplatetagselector').empty().select2('val', '');
-  $('#myModalDockerTemplateContainer').modal('show');
+$('#dockertemplateselector').val('');
+  $('#dockertemplatetagselector').empty().val('');
+  //populating template selector with templates
+  var templateurl = "/d4dMasters/readmasterjsonnew/17";
+  $('#dockertemplateselector').empty().val('');
+  $('#dockertemplatetagselector').empty().val('');
+  $.get('/d4dMasters/readmasterjsonnew/17',function(data){
+    if(data.length > 0)
+    {
+     var rowGridLength = (data.length);
+     for (var z = 0; z < rowGridLength; z += 1) {
+       //console.log(data[z]["templatetypename"].toLowerCase());
+       var dockercontainerpathstitle = data[z]['dockercontainerpathstitle'];
+       var dockercontainerpaths = data[z]['dockercontainerpaths'];
+       var dockerreponame = data[z]['dockerreponame'];
+       var getTempName = data[z]['templatename']
+       if(data[z]["templatetypename"].toLowerCase() === 'docker'){
+         $('#dockertemplateselector').append('<option value="' + dockercontainerpaths + '" title="' + dockercontainerpaths + '" reponame="' + dockerreponame + '">' + getTempName  + '</option>'); //dockercontainerpathstitle
+       }
+     }
+    }
+    $('#myModalDockerTemplateContainer').modal('show');
+  });
 }
 
 function addrows() { //only for testing to be removed
@@ -1588,6 +1604,12 @@ function getImagesWithOSFilter() {
   $('#instanceOS').on('change', loadData);
 }
 
+function setSecurityCheckedList(list) {
+  //alert(list);
+  $.each(list,function(index,val){
+    $('#securityGroupIds').find('input[value="' + val + '"]').removeAttr('checked').trigger('click');
+  });
+}
 
 function getSecurityCheckedList() {
   var list = []
@@ -2031,16 +2053,16 @@ var formInitializer = function(editing,callback){
           $('.dockerimagesrow').detach();
 
           if(editing){
-                  var compdock = $('#compositedockertable').attr('savedval');
-                  if(compdock){
-                    compdock = JSON.parse(compdock);
-                    for(var dci =0; dci < compdock.length;dci++){
-                      addDockerTemplateToTable(compdock[dci].dockercontainerpathstitle, compdock[dci].dockercontainerpaths, compdock[dci].dockerrepotags, compdock[dci].dockerreponame, compdock[dci].dockerlaunchparameters);
-                    }
-                  }
-                }
-                else
-                  addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
+            var compdock = $('#compositedockertable').attr('savedval');
+            if(compdock){
+              compdock = JSON.parse(compdock);
+              for(var dci =0; dci < compdock.length;dci++){
+                addDockerTemplateToTable(compdock[dci].dockercontainerpathstitle, compdock[dci].dockercontainerpaths, compdock[dci].dockerrepotags, compdock[dci].dockerreponame, compdock[dci].dockerlaunchparameters);
+              }
+            }
+          }
+          else
+            addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
           if (!$('#CollapseEditorgParam').hasClass('in')) {
             $('a[href="#CollapseEditorgParam"]').click();
           }
@@ -2329,7 +2351,7 @@ var saveblueprint = function(tempType){
           callback: function(result) {
             if (result) {
 
-              $("#tabheader").html('Create Blueprint');
+              //$("#tabheader").html('Create Blueprint');
               var $selectedTemplateArea = $('.selectedTemplateArea');
               var $selectedItem = $selectedTemplateArea.find('.productdiv2');
               console.log($selectedItem.length);
@@ -2692,7 +2714,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
     if (index === 1) {
       $('#viewCreateNew').addClass('hidden');
       $('#selectOrgName').attr('disabled', true);
-      $("#tabheader").html('Choose Templates');
+     // $("#tabheader").html('Choose Templates');
       var $selectedItem = $('.role-Selected');
       if (!$selectedItem.length) {
         alert('please choose a blueprint design');
@@ -2842,6 +2864,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
       $('.' + $selectedItem.attr('data-templateType')).find('.productdiv2:first').trigger('click');
 
     } else if (index == 2) {
+       // alert('in');
         formInitializer();
      
 
@@ -2967,17 +2990,17 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
   },
   'onPrevious': function(tab, navigation, index) {
     if (index === 0) {
-      $("#tabheader").html('Choose Template Type');
+      //$("#tabheader").html('Choose Template Type');
       $('#viewCreateNew').removeClass('hidden');
       $('#selectOrgName').attr('disabled', false);
       var wizard = $wizard.data('bootstrapWizard');
       wizard.enableNextBtn();
     } else if (index === 1) {
-      $("#tabheader").html('Choose Templates');
+     // $("#tabheader").html('Choose Templates');
     } else if (index === 2) {
-      $("#tabheader").html('Choose Template');
+     // $("#tabheader").html('Choose Template');
     } else if (index === 3) {
-      $("#tabheader").html('Create Blueprint');
+    //  $("#tabheader").html('Create Blueprint');
       var validatorForm = $("#wizard-1").validate();
       validatorForm.resetForm();
     }
@@ -3040,6 +3063,9 @@ var OrgdataLoader = function(editing){
           for (var i = 0; i < getBGs.length; i++) {
             $bgList.append($('<option></option>').val(getBGs[i].rowid).html(getBGs[i].name).data('projList', getBGs[i].nodes));
           }
+          if($bgList.attr('savedval'))
+            helpersetselectvalue($bgList,'value',$bgList.attr('savedval'));
+
         }
         var $cookbookShow = $('.cookbookShow').empty();
         $cookbookShow.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
@@ -3049,7 +3075,14 @@ var OrgdataLoader = function(editing){
           var templatescookbooks = $card.attr('templatescookbooks');
           if (templatescookbooks) {
             tcb = templatescookbooks.split(',');
+          }else{ //should be edit mode
+            if($('#tableRunlistForBlueprint').attr('savedval'))
+              tcb = $('#tableRunlistForBlueprint').attr('savedval').split(',');
           }
+        }else{
+
+          if($('#tableRunlistForBlueprint').attr('savedval'))
+            tcb = $('#tableRunlistForBlueprint').attr('savedval').split(',');
         }
         console.log(tcb);
         console.log('tcbdhd == >', tcb);
@@ -3082,6 +3115,16 @@ var OrgdataLoader = function(editing){
         for (var i = 0; i < getProjs.length; i++) {
           $projectList.append($('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name));
         }
+        //setting the read values
+        if($projectList.attr('savedval'))
+          {
+            helpersetselectvalue($projectList,'value',$projectList.attr('savedval'));
+            //locking Org BG and Project during edit
+            $('#orgnameSelect').attr('disabled','disabled');
+            $bgList.attr('disabled','disabled');
+            $projectList.attr('disabled','disabled');
+          }
+
       });
     }
   });
@@ -3543,7 +3586,7 @@ function initializeBlueprintAreaNew(data) {
           //Docker Check
           if (data[i].templateType == "Docker" || data[i].templateType == "docker") {
             console.log("data[i}" + JSON.stringify(data[i]));
-            $selectVer = $('<select style="padding:1px;margin-right:5px;"></select>').addClass('dockerrepotagselect').attr('data-blueprintId', data[i]._id);
+            $selectVer = $('<select style="padding:1px;margin-right:5px;" class="form-control"></select>').addClass('dockerrepotagselect').attr('data-blueprintId', data[i]._id);
             $itemBody.attr('dockerreponame', data[i].dockerreponame);
             $itemBody.attr('dockerrepotags', data[i].dockerrepotags);
             $itemBody.attr('dockercontainerpaths', data[i].dockercontainerpaths);
@@ -3586,7 +3629,7 @@ function initializeBlueprintAreaNew(data) {
               });
             })(data[i]);
           } else {
-            $selectVer = $('<select style="padding:1px;padding-left:5px;"></select>').addClass('blueprintVersionDropDown').attr('data-blueprintId', data[i]._id);
+            $selectVer = $('<select style="padding:1px;padding-left:5px;" class="form-control"></select>').addClass('blueprintVersionDropDown').attr('data-blueprintId', data[i]._id);
 
             if (data[i].templateType === 'chef' || data[i].templateType === 'ami') {
               $selectVerEdit.hide();
