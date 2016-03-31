@@ -1505,24 +1505,6 @@ function deployNewForDocker() {
         }
     };
 
-    $.get('/d4dMasters/project/' + projectId, function(projData) {
-        if (projData.length) {
-            var reqBody = {
-                "appName": appName,
-                "description": appName + " deployed."
-            };
-            $.ajax({
-                url: '/d4dMasters/project/' + projectId + '/appdeploy/appName/update',
-                data: JSON.stringify(reqBody),
-                type: 'POST',
-                contentType: "application/json",
-                success: function(data) {},
-                error: function(jqxhr) {
-                    //alert("Failed to update update appName in Project.")
-                }
-            });
-        }
-    });
 
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
