@@ -1641,7 +1641,6 @@ function upgradeOrDeploy() {
                         nodeIps.push(instance.instanceIP);
                     }
 
-                    alert(tasks.taskConfig.nodeIds.length);
                     if (tasks.taskConfig.nodeIds.length === count) {
                         getenvName(function(envName) {
                             var appData = {
