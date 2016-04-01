@@ -3,6 +3,7 @@ server/app/node_modules/
 server/app/logs
 node_modules/
 server/app/config/catalyst-config.json
+server/catdata/catalyst/
 server/.idea/
 tempfiles/
 seed/copychefidtoinstance.js
