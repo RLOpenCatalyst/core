@@ -103,7 +103,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							return;
 						}
 						if (!paginationRes.managedInstances.length>0) {
-							res.status(204).send(ApiUtils.errorResponse(204,'paginationResponse'));
+							res.status(200).send(paginationRes);
 							return;
 						}
 						res.status(200).send(paginationRes);
@@ -143,7 +143,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							return;
 						}
 						if (!paginationRes.unmanagedInstances.length>0) {
-							res.status(204).send(ApiUtils.errorResponse(204,'paginationResponse'));
+							res.status(200).send(paginationRes);
 							return;
 						}
 						res.status(200).send(paginationRes);

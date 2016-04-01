@@ -22,11 +22,6 @@ var ApiUtil = function() {
             errObj['message']='Internal Server Error';
             errObj['fields']={errorMessage:'Server Behaved Unexpectedly',attribute:field};
         }
-        else if(code==204){
-            errObj['code']=code;
-            errObj['message']='The server successfully processed the request and is not returning any content';
-            errObj['fields']={errorMessage:'Based on the search parameters,Data is present in database.',attribute:field};
-        }
         else if(code==404){
             errObj['code']=code;
             errObj['message']='Not Found';
@@ -74,7 +69,8 @@ var ApiUtil = function() {
             queryArr.push({$or:objOr});
         }
         else{
-            objAnd = jsonData.filterBy;
+            if(jsonData.filterBy)
+                objAnd = jsonData.filterBy;
             queryArr.push(objAnd);
         }
         queryObj['$and']=queryArr;
@@ -114,6 +110,11 @@ var ApiUtil = function() {
                 sortBy[constantData.sort_unmanaged_instances]=constantData.sort_order=='desc' ? -1 :1;
             else if(key=='managedInstances')
                 sortBy[constantData.sort_managed_instances]=constantData.sort_order=='desc' ? -1 :1;
+        var request={
+            'sortBy':sortBy,
+            'record_Skip':skip,
+            'record_Limit':pageSize
+        };
         var filterBy={};
         if(data.filterBy){
             var a=data.filterBy.split(" ");
@@ -135,27 +136,25 @@ var ApiUtil = function() {
                         filterBy[b[0]] = b[1];
                 }
             }
+            request['filterBy']=filterBy;
         }
-        else {
+       /* else {
             if (key == 'unmanagedInstances') {
                 for (var i = 0; i < constantData.filter_unmanaged_instances_records.length; i++) {
                     var key = Object.keys(constantData.filter_unmanaged_instances_records[i]);
                     filterBy[key] = constantData.filter_unmanaged_instances_records[i][key];
                 }
+                request['filterBy']=filterBy;
             }
             else if (key == 'managedInstances') {
                 for (var i = 0; i < constantData.filter_managed_instances_records.length; i++) {
                     var key = Object.keys(constantData.filter_managed_instances_records[i]);
                     filterBy[key] = constantData.filter_managed_instances_records[i][key];
                 }
+                request['filterBy']=filterBy;
             }
-        }
-        var request={
-            'sortBy':sortBy,
-            'record_Skip':skip,
-            'record_Limit':pageSize,
-            'filterBy':filterBy
-        };
+        }*/
+
         if(data.search){
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
             var encrpt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);

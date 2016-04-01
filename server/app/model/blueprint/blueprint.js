@@ -40,6 +40,11 @@ var ARMTemplateBlueprint = require('./blueprint-types/arm-template-blueprint/arm
 var utils = require('../classes/utils/utils.js');
 var nexus = require('_pr/lib/nexus.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var AWSKeyPair = require('../../model/classes/masters/cloudprovider/keyPair.js');
+var VMImage = require('../../model/classes/masters/vmImage.js');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var AzureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var VmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 
 
 
@@ -393,13 +398,121 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
 
 BlueprintSchema.statics.getById = function(id, callback) {
     logger.debug('finding blueprint by id ===>' + id);
-    this.findById(id, function(err, blueprint) {
+    this.aggregate([
+        {
+            $match: {
+                _id : ObjectId(id)
+            }
+        } ,
+        {
+            $lookup:
+            {
+                from: "d4dmastersnew",
+                localField: "projectId",
+                foreignField: "rowid",
+                as: "masterData"
+            }
+        }
+    ],function(err, blueprint) {
         if (err) {
             callback(err, null);
             return;
         }
-        callback(null, blueprint);
-    });
+        var bluePrintInfo={};
+        if(blueprint) {
+                bluePrintInfo = {
+                orgName: blueprint[0].masterData[0].orgname,
+                bgName: blueprint[0].masterData[0].productgroupname,
+                projectName: blueprint[0].masterData[0].projectName,
+                name: blueprint[0].name,
+                iconpath: blueprint[0].iconpath,
+                templateId: blueprint[0].templateId,
+                templateType: blueprint[0].templateType,
+                users: blueprint[0].users,
+                blueprintType: blueprint[0].blueprintType,
+                appUrls:blueprint[0].appUrls
+            };
+            if(bluePrintInfo.templateType=='chef' || bluePrintInfo.templateType=='ami'){
+                    VMImage.getImageNameById(blueprint[0].blueprintConfig.cloudProviderData.imageId,function(err,imageName){
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    }
+                    bluePrintInfo['imageName']=imageName;
+                        if(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType == 'azure'){
+
+                            AzureProvider.getAzureCloudProviderById(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,function(err,providerData){
+                                if (err) {
+                                    callback(err, null);
+                                    return;
+                                }
+                                var jsonData=JSON.parse(providerData);
+                                bluePrintInfo['providerType']=jsonData.providerType;
+                                bluePrintInfo['providerName']=jsonData.providerName;
+                                bluePrintInfo['pemFileName']=jsonData.pemFileName;
+                                bluePrintInfo['keyFileName']=jsonData.keyFileName;
+                                bluePrintInfo['region']=blueprint[0].blueprintConfig.cloudProviderData.region;
+                                bluePrintInfo['blueprintConfig']=
+                                {
+                                    cloudProviderType: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType,
+                                    cloudProviderId: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,
+                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData
+                                }
+                                callback(null, bluePrintInfo);
+                            })
+
+                        }
+                       else if(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType == 'vmware'){
+
+                            VmwareProvider.getvmwareProviderById(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,function(err,providerData){
+                                if (err) {
+                                    callback(err, null);
+                                    return;
+                                }
+                                bluePrintInfo['providerType']=providerData.providerType;
+                                bluePrintInfo['providerName']=providerData.providerName;
+                                bluePrintInfo['region']=blueprint[0].blueprintConfig.cloudProviderData.region;
+                                bluePrintInfo['blueprintConfig']=
+                                {
+                                    cloudProviderType: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType,
+                                    cloudProviderId: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,
+                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData
+                                }
+                                callback(null, bluePrintInfo);
+                            })
+
+                        }
+                        else{
+                              AWSKeyPair.getAWSKeyPairById(blueprint[0].blueprintConfig.cloudProviderData.keyPairId,function(err,keyPairData){
+                                if (err) {
+                                    callback(err, null);
+                                    return;
+                                }
+                                bluePrintInfo['keyPairName']=keyPairData.keyPairName;
+                                bluePrintInfo['region']=keyPairData.region;
+                                AWSProvider.getAWSProviderById(blueprint[0].blueprintConfig.cloudProviderId,function(err,providerData){
+                                    if (err) {
+                                        callback(err, null);
+                                        return;
+                                    }
+                                    bluePrintInfo['providerType']=providerData.providerType;
+                                    bluePrintInfo['providerName']=providerData.providerName;
+                                    bluePrintInfo['blueprintConfig']= blueprint[0].blueprintConfig;
+                                    callback(null, bluePrintInfo);
+                                })
+                            })
+                        }
+
+                })
+
+            }
+            else{
+                bluePrintInfo['blueprintConfig']= blueprint[0].blueprintConfig,
+                callback(null, bluePrintInfo);
+            }
+        }
+
+    })
 };
 
 BlueprintSchema.statics.getByIds = function(ids, callback) {
