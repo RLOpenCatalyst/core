@@ -1024,7 +1024,7 @@ function devCall() {
 									$('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url);
 								}
 							}
-
+/*
 
 
 							$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
@@ -1042,6 +1042,7 @@ function devCall() {
 
 
 							});
+*/
 
 						}
 
@@ -1096,7 +1097,7 @@ function devCall() {
 
 								}
 								$parent.find('.card_os').empty().append('<img src="' + basePath + imgPath + '" height="25" width="25" data-placement="top" data-original-title="' + title.capitalizeFirstLetter() + '" rel="tooltip"/>');
-								$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+								/*$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
 
 									var lastActionLog = actionLogs[actionLogs.length - 1];
 
@@ -1110,7 +1111,7 @@ function devCall() {
 									$parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
 
 
-								});
+								});*/
 
 
 							}
@@ -1827,6 +1828,8 @@ function devCall() {
 									}
 								}
 
+								/*
+
 								$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
 
 									var lastActionLog = actionLogs[actionLogs.length - 1];
@@ -1841,6 +1844,7 @@ function devCall() {
 									$parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
 
 								});
+								*/
 							}
 						}
 					});
@@ -1933,7 +1937,7 @@ function devCall() {
 			// } else {
 			//     $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('status : <span class="instance-state instance-state-text-pending">' + data.instanceState + '</strong>');
 			// }
-
+           /*
 			$.get('/instances/' + data._id + '/actionLogs', function(actionLogs) {
 
 				var lastActionLog = actionLogs[actionLogs.length - 1];
@@ -1948,8 +1952,35 @@ function devCall() {
 				$instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('Last updated time : <span class="instance-state">' + actionLogDate + '</strong>');
 				$instanceDetailsList.append($instanceDetailItemStatus);
 
-			});
+			});*/
+            var platformId = 'unknown';
+            var providerIdText = 'Instance Id : ';
+            if(data.platformId) {
+			  platformId = data.platformId;
+			  switch(data.providerType){
+			  	 case 'aws': 
+			  	    providerIdText = 'AWS Id : '; 
+			  	    break;
+				case 'azure':
+					providerIdText = 'Azure Id : ';
+					break;
+				case 'vmware':
+					providerIdText = 'VMware Id : ';
+					break;
+				case 'openstack':
+				    providerIdText = 'openstack Id : ';	
+				    break;
+				default:
+				    platformId = 'unknown';
+                    providerIdText = 'Instance Id : ';
 
+			  }
+            } 
+
+			//$instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span class="instance-state instance-details-id" style="text-overflow: ellipsis;width: 65px;overflow: hidden;display: inline-block;white-space: nowrap;"> Provider Id : ' + platformId + '</span>');
+            $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> '+ providerIdText + platformId + '</span>');
+            $instanceDetailsList.append($instanceDetailItemStatus);
+			//$instanceDetailsList.append('<span class="instance-state" style="text-overflow: ellipsis;width: 65px;overflow: hidden;display: inline-block;white-space: nowrap;">' + platformId + '</span>');
 
 
 			$divInstanceDetails.append($instanceDetailsList);
@@ -5722,6 +5753,7 @@ function devCall() {
 					//disableInstanceActionBtns(instanceData._id);
 
 					//$card.find('.instance-state').removeClass().addClass('instance-state').addClass(cssClassed.textClass).html(instanceData.instanceState);
+					/*
 					$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
 
 						var lastActionLog = actionLogs[actionLogs.length - 1];
@@ -5735,7 +5767,7 @@ function devCall() {
 
 						$card.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
 
-					});
+					});*/
 
 					$('.instancestatusindicator[data-instanceId="' + instanceId + '"]').removeClass().addClass('instancestatusindicator').addClass(cssClassed.tableViewStatusClass);
 

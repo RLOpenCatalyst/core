@@ -36,7 +36,7 @@
                       <div>
                         <div class="instance-details-list">
                           <span class="instance-details-id instance-details-ip">IP : <strong></strong></span>
-                          <span class="instance-details-id">Last updated time : 
+                          <span class="instance-details-id"> 
                           <span class="instance-state"></span>
                           </span>
                         </div>
@@ -912,7 +912,7 @@ function pollInstanceBootstrapState(instanceId, delay) {
 
             }
             $parent.find('.card_os').empty().append('<img src="' + basePath + imgPath + '" height="25" width="25" data-placement="top" data-original-title="' + title.capitalizeFirstLetter() + '" rel="tooltip"/>');
-
+           /*
             $.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
               var lastActionLog = actionLogs[actionLogs.length - 1];
               var actionLogTimestamp = lastActionLog.timeStarted;
@@ -922,7 +922,7 @@ function pollInstanceBootstrapState(instanceId, delay) {
               var actionLogTimeString = new Date().setTime(actionLogTimestamp);
               var actionLogDate = new Date(actionLogTimeString).toLocaleString();
               $parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
-            });
+            });*/
           }
         }
       }
@@ -1218,20 +1218,48 @@ $.get('../instances/' + urlParams.id, function(data) {
     //$domainRolesCaption.find('.instance-state').html(data.instanceState).addClass('instance-state-text-pending');
   }
 
-  $.get('/instances/' + data._id + '/actionLogs', function(actionLogs) {
+  // $.get('/instances/' + data._id + '/actionLogs', function(actionLogs) {
 
-    var lastActionLog = actionLogs[actionLogs.length - 1];
+  //   var lastActionLog = actionLogs[actionLogs.length - 1];
 
-    var actionLogTimestamp = lastActionLog.timeStarted;
-    if (lastActionLog.completed) {
-      actionLogTimestamp = lastActionLog.timeEnded;
+  //   var actionLogTimestamp = lastActionLog.timeStarted;
+  //   if (lastActionLog.completed) {
+  //     actionLogTimestamp = lastActionLog.timeEnded;
+  //   }
+  //   var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+  //   var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+
+  //   $domainRolesCaption.find('.instance-state').html(actionLogDate);
+
+  // });
+
+  var platformId = 'unknown';
+  var providerIdText = 'Instance Id : ';
+  if (data.platformId) {
+    platformId = data.platformId;
+    switch (data.providerType) {
+      case 'aws':
+        providerIdText = 'AWS Id : ';
+        break;
+      case 'azure':
+        providerIdText = 'Azure Id : ';
+        break;
+      case 'vmware':
+        providerIdText = 'VMware Id : ';
+        break;
+      case 'openstack':
+        providerIdText = 'openstack Id : ';
+        break;
+      default:
+        platformId = 'unknown';
+        providerIdText = 'Instance Id : ';
+
     }
-    var actionLogTimeString = new Date().setTime(actionLogTimestamp);
-    var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+  }
 
-    $domainRolesCaption.find('.instance-state').html(actionLogDate);
 
-  });
+
+  $domainRolesCaption.find('.instance-state').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> ' +providerIdText + platformId + '</span>');
 
   if (data.hardware.os !== 'linux') {
     disableSSHBtn(data._id);
