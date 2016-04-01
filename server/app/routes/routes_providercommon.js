@@ -33,14 +33,17 @@ var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
 var tagsDao = require('_pr/model/tags');
 var constantData = require('_pr/lib/utils/constant.js');
-var tagsValidator = require('_pr/validators/tagsValidator.js');
 var validate = require('express-validation');
-var	providerService = require('_pr/services/providerService.js');
+var tagsValidator = require('_pr/validators/tagsValidator');
+var	providerService = require('_pr/services/providerService');
+var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
+var async = require('async');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all("/providers/*", sessionVerificationFunc);
 
+	//TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
@@ -79,6 +82,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
+	//TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
@@ -105,6 +109,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 
+	//TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
 		logger.debug("Provider ID is >>>>>"+req.params.providerId);
 		var pageSize,page;
@@ -220,6 +225,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	});
 	//End By Durgesh
 
+	//TODO To be refactored and API end point to be changed
 	app.post('/providers/:providerId/sync', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
@@ -787,6 +793,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
+	/*app.param('providerId', providerService.providerExists);
+	app.param('catalystEntityType', providerService.isValidCatalystEntityType);
+	app.param('catalystEntity', providerService.catalystEntityExists);*/
+
 	/**
 	 * @api {get} /providers/:providerId/tags 	Get tags list
 	 * @apiName getTags
@@ -822,7 +832,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 *
 	 */
 	app.get('/providers/:providerId/tags',
-		validate(tagsValidator.get), getTags, sendGetResponse);
+		validate(tagsValidator.get), getTags);
 
 	/**
 	 * @api {get} /providers/:providerId/tags/:tagName Get tag details
@@ -932,8 +942,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
-	 * 			"result": {
-	 * 				"tagNameMappings": [
+	 * 			"tagNameMappings": [
 	 * 					{
 	 * 						"tagName":	"application",
 	 * 						"tagValues": ["proj1", "proj2"],
@@ -968,8 +977,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 *			 				}
 	 *			 			]
 	 * 					}
-	 * 				]
-	 * 			},
+	 * 			 ],
 	 *			"count": 2,
 	 *			"pageSize": 10,
 	 *			"pageIndex": 1
@@ -1246,38 +1254,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.delete('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
 
 	function getTags(req, res, next) {
-		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-			if (err) {
-				return res.status(500).send({
-					message: "Server Behaved Unexpectedly"
-				});
+		async.waterfall([
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				providerService.getTagsForProvider,
+				providerService.createTagsList
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
 			}
-			if (!provider) {
-				return res.status(404).send({
-					message: "provider not found"
-				});
-			}
-
-			providerService.getTags(provider, next);
-		});
-	}
-
-	function sendGetResponse(err, results) {
-		if(err) {
-			err.status = 500;
-			return res.send(500).send(err);
-		} else {
-			return res.status(200).send(results);
-		}
-	}
-
-	function sendPostResponse(err, results) {
-		if(err) {
-			err.status = 500;
-			return res.send(500).send(err);
-		} else {
-			return res.status(201).send(results);
-		}
+		);
 	}
 
 };

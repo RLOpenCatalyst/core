@@ -60,7 +60,8 @@
         "node-string-pad": "0.0.4",
         "farmhash": "1.1.0",
         "mocha": "2.4.5",
-        "apidoc": "0.15.1"
+        "apidoc": "0.15.1",
+        "async": "v1.5.2 "
     },
     "devDependencies": {
         "grunt": "0.4.5",
