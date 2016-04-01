@@ -17,21 +17,32 @@ var Joi = require('joi');
 
 var tagsValidator = module.exports = {};
 
-tagsValidator.create = {
+tagsValidator.get = {
+    options : { flatten : true },
     params: {
-    },
-    body: {
+        providerId: Joi.string().max(40).required(),
+        tagName: Joi.string().max(40).required()
     }
 };
-
-tagsValidator.get = {
+tagsValidator.list = {
+    options : { flatten : true },
+    params: {
+        providerId: Joi.string().max(40).required()
+    }
+};
+tagsValidator.update = {
+    options : { flatten : true },
+    params: {
+        providerId: Joi.string().max(40).required(),
+        tagName: Joi.string().max(40).required()
+    }
+};
+tagsValidator.create = {
+    options : { flatten : true },
     params: {
         providerId: Joi.string().max(40).required()
     }
 };
 
-tagsValidator.list = {
-    params: {
-    }
-};
+
 
