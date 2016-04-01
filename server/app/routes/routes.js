@@ -202,4 +202,12 @@ module.exports.setRoutes = function(app) {
 	// for notification
 	notification.setRoutes(app);
 
+	app.use(errorHandler);
+
+	function errorHandler(err, req, res, next) {
+		if(err) {
+			return res.status(err.status).send(err);
+		}
+	}
+
 }
