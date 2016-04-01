@@ -61,7 +61,7 @@
                               </ul>
                               <div class="clearfix"></div>
                             </div>
-                            <div class="tab-content">
+                            <div class="tab-content"  id="newbpcontainer">
                               <div class="tab-pane active" id="tab1" style="padding-bottom:20px;overflow-y: auto;">
                                 <div id="templateContent" class="row " style="margin:0px;min-height:200px;">
                                 </div>
@@ -1130,6 +1130,9 @@ $(document).ready(function() {
     }
   });
 
+  $formBPNew = $('#tab3').clone();
+  $formBPEdit = $('#tab3').clone().append('<input type="hidden" id="blueprintId">');
+
 }); //document.ready gets over here
 //the blueprint section gets over here.
 
@@ -1415,6 +1418,7 @@ function getImagesWithOSFilter() {
 
 
   function loadData() {
+   
     var providerVal = $('#providerId').val();
     if (providerVal) {
       $.get("/vmimages/providers/" + providerVal, function(data) {
@@ -1422,7 +1426,16 @@ function getImagesWithOSFilter() {
           data = getFilteredList(data, $('#instanceOS').val()),
           len = data.length;
         str = str + helperConstructOption(data, ['providerId', 'vType', 'osType', '_id'], 'name', 'imageIdentifier');
+
         $('#imageId').html(str).trigger('change');
+        if($('#imageId').attr('savedval'))
+          helpersetselectvalue($('#imageId'),'_id',$('#imageId').attr('savedval'));       
+        //setting image value for ami type and disabling it- vn
+        if ($('.productdiv2.role-Selected').first().attr('templatetype') == 'ami') {
+          var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
+          $('#imageId').val(vmimage.imageIdentifier).attr('disabled', 'disabled');
+          //alert($('#instanceOS option').length);
+        }
       });
     } else {
       $('#imageId').html('<option value="">Select Image</option>').trigger('change');
@@ -1497,6 +1510,8 @@ function getImagesWithOSFilter() {
                   }
 
                   $('#vpcId').html(str);
+                 
+
                   $('#vpcSpinner').addClass('hidden');
 
                   $('#vpcId').trigger('change');
@@ -1511,9 +1526,17 @@ function getImagesWithOSFilter() {
                     }
 
                     $('#subnetId').html(ss);
+                    if($('#subnetId').attr('savedval'))
+                    {
+                      helpersetselectvalue($('#subnetId'),'value',$('#subnetId').attr('savedval'));
+                    }
                     $('#spinnerSubnet').addClass('hidden');
                     $('#subnetId').trigger('change');
                   });
+                  if($('#vpcId').attr('savedval'))
+                  {
+                    helpersetselectvalue($('#vpcId'),'value',$('#vpcId').attr('savedval'));
+                  }
                 }
               });
 
@@ -1529,11 +1552,30 @@ function getImagesWithOSFilter() {
               }
 
               $('#instancesize').html(sizeOption);
+              if($('#vpcId').attr('savedval'))
+              {
+                helpersetselectvalue($('#vpcId'),'value',$('#vpcId').attr('savedval'));
+              }
+               if($('#instancesize').attr('savedval'))
+              {
+                helpersetselectvalue($('#instancesize'),'value',$('#instancesize').attr('savedval'));
+              }
+
               $('#instancesize').trigger('change');
 
               $('#spinnerSize').addClass('hidden');
 
             });
+
+            if($('#location').attr('savedval'))
+            {
+              helpersetselectvalue($('#location'),'value',$('#location').attr('savedval'));
+              if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
+                $('#instanceOS').attr('disabled', 'disabled');
+                $('#providerId').attr('disabled', 'disabled');
+                $('#imageId').attr('disabled', 'disabled');
+              }
+            }
           }
         });
       }
@@ -1845,6 +1887,12 @@ function getSubnet() {
           }
           $spinnerSubnet.addClass('hidden');
           $('#subnetId').html(str);
+
+          if($('#subnetId').attr('savedval'))
+          {
+            helpersetselectvalue($('#subnetId'),'value',$('#subnetId').attr('savedval'));
+          }
+
         },
         error: function(xhr) {
           bootbox.alert(xhr.responseText);
@@ -1872,11 +1920,11 @@ var dataLoader = function() {
   getVPC();
   getSubnet();
   getImagesWithOSFilter();
-
+  loadUserlist();
   console.log("Orgname===>" + localStorage.getItem('selectedOrgName'));
   $.get('../aws/ec2/amiids', function(data) {
     var $instanceOS = $('#instanceOS');
-    $instanceOS.append('<option value="">Select Operating System</option>')
+    $instanceOS.html('').append('<option value="">Select Operating System</option>')
     for (var i = 0; i < data.length; i++) {
       $option = $('<option data-instanceOS="' + data[i].osType + '" value="' + data[i].os_name + '">' + data[i].os_name + '</option>');
       $option.data('supportedInstanceType', data[i].supportedInstanceType);
@@ -2367,6 +2415,9 @@ var saveblueprint = function(tempType){
 
 
               reqBody = {};
+              if($('#bpeditcontent').find('input#blueprintId')){
+                  reqBody.blueprintId = $('#bpeditcontent').find('input#blueprintId').val();
+                }
               reqBody.templateId = $selectedItem.attr('data-templateId');
               reqBody.templateType = $selectedItem.attr('data-templateType');
               reqBody.templateComponents = $selectedItem.attr('data-templateComponent').split(',');
@@ -2481,10 +2532,10 @@ var saveblueprint = function(tempType){
               $('#userListSelect').find('option').attr('selected', 'selected');
               reqBody.users = $('#userListSelect').val();
 
-              if (!reqBody.users) {
-                alert("Please choose users");
-                return false;
-              }
+              // if (!reqBody.users) {
+              //   alert("Please choose users");
+              //   return false;
+              // }
               //Checking for docker blueprint images
               if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
                 //no rows found add empty message
@@ -2552,6 +2603,14 @@ var saveblueprint = function(tempType){
                 $.post('/organizations/' + reqBody.orgId + '/businessgroups/' + reqBody.bgId + '/projects/' + reqBody.projectId + '/blueprints', {
                   blueprintData: reqBody
                 }, function(data) {
+                  //in edit mode refresh the blueprints page
+                    if(reqBody.blueprintId){
+                      $('#projectListInputExisting').trigger('change'); //refresh the blueprints page
+                      closeblueprintedit(reqBody.blueprintId);
+                      return;
+                    }
+
+
                   var validatorForm = $("#wizard-1").validate();
                   validatorForm.resetForm();
                   $('.blueprintSaveSuccess').show();
@@ -3134,7 +3193,7 @@ OrgdataLoader(); //Wrapped for editing
 
 
 
-(function() {
+var loadUserlist = function() {
 
   var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
   $.get('../users', function(userList) {
@@ -3158,7 +3217,9 @@ OrgdataLoader(); //Wrapped for editing
   }).error(function() {
     $loadingContainer.empty().append('Unable to load users. Please try again later.');
   });
-})();
+}
+
+loadUserlist();
 
 $(document).ready(function() {
   $("#blueprintNameInput").focus();
@@ -3257,9 +3318,9 @@ function cachesavedvalues(blueprintdata){
         $content.find('#subnetId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.subnetId);
         $content.find('#keypairId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.keyPairId);
         $content.find('#instancesize').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.instanceType);
-        $content.find('#securityGroupIds').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.securityGroupIds);
+        $content.find('#securotyGrp').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.securityGroupIds);
         $content.find('#instanceCount').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.instanceCount);
-        $content.find('#region').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.region);
+        $content.find('#location').attr('savedval',blueprintdata.blueprintConfig.cloudProviderData.region);
       }
       if(blueprintdata.blueprintConfig.infraManagerData){
         if(blueprintdata.blueprintConfig.infraManagerData.versionsList[0]){
@@ -3287,9 +3348,12 @@ function displaySavedBPValues(){
   var $content = $('#bpeditcontent');
   //$content.find('#instanceOS').val($content.find('#instanceOS').attr('data-instanceos')).trigger('change');
   helpersetselectvalue($content.find('#instanceOS'),'data-instanceos',$content.find('#instanceOS').attr('savedval'));
-    
+  
   //Blueprint Name
   $content.find('#blueprintNameInput').val($content.find('#blueprintNameInput').attr('savedval'));
+  $content.find('#securotyGrp').val($content.find('#securotyGrp').attr('savedval'));
+  $content.find('#instanceCount').val($content.find('#instanceCount').attr('savedval'));
+  helpersetselectvalue($content.find('#providerId'),'value',$content.find('#providerId').attr('savedval'));
 
   //updating the runlist table
   // if($('#tableRunlistForBlueprint').attr('savedval'))
@@ -3308,7 +3372,7 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
     $('#myTab3 li').addClass('hidden');
     $('#myTab3 li.blueprintEditbutton').removeClass('hidden');
     $('#versionModalContainer').modal('hide');
-    //alert(blueprintId);
+   // alert(blueprintId);
     $('#tab3').remove();
     //removing selection of template from new screen
     $('#tab2').find('.productdiv2').removeClass('role-Selected');
