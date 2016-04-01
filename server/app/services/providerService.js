@@ -38,13 +38,43 @@ providerService.checkIfProviderExists = function checkIfProviderExists(providerI
 };
 
 providerService.getTagsForProvider = function getTagsForProvider(provider, callback) {
-    tags.getTagByProviderId(provider._id, callback);
+    tags.getTagsByProviderId(provider._id, function(err, tags) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            callback(err);
+        } else {
+            callback(null, tags);
+        }
+    });
 };
 
 providerService.createTagsList = function createTagsList(tags, callback) {
+    /*var tagsList = [];
+    tags.forEach(function(tag) {
+        delete tags.isDeleted;
+        tagsList.push(tag);
+    });*/
+
     callback(null, tags);
 };
 
-
-
-
+providerService.getTagsByNameForProvider = function getTagsByNameForProvider(provider, tagName, callback) {
+    var parameters = {
+        'providerId': provider._id,
+        'tagName': tagName
+    };
+    tags.getTagByNameAndProviderId(parameters, function(err, tag) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            callback(err);
+        } else if(!tag) {
+            var err = new Error('Tag not found');
+            err.status = 404;
+            callback(err);
+        }else {
+            callback(null, tag);
+        }
+    });
+};

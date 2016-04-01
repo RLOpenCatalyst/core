@@ -831,8 +831,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
 	 *
 	 */
-	app.get('/providers/:providerId/tags',
-		validate(tagsValidator.get), getTags);
+	app.get('/providers/:providerId/tags', validate(tagsValidator.list), getTagsList);
 
 	/**
 	 * @api {get} /providers/:providerId/tags/:tagName Get tag details
@@ -854,7 +853,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
 	 *
 	 */
-	app.get('/providers/:providerId/tags/:tagName', function(req, res) {});
+	app.get('/providers/:providerId/tags/:tagName', validate(tagsValidator.get), getTag);
 
 	/**
 	 * @api {post} /providers/:providerId/tags  Add tag
@@ -883,7 +882,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 			"description": "Deployment environment"
 	 * 		}
 	 */
-	app.post('/providers/:providerId/tags', function(req, res) {});
+	// app.post('/providers/:providerId/tags', validate(tagsValidator.create), createTags);
 
 	/**
 	 * @api {put} /providers/:providerId/tags/:tagName  Update tag
@@ -910,7 +909,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 			"description": "Deployment environment"
 	 * 		}
 	 */
-	app.put('/providers/:providerId/tags/:tagName', function(req, res) {});
+	// app.put('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), updateTag);
 
 	/**
 	 * @api {delete} /providers/:providerId/tags/:tagName Delete tag
@@ -922,7 +921,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {Object} response	Empty response object
 	 *
 	 */
-	app.delete('/providers/:providerId/tags/:tagName', function(req, res) {});
+	// app.delete('/providers/:providerId/tags/:tagName', validate(tagsValidator.delete), deleteTag);
 
 
 
@@ -1253,8 +1252,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 */
 	app.delete('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
 
-	function getTags(req, res, next) {
-		async.waterfall([
+	function getTagsList(req, res, next) {
+		async.waterfall(
+			[
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1271,4 +1271,49 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		);
 	}
 
+	function getTag(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					providerService.getTagsByNameForProvider(provider, req.params.tagName, next);
+				}
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	// @TODO to be implemented
+	function createTags(req, res, next) {
+	}
+
+	function updateTag(req, res, next) {
+		async.waterfall(
+			[
+
+			],
+			function(err, results) {
+
+			}
+		);
+	}
+
+	function deleteTag(req, res, next) {
+		async.waterfall(
+			[
+
+			],
+			function(err, results) {
+
+			}
+		);
+	}
 };
