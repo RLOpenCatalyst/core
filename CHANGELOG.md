@@ -1,3 +1,9 @@
+
+3.0.3 - March 7th, 2016
+----------------------------
+* Hardening application deployment history
+* Security Fixes
+
 3.0.2 - February 26th, 2016
 ----------------------------
 * Security Fixes
