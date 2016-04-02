@@ -72,7 +72,7 @@ var TagSchema = new Schema({
         default: false
     }
 });
-
+var hiddenFields = {'_id': 0, 'isDeleted': 0 };
 
 TagSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
@@ -87,19 +87,11 @@ TagSchema.statics.createNew = function createNew(data, callback) {
     });
 }
 
-TagSchema.statics.getTagsByOrgIdAndProviderId = function getTagsByOrgIdAndProviderId(parameters, callback) {
+TagSchema.statics.getTagsByOrgIdAndProviderId = function getTagsByOrgIdAndProviderId(params, callback) {
     // @TODO filters to be used
-
     this.find(
-        {
-            'orgId': parameters.orgId,
-            'providerId': parameters.providerId,
-            'isDeleted': false
-        },
-        {
-            '_id': 0,
-            'isDeleted': 0
-        },
+        {'orgId': params.orgId, 'providerId': params.providerId, 'isDeleted': false },
+        hiddenFields,
         function(err, tag) {
             if (err) {
                 logger.error(err);
@@ -113,14 +105,8 @@ TagSchema.statics.getTagsByOrgIdAndProviderId = function getTagsByOrgIdAndProvid
 
 TagSchema.statics.getTagsByProviderId = function getTagsByProviderId(providerId, callback) {
     this.find(
-        {
-            'providerId': providerId,
-            'isDeleted': false
-        },
-        {
-            '_id': 0,
-            'isDeleted': 0
-        },
+        {'providerId': providerId, 'isDeleted': false },
+        hiddenFields,
         function(err, tags) {
             if (err) {
                 logger.error(err);
@@ -132,23 +118,16 @@ TagSchema.statics.getTagsByProviderId = function getTagsByProviderId(providerId,
     );
 };
 
-TagSchema.statics.getTagByNameAndProviderId = function getTagByNameAndProviderId(parameters,  callback) {
+TagSchema.statics.getTagByNameAndProviderId = function getTagByNameAndProviderId(params, callback) {
     this.find(
-        {
-            'providerId': parameters.providerId,
-            'name': parameters.tagName,
-            'isDeleted': false
-        },
-        {
-            '_id': 0,
-            'isDeleted': 0
-        },
-        function(err, tag) {
+        { 'providerId': params.providerId, 'name': params.name, 'isDeleted': false },
+        hiddenFields,
+        function(err, tags) {
             if(err) {
                 logger.error(err);
                 return callback(err, null);
-            } else if(tag.length > 0) {
-                return callback(null, tag[0]);
+            } else if(tags.length > 0) {
+                return callback(null, tags[0]);
             } else {
                 return callback(null, null);
             }
@@ -156,42 +135,36 @@ TagSchema.statics.getTagByNameAndProviderId = function getTagByNameAndProviderId
     );
 };
 
-TagSchema.statics.updateTag = function updateTag(opts,data,callBack) {
-    this.update({"orgId": opts.orgId,
-        "providerId": opts.providerId
-    }, {
-        $set: {tagsInfo:data}
-    }, function(err, data) {
-        if (err) {
-            logger.error(err);
-            if (typeof callBack == 'function') {
-                callBack(err, null);
+TagSchema.statics.updateTag = function updateTag(params, fields, callback) {
+    this.update(
+        params,
+        { $set: fields },
+        function(err, result) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if(result.ok == 1 && result.n == 1) {
+                return callback(null, true);
+            } else {
+               return callback(null, null);
             }
-            return;
         }
-        if (typeof callBack == 'function') {
-            callBack(null, data);
-        }
-    });
+    );
 };
 
-TagSchema.statics.updateTagForProvider = function updateTag(providerId,data,callBack) {
-    this.update({
-        "providerId": providerId
-    }, {
-        $set: {tagsInfo:data}
-    }, function(err, data) {
-        if (err) {
-            logger.error(err);
-            if (typeof callBack == 'function') {
-                callBack(err, null);
-            }
-            return;
-        }
-        if (typeof callBack == 'function') {
-            callBack(null, data);
-        }
-    });
+TagSchema.statics.deleteTag = function deleteTag(params, callback) {
+   this.update(
+       params,
+       { $set: {isDeleted: true} },
+       function(err, tags) {
+           if(err) {
+               logger.error(err);
+               return callback(err, null);
+           } else {
+               return callback(null, true);
+           }
+       }
+   )
 };
 
 var Tags = mongoose.model('Tags',TagSchema);

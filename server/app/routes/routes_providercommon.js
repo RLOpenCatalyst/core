@@ -909,7 +909,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 			"description": "Deployment environment"
 	 * 		}
 	 */
-	// app.put('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), updateTag);
+	app.put('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), updateTag);
 
 	/**
 	 * @api {delete} /providers/:providerId/tags/:tagName Delete tag
@@ -921,7 +921,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {Object} response	Empty response object
 	 *
 	 */
-	// app.delete('/providers/:providerId/tags/:tagName', validate(tagsValidator.delete), deleteTag);
+	app.delete('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), deleteTag);
 
 
 
@@ -1258,7 +1258,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				providerService.getTagsForProvider,
+				providerService.getTagsByProvider,
 				providerService.createTagsList
 			],
 			function(err, results) {
@@ -1278,8 +1278,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
 				function(provider, next) {
-					providerService.getTagsByNameForProvider(provider, req.params.tagName, next);
-				}
+					providerService.getTagByNameAndProvider(provider, req.params.tagName, next);
+				},
+				providerService.createTagObject
 			],
 			function(err, results) {
 				if(err) {
@@ -1293,15 +1294,30 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO to be implemented
 	function createTags(req, res, next) {
+
 	}
 
 	function updateTag(req, res, next) {
 		async.waterfall(
 			[
-
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					var tagDetails = {
+						'name': req.params.tagName,
+						'description': req.body.description
+					};
+					providerService.updateTag(provider, tagDetails, next);
+				},
+				providerService.createTagObject
 			],
 			function(err, results) {
-
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
 			}
 		);
 	}
@@ -1309,10 +1325,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function deleteTag(req, res, next) {
 		async.waterfall(
 			[
-
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					providerService.deleteTag(provider, req.params.tagName, next);
+				}
 			],
 			function(err, results) {
-
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
 			}
 		);
 	}

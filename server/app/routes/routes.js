@@ -206,6 +206,7 @@ module.exports.setRoutes = function(app) {
 
 	function errorHandler(err, req, res, next) {
 		if(err) {
+			logger.error(err);
 			return res.status(err.status).send(err);
 		}
 	}
