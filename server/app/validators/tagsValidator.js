@@ -43,6 +43,13 @@ tagsValidator.create = {
         providerId: Joi.string().max(40).required()
     }
 };
+tagsValidator.tagsMapping = {
+    options : { flatten : true },
+    params: {
+        providerId: Joi.string().max(40).required(),
+        catalystEntityType: Joi.string().max(40).required()
+    }
+}
 
 
 
