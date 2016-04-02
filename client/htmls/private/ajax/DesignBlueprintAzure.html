@@ -541,6 +541,7 @@
           <footer class="footer">
             <div class="clearfix form-actions" style="text-align:center">
               <button class="btn pull-right btn-danger right-button" title="Remove Blueprint" onClick="removeSelectedBlueprint()"> <i class="fa fa-trash-o"></i></button>
+               <button class="btn pull-right btn-primary right-button" title="Copy Blueprint" onClick="showbpcopydialog();" > <i class="fa fa-copy"></i></button>
             </div>
           </footer>
           <!--Launch div ends here-->
@@ -984,6 +985,14 @@ $(document).ready(function() {
       var $projectList = $('#projectListInputExisting');
       var $envList = $('#envListExisting');
       var $projectList = $('#projectListInputExisting');
+
+
+      var $orgListInputforcopy = $('#orgnameSelectExistingforcopy');
+      var $bgListforcopy = $('#bgListInputExistingforcopy');
+      var $projectListforcopy = $('#projectListInputExistingforcopy');
+      var $envListforcopy = $('#envListExistingforcopy');
+
+
       $bgList.change(function(e) {
         var bgName = $(this).val();
         if (bgName == 'choose') {
@@ -998,6 +1007,24 @@ $(document).ready(function() {
         }
         $projectList.trigger('change');
       });
+
+      $bgListforcopy.change(function(e) {
+        var bgName = $(this).val();
+        if (bgName == 'choose') {
+          return;
+        }
+        var $selectedOrgOption = $(this).find(":selected");
+        $projectListforcopy.empty();
+        var getProjs = bgProjects[bgName];
+        for (var i = 0; i < getProjs.length; i++) {
+          var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+          $projectListforcopy.append($option);
+        }
+        $projectListforcopy.trigger('change');
+      });
+
+
+
       var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
       $('#projectListInputExisting').change(function(e) {
         var reqBodyNew = {};
@@ -1023,23 +1050,34 @@ $(document).ready(function() {
       for (var i = 0; i < data.length; i++) {
         console.log(data[i].businessGroups);
         $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
+        $orgListInputforcopy.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
         for (var j = 0; j < data[i].businessGroups.length; j++) {
           var rowid = data[i].businessGroups[j].rowid;
           $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
           bgProjects[rowid] = data[i].businessGroups[j].projects;
+          $bgListforcopy.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
         }
+        $bgListforcopy.trigger('change');
         for (var k = 0; k < data[i].environments.length; k++) {
           $envList.append($('<option></option').val(data[i].environments[k].rowid).html(data[i].environments[k].name))
         }
       }
       $('#orgnameSelectExisting');
       $bgList.trigger('change');
+      
+
       $('.chooseOrgSelectExisting').change(function(e) {
         if ($(this).val() == 'choose') {
           $('#accordion-2').addClass('hidden');
         }
         $('.chooseBGExisting').change();
         $('.chooseProjectExisting').change();
+      });
+
+      $('.chooseOrgSelectExistingforcopy').change(function(e) {
+        
+        $('.chooseBGExistingforcopy').change();
+        $('.chooseProjectExistingforcopy').change();
       });
     }
   }); //getTreeNew gets over here
@@ -1911,8 +1949,10 @@ function resetForm() {
   $('[multiselect]').empty();
 }
 
+
+
 var dataLoader = function() {
-  azureLoadData();
+  
   getProviderList();
   getImageInstances();
   getSecurityGroup();
@@ -1962,13 +2002,39 @@ var dataLoader = function() {
 //  $(".chooseDockerContainer").select2();
   //$(".chooseSelectExit").select2();
 
-  var sortbyid = function SortByID(x, y) {
-    return x.position - y.position;
-  }
+ 
   $('#selectOrgName').change(function(e) {
     azureLoadData();
   });
-  function azureLoadData() {
+  
+
+  $('#templateContent').on("click", '.blueprintdiv', function() {
+    $('#templateContent .role-Selected').removeClass('role-Selected');
+    $(this).addClass('role-Selected');
+
+  });
+  $('#individualTemplateNameGrid').on("click", '.productdiv2', function() {
+    if (!$(this).hasClass('role-Selected')) {
+      $('#individualTemplateNameGrid').find('.role-Selected').removeClass('role-Selected');
+      $(this).addClass('role-Selected');
+      resetForm();
+    }
+  });
+}
+
+var reqBody;
+var armVMEvalConfig;
+$('.configureVMSaveBtn').click(function() {
+  $wizard.data('armVMsecondClick', true);
+  var wizard = $wizard.data('bootstrapWizard');
+  wizard.next();
+
+});
+
+function azureLoadData() {
+    var sortbyid = function SortByID(x, y) {
+      return x.position - y.position;
+    }
     $.get('/d4dMasters/readmasterjsonnew/16', function(data) {
       data = JSON.parse(data);
       var rowLength = data.length;
@@ -2042,30 +2108,7 @@ var dataLoader = function() {
     });
   };
 
-  $('#templateContent').on("click", '.blueprintdiv', function() {
-    $('#templateContent .role-Selected').removeClass('role-Selected');
-    $(this).addClass('role-Selected');
-
-  });
-  $('#individualTemplateNameGrid').on("click", '.productdiv2', function() {
-    if (!$(this).hasClass('role-Selected')) {
-      $('#individualTemplateNameGrid').find('.role-Selected').removeClass('role-Selected');
-      $(this).addClass('role-Selected');
-      resetForm();
-    }
-  });
-}
-
-var reqBody;
-var armVMEvalConfig;
-$('.configureVMSaveBtn').click(function() {
-  $wizard.data('armVMsecondClick', true);
-  var wizard = $wizard.data('bootstrapWizard');
-  wizard.next();
-
-});
-
-var formInitializer = function(editing,callback){
+var formInitializer = function(editing,callback1){
    //$("#tabheader").html('Choose Template');
       //getProviderList();
       dataLoader();
@@ -2174,7 +2217,7 @@ var formInitializer = function(editing,callback){
           $('.forDocker').show();
           $('.notForDocker').hide();
 
-        } else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ARMTemplate") {
+        } else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ARMTemplate" || $('.productdiv2.role-Selected').first().attr('templatetype') == "arm") {
           $('.notforCFT').hide();
           $('.forCFT').show();
           $('.divconfigureparameterrunlist').hide();
@@ -2248,6 +2291,9 @@ var formInitializer = function(editing,callback){
 
                     }
                     $resourceInput.html(resourceOptStr);
+                    if(editing){
+                      $resourceInput.val($resourceInput.attr('savedval'));
+                    }
                   }
 
                 });
@@ -2341,6 +2387,9 @@ var formInitializer = function(editing,callback){
                 } else {
                   armVMEvalConfig = null;
                 }
+                
+                if(editing)
+                  callback1();
               });
             },
             failure: function(data) {
@@ -2586,11 +2635,16 @@ var saveblueprint = function(tempType){
               reqBody.cftInstances = instanceObj;
 
               $('.blueprintMsgContainer').hide();
-              if (($('.role-Selected').data('templatetype')).toLowerCase() != "docker") {
+              var prefix = '#newbpcontainer ';
+              if(reqBody.blueprintId){
+                prefix = '#bpeditcontent ';
+              }
+
+              if (($(prefix + '.role-Selected').data('templatetype')).toLowerCase() != "docker") {
                 reqBody.blueprintType = "instance_launch";
-                if (($('.role-Selected').data('templatetype')).toLowerCase() === 'cloudformation') {
+                if (($(prefix + '.role-Selected').data('templatetype')).toLowerCase() === 'cloudformation') {
                   reqBody.blueprintType = 'aws_cf';
-                } else if (($('.role-Selected').data('templatetype')).toLowerCase() == 'armtemplate') {
+                } else if (($(prefix + '.role-Selected').data('templatetype')).toLowerCase() == 'armtemplate' || ($(prefix + '.role-Selected').data('templatetype')).toLowerCase() == 'arm') {
                   reqBody.blueprintType = 'azure_arm';
                 } else if ($('#providerId').find("option:selected").attr('providertype').toLowerCase() == 'hppubliccloud') {
                   reqBody.blueprintType = 'hppubliccloud_launch';
@@ -2745,6 +2799,11 @@ var saveblueprint = function(tempType){
                   blueprintData: reqBody
                 }, function(data) {
                   console.log(data);
+                  if(reqBody.blueprintId){
+                      $('#projectListInputExisting').trigger('change'); //refresh the blueprints page
+                      closeblueprintedit(reqBody.blueprintId);
+                      return;
+                  }
                   var validatorFormDocker = $("#wizard-1").validate();
                   validatorFormDocker.resetForm();
                   $('.blueprintSaveSuccess').show();
@@ -2932,7 +2991,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
       if ($wizard.data('secondClick')) {
         return true;
       }
-      if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ARMTemplate") {
+      if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ARMTemplate" || $('.productdiv2.role-Selected').first().attr('templatetype') == "arm"){
         if (!$wizard.data('armVMsecondClick')) {
 
 
@@ -3328,7 +3387,7 @@ function cachesavedvalues(blueprintdata){
         }
       }
       $content.find('#providerId').attr('savedval',blueprintdata.blueprintConfig.cloudProviderId);
-
+      
     }
    }
 }
@@ -3407,27 +3466,45 @@ function loadblueprintedit(blueprintId,baseblueprintId) {
         
         
         
-        if(blueprintdata.blueprintType == 'aws_cf'){
+        if(blueprintdata.blueprintType == 'azure_arm'){
         
         formInitializer(true,function(){
           var $content = $('#tab3');
+
+          if(blueprintdata.blueprintConfig.parameters)
+          {
+            var keys = Object.keys(blueprintdata.blueprintConfig.parameters);
+            for (var i = 0; i < keys.length; i++) {
+              var parameter = blueprintdata.blueprintConfig.parameters[keys[i]];
+             
+              $content.find('input[data-cftparameter-name="' + keys[i] + '"]').val(blueprintdata.blueprintConfig.parameters[keys[i]].value);
+            }
+           
+          }
+          if(blueprintdata.blueprintConfig)
+          {
+            helpersetselectvalue($('#cftProviderInput'),'value',blueprintdata.blueprintConfig.cloudProviderId);
+            $content.find('#cftResourceGroupInput').attr('savedval',blueprintdata.blueprintConfig.resourceGroup);
+          }
           //alert('out' + $content.find('#cftRegionInput').length);
-          $content.find('#cftRegionInput').val(blueprintdata.blueprintConfig.region);
-          $content.find('#cftProviderInput').val(blueprintdata.blueprintConfig.cloudProviderId);
-          if(blueprintdata.blueprintConfig.instances)
-            {
-              for(var insti = 0; insti < blueprintdata.blueprintConfig.instances.length;insti++){
-                $content.find('#cftResource-' + blueprintdata.blueprintConfig.instances[insti].logicalId + ' .cftResourceUsernameInput').val(blueprintdata.blueprintConfig.instances[insti].username);
-                var $ccrs = $chefCookbookRoleSelector(blueprintdata.orgId, function(data) {},blueprintdata.blueprintConfig.instances[insti].runlist);
-                          $content.find('#cftResource-' + blueprintdata.blueprintConfig.instances[insti].logicalId + ' .cftResourceRunlistInput').empty().append($ccrs).data('$ccrs', $ccrs);
-              }
+          // $content.find('#cftRegionInput').val(blueprintdata.blueprintConfig.region);
+          // $content.find('#cftProviderInput').val(blueprintdata.blueprintConfig.cloudProviderId);
+          // if(blueprintdata.blueprintConfig.instances)
+          //   {
+          //     for(var insti = 0; insti < blueprintdata.blueprintConfig.instances.length;insti++){
+          //       $content.find('#cftResource-' + blueprintdata.blueprintConfig.instances[insti].logicalId + ' .cftResourceUsernameInput').val(blueprintdata.blueprintConfig.instances[insti].username);
+          //       var $ccrs = $chefCookbookRoleSelector(blueprintdata.orgId, function(data) {},blueprintdata.blueprintConfig.instances[insti].runlist);
+          //                 $content.find('#cftResource-' + blueprintdata.blueprintConfig.instances[insti].logicalId + ' .cftResourceRunlistInput').empty().append($ccrs).data('$ccrs', $ccrs);
+          //     }
               
 
-            }
+          //   }
 
-          for(var spi = 0; spi < blueprintdata.blueprintConfig.stackParameters.length;spi++){
-            $content.find('input[data-cftparameter-name="' + blueprintdata.blueprintConfig.stackParameters[spi].ParameterKey + '"]').val(blueprintdata.blueprintConfig.stackParameters[spi].ParameterValue);
-          }
+
+
+          // for(var spi = 0; spi < blueprintdata.blueprintConfig.parameters.length;spi++){
+          //   $content.find('input[data-cftparameter-name="' + blueprintdata.blueprintConfig.stackParameters[spi].ParameterKey + '"]').val(blueprintdata.blueprintConfig.stackParameters[spi].ParameterValue);
+          // }
 
           
         });
@@ -3550,6 +3627,8 @@ function initializeBlueprintAreaNew(data) {
       }
       console.log(tdata);
       if ($("div." + tdata[i]['templatetype']).length === 0) {
+        if(getDesignTypeName == 'CloudFormation')
+          continue; //skipping couldformation for azure
         $containerTempNew = '<div class="panel panel-default blueprintContainer hidden">' +
           '<div class="panel-heading">' +
 
@@ -3900,6 +3979,44 @@ function initializeBlueprintAreaNew(data) {
 
 };
 
+function showbpcopydialog(){
+
+  var blueprintId = [];
+  $('.productdiv1.role-Selected1').each(function(){
+    blueprintId.push($(this).attr('data-blueprintid'));
+  });
+  if (blueprintId.length > 0) {
+      $('#copyBlueprintModal').modal('show'); 
+      $('#copyBlueprintModal').find('label.bpcopycount').html(blueprintId.length + ' blueprint(s) selected.');
+  }else {
+    bootbox.alert({
+      message: 'Please select a blueprint to copy.',
+      title: 'Warning'
+    });
+  }
+}
+
+function copySelectedBlueprint(){
+  var blueprintId = [];
+  $('.productdiv1.role-Selected1').each(function(){
+    blueprintId.push($(this).attr('data-blueprintid'));
+  });
+  var orgid = $('#orgnameSelectExistingforcopy').val();
+  var buid = $('#bgListInputExistingforcopy').val();
+  var projid = $('#projectListInputExistingforcopy').val();
+  
+  var copyobj = {
+    orgid : orgid,
+    buid : buid,
+    projid: projid,
+    blueprints : blueprintId
+  }
+  $.post('/blueprints/copy',copyobj,function(msg,data){
+    if(data == 'success'){
+      $('#copyBlueprintModal').modal('hide');
+    }
+  });
+}
 //for removing the selected blueprint in the Existing Blueprints tab
 function removeSelectedBlueprint() {
   var blueprintId = $('.productdiv1.role-Selected1').attr('data-blueprintid');
@@ -3932,5 +4049,6 @@ function removeSelectedBlueprint() {
     });
   }
 }
+azureLoadData();
 dataLoader();
 </script>
