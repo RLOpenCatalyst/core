@@ -55,11 +55,6 @@ var TagSchema = new Schema({
             trim: true,
             required: false
         },
-        catalystEntity: {
-            type: String,
-            trim: true,
-            required: false
-        },
         tagValue: {
             type: String,
             trim: true,
@@ -118,9 +113,30 @@ TagSchema.statics.getTagsByProviderId = function getTagsByProviderId(providerId,
     );
 };
 
-TagSchema.statics.getTagByNameAndProviderId = function getTagByNameAndProviderId(params, callback) {
+TagSchema.statics.getTag = function getTag(params, callback) {
+    params.isDeleted = false;
+
     this.find(
-        { 'providerId': params.providerId, 'name': params.name, 'isDeleted': false },
+        params,
+        hiddenFields,
+        function(err, tags) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if(tags.length > 0) {
+                return callback(null, tags[0]);
+            } else {
+                return callback(null, null);
+            }
+        }
+    );
+};
+
+TagSchema.statics.getTagsByNames = function getTagsByNames(tagNames, callback) {
+    params.isDeleted = false;
+    params.name = {$in : tagNames };
+    this.find(
+        params,
         hiddenFields,
         function(err, tags) {
             if(err) {
