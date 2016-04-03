@@ -12,18 +12,18 @@ limitations under the License.
 */
 
 var urlParams = {};
-    (window.onpopstate = function() {
-        var url = window.location.href;
-        var indexOfQues = url.lastIndexOf("?");
-        if (indexOfQues != -1) {
-            var sub = url.substring(indexOfQues + 1);
-            var params = sub.split('&')
-            for (var i = 0; i < params.length; i++) {
-                var paramParts = params[i].split('=');
-                urlParams[paramParts[0]] = paramParts[1];
-            }
+(window.onpopstate = function() {
+    var url = window.location.href;
+    var indexOfQues = url.lastIndexOf("?");
+    if (indexOfQues != -1) {
+        var sub = url.substring(indexOfQues + 1);
+        var params = sub.split('&')
+        for (var i = 0; i < params.length; i++) {
+            var paramParts = params[i].split('=');
+            urlParams[paramParts[0]] = paramParts[1];
         }
-    })();
+    }
+})();
 
 $('#syncAppPipelineView').on("click", function() {
     loadPipeline();
@@ -268,41 +268,41 @@ function loadPipeline() {
             contentType: "application/json",
             async: true,
             success: function(data) {
-        var tempStr = '';
-        var $childCardTemplate = $('.childCardTemplate');
-        var $childPresentCard = $childCardTemplate.clone(true);
-        $childPresentCard.removeClass('childCardTemplate');
-        $childPresentCard.css({
-            display: 'inline-flex',
-            width: '100%'
+                var tempStr = '';
+                var $childCardTemplate = $('.childCardTemplate');
+                var $childPresentCard = $childCardTemplate.clone(true);
+                $childPresentCard.removeClass('childCardTemplate');
+                $childPresentCard.css({
+                    display: 'inline-flex',
+                    width: '100%'
+                });
+                $childPresentCard.find('.applicationChildIP').html(appDeployDataObj.appNodeIP);
+                $childPresentCard.find('.lastapplicationDeploy').html(appDeployDataObj.appLastDeploy);
+                var appStatusCard = appDeployDataObj.appStatus.toUpperCase();
+                if (appStatusCard === "SUCCESSFUL" || appStatusCard === "SUCCESSFULL" || appStatusCard === "SUCCESS") {
+                    $childPresentCard.find('.imgHeight').removeClass('imgStatusSuccess').addClass('imgStatusSuccess');
+                    $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-danger').addClass('btn-success');
+
+                } else {
+                    $childPresentCard.find('.imgHeight').removeClass('imgStatusSuccess').addClass('imgStatusFailure');
+                    $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-success').addClass('btn-danger');
+                }
+                $childPresentCard.find('.applicationEnvNamePipelineView').html(envnamePresent);
+                if (data.length && (data[0].isApproved == "true")) {
+                    $childPresentCard.find('.btn-promote').removeAttr('disabled');
+                } else if (data.length && (data[0].isApproved == "false")) {
+                    $childPresentCard.find('.btn-promote').attr('disabled', 'disabled');
+                }
+
+                var promoteBtnId = envnamePresent + "_" + appNamePresent + "_" + appVersionPresent;
+                $childPresentCard.find('.btn-promote').attr('id', promoteBtnId);
+                if (last) {
+                    $childPresentCard.find('.secondChildSpanTemplate').remove();
+                }
+                $td.append($childPresentCard);
+            },
+            error: function(jqxhr) {}
         });
-        $childPresentCard.find('.applicationChildIP').html(appDeployDataObj.appNodeIP);
-        $childPresentCard.find('.lastapplicationDeploy').html(appDeployDataObj.appLastDeploy);
-        var appStatusCard = appDeployDataObj.appStatus.toUpperCase();
-        if (appStatusCard === "SUCCESSFUL" || appStatusCard === "SUCCESSFULL" || appStatusCard === "SUCCESS") {
-            $childPresentCard.find('.imgHeight').removeClass('imgStatusSuccess').addClass('imgStatusSuccess');
-            $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-danger').addClass('btn-success');
-
-        } else {
-            $childPresentCard.find('.imgHeight').removeClass('imgStatusSuccess').addClass('imgStatusFailure');
-            $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-success').addClass('btn-danger');
-        }
-        $childPresentCard.find('.applicationEnvNamePipelineView').html(envnamePresent);
-        if (data.length && (data[0].isApproved == "true")) {
-            $childPresentCard.find('.btn-promote').removeAttr('disabled');
-        } else if (data.length && (data[0].isApproved == "false")) {
-            $childPresentCard.find('.btn-promote').attr('disabled', 'disabled');
-        }
-
-        var promoteBtnId = envnamePresent + "_" + appNamePresent + "_" + appVersionPresent;
-        $childPresentCard.find('.btn-promote').attr('id', promoteBtnId);
-        if (last) {
-            $childPresentCard.find('.secondChildSpanTemplate').remove();
-        }
-        $td.append($childPresentCard);
-             },
-             error: function(jqxhr) {}
-         });
     };
 
     function createEmptyCard(env, last) {
@@ -769,38 +769,84 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             });
                         }
                     });
-                }
-            });
+                    var artifactId = $('#chooseArtifacts').find('option:selected').val();
+                    var nodeIps = [];
+                    var count = 0;
+                    for (var i = 0; i < tasksData.taskConfig.nodeIds.length; i++) {
+                        $.get('/instances/' + tasksData.taskConfig.nodeIds[i], function(instance) {
+                            count++;
+                            if (instance) {
+                                nodeIps.push(instance.instanceIP);
+                            }
 
-            $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
-                if (data.length) {
-                    var nexusData = {
-                        "nexusData": {
-                            "nexusUrl": "",
-                            "version": "",
-                            "containerId": "",
-                            "containerPort": "",
-                            "dockerRepo": "",
-                            "upgrade": "true"
+                            if (tasksData.taskConfig.nodeIds.length === count) {
+
+                            }
+                        });
+                    }
+                }
+
+                $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
+                    if (data.length) {
+                        var nexusData = {
+                            "nexusData": {
+                                "nexusUrl": "",
+                                "version": "",
+                                "containerId": "",
+                                "containerPort": "",
+                                "dockerRepo": "",
+                                "upgrade": "true"
+                            }
+                        };
+
+
+                        if (data[0].nexus) {
+                            nexusData["nexusData"]["nexusUrl"] = data[0].nexus.repoURL;
+                            nexusData["nexusData"]["version"] = data[0].version;
                         }
-                    };
-                    if (data[0].nexus) {
-                        nexusData["nexusData"]["nexusUrl"] = data[0].nexus.repoURL;
-                        nexusData["nexusData"]["version"] = data[0].version;
-                    }
 
-                    if (data[0].docker.length) {
-                        nexusData["nexusData"]["dockerRepo"] = data[0].docker[0].image;
-                        nexusData["nexusData"]["containerId"] = data[0].docker[0].container;
-                        nexusData["nexusData"]["containerPort"] = data[0].docker[0].port;
+                        if (data[0].docker.length) {
+                            nexusData["nexusData"]["dockerRepo"] = data[0].docker[0].image;
+                            nexusData["nexusData"]["containerId"] = data[0].docker[0].container;
+                            nexusData["nexusData"]["containerPort"] = data[0].docker[0].port;
+                        }
+
+                        getenvName(function(envName) {
+                            var appData = {
+                                "appData": {
+                                    "projectId": data[0].projectId,
+                                    "envId": envName,
+                                    "appName": data[0].appName,
+                                    "version": data[0].version,
+                                    "nexus": data[0].nexus,
+                                    "docker": data[0].docker
+                                }
+                            };
+                            $.ajax({
+                                url: '/app/data',
+                                data: JSON.stringify(appData),
+                                type: 'POST',
+                                contentType: "application/json",
+                                "async": false,
+                                success: function(data) {
+                                    console.log("Successfully updated app-data================");
+                                },
+                                error: function(jqxhr) {
+                                    alert("Failed to update update appName in Project.")
+                                }
+                            });
+
+                        });
+
+
+                        $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
+                        $('#modalpromoteConfigure').modal('hide');
+                    } else {
+                        alert("No repository information available.");
+                        return;
+                        //$('#modalpromoteConfigure').modal('hide');
                     }
-                    $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
-                    $('#modalpromoteConfigure').modal('hide');
-                } else {
-                    alert("No repository information available.");
-                    return;
-                    //$('#modalpromoteConfigure').modal('hide');
-                }
+                });
             });
         });
     });
@@ -1592,6 +1638,7 @@ function upgradeOrDeploy() {
     var nexusUrl = $('#chooseNexusServer').find('option:selected').attr('data-nexusUrl');
     var nexusRepoUrl = "";
     var repoURIObj = $("#chooseArtifacts").data();
+    alert(repoURIObj.repoObj);
     if (repoURIObj) {
         for (var i = 0; i < repoURIObj.repoObj.length; i++) {
             if (artifactId === repoURIObj.repoObj[i].artifactId && versionId === repoURIObj.repoObj[i].version) {
