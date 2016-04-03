@@ -199,6 +199,58 @@ providerService.updateTagMapping = function updateTagMapping(providerId, tagMapp
     });
 }
 
+providerService.updateCatalystEntityMapping
+    = function updateCatalystEntityMapping(tagDetails, catalystEntityMapping, callback) {
+    if(catalystEntityMapping.length == 0) {
+        var err = new Error('Malformed Request');
+        err.status = 400;
+        return callback(err);
+    }
+
+    var catalystEntityMappingList = [];
+    for(var i = 0; i < catalystEntityMapping.length; i++) {
+        if(!('tagValue' in catalystEntityMapping[i]) || !('catalystEntityId' in catalystEntityMapping[i])) {
+            var err = new Error('Malformed Request');
+            err.status = 400;
+            return callback(err);
+        }
+
+        if(tagDetails.values.indexOf(catalystEntityMapping[i].tagValue) < 0) {
+            var err = new Error('Tag value not found');
+            err.status = 404;
+            return callback(err);
+        }
+
+        catalystEntityMappingList.push({
+            'tagValue': catalystEntityMapping[i].tagValue,
+            'catalystEntityId': catalystEntityMapping[i].catalystEntityId
+        });
+    }
+
+    var params = {
+        'providerId': tagDetails.providerId,
+        'name': tagDetails.name
+    };
+    var fields = {
+        'catalystEntityMapping': catalystEntityMappingList
+    };
+    tags.updateTag(params, fields, function(err, tag) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if(!tag) {
+            var err = new Error('Tag not found');
+            err.status = 404;
+            return callback(err);
+        }else {
+            tagDetails.catalystEntityMapping = catalystEntityMappingList;
+            return callback(null, tagDetails);
+        }
+    });
+
+}
+
 providerService.deleteTag = function deleteTag(provider, tagName, callback) {
     var params = {
         'providerId': provider._id,
@@ -247,6 +299,10 @@ providerService.deleteTagMapping = function deleteTagMapping(providerId, catalys
     });
 }
 
+/*providerService.deleteCatalystEntityMapping
+    = function deleteCatalystEntityMapping(tag, catalystEntityMapping, callback) {
+}*/
+
 providerService.createTagsList = function createTagsList(tags, callback) {
     var tagsListObject = {};
     var tagsList = [];
@@ -278,7 +334,7 @@ providerService.createTagMappingList = function createTagMappingList(tags, callb
             'values': tag.values?tag.values:[],
             'description': tag.description?tag.description:null,
             'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType:null,
-            'catalystEntityMappings': tag.catalystEntityMappings?tag.catalystEntityMappings:[]
+            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping:[]
         });
     });
     tagMappingsListObject.tagMappings = tagMappingsList;
@@ -291,8 +347,14 @@ providerService.createTagMappingObject = function createTagMappingObject(tag, ca
             'name': tag.name,
             'values': tag.values?tag.values:[],
             'description': tag.description?tag.description:null,
-            'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType:null
+            'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType:null,
+            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping:[]
     };
 
     return callback(null, tagMappingObject);
 }
+
+/*
+providerService.createCatalystEntityMappingObject
+    = function createCatalystEntityMappingObject(tag, catalystEntityType, callback) {
+}*/
