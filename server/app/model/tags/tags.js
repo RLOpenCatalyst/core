@@ -39,17 +39,17 @@ var TagSchema = new Schema({
         trim: true,
         required: true
     },
-    catalystEntityType: {
-        type: String,
-        trim: true,
-        required: false
-    },
     description: {
         type: String,
         trim: true,
         required: false
     },
-    mapping: [{
+    catalystEntityType: {
+        type: String,
+        trim: true,
+        required: false
+    },
+    catalystEntityMapping: [{
         catalystEntityId: {
             type: String,
             trim: true,

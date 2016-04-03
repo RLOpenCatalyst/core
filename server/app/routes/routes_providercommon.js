@@ -1106,62 +1106,59 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
 	 *
 	 */
-	app.get('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
+	// app.get('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
 
 	/**
 	 * @api {post} /providers/:providerId/tags/mapping/:catalystEntityType  Create tag value mapping
 	 * @apiName createTagValueMappings
 	 * @apiGroup Provider tags
 	 *
-	 * @apiParam {Number} providerID							Provider ID
-	 * @apiParam {String} catalystEntityType					Catalyst entity type
-	 * @apiParam {Object[]} tagValueMappings					Tag value mappings
-	 * @apiParam {String} tagValueMappings.catalystEntityId		Catalyst entity id
-	 * @apiParam {String} tagValueMappings.tagValue				Tag value
+	 * @apiParam {Number} providerID									Provider ID
+	 * @apiParam {Object[]} catalystEntityMapping						Catalyst entities mapping
+	 * @apiParam {String} catalystEntityMapping.catalystEntityId		Catalyst entity id
+	 * @apiParam {String} catalystEntityMapping.tagValue				Tag value
 	 * @apiParam {json} Request-example:
-	 * 		{
-	 * 			catalystEntityMapping: [
-	 * 				{
-	 * 					"catalystEntityId": "<MongoID>",
-	 * 					"tagValue": "prod"
-	 * 				},
-	 * 				{
-	 * 					"catalystEntityId": "<MongoID>",
-	 * 					"tagValue": "dev"
-	 * 				}
-	 * 			]
-	 * 		}
+	 * 		[
+	 * 			{
+	 * 				"catalystEntityId": "<MongoID>",
+	 * 				"tagValue": "prod"
+	 * 			},
+	 * 			{
+	 * 				"catalystEntityId": "<MongoID>",
+	 * 				"tagValue": "dev"
+	 * 			}
+	 * 		]
 	 *
-	 * @apiSuccess {Object} tagNameMapping 											Tag name mapping
-	 * @apiSuccess {String}	tagNameMapping.tagName 									Tag name
-	 * @apiSuccess {String} tagNameMapping.catalystEntityType						Catalyst entity type
-	 * @apiSuccess {String[]} tagNameMapping.tagValues								Encountered tag values
-	 * @apiSuccess {Object[]} tagNameMapping.catalystEntityMapping 					Catalyst entity mapping
-	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
-	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityName Catalyst entity name
-	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue			Tag value
+	 * @apiSuccess {Object} tagMapping 											Tag name mapping
+	 * @apiSuccess {String}	tagMapping.name 									Tag name
+	 * @apiSuccess {String} tagMapping.catalystEntityType						Catalyst entity type
+	 * @apiSuccess {String[]} tagMapping.values									Encountered tag values
+	 * @apiSuccess {String} tagMapping.description								Tag description
+	 * @apiSuccess {Object[]} tagMapping.catalystEntityMapping 					Catalyst entity mapping
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue			Tag value
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 201 OK
 	 * 		{
+	 * 			"name":	"application",
+	 * 			"values": ["proj1", "proj2"],
+	 * 			"description": "Project",
 	 * 			"catalystEntityType": "project",
-	 * 			"tagName":	"application",
-	 * 			"tagValues": ["proj1", "proj2"],
 	 * 			"catalystEntityMapping": [
 	 *				{
 	 *					"catalystEntityId": "<MongoID>",
-	 *					"catalystEntityName": "Project1",
 	 *					"tagValue": "proj1"
 	 *				},
 	 *				{
 	 *					"catalystEntityId": "<MongoID>",
-	 *					"catalystEntityName": "Project2",
 	 *					"tagValue": "proj2"
 	 *
 	 *				}
 	 *			]
 	 * 		}
 	 */
-	app.post('/providers/:providerId/tags/mapping/:catalystEntityType', function(req, res) {});
+	app.post('/providers/:providerId/tags/mapping/:catalystEntityType', validate(tagsValidator.tagsMapping),
+		createCatalystEntityMappings);
 
 	/**
 	 * @api {patch} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId  Update tag value mapping
@@ -1194,7 +1191,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 *			"tagValue": "proj1"
 	 * 		}
 	 */
-	app.patch('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
+	// app.patch('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
 
 	/**
 	 * @api {delete} /providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId	Delete tag value mapping
@@ -1207,7 +1204,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 *
 	 * @apiSuccess {Object} response							Empty response object
 	 */
-	app.delete('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
+	// app.delete('/providers/:providerId/tags/mapping/:catalystEntityType/:catalystEntityId', function(req, res) {});
 
 	function getTagsList(req, res, next) {
 		async.waterfall(
@@ -1389,7 +1386,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 			}
 		);
-
 	}
 
 	function deleteTagMapping(req, res, next) {
@@ -1411,5 +1407,105 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 		);
 	}
+
+	function getCatalystEntityMapping(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function (provider, next) {
+					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+						req.params.catalystEntityType, next);
+				},
+				function (tag, next) {
+					providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
+				}
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function createCatalystEntityMappings(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function (provider, next) {
+					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+						req.params.catalystEntityType, next);
+				},
+				function (tag, next) {
+					providerService.updateCatalystEntityMapping(tag, req.body, next);
+				},
+				providerService.createTagMappingObject
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(201).send(results);
+				}
+			}
+		);
+	}
+
+	/*function updateCatalystEntityMapping(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function (provider, next) {
+					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+						req.params.catalystEntityType, next);
+				},
+				function (tag, next) {
+					providerService.updateCatalystEntityMapping(tag, req.body, next);
+				},
+				function (tag, next) {
+					providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
+				}
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function deleteCatalystEntityMapping(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function (provider, next) {
+					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+						req.params.catalystEntityType, next);
+				},
+				function (tag, next) {
+					providerService.deleteCatalystEntityMapping(tag, req.body, next);
+				}
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}*/
 
 };
