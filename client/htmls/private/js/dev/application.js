@@ -811,34 +811,30 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             nexusData["nexusData"]["containerPort"] = data[0].docker[0].port;
                         }
 
-                        getenvName(function(envName) {
-                            var appData = {
-                                "appData": {
-                                    "projectId": data[0].projectId,
-                                    "envId": envName,
-                                    "appName": data[0].appName,
-                                    "version": data[0].version,
-                                    "nexus": data[0].nexus,
-                                    "docker": data[0].docker
-                                }
-                            };
-                            $.ajax({
-                                url: '/app/data',
-                                data: JSON.stringify(appData),
-                                type: 'POST',
-                                contentType: "application/json",
-                                "async": false,
-                                success: function(data) {
-                                    console.log("Successfully updated app-data.");
-                                },
-                                error: function(jqxhr) {
-                                    alert("Failed to update update appName in Project.");
-                                    return;
-                                }
-                            });
-
+                        var appData = {
+                            "appData": {
+                                "projectId": data[0].projectId,
+                                "envId": targetEnvName,
+                                "appName": data[0].appName,
+                                "version": data[0].version,
+                                "nexus": data[0].nexus,
+                                "docker": data[0].docker
+                            }
+                        };
+                        $.ajax({
+                            url: '/app/data',
+                            data: JSON.stringify(appData),
+                            type: 'POST',
+                            contentType: "application/json",
+                            "async": false,
+                            success: function(data) {
+                                console.log("Successfully updated app-data.");
+                            },
+                            error: function(jqxhr) {
+                                alert("Failed to update update appName in Project.");
+                                return;
+                            }
                         });
-
 
                         $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
                         $('#modalpromoteConfigure').modal('hide');
