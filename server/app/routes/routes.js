@@ -210,5 +210,4 @@ module.exports.setRoutes = function(app) {
 			return res.status(err.status).send(err);
 		}
 	}
-
 }
