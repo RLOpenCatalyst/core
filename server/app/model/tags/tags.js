@@ -133,8 +133,10 @@ TagSchema.statics.getTag = function getTag(params, callback) {
 };
 
 TagSchema.statics.getTagsByNames = function getTagsByNames(tagNames, callback) {
-    params.isDeleted = false;
-    params.name = {$in : tagNames };
+    var params = {
+            "isDeleted": false,
+            "name": {$in : tagNames }
+    }
     this.find(
         params,
         hiddenFields,
@@ -143,9 +145,9 @@ TagSchema.statics.getTagsByNames = function getTagsByNames(tagNames, callback) {
                 logger.error(err);
                 return callback(err, null);
             } else if(tags.length > 0) {
-                return callback(null, tags[0]);
+                return callback(null, tags);
             } else {
-                return callback(null, null);
+                return callback(null, []);
             }
         }
     );
