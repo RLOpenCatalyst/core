@@ -370,10 +370,6 @@ var d4dMastersProjects = new mongoose.Schema({
         trim: true,
         default: true
     },
-    appdeploy: [{
-        applicationname: String,
-        appdescription: String
-    }],
     repositories: {
         nexus: [String],
         docker: [String]

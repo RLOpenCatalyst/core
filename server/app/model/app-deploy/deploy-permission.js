@@ -28,32 +28,37 @@ var Schema = mongoose.Schema;
 var DeployPermissionSchema = new Schema({
     projectId: String,
     envId: String,
+    appName: String,
     version: String,
+    comments: String,
     isApproved: String
 });
 
 
 // Save or update appData Permission informations.
 DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback) {
+    var that = this;
     this.find({
         projectId: permission.projectId,
         envId: permission.envId,
+        appName: permission.appName,
         version: permission.version
     }, function(err, aPermission) {
         if (err) {
             logger.debug("Error fetching record.", err);
             callback(err, null);
         }
+        
         if (aPermission.length) {
             var setData = {};
             var keys = Object.keys(permission);
             for (var i = 0; i < keys.length; i++) {
                 setData[keys[i]] = permission[keys[i]];
             }
-            var that = this;
             that.update({
                 projectId: permission.projectId,
                 envId: permission.envId,
+                appName: permission.appName,
                 version: permission.version
             }, {
                 $set: setData
@@ -67,7 +72,8 @@ DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback
                 callback(null, updatedData);
             });
         } else {
-            this.save(function(err, aPermission) {
+            var appPermission = new that(permission);
+            appPermission.save(function(err, aPermission) {
                 if (err) {
                     logger.debug("Got error while creating a Permission: ", err);
                     callback(err, null);
@@ -80,10 +86,11 @@ DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback
 };
 
 // Get AppData by ip,project,env.
-DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(projectId, envId, version, callback) {
+DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(projectId, envId, appName, version, callback) {
     this.find({
         projectId: projectId,
         envId: envId,
+        appName: appName,
         version: version
     }, function(err, permission) {
         if (err) {

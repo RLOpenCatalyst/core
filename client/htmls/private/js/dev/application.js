@@ -12,18 +12,18 @@ limitations under the License.
 */
 
 var urlParams = {};
-    (window.onpopstate = function() {
-        var url = window.location.href;
-        var indexOfQues = url.lastIndexOf("?");
-        if (indexOfQues != -1) {
-            var sub = url.substring(indexOfQues + 1);
-            var params = sub.split('&')
-            for (var i = 0; i < params.length; i++) {
-                var paramParts = params[i].split('=');
-                urlParams[paramParts[0]] = paramParts[1];
-            }
+(window.onpopstate = function() {
+    var url = window.location.href;
+    var indexOfQues = url.lastIndexOf("?");
+    if (indexOfQues != -1) {
+        var sub = url.substring(indexOfQues + 1);
+        var params = sub.split('&')
+        for (var i = 0; i < params.length; i++) {
+            var paramParts = params[i].split('=');
+            urlParams[paramParts[0]] = paramParts[1];
         }
-    })();
+    }
+})();
 
 $('#syncAppPipelineView').on("click", function() {
     loadPipeline();
@@ -183,7 +183,7 @@ function loadPipeline() {
         $mainCard.find('.applicationMainIP').html(applicationName);
         $mainCard.find('.versionMain').html(versionNumber);
 
-        if (applicationName === "catalyst" || applicationName === "Catalyst") {
+        if (applicationName === "catalyst" || applicationName === "Catalyst" || applicationName === "D4D" || applicationName === "core") {
             $mainCard.find('.mainImageHeight').attr("src", "img/rsz_logo.png");
         } else {
             $mainCard.find('.mainImageHeight').attr("src", "img/petclinic.png");
@@ -262,47 +262,47 @@ function loadPipeline() {
         var envnamePresent = appDeployDataObj.envnamePresent;
         var appNamePresent = appDeployDataObj.appNamePresent;
         var appVersionPresent = appDeployDataObj.appVersionPresent;
-        // $.ajax({
-        //     url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '/application/' + appNamePresent + '?version=' + appVersionPresent,
-        //     type: 'GET',
-        //     contentType: "application/json",
-        //     async: true,
-        //     success: function(data) {
-        var tempStr = '';
-        var $childCardTemplate = $('.childCardTemplate');
-        var $childPresentCard = $childCardTemplate.clone(true);
-        $childPresentCard.removeClass('childCardTemplate');
-        $childPresentCard.css({
-            display: 'inline-flex',
-            width: '100%'
+        $.ajax({
+            url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '/application/' + appNamePresent + '?version=' + appVersionPresent,
+            type: 'GET',
+            contentType: "application/json",
+            async: true,
+            success: function(data) {
+                var tempStr = '';
+                var $childCardTemplate = $('.childCardTemplate');
+                var $childPresentCard = $childCardTemplate.clone(true);
+                $childPresentCard.removeClass('childCardTemplate');
+                $childPresentCard.css({
+                    display: 'inline-flex',
+                    width: '100%'
+                });
+                $childPresentCard.find('.applicationChildIP').html(appDeployDataObj.appNodeIP);
+                $childPresentCard.find('.lastapplicationDeploy').html(appDeployDataObj.appLastDeploy);
+                var appStatusCard = appDeployDataObj.appStatus.toUpperCase();
+                if (appStatusCard === "SUCCESSFUL" || appStatusCard === "SUCCESSFULL" || appStatusCard === "SUCCESS") {
+                    $childPresentCard.find('.imgHeight').removeClass('imgStatusSuccess').addClass('imgStatusSuccess');
+                    $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-danger').addClass('btn-success');
+
+                } else {
+                    $childPresentCard.find('.imgHeight').removeClass('imgStatusSuccess').addClass('imgStatusFailure');
+                    $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-success').addClass('btn-danger');
+                }
+                $childPresentCard.find('.applicationEnvNamePipelineView').html(envnamePresent);
+                if (data.length && (data[0].isApproved == "true")) {
+                    $childPresentCard.find('.btn-promote').removeAttr('disabled');
+                } else if (data.length && (data[0].isApproved == "false")) {
+                    $childPresentCard.find('.btn-promote').attr('disabled', 'disabled');
+                }
+
+                var promoteBtnId = envnamePresent + "_" + appNamePresent + "_" + appVersionPresent;
+                $childPresentCard.find('.btn-promote').attr('id', promoteBtnId);
+                if (last) {
+                    $childPresentCard.find('.secondChildSpanTemplate').remove();
+                }
+                $td.append($childPresentCard);
+            },
+            error: function(jqxhr) {}
         });
-        $childPresentCard.find('.applicationChildIP').html(appDeployDataObj.appNodeIP);
-        $childPresentCard.find('.lastapplicationDeploy').html(appDeployDataObj.appLastDeploy);
-        var appStatusCard = appDeployDataObj.appStatus.toUpperCase();
-        if (appStatusCard === "SUCCESSFUL" || appStatusCard === "SUCCESSFULL" || appStatusCard === "SUCCESS") {
-            $childPresentCard.find('.imgHeight').removeClass('imgStatusSuccess').addClass('imgStatusSuccess');
-            $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-danger').addClass('btn-success');
-
-        } else {
-            $childPresentCard.find('.imgHeight').removeClass('imgStatusSuccess').addClass('imgStatusFailure');
-            $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-success').addClass('btn-danger');
-        }
-        $childPresentCard.find('.applicationEnvNamePipelineView').html(envnamePresent);
-        // if (data.length && (data[0].isApproved == "true")) {
-        //     $childPresentCard.find('.btn-promote').removeAttr('disabled');
-        // } else if (data.length && (data[0].isApproved == "false")) {
-        //     $childPresentCard.find('.btn-promote').attr('disabled', 'disabled');
-        // }
-
-        var promoteBtnId = envnamePresent + "_" + appNamePresent + "_" + appVersionPresent;
-        $childPresentCard.find('.btn-promote').attr('id', promoteBtnId);
-        if (last) {
-            $childPresentCard.find('.secondChildSpanTemplate').remove();
-        }
-        $td.append($childPresentCard);
-        //     },
-        //     error: function(jqxhr) {}
-        // });
     };
 
     function createEmptyCard(env, last) {
@@ -727,7 +727,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                 return;
             }
             if (targetEnvName != choosedEnvName) {
-                alert("Please click on correct Environment on Tree view.");
+                alert("Please click on target Environment on Tree view.");
                 return;
             }
             if (!choosedEnvName) {
@@ -765,41 +765,85 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 }
                                 //tasksData.taskType = tasksData.taskConfig.taskType;
                             $.post('../tasks/' + taskId + '/update', reqBody, function(updatedTask) {
+                                console.log(updatedTask);
                             });
                         }
                     });
-                }
-            });
+                    var artifactId = $('#chooseArtifacts').find('option:selected').val();
+                    var nodeIps = [];
+                    var count = 0;
+                    for (var i = 0; i < tasksData.taskConfig.nodeIds.length; i++) {
+                        $.get('/instances/' + tasksData.taskConfig.nodeIds[i], function(instance) {
+                            count++;
+                            if (instance) {
+                                nodeIps.push(instance.instanceIP);
+                            }
 
-            $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
-                if (data.length) {
-                    var nexusData = {
-                        "nexusData": {
-                            "nexusUrl": "",
-                            "version": "",
-                            "containerId": "",
-                            "containerPort": "",
-                            "dockerRepo": "",
-                            "upgrade": "true"
+                            if (tasksData.taskConfig.nodeIds.length === count) {
+
+                            }
+                        });
+                    }
+                }
+
+                $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
+                    if (data.length) {
+                        var nexusData = {
+                            "nexusData": {
+                                "nexusUrl": "",
+                                "version": "",
+                                "containerId": "",
+                                "containerPort": "",
+                                "dockerRepo": "",
+                                "upgrade": "true"
+                            }
+                        };
+
+
+                        if (data[0].nexus) {
+                            nexusData["nexusData"]["nexusUrl"] = data[0].nexus.repoURL;
+                            nexusData["nexusData"]["version"] = data[0].version;
                         }
-                    };
-                    if (data[0].nexus) {
-                        nexusData["nexusData"]["nexusUrl"] = data[0].nexus.repoURL;
-                        nexusData["nexusData"]["version"] = data[0].version;
-                    }
 
-                    if (data[0].docker.length) {
-                        nexusData["nexusData"]["dockerRepo"] = data[0].docker[0].image;
-                        nexusData["nexusData"]["containerId"] = data[0].docker[0].container;
-                        nexusData["nexusData"]["containerPort"] = data[0].docker[0].port;
+                        if (data[0].docker.length) {
+                            nexusData["nexusData"]["dockerRepo"] = data[0].docker[0].image;
+                            nexusData["nexusData"]["containerId"] = data[0].docker[0].container;
+                            nexusData["nexusData"]["containerPort"] = data[0].docker[0].port;
+                        }
+
+                        var appData = {
+                            "appData": {
+                                "projectId": data[0].projectId,
+                                "envId": targetEnvName,
+                                "appName": data[0].appName,
+                                "version": data[0].version,
+                                "nexus": data[0].nexus,
+                                "docker": data[0].docker
+                            }
+                        };
+                        $.ajax({
+                            url: '/app/data',
+                            data: JSON.stringify(appData),
+                            type: 'POST',
+                            contentType: "application/json",
+                            "async": false,
+                            success: function(data) {
+                                console.log("Successfully updated app-data.");
+                            },
+                            error: function(jqxhr) {
+                                alert("Failed to update update appName in Project.");
+                                return;
+                            }
+                        });
+
+                        $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
+                        $('#modalpromoteConfigure').modal('hide');
+                    } else {
+                        alert("Something went wrong,no repository information available.");
+                        return;
+                        //$('#modalpromoteConfigure').modal('hide');
                     }
-                    $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
-                    $('#modalpromoteConfigure').modal('hide');
-                } else {
-                    alert("No repository information available.");
-                    return;
-                    //$('#modalpromoteConfigure').modal('hide');
-                }
+                });
             });
         });
     });
@@ -1504,24 +1548,6 @@ function deployNewForDocker() {
         }
     };
 
-    $.get('/d4dMasters/project/' + projectId, function(projData) {
-        if (projData.length) {
-            var reqBody = {
-                "appName": appName,
-                "description": appName + " deployed."
-            };
-            $.ajax({
-                url: '/d4dMasters/project/' + projectId + '/appdeploy/appName/update',
-                data: JSON.stringify(reqBody),
-                type: 'POST',
-                contentType: "application/json",
-                success: function(data) {},
-                error: function(jqxhr) {
-                    //alert("Failed to update update appName in Project.")
-                }
-            });
-        }
-    });
 
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
@@ -1628,26 +1654,6 @@ function upgradeOrDeploy() {
         }
     };
 
-    $.get('/d4dMasters/project/' + projectId, function(projData) {
-        if (projData.length) {
-            var reqBody = {
-                "appName": repoId,
-                "description": repoId + " deployed."
-            };
-            $.ajax({
-                url: '/d4dMasters/project/' + projectId + '/appdeploy/appName/update',
-                data: JSON.stringify(reqBody),
-                type: 'POST',
-                contentType: "application/json",
-                success: function(data) {
-
-                },
-                error: function(jqxhr) {
-                    //alert("Failed to update update appName in Project.")
-                }
-            });
-        }
-    });
 
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
@@ -1660,14 +1666,13 @@ function upgradeOrDeploy() {
                         nodeIps.push(instance.instanceIP);
                     }
 
-
                     if (tasks.taskConfig.nodeIds.length === count) {
                         getenvName(function(envName) {
                             var appData = {
                                 "appData": {
                                     "projectId": instance.projectId,
                                     "envId": envName,
-                                    "appName": repoId,
+                                    "appName": artifactId,
                                     "version": versionId,
                                     "nexus": {
                                         "repoURL": nexusRepoUrl,
@@ -1684,7 +1689,8 @@ function upgradeOrDeploy() {
                                     console.log("Successfully updated app-data");
                                 },
                                 error: function(jqxhr) {
-                                    //alert("Failed to update update appName in Project.")
+                                    alert("Failed to update update appName in Project.");
+                                    return;
                                 }
                             });
                         });
