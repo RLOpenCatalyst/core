@@ -43,7 +43,7 @@ var async = require('async');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all("/providers/*", sessionVerificationFunc);
 
-	//TODO To be refactored and API end point to be changed
+	// @TODO To be refactored
 	app.get('/providers/:providerId', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
@@ -82,7 +82,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
-	//TODO To be refactored and API end point to be changed
+	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
@@ -109,7 +109,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 
-	//TODO To be refactored and API end point to be changed
+	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
 		logger.debug("Provider ID is >>>>>"+req.params.providerId);
 		var pageSize,page;
@@ -169,7 +169,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
-	//TODO To be refactored and API end point to be changed
+	// @TODO To be refactored and API end point to be changed
 	app.post('/providers/:providerId/sync', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
