@@ -2544,17 +2544,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                             //if env is saved then it should be associated with project.
                                             if (req.params.id == '3') {
-                                                var projId = bodyJson['projectname_rowid'].split(",");
-                                                for (var proj = 0; proj < projId.length; proj++) {
-                                                    d4dModelNew.d4dModelMastersProjects.find({
-                                                        rowid: projId[proj],
-                                                        id: "4"
-                                                    }, function(err, projs_) {
-                                                        if (!err) {
-                                                            updateProjectWithEnv(projs_, bodyJson);
-                                                        }
-                                                    });
-                                                }
+                                                // var projId = bodyJson['projectname_rowid'].split(",");
+                                                // for (var proj = 0; proj < projId.length; proj++) {
+                                                //     d4dModelNew.d4dModelMastersProjects.find({
+                                                //         rowid: projId[proj],
+                                                //         id: "4"
+                                                //     }, function(err, projs_) {
+                                                //         if (!err) {
+                                                //             updateProjectWithEnv(projs_, bodyJson);
+                                                //         }
+                                                //     });
+                                                // }
                                             }
                                             //resetting the orgname to empty string when a template type file is uploaded.
                                             if (req.params.id == '17') {
