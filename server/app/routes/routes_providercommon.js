@@ -869,7 +869,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 	/**
-	 * @api {get} /providers/:providerId/tag-mappings			Get tag name mappings
+	 * @api {get} /providers/:providerId/tag-mappings			Get tag mappings
 	 * @apiName getTagMappingsList
 	 * @apiGroup Provider tags
 	 *
