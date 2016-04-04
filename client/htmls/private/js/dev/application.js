@@ -1635,7 +1635,6 @@ function upgradeOrDeploy() {
     var nexusUrl = $('#chooseNexusServer').find('option:selected').attr('data-nexusUrl');
     var nexusRepoUrl = "";
     var repoURIObj = $("#chooseArtifacts").data();
-    alert(repoURIObj.repoObj);
     if (repoURIObj) {
         for (var i = 0; i < repoURIObj.repoObj.length; i++) {
             if (artifactId === repoURIObj.repoObj[i].artifactId && versionId === repoURIObj.repoObj[i].version) {
@@ -1690,7 +1689,8 @@ function upgradeOrDeploy() {
                                     console.log("Successfully updated app-data");
                                 },
                                 error: function(jqxhr) {
-                                    alert("Failed to update update appName in Project.")
+                                    alert("Failed to update update appName in Project.");
+                                    return;
                                 }
                             });
                         });
