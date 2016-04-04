@@ -829,10 +829,11 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 contentType: "application/json",
                                 "async": false,
                                 success: function(data) {
-                                    console.log("Successfully updated app-data================");
+                                    console.log("Successfully updated app-data.");
                                 },
                                 error: function(jqxhr) {
-                                    alert("Failed to update update appName in Project.")
+                                    alert("Failed to update update appName in Project.");
+                                    return;
                                 }
                             });
 
@@ -842,7 +843,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                         $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
                         $('#modalpromoteConfigure').modal('hide');
                     } else {
-                        alert("No repository information available.");
+                        alert("Something went wrong,no repository information available.");
                         return;
                         //$('#modalpromoteConfigure').modal('hide');
                     }
