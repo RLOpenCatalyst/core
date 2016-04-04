@@ -101,7 +101,7 @@ var BlueprintSchema = new Schema({
     },
     users: [{
         type: String,
-        required: true,
+        //required: true,
         trim: true,
         validate: schemaValidator.catalystUsernameValidator
     }],

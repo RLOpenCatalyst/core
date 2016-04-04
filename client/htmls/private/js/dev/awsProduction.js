@@ -1384,12 +1384,12 @@ var saveblueprint = function(tempType) {
                 reqBody.providerId = providerId;
                 reqBody.region = region;
                 reqBody.name = $('#blueprintNameInput').val();
-                $('#userListSelect').find('option').attr('selected', 'selected');
+                /*$('#userListSelect').find('option').attr('selected', 'selected');
                 reqBody.users = $('#userListSelect').val();
                 if (!reqBody.users) {
                     alert("Please choose users");
                     return false;
-                }
+                }*/
                 //Checking for docker blueprint images
                 if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
                     //no rows found add empty message
@@ -1751,6 +1751,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 				return false;
 			} else {
 				saveblueprint(tempType);
+
 			}
 			return false;
 		}
