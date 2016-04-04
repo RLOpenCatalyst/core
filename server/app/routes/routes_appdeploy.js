@@ -57,11 +57,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         return;
                     }
                     if (appDeploy) {
+                        if (appDeployData.containerId && !appDeployData.containerId === "" && !appDeployData.containerId === "NA") {
+                            var appData = {
+                                "projectId": anInstance.projectId,
+                                "envId": appDeployData.envId,
+                                "appName": appDeployData.applicationName,
+                                "version": appDeployData.applicationVersion
+                            };
+                            AppData.createNewOrUpdate(appData, function(err, data) {
+                                if (err) {
+                                    logger.debug("Failed to create or update app-data: ", err);
+                                }
+                                if (data) {
+                                    logger.debug("Created or Updated app-data successfully: ", data);
+                                }
+                            });
+                        }
                         res.status(200).send(appDeploy);
                         return;
                     }
                 });
-            }else{
+            } else {
                 res.status(404).send("Project not found for instanceip.");
                 return;
             }
@@ -191,6 +207,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return;
             }
             res.status(200).send(appDeploy);
+            return;
+        });
+    });
+
+    // Get  appData by Project and Env
+    app.get('/app/deploy/project/:projectId/env/:envId/application/:appName', function(req, res) {
+        logger.debug("version= ",req.query.version);
+        AppDeploy.getAppDeployByProjectAndEnv(req.params.projectId, req.params.envId,req.params.appName, req.query.version, function(err, appData) {
+            if (err) {
+                res.status(500).send(errorResponses.db.error);
+                return;
+            }
+            res.status(200).send(appData);
             return;
         });
     });

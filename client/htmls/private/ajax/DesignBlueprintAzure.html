@@ -235,7 +235,7 @@
                                                   </select>
                                                 </div>
                                               </div>
-                                              <div class="col-lg-6 hidden" style="margin-top:5px;">
+                                              <!-- <div class="col-lg-6 hidden" style="margin-top:5px;">
                                                 <label for="">Assign Users
                                                 <span style="color:red">*</span>
                                                 </label>
@@ -243,7 +243,7 @@
                                                 </div>
                                                 <select class="custom-scroll width-100" multiple="" id="userListSelect" style="display:none">
                                                 </select>
-                                              </div>
+                                              </div> -->
                                               <div class="col-lg-6 col-md-6 forDocker dockerProjPort hidden notforCFT">
                                                 <label for="category">Select Docker Image
                                                 <span style="color:red">*</span>
@@ -2602,13 +2602,14 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
               reqBody.instanceImageName = imageIdentifier;
 
 
+              /*
               $('#userListSelect').find('option').attr('selected', 'selected');
               reqBody.users = $('#userListSelect').val();
 
               if (!reqBody.users) {
                 alert("Please choose users");
                 return false;
-              }
+              }*/
               //Checking for docker blueprint images
               if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
                 //no rows found add empty message
@@ -2953,6 +2954,7 @@ $.ajax({
   }
 });
 
+/*
 (function() {
 
   var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
@@ -2978,6 +2980,7 @@ $.ajax({
     $loadingContainer.empty().append('Unable to load users. Please try again later.');
   });
 })();
+*/
 
 $(document).ready(function() {
   $("#blueprintNameInput").focus();
