@@ -96,40 +96,7 @@ providerService.getTagByCatalystEntityTypeAndProvider
             return callback(null, tag);
         }
     });
-}
-
-/*providerService.prepareTagMappings = function prepareTagMappings(provider, tagMappings, callback) {
-    var tagNames = [];
-    var tagMappingsObject = {};
-
-    for(var i = 0; i < tagMappings.length; i++) {
-        if(!('name' in tagMappings[i]) || !(name in tagMappings[i])) {
-            var err = new Error('Malformed Request');
-            err.status = 400;
-            return callback(err);
-        } else {
-            tagNames.push(tagMappings[i].name);
-            tagMappingsObject[tagMappings[i].name] = tagMappings[i].catalystEntityType;
-        }
-    }
-
-    tags.getTagsByNames(tagsNames, function(err, tags){
-        if(err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        } else if(tags.length < tagNames.lenght) {
-            var err = new Error('Tag not found');
-            err.status = 404;
-            return callback(err);
-        } else {
-            for(var i = 0; i < tags.lenght; i++) {
-                tags[i].catalystEntityType = tagMappingsObject[tags[i].name];
-            }
-            return callback(null, tags);
-        }
-    });
-}*/
+};
 
 providerService.updateTag = function updateTag(provider, tagDetails, callback) {
     if(!('name' in tagDetails) || !('description' in tagDetails)) {
@@ -165,22 +132,98 @@ providerService.updateTag = function updateTag(provider, tagDetails, callback) {
     });
 };
 
+// @TODO CatalystEntityMapping and values update to be implemented
+// @TODO Handle asynchronous updates to guarantee correctness
+// @TODO Update conflict based on tag names should be handled
+providerService.addMultipleTagMappings = function addMultipleTagMappings(providerId, tagMappings, callback) {
+    if(tagMappings.length < 1) {
+        return callback(null, []);
+    }
+    logger.debug(tagMappings.length);
+    var tagNames = [];
+    for(var i = 0; i < tagMappings.length; i++) {
+        if(!('tagName' in tagMappings[i]) || !('catalystEntityType' in tagMappings[i])) {
+            var err = new Error('Malformed Request');
+            err.status = 400;
+            return callback(err);
+        }
 
-providerService.updateTagMapping = function updateTagMapping(providerId, tagMapping, callback) {
-    if(!('name' in tagMapping) || !('catalystEntityType' in tagMapping)) {
+        // @TODO entity types to be moved to config
+        if((tagMappings[i].catalystEntityType != 'project')
+            && (tagMappings[i].catalystEntityType != 'environment')) {
+            var err = new Error('Malformed Request');
+            err.status = 400;
+            return callback(err);
+        }
+
+        tagNames.push(tagMappings[i].tagName);
+        var params = {
+            'providerId': providerId,
+            'name': tagMappings[i].tagName
+        };
+        var fields = {
+            'catalystEntityType': tagMappings[i].catalystEntityType
+        };
+        tags.updateTag(params, fields, function(err, tag) {
+            if(err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else if(!tag) {
+                var err = new Error('Tag not found');
+                err.status = 404;
+                return callback(err);
+            }
+        });
+    }
+
+    if(tagNames.length > 0) {
+        return tags.getTagsByNames(tagNames, callback);
+    } else {
+        return callback(null, []);
+    }
+};
+
+providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapping, callback) {
+    if(!('tagName' in tagMapping) && !('catalystEntityMapping' in tagMapping)) {
         var err = new Error('Malformed Request');
         err.status = 400;
         return callback(err);
     }
+    if(!('values' in tagDetails)) {
+        var err = new Error('Invalid Request');
+        err.status = 400;
+        return callback(err);
+    }
+
+    var catalystEntityMappingList = [];
+    for(var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
+        if(!('tagValue' in tagMapping.catalystEntityMapping[i])
+            || !('catalystEntityId' in tagMapping.catalystEntityMapping[i])) {
+            var err = new Error('Malformed Request');
+            err.status = 400;
+            return callback(err);
+        }
+
+        if(tagDetails.values.indexOf(tagMapping.catalystEntityMapping[i].tagValue) < 0) {
+            var err = new Error('Tag value not found');
+            err.status = 404;
+            return callback(err);
+        }
+
+        catalystEntityMappingList.push({
+            'tagValue': tagMapping.catalystEntityMapping[i].tagValue,
+            'catalystEntityId': tagMapping.catalystEntityMapping[i].catalystEntityId
+        });
+    }
 
     var params = {
-        'providerId': providerId,
-        'name': tagMapping.name
+        'providerId': tagDetails.providerId,
+        'name': tagDetails.name
     };
     var fields = {
-        'catalystEntityType': tagMapping.catalystEntityType
+        'catalystEntityMapping': catalystEntityMappingList
     };
-
     tags.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
@@ -191,13 +234,11 @@ providerService.updateTagMapping = function updateTagMapping(providerId, tagMapp
             err.status = 404;
             return callback(err);
         }else {
-            var tag = {
-                'name': tagMapping.name
-            }
-            return callback(null, tag);
+            tagDetails.catalystEntityMapping = catalystEntityMappingList;
+            return callback(null, tagDetails);
         }
     });
-}
+};
 
 providerService.updateCatalystEntityMapping
     = function updateCatalystEntityMapping(tagDetails, catalystEntityMapping, callback) {
@@ -248,8 +289,7 @@ providerService.updateCatalystEntityMapping
             return callback(null, tagDetails);
         }
     });
-
-}
+};
 
 providerService.deleteTag = function deleteTag(provider, tagName, callback) {
     var params = {
@@ -271,7 +311,7 @@ providerService.deleteTag = function deleteTag(provider, tagName, callback) {
             return callback(null, {});
         }
     });
-}
+};
 
 providerService.deleteTagMapping = function deleteTagMapping(providerId, catalystEntityType, callback) {
     var params = {
@@ -297,11 +337,7 @@ providerService.deleteTagMapping = function deleteTagMapping(providerId, catalys
             return callback(null, {});
         }
     });
-}
-
-/*providerService.deleteCatalystEntityMapping
-    = function deleteCatalystEntityMapping(tag, catalystEntityMapping, callback) {
-}*/
+};
 
 providerService.createTagsList = function createTagsList(tags, callback) {
     var tagsListObject = {};
@@ -323,38 +359,41 @@ providerService.createTagObject = function createTagObject(tag, callback) {
         'description': tag.description?tag.description:null
     };
     return callback(null, tagObject);
-}
+};
 
 providerService.createTagMappingList = function createTagMappingList(tags, callback) {
     var tagMappingsListObject = {};
     var tagMappingsList = [];
     tags.forEach(function(tag) {
-        tagMappingsList.push({
-            'name': tag.name,
-            'values': tag.values?tag.values:[],
-            'description': tag.description?tag.description:null,
-            'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType:null,
-            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping:[]
-        });
+        if(tag.catalystEntityType) {
+            var tagMapping = {
+                'tagName': tag.name,
+                'tagValues': tag.values ? tag.values : [],
+                'catalystEntityType': tag.catalystEntityType ? tag.catalystEntityType : null,
+                'catalystEntityMapping': tag.catalystEntityMapping ? tag.catalystEntityMapping : []
+            };
+            for (var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
+                delete tagMapping.catalystEntityMapping[i]._id;
+            }
+            tagMappingsList.push(tagMapping);
+        }
     });
+
     tagMappingsListObject.tagMappings = tagMappingsList;
 
-    return callback(null, tagsMappingList);
-}
+    return callback(null, tagMappingsList);
+};
 
 providerService.createTagMappingObject = function createTagMappingObject(tag, callback) {
     var tagMappingObject = {
-            'name': tag.name,
-            'values': tag.values?tag.values:[],
-            'description': tag.description?tag.description:null,
+            'tagName': tag.name,
+            'tagValues': tag.values?tag.values:[],
             'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType:null,
             'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping:[]
     };
+    for (var i = 0; i < tagMappingObject.catalystEntityMapping.length; i++) {
+        delete tagMappingObject.catalystEntityMapping[i]._id;
+    }
 
     return callback(null, tagMappingObject);
-}
-
-/*
-providerService.createCatalystEntityMappingObject
-    = function createCatalystEntityMappingObject(tag, catalystEntityType, callback) {
-}*/
+};
