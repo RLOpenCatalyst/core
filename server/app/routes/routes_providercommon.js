@@ -1109,7 +1109,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {String} instances.os						OS
 	 * @apiSuccess {String} instances.state						Instance state
 	 * @apiSuccess {Object} instances.tags						Instance tags
-	 * @apiSuccess {String} tagNameMappings.catalystEntityType	Catalyst entity type
 	 * @apiSuccess {pageIndex} pageIndex						Page index
 	 *
 	 * @apiSuccessExample {json} Success-Response:
@@ -1156,16 +1155,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 			 }
 	 * 		}
 	 *
-	 * @apiSuccess {Object} instance	Unassigned instance
-	 * @apiSuccess {Object}	tags 		Tags
+	 * @apiSuccess {Object[]} instance	 					Unasssigned instance
+	 * @apiSuccess {String}	instance.orgId 					Organization id
+	 * @apiSuccess {Object} instance.provider				Provider
+	 * @apiSuccess {String} instance.provider.id			Provider Id
+	 * @apiSuccess {String} instance.provider.type			Provider type
+	 * @apiSuccess {Object} instance.provider.data			Provider data
+	 * @apiSuccess {String} instance.platformId				Platform id
+	 * @apiSuccess {String} instance.ip						IP address
+	 * @apiSuccess {String} instance.os						OS
+	 * @apiSuccess {String} instance.state					Instance state
+	 * @apiSuccess {Object} instance.tags					Instance tags
 	 *
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
 	 *			"orgId": "organziationID",
-     *			"providerId": "providerID",
-     *			"providerType": "AWS",
-     *			"providerData": {},
+     *			"provider": {
+     *				"id": "providerID",
+     *				"type": "AWS",
+     *				"data": {
+     *						},
+     *			}
      *			"platformId": "platorm-id",
 	 *			"ip": "192.168.1.0",
      *			"os": "Ubuntu",
@@ -1173,7 +1184,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *			"tags": {
      *				"environment": "dev",
      *				"application": "proj1"
-     *			 }
+     *			}
      *		}
 	 */
 	// app.get('/providers/:providerId/unassigned-instances/:instanceId',
