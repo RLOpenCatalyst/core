@@ -322,6 +322,7 @@ var BlueprintsDao = function() {
 
     };
 
+    
     this.getBlueprintsByOrgBgProject = function(orgId, bgId, projectId, blueprintType, userName, callback) {
         logger.debug("Enter getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projectId, blueprintType, userName);
         var queryObj = {
@@ -343,6 +344,7 @@ var BlueprintsDao = function() {
         });
 
     };
+    
     this.createBlueprint = function(blueprintData, callback) {
         logger.debug("Enter createBlueprint >> " + JSON.stringify(blueprintData));
         var blueprint = new Blueprint({
