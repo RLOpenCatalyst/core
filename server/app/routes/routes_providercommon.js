@@ -33,6 +33,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
 var tagsDao = require('_pr/model/tags');
+var async = require('async');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -115,6 +116,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
+		//getUnmanagedInstanceList(req,res);
 		ApiUtils.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
@@ -154,6 +156,37 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		});
 	});
+
+	/*function getUnmanagedInstanceList(req, res, next) {
+		var pageReq={};
+		async.waterfall(
+			[
+				function(next) {
+					ApiUtils.paginationRequest(req.query,next)
+				},
+				function(paginationReq,next) {
+					paginationReq['providerId']=req.params.providerId;
+					paginationReq['id']='unmanagedInstances';
+					pageReq=paginationReq;
+					AWSProvider.getAWSProviderById(req.params.providerId,next)
+				},
+				function(provider, next) {
+					unManagedInstancesDao.getByProviderId(pageReq,next);
+				},
+				function(unmanagedInstances, next) {
+					ApiUtils.paginationResponse(unmanagedInstances, pageReq)
+				}
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					console.log(results);
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}*/
 
 	//Added By Durgesh for Tags Information
 	app.get('/providers/:providerId/tags', function(req, res) {

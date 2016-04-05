@@ -45,6 +45,7 @@ var VMImage = require('../../model/classes/masters/vmImage.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var AzureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var VmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var OpenStackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
 
 
 
@@ -455,16 +456,47 @@ BlueprintSchema.statics.getById = function(id, callback) {
                                 bluePrintInfo['blueprintConfig']=
                                 {
                                     cloudProviderType: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType,
-                                    cloudProviderId: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,
-                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData
+                                    cloudProviderId:   blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,
+                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData,
+                                    infraManagerData:blueprint[0].blueprintConfig.infraManagerData,
+                                    infraManagerId : blueprint[0].blueprintConfig.infraManagerId,
+                                    instanceImageName : blueprint[0].blueprintConfig.instanceImageName,
+                                    infraMangerType : blueprint[0].blueprintConfig.infraMangerType
                                 }
                                 callback(null, bluePrintInfo);
                             })
 
                         }
-                       else if(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType == 'vmware'){
+                       else if(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType == 'openstack'){
 
-                            VmwareProvider.getvmwareProviderById(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,function(err,providerData){
+                            OpenStackProvider.getopenstackProviderById(blueprint[0].blueprintConfig.cloudProviderId,function(err,providerData){
+                                if (err) {
+                                    callback(err, null);
+                                    return;
+                                }
+                                console.log(providerData);
+                                bluePrintInfo['providerType']=providerData.providerType;
+                                bluePrintInfo['providerName']=providerData.providerName;
+                                bluePrintInfo['blueprintConfig']=
+                                {
+                                    cloudProviderType: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType,
+                                    cloudProviderId:   blueprint[0].blueprintConfig.cloudProviderId,
+                                    instanceImageID:   blueprint[0].blueprintConfig.instanceImageID,
+                                    flavor:   blueprint[0].blueprintConfig.flavor,
+                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData,
+                                    infraManagerData:blueprint[0].blueprintConfig.infraManagerData,
+                                    infraManagerId : blueprint[0].blueprintConfig.infraManagerId,
+                                    instanceImageName : blueprint[0].blueprintConfig.instanceImageName,
+                                    infraMangerType : blueprint[0].blueprintConfig.infraMangerType
+
+                                }
+                                callback(null, bluePrintInfo);
+                            })
+
+                        }
+                        else if(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType == 'vmware'){
+
+                            VmwareProvider.getvmwareProviderById(blueprint[0].blueprintConfig.cloudProviderId,function(err,providerData){
                                 if (err) {
                                     callback(err, null);
                                     return;
@@ -475,8 +507,12 @@ BlueprintSchema.statics.getById = function(id, callback) {
                                 bluePrintInfo['blueprintConfig']=
                                 {
                                     cloudProviderType: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType,
-                                    cloudProviderId: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,
-                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData
+                                    cloudProviderId:   blueprint[0].blueprintConfig.cloudProviderId,
+                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData,
+                                    infraManagerData:blueprint[0].blueprintConfig.infraManagerData,
+                                    infraManagerId : blueprint[0].blueprintConfig.infraManagerId,
+                                    instanceImageName : blueprint[0].blueprintConfig.instanceImageName,
+                                    infraMangerType : blueprint[0].blueprintConfig.infraMangerType
                                 }
                                 callback(null, bluePrintInfo);
                             })
@@ -545,15 +581,14 @@ BlueprintSchema.statics.removeById = function(id, callback) {
 
 };
 
-BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, projId, filterBlueprintType, callback) {
-    logger.debug("Enter getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
+BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callback) {
     var queryObj = {
-        orgId: orgId,
-        bgId: bgId,
-        projectId: projId,
+        orgId: jsonData.orgId,
+        bgId: jsonData.bgId,
+        projectId: jsonData.projectId
     }
-    if (filterBlueprintType) {
-        queryObj.templateType = filterBlueprintType;
+    if (jsonData.blueprintType) {
+        queryObj.templateType = jsonData.blueprintType;
     }
 
     this.find(queryObj, function(err, blueprints) {
@@ -561,7 +596,6 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, proj
             callback(err, null);
             return;
         }
-        logger.debug("Exit getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
         callback(null, blueprints);
     });
 };

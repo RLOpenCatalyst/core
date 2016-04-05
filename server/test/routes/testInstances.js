@@ -26,7 +26,7 @@ describe("Blueprint Info ",function() {
 
     it("Blueprint Information  ", function (done) {
         server
-            .get('/blueprints/56fa4992b22e7cf36529f08f')
+            .get('/blueprints/57026274ae7109e261266bd0')
             .end(function (err, res) {
                 console.log(res.body);
                 console.log(res.status);

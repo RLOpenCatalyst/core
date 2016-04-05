@@ -28,6 +28,8 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Jenkins = require('_pr/lib/jenkins');
 var CompositeTask = require('./taskTypeComposite');
 var PuppetTask = require('./taskTypePuppet');
+var mongoosePaginate = require('mongoose-paginate');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 
 var Schema = mongoose.Schema;
 
@@ -92,7 +94,7 @@ var taskSchema = new Schema({
 	timestampEnded: Number,
 	blueprintIds: [String]
 });
-
+taskSchema.plugin(mongoosePaginate);
 // instance method :-  
 
 // Executes a task
@@ -389,12 +391,42 @@ taskSchema.statics.createNew = function(taskData, callback) {
 };
 
 // creates a new task
-taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(orgId, bgId, projectId, envId, callback) {
+/*taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
+	var databaseReq={};
+	jsonData['searchColumns']=['taskType','name'];
+	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+		if(err){
+			var err = new Error('Internal server error');
+			err.status = 500;
+			return callback(err);
+		}
+		else
+			databaseReq=databaseCall;
+	});
+	this.paginate(databaseReq.queryObj, databaseReq.options, function(err, tasks) {
+		if(err){
+			var err = new Error('Internal server error');
+			err.status = 500;
+			return callback(err);
+		}
+		else if(!tasks) {
+			var err = new Error('Tasks are not found');
+			err.status = 404;
+			return callback(err);
+		}
+		else
+			return callback(null, tasks);
+	});
+};*/
+
+// get task by id
+// creates a new task
+taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
 	var queryObj = {
-		orgId: orgId,
-		bgId: bgId,
-		projectId: projectId,
-		envId: envId
+		orgId: jsonData.orgId,
+		bgId: jsonData.bgId,
+		projectId: jsonData.projectId,
+		envId: jsonData.envId
 	}
 
 	this.find(queryObj, function(err, data) {
@@ -406,8 +438,6 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(orgId, bgId, projec
 		callback(null, data);
 	});
 };
-
-// get task by id
 taskSchema.statics.getTaskById = function(taskId, callback) {
 	this.find({
 		"_id": new ObjectId(taskId)

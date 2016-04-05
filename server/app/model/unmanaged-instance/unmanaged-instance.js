@@ -118,6 +118,7 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 				callback(err, null);
 				return;
 			}
+			console.log(instances);
 			callback(null, instances);
 		});
 };

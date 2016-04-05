@@ -26,6 +26,7 @@ var textSearch = require('mongoose-text-search');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 
 
+
 var Schema = mongoose.Schema;
 
 var ACTION_LOG_TYPES = {
@@ -414,27 +415,50 @@ var InstancesDao = function() {
         });
     };
 
-    this.getInstancesByOrgBgProjectAndEnvId = function(orgId, bgId, projectId, envId, instanceType, userName, callback) {
-        logger.debug("Enter getInstancesByOrgBgProjectAndEnvId (%s,%s, %s, %s, %s, %s)", orgId, bgId, projectId, envId, instanceType, userName);
+   /* this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
+        var databaseReq={};
+        jsonData['searchColumns']=['instanceIP','instanceState'];
+        ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+            if(err){
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }
+            databaseReq=databaseCall;
+        });
+        Instances.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
+            if(err){
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }
+            else if(!instances) {
+                var err = new Error('Instances are not found');
+                err.status = 404;
+                return callback(err);
+            }
+            else
+                return callback(null, instances);
+        });
+    };*/
+
+    this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
         var queryObj = {
-            orgId: orgId,
-            bgId: bgId,
-            projectId: projectId,
-            envId: envId
+            orgId: jsonData.orgId,
+            bgId: jsonData.bgId,
+            projectId: jsonData.projectId,
+            envId: jsonData.envId
         }
-        if (instanceType) {
-            queryObj['blueprintData.templateType'] = instanceType;
+        if (jsonData.instanceType) {
+            queryObj['blueprintData.templateType'] = jsonData.instanceType;
         }
         Instances.find(queryObj, {
             'actionLogs': false
         }, function(err, data) {
             if (err) {
-                logger.error("Failed to getInstancesByOrgBgProjectAndEnvId (%s,%s, %s, %s, %s, %s)", orgId, bgId, projectId, envId, instanceType, userName, err);
                 callback(err, null);
                 return;
             }
-
-            logger.debug("Exit getInstancesByOrgBgProjectAndEnvId (%s,%s, %s, %s, %s, %s)", orgId, bgId, projectId, envId, instanceType, userName);
             callback(null, data);
         });
     };

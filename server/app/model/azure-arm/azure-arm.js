@@ -20,6 +20,8 @@ var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('_pr/model/utils/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var mongoosePaginate = require('mongoose-paginate');
 
 var ChefInfraManager = require('./chef-infra-manager/chef-infra-manager');
 
@@ -79,6 +81,7 @@ var ARMSchema = new Schema({
     users: [String],
     resourceGroup: String,
 });
+ARMSchema.plugin(mongoosePaginate);
 
 
 function getInfraManagerConfigType(cf) {
@@ -161,12 +164,12 @@ ARMSchema.statics.createNew = function(cfData, callback) {
 };
 
 // creates a new task
-ARMSchema.statics.findByOrgBgProjectAndEnvId = function(orgId, bgId, projectId, envId, callback) {
+ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
     var queryObj = {
-        orgId: orgId,
-        bgId: bgId,
-        projectId: projectId,
-        envId: envId
+        orgId: jsonData.orgId,
+        bgId: jsonData.bgId,
+        projectId: jsonData.projectId,
+        envId: jsonData.envId
     }
 
     this.find(queryObj, function(err, data) {
@@ -178,6 +181,33 @@ ARMSchema.statics.findByOrgBgProjectAndEnvId = function(orgId, bgId, projectId, 
         callback(null, data);
     });
 };
+
+/*ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
+    var databaseReq={};
+    jsonData['searchColumns']=['cloudProviderId','deploymentName'];
+    ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+        if(err){
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        }
+        databaseReq=databaseCall;
+    });
+    this.paginate(databaseReq.queryObj, databaseReq.options, function(err, cftData) {
+        if(err){
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        }
+        else if(!cftData) {
+            var err = new Error('Cloud Formation is not found');
+            err.status = 404;
+            return callback(err);
+        }
+        else
+            return callback(null, cftData);
+    });
+};*/
 
 // get task by id
 ARMSchema.statics.getById = function(cfId, callback) {

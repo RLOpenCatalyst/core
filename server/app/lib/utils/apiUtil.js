@@ -59,6 +59,17 @@ var ApiUtil = function() {
         var databaseCall={};
         if(jsonData.providerId)
             objAnd["providerId"] = jsonData.providerId;
+        if(jsonData.orgId)
+            objAnd["orgId"] = jsonData.orgId;
+        if(jsonData.projectId)
+            objAnd["projectId"] = jsonData.projectId;
+        if(jsonData.bgId)
+            objAnd["bgId"] = jsonData.bgId;
+        if(jsonData.envId)
+            objAnd["envId"] = jsonData.envId;
+        if (jsonData.instanceType) {
+            objAnd['blueprintData.templateType'] = jsonData.instanceType;
+        }
         if(jsonData.search) {
             queryArr.push(objAnd);
             for(var i = 0; i < jsonData.searchColumns.length; i++){
