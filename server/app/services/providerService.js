@@ -417,17 +417,22 @@ providerService.createTagMappingObject = function createTagMappingObject(tag, ca
 providerService.createUnassignedInstancesList = function createUnassignedInstancesList(instances, callback) {
     var instancesListObject = {};
     var instancesList = [];
+
     instances.forEach(function(instance) {
-        var tempInstance = instance;
+        var tempInstance = {};
         var provider = {
             'id': instance.providerId,
             'type': instance.providerType,
-            'data': instance.providerData,
+            'data': instance.providerData?instance.providerData:null,
         };
-        delete tempInstance.providerId;
-        delete tempInstance.providerType;
-        delete tempInstance.providerData;
+        tempInstance.id = instance._id;
+        tempInstance.orgId = instance.orgId;
         tempInstance.provider = provider;
+        tempInstance.platformId = instance.platformId;
+        tempInstance.id = instance.id;
+        tempInstance.os = instance.os;
+        tempInstance.state = instance.state;
+        tempInstance.tags = instance.tags;
 
         instancesList.push(tempInstance);
     });
