@@ -1,5 +1,4 @@
 <style>
-
     .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
         border-top: 0px !important;
     }
@@ -28,16 +27,35 @@
     .marginSpaceTop {
         margin-top:20px;"
     }
-    .syncClick {
-        float:left;
-        cursor:pointer;
-        margin-top: 10px;
-        margin-left: 20px;
-    }
     .styleRight{
-        float:right;margin-top: 4px;
+        float:right;
+        margin-top: 4px;
     }
-
+    .border-grey{
+        border: 1px solid #ddd;
+    }
+    .colorGreen{
+        color:green;
+    }
+    .spanformSaveCSS{
+        float: left;
+        margin-right: 7px;
+        margin-top: 7px;
+    }
+    .marginbottomCSS{
+        margin-bottom: 0px !important;
+    }
+    .margin-top10{
+        margin-top: 10px;
+    }
+    .saveBtnTagsCSS{
+        float: right;
+        font-size: 10px;
+        padding: 2px 4px;
+    }
+    .width-90{
+        width:90%;
+    }
 </style>
 
 <!--button to navigate back to provider list-->
@@ -45,97 +63,215 @@
 
 <!--tabs start here-->
 <ul class="nav nav-tabs " role="tablist">
-    <li class="active"><a href="#organiz" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has been bootstrapped by Catalyst">Managed Instances</a></li>
-    <li><a href="#unmanaged" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has not been bootstrapped by Catalyst">UnManaged Instances</a></li>
-    <li><a href="#tags" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has not been bootstrapped by Catalyst">Tags</a></li>
-    <span><a class="syncClick" title="Refresh view">Sync&nbsp;<i class="fa fa-refresh fa-lg " id="instanceRefreshSpinner"></i></a></span>
+    <li class="active">
+        <a href="#tagsId" role="tab" data-toggle="tab" data-toggle="tooltip" title="Tags">Tags</a>
+    </li>
+    <li id="mappingLiTabId">
+        <a href="#mappingsId" role="tab" data-toggle="tab" data-toggle="tooltip" title="Mappings">Mappings</a>
+    </li>
+    <li>
+        <a href="#instancesId" role="tab" data-toggle="tab" data-toggle="tooltip" title="Instances">Instances</a>
+    </li>
 </ul>
 
 <!--tab content starts here-->
 <div class="tab-content">
     <!-- Tab panes -->
-    <!--managed instances-->
-    <div  class="tab-pane active instancesListContainer" id="organiz">
-        <div  class="tabContent table-responsive" id="instanceListDiv" >
-            <table class="table table-hover table-bordered" id="instanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+    <div  class="tab-pane active tagsContainer" id="tagsId">
+        <div  class="tabContent table-responsive" id="tagsIdDiv">
+            <table class="table table-hover table-bordered text-center" id="tagsTable" style="font-size:13px;";>
                 <thead>
                 <tr>
-                    <th style="text-align: center">InstanceId</th>
-                    <th style="text-align: center">OS</th>
-                    <th style="text-align: center">IP Address</th>
-                    <th style="text-align: center">Region</th>
-                    <th style="text-align: center">Status</th>
-                    <th style="text-align: center">Actions</th>
+                    <th class="text-center">Tag Name</th>
+                    <th class="text-center">Description</th>
                 </tr>
                 </thead>
-                <tbody class="managedInstance">
+                <tbody class="tagstblTbody">
                 </tbody>
             </table>
+        </div>
+        <div>
+            <div action="" id="tagsFormId">
+                <div class="widget-box">
+                    <div class="widget-header">
+                        <h4 class="widget-margin" style="color:#666;font-size:14px">Create tag name to catalyst entity mapping</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <section id="widget-grid-tag" class="">
+                                <div class="row">
+                                    <div class="jarviswidget" id="wid-id-tag" data-widget-editbutton="false" data-widget-custombutton="false">
+                                        <div>
+                                            <div class="widget-body no-padding">
+                                                <div class="col-lg-6 marginSpaceTop">
+                                                    <label for="projectnameLabel" id="projectnameLabelId" catalystEntitytype="project">Project</label>
+                                                    <div class="input-groups">
+                                                        <select id="tagsProjectSelect"  class="width-100 form-control">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 marginSpaceTop">
+                                                    <label for="envnameLabel" id="envnameLabelId" catalystEntitytype="environment">Environment</label>
+                                                    <div class="input-groups">
+                                                        <select id="tagsEnvSelect" class="width-100 form-control" >
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="widget-toolbox clearfix">
+                        <div class="btn-group pull-right">
+                            <span id="spantagsformSaveId" class="colorGreen spanformSaveCSS"></span>
+                            <button class="btn btn-primary btn-mini btntagsFormSave">
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!--unmanaged instances-->
-    <div  class="tab-pane unmanagedInstancesListContainer" id="unmanaged">
-        <div  class="tabContent table-responsive" id="unmanagedinstanceListDiv" >
-            <table class="table table-hover table-bordered" id="unmanagedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
-                <thead>
-                <tr>
-                    <th style="text-align: center">InstanceId</th>
-                    <th style="text-align: center">OS</th>
-                    <th style="text-align: center">IP Address</th>
-                    <th style="text-align: center">Region</th>
-                    <th style="text-align: center">Status</th>
-                    <th style="text-align: center">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="unManagedInstance">
-                </tbody>
-            </table>
-        </div>
-        <footer class="footer">
-            <div style="text-align:center" class="clearfix form-actions">
-                <div>
-                    <input type="button" id="providerSyncBtn" style="margin-left:200px;" value="Import Instances" class="btn btn-primary showChefImportNodesModalBtn">
+    <div  class="tab-pane mappingsListContainer" id="mappingsId">
+        <div class="row">
+            <div class="col-lg-6">
+                <div  class="tabContent table-responsive marginbottomCSS" id="mappingprojectIdDiv">
+                    <table class="table table-hover table-bordered text-center" id="mappingprojectTable" style="font-size:13px;margin-top:10px";>
+                        <thead>
+                        <tr>
+                            <th class="text-center">Catalyst Project</th>
+                            <th class="text-center">Project Tag Name</th>
+                        </tr>
+                        </thead>
+                        <tbody class="mappingprojecttblTbody">
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </footer>
-    </div>
-    <!--tags-->
-    <div  class="tab-pane tagsListContainer" id="tags">
-        <div  class="tabContent table-responsive" id="tagsListDiv" >
-            <table class="table table-hover table-bordered" id="tagsListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
-                <thead>
-                <tr>
-                    <th style="text-align: center">Tags Name</th>
-                    <th style="text-align: center">Description</th>
-                    <th style="text-align: center">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="tags">
-                </tbody>
-            </table>
-        </div>
-        <footer class="footer">
-            <div class="widget-toolbox clearfix">
-                <div class="btn-group pull-right">
-                    <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
-                        <i class="ace-icon fa fa-times bigger-110"></i>
-                        Cancel
-                    </a>
-                    <button class="btn btn-primary btn-mini" id="updateTagbtn">
+                <div class="widget-toolbox clearfix">
+                    <div class="btn-group pull-right">
+                        <span id="spanprojectMappingSaveId" class="colorGreen spanformSaveCSS"></span>
+                        <button class="btn btn-primary btn-mini btnprojectMappingSave">
                         <i class="ace-icon fa fa-check bigger-110"></i>
-                        Update
-                    </button>
-
+                        Save
+                        </button>
+                    </div>
                 </div>
-
             </div>
-        </footer>
+            <div class="col-lg-6">
+                <div  class="tabContent table-responsive marginbottomCSS" id="mappingenvIdDiv">
+                    <table class="table table-hover table-bordered text-center" id="mappingenvTable" style="font-size:13px;margin-top:10px";>
+                        <thead>
+                        <tr>
+                            <th class="text-center">Catalyst Environment</th>
+                            <th class="text-center">Environment Tag Name</th>
+                        </tr>
+                        </thead>
+                        <tbody class="mappingenvtblTbody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="widget-toolbox clearfix">
+                    <div class="btn-group pull-right">
+                        <span id="spanenvMappingSaveId" class="colorGreen spanformSaveCSS"></span>
+                        <button class="btn btn-primary btn-mini btnenvMappingSave">
+                        <i class="ace-icon fa fa-check bigger-110"></i>
+                        Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div  class="tab-pane instancesContainer" id="instancesId">
+        <div class="col-lg-6 col-md-6">
+            <label for="chooseCatalyst">Choose Catalyst Status:</label>
+            <div class="input-groups">
+                <select id="chooseCtalystSelectId" name="" class="required width-100 form-control">
+                    <option val="Managed" data-catalystStatus="Managed">Managed</option>
+                    <option val="Assigned" data-catalystStatus="Assigned">Assigned</option>
+                    <option val="Unasssigned" data-catalystStatus="Unassigned">Unasssigned</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 margin-top10">
+            <div id="Managed">
+                <!--managed instances-->
+                <div  class="tab-pane active instancesListContainer" id="organiz">
+                    <div  class="tabContent table-responsive" id="instanceListDiv" >
+                        <table class="table table-hover table-bordered" id="instanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                            <thead>
+                            <tr>
+                                <th style="text-align: center">InstanceId</th>
+                                <th style="text-align: center">OS</th>
+                                <th style="text-align: center">IP Address</th>
+                                <th style="text-align: center">Region</th>
+                                <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="managedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="Assigned" hidden>
+                <!--unmanaged instances-->
+                <div  class="tab-pane unmanagedInstancesListContainer" id="unmanaged">
+                    <div  class="tabContent table-responsive" id="unmanagedinstanceListDiv" >
+                        <table class="table table-hover table-bordered" id="unmanagedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                            <thead>
+                            <tr>
+                                <th style="text-align: center">InstanceId</th>
+                                <th style="text-align: center">OS</th>
+                                <th style="text-align: center">IP Address</th>
+                                <th style="text-align: center">Region</th>
+                                <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unManagedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer class="footer">
+                        <div style="text-align:center" class="clearfix form-actions">
+                            <div>
+                                <input type="button" id="providerSyncBtn" style="margin-left:200px;" value="Import Instances" class="btn btn-primary showChefImportNodesModalBtn">
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+            <div id="Unassigned" hidden>
+                <div  class="tab-pane unassignedInstancesListContainer" id="unassigned">
+                    <div  class="tabContent table-responsive" id="unassignedinstanceListDiv" >
+                        <table class="table table-hover table-bordered" id="unassignedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align:center";>
+                            <thead>
+                            <tr>
+                                <th style="text-align: center">Node</th>
+                                <th style="text-align: center">OS</th>
+                                <th style="text-align: center">IP Address</th>
+                                <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Project Tag</th>
+                                <th style="text-align: center">Env. Tag</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unAssignedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-
-<!--tab content over-->
 
 <!--import instance modal-->
 <div class="modal fade" id="providerSyncModal" data-backdrop="static">
@@ -253,9 +389,54 @@
 </div>
 <!-- /.modal -->
 
-<script type="text/javascript">
 
-    //initialising the datatable...
+<!--tab content over-->
+<script type="text/javascript">
+    //initialising the datatable before DOM Ready...
+    if (!$.fn.dataTable.isDataTable('#tagsTable')) {
+        var $tagsDatatable = $('#tagsTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+        });
+    }
+    if (!$.fn.dataTable.isDataTable('#mappingprojectTable')) {
+        var $mappingprojectDatatable = $('#mappingprojectTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+        });
+    }
+    if (!$.fn.dataTable.isDataTable('#mappingenvTable')) {
+        var $mappingenvDatatable = $('#mappingenvTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+        });
+    }
+
+    //initialising the datatable for Managed...
     if (!$.fn.dataTable.isDataTable('#instanceListTable')) {
         var $instanceManagedDatatable = $('#instanceListTable').DataTable({
             "pagingType": "full_numbers",
@@ -280,8 +461,7 @@
 
         });
     }
-
-    //initialising the datatable...
+    //initialising the datatable for Assigned...
     if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
         var $instanceUnManagedDatatable = $('#unmanagedinstanceListTable').DataTable({
             "pagingType": "full_numbers",
@@ -306,17 +486,22 @@
 
         });
     }
-
-    //initialising the datatable...
-    if (!$.fn.dataTable.isDataTable('#tagsListTable')) {
-        var $tagsDatatable = $('#tagsListTable').DataTable({
+    //initialising the datatable for Assigned...
+    if (!$.fn.dataTable.isDataTable('#unassignedinstanceListTable')) {
+        var $instanceUnAssignedDatatable = $('#unassignedinstanceListTable').DataTable({
             "pagingType": "full_numbers",
             "bInfo": false,
             "bLengthChange": false,
             "paging": false,
             "bFilter": false,
-            "aaSorting": [[ 1, "asc" ]],
+            "aaSorting": [[ 4, "asc" ]],
             "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
                 "bSortable": false
             }, {
                 "bSortable": false
@@ -327,20 +512,611 @@
         });
     }
 
-    (function() {
-
+    $(document).ready(function(e) {
         var urlParams = {};
         (window.onpopstate = function() {
             var url = window.location.href;
             var indexOfQues = url.lastIndexOf("?");
             if (indexOfQues != -1) {
                 var sub = url.substring(indexOfQues + 1);
-                console.log(sub);
+                //console.log(sub);
                 urlParams.providerId = sub;
+            }
+        })();
+        if (!urlParams.providerId) {
+            return;
+        }
+        if(urlParams.providerId && urlParams.providerId.indexOf("#ajax") == -1){
+          getTagsListData(urlParams.providerId);
+          getManagedInstances();
+          getUnmanagedInstances();
+        }
+        //loading Managed Data
+        function getTagsListData(providerId) {
+            $.get('/providers/' + providerId + '/tags', function(tagsList) {
+                loadTagsTabData(tagsList,providerId);
+                $('#tagsIdDiv').show();
+            }).fail(function(jxhr) {
+                var msg = "Tags List Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+            /*var tagsListdummy = {
+                "tags": [{
+                    "name": "env",
+                    "description": null
+                }, {
+                    "name": "application",
+                    "description": "Project name"
+                },{
+                    "name": "testingEnv",
+                    "description": ""
+                }],
+                "count": 2,
+                "pageSize": 10,
+                "pageIndex": 1
+            };
+            loadTagsTabData(tagsListdummy,providerId);*/
+        }
 
+        function loadTagsTabData(tagsListData,providerId) {
+            var $projecttagsList = $('#tagsProjectSelect');
+            var $envtagsList = $('#tagsEnvSelect');
+            $projecttagsList.empty();
+            $envtagsList.empty();
+            $tagsDatatable.clear().draw();
+            var $tbody = $('#tagsTable tbody').empty();
+            for (var i = 0; i < tagsListData.length; i++) {
+                //For Dropdown
+                $projecttagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
+                $envtagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
+
+                //For Table
+                var $tr = $('<tr class=""></tr>');
+                var $tdName = $('<td class="tagName"></td>').append(tagsListData[i].name);
+                $tr.append($tdName);
+
+                if(tagsListData[i].description){
+                    var $inputTxt = '';
+                    var tagsDescription = tagsListData[i].description;
+                    $inputTxt = $('<input id="tagdescinputId'+i+'" value="'+tagsDescription+'" type="text" class="width-90 border-grey"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
+                }else{
+                    var $inputTxt = '';
+                    $inputTxt = $('<input id="tagdescinputId'+i+'" type="text" class="width-90 border-grey"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
+                }
+                
+                $inputTxt.keypress(function(event){
+                    var keycode = (event.keyCode ? event.keyCode : event.which);
+                    if(keycode == '13'){
+                        var $this = $(this);
+                        var id = $this.attr('id');
+                        var tagName = $this.parents().eq(1).find('.tagName').html();
+                        var tagDesc = $this.parents().eq(1).find('input').val();
+                       
+                        //Send the body update tag
+                        var objupdatetagDesc = {};
+                        objupdatetagDesc["description"] = tagDesc;
+
+                        $.ajax({
+                            url: '/providers/'+ providerId +'/tags/'+ tagName,
+                            method: 'PUT',
+                            data: JSON.stringify(objupdatetagDesc),
+                            contentType: "application/json",
+                            success: function() {
+                                $('#'+id).css('background-color','lightyellow');
+                            },
+                            error: function(jxhr) {
+                                //alert("Tags description not saved....");
+                            }
+                        }); 
+                    }
+                    //Stop the event from propogation to other handlers
+                    //If this line will be removed, then keypress event handler attached 
+                    //at document level will also be triggered
+                    event.stopPropagation();
+                });
+    
+                $inputTxt.filter('.saveBtnTagsCSS').off("click").on("click",function(){
+                    var $this = $(this);
+                    var tagName = $this.parents().eq(1).find('.tagName').html();
+                    var tagDesc = $this.parents().eq(1).find('input').val();
+                
+                    //Send the body update tag
+                    var objupdatetagDesc = {};
+                    objupdatetagDesc["description"] = tagDesc;
+                    $.ajax({
+                        url: '/providers/'+ providerId +'/tags/'+ tagName,
+                        method: 'PUT',
+                        data: JSON.stringify(objupdatetagDesc),
+                        contentType: "application/json",
+                        success: function() {
+                            $this.parents().eq(1).find('input').css('background-color','lightyellow');
+                        },
+                        error: function(jxhr) {
+                            //alert("Tags description not saved....");
+                        }
+                    });
+                });
+                var $tdDesc = $('<td></td>').append($inputTxt);
+                $tr.append($tdDesc);
+
+                $tbody.append($tr);
+                $tagsDatatable.row.add($tr).draw();
+            }
+            var blankArr = [];
+            loaddefaultTagMappingSelection(blankArr);
+        }
+        /*var tagsListSelected = {
+            "tagNameMappings": [{
+                "tagName": "application",
+                "tagValues": ["proj1", "proj2"],
+                "catalystEntityType": "project",
+                "catalystEntityMapping": [{
+                    "catalystEntityId": "<MongoID>",
+                    "catalystEntityName": "Project1",
+                    "tagValue": "proj1"
+                }, {
+                    "catalystEntityId": "<MongoID>",
+                    "catalystEntityName": "Project2",
+                    "tagValue": "proj2"
+                }]
+            }, {
+                "tagName": "testingEnv",
+                "tagValues": ["prod", "dev"],
+                "catalystEntityType": "environment",
+                "catalystEntityMapping": [{
+                    "catalystEntityId": "<MongoID>",
+                    "catalystEntityName": "Development",
+                    "tagValue": "dev"
+                }, {
+                    "catalystEntityId": "<MongoID>",
+                    "catalystEntityName": "Production",
+                    "tagValue": "prod"
+                }]
+            }],
+            "count": 2,
+            "pageSize": 10,
+            "pageIndex": 1
+        };*/
+        function loaddefaultTagMappingSelection(catalystEntityTypeListPassed){
+            $.ajax({
+                url: '/providers/'+urlParams.providerId+'/tag-mappings',
+                method: 'GET',
+                contentType: "application/json",
+                success: function(tagsListSelected) {
+                    //For tags tab.....
+                    var $projecttagsList = $('#tagsProjectSelect');
+                    var $envtagsList = $('#tagsEnvSelect');
+                    var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
+                    var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
+
+                    for(var i=0;i<tagsListSelected.length;i++){
+                        var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
+                        var objtagName = tagsListSelected[i].tagName;
+                        var tagValues = tagsListSelected[i].tagValues;
+                        var catalystEntityMapping = tagsListSelected[i].catalystEntityMapping;
+                        if(objcatalystEntityType == catalystEntityProjName){
+                            $projecttagsList.val(objtagName);
+
+                            //For Mapping tab.....
+                            //For project catalystEntityType
+                            $mappingprojectDatatable.clear().draw();
+                            var $tbody = $('#mappingprojectTable tbody').empty();
+
+                            for(var j = 0; j < catalystEntityTypeListPassed.length; j++){
+                                //For Table
+                                var $tr = $('<tr id="'+catalystEntityTypeListPassed[j].rowid+'" class=""></tr>');
+
+                                var $tdprojectName = $('<td class="mappingprojectName"></td>').append(catalystEntityTypeListPassed[j].projectname);
+                                $tr.append($tdprojectName);
+
+
+                                var $mappingprojectSelectList= $('<select class="mappingprojectSelectId"></select>');
+                                $mappingprojectSelectList.empty();
+                                for(var k=0; k< tagValues.length; k++){
+                                    $mappingprojectSelectList.append($('<option></option>').val(tagValues[k]).html(tagValues[k]));
+                                }
+                                
+                                var $tdprojectTagName = $('<td class="mappingprojectTagName"></td>').append($mappingprojectSelectList);
+                                $tr.append($tdprojectTagName);
+
+                                $tbody.append($tr);
+                                $mappingprojectDatatable.row.add($tr).draw();
+                                //alert(catalystEntityTypeListPassed[j].rowid);
+                                for(var l = 0; l < catalystEntityMapping.length; l++){
+                                    
+                                    if(catalystEntityTypeListPassed[j].rowid == catalystEntityMapping[l].catalystEntityId){
+                                        //alert("Matched");
+                                        $mappingprojectSelectList.val(catalystEntityMapping[l].tagValue);
+                                    }
+                                }
+                            }
+                        }
+                        //For environment catalystEntityType
+                        if(objcatalystEntityType == catalystEntityEnvName){
+                            $envtagsList.val(objtagName);
+                            /*//For Mapping tab.....
+                            //For environment catalystEntityType
+                            $mappingenvDatatable.clear().draw();
+                            var $tbody = $('#mappingenvTable tbody').empty();
+
+                            for(var m = 0; m < catalystEntityTypeListPassed.length; m++){
+                                //For Table
+                                //alert(catalystEntityTypeListPassed[m].environmentname);
+                                var $tr = $('<tr id="'+catalystEntityTypeListPassed[m].rowid+'" class=""></tr>');
+
+                                var $tdenvName = $('<td class="mappingenvName"></td>').append(catalystEntityTypeListPassed[m].environmentname);
+                                $tr.append($tdenvName);
+
+                                var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
+                                $mappingenvSelectList.empty();
+                                for(var n=0; n< tagValues.length; n++){
+                                    $mappingenvSelectList.append($('<option></option>').val(tagValues[n]).html(tagValues[n]));
+                                }
+                                
+                                var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
+                                $tr.append($tdenvTagName);
+
+
+                                $tbody.append($tr);
+                                $mappingenvDatatable.row.add($tr).draw();
+
+                                for(var p = 0; p < catalystEntityMapping.length; p++){
+                                    if(catalystEntityTypeListPassed[m].rowid == catalystEntityMapping[p].catalystEntityId){
+                                        //alert("Matched");
+                                        $mappingenvSelectList.val(catalystEntityMapping[p].tagValue);
+                                    }
+                                }
+                            }*/
+                        }
+                    }
+                },
+                error: function(jxhr) {
+                    //alert("Tags description not saved....");
+                }
+            });
+            
+        }
+        $('.btntagsFormSave').on('click',function(){
+            var $projecttagsList = $('#tagsProjectSelect');
+            var $envtagsList = $('#tagsEnvSelect');
+
+            var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
+            var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
+
+            var tagsProjSelectedVal = $projecttagsList.val();
+            var tagsenvSelectedVal = $envtagsList.val();
+
+            if(tagsProjSelectedVal == tagsenvSelectedVal){
+                alert("Tag name cannot be same to create catalyst entity mapping");
+                return;
             }
 
-        })();
+            //Creating the data to Post for Save tags.
+            var tagsData = [{
+                    "catalystEntityType": catalystEntityProjName,
+                    "tagName": tagsProjSelectedVal
+                },
+                {
+                    "catalystEntityType": catalystEntityEnvName,
+                    "tagName": tagsenvSelectedVal
+                }];
+            $.ajax({
+                url: '/providers/'+urlParams.providerId+'/tag-mappings',
+                method: 'POST',
+                data: JSON.stringify(tagsData),
+                contentType: "application/json",
+                success: function(tagsListPost) {
+                    $('#spantagsformSaveId').html("Saved successfully");
+                    getprojectData();
+                    getenvironmentData();
+                },
+                error: function(jxhr) {
+                    //alert("Tags description not saved....");
+                }
+            });
+        });
+        
+        //Mapping tabs operation starts....
+        getprojectData();
+        getenvironmentData();
+        //For Project Mapping
+        function getprojectData(){
+            $.get('/d4dMasters/readmasterjsonnew/4', function(projectist) {
+                loaddefaultTagMappingSelection(projectist);
+            }).fail(function(jxhr) {
+                var msg = "Getting Project List Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+        function projectMappingList(projectList){
+            $mappingprojectDatatable.clear().draw();
+            var $tbody = $('#mappingprojectTable tbody').empty();
+
+
+
+            $.get('/providers/'+urlParams.providerId+'/tag-mappings/project', function(data) {
+                //Bring the total for loop inside it.
+            }).fail(function(jxhr) {
+                var msg = "Tags mapping Project Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+
+            var tagValues = ["proj1", "proj2"];
+            var catalystEntityMapping = [
+                {
+                    "catalystEntityId": "c7d5ec5e-47ed-418a-b6ba-6b137f7af6bf",
+                    "catalystEntityName": "Project1",
+                    "tagValue": "proj1"
+                },
+                {
+                    "catalystEntityId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+                    "catalystEntityName": "Project2",
+                    "tagValue": "proj2"
+
+                }
+            ];
+            for(var i = 0; i < projectList.length; i++){
+                //For Table
+                var $tr = $('<tr id="'+projectList[i].rowid+'" class=""></tr>');
+
+                var $tdprojectName = $('<td class="mappingprojectName"></td>').append(projectList[i].projectname);
+                $tr.append($tdprojectName);
+
+
+                var $mappingprojectSelectList= $('<select class="mappingprojectSelectId"></select>');
+                $mappingprojectSelectList.empty();
+                for(var j=0; j< tagValues.length; j++){
+                    $mappingprojectSelectList.append($('<option></option>').val(tagValues[j]).html(tagValues[j]));
+                }
+                
+                var $tdprojectTagName = $('<td class="mappingprojectTagName"></td>').append($mappingprojectSelectList);
+                $tr.append($tdprojectTagName);
+
+                $tbody.append($tr);
+                $mappingprojectDatatable.row.add($tr).draw();
+                //alert(projectList[i].rowid);
+                for(var k = 0; k < catalystEntityMapping.length; k++){
+                    
+                    if(projectList[i].rowid == catalystEntityMapping[k].catalystEntityId){
+                        //alert("Matched");
+                        $mappingprojectSelectList.val(catalystEntityMapping[k].tagValue);
+                    }
+                }
+            }
+        }
+
+        //For Environment Mapping
+        function getenvironmentData(){
+            $.get('/d4dMasters/readmasterjsonnew/3', function(envList) {
+                envMappingList(envList);
+            }).fail(function(jxhr) {
+                var msg = "Project Mapping Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+        function envMappingList(envList){
+            $mappingenvDatatable.clear().draw();
+            var $tbody = $('#mappingenvTable tbody').empty();
+            //console.log("Environment List: ",envList);
+
+            $.get('/providers/'+urlParams.providerId+'/tag-mappings/environment', function(data) {
+                
+                for(var i = 0; i < envList.length; i++){
+                    //For Table
+                    //alert(envList[i].environmentname);
+                    var $tr = $('<tr id="'+envList[i].rowid+'" class=""></tr>');
+
+                    var $tdenvName = $('<td class="mappingenvName"></td>').append(envList[i].environmentname);
+                    $tr.append($tdenvName);
+
+                    var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
+                    $mappingenvSelectList.empty();
+                    for(var j=0; j< data.tagValues.length; j++){
+                        $mappingenvSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
+                    }
+                    
+                    var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
+                    $tr.append($tdenvTagName);
+
+
+                    $tbody.append($tr);
+                    $mappingenvDatatable.row.add($tr).draw();
+
+                    for(var k = 0; k < data.catalystEntityMapping.length; k++){
+                        if(envList[i].rowid == data.catalystEntityMapping[k].catalystEntityId){
+                            //alert("Matched");
+                            $mappingenvSelectList.val(data.catalystEntityMapping[k].tagValue);
+                        }
+                    }
+                }
+            }).fail(function(jxhr) {
+                
+            });
+
+
+            /*var tagValues = ["Dev", "QA", "Stage","Production"];
+            var catalystEntityMappingEnv = [
+                {
+                    "catalystEntityId": "5e5a6c85-e5fa-4bfe-a6ea-ee21dd455dee",
+                    "catalystEntityName": "env1",
+                    "tagValue": "Dev"
+                },
+                {
+                    "catalystEntityId": "6a170bc5-947f-49e1-a9a0-13958857367e",
+                    "catalystEntityName": "env2",
+                    "tagValue": "QA"
+                },
+                {
+                    "catalystEntityId": "8a94fd8e-f305-47a4-b674-d85ec12725fe",
+                    "catalystEntityName": "env4",
+                    "tagValue": "Production"
+
+                },
+                {
+                    "catalystEntityId": "8dc13728-35e4-4b74-abd6-2aec1ed70e16",
+                    "catalystEntityName": "env3",
+                    "tagValue": "Stage"
+                }
+            ];*/
+            
+            /*for(var i = 0; i < envList.length; i++){
+                //For Table
+                //alert(envList[i].environmentname);
+                var $tr = $('<tr id="'+envList[i].rowid+'" class=""></tr>');
+
+                var $tdenvName = $('<td class="mappingenvName"></td>').append(envList[i].environmentname);
+                $tr.append($tdenvName);
+
+                var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
+                $mappingenvSelectList.empty();
+                for(var j=0; j< tagValues.length; j++){
+                    $mappingenvSelectList.append($('<option></option>').val(tagValues[j]).html(tagValues[j]));
+                }
+                
+                var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
+                $tr.append($tdenvTagName);
+
+
+                $tbody.append($tr);
+                $mappingenvDatatable.row.add($tr).draw();
+
+                for(var k = 0; k < catalystEntityMappingEnv.length; k++){
+                    if(envList[i].rowid == catalystEntityMappingEnv[k].catalystEntityId){
+                        //alert("Matched");
+                        $mappingenvSelectList.val(catalystEntityMappingEnv[k].tagValue);
+                    }
+                }
+            }*/
+
+        }
+
+        $('.btnprojectMappingSave').on('click',function(){
+            var projectMappingObj = {
+                "catalystEntityMapping": []
+            };
+            var counter =0;
+            $('#mappingprojectTable tbody tr').each(function() {
+                counter++;
+                $tr = $(this);
+                var projmappingcatalystEntityId = $tr.attr('id');
+                //configureEnvArraySequence.push(envUniqueTextAllEnv);
+                var mappingprojectSelectTagName = $tr.find('.mappingprojectSelectId :selected').val();
+
+                var objprojectMapping = {};
+                objprojectMapping["catalystEntityId"] = projmappingcatalystEntityId;
+                objprojectMapping["tagValue"] = mappingprojectSelectTagName;
+
+                //console.log(objprojectMapping);
+                projectMappingObj.catalystEntityMapping.push(objprojectMapping);
+                // $('#spanprojectMappingSaveId').html('Saved successfully');
+
+                if(counter == $('#mappingprojectTable tbody tr').length){
+                    $.ajax({
+                        url: '/providers/'+urlParams.providerId+'/tag-mappings/project',
+                        data: JSON.stringify(projectMappingObj),
+                        type: 'PATCH',
+                        contentType: "application/json",
+                        success: function(data) {
+                            $('#spanprojectMappingSaveId').html('Saved successfully');
+                        },
+                        error: function(jqxhr) {
+                            
+                        }
+                    });
+                }                
+            });
+        });
+
+
+        $('.btnenvMappingSave').on('click',function(){
+            var envMappingObj = {
+                "catalystEntityMapping": []
+            };
+            var counter =0;
+            var envMappingSequence = [];
+            $('#mappingenvTable tbody tr').each(function() {
+                counter++;
+                $tr = $(this);
+                var envmappingcatalystEntityId = $tr.attr('id');
+                //configureEnvArraySequence.push(envUniqueTextAllEnv);
+                var mappingenvSelectTagName = $tr.find('.mappingenvSelectId :selected').val();
+
+                var objenvMapping = {};
+                objenvMapping["catalystEntityId"] = envmappingcatalystEntityId;
+                objenvMapping["tagValue"] = mappingenvSelectTagName;
+
+                envMappingObj.catalystEntityMapping.push(objenvMapping);
+                //console.log(envMappingObj);
+                //$('#spanenvMappingSaveId').html('Saved successfully');
+                if(counter == $('#mappingenvTable tbody tr').length){
+                    $.ajax({
+                        url: '/providers/'+urlParams.providerId+'/tag-mappings/environment',
+                        data: JSON.stringify(envMappingObj),
+                        type: 'PATCH',
+                        contentType: "application/json",
+                        success: function(data) {
+                            $('#spanenvMappingSaveId').html('Saved successfully');
+                        },
+                        error: function(jqxhr) {
+                            
+                        }
+                    });
+                }                
+            });
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //Instances Tabs Starts here......
+        var $chooseCtalystSelectId = $('#chooseCtalystSelectId');
+        $chooseCtalystSelectId.change(function(e) {
+            var catalystStatusType = $('#chooseCtalystSelectId :selected').attr('data-catalystStatus');
+            if ($('#chooseCtalystSelectId :selected').text() == 'Managed') {
+                $('#Managed').show();
+                $('#Assigned').hide();
+                $('#Unassigned').hide();
+            } else if (catalystStatusType == 'Assigned') {
+                $('#Managed').hide();
+                $('#Assigned').show();
+                $('#Unasssigned').hide();
+            } else {
+                $('#Managed').hide();
+                $('#Assigned').hide();
+                $('#Unassigned').show();
+            }
+        });
 
         var $orgListInput = $('#providerSyncOrgSelect').attr('disabled', 'disabled');
         var $bgList = $('#providerSyncBgSelect');
@@ -382,7 +1158,6 @@
                 $(".authPemFile").show();
             }
         });
-
 
 
         var serviceURL = "../d4dMasters/";
@@ -604,50 +1379,6 @@
             }
         }
 
-
-
-        function loadTags(tags) {
-            $tagsDatatable.clear().draw();
-            var $tbody = $('#tags tbody').empty();
-            for (var i = 0; i < tags.length; i++) {
-                var jsonArray = Object.keys(tags[i].tagsInfo);
-                for(var j = 0; j < jsonArray.length; j++){
-                    var $tr = $('<tr></tr>').attr('tags', jsonArray[j]);
-                    var $tdTag = $('<td style="text-align: justify"></td>').append(jsonArray[j]);
-                    $tr.append($tdTag);
-                    var $tdDesc = $('<td style="text-align: justify"></td>').append(tags[i].tagsInfo[jsonArray[j]]);
-                    $tr.append($tdDesc);
-                    var editButton = $('<div class="btn-group tableactionWidth"><a class="btn btn-xs btn-info pull-left" onclick="updateTag()" title="Edit"> <i class="ace-icon fa fa-pencil bigger-120"></i></a> </div>');
-                    var $tdAction = $('<td style="text-align: center"></td>').append(editButton);
-                    $tr.append($tdAction);
-                    $tbody.append($tr);
-                    $tagsDatatable.row.add($tr).draw();
-                }
-            }
-        }
-
-        $(document).ready(function(e) {
-            if (!urlParams.providerId) {
-                return;
-            }
-            getManagedInstances();
-            getUnmanagedInstances();
-            getTags();
-        })
-
-        //sync of Instances(Refresh Button)
-        $('.syncClick').click(function() {
-            $('#instanceRefreshSpinner').addClass('fa-spin');
-            $('a.syncClick').attr('href', 'index.html#ajax/Settings/providerSync.html?' + urlParams.providerId);
-
-            getManagedInstances();
-            getUnmanagedInstances();
-            getTags();
-            setTimeout(function() {
-                $('#instanceRefreshSpinner').removeClass('fa-spin');
-            }, 1000);
-        });
-
         //loading Managed Data
         function getManagedInstances() {
             $.get('/providers/' + urlParams.providerId + '/managedInstances', function(managedInstances) {
@@ -664,7 +1395,7 @@
             });
         }
 
-        //loading UnManaged Data
+        //loading Assigned Data
         function getUnmanagedInstances() {
             $.get('/providers/' + urlParams.providerId + '/unmanagedInstances', function(unmanagnedInstances) {
                 loadUnmanagedInstances(unmanagnedInstances);
@@ -680,14 +1411,13 @@
             });
         }
 
-        //Added By Durgesh
-        //loading Tags Data
-        function getTags() {
-            $.get('/providers/' + urlParams.providerId + '/tags',function(tags) {
-                loadTags(tags);
-                $('#tagsListDiv').show();
+        //loading UnAssigned Data
+        function getUnassignedInstances() {
+            $.get('/providers/'+ urlParams.providerId +'/unassigned-instances', function(unassignedInstances) {
+                loadUnassignedInstances(unassignedInstances);
+                $('#unassignedinstanceListDiv').show();
             }).fail(function(jxhr) {
-                var msg = "Provider Sync Behaved Unexpectedly.";
+                var msg = "Unassigned Instances Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
                     msg = jxhr.responseJSON.message;
                 } else if (jxhr.responseText) {
@@ -696,8 +1426,6 @@
                 bootbox.alert(msg);
             });
         }
-        //End By Durgesh
-
 
         $('.importNodesBtn').click(function(e) {
             var $checkBoxes = $('.nodeCheckBox:checked');
@@ -762,6 +1490,8 @@
             function makeRequest() {
                 $('#saveSpinner').removeClass('hidden');
                 $('.importNodesBtn').attr('disabled', 'disabled');
+                console.log("Arab");
+                console.log(reqBody);
                 $.post('../providers/' + urlParams.providerId + '/sync', reqBody, function(data) {
                     console.log(data);
                     $('#providerSyncModal').modal('hide');
@@ -826,5 +1556,6 @@
                 });
             }
         });
-    })();
+
+    });
 </script>
