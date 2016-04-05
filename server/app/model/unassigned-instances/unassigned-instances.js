@@ -46,12 +46,15 @@ var UnassignedInstancesSchema = new Schema({
 UnassignedInstancesSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
     var unassignedInstance = new self(data);
-    unassignedInstance.save(function(err, data) {
+    unassignedInstance.save(function(err, instance) {
         if (err) {
-            logger.error('unable to save unmanaged instance', err);
-            return callback(err);
-        } else {
-            return callback(null, unassignedInstance);
+            logger.error("Failed to create unassigned instance", err);
+            if (typeof callBack == 'function') {
+                callBack(err, null);
+            }
+            return;
+        } else if (typeof callBack == 'function') {
+            return callBack(null, instance);
         }
     });
 };
@@ -61,7 +64,7 @@ UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(pro
         {'providerId': providerId},
         function(err, instances) {
             if (err) {
-                logger.error("Failed getByOrgProviderId (%s)", opts, err);
+                logger.error("Failed getByProviderId (%s)", providerId, err);
                 return callback(err, null);
             } else {
                 return callback(null, instances);
@@ -77,7 +80,7 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
         $set: {tags:data}
     }, function(err, data) {
         if (err) {
-            logger.error("Failed to update Unmanaged Instance data", err);
+            logger.error("Failed to update unassigned instance data", err);
             if (typeof callBack == 'function') {
                 callBack(err, null);
             }
@@ -89,65 +92,22 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
     });
 };
 
-UnassignedInstancesSchema.statics.getInstanceTagByOrgProviderId = function getInstanceTagByOrgProviderId(opts,callback) {
-    this.find({"orgId": opts.orgId,
-        "providerId": opts.providerId
-    },{tags:1, _id:0}, function(err, instancesTag) {
+UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId
+    = function deleteByPlatformAndProviderId(providerId, platformId, callBack) {
+    Instances.remove({
+        providerId: providerId,
+        platformId: platformId
+    }, function(err, data) {
         if (err) {
-            logger.error("Failed getInstanceTagByOrgProviderId (%s)", opts, err);
-            callback(err, null);
+            logger.error("Failed to delete instance (%s)", platformId, err);
+            if (typeof callBack == 'function') {
+                callBack(err, null);
+            }
             return;
         }
-        console.log(instancesTag);
-        callback(null, instancesTag);
-
-    });
-};
-
-UnassignedInstancesSchema.statics.getInstanceTagByProviderId = function(providerIds, callback) {
-    if (!(providerIds && providerIds.length)) {
-        process.nextTick(function() {
-            callback({
-                message: "Invalid providerId"
-            });
-        });
-        return;
-    }
-    var queryObj = {};
-    queryObj._id = {
-        $in: providerIds
-    }
-    this.find(queryObj, function(err, instances) {
-        if (err) {
-            logger.error("Failed getInstanceTagByProviderId (%s)", err);
-            callback(err, null);
-            return;
+        if (typeof callBack == 'function') {
+            callBack(null, data);
         }
-
-        callback(null, instances);
-
-    }).limit(jsonData.record_Limit).skip(jsonData.record_Skip).sort({state:1});
-};
-
-UnassignedInstancesSchema.statics.getByIds = function(providerIds, callback) {
-    if (!(providerIds && providerIds.length)) {
-        process.nextTick(function() {
-            callback(null, []);
-        });
-        return;
-    }
-    var queryObj = {};
-    queryObj._id = {
-        $in: providerIds
-    }
-
-    this.find(queryObj, function(err, instances) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
-        }
-        callback(null, instances);
     });
 };
 
