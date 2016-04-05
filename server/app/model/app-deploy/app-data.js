@@ -28,41 +28,45 @@ var Schema = mongoose.Schema;
 var AppDataSchema = new Schema({
     projectId: String,
     envId: String,
+    appName: String,
     version: String,
+    upgrade: String,
     nexus:{
         repoURL: String,
         nodeIps: [String]
     },
-    docker:{
+    docker:[{
         image: String,
         container: String,
         port: String,
-        nodeIps: [String]
-    }
+        nodeIp: String
+    }]
 });
 
 
 // Save or update appData informations.
 AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
+    var that = this;
     this.find({
         projectId: appData.projectId,
         envId: appData.envId,
+        appName: appData.appName,
         version: appData.version
     }, function(err, aData) {
         if (err) {
             logger.debug("Error fetching record.", err);
             callback(err, null);
         }
-        if (data.length) {
+        if (aData.length) {
             var setData = {};
             var keys = Object.keys(appData);
             for (var i = 0; i < keys.length; i++) {
                 setData[keys[i]] = appData[keys[i]];
             }
-            var that = this;
             that.update({
                 projectId: appData.projectId,
                 envId: appData.envId,
+                appName: appData.appName,
                 version: appData.version
             }, {
                 $set: setData
@@ -76,23 +80,25 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
                 callback(null, updatedData);
             });
         } else {
-            this.save(function(err, appData) {
+            var appDataObj = new that(appData);
+            appDataObj.save(function(err, anAppData) {
                 if (err) {
                     logger.debug("Got error while creating appData: ", err);
                     callback(err, null);
                 }
-                logger.debug("Creating appData: ", JSON.stringify(appData));
-                callback(null, appData);
+                logger.debug("Creating appData: ", JSON.stringify(anAppData));
+                callback(null, anAppData);
             });
         }
     });
 };
 
-// Get AppData by project,env,version.
-AppDataSchema.statics.getAppDataByProjectAndEnv = function(projectId, envId, version, callback) {
+// Get AppData by project,env,appName,version.
+AppDataSchema.statics.getAppDataByProjectAndEnv = function(projectId, envId, appName, version, callback) {
     this.find({
         projectId: projectId,
         envId: envId,
+        appName: appName,
         version: version
     }, function(err, anAppData) {
         if (err) {
