@@ -255,7 +255,7 @@
                         <table class="table table-hover table-bordered" id="unassignedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align:center";>
                             <thead>
                             <tr>
-                                <th style="text-align: center">Node</th>
+                                <th style="text-align: center">InstanceId</th>
                                 <th style="text-align: center">OS</th>
                                 <th style="text-align: center">IP Address</th>
                                 <th style="text-align: center">Status</th>
@@ -529,13 +529,14 @@
         if(urlParams.providerId && urlParams.providerId.indexOf("#ajax") == -1){
           getTagsListData(urlParams.providerId);
           getManagedInstances();
-          getUnmanagedInstances();
+          //getUnmanagedInstances();
+          //getUnassignedInstances();
         }
         //loading Managed Data
         function getTagsListData(providerId) {
             $.get('/providers/' + providerId + '/tags', function(tagsList) {
                 loadTagsTabData(tagsList,providerId);
-                $('#tagsIdDiv').show();
+                //$('#tagsIdDiv').show();
             }).fail(function(jxhr) {
                 var msg = "Tags List Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -569,8 +570,9 @@
             $projecttagsList.empty();
             $envtagsList.empty();
             $tagsDatatable.clear().draw();
-            var $tbody = $('#tagsTable tbody').empty();
+            
             for (var i = 0; i < tagsListData.length; i++) {
+                var $tbody = $('#tagsTable tbody').empty();
                 //For Dropdown
                 $projecttagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
                 $envtagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
@@ -792,7 +794,7 @@
             var tagsenvSelectedVal = $envtagsList.val();
 
             if(tagsProjSelectedVal == tagsenvSelectedVal){
-                alert("Tag name cannot be same to create catalyst entity mapping");
+                bootbox.alert("Tag name cannot be same to create catalyst entity mapping");
                 return;
             }
 
@@ -838,7 +840,7 @@
                 bootbox.alert(msg);
             });
         }
-        function projectMappingList(projectList){
+        /*function projectMappingList(projectList){
             $mappingprojectDatatable.clear().draw();
             var $tbody = $('#mappingprojectTable tbody').empty();
 
@@ -898,7 +900,7 @@
                     }
                 }
             }
-        }
+        }*/
 
         //For Environment Mapping
         function getenvironmentData(){
@@ -916,98 +918,43 @@
         }
         function envMappingList(envList){
             $mappingenvDatatable.clear().draw();
-            var $tbody = $('#mappingenvTable tbody').empty();
             //console.log("Environment List: ",envList);
 
             $.get('/providers/'+urlParams.providerId+'/tag-mappings/environment', function(data) {
-                
-                for(var i = 0; i < envList.length; i++){
-                    //For Table
-                    //alert(envList[i].environmentname);
-                    var $tr = $('<tr id="'+envList[i].rowid+'" class=""></tr>');
+                if(data){
+                    var $tbody = $('#mappingenvTable tbody').empty();
+                    for(var i = 0; i < envList.length; i++){
+                        //For Table
+                        //alert(envList[i].environmentname);
+                        var $tr = $('<tr id="'+envList[i].rowid+'" class=""></tr>');
 
-                    var $tdenvName = $('<td class="mappingenvName"></td>').append(envList[i].environmentname);
-                    $tr.append($tdenvName);
+                        var $tdenvName = $('<td class="mappingenvName"></td>').append(envList[i].environmentname);
+                        $tr.append($tdenvName);
 
-                    var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
-                    $mappingenvSelectList.empty();
-                    for(var j=0; j< data.tagValues.length; j++){
-                        $mappingenvSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
-                    }
-                    
-                    var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
-                    $tr.append($tdenvTagName);
-
-
-                    $tbody.append($tr);
-                    $mappingenvDatatable.row.add($tr).draw();
-
-                    for(var k = 0; k < data.catalystEntityMapping.length; k++){
-                        if(envList[i].rowid == data.catalystEntityMapping[k].catalystEntityId){
-                            //alert("Matched");
-                            $mappingenvSelectList.val(data.catalystEntityMapping[k].tagValue);
+                        var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
+                        $mappingenvSelectList.empty();
+                        for(var j=0; j< data.tagValues.length; j++){
+                            $mappingenvSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
                         }
-                    }
-                }
+                        
+                        var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
+                        $tr.append($tdenvTagName);
+
+
+                        $tbody.append($tr);
+                        $mappingenvDatatable.row.add($tr).draw();
+
+                        for(var k = 0; k < data.catalystEntityMapping.length; k++){
+                            if(envList[i].rowid == data.catalystEntityMapping[k].catalystEntityId){
+                                //alert("Matched");
+                                $mappingenvSelectList.val(data.catalystEntityMapping[k].tagValue);
+                            }
+                        }
+                    } 
+                }  
             }).fail(function(jxhr) {
                 
             });
-
-
-            /*var tagValues = ["Dev", "QA", "Stage","Production"];
-            var catalystEntityMappingEnv = [
-                {
-                    "catalystEntityId": "5e5a6c85-e5fa-4bfe-a6ea-ee21dd455dee",
-                    "catalystEntityName": "env1",
-                    "tagValue": "Dev"
-                },
-                {
-                    "catalystEntityId": "6a170bc5-947f-49e1-a9a0-13958857367e",
-                    "catalystEntityName": "env2",
-                    "tagValue": "QA"
-                },
-                {
-                    "catalystEntityId": "8a94fd8e-f305-47a4-b674-d85ec12725fe",
-                    "catalystEntityName": "env4",
-                    "tagValue": "Production"
-
-                },
-                {
-                    "catalystEntityId": "8dc13728-35e4-4b74-abd6-2aec1ed70e16",
-                    "catalystEntityName": "env3",
-                    "tagValue": "Stage"
-                }
-            ];*/
-            
-            /*for(var i = 0; i < envList.length; i++){
-                //For Table
-                //alert(envList[i].environmentname);
-                var $tr = $('<tr id="'+envList[i].rowid+'" class=""></tr>');
-
-                var $tdenvName = $('<td class="mappingenvName"></td>').append(envList[i].environmentname);
-                $tr.append($tdenvName);
-
-                var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
-                $mappingenvSelectList.empty();
-                for(var j=0; j< tagValues.length; j++){
-                    $mappingenvSelectList.append($('<option></option>').val(tagValues[j]).html(tagValues[j]));
-                }
-                
-                var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
-                $tr.append($tdenvTagName);
-
-
-                $tbody.append($tr);
-                $mappingenvDatatable.row.add($tr).draw();
-
-                for(var k = 0; k < catalystEntityMappingEnv.length; k++){
-                    if(envList[i].rowid == catalystEntityMappingEnv[k].catalystEntityId){
-                        //alert("Matched");
-                        $mappingenvSelectList.val(catalystEntityMappingEnv[k].tagValue);
-                    }
-                }
-            }*/
-
         }
 
         $('.btnprojectMappingSave').on('click',function(){
@@ -1110,11 +1057,13 @@
             } else if (catalystStatusType == 'Assigned') {
                 $('#Managed').hide();
                 $('#Assigned').show();
-                $('#Unasssigned').hide();
+                $('#Unassigned').hide();
+                getUnmanagedInstances();
             } else {
                 $('#Managed').hide();
                 $('#Assigned').hide();
                 $('#Unassigned').show();
+                getUnassignedInstances();
             }
         });
 
@@ -1379,11 +1328,42 @@
             }
         }
 
+
+        function loadUnassignedInstances(unassignedData){
+            $instanceUnAssignedDatatable.clear().draw();
+            
+            for (var i = 0; i < unassignedData.instances.length; i++) {
+                var $tbody = $('#unassignedinstanceListTable tbody').empty();
+
+                var $tr = $('<tr></tr>').attr('instanceId', unassignedData.instances[i]._id);
+
+                var $tdId = $('<td></td>').append(unassignedData.instances[i].platformId);
+                $tr.append($tdId);
+
+                var $tdOs = $('<td></td>').append(unassignedData.instances[i].os);
+                $tr.append($tdOs);
+
+                var $tdIpAddress = $('<td></td>').append(unassignedData.instances[i].ip);
+                $tr.append($tdIpAddress);
+
+                var $tdStatus = $('<td></td>').append(unassignedData.instances[i].state);
+                $tr.append($tdStatus);
+
+                var $tdProjectTag = $('<td></td>').append(unassignedData.instances[i].projectTag);
+                $tr.append($tdProjectTag);
+
+                var $tdEnvTag = $('<td></td>').append(unassignedData.instances[i].envTag);
+                $tr.append($tdEnvTag);
+
+                $tbody.append($tr);
+                $instanceUnAssignedDatatable.row.add($tr).draw();
+            }
+        }
         //loading Managed Data
         function getManagedInstances() {
             $.get('/providers/' + urlParams.providerId + '/managedInstances', function(managedInstances) {
                 loadManagedInstances(managedInstances);
-                $('#instanceListDiv').show();
+                //$('#instanceListDiv').show();
             }).fail(function(jxhr) {
                 var msg = "Provider Sync Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -1398,8 +1378,10 @@
         //loading Assigned Data
         function getUnmanagedInstances() {
             $.get('/providers/' + urlParams.providerId + '/unmanagedInstances', function(unmanagnedInstances) {
-                loadUnmanagedInstances(unmanagnedInstances);
-                $('#unmanagedinstanceListDiv').show();
+                if(unmanagnedInstances){
+                    loadUnmanagedInstances(unmanagnedInstances);
+                }
+                //$('#unmanagedinstanceListDiv').show();
             }).fail(function(jxhr) {
                 var msg = "Provider Sync Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -1413,9 +1395,11 @@
 
         //loading UnAssigned Data
         function getUnassignedInstances() {
-            $.get('/providers/'+ urlParams.providerId +'/unassigned-instances', function(unassignedInstances) {
-                loadUnassignedInstances(unassignedInstances);
-                $('#unassignedinstanceListDiv').show();
+            /*$.get('/providers/'+ urlParams.providerId +'/unassigned-instances', function(unassignedInstances) {   
+                if(unassignedInstances){
+                    loadUnassignedInstances(unassignedInstances);
+                    //$('#unassignedinstanceListDiv').show();
+                }
             }).fail(function(jxhr) {
                 var msg = "Unassigned Instances Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -1424,7 +1408,39 @@
                     msg = jxhr.responseText;
                 }
                 bootbox.alert(msg);
-            });
+            });*/
+            var unassignedInstances = {
+                "instances": [{
+                        "_id": "57039167c6441f419c97a73d",
+                        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+                        "provider": {
+                            "id": "57024031cd01705251922666",
+                            "type": "AWS",
+                            "data": {}
+                        },
+                        "platformId": "i-48b276cc",
+                        "os": "linux",
+                        "state": "running",
+                        "tags": {}
+                    },
+                    {
+                        "_id": "57039167c6441f419c97a73e",
+                        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+                        "provider": {
+                            "id": "57024031cd01705251922666",
+                            "type": "AWS",
+                            "data": {}
+                        },
+                        "platformId": "i-d09b2754",
+                        "os": "linux",
+                        "state": "running",
+                        "tags": {}
+                    }],
+                "count": 2,
+                "pageSize": 10,
+                "pageIndex": 1
+            };
+            loadUnassignedInstances(unassignedInstances);
         }
 
         $('.importNodesBtn').click(function(e) {
