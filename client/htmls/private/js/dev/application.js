@@ -588,7 +588,9 @@ $('#chooseEnvironments').change(function() {
     $.get('/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectIds + '/environments/' + envId + '/tasks', function(tasks) {
         if (tasks.length) {
             for (var i = 0; i < tasks.length; i++) {
-                $('#chooseJobs').append('<option value=' + tasks[i]._id + '>' + tasks[i].name + '</option>');
+                if (tasks[i].taskType === "chef") {
+                    $('#chooseJobs').append('<option value=' + tasks[i]._id + '>' + tasks[i].name + '</option>');
+                }
             }
         }
         $('#chooseJobs > option:eq(1)').attr('selected', true).change();
@@ -608,7 +610,10 @@ function getTasksForPromote(envId) {
     $.get('/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/environments/' + envId + '/tasks', function(tasks) {
         if (tasks.length) {
             for (var i = 0; i < tasks.length; i++) {
-                $('#chooseJobs').append('<option value=' + tasks[i]._id + '>' + tasks[i].name + '</option>');
+                if (tasks[i].taskType === "chef") {
+                    $('#chooseJobs').append('<option value=' + tasks[i]._id + '>' + tasks[i].name + '</option>');
+
+                }
             }
         }
     });
@@ -623,7 +628,7 @@ $('#chooseJobs').change(function() {
     var rowDataSetappVersion = $('#modalpromoteConfigure').data("appVersion");
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
-            $.get('/app/deploy/project/' + projectId + '/env/' + envName + '/application/' + rowDataSetappName + '?version=' + rowDataSetappVersion, function(data) {
+            /*$.get('/app/deploy/project/' + projectId + '/env/' + envName + '/application/' + rowDataSetappName + '?version=' + rowDataSetappVersion, function(data) {
                 if (data.length) {
                     var $ul = $('#promoteNodesId');
                     for (var i = 0; i < data.length; i++) {
@@ -631,41 +636,41 @@ $('#chooseJobs').change(function() {
                         $li.hide();
                         $ul.append($li);
                     }
-                }
+                }*/
 
-                var nodeIps = [];
-                var count = 0;
-                for (var i = 0; i < tasks.taskConfig.nodeIds.length; i++) {
-                    $.get('/instances/' + tasks.taskConfig.nodeIds[i], function(instance) {
-                        count++;
-                        if (instance) {
-                            nodeIps.push(instance.instanceIP);
-                            var $ul = $('#promoteNodesId');
-                            var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + instance.instanceIP + '><i></i>' + instance.instanceIP + '</label></li>');
-                            $li.hide();
-                            $ul.append($li);
-                        }
-                        if (count === tasks.taskConfig.nodeIds.length) {
-                            var checked = false;
-                            var exists = {};
-                            $('#promoteNodesId').find('li').each(function() {
-                                var nodeIp = $(this).text();
-                                if (nodeIps.indexOf(nodeIp) !== -1) {
-                                    if (!exists[nodeIp]) {
-                                        $(this).find('input')[0].checked = true;
-                                        exists[nodeIp] = true;
+            var nodeIps = [];
+            var count = 0;
+            for (var i = 0; i < tasks.taskConfig.nodeIds.length; i++) {
+                $.get('/instances/' + tasks.taskConfig.nodeIds[i], function(instance) {
+                    count++;
+                    if (instance) {
+                        nodeIps.push(instance.instanceIP);
+                        var $ul = $('#promoteNodesId');
+                        var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + instance.instanceIP + '><i></i>' + instance.instanceIP + '</label></li>');
+                        $li.hide();
+                        $ul.append($li);
+                    }
+                    if (count === tasks.taskConfig.nodeIds.length) {
+                        var checked = false;
+                        var exists = {};
+                        $('#promoteNodesId').find('li').each(function() {
+                            var nodeIp = $(this).text();
+                            if (nodeIps.indexOf(nodeIp) !== -1) {
+                                if (!exists[nodeIp]) {
+                                    $(this).find('input')[0].checked = true;
+                                    exists[nodeIp] = true;
 
-                                    } else {
-                                        $(this).remove();
-                                    }
-
+                                } else {
+                                    $(this).remove();
                                 }
-                                $(this).show();
-                            });
-                        }
-                    });
-                }
-            });
+
+                            }
+                            $(this).show();
+                        });
+                    }
+                });
+            }
+            //});
         }
     });
 });
@@ -695,17 +700,30 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
             var aProject = project[0];
             var envNames = aProject.environmentname.split(",");
             var envIds = aProject.environmentname_rowid.split(",");
-            if (envNames.length) {
-                for (var i = 0; i < envNames.length; i++) {
-                    $('#chooseEnvironments').append('<option data-Name=' + envNames[i] + ' value=' + envIds[i] + '>' + envNames[i] + '</option>');
+            $.get('/app/deploy/pipeline/project/' + projectId, function(config) {
+                if (envNames.length && config.length) {
+                    var configEnv = config[0].envId;
+                    if (!configEnv.length) {
+                        alert("Environment not configured for Application.");
+                        return;
+                    }
+                    for (var i = 0; i < envNames.length; i++) {
+                        for (var j = 0; j < configEnv.length; j++) {
+                            if (envNames[i] === configEnv[j]) {
+                                $('#chooseEnvironments').append('<option data-Name=' + envNames[i] + ' value=' + envIds[i] + '>' + envNames[i] + '</option>');
+                            }
+                        }
+                    }
+                    if (tEnv) {
+                        $('#chooseEnvironments').find('option[data-name="' + tEnv + '"]').attr('selected', 'selected').change();
+                    }
+                } else {
+                    alert("Either no Environment associated with Project or Environment not configured for Application.");
+                    return;
                 }
-            } else {
-                alert("No Environment associated with Project.");
-            }
+            });
         }
-        if (tEnv) {
-            $('#chooseEnvironments').find('option[data-name="' + tEnv + '"]').attr('selected', 'selected').change();
-        }
+
     });
 
     var version = $(this).closest('tr').find('.versionMain').html();
