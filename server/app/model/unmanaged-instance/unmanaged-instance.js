@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 
 var UnmanagedInstanceSchema = new Schema({
@@ -28,7 +30,7 @@ var UnmanagedInstanceSchema = new Schema({
 	state: String,
 	tags: Schema.Types.Mixed,
 });
-
+UnmanagedInstanceSchema.plugin(mongoosePaginate);
 
 UnmanagedInstanceSchema.statics.createNew = function createNew(data, callback) {
 	var self = this;
@@ -94,7 +96,6 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 			callback(err, null);
 			return;
 		}
-		console.log(instancesTag);
 		callback(null, instancesTag);
 
 	});
@@ -102,26 +103,25 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 
 
 UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
-	if (!jsonData.providerId) {
-		process.nextTick(function() {
-			callback({
-				message: "Invalid providerId"
+	var databaseReq={};
+	jsonData['searchColumns']=['ip','platformId'];
+	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+		if(err){
+			process.nextTick(function() {
+				callback(null, []);
 			});
-		});
-		return;
-	}
-	var obj = {};
-	obj["providerId"] = jsonData.providerId;
-	if(jsonData.searchParameter==='undefined')
-		obj[jsonData.searchParameter]=jsonData.searchParameterValue;
-	this.find(obj, function(err, instances) {
-		if (err) {
-			logger.error("Failed getByOrgProviderId (%s)", err);
-			callback(err, null);
 			return;
 		}
-		callback(null, instances);
+		databaseReq=databaseCall;
 	});
+		this.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
+			if (err) {
+				logger.error("Failed getByOrgProviderId (%s)", err);
+				callback(err, null);
+				return;
+			}
+			callback(null, instances);
+		});
 };
 //End By Durgesh
 

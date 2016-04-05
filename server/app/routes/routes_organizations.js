@@ -25,6 +25,7 @@ var blueprintsDao = require('../model/dao/blueprints');
 var Blueprints = require('_pr/model/blueprint');
 var usersDao = require('../model/users.js');
 var instancesDao = require('../model/classes/instance/instance');
+var containerDao = require('../model/container');
 var appConfig = require('_pr/config');
 var logger = require('_pr/logger')(module);
 var uuid = require('node-uuid');
@@ -41,6 +42,8 @@ var Task = require('../model/classes/tasks/tasks.js');
 var masterUtil = require('../lib/utils/masterUtil.js');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
+var async = require('async');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -926,40 +929,85 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instances', function(req, res) {
-		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/instances", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-		instancesDao.getInstancesByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, req.query.instanceType, req.session.user.cn, function(err, data) {
+		ApiUtils.paginationRequest(req.query,'instances',function(err, paginationReq){
 			if (err) {
-				res.send(500);
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
 			}
-			res.send(data);
+			paginationReq['orgId']=req.params.orgId;
+			paginationReq['bgId']=req.params.bgId;
+			paginationReq['projectId']=req.params.projectId;
+			paginationReq['envId']=req.params.envId;
+			paginationReq['instanceType']=req.query.instanceType;
+			paginationReq['userName']=req.session.user.cn;
+			paginationReq['id']='instances';
+			instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, function(err, instanceData) {
+				if (err) {
+					res.status(404).send(ApiUtils.errorResponse(404,'instances'));
+					return;
+				}
+				ApiUtils.paginationResponse(instanceData,paginationReq,function(err, paginationRes){
+					if (err) {
+						res.status(400).send(ApiUtils.errorResponse(400,'instances'));
+						return;
+					}
+					res.status(200).send(paginationRes);
+				});
+			});
 		});
-		logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/instances", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
-		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-		Task.getTasksByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, data) {
+		ApiUtils.paginationRequest(req.query,'tasks',function(err, paginationReq){
 			if (err) {
-				res.send(500);
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
 			}
-			res.send(data);
+			paginationReq['orgId']=req.params.orgId;
+			paginationReq['bgId']=req.params.bgId;
+			paginationReq['projectId']=req.params.projectId;
+			paginationReq['envId']=req.params.envId;
+			paginationReq['id']='tasks';
+			Task.getTasksByOrgBgProjectAndEnvId(paginationReq, function(err, tasks) {
+				if (err) {
+					res.status(404).send(ApiUtils.errorResponse(404,'tasks'));
+					return;
+				}
+				ApiUtils.paginationResponse(tasks,paginationReq,function(err, paginationRes){
+					if (err) {
+						res.status(400).send(ApiUtils.errorResponse(400,'tasks'));
+						return;
+					}
+					res.status(200).send(paginationRes);
+				});
+			});
 		});
-		logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applications', function(req, res) {
-		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/applications", req.params.orgId, req.params.bgId, req.params.projectId);
-		Application.getAppCardsByOrgBgAndProjectId(req.params.orgId, req.params.bgId, req.params.projectId, function(err, applications) {
+		ApiUtils.paginationRequest(req.query,'applications',function(err, paginationReq){
 			if (err) {
-				res.send(500);
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
 			}
-			res.send(applications);
+			paginationReq['orgId']=req.params.orgId;
+			paginationReq['bgId']=req.params.bgId;
+			paginationReq['projectId']=req.params.projectId;
+			paginationReq['id']='applications';
+			Application.getAppCardsByOrgBgAndProjectId(paginationReq, function(err, applications) {
+				if (err) {
+					res.status(404).send(ApiUtils.errorResponse(404,'applications'));
+					return;
+				}
+				ApiUtils.paginationResponse(applications,paginationReq,function(err, paginationRes){
+					if (err) {
+						res.status(400).send(ApiUtils.errorResponse(400,'applications'));
+						return;
+					}
+					res.status(200).send(paginationRes);
+				});
+			});
 		});
-		logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/applications", req.params.orgId, req.params.bgId, req.params.projectId);
-
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applications/:applicationId/build/:buildId', function(req, res) {
@@ -1004,76 +1052,59 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
-		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+		var jsonData={};
+		jsonData['orgId']=req.params.orgId;
+		jsonData['bgId']=req.params.bgId;
+		jsonData['projectId']=req.params.projectId;
+		jsonData['envId']=req.params.envId;
+		jsonData['instanceType']=req.params.instanceType;
+		jsonData['userName']=req.session.user.cn;
+		jsonData['blueprintType']=req.query.blueprintType
+
 		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
 			if (orgbuprojs.length === 0) {
-				logger.debug('User not part of team to see project.');
 				res.send(401, "User not part of team to see project.");
 				return;
 			}
-
 			if (!err) {
 				if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
-					Task.getTasksByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, tasksData) {
-						if (err) {
-							res.send(500);
-							return;
-						}
-						instancesDao.getInstancesByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, req.query.instanceType, req.session.user.cn, function(err, instancesData) {
-							if (err) {
-								res.send(500);
-								return;
+					async.parallel({
+							tasks:function(callback) {
+								Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback)
+							},
+							instances:function(callback) {
+								instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback)
+							},
+					        blueprints:function(callback) {
+								Blueprints.getBlueprintsByOrgBgProject(jsonData, callback)
+							},
+							stacks:function(callback) {
+								CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback)
+							},
+							arms:	function(callback) {
+								AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback)
 							}
+						},
+						function(err, results){
+							if(err)
+								res.status(500).send("Internal Server Error");
+							else if(!results)
+								res.status(400).send("Data Not Found");
+							else
+							    res.status(200).send(results);
+						}
+					);
 
-							Blueprints.getBlueprintsByOrgBgProject(req.params.orgId, req.params.bgId, req.params.projectId, req.query.blueprintType, function(err, blueprintsData) {
-								logger.debug(req.params.orgId, req.params.projectId, req.params.envId);
-								if (err) {
-									res.send(500);
-									return;
-								}
-								CloudFormation.findByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, stacks) {
-									if (err) {
-										res.send(500);
-										return;
-									}
-
-									AzureArm.findByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, arms) {
-
-										if (err) {
-											res.send(500);
-											return;
-										}
-
-										res.send({
-											tasks: tasksData,
-											instances: instancesData,
-											blueprints: blueprintsData,
-											stacks: stacks,
-											arms: arms
-										});
-
-									});
-
-								});
-
-								logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-							});
-
-						});
-
-					});
-				} //if(orgbuprojs.orgbuprojs.indexOf(req.params.projectId) >= 0)
+				}
 				else {
-					logger.debug('User not part of team to see project.');
-					res.send(401);
+					res.status(401).send("User not part of team to see project");
 					return;
 				}
 			} else {
-				res.send(500);
-				logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+				res.status(500).send("Internal Server Error");
 				return;
 			}
-		}); //end getTeamsOrgBuProjForUser
+		});
 	});
 
 	app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
@@ -1094,6 +1125,129 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
 		});
 	});
+
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', function(req, res) {
+		ApiUtils.paginationRequest(req.query,'cftList',function(err, paginationReq){
+			if (err) {
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				return;
+			}
+			paginationReq['orgId']=req.params.orgId;
+			paginationReq['bgId']=req.params.bgId;
+			paginationReq['projectId']=req.params.projectId;
+			paginationReq['envId']=req.params.envId;
+			paginationReq['id']='cftList';
+			CloudFormation.findByOrgBgProjectAndEnvId(paginationReq, function(err, cftData) {
+				if (err) {
+					res.status(404).send(ApiUtils.errorResponse(404,'cftList'));
+					return;
+				}
+				ApiUtils.paginationResponse(cftData,paginationReq,function(err, paginationRes){
+					if (err) {
+						res.status(400).send(ApiUtils.errorResponse(400,'cftList'));
+						return;
+					}
+					res.status(200).send(paginationRes);
+				});
+			});
+		});
+	});
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azurearms', function(req, res) {
+		ApiUtils.paginationRequest(req.query,'azurearms',function(err, paginationReq){
+			if (err) {
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				return;
+			}
+			paginationReq['orgId']=req.params.orgId;
+			paginationReq['bgId']=req.params.bgId;
+			paginationReq['projectId']=req.params.projectId;
+			paginationReq['envId']=req.params.envId;
+			paginationReq['id']='azurearms';
+			AzureArm.findByOrgBgProjectAndEnvId(paginationReq, function(err, armsData) {
+				if (err) {
+					res.status(404).send(ApiUtils.errorResponse(404,'azurearms'));
+					return;
+				}
+				ApiUtils.paginationResponse(armsData,paginationReq,function(err, paginationRes){
+					if (err) {
+						res.status(400).send(ApiUtils.errorResponse(400,'azurearms'));
+						return;
+					}
+					res.status(200).send(paginationRes);
+				});
+			});
+		});
+	});
+
+
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', function(req, res) {
+		ApiUtils.paginationRequest(req.query,'containerList',function(err, paginationReq){
+			if (err) {
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				return;
+			}
+			paginationReq['orgId']=req.params.orgId;
+			paginationReq['bgId']=req.params.bgId;
+			paginationReq['projectId']=req.params.projectId;
+			paginationReq['envId']=req.params.envId;
+			paginationReq['id']='containerList';
+			containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq, function(err, containerList) {
+					if (err) {
+						res.status(404).send(ApiUtils.errorResponse(404,'containerList'));
+						return;
+					}
+					ApiUtils.paginationResponse(containerList,paginationReq,function(err, paginationRes){
+						if (err) {
+							res.status(400).send(ApiUtils.errorResponse(400,'containerList'));
+							return;
+						}
+						res.status(200).send(paginationRes);
+					});
+			});
+		});
+	});
+
+	function getContainerList(req, res, next) {
+		var pageReq={};
+		async.waterfall(
+			[
+				function(next) {
+					ApiUtils.paginationRequest(req.query,next)
+				},
+				function(paginationReq, next) {
+					paginationReq['orgId']=req.params.orgId;
+					paginationReq['bgId']=req.params.bgId;
+					paginationReq['projectId']=req.params.projectId;
+					paginationReq['envId']=req.params.envId;
+					paginationReq['id']='containerList';
+					pageReq=paginationReq;
+					containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq,next);
+				},
+				ApiUtils.paginationResponse(containerData,pageReq)
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+
+
+
+
+
+
+
+
+
+
 
 	app.get('/organizations/:orgId/chefserver', function(req, res) {
 		logger.debug("Enter get() for /organizations/%s/chefserver", req.params.orgId);
