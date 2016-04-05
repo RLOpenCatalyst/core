@@ -391,37 +391,55 @@ taskSchema.statics.createNew = function(taskData, callback) {
 };
 
 // creates a new task
-/*taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
-	var databaseReq={};
-	jsonData['searchColumns']=['taskType','name'];
-	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
-		if(err){
-			var err = new Error('Internal server error');
-			err.status = 500;
-			return callback(err);
+taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
+	if(jsonData.page) {
+		var databaseReq = {};
+		jsonData['searchColumns'] = ['taskType', 'name'];
+		ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+			if (err) {
+				var err = new Error('Internal server error');
+				err.status = 500;
+				return callback(err);
+			}
+			else
+				databaseReq = databaseCall;
+		});
+		this.paginate(databaseReq.queryObj, databaseReq.options, function (err, tasks) {
+			if (err) {
+				var err = new Error('Internal server error');
+				err.status = 500;
+				return callback(err);
+			}
+			else if (!tasks) {
+				var err = new Error('Tasks are not found');
+				err.status = 404;
+				return callback(err);
+			}
+			callback(null, tasks);
+		});
+	}
+	else{
+		var queryObj = {
+			orgId: jsonData.orgId,
+			bgId: jsonData.bgId,
+			projectId: jsonData.projectId,
+			envId: jsonData.envId
 		}
-		else
-			databaseReq=databaseCall;
-	});
-	this.paginate(databaseReq.queryObj, databaseReq.options, function(err, tasks) {
-		if(err){
-			var err = new Error('Internal server error');
-			err.status = 500;
-			return callback(err);
-		}
-		else if(!tasks) {
-			var err = new Error('Tasks are not found');
-			err.status = 404;
-			return callback(err);
-		}
-		else
-			return callback(null, tasks);
-	});
-};*/
+
+		this.find(queryObj, function(err, data) {
+			if (err) {
+				logger.error(err);
+				callback(err, null);
+				return;
+			}
+			callback(null, data);
+		});
+	}
+}
 
 // get task by id
 // creates a new task
-taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
+/*taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
 	var queryObj = {
 		orgId: jsonData.orgId,
 		bgId: jsonData.bgId,
@@ -437,7 +455,7 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
 		}
 		callback(null, data);
 	});
-};
+};*/
 taskSchema.statics.getTaskById = function(taskId, callback) {
 	this.find({
 		"_id": new ObjectId(taskId)

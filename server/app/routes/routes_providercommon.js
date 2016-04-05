@@ -157,25 +157,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
-	/*function getUnmanagedInstanceList(req, res, next) {
+	function getUnmanagedInstanceList(req, res, next) {
 		var pageReq={};
 		async.waterfall(
 			[
 				function(next) {
-					ApiUtils.paginationRequest(req.query,next)
+	                AWSProvider.getAWSProviderById(req.params.providerId,next);
 				},
-				function(paginationReq,next) {
-					paginationReq['providerId']=req.params.providerId;
-					paginationReq['id']='unmanagedInstances';
-					pageReq=paginationReq;
-					AWSProvider.getAWSProviderById(req.params.providerId,next)
+				function(next) {
+	                ApiUtils.paginationRequest(req.query,next);
 				},
-				function(provider, next) {
-					unManagedInstancesDao.getByProviderId(pageReq,next);
-				},
-				function(unmanagedInstances, next) {
-					ApiUtils.paginationResponse(unmanagedInstances, pageReq)
-				}
+				function(paginationReq, next) {
+	                paginationReq['providerId']=req.params.providerId;
+	                paginationReq['id']='unmanagedInstances';
+	                pageReq = paginationReq;
+					unManagedInstancesDao.getByProviderId(paginationReq,next);
+				 }
 			],
 			function(err, results) {
 				if(err) {
@@ -186,7 +183,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 			}
 		);
-	}*/
+	}
 
 	//Added By Durgesh for Tags Information
 	app.get('/providers/:providerId/tags', function(req, res) {

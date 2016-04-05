@@ -941,12 +941,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			paginationReq['instanceType']=req.query.instanceType;
 			paginationReq['userName']=req.session.user.cn;
 			paginationReq['id']='instances';
-			instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, function(err, instances) {
+			instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, function(err, instanceData) {
 				if (err) {
 					res.status(404).send(ApiUtils.errorResponse(404,'instances'));
 					return;
 				}
-				ApiUtils.paginationResponse(instances,paginationReq,function(err, paginationRes){
+				ApiUtils.paginationResponse(instanceData,paginationReq,function(err, paginationRes){
 					if (err) {
 						res.status(400).send(ApiUtils.errorResponse(400,'instances'));
 						return;
@@ -971,20 +971,18 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			paginationReq['bgId']=req.params.bgId;
 			paginationReq['projectId']=req.params.projectId;
 			paginationReq['envId']=req.params.envId;
-			paginationReq['instanceType']=req.query.instanceType;
-			paginationReq['userName']=req.session.user.cn;
 			paginationReq['id']='tasks';
-			Task.getTasksByOrgBgProjectAndEnvId(paginationReq, function(err, instances) {
+			Task.getTasksByOrgBgProjectAndEnvId(paginationReq, function(err, tasks) {
 				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'instances'));
+					res.status(404).send(ApiUtils.errorResponse(404,'tasks'));
 					return;
 				}
-				ApiUtils.paginationResponse(instances,paginationReq,function(err, paginationRes){
+				ApiUtils.paginationResponse(tasks,paginationReq,function(err, paginationRes){
 					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'instances'));
+						res.status(400).send(ApiUtils.errorResponse(400,'tasks'));
 						return;
 					}
-					if (!paginationRes.instances.length>0) {
+					if (!paginationRes.tasks.length>0) {
 						res.status(200).send(paginationRes);
 						return;
 					}
@@ -1142,7 +1140,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'azurearms',function(err, paginationReq){
+		ApiUtils.paginationRequest(req.query,'cftList',function(err, paginationReq){
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;

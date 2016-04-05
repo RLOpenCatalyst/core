@@ -415,34 +415,56 @@ var InstancesDao = function() {
         });
     };
 
-   /* this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
-        var databaseReq={};
-        jsonData['searchColumns']=['instanceIP','instanceState'];
-        ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
-            if(err){
-                var err = new Error('Internal server error');
-                err.status = 500;
-                return callback(err);
-            }
-            databaseReq=databaseCall;
-        });
-        Instances.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
-            if(err){
-                var err = new Error('Internal server error');
-                err.status = 500;
-                return callback(err);
-            }
-            else if(!instances) {
-                var err = new Error('Instances are not found');
-                err.status = 404;
-                return callback(err);
-            }
-            else
-                return callback(null, instances);
-        });
-    };*/
+   this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
+       if(jsonData.record_Limit) {
+           var databaseReq = {};
+           jsonData['searchColumns'] = ['instanceIP', 'instanceState'];
+           ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+               if (err) {
+                   var err = new Error('Internal server error');
+                   err.status = 500;
+                   return callback(err);
+               }
+               databaseReq = databaseCall;
+           });
+           Instances.paginate(databaseReq.queryObj, databaseReq.options, function (err, instances) {
+               if (err) {
+                   var err = new Error('Internal server error');
+                   err.status = 500;
+                   return callback(err);
+               }
+               else if (!instances) {
+                   var err = new Error('Instances are not found');
+                   err.status = 404;
+                   return callback(err);
+               }
+               else
+                   return callback(null, instances);
+           });
+       }
+       else{
+           var queryObj = {
+               orgId: jsonData.orgId,
+               bgId: jsonData.bgId,
+               projectId: jsonData.projectId,
+               envId: jsonData.envId
+           }
+           if (jsonData.instanceType) {
+               queryObj['blueprintData.templateType'] = jsonData.instanceType;
+           }
+           Instances.find(queryObj, {
+               'actionLogs': false
+           }, function(err, data) {
+               if (err) {
+                   callback(err, null);
+                   return;
+               }
+               callback(null, data);
+           });
+       }
+    };
 
-    this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
+   /* this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
         var queryObj = {
             orgId: jsonData.orgId,
             bgId: jsonData.bgId,
@@ -461,7 +483,7 @@ var InstancesDao = function() {
             }
             callback(null, data);
         });
-    };
+    };*/
 
     this.getInstancesByOrgEnvIdAndChefNodeName = function(orgId, envId, nodeName, callback) {
         logger.debug("Enter getInstancesByOrgEnvIdAndChefNodeName (%s, %s, %s)", orgId, envId, nodeName);

@@ -5,7 +5,7 @@
  * @apiGroup UnmanagedInstance List with Pagination,Sorting,Searching and Filtering
  *
  *
- * @apiParam {String} providerId          Unique providerID.
+ * @apiParam {String} providerId          Unique Provider ID.
  * @apiParam {Number} [page] Current Page default is 1.
  * @apiParam {Number} [pageSize]  Records per page default is 10.
  * @apiParam {String} [search]  User is able to search for specific attribute. User can enter Instance ID or IP Address for specific search.
@@ -74,7 +74,7 @@
  * @apiGroup Blueprint Information
  *
  *
- * @apiParam {String} blueprintId          Unique blueprintId.
+ * @apiParam {String} blueprintId          Unique Blueprint Id.
  *
  * @apiSuccess [JSONObject]   Blueprint Info
  *
@@ -96,8 +96,9 @@
  *     "keyPairName": "cat-cal",
  *     "imageName": "Test Image",
  *     "region" : "us-west-1",
- *     "blueprintConfig": {"cloudProviderType": "aws","
- *                cloudProviderData":
+ *     "blueprintConfig": {
+ *                "cloudProviderType": "aws","
+ *                "cloudProviderData":
  *                                 {
  *                                 "keyPairId" : "56f1459ec9f075275f4ea9bf",
  *			                       "instanceType" : "t2.small",
@@ -111,13 +112,12 @@
  *                                 "securityGroupIds": ["sg-99a3bcfb"]
  *                                 },
  *                "infraMangerType": "chef",
- *                                   "infraManagerData":
+ *                "infraManagerData":
  *                                         {
  *                                           "latestVersion": "0.1",
  *                                           "versionsList": [{"ver": "0.1","runlist": ["recipe[lamp-stack]", "recipe[tomcat]"]}]
  *                                         }
  *                     }
- *                  }
  *           }
  *     }
  *
@@ -159,23 +159,18 @@
  *			"infraManagerData" : {
  *				"latestVersion" : "0.1",
  * 				"_id" : ObjectId("56fd004eeecf8ac55269e4a3"),
- *				"versionsList" : [
- *					{
+ *				"versionsList" : [{
  *						"ver" : "0.1",
  *						"_id" : ObjectId("56fd004eeecf8ac55269e4a4"),
- * 						"runlist" : [
- *							"recipe[lamp-stack]",
- *							"recipe[tomcat]"
- *						]
- *					}
- *				]
- *			},
+ * 						"runlist" : ["recipe[lamp-stack]","recipe[tomcat]"]
+ *					}]
+ *			     },
  *			"_id" : ObjectId("56fd004eeecf8ac55269e4a5")
- *		},
+ *		    }
  *
- *                  }
  *       }
- *     }
+ *    }
+ *  }
  *
  *
  *
@@ -212,12 +207,12 @@
  *                                 "securityGroupIds": ["sg-99a3bcfb"]
  *                                 },
  *                        "infraMangerType": "chef",
- *                                   "infraManagerData":
+ *                        "infraManagerData":
  *                                         {
  *                                           "latestVersion": "0.1",
  *                                           "versionsList": [{"ver": "0.1","runlist": ["recipe[lamp-stack]", "recipe[tomcat]"]}]
  *                                         }
- *                     }
+ *                       }
  *                  }
  *     }
  *
@@ -244,8 +239,7 @@
  *		    "templateFile" : "b97cf8e9-7680-438e-8156-68e5a06dca29__template__JavaStack.template",
  *		    "region" : "us-west-1",
  *		    "_id" : ObjectId("56fa4992b22e7cf36529f08e"),
- *		    "instances" : [
- *			{
+ *		    "instances" : [{
  *				"logicalId" : "JavaVM1",
  *				"username" : "ubuntu",
  *				"runlist" : [ ]
@@ -254,10 +248,8 @@
  *				"logicalId" : "JavaVM2",
  *				"username" : "",
  *				"runlist" : [ ]
- *			}
- *		    ],
- *		    "stackParameters" : [
- *			{
+ *			}],
+ *		    "stackParameters" : [{
  * 				"ParameterKey" : "JavaStack",
  *  			"ParameterValue" : "java-test"
  *			},
@@ -280,9 +272,9 @@
  *			{
  *				"ParameterKey" : "InstanceType",
  *				"ParameterValue" : "t2.micro"
- *			}
- *		]
- *     }
+ *			}]
+ *       }
+ *    }
  *   }
  *
  * * @apiSuccessExample Success-Response:
@@ -305,17 +297,16 @@
  *		    "dockerRepoName" : "",
  *		    "dockerImageName" : "",
  *		    "_id" : ObjectId("56fa49ccb22e7cf36529f090"),
- *		    "dockerCompose" : [
- *			{
+ *		    "dockerCompose" : [{
  *				"dockercontainerpathstitle" : "DockerTemplate",
  *				"dockercontainerpaths" : "ubuntu",
  *				"dockerrepotags" : "latest",
  *				"dockerlaunchparameters" : " --name DockerTemplate",
  *				"dockerreponame" : "",
  *				"_id" : ObjectId("56fa49ccb22e7cf36529f091")
- *			}
- *		  ]
- *     }
+ *			}]
+ *        }
+ *      }
  *   }
  *
  *
@@ -347,19 +338,42 @@
 
 
 /**
- * @api {get} /instances/dockercontainerdetails/
- * @apiName /instances/dockercontainerdetails/
- * @apiGroup Container List for a Particular Instance
+ * @api {get}/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList
+ * @apiName /organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList
+ * @apiGroup Container List for a Particular Environment
  *
  *
- * @apiParam {String} instanceid          Unique instanceid.1459231494210,
+ * @apiParam {String} orgId          Unique Organization Id
+ * @apiParam {String} bgId           Unique Business Group Id
+ * @apiParam {String} projectId      Unique Project Id
+ * @apiParam {String} envId          Unique Environment Id
+ * @apiParam {Number} [page]         Current Page default is 1.
+ * @apiParam {Number} [pageSize]     Records per page default is 10.
+ * @apiParam {String} [search]       User is able to search for specific attribute. User can enter Instance ID or IP Address for specific search.
+ * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by state.
+ * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
+ * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped.
+ *
+ *
+ *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     containerData:{
- *     "_id": "56fa223d2a3efd2653020413","state":"running","created":1459231494210,"names":["ubuntu","windows"],"instanceIP":"128.12.134.54","containerID":24,"image":"Test Image","info":"container info"
+ *     containerDetail:[{
+ *            "_id": "56fa223d2a3efd2653020413","state":"running","created":1459231494210,"names":["ubuntu","windows"],"instanceIP":"128.12.134.54","containerID":24,"image":"Test Image","info":"container info"},
+ *            {"_id": "56fa223d2a3efd2653020413","state":"running","created":1459231494210,"names":["ubuntu","windows"],"instanceIP":"128.12.134.54","containerID":24,"image":"Test Image","info":"container info"},
+ *            {"_id": "56fa223d2a3efd2653020413","state":"running","created":1459231494210,"names":["ubuntu","windows"],"instanceIP":"128.12.134.54","containerID":24,"image":"Test Image","info":"container info"}],
+ *     metaData:{
+ *        totalRecords:3,
+ *        pageSize:5,
+ *        page:1,
+ *        totalPages:1,
+ *        sortBy:state,
+ *        sortOrder:desc
+ *        filterBy:{state:['running']}
+ *     }
  *     }
  *
  * @apiError 400 Bad Request.
@@ -368,7 +382,7 @@
  *    {
  *      code:400,
  *      message:'Bad Request',
- *      fields:{errorMessage:'Bad Request',attribute:'instanceid'}
+ *      fields:{errorMessage:'Bad Request',attribute:'Environment Id'}
  *     };
  * @apiError 403 Forbidden.
  *
@@ -376,7 +390,7 @@
  *    {
  *      code:403,
  *      message:'Forbidden',
- *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'instanceid'}
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Environment Id'}
  *     };
  * @apiError 500 InternalServerError.
  *
@@ -384,6 +398,6 @@
  *     {
  *      code:500,
  *      message:'Internal Server Error',
- *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'instanceid'}
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Environment Id'}
  *     };
  */

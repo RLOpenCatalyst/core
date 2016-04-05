@@ -119,8 +119,9 @@ var ApiUtil = function() {
         else
             if(key=='unmanagedInstances')
                 sortBy[constantData.sort_unmanaged_instances]=constantData.sort_order=='desc' ? -1 :1;
-            else if(key=='managedInstances')
+            else if(key=='managedInstances' || key=='instances')
                 sortBy[constantData.sort_managed_instances]=constantData.sort_order=='desc' ? -1 :1;
+
         var request={
             'sortBy':sortBy,
             'record_Skip':skip,
@@ -172,8 +173,9 @@ var ApiUtil = function() {
             var dcypt=cryptography.decryptText(encrpt, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             request['search']=dcypt;
         }
-        callback(null, request);
-        return;
+        if (typeof callback === 'function') {
+            callback(null, request);
+        }
     };
 
 }
