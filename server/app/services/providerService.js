@@ -15,6 +15,7 @@
 */
 
 var tags = require('_pr/model/tags/tags.js');
+var unassignedInstances = require('_pr/model/unassigned-instances/');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
 
@@ -94,6 +95,21 @@ providerService.getTagByCatalystEntityTypeAndProvider
             return callback(err);
         }else {
             return callback(null, tag);
+        }
+    });
+};
+
+providerService.getUnassignedInstancesByProvider
+    = function getUnassignedInstancesByProvider(provider, callback) {
+    unassignedInstances.getByProviderId(provider._id, function(err, assignedInstances) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if(!assignedInstances) {
+            return callback(null, []);
+        }else {
+            return callback(null, assignedInstances);
         }
     });
 };
@@ -397,3 +413,26 @@ providerService.createTagMappingObject = function createTagMappingObject(tag, ca
 
     return callback(null, tagMappingObject);
 };
+
+providerService.createUnassignedInstancesList = function createUnassignedInstancesList(instances, callback) {
+    var instancesListObject = {};
+    var instancesList = [];
+    instances.forEach(function(instance) {
+        var tempInstance = instance;
+        var provider = {
+            'id': instance.providerId,
+            'type': instance.providerType,
+            'data': instance.providerData,
+        };
+        delete tempInstance.providerId;
+        delete tempInstance.providerType;
+        delete tempInstance.providerData;
+        tempInstance.provider = provider;
+
+        instancesList.push(tempInstance);
+    });
+
+    instancesListObject.instances = instancesList;
+
+    return callback(null, instancesListObject);
+}
