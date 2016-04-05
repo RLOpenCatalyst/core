@@ -951,10 +951,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 						res.status(400).send(ApiUtils.errorResponse(400,'instances'));
 						return;
 					}
-					if (!paginationRes.instances.length>0) {
-						res.status(200).send(paginationRes);
-						return;
-					}
 					res.status(200).send(paginationRes);
 				});
 			});
@@ -982,10 +978,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 						res.status(400).send(ApiUtils.errorResponse(400,'tasks'));
 						return;
 					}
-					if (!paginationRes.tasks.length>0) {
-						res.status(200).send(paginationRes);
-						return;
-					}
 					res.status(200).send(paginationRes);
 				});
 			});
@@ -1010,10 +1002,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				ApiUtils.paginationResponse(applications,paginationReq,function(err, paginationRes){
 					if (err) {
 						res.status(400).send(ApiUtils.errorResponse(400,'applications'));
-						return;
-					}
-					if (!paginationRes.applications.length>0) {
-						res.status(200).send(paginationRes);
 						return;
 					}
 					res.status(200).send(paginationRes);
@@ -1160,10 +1148,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 						res.status(400).send(ApiUtils.errorResponse(400,'cftList'));
 						return;
 					}
-					if (!cftData.cftList.length>0) {
-						res.status(200).send(paginationRes);
-						return;
-					}
 					res.status(200).send(paginationRes);
 				});
 			});
@@ -1189,10 +1173,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				ApiUtils.paginationResponse(armsData,paginationReq,function(err, paginationRes){
 					if (err) {
 						res.status(400).send(ApiUtils.errorResponse(400,'azurearms'));
-						return;
-					}
-					if (!armsData.azurearms.length>0) {
-						res.status(200).send(paginationRes);
 						return;
 					}
 					res.status(200).send(paginationRes);
@@ -1222,10 +1202,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					ApiUtils.paginationResponse(containerList,paginationReq,function(err, paginationRes){
 						if (err) {
 							res.status(400).send(ApiUtils.errorResponse(400,'containerList'));
-							return;
-						}
-						if (!paginationRes.containerList.length>0) {
-							res.status(200).send(paginationRes);
 							return;
 						}
 						res.status(200).send(paginationRes);
