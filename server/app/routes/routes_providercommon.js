@@ -195,63 +195,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		);
 	}
 
-	//Added By Durgesh for Tags Information
-	app.get('/providers/:providerId/tags', function(req, res) {
-		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-			if (err) {
-				res.status(500).send({
-					message: "Server Behaved Unexpectedly"
-				});
-				return;
-			}
-			if (!provider) {
-				res.status(404).send({
-					message: "provider not found"
-				});
-				return;
-			}
-
-			tagsDao.getTagByProviderId(provider._id, function(err, tag) {
-				if (err) {
-					res.status(500).send(tag);
-					return;
-				}
-				res.status(200).send(tag);
-			});
-		});
-
-	});
-	//End By Durgesh
-
-	//Added By Durgesh for Tags Information
-	app.post('/providers/:providerId/updateTags', function(req, res) {
-		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-			if (err) {
-				res.status(500).send({
-					message: "Server Behaved Unexpectedly"
-				});
-				return;
-			}
-			if (!provider) {
-				res.status(204).send({
-					message: "The server successfully processed the request and is not returning any content"
-				});
-				return;
-			}
-
-			tagsDao.getTagByProviderId(provider._id,data, function(err, tag) {
-				if (err) {
-					res.status(500).send(tag);
-					return;
-				}
-				res.status(200).send(tag);
-			});
-		});
-
-	});
-	//End By Durgesh
-
-
 	// @TODO To be refactored and API end point to be changed
 	app.post('/providers/:providerId/sync', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
