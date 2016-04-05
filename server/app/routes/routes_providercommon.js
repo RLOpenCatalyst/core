@@ -35,6 +35,7 @@ var tagsDao = require('_pr/model/tags');
 var constantData = require('_pr/lib/utils/constant.js');
 var validate = require('express-validation');
 var tagsValidator = require('_pr/validators/tagsValidator');
+var instanceValidator = require('_pr/validators/instanceValidator');
 var	providerService = require('_pr/services/providerService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
@@ -744,7 +745,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {get} /providers/:providerId/tags 	Get tags list
 	 * @apiName getTags
-	 * @apiGroup Provider tags
+	 * @apiGroup tags
 	 *
 	 * @apiParam {Number} providerId 			Provider ID
 	 *
@@ -780,7 +781,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {get} /providers/:providerId/tags/:tagName Get tag details
 	 * @apiName getTagDetails
-	 * @apiGroup Provider tags
+	 * @apiGroup tags
 	 *
 	 * @apiParam {Number} providerId 			Provider ID
 	 * @apiParam {String} tagName 				Tag Name
@@ -802,7 +803,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {post} /providers/:providerId/tags  Add tag
 	 * @apiName addTag
-	 * @apiGroup Provider tags
+	 * @apiGroup tags
 	 *
 	 * @apiParam {Number} providerId 			Provider ID
 	 * @apiParam {String} tagName				Tags name
@@ -831,7 +832,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {put} /providers/:providerId/tags/:tagName  Update tag
 	 * @apiName updateTag
-	 * @apiGroup Provider tags
+	 * @apiGroup tags
 	 *
 	 * @apiParam {Number} providerId 			Provider ID
 	 * @apiParam {String} tagName				Tags name
@@ -858,7 +859,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {delete} /providers/:providerId/tags/:tagName Delete tag
 	 * @apiName deleteTag
-	 * @apiGroup Provider tags
+	 * @apiGroup tags
 	 *
 	 * @apiParam {Number} providerId 	Provider ID
 	 *
@@ -871,7 +872,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {get} /providers/:providerId/tag-mappings			Get tag mappings
 	 * @apiName getTagMappingsList
-	 * @apiGroup Provider tags
+	 * @apiGroup tag mappings
 	 *
 	 * @apiParam {Number} providerId	Provider ID
 	 *
@@ -926,7 +927,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {get} /providers/:providerId/tag-mappings/:catalystEntityType		Get tags mapping for an entity type
 	 * @apiName getTagMapping
-	 * @apiGroup Provider tags
+	 * @apiGroup tag mappings
 	 *
 	 * @apiParam {Number} providerId			Provider ID
 	 * @apiParam {String} catalystEntityType  	Catalyst entity type. Currently "project" and "environment" are the
@@ -964,7 +965,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {post} /providers/:providerId/tags-mappings								Create tag mappings
 	 * @apiName createTagNameMapping
-	 * @apiGroup Provider tags
+	 * @apiGroup tag mappings
 	 *
 	 * @apiParam {Number} providerId												Provider ID
 	 * @apiParam {Object[]} tagMappings												Tag mappings
@@ -1022,7 +1023,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {patch} /providers/:providerId/tag-mappings/:catalystEntityType		Update tag mapping
 	 * @apiName updateTagMapping
-	 * @apiGroup Provider tags
+	 * @apiGroup tag mappings
 	 *
 	 * @apiParam {Number} providerId											Provider ID
 	 * @apiParam {Object} tagMapping											Tag name mapping
@@ -1078,7 +1079,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	/**
 	 * @api {delete} /providers/:providerId/tag-mappings/:catalystEntityType	 Delete tag mapping
 	 * @apiName deleteTagMapping
-	 * @apiGroup Provider tags
+	 * @apiGroup tag mappings
 	 *
 	 * @apiParam {Number} providerID							Provider ID
 	 * @apiParam {String} catalystEntityType					Catalyst entity type
@@ -1089,6 +1090,95 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.delete('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
 		deleteTagMapping);
 
+
+	/**
+	 * @api {get} /providers/:providerId/unassigned-instances		Get unassigned instances
+	 * @apiName getAssignedInstances
+	 * @apiGroup unassigned instances
+	 *
+	 * @apiParam {Number} providerId	Provider ID
+	 *
+	 * @apiSuccess {Object[]} instances	 						Unasssigned instances
+	 * @apiSuccess {String}	instances.orgId 					Organization id
+	 * @apiSuccess {Object} instances.provider					Provider
+	 * @apiSuccess {String} instances.provider.id				Provider Id
+	 * @apiSuccess {String} instances.provider.type				Provider type
+	 * @apiSuccess {Object} instances.provider.data				Provider data
+	 * @apiSuccess {String} instances.platformId				Platform id
+	 * @apiSuccess {String} instances.ip						IP address
+	 * @apiSuccess {String} instances.os						OS
+	 * @apiSuccess {String} instances.state						Instance state
+	 * @apiSuccess {Object} instances.tags						Instance tags
+	 * @apiSuccess {String} tagNameMappings.catalystEntityType	Catalyst entity type
+	 * @apiSuccess {pageIndex} pageIndex						Page index
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"instances": [
+	 * 				{
+	 *					"orgId": "organziationID",
+     *					"provider": {
+     *							"id": "providerID",
+     *							"type": "AWS",
+     *							"data": {
+     *							},
+     *					}
+     *					"platformId": "platorm-id",
+	 *					"ip": "192.168.1.0",
+     *					"os": "Ubuntu",
+     *					"state": "running",
+     *					"tags": {
+     *						"environment": "dev",
+     *						"application": "proj1"
+     *					}
+	 * 			 ],
+	 *			"count": 2,
+	 *			"pageSize": 10,
+	 *			"pageIndex": 1
+	 * 		}
+	 */
+	app.get('/providers/:providerId/unassigned-instances', validate(instanceValidator.get), getUnassignedInstancesList);
+
+	/**
+	 * @api {patch} /providers/:providerId/unassigned-instances/:instanceId		Update unassigned instance tags
+	 * @apiName updateTags
+	 * @apiGroup unassigned instances
+	 *
+	 * @apiParam {Number} providerId	Provider ID
+	 * @apiParam {Number} instanceId	Instance ID
+	 * @apiSuccessExample {json} Request-example:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"tags": {
+	 *				"environment": "dev",
+	 *				"application": "proj1"
+	 * 			 }
+	 * 		}
+	 *
+	 * @apiSuccess {Object} instance	Unassigned instance
+	 * @apiSuccess {Object}	tags 		Tags
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 *			"orgId": "organziationID",
+     *			"providerId": "providerID",
+     *			"providerType": "AWS",
+     *			"providerData": {},
+     *			"platformId": "platorm-id",
+	 *			"ip": "192.168.1.0",
+     *			"os": "Ubuntu",
+     *			"state": "running",
+     *			"tags": {
+     *				"environment": "dev",
+     *				"application": "proj1"
+     *			 }
+     *		}
+	 */
+	// app.get('/providers/:providerId/unassigned-instances/:instanceId',
+	// validate(instanceValidator.update), updateUnassignedInstanceTags);
+
 	function getTagsList(req, res, next) {
 		async.waterfall(
 			[
@@ -1097,6 +1187,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				},
 				providerService.getTagsByProvider,
 				providerService.createTagsList
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function getUnassignedInstancesList(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				providerService.getUnassignedInstancesByProvider,
+				providerService.createUnassignedInstancesList
 			],
 			function(err, results) {
 				if(err) {
@@ -1311,6 +1420,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 			}
 		);
+	}
+
+	function updateUnassignedInstanceTags(req, res, next) {
+
 	}
 
 };
