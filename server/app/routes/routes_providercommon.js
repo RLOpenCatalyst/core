@@ -33,12 +33,18 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
 var tagsDao = require('_pr/model/tags');
+var validate = require('express-validation');
+var tagsValidator = require('_pr/validators/tagsValidator');
+var instanceValidator = require('_pr/validators/instanceValidator');
+var	providerService = require('_pr/services/providerService');
+var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all("/providers/*", sessionVerificationFunc);
 
+	// @TODO To be refactored
 	app.get('/providers/:providerId', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
@@ -76,6 +82,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 		});
 	});
+
+	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
 		ApiUtils.paginationRequest(req.query,'managedInstances',function(err, paginationReq){
 			if (err) {
@@ -115,6 +123,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		});
 	});
+
+	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
 		//getUnmanagedInstanceList(req,res);
 		ApiUtils.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
@@ -242,6 +252,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	//End By Durgesh
 
 
+	// @TODO To be refactored and API end point to be changed
 	app.post('/providers/:providerId/sync', function(req, res) {
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
@@ -808,4 +819,704 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 		});
 	});
+
+	/*app.param('providerId', providerService.providerExists);
+	app.param('catalystEntityType', providerService.isValidCatalystEntityType);
+	app.param('catalystEntity', providerService.catalystEntityExists);*/
+
+	/**
+	 * @api {get} /providers/:providerId/tags 	Get tags list
+	 * @apiName getTags
+	 * @apiGroup tags
+	 *
+	 * @apiParam {Number} providerId 			Provider ID
+	 *
+	 * @apiSuccess {Object[]} tags				List of tags
+	 * @apiSuccess {String} tags.name			Tag name
+	 * @apiSuccess {String} tags.description 	Tag description
+	 * @apiSuccess {Number} count				Number of tags in the result set
+	 * @apiSuccess {pageSize} pageSize			Page size
+	 * @apiSuccess {pageIndex} pageIndex		Page index
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 *
+	 * 			"tags": [
+	 * 				{
+	 * 					"name":	"env",
+	 * 					"description": "Deployment environment"
+	 * 				},
+	 *				{
+	 * 					"name":	"application",
+	 * 					"description": "Project name"
+	 * 				}
+	 * 			],
+	 *			"count": 2,
+	 *			"pageSize": 10,
+	 *			"pageIndex": 1
+	 * 		}
+	 *
+	 */
+	app.get('/providers/:providerId/tags', validate(tagsValidator.list), getTagsList);
+
+	/**
+	 * @api {get} /providers/:providerId/tags/:tagName Get tag details
+	 * @apiName getTagDetails
+	 * @apiGroup tags
+	 *
+	 * @apiParam {Number} providerId 			Provider ID
+	 * @apiParam {String} tagName 				Tag Name
+	 *
+	 * @apiSuccess {Object} tag					Tag details
+	 * @apiSuccess {String} tag.name 			Tag name
+	 * @apiSuccess {String} tag.description 	Tag description
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"name":	"environment",
+	 * 			"description": "Deployment environment"
+	 * 		}
+	 *
+	 */
+	app.get('/providers/:providerId/tags/:tagName', validate(tagsValidator.get), getTag);
+
+	/**
+	 * @api {post} /providers/:providerId/tags  Add tag
+	 * @apiName addTag
+	 * @apiGroup tags
+	 *
+	 * @apiParam {Number} providerId 			Provider ID
+	 * @apiParam {String} tagName				Tags name
+	 * @apiParam {Object} tag					Tag object in request body
+	 * @apiParam {String} tag.name				Tag name
+	 * @apiParam {String} tag.description		Tag description
+	 * @apiParamExample {json} Request-Example:
+	 * 		{
+	 * 			"name": "environment",
+	 * 			"description": "Tag description"
+	 * 		}
+	 *
+	 * @apiSuccess {Object} tag					Tag details
+	 * @apiSuccess {String} tags.name			Tag name
+	 * @apiSuccess {String} tags.description 	Tag description
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"name":	"environment",
+	 * 			"description": "Deployment environment"
+	 * 		}
+	 */
+	// app.post('/providers/:providerId/tags', validate(tagsValidator.create), createTags);
+
+	/**
+	 * @api {put} /providers/:providerId/tags/:tagName  Update tag
+	 * @apiName updateTag
+	 * @apiGroup tags
+	 *
+	 * @apiParam {Number} providerId 			Provider ID
+	 * @apiParam {String} tagName				Tags name
+	 * @apiParam {Object[]} tag					Tag object in request body
+	 * @apiParam {String} tag.description		Tag description
+	 * @apiParamExample {json} Request-Example:
+	 * 		{
+	 * 			"description": "Tag description"
+	 * 		}
+	 *
+	 * @apiSuccess {Object} tag					Tag details
+	 * @apiSuccess {String} tags.name			Tag name
+	 * @apiSuccess {String} tags.description 	Tag description
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"name":	"environment",
+	 * 			"description": "Deployment environment"
+	 * 		}
+	 */
+	app.put('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), updateTag);
+
+	/**
+	 * @api {delete} /providers/:providerId/tags/:tagName Delete tag
+	 * @apiName deleteTag
+	 * @apiGroup tags
+	 *
+	 * @apiParam {Number} providerId 	Provider ID
+	 *
+	 * @apiSuccess {Object} response	Empty response object
+	 *
+	 */
+	app.delete('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), deleteTag);
+
+
+	/**
+	 * @api {get} /providers/:providerId/tag-mappings			Get tag mappings
+	 * @apiName getTagMappingsList
+	 * @apiGroup tag mappings
+	 *
+	 * @apiParam {Number} providerId	Provider ID
+	 *
+	 * @apiSuccess {Object[]} tagNameMappings 					Tag name mappings
+	 * @apiSuccess {String}	tagNameMappings.tagName 			Tag name
+	 * @apiSuccess {String[]} tagNameMappings.tagValues			Encountered tag values
+	 * @apiSuccess {String} tagNameMappings.catalystEntityType	Catalyst entity type
+	 * @apiSuccess {pageIndex} pageIndex						Page index
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"tagMappings": [
+	 * 					{
+	 * 						"tagName":	"application",
+	 * 						"tagValues": ["proj1", "proj2"],
+	 * 						"catalystEntityType": "project",
+	 * 						"catalystEntityMapping": [
+	 *							{
+	 *		 						"catalystEntityId": "<MongoID>",
+	 *			 					"tagValue": "proj1"
+	 *							},
+	 *							{
+	 *								"catalystEntityId": "<MongoID>",
+	 *			 					"tagValue": "proj2"
+	 *			 				}
+	 *			 			]
+	 * 					},
+	 *					{
+	 * 						"tagName":	"environment",
+	 * 						"tagValues": ["prod", "dev"],
+	 * 						"catalystEntityType": "environment"
+	 * 						"catalystEntityMapping": [
+	 *							{
+	 *		 						"catalystEntityId": "<MongoID>",
+	 *			 					"tagValue": "dev"
+	 *							},
+	 *							{
+	 *								"catalystEntityId": "<MongoID>",
+	 *			 					"tagValue": "prod"
+	 *			 				}
+	 *			 			]
+	 * 					}
+	 * 			 ],
+	 *			"count": 2,
+	 *			"pageSize": 10,
+	 *			"pageIndex": 1
+	 * 		}
+	 */
+	app.get('/providers/:providerId/tag-mappings', validate(tagsValidator.list), getTagMappingsList);
+
+	/**
+	 * @api {get} /providers/:providerId/tag-mappings/:catalystEntityType		Get tags mapping for an entity type
+	 * @apiName getTagMapping
+	 * @apiGroup tag mappings
+	 *
+	 * @apiParam {Number} providerId			Provider ID
+	 * @apiParam {String} catalystEntityType  	Catalyst entity type. Currently "project" and "environment" are the
+	 * 											available options
+	 *
+	 * @apiSuccess {Object} tagMapping 											Tag name mapping
+	 * @apiSuccess {String}	tagMapping.name 									Tag name
+	 * @apiSuccess {String[]} tagMapping.values									Encountered tag values
+	 * @apiSuccess {Object[]} tagMapping.catalystEntityMapping 					Catalyst entity mapping
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityName Catalyst entity name
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue			Tag value
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"name": "application",
+	 *			"values": ["proj1", "proj2"]
+	 * 			"catalystEntityType": "project",
+	 *			"catalystEntityMapping": [
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"tagValue": "proj1"
+	 *				},
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"tagValue": "proj2"
+	 *				}
+	 *			]
+	 * 		}
+	 */
+	app.get('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
+		getTagMapping);
+
+	/**
+	 * @api {post} /providers/:providerId/tags-mappings								Create tag mappings
+	 * @apiName createTagNameMapping
+	 * @apiGroup tag mappings
+	 *
+	 * @apiParam {Number} providerId												Provider ID
+	 * @apiParam {Object[]} tagMappings												Tag mappings
+	 * @apiParam {String} tagMappings.tagName										Tag name
+	 * @apiParam {String[]} tagMappings.tagValues									Tag values
+	 * @apiSuccess {Object[]} tagMappings.catalystEntityType 						Catalyst entity type
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue			Tag value
+	 * @apiParamExample {json} Request-Example:
+	 * 		[
+	 *	 		{
+	 *	 			"tagName": "application",
+	 *	 			"tagValues": [],
+	 *		  		"catalystEntityType": "project",
+	 *		  		"catalystEntityMapping": []
+	 *		  	},
+	 *		  	{
+	 *		  		"tagName": "env",
+	 *		  		"tagValues": [],
+	 *		  		"catalystEntityType": "environment",
+	 *		  		"catalystEntityMapping": []
+	 *		  	}
+	 *		 ]
+	 *
+	 * @apiSuccess {Object[]} tags 												Tags
+	 * @apiSuccess {String}	tagMappings			 								Tag mappings
+	 * @apiSuccess {String}	tagMappings.name 									Tag name
+	 * @apiSuccess {String[]} tagMappings.values								Encountered tag values
+	 * @apiSuccess {String} tagMappings.catalystEntityType						Catalyst entity type
+	 * @apiSuccess {String} tagMappings.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagMappings.catalystEntityMapping.tagValue			Tag value
+	 * @apiSuccess {pageIndex} pageIndex						Page index
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 201 OK
+	 * 		{
+	 * 			"tagMappings": [
+	 * 					{
+	 * 						"name":	"application",
+	 * 						"values": ["proj1", "proj2"],
+	 * 						"catalystEntityType": "project",
+	 * 						"catalystEntityMapping": []
+	 * 					},
+	 *					{
+	 * 						"name":	"environment",
+	 * 						"values": ["prod", "dev"],
+	 * 						"catalystEntityType": "environment"
+	 * 						"catalystEntityMapping": []
+	 * 					}
+	 * 			 ]
+	 * 		}
+	 */
+	app.post('/providers/:providerId/tag-mappings', validate(tagsValidator.list), addTagMappings);
+
+	/**
+	 * @api {patch} /providers/:providerId/tag-mappings/:catalystEntityType		Update tag mapping
+	 * @apiName updateTagMapping
+	 * @apiGroup tag mappings
+	 *
+	 * @apiParam {Number} providerId											Provider ID
+	 * @apiParam {Object} tagMapping											Tag name mapping
+	 * @apiSuccess {String}	tagMapping.name 									Tag name
+	 * @apiSuccess {Object[]} tagMapping.catalystEntityMapping 					Catalyst entity mapping
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue			Tag value
+	 * @apiParamExample {json} Request-Example:
+	 * 		{
+	 * 			"catalystEntityMapping": [
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"tagValue": "proj1"
+	 *				},
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"tagValue": "proj2"
+	 *
+	 *				}
+	 *			]
+	 * 		}
+	 *
+	 * @apiSuccess {Object} tagMapping 											Tag mapping
+	 * @apiSuccess {String}	tagMapping.tagName 									Tag name
+	 * @apiSuccess {String} tagMapping.catalystEntityType						Catalyst entity type
+	 * @apiSuccess {String[]} tagMapping.tagValues								Encountered tag values
+	 * @apiSuccess {Object[]} tagMapping.catalystEntityMapping 					Catalyst entity mapping
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue			Tag value
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"tagName":	"application",
+	 * 			"tagValues": ["proj1", "proj2"],
+	 * 			"catalystEntityType": "project",
+	 * 			"catalystEntityMapping": [
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"tagValue": "proj1"
+	 *				},
+	 *				{
+	 *					"catalystEntityId": "<MongoID>",
+	 *					"tagValue": "proj2"
+	 *
+	 *				}
+	 *			]
+	 * 		}
+	 */
+	app.patch('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
+		updateTagMapping);
+
+	/**
+	 * @api {delete} /providers/:providerId/tag-mappings/:catalystEntityType	 Delete tag mapping
+	 * @apiName deleteTagMapping
+	 * @apiGroup tag mappings
+	 *
+	 * @apiParam {Number} providerID							Provider ID
+	 * @apiParam {String} catalystEntityType					Catalyst entity type
+	 *
+	 * @apiSuccess {Object} response							Empty response object
+	 *
+	 */
+	app.delete('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
+		deleteTagMapping);
+
+
+	/**
+	 * @api {get} /providers/:providerId/unassigned-instances		Get unassigned instances
+	 * @apiName getAssignedInstances
+	 * @apiGroup unassigned instances
+	 *
+	 * @apiParam {Number} providerId	Provider ID
+	 *
+	 * @apiSuccess {Object[]} instances	 						Unasssigned instances
+	 * @apiSuccess {String}	instances.orgId 					Organization id
+	 * @apiSuccess {Object} instances.provider					Provider
+	 * @apiSuccess {String} instances.provider.id				Provider Id
+	 * @apiSuccess {String} instances.provider.type				Provider type
+	 * @apiSuccess {Object} instances.provider.data				Provider data
+	 * @apiSuccess {String} instances.platformId				Platform id
+	 * @apiSuccess {String} instances.ip						IP address
+	 * @apiSuccess {String} instances.os						OS
+	 * @apiSuccess {String} instances.state						Instance state
+	 * @apiSuccess {Object} instances.tags						Instance tags
+	 * @apiSuccess {pageIndex} pageIndex						Page index
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"instances": [
+	 * 				{
+	 *					"orgId": "organziationID",
+     *					"provider": {
+     *							"id": "providerID",
+     *							"type": "AWS",
+     *							"data": {
+     *							},
+     *					}
+     *					"platformId": "platorm-id",
+	 *					"ip": "192.168.1.0",
+     *					"os": "Ubuntu",
+     *					"state": "running",
+     *					"tags": {
+     *						"environment": "dev",
+     *						"application": "proj1"
+     *					}
+	 * 			 ],
+	 *			"count": 2,
+	 *			"pageSize": 10,
+	 *			"pageIndex": 1
+	 * 		}
+	 */
+	app.get('/providers/:providerId/unassigned-instances', validate(instanceValidator.get), getUnassignedInstancesList);
+
+	/**
+	 * @api {patch} /providers/:providerId/unassigned-instances/:instanceId		Update unassigned instance tags
+	 * @apiName updateTags
+	 * @apiGroup unassigned instances
+	 *
+	 * @apiParam {Number} providerId	Provider ID
+	 * @apiParam {Number} instanceId	Instance ID
+	 * @apiSuccessExample {json} Request-example:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"tags": {
+	 *				"environment": "dev",
+	 *				"application": "proj1"
+	 * 			 }
+	 * 		}
+	 *
+	 * @apiSuccess {Object[]} instance	 					Unasssigned instance
+	 * @apiSuccess {String}	instance.orgId 					Organization id
+	 * @apiSuccess {Object} instance.provider				Provider
+	 * @apiSuccess {String} instance.provider.id			Provider Id
+	 * @apiSuccess {String} instance.provider.type			Provider type
+	 * @apiSuccess {Object} instance.provider.data			Provider data
+	 * @apiSuccess {String} instance.platformId				Platform id
+	 * @apiSuccess {String} instance.ip						IP address
+	 * @apiSuccess {String} instance.os						OS
+	 * @apiSuccess {String} instance.state					Instance state
+	 * @apiSuccess {Object} instance.tags					Instance tags
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 *			"orgId": "organziationID",
+     *			"provider": {
+     *				"id": "providerID",
+     *				"type": "AWS",
+     *				"data": {
+     *						},
+     *			}
+     *			"platformId": "platorm-id",
+	 *			"ip": "192.168.1.0",
+     *			"os": "Ubuntu",
+     *			"state": "running",
+     *			"tags": {
+     *				"environment": "dev",
+     *				"application": "proj1"
+     *			}
+     *		}
+	 */
+	// app.get('/providers/:providerId/unassigned-instances/:instanceId',
+	// validate(instanceValidator.update), updateUnassignedInstanceTags);
+
+	function getTagsList(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				providerService.getTagsByProvider,
+				providerService.createTagsList
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function getUnassignedInstancesList(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				providerService.getUnassignedInstancesByProvider,
+				providerService.createUnassignedInstancesList
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function getTag(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					providerService.getTagByNameAndProvider(provider._id, req.params.tagName, next);
+				},
+				providerService.createTagObject
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	// @TODO to be implemented
+	function createTags(req, res, next) {
+	}
+
+	function updateTag(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					var tagDetails = {
+						'name': req.params.tagName,
+						'description': req.body.description
+					};
+					providerService.updateTag(provider, tagDetails, next);
+				},
+				providerService.createTagObject
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function deleteTag(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					providerService.deleteTag(provider, req.params.tagName, next);
+				}
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function getTagMappingsList(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				providerService.getTagsByProvider,
+				providerService.createTagMappingList
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function getTagMapping(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+						req.params.catalystEntityType, next);
+				},
+				providerService.createTagMappingObject
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function addTagMappings(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function (provider, next) {
+					providerService.addMultipleTagMappings(provider._id, req.body, next);
+				},
+				providerService.createTagMappingList
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(201).send(results);
+				}
+			}
+		);
+
+	}
+
+	function updateTagMapping(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function (provider, next) {
+					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+						req.params.catalystEntityType, next);
+				},
+				function (tag, next) {
+					providerService.updateTagMapping(tag, req.body, next);
+				},
+				function (tag, next) {
+					providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
+				},
+				providerService.createTagMappingObject
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function deleteTagMapping(req, res, next) {
+		async.waterfall(
+			[
+				function(next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					providerService.deleteTagMapping(provider._id, req.params.catalystEntityType, next);
+				}
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function getCatalystEntityMapping(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function (provider, next) {
+					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+						req.params.catalystEntityType, next);
+				},
+				function (tag, next) {
+					providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
+				}
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function updateUnassignedInstanceTags(req, res, next) {
+
+	}
+
 };

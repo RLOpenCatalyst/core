@@ -16,6 +16,8 @@ var UnmanagedInstanceSchema = new Schema({
 		required: false,
 		trim: true
 	},
+	projectId: String,
+	environmentId: String,
 	providerType: String,
 	providerData: Schema.Types.Mixed,
 	platformId: String,
