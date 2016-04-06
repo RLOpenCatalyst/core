@@ -2448,7 +2448,7 @@ var OrgdataLoader = function(editing){
 				helpersetselectvalue($orgListInput,'value',$orgListInput.attr('savedval'));
 		}
 	});
-	(function() {
+	/*(function() {
 		var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
 		$.get('../users', function(userList) {
 			var $userListSelect = $('#userListSelect').empty();
@@ -2470,7 +2470,7 @@ var OrgdataLoader = function(editing){
 		}).error(function() {
 			$loadingContainer.empty().append('Unable to load users. Please try again later.');
 		});
-	})();
+	})();*/
 }
 
 OrgdataLoader(); //Wrapped for editing

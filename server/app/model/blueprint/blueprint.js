@@ -43,7 +43,6 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
 var AppData = require('_pr/model/app-deploy/app-data');
 
-
 var BLUEPRINT_TYPE = {
     DOCKER: 'docker',
     AWS_CLOUDFORMATION: 'aws_cf',

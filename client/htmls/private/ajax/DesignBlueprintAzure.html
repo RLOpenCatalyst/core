@@ -2577,6 +2577,14 @@ var saveblueprint = function(tempType){
               reqBody.instanceCount = $('#instanceCount').val();
               reqBody.instanceImageName = imageIdentifier;
 
+              /*
+              $('#userListSelect').find('option').attr('selected', 'selected');
+              reqBody.users = $('#userListSelect').val();
+              // if (!reqBody.users) {
+              //   alert("Please choose users");
+              //   return false;
+              // }*/
+
               //Checking for docker blueprint images
               if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
                 //no rows found add empty message
@@ -3242,6 +3250,33 @@ var OrgdataLoader = function(editing){
 
 OrgdataLoader(); //Wrapped for editing
 
+var loadUserlist = function() {
+  var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
+  $.get('../users', function(userList) {
+    var $userListSelect = $('#userListSelect').empty();
+    userList = JSON.parse(userList);
+    userList.sort(function(a, b) {
+      var keyA = Object.keys(a);
+      var keyB = Object.keys(b);
+
+      if (keyA[0] < keyB[0]) return -1;
+      if (keyA[0] > keyB[0]) return 1;
+      return 0;
+    });
+    for (var i = 0; i < userList.length; i++) {
+      var keys = Object.keys(userList[i]);
+      var $option = $('<option></option>').append(keys[0]).val(keys[0]);
+      $userListSelect.append($option);
+    }
+    $loadingContainer.hide();
+    $userListSelect.show();
+  }).error(function() {
+    $loadingContainer.empty().append('Unable to load users. Please try again later.');
+  });
+
+}
+
+loadUserlist();
 
 $(document).ready(function() {
   $("#blueprintNameInput").focus();
