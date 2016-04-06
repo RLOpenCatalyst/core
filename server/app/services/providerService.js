@@ -215,7 +215,8 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
     var catalystEntityMappingList = [];
     for(var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
         if(!('tagValue' in tagMapping.catalystEntityMapping[i])
-            || !('catalystEntityId' in tagMapping.catalystEntityMapping[i])) {
+            || !('catalystEntityId' in tagMapping.catalystEntityMapping[i])
+            || !('catalystEntityName' in tagMapping.catalystEntityMapping[i])) {
             var err = new Error('Malformed Request');
             err.status = 400;
             return callback(err);
@@ -229,7 +230,8 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
 
         catalystEntityMappingList.push({
             'tagValue': tagMapping.catalystEntityMapping[i].tagValue,
-            'catalystEntityId': tagMapping.catalystEntityMapping[i].catalystEntityId
+            'catalystEntityId': tagMapping.catalystEntityMapping[i].catalystEntityId,
+            'catalystEntityName': tagMapping.catalystEntityMapping[i].catalystEntityName
         });
     }
 

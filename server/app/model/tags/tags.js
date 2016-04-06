@@ -57,6 +57,11 @@ var TagSchema = new Schema({
             trim: true,
             required: false
         },
+        catalystEntityName: {
+            type: String,
+            trim: true,
+            required: false
+        },
         tagValue: {
             type: String,
             trim: true,
