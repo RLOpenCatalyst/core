@@ -48,6 +48,9 @@
     .margin-top10{
         margin-top: 10px;
     }
+    .margin-top45{
+        margin-top: 45px;
+    }
     .saveBtnTagsCSS{
         float: right;
         font-size: 10px;
@@ -55,6 +58,16 @@
     }
     .width-90{
         width:90%;
+    }
+    input[type=search] {
+        border-color: #ddd !important;
+    }
+    .tagsContainer .dataTables_wrapper .dataTables_paginate .paginate_button{
+        font-size: 12px !important;
+        padding: 7px;
+    }
+    #tagsTable_info{
+        font-size: 12px !important;
     }
 </style>
 
@@ -77,9 +90,9 @@
 <!--tab content starts here-->
 <div class="tab-content">
     <!-- Tab panes -->
-    <div  class="tab-pane active tagsContainer" id="tagsId">
-        <div  class="tabContent table-responsive" id="tagsIdDiv">
-            <table class="table table-hover table-bordered text-center" id="tagsTable" style="font-size:13px;";>
+    <div class="tab-pane active tagsContainer" id="tagsId">
+        <div class="tabContent table-responsive col-lg-6" id="tagsIdDiv" style="left:0px !important">
+            <table class="table table-hover table-bordered" id="tagsTable" style="font-size:13px;margin-top:45px";>
                 <thead>
                 <tr>
                     <th class="text-center">Tag Name</th>
@@ -90,9 +103,9 @@
                 </tbody>
             </table>
         </div>
-        <div>
+        <div class="col-lg-6">
             <div action="" id="tagsFormId">
-                <div class="widget-box">
+                <div class="widget-box margin-top45">
                     <div class="widget-header">
                         <h4 class="widget-margin" style="color:#666;font-size:14px">Create tag name to catalyst entity mapping</h4>
                     </div>
@@ -204,7 +217,7 @@
                 <!--managed instances-->
                 <div  class="tab-pane active instancesListContainer" id="organiz">
                     <div  class="tabContent table-responsive" id="instanceListDiv" >
-                        <table class="table table-hover table-bordered" id="instanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                        <table class="table table-hover table-bordered" id="instanceListTable" style="font-size:13px;margin-top:45px;text-align: center";>
                             <thead>
                             <tr>
                                 <th style="text-align: center">InstanceId</th>
@@ -227,7 +240,7 @@
                 <!--unmanaged instances-->
                 <div  class="tab-pane unmanagedInstancesListContainer" id="unmanaged">
                     <div  class="tabContent table-responsive" id="unmanagedinstanceListDiv" >
-                        <table class="table table-hover table-bordered" id="unmanagedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                        <table class="table table-hover table-bordered" id="unmanagedinstanceListTable" style="font-size:13px;margin-top:45px;text-align: center";>
                             <thead>
                             <tr>
                                 <th style="text-align: center">InstanceId</th>
@@ -256,7 +269,7 @@
             <div id="Unassigned" hidden>
                 <div  class="tab-pane unassignedInstancesListContainer" id="unassigned">
                     <div  class="tabContent table-responsive" id="unassignedinstanceListDiv" >
-                        <table class="table table-hover table-bordered" id="unassignedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align:center";>
+                        <table class="table table-hover table-bordered" id="unassignedinstanceListTable" style="font-size:13px;margin-top:45px;text-align:center";>
                             <thead>
                             <tr>
                                 <th style="text-align: center">InstanceId</th>
@@ -400,10 +413,10 @@
     if (!$.fn.dataTable.isDataTable('#tagsTable')) {
         var $tagsDatatable = $('#tagsTable').DataTable({
             "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
             "aoColumns": [{
                 "bSortable": false
             }, {
@@ -444,10 +457,10 @@
     if (!$.fn.dataTable.isDataTable('#instanceListTable')) {
         var $instanceManagedDatatable = $('#instanceListTable').DataTable({
             "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
             "aaSorting": [[ 4, "asc" ]],
             "aoColumns": [{
                 "bSortable": false
@@ -473,10 +486,10 @@
     if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
         var $instanceUnManagedDatatable = $('#unmanagedinstanceListTable').DataTable({
             "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
             "aaSorting": [[ 4, "asc" ]],
             "aoColumns": [{
                 "bSortable": false
@@ -502,10 +515,10 @@
     if (!$.fn.dataTable.isDataTable('#unassignedinstanceListTable')) {
         var $instanceUnAssignedDatatable = $('#unassignedinstanceListTable').DataTable({
             "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
             "aaSorting": [[ 4, "asc" ]],
             "aoColumns": [{
                 "bSortable": false
