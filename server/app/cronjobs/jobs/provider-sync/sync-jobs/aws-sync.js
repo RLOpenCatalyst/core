@@ -195,8 +195,9 @@ function sync() {
 																						}
 																					}
 
-																					if (catalystProjectId && catalystProjectName
-																						&& catalystEnvironmentId && catalystEnvironmentName) {
+																					if ((catalystProjectId && catalystProjectName)
+																						|| (catalystEnvironmentId && catalystEnvironmentName)) {
+
 																						addedToUnmanaged = true;
 																						if (awsInstances[m].Platform && awsInstances[m].Platform === 'windows') {
 																							os = 'windows';
