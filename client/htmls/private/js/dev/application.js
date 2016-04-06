@@ -809,21 +809,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             });
                         }
                     });
-                    var artifactId = $('#chooseArtifacts').find('option:selected').val();
-                    var nodeIps = [];
-                    var count = 0;
-                    for (var i = 0; i < tasksData.taskConfig.nodeIds.length; i++) {
-                        $.get('/instances/' + tasksData.taskConfig.nodeIds[i], function(instance) {
-                            count++;
-                            if (instance) {
-                                nodeIps.push(instance.instanceIP);
-                            }
-
-                            if (tasksData.taskConfig.nodeIds.length === count) {
-
-                            }
-                        });
-                    }
                 }
 
                 $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
