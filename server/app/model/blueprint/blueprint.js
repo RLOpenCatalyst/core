@@ -41,6 +41,7 @@ var utils = require('../classes/utils/utils.js');
 var nexus = require('_pr/lib/nexus.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
+var AppData = require('_pr/model/app-deploy/app-data');
 
 
 var BLUEPRINT_TYPE = {
@@ -220,111 +221,111 @@ BlueprintSchema.methods.launch = function(opts, callback) {
     var infraManager = this.getInfraManagerData();
     var self = this;
     configmgmtDao.getEnvNameFromEnvId(opts.envId, function(err, envName) {
-		if (err) {
-			callback({
-				message: "Failed to get env name from env id"
-			}, null);
-			return;
-		}
-		if (!envName) {
-			callback({
-				"message": "Unable to find environment name from environment id"
-			});
-			return;
-		}
+        if (err) {
+            callback({
+                message: "Failed to get env name from env id"
+            }, null);
+            return;
+        }
+        if (!envName) {
+            callback({
+                "message": "Unable to find environment name from environment id"
+            });
+            return;
+        }
 
-		configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
-			if (err) {
-				logger.error("Failed to getChefServerDetails", err);
-				callback({
-					message: "Failed to getChefServerDetails"
-				}, null);
-				return;
-			}
-			if (!chefDetails) {
-				logger.error("No CHef Server Detailed available.", err);
-				callback({
-					message: "No Chef Server Detailed available"
-				}, null);
-				return;
-			}
-			var chef = new Chef({
-				userChefRepoLocation: chefDetails.chefRepoLocation,
-				chefUserName: chefDetails.loginname,
-				chefUserPemFile: chefDetails.userpemfile,
-				chefValidationPemFile: chefDetails.validatorpemfile,
-				hostedChefUrl: chefDetails.url
-			});
-			logger.debug('Chef Repo Location = ', chefDetails.chefRepoLocation);
+        configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
+            if (err) {
+                logger.error("Failed to getChefServerDetails", err);
+                callback({
+                    message: "Failed to getChefServerDetails"
+                }, null);
+                return;
+            }
+            if (!chefDetails) {
+                logger.error("No CHef Server Detailed available.", err);
+                callback({
+                    message: "No Chef Server Detailed available"
+                }, null);
+                return;
+            }
+            var chef = new Chef({
+                userChefRepoLocation: chefDetails.chefRepoLocation,
+                chefUserName: chefDetails.loginname,
+                chefUserPemFile: chefDetails.userpemfile,
+                chefValidationPemFile: chefDetails.validatorpemfile,
+                hostedChefUrl: chefDetails.url
+            });
+            logger.debug('Chef Repo Location = ', chefDetails.chefRepoLocation);
 
-			var blueprintConfigType = getBlueprintConfigType(self);
+            var blueprintConfigType = getBlueprintConfigType(self);
 
-			if (!self.appUrls) {
-				self.appUrls = [];
-			}
-			var appUrls = self.appUrls;
-			if (appConfig.appUrls && appConfig.appUrls.length) {
-				appUrls = appUrls.concat(appConfig.appUrls);
-			}
+            if (!self.appUrls) {
+                self.appUrls = [];
+            }
+            var appUrls = self.appUrls;
+            if (appConfig.appUrls && appConfig.appUrls.length) {
+                appUrls = appUrls.concat(appConfig.appUrls);
+            }
 
-			chef.getEnvironment(envName, function(err, env) {
-				if (err) {
-					logger.error("Failed chef.getEnvironment", err);
-					res.send(500);
-					return;
-				}
+            chef.getEnvironment(envName, function(err, env) {
+                if (err) {
+                    logger.error("Failed chef.getEnvironment", err);
+                    res.send(500);
+                    return;
+                }
 
-				if (!env) {
-					logger.debug("Blueprint env ID = ", req.query.envId);
-					chef.createEnvironment(envName, function(err) {
-						if (err) {
-							logger.error("Failed chef.createEnvironment", err);
-							res.send(500);
-							return;
-						}
-						blueprintConfigType.launch({
-							infraManager: chef,
-							ver: opts.ver,
-							envName: envName,
-							envId: opts.envId,
-							stackName: opts.stackName,
-							blueprintName: self.name,
-							orgId: self.orgId,
-							bgId: self.bgId,
-							projectId: self.projectId,
-							appUrls: appUrls,
-							sessionUser: opts.sessionUser,
-							users: self.users,
-							blueprintData: self,
-						}, function(err, launchData) {
-							callback(err, launchData);
-						});
+                if (!env) {
+                    logger.debug("Blueprint env ID = ", req.query.envId);
+                    chef.createEnvironment(envName, function(err) {
+                        if (err) {
+                            logger.error("Failed chef.createEnvironment", err);
+                            res.send(500);
+                            return;
+                        }
+                        blueprintConfigType.launch({
+                            infraManager: chef,
+                            ver: opts.ver,
+                            envName: envName,
+                            envId: opts.envId,
+                            stackName: opts.stackName,
+                            blueprintName: self.name,
+                            orgId: self.orgId,
+                            bgId: self.bgId,
+                            projectId: self.projectId,
+                            appUrls: appUrls,
+                            sessionUser: opts.sessionUser,
+                            users: self.users,
+                            blueprintData: self,
+                        }, function(err, launchData) {
+                            callback(err, launchData);
+                        });
 
-					});
-				} else {
-					blueprintConfigType.launch({
-						infraManager: chef,
-						ver: opts.ver,
-						envName: envName,
-						envId: opts.envId,
-						stackName: opts.stackName,
-						blueprintName: self.name,
-						orgId: self.orgId,
-						bgId: self.bgId,
-						projectId: self.projectId,
-						appUrls: appUrls,
-						sessionUser: opts.sessionUser,
-						users: self.users,
-						blueprintData: self,
-					}, function(err, launchData) {
-						callback(err, launchData);
-					});
-				}
+                    });
+                } else {
+                    blueprintConfigType.launch({
+                        infraManager: chef,
+                        ver: opts.ver,
+                        envName: envName,
+                        envId: opts.envId,
+                        stackName: opts.stackName,
+                        blueprintName: self.name,
+                        orgId: self.orgId,
+                        bgId: self.bgId,
+                        projectId: self.projectId,
+                        appUrls: appUrls,
+                        sessionUser: opts.sessionUser,
+                        users: self.users,
+                        blueprintData: self,
+                    }, function(err, launchData) {
+                        callback(err, launchData);
+                    });
+                }
 
-			});
+            });
 
-		});
-	});
+        });
+    });
 };
 
 // static methods
@@ -611,7 +612,7 @@ var findBlueprintVersionObject = function(blueprints,parentId){
     }
 
 var consolidateVersionOnBlueprint = function(blueprints){
-    logger.debug('About to scan:------------------------------------------',blueprints.length);
+    logger.debug('About to scan: ',blueprints.length);
         //logger.debug(blueprints);
         for(var bpi = 0; bpi < blueprints.length;bpi++){
             
@@ -620,7 +621,7 @@ var consolidateVersionOnBlueprint = function(blueprints){
             }
            
         }
-        logger.debug('About to return:------------------------------------------');
+        logger.debug('About to return:');
         //logger.debug(blueprints);
         for(var bpi = 0; bpi < blueprints.length;bpi++){
             if(blueprints[bpi].parentId)
@@ -635,7 +636,7 @@ var consolidateVersionOnBlueprint = function(blueprints){
 
 
 BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, projId, filterBlueprintType, callback) {
-    logger.debug("Enter +++++  getBlueprintsByOrgBgProject(%s,%s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
+    logger.debug("Enter getBlueprintsByOrgBgProject(%s,%s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
     var queryObj = {
         orgId: orgId,
         bgId: bgId,
@@ -663,7 +664,7 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, proj
 };
 
 BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bgId, projId, filterBlueprintType,provider, callback) {
-    logger.debug("Enter +++++  getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType,provider);
+    logger.debug("Enter getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType,provider);
     var options = [];
     options.push({"blueprintConfig.cloudProviderType":provider});
 
@@ -707,13 +708,13 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
     });
 };
 
-BlueprintSchema.methods.getCookBookAttributes = function(instanceIP, repoData, callback) {
+BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, callback) {
     var blueprint = this;
     //merging attributes Objects
     var attributeObj = {};
     var objectArray = [];
     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
-    var temp = new Date().getTime();
+    //var temp = new Date().getTime();
     if (blueprint.nexus.url) {
         masterUtil.updateProject(repoData.projectId, repoData.repoName, function(err, data) {
             if (err) {
@@ -735,7 +736,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instanceIP, repoData, c
         });
         objectArray.push({
             "rlcatalyst": {
-                "applicationNodeIP": instanceIP
+                "applicationNodeIP": instance.instanceIP
             }
         });
 
@@ -821,6 +822,50 @@ BlueprintSchema.methods.getCookBookAttributes = function(instanceIP, repoData, c
                             });
                         }
                     }
+
+                    var actualVersion = "";
+                    if (latestVersion) {
+                        actualVersion = latestVersion;
+                    } else {
+                        actualVersion = version;
+                    }
+
+                    // Update app-data for promote
+                    var nodeIp = [];
+                    nodeIp.push(instance.instanceIP);
+                    configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+                        if (err) {
+                            callback({
+                                message: "Failed to get env name from env id"
+                            }, null);
+                            return;
+                        }
+                        if (!envName) {
+                            callback({
+                                "message": "Unable to find environment name from environment id"
+                            });
+                            return;
+                        }
+                        var appData = {
+                            "projectId": instance.projectId,
+                            "envId": envName,
+                            "appName": artifactId,
+                            "version": actualVersion,
+                            "nexus": {
+                                "repoURL": url,
+                                "nodeIps": nodeIp
+                            }
+                        };
+                        AppData.createNewOrUpdate(appData, function(err, data) {
+                            if (err) {
+                                logger.debug("Failed to create or update app-data: ", err);
+                            }
+                            if (data) {
+                                logger.debug("Created or Updated app-data successfully: ", data);
+                            }
+                        });
+                    });
+
                     var attributeObj = utils.mergeObjects(objectArray);
                     callback(null, attributeObj);
                     return;
@@ -856,6 +901,47 @@ BlueprintSchema.methods.getCookBookAttributes = function(instanceIP, repoData, c
                 "applicationNodeIP": instanceIP
             }
         });
+
+        // Update app-data for promote
+        var nodeIp = [];
+        nodeIp.push(instance.instanceIP);
+        configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+            if (err) {
+                callback({
+                    message: "Failed to get env name from env id"
+                }, null);
+                return;
+            }
+            if (!envName) {
+                callback({
+                    "message": "Unable to find environment name from environment id"
+                });
+                return;
+            }
+            var actualDocker = [];
+            var docker = {
+                "image": blueprint.docker.image,
+                "container": blueprint.docker.containerId,
+                "port": blueprint.docker.containerPort,
+                "nodeIp": instance.instanceIP
+            };
+            actualDocker.push(docker);
+            var appData = {
+                "projectId": instance.projectId,
+                "envId": envName,
+                "version": actualVersion,
+                "docker": actualDocker
+            };
+            AppData.createNewOrUpdate(appData, function(err, data) {
+                if (err) {
+                    logger.debug("Failed to create or update app-data: ", err);
+                }
+                if (data) {
+                    logger.debug("Created or Updated app-data successfully: ", data);
+                }
+            })
+        });
+
         var attrs = utils.mergeObjects(objectArray);
         callback(null, attrs);
         return;
