@@ -3,7 +3,7 @@
     <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-application" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
         <div>
             <div class="widget-body no-padding">
-                <div class="col-lg-6 col-md-6 availableApp hidden" style="padding-left: 0px; margin-bottom: 15px;margin-top:5px;">
+                <div class="col-lg-6 col-md-6 availableApp hidden">
                     <label for="chooseApplication">Choose Available Application:<span class="redSpan">*</span></label>
                     <div class="input-groups">
                         <select id="chooseApplication" name="chooseApplication" class="required chooseApplication width-100">
@@ -13,25 +13,25 @@
                 <div class="col-lg-6 col-md-6 hidden">
                     <div class="panel-heading">
                         <span class="pull-right swap-view">
-						<a class="btn btn-primary envAppDeployList" href="#modalAppCardTableDetails" data-toggle="modal" style="margin-top: 15px;">
-						<span style="font-weight: bold;">List of Application</span>
-                        <i title="Add Application Details" class="fa fa-list fa-2x" style="color:#ffffff;cursor:pointer;font-size:13px;"></i>
+						<a class="btn btn-primary envAppDeployList margin-top-15" href="#modalAppCardTableDetails" data-toggle="modal">
+						<span class="fontBold">List of Application</span>
+                        <i title="Add Application Details" class="fa fa-list fa-2x listApp"></i>
                         </a>
-                        <a class="btn btn-primary envAppDeployModal" href="#modalAppCardDetails" data-toggle="modal" style="margin-top: 15px;">
-                            <span style="font-weight: bold;">Add Application</span>
-                            <i title="Add Application Details" class="fa fa-plus fa-2x" style="color:#ffffff;cursor:pointer;font-size:13px;"></i>
+                        <a class="btn btn-primary envAppDeployModal margin-top-15" href="#modalAppCardDetails" data-toggle="modal">
+                            <span class="fontBold">Add Application</span>
+                            <i title="Add Application Details" class="fa fa-plus fa-2x listApp"></i>
                         </a>
                         </span>
                     </div>
                 </div>
                 <div class="row noAppEnvironment padding15" style="display:none">
                   <div class="alert alert-warning text-center">
-                      <span style="font-size:13px;">Please activate environments from configure application to see the Pipeline View</span>
+                      <span class="font-size-13">Please activate environments from configure application to see the Pipeline View</span>
                   </div>
                 </div>
                 <div class="row">
                     <article class="col-sm-12 col-md-12 col-lg-12">
-                        <div class="widget-body font-size12" id="widgetAppDeploy" style="">
+                        <div class="widget-body font-size12" id="widgetAppDeploy">
                             <div class="panel-group smart-accordion-default" id="accordion-AppDeploy">
                             </div>
                             <div id="nodataAppDeploy" style="display:none">
@@ -43,18 +43,18 @@
 				                            <div class="panel-heading-support-main">
 				                                
 				                                <span class="spanHeading">
-				                                  <span class="applicationMainIP colorblack">Catalyst</span>
+				                                  <span class="applicationMainIP colorblack"></span>
 				                                </span>
 							            	</div>
 								            <div class="appCardBody">
 								                <div class="panel-body panel-primary appCardInfo padding2">
 								                    <div>
-								                        <div class="col-lg-12 col-sm-12 col-xs-12 text-center margin-top-15">
+								                        <div class="col-lg-12 col-sm-12 col-xs-12 text-center margin-top-5">
 								                            <img class="mainImageHeight" src="img/rsz_logo.png">
 								                        </div>
-								                        <div class="col-lg-12 col-sm-12 col-xs-12 paddingtopbottom4 text-center margin-top-25">
-								                            <div class="font-size10">
-								                                <span>Version :</span><span class="versionMain">2.10.477</span>
+								                        <div class="col-lg-12 col-sm-12 col-xs-12 paddingtopbottom4 text-center margin-top-5">
+								                            <div class="font-size-10">
+								                                <span>Version :</span><span class="versionMain"></span>
 								                            </div>
 								                        </div>
 								                    </div>
@@ -71,7 +71,7 @@
 				                            <div class="panel-heading panel-heading-support">
 				                                <span class="spanHeading"> 
 				                                  <span class="applicationChildIP colorblack">
-				                                  	54.17.34.45
+				                                  	
 				                                  </span>
 				                                </span>
 			    							</div>
@@ -79,15 +79,15 @@
 										        <div class="panel-body panel-primary appCardInfo padding2">
 										            <div class="">
 										                <div class="col-lg-12 col-sm-12 col-xs-12 text-center">
-										                    <img src="img/aws_logo_started.png" class="imgHeight">
-										                    <a class="btn btn-primary btn-sm width27borderradius50 applicationChildDetails" style="margin-left:-27px" title="Node Details" data-placement="top" rel="tooltip">
-										                        <i class="fa fa-th" style="font-size: 10px;color:#fff"></i>
+										                    <div class="imgHeight imgStatusSuccess"></div>
+										                    <a class="btn btn-primary btn-sm width27borderradius50 applicationChildDetails margintop-45" title="Node Details">
+										                        <i class="fa fa-th childCardNodeDetails"></i>
 										                    </a>
 										                </div>
-										                <div class="col-lg-12 col-sm-12 col-xs-12 padding0 text-center">
-										                    <div class="font-size10">
+										                <div class="col-lg-12 col-sm-12 col-xs-12 padding0 text-center ">
+										                    <div class="font-size-10 margintop-12">
 										                        <div>
-										                            <span class="lastapplicationDeploy" title="Last Deploy" data-original-title="Eval_Setup" data-placement="top" rel="tooltip">17-12-03 12:43:19 PM</span>
+										                            <span class="lastapplicationDeploy" title="Last Deploy"></span>
 										                        </div>
 										                    </div>
 										                </div>
@@ -105,12 +105,28 @@
 										</div>
 									</div>
 								</span>
-								<span class="secondChildSpanTemplate">
-									
-								</span>
+								<div class="secondChildSpanTemplate marginAuto hidden">
+									<div class="btn-group btn-grp-CSS">
+					                    <a class="btn btn-primary btn-approve marginleft10 borderRadius7" title="Approve">
+					                     <i class="ace-icon fa fa-check-square-o bigger-110 colorwhite"></i>
+					                     
+					                    </a>
+					                    <a class="btn btn-primary btn-promote marginleft10 borderRadius7" title="Promote" disabled>
+					                    	<i class="ace-icon fa fa-line-chart bigger-110 colorwhite"></i>
+					                    	
+					                    </a>
+					                </div>
+								</div>
 							</div>
-							<div class="col-md-12 tablebordercolor" id="divapplicationcardview" style="padding-left:0px; padding-right:0px;padding-top:10px">
-                				<table class="tableClone dataTable table-custom table-condensed" cellpadding="5px" width="100%" style="border-bottom:1px solid #ddd" style="display:none">
+							<div class="col-md-12 tablebordercolor paddingtop10leftright0" id="divapplicationcardview">
+								<div class="row loadingPipelineView">
+								    <article class="col-sm-12 col-md-12 col-lg-12">
+								        <img class="center-block loaderImg" src="img/loading.gif" />
+								    </article>
+								</div>
+                				<table class="tableClone dataTable table-custom table-condensed borderbtm1" cellpadding="5px" width="100%">
+                					<thead></thead>
+                					<tbody></tbody>
 
 				                </table>
 				                <div class="table-responsive table-div tableOverflow" id="tableContainer">
@@ -122,38 +138,44 @@
                     </article>
                 </div>
                 
-				<div class="row loadingAppDeploySpinner">
+				<!-- <div class="row loadingAppDeploySpinner">
 				    <article class="col-sm-12 col-md-12 col-lg-12">
-				        <img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />
+				        <img class="center-block loaderImg" src="img/loading.gif" />
 				    </article>
-				</div>
+				</div> -->
 				<div class="accordianTemplateContainer" style="display:none">
 				    <div class="panel panel-default accordianTemplate">
-				        <div class="panel-heading" style="border-bottom:1px solid rgb(221, 221, 221);height:40px;background-color:#fcfcfc;">
+				        <div class="panel-heading panelHeaderBackBorder">
 				            <h4 class="panel-title">
-								<span style="float:left;padding:0px !important;color:#666 !important;font-size:13px !important" class="envAppDeployName"></span>
+								<span class="envAppDeployName h4SpanCSS"></span>
 							</h4>
-				            <span class="pull-right margintop2right8">   
-								<a  id="defaultViewButtonNewDeploy" class="btn btn-primary createNewDeploy" style="margin-right:5px;" data-toggle="modal" href="#modalUpgradeAppDeploy"> 
-								<i class="ace-icon fa fa-plus bigger-110" style="color:#fff;margin-right:4px;"></i>Deploy New App
+				            <span class="pull-right margintop2right8"> 
+				            	<a id="syncAppPipelineView" class="btn btn-primary marginright5 hidden" title="Sync"> 
+									<i class="ace-icon fa fa-refresh bigger-110 marginright4White"></i>
+								</a>  
+								<a id="syncAppTableView" class="btn btn-primary marginright5" style="display:none"> 
+									<i class="ace-icon fa fa-refresh bigger-110 marginright4White"></i>
+								</a>
+								<a id="defaultViewButtonNewDeploy" class="btn btn-primary createNewDeploy marginright5" data-toggle="modal" href="#modalUpgradeAppDeploy"> 
+								<i class="ace-icon fa fa-plus bigger-110 marginright4White"></i>Deploy New App
 								</a>                                 
-								<a onclick="showHideControlApplication(this.id)" class="btn1" id="instanceviewAppCard" rel="tooltip" data-placement="top" data-original-title="History" title="History"> 
-								<i style="font-size:16px" class="fa fa-header fa-2x txt-color-deactive"></i>
+								<a onclick="showHideControlApplication(this.id)" class="btn1" id="instanceviewAppCard" title="History"> 
+								<i class="fa fa-header fa-2x txt-color-deactive font-size-16"></i>
 								</a>&nbsp;
 								<a onclick="showHideControlApplication(this.id)" id="defaultViewButtonAppCard" class="btn btn-primary" style="display:none"> 
-								<i class="ace-icon ace-icon fa fa-chevron-left bigger-110" style="color:#fff;margin-right:4px;"></i>Pipeline View
+								<i class="ace-icon ace-icon fa fa-chevron-left bigger-110 marginright4White"></i>Pipeline View
 								</a>
-								<a href="#modalappcardConfigure" data-toggle="modal" class="createAppConfigure" style="margin-top:-5px" title="Configure" rel="tooltip" data-placement="top" data-original-title="Configure">
-								<i class="fa fa-th fa-cogs" style="margin-right: 5px; color: rgb(64, 186, 241); font-size: 18px;"></i>
+								<a href="#modalappcardConfigure" data-toggle="modal" class="createAppConfigure margintop-5"  title="Configure">
+								<i class="fa fa-th fa-cogs marginright5font18"></i>
 								</a>
 							</span>
 				        </div>
 				        <div id="divapplicationtableview">
 				            <div id="collapseAppEnv1" class="panel-collapse collapse in envAppDeployAccordian">
-				                <div class="table-responsive table-div" style="padding: 5px;overflow-x: auto;min-height:300px">
-				                    <table id="tableappDeploydetails" class="table table-striped table-bordered table-hover dataTable envAppDeployTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;margin-top:45px;" width="100%" cellpadding="5px">
+				                <div class="table-responsive table-div table-responsive-CSS">
+				                    <table id="tableappDeploydetails" class="table table-striped table-bordered table-hover dataTable envAppDeployTable tableAppDetailsCSS" width="100%" cellpadding="5px">
 				                        <thead>
-				                            <tr class="rowCustomStyle" style="font-weight:bold;">
+				                            <tr class="rowCustomStyle fontBold">
 				                                <td class="tableStyleColor">App</td>
 				                                <td class="tableStyleColor">App-Instance</td>
 				                                <td class="tableStyleColor">Version</td>
@@ -172,7 +194,7 @@
 				                    </table>
 				                </div>
 				                <div class="table-responsive table-div fornNoDataDiv" style="display:none">
-				                    <table id="tableappDeploydetailsforNoData" class="table table-striped table-bordered table-hover dataTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;margin-top:45px;" width="100%" cellpadding="5px">
+				                    <table id="tableappDeploydetailsforNoData" class="table table-striped table-bordered table-hover dataTable tableAppDetailsCSS" width="100%" cellpadding="5px">
 				                        <thead>
 				                            <tr class="rowCustomStyle">
 				                                <td class="tableStyleColor">App</td>
@@ -194,11 +216,126 @@
 				                </div>
 				            </div>
 				        </div>
-				        <div id="">
-				        </div>
 				    </div>
 				</div>
 			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalapproveConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Approve to Promote App from "<span id="approvedEnvName"></span>"
+					</h4>
+				</div>
+				<div class="modal-body height150">
+					<div class="">
+                     	<label class="font-size-13">Comments :</label>
+                     	<textarea class="form-control height75widthFull" name="comments" id="approvalCommentsDesc"></textarea>
+                  	</div>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">
+						  
+						<a class="btn btn-default" data-dismiss="modal">
+							<i class="ace-icon fa fa-times bigger-110"></i>
+							Cancel
+						</a>  
+						                            
+						<a class="btn btn-primary approveSave marginleft10">
+							<i class="ace-icon fa fa-check bigger-110"></i>
+							Approve
+						</a>
+						<a class="btn btn-danger revokeSave marginleft10">
+							<i class="ace-icon fa fa-times-circle bigger-110"></i>
+							Revoke
+						</a> 
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="modalpromoteConfigure" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form role="form" id="appPromoteForm" autocomplete="off">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					X
+					</button>
+					<h4 class="modal-title">
+						<i class="fa fa-th-list txt-color-blue"></i>&nbsp;&nbsp;Promote for Pipeline View
+					</h4>
+				</div>
+				<div class="modal-body modal-height">
+					<div class="col-lg-6 col-md-6">
+						<label for="">Source Environments:
+							<span class="redSpan">*</span>
+							<span>
+								<img class="environmentspinner" src="img/select2-spinner.gif" style="display:none" />
+							</span>
+						</label>
+						<div class="input-groups">
+							<select id="chooseSourceEnvironments" name="" class="required width-100 form-control">
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-6 col-md-6">
+						<label for="">Target Environments:
+							<span class="redSpan">*</span>
+							<span>
+								<img class="environmentspinner" src="img/select2-spinner.gif" style="display:none" />
+							</span>
+						</label>
+						<div class="input-groups">
+							<select id="chooseEnvironments" name="" class="required width-100 form-control">
+							</select>
+						</div>
+					</div>
+					
+					<div class="col-lg-6 col-md-6 margintop15">
+						<label for="">Jobs:
+							<span class="redSpan">*</span>
+							<span>
+								<img class="jobsspinner" src="img/select2-spinner.gif" style="display:none" />
+							</span>
+						</label>
+						<div class="input-groups">
+							<select id="chooseJobs" name="" class="required width-100 form-control">
+								<option value="">Choose Jobs</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-12 margintop15">
+					   	<label for="">Nodes:<span class="redSpan">*</span></label>
+					   	<div class="smart-form">
+	                       	<ul id="promoteNodesId" class="promoteNodesCSS paddingleftright0">
+	              
+	                       	</ul>
+                       	</div>
+                    </div>
+				</div>
+				<div class="modal-footer">
+					<div class="btn-group marginleft200">  
+						<a class="btn btn-default" data-dismiss="modal">
+							<i class="ace-icon fa fa-times bigger-110"></i>
+							Cancel
+						</a>                               
+						<a class="btn btn-primary promoteSave marginleft10">
+							<i class="ace-icon fa fa-check bigger-110"></i>
+							Promote
+						</a>
+					</div>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -230,12 +367,12 @@
 					</form>
 				</div>
 				<div class="modal-footer">
-					<div class="btn-group" style="margin-left:200px;">  
+					<div class="btn-group marginleft200">  
 						<a class="btn btn-default" data-dismiss="modal">
 						<i class="ace-icon fa fa-times bigger-110"></i>
 						Cancel
 						</a>                               
-						<a class="btn btn-primary appdeployConfigureSaveBtn" style="margin-left:10px;">
+						<a class="btn btn-primary appdeployConfigureSaveBtn marginleft10">
 						<i class="ace-icon fa fa-save bigger-110"></i>
 						Save
 						</a>
@@ -261,23 +398,23 @@
 				</div>
 				<div class="modal-body">
 					<div class="addApptoAppend">
-						<div style="margin:5px 0px 0px;" class="row application4Params">
-							<div style="padding-left:0px;" class="col-lg-6 col-md-6 col-sm-6">
+						<div class="row application4Params margin5-0-0">
+							<div class="col-lg-6 col-md-6 col-sm-6 paddingleft0">
 								<label for="name">Application Name:<span class="redSpan">*</span>
 								</label>
-								<input type="text" autofocus="" style="height:36px;" class="form-control" id="appNameInput">
+								<input type="text" autofocus="" class="form-control height36" id="appNameInput">
 							</div>
-							<div style="padding-left:0px;" class="col-lg-6 col-md-6 col-sm-6">
+							<div class="col-lg-6 col-md-6 col-sm-6 paddingleft0">
 								<label for="name">Description:
 								</label>
-								<input type="text" style="height:36px;" class="form-control" id="applicationDescriptionInput">
+								<input type="text" class="form-control height36" id="applicationDescriptionInput">
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
-					<div class="btn-group" style="margin-left:200px;">
-						<a style="margin-left:10px;" class="btn btn-default cancelAppDeploy" data-dismiss="modal">
+					<div class="btn-group marginleft200">
+						<a class="btn btn-default cancelAppDeploy marginleft10" data-dismiss="modal">
 						<i class="ace-icon fa fa-times bigger-110"></i> Cancel
 						</a>
 						<a class="btn btn-primary" id="parameterAppDeploySaveBtn">
@@ -303,9 +440,9 @@
 				</div>
 				<div class="modal-body">
 					<div class="table-responsive table-div">
-						<table id="tableappParamDeploy" class="table table-striped table-bordered table-hover dataTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;" width="100%" cellpadding="5px">
+						<table id="tableappParamDeploy" class="table table-striped table-bordered table-hover dataTable tableModalAppDetails" width="100%" cellpadding="5px">
 							<thead>
-								<tr class="rowCustomStyle" style="font-weight:bold;">
+								<tr class="rowCustomStyle fontBold">
 									<td class="tableStyleColor">S.No.</td>
 									<td class="tableStyleColor">Application Name</td>
 									<td class="tableStyleColor">Application Description</td>
@@ -317,8 +454,8 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<div class="btn-group" style="margin-left:200px;">
-						<a style="margin-left:10px;" class="btn btn-default" data-dismiss="modal">
+					<div class="btn-group marginleft200">
+						<a class="btn btn-default marginleft10" data-dismiss="modal">
 						<i class="ace-icon fa fa-times bigger-110"></i> Cancel
 						</a>
 					</div>
@@ -333,7 +470,7 @@
         <div class="modal-content">
             <form role="form" id="" autocomplete="off">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <button type="button" class="close logsClose" data-dismiss="modal" aria-hidden="true">
                         X
                     </button>
                     <h4 class="modal-title">
@@ -358,8 +495,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="btn-group" style="margin-left:200px;">
-                        <a style="margin-left:10px;" class="btn btn-default" data-dismiss="modal">
+                    <div class="btn-group marginleft200">
+                        <a class="btn btn-default marginleft10 logsClose" data-dismiss="modal">
                             <i class="ace-icon fa fa-times bigger-110"></i> Cancel
                         </a>
                     </div>
@@ -386,8 +523,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="btn-group" style="margin-left:200px;">
-                        <a style="margin-left:10px;" class="btn btn-default" data-dismiss="modal">
+                    <div class="btn-group marginleft200">
+                        <a class="btn btn-default marginleft10" data-dismiss="modal">
                             <i class="ace-icon fa fa-times bigger-110"></i> Cancel
                         </a>
                     </div>
@@ -414,8 +551,8 @@
 					
 				</div>
 				<div class="modal-footer">
-					<div class="btn-group" style="margin-left:200px;">
-						<a style="margin-left:10px;" class="btn btn-default cancelAppDeploy" data-dismiss="modal">
+					<div class="btn-group marginleft200">
+						<a class="btn btn-default cancelAppDeploy marginleft10" data-dismiss="modal">
 						<i class="ace-icon fa fa-times bigger-110"></i> Cancel
 						</a>
 					</div>
@@ -537,7 +674,7 @@
 							<input id="upgradeValue" type="hidden" />
 							
 						</fieldset>
-						<fieldset class="fieldsetCustom"  style="margin-top: 20px ! important;">
+						<fieldset class="fieldsetCustom margintop20">
 							<legend  class="legendCustom">Job Details:</legend>
 							<div class="col-lg-6 col-md-6 col-sm-6">
 								<label>Jobs:<span class="redSpan">*</span>
@@ -552,7 +689,7 @@
 									</select>
 								</div>
 							</div>
-							<div class="col-lg-6 col-md-6" style="margin-top: 6px;">
+							<div class="col-lg-6 col-md-6 margintop6">
 								<label>
 								<span></span>
 								</label>
@@ -566,14 +703,14 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<div class="btn-group" style="margin-left:200px;">
-						<a style="margin-left:10px;" class="btn btn-default cancelUpgradeAppDeploy" data-dismiss="modal">
+					<div class="btn-group marginleft200">
+						<a class="btn btn-default cancelUpgradeAppDeploy marginleft10" data-dismiss="modal">
 						<i class="ace-icon fa fa-times bigger-110"></i> Cancel
 						</a>
-						<a style="margin-left:10px;" class="btn btn-primary saveNewAppDeploy" style="display:none">
+						<a class="btn btn-primary saveNewAppDeploy marginleft10" style="display:none">
 						<i class="ace-icon fa fa-location-arrow bigger-110"></i> Deploy
 						</a>
-						<a style="margin-left:10px;" class="btn btn-primary saveUpgradeAppDeploy">
+						<a class="btn btn-primary saveUpgradeAppDeploy marginleft10">
 						<i class="ace-icon fa fa-save bigger-110"></i> Upgrade
 						</a>
 					</div>
