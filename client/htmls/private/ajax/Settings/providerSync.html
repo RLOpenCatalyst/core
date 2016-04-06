@@ -597,13 +597,19 @@
                 if(tagsListData[i].description){
                     var $inputTxt = '';
                     var tagsDescription = tagsListData[i].description;
-                    $inputTxt = $('<input id="tagdescinputId'+i+'" value="'+tagsDescription+'" type="text" class="width-90 border-grey"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
+                    $inputTxt = $('<input id="tagdescinputId'+i+'" value="'+tagsDescription+'" type="text" class="width-90 border-grey tagsDescInput"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
                 }else{
                     var $inputTxt = '';
-                    $inputTxt = $('<input id="tagdescinputId'+i+'" type="text" class="width-90 border-grey"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
+                    $inputTxt = $('<input id="tagdescinputId'+i+'" type="text" class="width-90 border-grey tagsDescInput"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
                 }
                 
-                $inputTxt.keypress(function(event){
+                var $tdDesc = $('<td></td>').append($inputTxt);
+                $tr.append($tdDesc);
+
+                $tagsDatatable.row.add($tr).draw();
+            }
+
+            $('#tagsTable').on('keypress','.tagsDescInput',function(event){
                     var keycode = (event.keyCode ? event.keyCode : event.which);
                     if(keycode == '13'){
                         var $this = $(this);
@@ -614,7 +620,6 @@
                         //Send the body update tag
                         var objupdatetagDesc = {};
                         objupdatetagDesc["description"] = tagDesc;
-
                         $.ajax({
                             url: '/providers/'+ providerId +'/tags/'+ tagName,
                             method: 'PUT',
@@ -633,34 +638,32 @@
                     //at document level will also be triggered
                     event.stopPropagation();
                 });
-    
-                $inputTxt.filter('.saveBtnTagsCSS').off("click").on("click",function(){
+                $('#tagsTable').on('click','.saveBtnTagsCSS',function(event){
                     var $this = $(this);
+                    var id = $this.parents().eq(1).find('input').attr('id');
                     var tagName = $this.parents().eq(1).find('.tagName').html();
                     var tagDesc = $this.parents().eq(1).find('input').val();
-                
+
                     //Send the body update tag
                     var objupdatetagDesc = {};
                     objupdatetagDesc["description"] = tagDesc;
+                    console.log(objupdatetagDesc);
                     $.ajax({
                         url: '/providers/'+ providerId +'/tags/'+ tagName,
                         method: 'PUT',
                         data: JSON.stringify(objupdatetagDesc),
                         contentType: "application/json",
                         success: function() {
-                            $this.parents().eq(1).find('input').css('background-color','lightyellow');
+                            $('#'+id).css('background-color','lightyellow');
                         },
                         error: function(jxhr) {
                             //alert("Tags description not saved....");
                         }
-                    });
+                    }); 
                 });
-                var $tdDesc = $('<td></td>').append($inputTxt);
-                $tr.append($tdDesc);
 
-                $tbody.append($tr);
-                $tagsDatatable.row.add($tr).draw();
-            }
+
+
             var blankArr = [];
             loaddefaultTagMappingSelection(blankArr);
         }
