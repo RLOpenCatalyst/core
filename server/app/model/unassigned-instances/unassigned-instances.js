@@ -49,11 +49,11 @@ UnassignedInstancesSchema.statics.createNew = function createNew(data, callback)
     unassignedInstance.save(function(err, instance) {
         if (err) {
             logger.error("Failed to create unassigned instance", err);
-            if (typeof callBack == 'function') {
+            if (typeof callback == 'function') {
                 callBack(err, null);
             }
             return;
-        } else if (typeof callBack == 'function') {
+        } else if (typeof callback == 'function') {
             return callBack(null, instance);
         }
     });
@@ -73,7 +73,7 @@ UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(pro
     );
 };
 
-UnassignedInstancesSchema.statics.updateInstance = function updateInstance(params, fields ,callBack) {
+UnassignedInstancesSchema.statics.updateInstance = function updateInstance(params, fields ,callback) {
     this.update({
         "platformId": instanceId,
     }, {
@@ -81,32 +81,32 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
     }, function(err, data) {
         if (err) {
             logger.error("Failed to update unassigned instance data", err);
-            if (typeof callBack == 'function') {
-                callBack(err, null);
+            if (typeof callback == 'function') {
+                callback(err, null);
             }
             return;
         }
-        if (typeof callBack == 'function') {
-            callBack(null, data);
+        if (typeof callback == 'function') {
+            callback(null, data);
         }
     });
 };
 
 UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId
-    = function deleteByPlatformAndProviderId(providerId, platformId, callBack) {
+    = function deleteByPlatformAndProviderId(providerId, platformId, callback) {
     Instances.remove({
         providerId: providerId,
         platformId: platformId
     }, function(err, data) {
         if (err) {
             logger.error("Failed to delete instance (%s)", platformId, err);
-            if (typeof callBack == 'function') {
-                callBack(err, null);
+            if (typeof callback == 'function') {
+                callback(err, null);
             }
             return;
         }
-        if (typeof callBack == 'function') {
-            callBack(null, data);
+        if (typeof callback == 'function') {
+            callback(null, data);
         }
     });
 };
