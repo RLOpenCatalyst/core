@@ -201,13 +201,17 @@ TagSchema.statics.deleteTag = function deleteTag(params, callback) {
 TagSchema.statics.updateTagValues = function updateTagValues(params, values, callback) {
     this.update(
         params,
-        {$push: {$each: {values: value}}},
+        {$push: {values: values}},
         function(err, tags) {
             if(err) {
                 logger.error(err);
-                return callback(err, null);
+                if(typeof callback == 'function') {
+                    return callback(err, null);
+                }
             } else {
-                return callback(null, true);
+                if(typeof callback == 'function') {
+                    return callback(null, true);
+                }
             }
         }
     )
