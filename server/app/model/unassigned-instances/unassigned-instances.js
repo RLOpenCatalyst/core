@@ -94,7 +94,7 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
 
 UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId
     = function deleteByPlatformAndProviderId(providerId, platformId, callback) {
-    Instances.remove({
+    this.remove({
         providerId: providerId,
         platformId: platformId
     }, function(err, data) {
