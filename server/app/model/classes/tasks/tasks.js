@@ -28,6 +28,9 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Jenkins = require('_pr/lib/jenkins');
 var CompositeTask = require('./taskTypeComposite');
 var PuppetTask = require('./taskTypePuppet');
+var ScriptTask = require('./taskTypeScript');
+
+
 
 var Schema = mongoose.Schema;
 
@@ -35,7 +38,8 @@ var TASK_TYPE = {
 	CHEF_TASK: 'chef',
 	JENKINS_TASK: 'jenkins',
 	COMPOSITE_TASK: 'composite',
-	PUPPET_TASK: 'puppet'
+	PUPPET_TASK: 'puppet',
+	SCRIPT_TASK: 'script'
 };
 
 var TASK_STATUS = {
@@ -364,6 +368,12 @@ taskSchema.statics.createNew = function(taskData, callback) {
 			taskType: TASK_TYPE.COMPOSITE_TASK,
 			assignTasks: taskData.assignTasks,
 			jobName: taskData.jobName
+		});
+	} else if (taskData.taskType === TASK_TYPE.SCRIPT_TASK) {
+		taskConfig = new ScriptTask({
+			taskType: TASK_TYPE.SCRIPT_TASK,
+			nodeIds: taskData.nodeIds,
+			scriptFileName: taskData.scriptName
 		});
 	} else {
 		callback({

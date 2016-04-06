@@ -61,7 +61,8 @@
         "farmhash": "1.1.0",
         "mocha": "2.4.5",
         "apidoc": "0.15.1",
-        "async": "v1.5.2"
+        "async": "v1.5.2",
+        "multer": "1.1.0"
     },
     "devDependencies": {
         "grunt": "0.4.5",
@@ -82,3 +83,4 @@
         "url": "https://github.com/RLOpenCatalyst/core"
     }
 }
+

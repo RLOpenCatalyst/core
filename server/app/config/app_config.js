@@ -59,6 +59,7 @@ mkdirp.sync(config.catalystHome);
 mkdirp.sync(config.instancePemFilesDir);
 mkdirp.sync(config.tempDir);
 mkdirp.sync(config.chef.cookbooksDir);
+mkdirp.sync(config.scriptDir);
 
 var chefRepoLocation = mkdirp.sync(config.chef.chefReposLocation);
 logger.debug('chef repo location ==>', config.chef.chefReposLocation);
