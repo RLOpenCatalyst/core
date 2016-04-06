@@ -1030,16 +1030,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {String}	tagMapping.name 									Tag name
 	 * @apiSuccess {Object[]} tagMapping.catalystEntityMapping 					Catalyst entity mapping
 	 * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+	 * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityName Catalyst entity name
 	 * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue			Tag value
 	 * @apiParamExample {json} Request-Example:
 	 * 		{
 	 * 			"catalystEntityMapping": [
 	 *				{
 	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "project 1",
 	 *					"tagValue": "proj1"
 	 *				},
 	 *				{
 	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "project 2",
 	 *					"tagValue": "proj2"
 	 *
 	 *				}
@@ -1063,10 +1066,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 			"catalystEntityMapping": [
 	 *				{
 	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "project 1",
 	 *					"tagValue": "proj1"
 	 *				},
 	 *				{
 	 *					"catalystEntityId": "<MongoID>",
+	 *					"catalystEntityName": "project 2",
 	 *					"tagValue": "proj2"
 	 *
 	 *				}

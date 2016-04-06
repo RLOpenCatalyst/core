@@ -175,22 +175,27 @@ function sync() {
 																					&& (projectTag.tagName in tagInfo) && (environmentTag.tagName in tagInfo)) {
 
 																					var catalystProjectId = null;
+																					var catalystProjectName = null;
 																					var catalystEnvironmentId = null;
+																					var catalystEnvironmentName = null;
 
 																					for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
 																						if (projectTag.catalystEntityMapping[y].tagValue == tagInfo[projectTag.tagName]) {
 																							catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+																							catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
 																							break;
 																						}
 																					}
 																					for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
 																						if (environmentTag.catalystEntityMapping[y].tagValue == tagInfo[environmentTag.tagName]) {
 																							catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+																							catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
 																							break;
 																						}
 																					}
 
-																					if (catalystProjectId && catalystEnvironmentId) {
+																					if (catalystProjectId && catalystProjectName
+																						&& catalystEnvironmentId && catalystEnvironmentName) {
 																						addedToUnmanaged = true;
 																						if (awsInstances[m].Platform && awsInstances[m].Platform === 'windows') {
 																							os = 'windows';
@@ -200,7 +205,9 @@ function sync() {
 																							orgId: org.rowid,
 																							providerId: provider._id,
 																							projectId: catalystProjectId,
+																							projectName: catalystProjectName,
 																							environmentId: catalystEnvironmentId,
+																							environmentName: catalystEnvironmentName,
 																							providerType: 'aws',
 																							providerData: {
 																								region: region
