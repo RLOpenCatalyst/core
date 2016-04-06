@@ -51,6 +51,224 @@ $('#saveRunlist').click(function(e) {
 	return false;
 });
 
+
+$('#editAttributesBtn').click(function(e) {
+        var $ccrs = $('.cookbookShow').data('$ccrs');
+        var runlist = $ccrs.getSelectedRunlist();
+        if (!runlist.length) {
+            alert('Please choose a runlist first');
+            return false;
+        }
+        var $modal = $('#editAttributesModalContainer');
+        $modal.find('.attributesEditFormArea').hide();
+        $modal.find('.errorMsgContainer').hide();
+        $modal.find('.loadingContainer').show();
+        $modal.modal('show');
+
+        var reqBody = {
+            cookbooks: [],
+            roles: []
+        }
+
+        for (var i = 0; i < runlist.length; i++) {
+
+            if (runlist[i].indexOf('template') === 0) {
+                var templateRunlist = $chefCookbookRoleSelector.getRunlistFromTemplate(runlist[i]);
+                runlist = runlist.concat(templateRunlist);
+                continue;
+            }
+            var name = '';
+            var item = runlist[i];
+            var indexOfBracketOpen = item.indexOf('[');
+            if (indexOfBracketOpen != -1) {
+                var indexOfBracketClose = item.indexOf(']');
+                if (indexOfBracketClose != -1) {
+                    name = item.substring(indexOfBracketOpen + 1, indexOfBracketClose);
+                }
+            }
+            if (runlist[i].indexOf('recipe') === 0) {
+                if (reqBody.cookbooks.indexOf(name) === -1) {
+                    reqBody.cookbooks.push(name);
+                }
+            } else {
+                if (reqBody.roles.indexOf(name) === -1) {
+                    reqBody.roles.push(name);
+                }
+            }
+
+        }
+        //var chefServerId = $chefCookbookRoleSelector.getChefServerId();
+        //var $ccrs = $('.runlistContainer').data('$ccrs');
+        var $ccrs = $('.cookbookShow').data('$ccrs');
+        var chefServerId = $ccrs.getChefServerId();
+        $.post('../chef/servers/' + chefServerId + '/attributes', reqBody, function(attributesList) {
+            //var dataTable = $('#attributesEditListArea').DataTable();
+            //dataTable.clear();
+            var $tbody = $modal.find('.attributesEditTableBody');
+            $tbody.empty();
+            var $tbodyViewAttributes = $('#attributesViewListTable').find('tbody');
+            for (var i = 0; i < attributesList.length; i++) {
+                var attributesNamesList = Object.keys(attributesList[i].attributes);
+                for (var j = 0; j < attributesNamesList.length; j++) {
+                    var $tr = $('<tr/>');
+                    var displayName = attributesNamesList[j];
+                    if (attributesList[i].attributes[attributesNamesList[j]].display_name) {
+                        displayName = attributesList[i].attributes[attributesNamesList[j]].display_name;
+                    }
+                    var $tdAttribName = $('<td/>').html(displayName);
+                    var required = false;
+                    if (attributesList[i].attributes[attributesNamesList[j]]['required'] === 'required') {
+                        $tdAttribName.append('<span class="control-label" style="color:Red;">&nbsp;*</span>');
+                        required = true;
+                    }
+                    var value = '';
+                    if (attributesList[i].attributes[attributesNamesList[j]]['default']) {
+                        value = attributesList[i].attributes[attributesNamesList[j]]['default'];
+                    }
+                    var $trView = $tbodyViewAttributes.find('tr[data-attributeKey="' + attributesNamesList[j] + '"]');
+                    if ($trView.length) {
+                        value = $trView.attr('data-attributeValue');
+                    }
+
+                    var $attributeInput;
+                    var choices = attributesList[i].attributes[attributesNamesList[j]].choice;
+                    if (choices && choices.length) {
+                        $attributeInput = $('<select class="attribValueInput" data-attribKey="' + attributesNamesList[j] + '" data-attribName="' + displayName + '" data-attributeRequired="' + required + '"></select>');
+                        for (var k = 0; k < choices.length; k++) {
+                            var $option = $('<option></option>').val(choices[k]).html(choices[k]);
+                            $attributeInput.append($option);
+                        }
+                        $attributeInput.val(value);
+                    } else {
+                        var passwordField = false;
+                        var keyParts = attributesNamesList[j].split('/');
+                        if (keyParts.length) {
+                            var indexOfPassword = keyParts[keyParts.length - 1].indexOf('password_');
+                            if (indexOfPassword !== -1) {
+                                passwordField = true;
+                            }
+                        }
+                        if (passwordField) {
+                            $attributeInput = $('<input type="password" class="attribValueInput" data-attribKey="' + attributesNamesList[j] + '" value="' + value + '" data-attribName="' + displayName + '" data-attributeRequired="' + required + '"/>');
+                        } else {
+                            $attributeInput = $('<input type="text" class="attribValueInput" data-attribKey="' + attributesNamesList[j] + '" value="' + value + '" data-attribName="' + displayName + '" data-attributeRequired="' + required + '"/>');
+                        }
+                    }
+
+                    var $tdAttribEditor = $('<td/>').append($attributeInput);
+                    var desc = attributesList[i].attributes[attributesNamesList[j]]['description'];
+                    if (desc) {
+                        var $tooltipAnchor = $('<a data-toggle="tooltip" title="' + desc + '!" style="margin-left:15px"><img src="img/help.png"/></a>');
+                        $tooltipAnchor.tooltip();
+                        $tdAttribEditor.append($tooltipAnchor);
+                    }
+                    $tr.append($tdAttribName).append($tdAttribEditor);
+                    //dataTable.row.add($tr).draw();
+                    $tbody.append($tr)
+                }
+            }
+            $modal.find('.errorMsgContainer').hide();
+            $modal.find('.loadingContainer').hide();
+            $modal.find('.attributesEditFormArea').show();
+
+        }).fail(function(e) {
+            $modal.find('.errorMsgContainer').html('Unable to fetch attributes. Please try again later').show();
+            $modal.find('.loadingContainer').hide();
+            $modal.find('.attributesEditFormArea').hide();
+        });
+        return false;
+    });
+
+    function createAttribTableRowFromJson(attributes) {
+        var $table = $('#attributesViewListTable').removeClass('hidden');
+        var $tbody = $table.find('tbody').empty();
+        console.log(attributes);
+        for (var j = 0; j < attributes.length; j++) {
+            var attributeObj = attributes[j].jsonObj;
+
+            function getVal(obj, currentKey) {
+                var keys = Object.keys(obj);
+                for (var i = 0; i < keys.length; i++) {
+                    if (typeof obj[keys[i]] === 'object') {
+                        getVal(obj[keys[i]], currentKey + '/' + keys[i]);
+                    } else {
+                        var keyString = currentKey + '/' + keys[i];
+                        keyString = keyString.substring(1);
+
+                        var $tr = $('<tr/>').attr({
+                            'data-attributeKey': keyString,
+                            'data-attributeValue': obj[keys[i]],
+                            'data-attributeName': attributes[j].name
+                        }).data('jsonObj', attributes[j].jsonObj).css('word-break','break-all');
+
+                        var passwordField = false;
+                        var passwordField = false;
+                        var keyParts = keyString.split('/');
+                        if (keyParts.length) {
+                            var indexOfPassword = keyParts[keyParts.length - 1].indexOf('password_');
+                            if (indexOfPassword !== -1) {
+                                passwordField = true;
+                            }
+                        }
+
+                        var $tdAttributeKey = $('<td/>').html(attributes[j].name);
+                        if (passwordField) {
+                            var $tdAttributeVal = $('<td/>').html("*****");
+                        } else {
+                            var $tdAttributeVal = $('<td/>').html(obj[keys[i]]);
+                        }
+                        $tr.append($tdAttributeKey).append($tdAttributeVal);
+                        $tbody.append($tr);
+                    }
+                }
+            }
+            getVal(attributeObj, '');
+        }
+    }
+
+    $('.saveAttribBtn').click(function(e) {
+        var $modal = $('#editAttributesModalContainer');
+        var $tbody = $modal.find('.attributesEditTableBody');
+        var $input = $tbody.find('.attribValueInput');
+        var attributes = [];
+        for (var j = 0; j < $input.length; j++) {
+            var $this = $($input[j]);
+            var attributeKey = $this.attr('data-attribKey');
+            console.log(attributeKey);
+            var attribValue = $this.val();
+            if (attribValue) {
+                var attribPathParts = attributeKey.split('/');
+                var attributeObj = {};
+                var currentObj = attributeObj;
+                for (var i = 0; i < attribPathParts.length; i++) {
+                    if (!currentObj[attribPathParts[i]]) {
+                        if (i === attribPathParts.length - 1) {
+                            currentObj[attribPathParts[i]] = attribValue;
+                            continue;
+                        } else {
+                            currentObj[attribPathParts[i]] = {};
+                        }
+                    }
+                    currentObj = currentObj[attribPathParts[i]];
+                }
+                attributes.push({
+                    name: $this.attr('data-attribName'),
+                    jsonObj: attributeObj
+                });
+            } else {
+                if ($this.attr('data-attributeRequired') === 'true') {
+                    alert("Please fill in the required attributes");
+                    return false;
+                }
+            }
+        }
+
+        console.log('attributeObj ==>', attributes);
+        //$('#attrtextarea').text(JSON.stringify(attributeObj));
+        createAttribTableRowFromJson(attributes);
+        $modal.modal('hide');
+    });
+
 function updatecompositedockertableemptymessage() {
 	if ($('#compositedockertable').find('tr').length <= 1) {
 		//no rows found add empty message
@@ -1297,6 +1515,24 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 							var cbs = [];
 							cbs = $ccrs.getSelectedRunlist();
 							reqBody.runlist = cbs;
+
+							//Attributes start
+
+							var attrs = [];
+							var table = $("#attributesViewListTable tbody");
+						    table.find('tr').each(function (i) {
+						    	var obj = {};
+						        var $tds = $(this).find('td'),
+						            attribute = $tds.eq(0).text(),
+						            value = $tds.eq(1).text();
+						        alert(attribute);
+						        alert(value);
+						        obj[attribute] = value;
+						        attrs.push(obj);
+						    });
+						    // Attributes end
+
+
 							reqBody.chefServerId = $ccrs.getChefServerId();
 							console.log("instanceType ==>", $('select.instanceType').val());
 							reqBody.instanceType = $('select.instanceType').val();
@@ -1338,12 +1574,12 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 							reqBody.imageId = imageId;
 							reqBody.providerId = providerId;
 							reqBody.name = $('#blueprintNameInput').val();
-							$('#userListSelect').find('option').attr('selected', 'selected');
+							/*$('#userListSelect').find('option').attr('selected', 'selected');
 							reqBody.users = $('#userListSelect').val();
 							if (!reqBody.users) {
 								alert("Please choose users");
 								return false;
-							}
+							}*/
 							//Checking for docker blueprint images
 							if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
 								//no rows found add empty message
@@ -2001,6 +2237,7 @@ $.ajax({
 		});
 	}
 });
+/*
 (function() {
 	var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
 	$.get('../users', function(userList) {
@@ -2023,7 +2260,7 @@ $.ajax({
 	}).error(function() {
 		$loadingContainer.empty().append('Unable to load users. Please try again later.');
 	});
-})();
+})();*/
 $(document).ready(function() {
 	$("#blueprintNameInput").focus();
 });

@@ -69,7 +69,7 @@ function aggregation() {
                                                 } else {
                                                     var params = {
                                                         'providerId': provider._id,
-                                                        'tagName': tagName
+                                                        'name': tagName
                                                     }
                                                     var fields = {
                                                         'values': tagDetails[tagName].values

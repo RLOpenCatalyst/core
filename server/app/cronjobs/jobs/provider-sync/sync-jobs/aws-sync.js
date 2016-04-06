@@ -70,10 +70,11 @@ function sync() {
 												logger.error("Unable to get tags", err);
 												return;
 											}
+
 											var projectTag = null;
 											var environmentTag = null;
 											// @TODO enum to be used to compare against project and env
-											for (var z = 0; z < tagDetails.lenght; z++) {
+											for (var z = 0; z < tagDetails.length; z++) {
 												if (('catalystEntityType' in tagDetails[z]) &&
 													tagDetails[z].catalystEntityType == 'project') {
 													projectTag = tagDetails[z];
@@ -172,7 +173,7 @@ function sync() {
 																				var os = 'linux';
 
 																				if (projectTag && environmentTag && (awsInstances[m].State.Name !== 'terminated')
-																					&& (projectTag.tagName in tagInfo) && (environmentTag.tagName in tagInfo)) {
+																					&& (projectTag.name in tagInfo) && (environmentTag.name in tagInfo)) {
 
 																					var catalystProjectId = null;
 																					var catalystProjectName = null;
@@ -180,22 +181,23 @@ function sync() {
 																					var catalystEnvironmentName = null;
 
 																					for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-																						if (projectTag.catalystEntityMapping[y].tagValue == tagInfo[projectTag.tagName]) {
+																						if (projectTag.catalystEntityMapping[y].tagValue == tagInfo[projectTag.name]) {
 																							catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
 																							catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
 																							break;
 																						}
 																					}
 																					for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-																						if (environmentTag.catalystEntityMapping[y].tagValue == tagInfo[environmentTag.tagName]) {
+																						if (environmentTag.catalystEntityMapping[y].tagValue == tagInfo[environmentTag.name]) {
 																							catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
 																							catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
 																							break;
 																						}
 																					}
 
-																					if (catalystProjectId && catalystProjectName
-																						&& catalystEnvironmentId && catalystEnvironmentName) {
+																					if ((catalystProjectId && catalystProjectName)
+																						|| (catalystEnvironmentId && catalystEnvironmentName)) {
+
 																						addedToUnmanaged = true;
 																						if (awsInstances[m].Platform && awsInstances[m].Platform === 'windows') {
 																							os = 'windows';
