@@ -3,16 +3,20 @@
     <div class="widget-body font-size-12">
       
       <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
-        <li class="pull-left active">
-          <a href="#l2" id="tabheader" data-toggle="tab">Choose Template Type</a>
+        <li class="pull-left  active">
+          <a href="#viewCreate" id="viewCreateNew" data-toggle="tab">Blueprints</a>
+        </li>
+        <li class="pull-left View blueprintnewbutton">
+          <a href="#l2" id="tabheader" data-toggle="tab">New</a>
+        </li>
+        <li class="pull-left View blueprintEditbutton hidden">
+          <a href="#viewEdit" id="tabheader" data-toggle="tab">Edit</a>
         </li>
         <!--new tab for CRUD operations for Blueprint-->
-        <li class="pull-left View">
-          <a href="#viewCreate" id="viewCreateNew" data-toggle="tab">Existing Blueprints</a>
-        </li>
+        
       </ul>
       <div id="myTabContent3" class="nav tab-content">
-        <div class="tab-pane fade in active" id="l2">
+        <div class="tab-pane" id="l2">
           <span class="spanName pull-right">
               <label class="orgSelectDropDown"><b>Choose Organisation</b>:</label>
               <select id="selectOrgName" class="form-controlSelect">
@@ -56,7 +60,7 @@
                               </ul>
                               <div class="clearfix"></div>
                             </div>
-                            <div class="tab-content">
+                            <div class="tab-content" id="newbpcontainer">
                               <div class="tab-pane active" id="tab1" style="padding-bottom:20px;overflow-y: auto;">
                                 <div id="templateContent" class="row " style="margin:0px;min-height:200px;">
                                 </div>
@@ -290,8 +294,68 @@
                                                 </div>
                                               </div>
                                             </div>
-                                          </div>
+                                          
+                                          <div class="col-lg-12 col-md-12 hidden" style="margin-top:22px;">
+                                                      <label>
+                                                      <i style="color:#40baf1;font-size:16px;" class="ace-icon fa fa-list-ul"></i>   
+                                                      Cookbook Attributes <a href="#editAttributesModalContainer" id="editAttributesBtn" class="bpEditBtn btn btn-primary editAttributesBtnCSS" rel="tooltip" data-placement="top" data-original-title="Edit" data-toggle="modal">
+                                                      <i class="ace-icon fa fa-pencil"></i>
+                                                      </a>
+                                                      </label>
+                                                      <textarea id="attrtextarea" style="width:100%;display:none" rows="6" onfocus="$('#attrmessage').html('');" onblur="validatejson($(this));" disabled> </textarea>
+                                                      <table id="attributesViewListTable" class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                                                         <thead>
+                                                            <tr>
+                                                               <th>Attributes</th>
+                                                               <th>Values</th>
+                                                            </tr>
+                                                         </thead>
+                                                         <tbody class="attributesViewTableBody">
+                                                         </tbody>
+                                                      </table>
+                                                   </div>
+                                                   </div>
                                         </div>
+
+                                        <!--execute modal starts here-->
+                    <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="editAttributesModalContainer" class="modal fade" data-backdrop="static">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+                                        x
+                                    </button>
+                                    <h4 class="modal-title">
+                                    <i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Edit Attributes
+                                    </h4>
+                                </div>
+                                <div class="modal-body no-padding">
+                                    <div class="loadingContainer">
+                                        <img class="center-block loadingContainerimageCSS" src="img/loading.gif" />
+                                    </div>
+                                    <div class="errorMsgContainer loadingerrorMsgContainerCSS"></div>
+                                    <form class="attributesEditFormArea padding10" action="">
+                                        <table id="attributesEditListArea" class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Attributes</th>
+                                                    <th>Values</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="attributesEditTableBody">
+                                            </tbody>
+                                        </table>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <a class="btn btn-default" data-dismiss="modal">Close</a>
+                                    <a type="submit" class="btn btn-primary saveAttribBtn">Save</a>
+                                </div>
+                            </div>
+                            <!-- /.modal-content -->
+                        </div>
+                        <!-- /.modal-dialog -->
+                    </div>
                                         <!--configure runlist collapse ends here-->									
                                         <!--adding new collapse-->
                                         <div class="panel panel-default appSeriesNameURL notForDocker notforCFT">
@@ -542,14 +606,14 @@
         <!--tab-pane l2 gets over -->
         <!--view for blueprints-->
         <!--blueprint tab-->
-        <div class="tab-pane" id="viewCreate">
+        <div class="tab-pane fade in active" id="viewCreate">
           <div class="jarviswidget jarviswidget-color-blueLight" id="wid-id-10" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false" data-widget-custombutton="false" data-widget-sortable="false">
             <div>
               <div class="widget-body no-padding">
                 <form action="">
                   <div class="col-lg-12 awsExisting">
                     <div class="col-lg-4 col-md-4">
-                      <label for="">Choose Organization <span style="color:red">*</span></label>
+                      <label for="">Organization <!-- <span style="color:red">*</span> --></label>
                       <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100 form-control">
                       </select>
                     </div>
@@ -573,6 +637,7 @@
                 </form>
                 <div class="col-lg-12">
                   <label id="spinnerProject" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                  <label id="npbpmsg" class="npbpmsg hidden">No blueprints found</label>
                   <div class="panel-group smart-accordion-default hidden" id="accordion-2" style="height:444px;overflow-y: auto;">                                 
                   </div>
                 </div>
@@ -580,12 +645,93 @@
             </div>
           </div>
           <footer class="footer">
-            <div class="clearfix form-actions" style="text-align:center">
-              <button class="btn pull-right btn-danger right-button" title="Remove Blueprint" onClick="removeSelectedBlueprint()" > <i class="fa fa-trash-o"></i></button>
+          <div class="clearfix form-actions" style="text-align:center">
+              
+            
+              <button class="btn pull-right btn-danger right-button" title="Remove Blueprint" onClick="removeSelectedBlueprint();" > <i class="fa fa-trash-o"></i></button>
+              <button class="btn pull-right btn-primary right-button" title="Copy Blueprint" onClick="showbpcopydialog();" > <i class="fa fa-copy"></i></button>
             </div>
           </footer>
         </div>
+
+        <div class="tab-pane fade in" id="viewEdit">
+          <!-- Do Not remove this div. Will be populated on page load -->
+          <div class="bpeditcontainer" id="bpeditcontent">
+          </div>
+
+          <footer class="footer">
+                <div style="text-align:center;height:60px;margin-bottom: -3px" class="clearfix form-actions">
+                  <div class="btn-group">
+                      
+                      <button class="btn btn-primary" onclick="closeblueprintedit();">Cancel</button>
+                   
+                      <button class="btn btn-primary marginleft15" onclick="saveblueprint();">Save</button>
+                   
+                  </div>
+                </div>
+          </footer>
+        </div>
+        
         <!--modal for blueprint edit ends-->
+
+
+        <!-- Copy bp pop-up -->
+        <div class="modal fade bs-example-modal-lg" id="copyBlueprintModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content modal-copybp" >
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list-ol txt-color-blue"></i>&nbsp;Select target</h4>
+              </div>
+              <div class="modal-body" style="height:232px;">
+                <div class="bpcopyContainer">
+                    
+                              
+                            <div class="col-lg-12 col-md-12">
+                                <label for="">Organization
+                                    <!-- <span style="color:red">*</span> --></label>
+                                <select id="orgnameSelectExistingforcopy" class="chooseOrgSelectExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                          
+                          
+                            <div class="col-lg-12 col-md-12">
+                                <label for="" class="lblbpc">Business Group</label>
+                                <select id="bgListInputExistingforcopy" class="chooseBGExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                          
+                            <div class="col-lg-12 col-md-12">
+                                <label for="projectListInputExistingforcopy"  class="lblbpc">Project
+                                </label>
+                                <select id="projectListInputExistingforcopy" class="chooseProjectExistingforcopy width-100 form-control">
+                                </select>
+                            </div>
+                        
+                            <div class="col-lg-12 col-md-12 hidden">
+                                <label for="envListExistingforcopy"  class="lblbpc">Environment</label>
+                                <select id="envListExistingforcopy" class="chooseEnvExistingforcopy hidden width-100 form-control">
+                                </select>
+                            </div>
+                         
+                        </div>
+                    
+                        
+                        
+                </div>
+                <div class="modal-footer" style="margin-top: 0px !important; padding-right: 8px; padding-top: 7px;">
+                    <label class="pull-left bpcopycount">3 blueprints selected</label>
+                    <button type="button" class="btn btn-default btn-primary btncopybp" onclick="copySelectedBlueprint();">Copy</button>
+                    <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+                 </div>
+
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+
         <!--assign runlist modal-->
         <div class="modal fade" id="chefRunlistModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
           <div class="modal-dialog">
@@ -627,6 +773,32 @@
               </div>
               <div class="modal-footer" style="margin-top:0px !important;">
                 <button type="button" class="btn btn-default btn-primary btnUpdateInstanceRunlist">Update</button>
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Version and Edit pop-up -->
+        <div class="modal fade bs-example-modal-lg" id="versionModalContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog modal-vs">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list-ol txt-color-blue"></i>&nbsp;Versions</h4>
+              </div>
+              <div class="modal-body versionModalBody">
+                <div class="versionpopupContainer">
+                    
+                        <label for="">Select a version</label>
+                        <div id="selbpv" class="selbpv" size="10">
+                        </div>
+                        
+                </div>
+
+              </div>
+              <div class="modal-footer" style="margin-top:0px !important;">
+                <button type="button" class="btn btn-default btn-primary btnVersionEdit">Edit</button>
                 <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
               </div>
             </div>

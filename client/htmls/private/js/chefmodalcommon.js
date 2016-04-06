@@ -430,25 +430,27 @@ function $chefCookbookRoleSelector(catorgname, callback, selectedRunlist, readMo
             }
 
             // loading selected runlist
-            console.log(selectedRunlist);
-            for (var i = 0; i < selectedRunlist.length; i++) {
-                var className = 'cookbook';
-                console.log(selectedRunlist[i]);
-                var name = '';
-                if (selectedRunlist[i].indexOf('recipe') === 0) {
-                    className = 'cookbook';
-                    name = getNameFormChefRunlist(selectedRunlist[i]);
-                } else if (selectedRunlist[i].indexOf('role') === 0) {
-                    className = 'roles';
-                    name = getNameFormChefRunlist(selectedRunlist[i]);
-                } else {
-                    className = 'runlistTemplate';
-                    name = getNameFromTemplateRunlist(selectedRunlist[i]);
-                }
+            //console.log(selectedRunlist);
+            if (selectedRunlist && selectedRunlist.length) {
+                for (var i = 0; i < selectedRunlist.length; i++) {
+                    var className = 'cookbook';
+                    console.log(selectedRunlist[i]);
+                    var name = '';
+                    if (selectedRunlist[i].indexOf('recipe') === 0) {
+                        className = 'cookbook';
+                        name = getNameFormChefRunlist(selectedRunlist[i]);
+                    } else if (selectedRunlist[i].indexOf('role') === 0) {
+                        className = 'roles';
+                        name = getNameFormChefRunlist(selectedRunlist[i]);
+                    } else {
+                        className = 'runlistTemplate';
+                        name = getNameFromTemplateRunlist(selectedRunlist[i]);
+                    }
 
-                var $selOption = $('<option class=' + className + ' value=' + selectedRunlist[i] + '>' + name + '</option>')
-                console.log($selOption);
-                $chefItemdiv.find('#cookbooksrecipesselectedList').append($selOption);
+                    var $selOption = $('<option class=' + className + ' value=' + selectedRunlist[i] + '>' + name + '</option>')
+                    console.log($selOption);
+                    $chefItemdiv.find('#cookbooksrecipesselectedList').append($selOption);
+                }
             }
 
             $loadingContainerGap.hide();

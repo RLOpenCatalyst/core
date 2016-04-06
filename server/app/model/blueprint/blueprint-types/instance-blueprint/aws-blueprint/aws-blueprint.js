@@ -52,6 +52,11 @@ var AWSInstanceBlueprintSchema = new Schema({
 		required: true,
 		trim: true
 	},
+	region: {
+		type: String,
+		required: true,
+		trim: true
+	},
 	securityGroupIds: {
 		type: [String],
 		required: true,
@@ -362,7 +367,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 										}
 
 
-										launchParams.blueprintData.getCookBookAttributes(instance.instanceIP, repoData, function (err, jsonAttributes) {
+										launchParams.blueprintData.getCookBookAttributes(instance, repoData, function(err, jsonAttributes) {
 											//logger.debug("jsonAttributes: ",JSON.stringify(jsonAttributes));
 											var runlist = instance.runlist;
 											//logger.debug("launchParams.blueprintData.extraRunlist: ", JSON.stringify(launchParams.blueprintData.extraRunlist));

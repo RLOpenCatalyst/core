@@ -40,6 +40,7 @@ var cryptoConfig = appConfig.cryptoSettings;
 var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
 var waitForPort = require('wait-for-port');
 var parser = require('xml2json');
+var util = require('util');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -64,24 +65,23 @@ module.exports.setRoutes = function(app, sessionVerification) {
         //     console.log(info.toString());
         //     res.send('200');
         // });
-        
+
         var curl = new Curl();
-        curl.executecurl('curl --raw -L --user ' +  req.body.username + ':' + req.body.password + ' https://index.docker.io/v1/users',function(err,resp){
+        curl.executecurl('curl --raw -L --user ' + req.body.username + ':' + req.body.password + ' https://index.docker.io/v1/users', function(err, resp) {
             var loggedin = false;
-            if(!err){
-                if(resp.indexOf('OK') > 0){
+            if (!err) {
+                if (resp.indexOf('OK') > 0) {
                     loggedin = true;
                     logger.debug('in ok' + resp);
                     res.status('200').send('{message:"success"}');
                     return;
-                }else{
+                } else {
                     logger.debug('In else -- ' + resp);
                     res.end('403');
                     return;
                 }
-                
-            }
-            else{
+
+            } else {
                 logger.debug('In 1 else -- ' + resp);
                 res.end('405');
                 return;
@@ -162,14 +162,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
         //fetch the username and password from 
         //Need to populate dockerrowid in template card. - done
         logger.debug('hit getdockertags');
-        configmgmtDao.getMasterRow(18, 'dockerreponame',  req.params.dockerreponame, function(err, data) {
+        configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function(err, data) {
             if (!err) {
                 logger.debug('data rcvd:' + data == '');
                 logger.debug(data);
                 var dockerRepo = null;
                 var options_auth = null;
-                if(data != '')
-                {
+                if (data != '') {
                     dockerRepo = JSON.parse(data);
                     logger.debug("Docker Repo ->%s", JSON.stringify(dockerRepo));
                     var userName = dockerRepo.dockeruserid;
@@ -179,28 +178,27 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         password: password
                     };
                     client = new Client(options_auth);
-                }
-                else{
+                } else {
                     client = new Client();
                 }
                 logger.debug("Docker Repopath ->%s", req.params.repopath);
 
                 // Tried with http rest call but api did not working from docker side, so commenting and keeping old code: Gobinda
 
-                
+
                 var dockerUrl = 'https://registry.hub.docker.com/v1/repositories/' + req.params.repopath.replace(/\$\$/g, '/') + '/tags';
-               //https://index.docker.io/v1/repositories/
+                //https://index.docker.io/v1/repositories/
                 logger.debug('dockerurl:' + dockerUrl);
                 client.registerMethod("jsonMethod", dockerUrl, "GET");
                 var reqSubmit = client.methods.jsonMethod(function(data, response) {
-                   console.log("response: ", data);
+                    console.log("response: ", data);
                     res.send(JSON.stringify(data));
                     return;
                 });
 
                 // Handling Exception for nexus req.
                 reqSubmit.on('error', function(err) {
-                    logger.debug('Something went wrong on req!!',err, err.request.options);
+                    logger.debug('Something went wrong on req!!', err, err.request.options);
                     res.send('402');
                 });
 
@@ -453,6 +451,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var chefRepoPath = settings.chefReposLocation;
         logger.debug(chefRepoPath);
         var file = chefRepoPath + 'catalyst_files/' + req.params.imagename;
+        logger.debug(file);
         fs.exists(file, function(exists) {
             if (exists) {
                 fs.readFile(chefRepoPath + 'catalyst_files/' + req.params.imagename, function(err, data) {
@@ -2512,7 +2511,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             res.send(200);
                                             return;
                                         });
-                                    }else if (req.params.id === '26') {
+                                    } else if (req.params.id === '26') {
                                         bodyJson['groupid'] = JSON.parse(bodyJson['groupid']);
                                         var nexusModel = new d4dModelNew.d4dModelMastersNexusServer(bodyJson);
                                         nexusModel.save(function(err, data) {
@@ -3437,12 +3436,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var appName = req.body.appName;
         var appDescription = req.body.description;
         var projectId = req.params.anId;
-        masterUtil.updateProject(projectId,appName,function(err,data){
-            if(err){
+        masterUtil.updateProject(projectId, appName, function(err, data) {
+            if (err) {
                 logger.debug("Failed to update Project with repo.");
                 //res.status(500).send("Failed to update Project with repo.");
             }
-            if(data){
+            if (data) {
                 res.status(200).send("Updated Project with repo.");
             }
         });
@@ -3460,6 +3459,24 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
             res.send(templates);
             return;
+        });
+    });
+
+    // List image tags w.r.t. docker repo and image
+    app.get('/d4dMasters/docker/:repository/:image/tags', function(req, res) {
+        var options_auth = {};
+        client = new Client(options_auth);
+        var dockerUrl = "https://registry.hub.docker.com/v1/repositories/" + req.params.repository + "/" + req.params.image + "/tags";
+        client.registerMethod("jsonMethod", dockerUrl, "GET");
+        var reqSubmit = client.methods.jsonMethod(function(data, response) {
+            //var json = parser.toJson(data);
+            if (util.isArray(data)) {
+                res.send(data);
+                return;
+            } else {
+                res.status(404).send("Docker Image not found.");
+                return;
+            }
         });
     });
 }

@@ -1,0 +1,22 @@
+{
+	"puppet_configure": {
+		"cache_dir": "/var/chef/cache",
+		"client": {
+			"user": "vagrant",
+			"pswd": "vagrant",
+			"ipaddress": "172.28.128.4",
+			"fqdn": "puppetclient-us-east-1.ec2.internal",
+			"ssh_pass_method": true,
+			"pem_file": "/var/chef/cache/client_user.pem",
+			"environment": "production"
+		},
+		"puppet_master": {
+			"user": "vagrant",
+			"pswd": "vagrant",
+			"ipaddress": "172.28.128.5",
+			"fqdn": "puppetmaster-us-east-1.ec2.internal",
+			"ssh_pass_method": true,
+			"pem_file": "/var/chef/cache/puppet_user.pem"
+		}
+	}
+}
