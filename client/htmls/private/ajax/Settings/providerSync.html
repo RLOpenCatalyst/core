@@ -212,6 +212,8 @@
                                 <th style="text-align: center">IP Address</th>
                                 <th style="text-align: center">Region</th>
                                 <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Project</th>
+                                <th style="text-align: center">Environment</th>
                                 <th style="text-align: center">Actions</th>
                             </tr>
                             </thead>
@@ -233,6 +235,8 @@
                                 <th style="text-align: center">IP Address</th>
                                 <th style="text-align: center">Region</th>
                                 <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Project</th>
+                                <th style="text-align: center">Environment</th>
                                 <th style="text-align: center">Actions</th>
                             </tr>
                             </thead>
@@ -457,6 +461,10 @@
                 "bSortable": false
             }, {
                 "bSortable": false
+            },{
+                "bSortable": false
+            }, {
+                "bSortable": false
             }]
 
         });
@@ -479,6 +487,10 @@
             }, {
                 "bSortable": false
             }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            },{
                 "bSortable": false
             }, {
                 "bSortable": false
@@ -968,16 +980,19 @@
                 var projmappingcatalystEntityId = $tr.attr('id');
                 //configureEnvArraySequence.push(envUniqueTextAllEnv);
                 var mappingprojectSelectTagName = $tr.find('.mappingprojectSelectId :selected').val();
+                var mappingprojectName = $tr.find('.mappingprojectName').text();
 
                 var objprojectMapping = {};
                 objprojectMapping["catalystEntityId"] = projmappingcatalystEntityId;
+                objprojectMapping["catalystEntityName"] = mappingprojectName;
                 objprojectMapping["tagValue"] = mappingprojectSelectTagName;
 
-                //console.log(objprojectMapping);
+                // console.log(objprojectMapping);
                 projectMappingObj.catalystEntityMapping.push(objprojectMapping);
                 // $('#spanprojectMappingSaveId').html('Saved successfully');
 
                 if(counter == $('#mappingprojectTable tbody tr').length){
+                    console.log(projectMappingObj);
                     $.ajax({
                         url: '/providers/'+urlParams.providerId+'/tag-mappings/project',
                         data: JSON.stringify(projectMappingObj),
@@ -1007,15 +1022,18 @@
                 var envmappingcatalystEntityId = $tr.attr('id');
                 //configureEnvArraySequence.push(envUniqueTextAllEnv);
                 var mappingenvSelectTagName = $tr.find('.mappingenvSelectId :selected').val();
+                var mappingenvName = $tr.find('.mappingenvName').text();
 
                 var objenvMapping = {};
                 objenvMapping["catalystEntityId"] = envmappingcatalystEntityId;
+                objenvMapping["catalystEntityName"] = mappingenvName;
                 objenvMapping["tagValue"] = mappingenvSelectTagName;
 
                 envMappingObj.catalystEntityMapping.push(objenvMapping);
                 //console.log(envMappingObj);
                 //$('#spanenvMappingSaveId').html('Saved successfully');
                 if(counter == $('#mappingenvTable tbody tr').length){
+                    console.log(envMappingObj);
                     $.ajax({
                         url: '/providers/'+urlParams.providerId+'/tag-mappings/environment',
                         data: JSON.stringify(envMappingObj),
@@ -1248,6 +1266,11 @@
                 var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
                 $tr.append($tdStatus);
 
+                var $projectName = $('<td></td>').append(managnedData[i].projectName);
+                $tr.append($projectName);
+                 var $environmentName = $('<td></td>').append(managnedData[i].environmentName);
+                $tr.append($environmentName);
+
                 var $button = '';
 
                 if (managnedData[i].instanceState === 'terminated') {
@@ -1317,6 +1340,14 @@
                 $tr.append($tdRegion);
                 var $tdStatus = $('<td></td>').append(unManagnedData[i].state);
                 $tr.append($tdStatus);
+
+
+                var $projectName = $('<td></td>').append(unManagnedData[i].projectName);
+                $tr.append($projectName);
+                 var $environmentName = $('<td></td>').append(unManagnedData[i].environmentName);
+                $tr.append($environmentName);
+
+
                 var $input = '';
                 if (unManagnedData[i].state === 'running') {
                     $input = $('<input class="nodeCheckBox" type="checkbox">').val(unManagnedData[i]._id);
@@ -1395,7 +1426,7 @@
 
         //loading UnAssigned Data
         function getUnassignedInstances() {
-            /*$.get('/providers/'+ urlParams.providerId +'/unassigned-instances', function(unassignedInstances) {   
+            $.get('/providers/'+ urlParams.providerId +'/unassigned-instances', function(unassignedInstances) {   
                 if(unassignedInstances){
                     loadUnassignedInstances(unassignedInstances);
                     //$('#unassignedinstanceListDiv').show();
@@ -1408,8 +1439,8 @@
                     msg = jxhr.responseText;
                 }
                 bootbox.alert(msg);
-            });*/
-            var unassignedInstances = {
+            });
+            /*var unassignedInstances = {
                 "instances": [{
                         "_id": "57039167c6441f419c97a73d",
                         "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
@@ -1440,7 +1471,7 @@
                 "pageSize": 10,
                 "pageIndex": 1
             };
-            loadUnassignedInstances(unassignedInstances);
+            loadUnassignedInstances(unassignedInstances);*/
         }
 
         $('.importNodesBtn').click(function(e) {
