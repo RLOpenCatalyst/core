@@ -32,7 +32,8 @@ var TagSchema = new Schema({
     name: {
         type: String,
         trim: true,
-        required: true
+        required: true,
+        index: { unique: true }
     },
     values: {
         type: [String],
@@ -46,11 +47,17 @@ var TagSchema = new Schema({
     },
     catalystEntityType: {
         type: String,
+        enum: ['project', 'environment'],
         trim: true,
         required: false
     },
     catalystEntityMapping: [{
         catalystEntityId: {
+            type: String,
+            trim: true,
+            required: false
+        },
+        catalystEntityName: {
             type: String,
             trim: true,
             required: false
@@ -75,9 +82,13 @@ TagSchema.statics.createNew = function createNew(data, callback) {
     tags.save(function (err, data) {
         if (err) {
             logger.error(err);
-            return callback(err, null);
+            if(typeof callback == 'function') {
+                return callback(err, null);
+            }
         } else {
-            return callback(null, tags);
+            if(typeof callback == 'function') {
+                return callback(null, tags);
+            }
         }
     });
 }
@@ -160,10 +171,12 @@ TagSchema.statics.updateTag = function updateTag(params, fields, callback) {
         function(err, result) {
             if (err) {
                 logger.error(err);
-                return callback(err, null);
-            } else if(result.ok == 1 && result.n == 1) {
+                if(typeof callback == 'function') {
+                    return callback(err, null);
+                }
+            } else if((result.ok == 1 && result.n == 1) && (typeof callback == 'function'))  {
                 return callback(null, true);
-            } else {
+            } else if(typeof callback == 'function') {
                return callback(null, null);
             }
         }
@@ -184,6 +197,21 @@ TagSchema.statics.deleteTag = function deleteTag(params, callback) {
        }
    )
 };
+
+TagSchema.statics.updateTagValues = function updateTagValues(params, values, callback) {
+    this.update(
+        params,
+        {$push: {$each: {values: value}}},
+        function(err, tags) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, true);
+            }
+        }
+    )
+}
 
 var Tags = mongoose.model('Tags',TagSchema);
 module.exports = Tags;
