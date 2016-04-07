@@ -1724,6 +1724,19 @@
                         </label>
                         <input id="repositoryUrl" type="text" class="form-control" name="" disabled>
                      </div>
+                     <div class="col-lg-6 col-md-6 margintop15 imageTagClass">
+                        <label for="">Tags:<span class="redSpan">*</span>
+                        <span>
+                        <img class="tagspinner hidden" src="img/select2-spinner.gif">
+                        </img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="imageTag" name="" class="required width-100 form-control">
+                              <option value="">Choose Tag</option>
+                           </select>
+                        </div>
+                     </div>
                      <div class="col-lg-12 col-md-12 margintop15 containerClass containerIdClass containerUpgradeDeploy">
                         <label>Container Name/ID:
                         <span>
@@ -1778,20 +1791,6 @@
                         </span>
                         </label>
                         <input id="dockerEmailId" type="text" class="form-control" />
-                     </div>
-
-                     <div class="col-lg-6 col-md-6 margintop15 imageTagClass">
-                        <label for="">Tags:<span class="redSpan">*</span>
-                        <span>
-                        <img class="tagspinner hidden" src="img/select2-spinner.gif">
-                        </img>
-                        </span>
-                        </label>
-                        <div class="input-groups">
-                           <select id="imageTag" name="" class="required width-100 form-control">
-                              <option value="">Choose Tag</option>
-                           </select>
-                        </div>
                      </div>
 
                      <input id="upgradeValue" type="hidden" />

@@ -122,7 +122,12 @@ var BlueprintSchema = new Schema({
     docker: {
         image: String,
         containerId: String,
-        containerPort: String
+        containerPort: String,
+        hostPort: String,
+        dockerUser: String,
+        dockerPassword: String,
+        dockerEmailId: String,
+        imageTag: String
     },
     blueprintConfig: Schema.Types.Mixed
 });
@@ -634,14 +639,46 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         });
         objectArray.push({
             "rlcatalyst": {
-                "dockerRepo": blueprint.docker.image
+                "dockerimage": blueprint.docker.image
             }
         });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "hostPort": blueprint.docker.hostPort
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "dockerUser": blueprint.docker.dockerUser
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "dockerPassword": blueprint.docker.dockerPassword
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "dockerEmailId": blueprint.docker.dockerEmailId
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "imageTag": blueprint.docker.imageTag
+            }
+        });
+
         objectArray.push({
             "rlcatalyst": {
                 "upgrade": false
             }
         });
+        
         objectArray.push({
             "rlcatalyst": {
                 "applicationNodeIP": instanceIP

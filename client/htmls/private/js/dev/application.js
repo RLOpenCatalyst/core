@@ -1339,13 +1339,13 @@ $nexusServer.change(function(e) {
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
+        $('.imageTagClass').show();
         $('.containerIdClass').show();
         $('.containerPortClass').show();
         $('.hostPortClass').show();
         $('.dockerUserClass').show();
         $('.dockerPasswordClass').show();
         $('.dockerEmailIdClass').show();
-        $('.imageTagClass').show();
         var containerId = $('#containerIdInput').val();
         var upgrade = $('#upgradeValue').val();
         if (containerId != "NA" && upgrade == "true") {
@@ -1634,15 +1634,18 @@ function deployNewForDocker() {
         alert("Please select repository server.");
         return false;
     }
-    var repoId = $('#chooseRepository').find('option:selected').val();
-    if (!repoId) {
+    var dockerImage = $('#chooseRepository').find('option:selected').val();
+    if (!dockerImage) {
         alert("Please select repository.");
         return false;
     }
     var containerId = $('#containerIdInput').val();
     var containerPort = $('#containerPort').val();
     var hostPort = $('#hostPort').val();
-    var imageTag = $('#imageTag').val();
+    var dockerUser = $('#dockerUser').val();
+    var dockerPassword = $('#dockerPassword').val();
+    var dockerEmailId = $('#dockerEmailId').val();
+    var imageTag = $('#imageTag').find('option:selected').val();
 
     if (!containerPort) {
         alert("Please specify container port.");
@@ -1666,7 +1669,7 @@ function deployNewForDocker() {
     var bgId = urlParams.bg;
     var projectId = urlParams.projid;
     var envId = urlParams.envid;
-    var appName = repoId.split("/")[1];
+    var appName = dockerImage.split("/")[1];
     var upgrade = $('#upgradeValue').val();
     var nexusData = {
         "nexusData": {
@@ -1674,7 +1677,12 @@ function deployNewForDocker() {
             "version": "",
             "containerId": containerId,
             "containerPort": containerPort,
-            "dockerRepo": repoId,
+            "dockerImage": dockerImage,
+            "hostPort": hostPort,
+            "dockerUser": dockerUser,
+            "dockerPassword": dockerPassword,
+            "dockerEmailId": dockerEmailId,
+            "imageTag": imageTag,
             "upgrade": upgrade
         }
     };
@@ -1687,9 +1695,14 @@ function deployNewForDocker() {
             var actualDocker = [];
             for (var i = 0; i < tasks.taskConfig.nodeIds.length; i++) {
                 var docker = {
-                    "image": repoId,
-                    "container": containerId,
-                    "port": containerPort,
+                    "image": dockerImage,
+                    "containerId": containerId,
+                    "containerPort": containerPort,
+                    "hostPort": hostPort,
+                    "dockerUser": dockerUser,
+                    "dockerPassword": dockerPassword,
+                    "dockerEmailId": dockerEmailId,
+                    "imageTag": imageTag,
                     "nodeIp": tasks.taskConfig.nodeIds[i]
                 };
                 actualDocker.push(docker);
@@ -1780,7 +1793,12 @@ function upgradeOrDeploy() {
             "version": versionId,
             "containerId": "",
             "containerPort": "",
-            "dockerRepo": "",
+            "dockerImage": "",
+            "hostPort": "",
+            "dockerUser": "",
+            "dockerPassword": "",
+            "dockerEmailId": "",
+            "imageTag": "",
             "upgrade": upgrade
         }
     };

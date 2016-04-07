@@ -34,6 +34,7 @@ var taskTypeSchema = require('./taskTypeSchema');
 var ChefClientExecution = require('../instance/chefClientExecution/chefClientExecution.js');
 var utils = require('../utils/utils.js');
 var Blueprints = require('_pr/model/blueprint');
+var AppData = require('_pr/model/app-deploy/app-data');
 
 var chefTaskSchema = taskTypeSchema.extend({
     nodeIds: [String],
@@ -54,7 +55,7 @@ chefTaskSchema.methods.getNodes = function() {
 chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
     var self = this;
     logger.debug("self: ", JSON.stringify(self));
-    if (blueprintIds[0]!= "" && blueprintIds.length) {
+    if (blueprintIds[0] != "" && blueprintIds.length) {
         var count = 0;
         var onCompleteResult = [];
         var overallStatus = 0;
@@ -258,10 +259,46 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                                 }
                             });
                         }
-                        if (nexusData.containerPort) {
+                        if (nexusData.dockerImage) {
                             objectArray.push({
                                 "rlcatalyst": {
-                                    "dockerRepo": nexusData.dockerRepo
+                                    "dockerImage": nexusData.dockerImage
+                                }
+                            });
+                        }
+
+                        if (nexusData.hostPort) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "hostPort": nexusData.hostPort
+                                }
+                            });
+                        }
+                        if (nexusData.dockerUser) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "dockerUser": nexusData.dockerUser
+                                }
+                            });
+                        }
+                        if (nexusData.dockerPassword) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "dockerPassword": nexusData.dockerPassword
+                                }
+                            });
+                        }
+                        if (nexusData.dockerEmailId) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "dockerEmailId": nexusData.dockerEmailId
+                                }
+                            });
+                        }
+                        if (nexusData.imageTag) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "imageTag": nexusData.imageTag
                                 }
                             });
                         }
@@ -278,6 +315,63 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                                 "applicationNodeIP": instance.instanceIP
                             }
                         });
+                        var nodeIp = [];
+                        var actualDocker = [];
+                        var appVersion = "";
+                        var appName = "";
+                        if (nexusData.version) {
+                            appVersion = nexusData.version;
+                        } else {
+                            appVersion = nexusData.imageTag;
+                        }
+                        
+                        if (nexusData.nexusUrl) {
+                            var lastIndex = nexusData.nexusUrl.split("/").length - 1;
+                            appName = nexusData.nexusUrl.split("/")[lastIndex].split("-")[0];
+                        }else{
+                            if(nexusData.image.indexOf("/") != -1){
+                                appName = nexusData.image.split("/")[1];
+                            }else{
+                              appName = nexusData.image;
+                            }
+                        }
+
+                        nodeIp.push(instance.instanceIP);
+                        var nexus = {
+                            "repoURL": nexusData.nexusUrl,
+                            "nodeIps": nodeIp
+                        };
+    
+                        var docker = {
+                            "image": nexusData.image,
+                            "containerId": nexusData.containerId,
+                            "containerPort": nexusData.containerPort,
+                            "hostPort": nexusData.hostPort,
+                            "dockerUser": nexusData.dockerUser,
+                            "dockerPassword": nexusData.dockerPassword,
+                            "dockerEmailId": nexusData.dockerEmailId,
+                            "imageTag": nexusData.imageTag,
+                            "nodeIp": instance.instanceIP
+                        };
+                        actualDocker.push(docker);
+
+                        var appData = {
+                            "projectId": instance.projectId,
+                            "envId": envName,
+                            "appName": artifactId,
+                            "version": appVersion,
+                            "nexus": nexus,
+                            "docker": actualDocker
+                        };
+                        AppData.createNewOrUpdate(appData, function(err, data) {
+                            if (err) {
+                                logger.debug("Failed to create or update app-data: ", err);
+                            }
+                            if (data) {
+                                logger.debug("Created or Updated app-data successfully: ", data);
+                            }
+                        });
+
                     }
                     logger.debug("AppDeploy attributes: ", JSON.stringify(objectArray));
                     var attributeObj = utils.mergeObjects(objectArray);
