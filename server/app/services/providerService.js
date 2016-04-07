@@ -194,7 +194,7 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
     }
 
     if(tagNames.length > 0) {
-        return tags.getTagsByNames(tagNames, callback);
+        return tags.getTagsByProviderIdAndNames(providerId, tagNames, callback);
     } else {
         return callback(null, []);
     }
@@ -386,7 +386,9 @@ providerService.createTagMappingList = function createTagMappingList(tags, callb
         if(tag.catalystEntityType) {
             var tagMapping = {
                 'tagName': tag.name,
-                'tagValues': tag.values ? tag.values : [],
+                'tagValues': tag.values ? tag.values.sort(function (a, b) {
+                                return a.toLowerCase().localeCompare(b.toLowerCase());
+                            }) : [],
                 'catalystEntityType': tag.catalystEntityType ? tag.catalystEntityType : null,
                 'catalystEntityMapping': tag.catalystEntityMapping ? tag.catalystEntityMapping : []
             };
@@ -405,9 +407,11 @@ providerService.createTagMappingList = function createTagMappingList(tags, callb
 providerService.createTagMappingObject = function createTagMappingObject(tag, callback) {
     var tagMappingObject = {
             'tagName': tag.name,
-            'tagValues': tag.values?tag.values:[],
-            'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType:null,
-            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping:[]
+            'tagValues': tag.values ? tag.values.sort(function (a, b) {
+                            return a.toLowerCase().localeCompare(b.toLowerCase());
+                        }) : [],
+            'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType : null,
+            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping : []
     };
     for (var i = 0; i < tagMappingObject.catalystEntityMapping.length; i++) {
         delete tagMappingObject.catalystEntityMapping[i]._id;
