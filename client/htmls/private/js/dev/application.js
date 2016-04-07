@@ -1569,8 +1569,9 @@ function getImageTags() {
             image = imageName;
         }
         if (repository && image) {
+            $('.tagspinner').removeClass('hidden');
             $.get('/d4dMasters/docker/' + repository + '/' + image + '/tags', function(tags) {
-                $('.tagspinner').css('display', 'none');
+                $('.tagspinner').addClass('hidden');
                 if (tags.length) {
                     for (var i = 0; i < tags.length; i++) {
                         $('#imageTag').append('<option value=' + tags[i].name + '>' + tags[i].name + '</option>');
