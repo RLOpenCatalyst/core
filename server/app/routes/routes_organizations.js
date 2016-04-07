@@ -1078,6 +1078,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 	app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
 		logger.debug("Enter post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
+		console.log(req.body);
 		var taskData = req.body.taskData;
 		taskData.orgId = req.params.orgId;
 		taskData.bgId = req.params.bgId;

@@ -23,27 +23,10 @@ var Application = require('../model/classes/application/application');
 var instancesDao = require('../model/classes/instance/instance');
 var TaskHistory = require('../model/classes/tasks/taskHistory');
 var logger = require('_pr/logger')(module);
-var multer = require('multer');
+
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
-
-var multerStorage = multer.diskStorage({
-	destination: function(req, file, cb) {
-		cb(null, appConfig.scriptDir)
-	},
-	filename: function(req, file, cb) {
-		console.log('here');
-		var fileName = file.fieldname + '-' + uuid.v4();
-		req.CAT = {
-			fileName: fileName
-		};
-		cb(null, fileName)
-	}
-});
-
-var upload = multer({
-	storage: multerStorage
-})
+var fileIo = require('_pr/lib/utils/fileio');
 
 
 
@@ -520,17 +503,27 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		});
 	});
 
-	app.post('/task/uploadScript',function(req,res,next){
+	app.post('/task/uploadScript', function(req, res) {
 
-       console.log(req);
-       next();  
-    }, upload.single('file'),
-		function(req, res) {
-			res.status(200).send({
-				fileName: 'ok'
+		console.log(req.files);
+		var fileName = uuid.v4();
+		if (req.files && req.files.file) {
+			var destPath = appConfig.scriptDir + fileName;
+			fileIo.copyFile(req.files.file.path, destPath, function(err) {
+				if (err) {
+					res.status(500).send({
+						message: "Unable to save file"
+					});
+					return;
+				}
+				res.status(201).send({
+                    filename:fileName
+				});
 			});
-		});
-
-
-
+		} else {
+            res.status(400).send({
+                message:"Bad Request"
+            });
+        }
+	});
 };

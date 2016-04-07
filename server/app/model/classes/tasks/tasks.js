@@ -136,6 +136,10 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
 			return;
 		}
 
+	} else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
+		task = new ScriptTask(this.taskConfig);
+		taskHistoryData.nodeIds = this.taskConfig.nodeIds;
+		taskHistoryData.scriptFileName = this.taskConfig.scriptFileName;
 	} else {
 		callback({
 			message: "Invalid Task Type"
@@ -373,7 +377,7 @@ taskSchema.statics.createNew = function(taskData, callback) {
 		taskConfig = new ScriptTask({
 			taskType: TASK_TYPE.SCRIPT_TASK,
 			nodeIds: taskData.nodeIds,
-			scriptFileName: taskData.scriptName
+			scriptFileName: taskData.scriptFileName
 		});
 	} else {
 		callback({
@@ -507,6 +511,12 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
 			taskType: TASK_TYPE.COMPOSITE_TASK,
 			jobName: taskData.jobName,
 			assignTasks: taskData.assignTasks
+		});
+	} else if (taskData.taskType === TASK_TYPE.SCRIPT_TASK) {
+		taskConfig = new ScriptTask({
+			taskType: TASK_TYPE.SCRIPT_TASK,
+			nodeIds: taskData.nodeIds,
+			scriptFileName: taskData.scriptFileName
 		});
 	} else {
 		callback({

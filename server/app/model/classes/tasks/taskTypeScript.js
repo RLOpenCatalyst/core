@@ -142,7 +142,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
 				credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
 					var sshOptions = {
 						username: decryptedCredentials.username,
-						host: node.host,
+						host: instance.instanceIP,
 						port: 22,
 					}
 					if (decryptedCredentials.pemFileLocation) {
@@ -190,7 +190,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
 									timestamp: timestampEnded
 								});
 								instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
-								instanceOnCompleteHandler(null, 0, instance._id, null.id, actionLog._id);
+								instanceOnCompleteHandler(null, 0, instance._id, null, actionLog._id);
 							} else {
 								instanceOnCompleteHandler(null, retCode, instance._id, null, actionLog._id);
 								if (retCode === -5000) {
@@ -229,7 +229,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
 							logsDao.insertLog({
 								referenceId: logsReferenceIds,
 								err: false,
-								log: stdOutData.toString('ascii'),
+								log: stdOut.toString('ascii'),
 								timestamp: new Date().getTime()
 							});
 
@@ -237,7 +237,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
 							logsDao.insertLog({
 								referenceId: logsReferenceIds,
 								err: true,
-								log: stdOutErr.toString('ascii'),
+								log: stdErr.toString('ascii'),
 								timestamp: new Date().getTime()
 							});
 
