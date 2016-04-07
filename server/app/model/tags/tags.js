@@ -144,9 +144,11 @@ TagSchema.statics.getTag = function getTag(params, callback) {
     );
 };
 
-TagSchema.statics.getTagsByNames = function getTagsByNames(tagNames, callback) {
+TagSchema.statics.getTagsByProviderIdAndNames
+    = function getTagsByProviderIdAndNames(providerId, tagNames, callback) {
     var params = {
             "isDeleted": false,
+            "providerId": providerId,
             "name": {$in : tagNames }
     }
     this.find(
