@@ -32,8 +32,7 @@ var TagSchema = new Schema({
     name: {
         type: String,
         trim: true,
-        required: true,
-        index: { unique: true }
+        required: true
     },
     values: {
         type: [String],
@@ -72,8 +71,10 @@ var TagSchema = new Schema({
         type: Boolean,
         required: true,
         default: false
-    }
+    },
 });
+TagSchema.index({name: 1, providerId: 1}, {unique: true});
+
 var hiddenFields = {'_id': 0, 'isDeleted': 0 };
 
 TagSchema.statics.createNew = function createNew(data, callback) {
