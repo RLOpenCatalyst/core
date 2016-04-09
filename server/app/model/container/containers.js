@@ -30,69 +30,146 @@ var ContainerSchema = new Schema({
         trim: true,
         validate: schemaValidator.envIdValidator
     },
-    state: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    created: {
+    Id:{
         type: Number,
         required: true,
         trim: true
     },
-    names: [{
+    instanceIP:{
+        type: String,
+        required: true,
+        trim: true
+    },
+    Names: [{
         type: String,
         required: true,
         trim: true
     }],
-    instanceIP: {
+    Image:{
+        type: String,
+        required: true,
+        trim: true
+    },
+    ImageID: {
         type: String,
         index: true,
         trim: true
     },
-    containerID:{
+    Command: {
+        type: String,
+        trim: true
+    },
+    Created: {
         type: Number,
         required: true,
         trim: true
     },
-    image:{
+    Ports: [{
+         type: String,
+         trim: true
+    }],
+    Labels:Schema.Types.Mixed,
+    Status: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
     },
-    info: {
-        type: String,
-        trim: true
-    }
+    HostConfig:Schema.Types.Mixed
+
 });
 ContainerSchema.plugin(mongoosePaginate);
 
 ContainerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonData, callback) {
-    var databaseReq={};
-    jsonData['searchColumns']=['instanceIP','state'];
-    ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
-        if(err){
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
+    if(jsonData.record_Limit) {
+        var databaseReq = {};
+        jsonData['searchColumns'] = ['instanceIP', 'state'];
+        ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }
+            else
+                databaseReq = databaseCall;
+        });
+        Container.paginate(databaseReq.queryObj, databaseReq.options, function (err, containerList) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }
+            else if (!containerList) {
+                var err = new Error('Container List is not found');
+                err.status = 404;
+                return callback(err);
+            }
+            else
+                return callback(null, containerList);
+        });
+    }
+    else{
+        var queryObj = {
+            orgId: jsonData.orgId,
+            bgId: jsonData.bgId,
+            projectId: jsonData.projectId,
+            envId: jsonData.envId
         }
-        else
-          databaseReq=databaseCall;
+        Container.find(queryObj, {
+            'actionLogs': false
+        }, function(err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    }
+};
+
+
+ContainerSchema.statics.createContainer = function(containerData, callback) {
+    logger.debug("Enter createContainer");
+    var container = new Container(containerData);
+    container.save(function(err, data) {
+        if (err) {
+            logger.error("createContainer Failed", err, containerData);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit createContainer : " + JSON.stringify(data));
+        callback(null, data);
     });
-    this.paginate(databaseReq.queryObj, databaseReq.options, function(err, containerList) {
-        if(err){
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
+};
+ContainerSchema.statics.getContainerById = function(containerId, callback) {
+    Container.find({id:containerId},function(err, data) {
+        if (err) {
+            logger.error("createContainer Failed", err, containerData);
+            callback(err, null);
+            return;
         }
-        else if(!containerList) {
-            var err = new Error('Container List is not found');
-            err.status = 404;
-            return callback(err);
-        }
-        else
-            return callback(null, containerList);
+        logger.debug("Exit createContainer : " + JSON.stringify(data));
+        callback(null, data);
     });
+};
+ContainerSchema.updateContainer = function(containerData, callback) {
+    Container.update({
+        id: containerData.Id
+    }, {
+        $set: {
+            Status: containerData.Status
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to updateContainer (%s, %s)", err);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit updateContainer (%s, %s)");
+        callback(null, data);
+    });
+
 };
 
 var Container = mongoose.model('containers', ContainerSchema);

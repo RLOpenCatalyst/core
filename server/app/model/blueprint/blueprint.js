@@ -455,13 +455,7 @@ BlueprintSchema.statics.getById = function(id, callback) {
                                 bluePrintInfo['region']=blueprint[0].blueprintConfig.cloudProviderData.region;
                                 bluePrintInfo['blueprintConfig']=
                                 {
-                                    cloudProviderType: blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType,
-                                    cloudProviderId:   blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId,
-                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData,
-                                    infraManagerData:blueprint[0].blueprintConfig.infraManagerData,
-                                    infraManagerId : blueprint[0].blueprintConfig.infraManagerId,
-                                    instanceImageName : blueprint[0].blueprintConfig.instanceImageName,
-                                    infraMangerType : blueprint[0].blueprintConfig.infraMangerType
+                                    cloudProviderData: blueprint[0].blueprintConfig.cloudProviderData
                                 }
                                 callback(null, bluePrintInfo);
                             })
@@ -542,10 +536,15 @@ BlueprintSchema.statics.getById = function(id, callback) {
                 })
 
             }
-            else{
-                bluePrintInfo['blueprintConfig']= blueprint[0].blueprintConfig,
+            else {
+                if (bluePrintInfo.templateType == 'docker')
+                    bluePrintInfo['blueprintConfig'] = {dockerCompose: blueprint[0].blueprintConfig.dockerCompose};
+                else
+                    bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
+
                 callback(null, bluePrintInfo);
             }
+
         }
 
     })

@@ -47,7 +47,6 @@
 <ul class="nav nav-tabs " role="tablist">
     <li class="active"><a href="#organiz" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has been bootstrapped by Catalyst">Managed Instances</a></li>
     <li><a href="#unmanaged" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has not been bootstrapped by Catalyst">UnManaged Instances</a></li>
-    <li><a href="#tags" role="tab" data-toggle="tab" data-toggle="tooltip" title="Node which has not been bootstrapped by Catalyst">Tags</a></li>
     <span><a class="syncClick" title="Refresh view">Sync&nbsp;<i class="fa fa-refresh fa-lg " id="instanceRefreshSpinner"></i></a></span>
 </ul>
 
@@ -100,42 +99,7 @@
             </div>
         </footer>
     </div>
-    <!--tags-->
-    <div  class="tab-pane tagsListContainer" id="tags">
-        <div  class="tabContent table-responsive" id="tagsListDiv" >
-            <table class="table table-hover table-bordered" id="tagsListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
-                <thead>
-                <tr>
-                    <th style="text-align: center">Tags Name</th>
-                    <th style="text-align: center">Description</th>
-                    <th style="text-align: center">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="tags">
-                </tbody>
-            </table>
-        </div>
-        <footer class="footer">
-            <div class="widget-toolbox clearfix">
-                <div class="btn-group pull-right">
-                    <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
-                        <i class="ace-icon fa fa-times bigger-110"></i>
-                        Cancel
-                    </a>
-                    <button class="btn btn-primary btn-mini" id="updateTagbtn">
-                        <i class="ace-icon fa fa-check bigger-110"></i>
-                        Update
-                    </button>
 
-                </div>
-
-            </div>
-        </footer>
-    </div>
-</div>
-
-
-<!--tab content over-->
 
 <!--import instance modal-->
 <div class="modal fade" id="providerSyncModal" data-backdrop="static">
@@ -307,25 +271,7 @@
         });
     }
 
-    //initialising the datatable...
-    if (!$.fn.dataTable.isDataTable('#tagsListTable')) {
-        var $tagsDatatable = $('#tagsListTable').DataTable({
-            "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
-            "aaSorting": [[ 1, "asc" ]],
-            "aoColumns": [{
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }]
 
-        });
-    }
 
     (function() {
 
@@ -607,25 +553,7 @@
 
 
 
-        function loadTags(tags) {
-            $tagsDatatable.clear().draw();
-            var $tbody = $('#tags tbody').empty();
-            for (var i = 0; i < tags.length; i++) {
-                var jsonArray = Object.keys(tags[i].tagsInfo);
-                for(var j = 0; j < jsonArray.length; j++){
-                    var $tr = $('<tr></tr>').attr('tags', jsonArray[j]);
-                    var $tdTag = $('<td style="text-align: justify"></td>').append(jsonArray[j]);
-                    $tr.append($tdTag);
-                    var $tdDesc = $('<td style="text-align: justify"></td>').append(tags[i].tagsInfo[jsonArray[j]]);
-                    $tr.append($tdDesc);
-                    var editButton = $('<div class="btn-group tableactionWidth"><a class="btn btn-xs btn-info pull-left" onclick="updateTag()" title="Edit"> <i class="ace-icon fa fa-pencil bigger-120"></i></a> </div>');
-                    var $tdAction = $('<td style="text-align: center"></td>').append(editButton);
-                    $tr.append($tdAction);
-                    $tbody.append($tr);
-                    $tagsDatatable.row.add($tr).draw();
-                }
-            }
-        }
+
 
         $(document).ready(function(e) {
             if (!urlParams.providerId) {
@@ -633,7 +561,6 @@
             }
             getManagedInstances();
             getUnmanagedInstances();
-            getTags();
         })
 
         //sync of Instances(Refresh Button)
@@ -643,7 +570,6 @@
 
             getManagedInstances();
             getUnmanagedInstances();
-            getTags();
             setTimeout(function() {
                 $('#instanceRefreshSpinner').removeClass('fa-spin');
             }, 1000);
@@ -681,23 +607,6 @@
             });
         }
 
-        //Added By Durgesh
-        //loading Tags Data
-        function getTags() {
-            $.get('/providers/' + urlParams.providerId + '/tags',function(tags) {
-                loadTags(tags);
-                $('#tagsListDiv').show();
-            }).fail(function(jxhr) {
-                var msg = "Provider Sync Behaved Unexpectedly.";
-                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                    msg = jxhr.responseJSON.message;
-                } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
-                }
-                bootbox.alert(msg);
-            });
-        }
-        //End By Durgesh
 
 
         $('.importNodesBtn').click(function(e) {

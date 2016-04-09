@@ -4,9 +4,10 @@
 
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
-var constantData = appConfig.constantData;
+var commons=appConfig.constantData;
 var Cryptography = require('_pr/lib/utils/cryptography.js');
 var cryptoConfig = appConfig.cryptoSettings;
+var d4dModelNew = require('../../model/d4dmasters/d4dmastersmodelnew.js');
 
 
 var ApiUtil = function() {
@@ -43,7 +44,7 @@ var ApiUtil = function() {
             page:data.page,
             totalPages:data.pages,
             sortBy:Object.keys(req.sortBy)[0],
-            sortOrder:req[Object.keys(req.sortBy)]==1 ?'desc' :"asc",
+            sortOrder:req.sortBy ? (req[Object.keys(req.sortBy)]==1 ?'desc' :"asc") : '',
             filterBy:req.filterBy
         };
 
@@ -57,18 +58,10 @@ var ApiUtil = function() {
         var objAnd = {}
         var objOr=[];
         var databaseCall={};
-        if(jsonData.providerId)
-            objAnd["providerId"] = jsonData.providerId;
-        if(jsonData.orgId)
-            objAnd["orgId"] = jsonData.orgId;
-        if(jsonData.projectId)
-            objAnd["projectId"] = jsonData.projectId;
-        if(jsonData.bgId)
-            objAnd["bgId"] = jsonData.bgId;
-        if(jsonData.envId)
-            objAnd["envId"] = jsonData.envId;
-        if (jsonData.instanceType) {
-            objAnd['blueprintData.templateType'] = jsonData.instanceType;
+        for(var i = 0; i < commons.length; i++){
+            var keyField=commons[i];
+            if(jsonData[keyField])
+                objAnd[keyField] = jsonData[keyField];
         }
         if(jsonData.search) {
             queryArr.push(objAnd);
@@ -99,28 +92,31 @@ var ApiUtil = function() {
     };
 
     this.paginationRequest=function(data,key, callback) {
+        d4dModelNew.d4dModelReferanceData.find({id:101},function(err, referanceData){
+            if(err){
+                logger.error("In Fetching Reference Data Error");
+                return;
+            }
+
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
-            if (pageSize > constantData.max_record_limit)
-                pageSize = constantData.max_record_limit;
+            if (pageSize > referanceData[0].max_record_limit)
+                pageSize = referanceData[0].max_record_limit;
         }
         else
-            pageSize = constantData.record_limit;
+            pageSize = referanceData[0].record_limit;
         if(data.page)
             page = parseInt(data.page)-1;
         else
-            page = constantData.skip_Records;
+            page = referanceData[0].skip_Records;
 
         var skip = pageSize * page;
         var sortBy={};
         if(data.sortBy)
             sortBy[data.sortBy]=data.sort_order=='desc' ? -1 : 1;
         else
-            if(key=='unmanagedInstances')
-                sortBy[constantData.sort_unmanaged_instances]=constantData.sort_order=='desc' ? -1 :1;
-            else if(key=='managedInstances' || key=='instances')
-                sortBy[constantData.sort_managed_instances]=constantData.sort_order=='desc' ? -1 :1;
+            sortBy[referanceData[0].sortReferanceData[key]] = referanceData[0].sort_order == 'desc' ? -1 :1;
 
         var request={
             'sortBy':sortBy,
@@ -149,24 +145,11 @@ var ApiUtil = function() {
                 }
             }
             request['filterBy']=filterBy;
-        }
-       /* else {
-            if (key == 'unmanagedInstances') {
-                for (var i = 0; i < constantData.filter_unmanaged_instances_records.length; i++) {
-                    var key = Object.keys(constantData.filter_unmanaged_instances_records[i]);
-                    filterBy[key] = constantData.filter_unmanaged_instances_records[i][key];
-                }
+           }
+            if (data.instanceType) {
+                filterBy['blueprintData.templateType'] = data.instanceType;
                 request['filterBy']=filterBy;
             }
-            else if (key == 'managedInstances') {
-                for (var i = 0; i < constantData.filter_managed_instances_records.length; i++) {
-                    var key = Object.keys(constantData.filter_managed_instances_records[i]);
-                    filterBy[key] = constantData.filter_managed_instances_records[i][key];
-                }
-                request['filterBy']=filterBy;
-            }
-        }*/
-
         if(data.search){
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
             var encrpt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);
@@ -176,7 +159,9 @@ var ApiUtil = function() {
         if (typeof callback === 'function') {
             callback(null, request);
         }
-    };
+    });
+    }
+
 
 }
 

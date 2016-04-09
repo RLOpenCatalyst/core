@@ -482,7 +482,25 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     {"tasks":[{"_id":"56fe1fb340e5982c6467fbba","taskType":"chef","name":"Test Job Durgesh","description":"Durgesh","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","taskConfig":{"_id":"56fe1fb340e5982c6467fbb9","nodeIds":["56fa1a6d2a3efd26530203fb"],"runlist":["recipe[lamp-stack]","recipe[tomcat]"],"taskType":"chef"},"__v":0,"blueprintIds":[],"jobResultURLPattern":[]}],
+ *     {"tasks":[{
+ *	"_id": "56fe1fb340e5982c6467fbba",
+ *	"taskType": "chef",
+ *	"name": "Test Job Durgesh",
+ *	"description": "Durgesh",
+ *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"envId": "df87280c-ef3d-4e45-ac23-fcb77c845409",
+ *	"taskConfig": {
+ *		"_id": "56fe1fb340e5982c6467fbb9",
+ *		"nodeIds": ["56fa1a6d2a3efd26530203fb"],
+ *		"runlist": ["recipe[lamp-stack]", "recipe[tomcat]"],
+ *		"taskType": "chef"
+ *	},
+ *	"__v": 0,
+ *	"blueprintIds": [],
+ *	"jobResultURLPattern": []
+ * }],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"name",sortOrder":"asc"}
  *     }
  *     }
@@ -537,7 +555,22 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     {"applications":[{"_id":"56fe1fb340e5982c6467fbba","taskType":"chef","name":"Test Job Durgesh","description":"Durgesh","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","taskConfig":{"_id":"56fe1fb340e5982c6467fbb9","nodeIds":["56fa1a6d2a3efd26530203fb"],"runlist":["recipe[lamp-stack]","recipe[tomcat]"],"taskType":"chef"},"__v":0,"blueprintIds":[],"jobResultURLPattern":[]}],
+ *     {"applications":[{
+ *	"_id": "56fe1fb340e5982c6467fbba",
+ *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"envId": "df87280c-ef3d-4e45-ac23-fcb77c845409",
+ *	"name": "ApplicationTest",
+ *	"iconpath": "Dev",
+ *	"git": {
+ *		"repoUrl": "Durgesh1988/git",
+ *		"repoUsername": "Durgesh1988",
+ *		"repoPassword": "12345678"
+ *	},
+ *	"users ": ["superadmin "],
+ *	"buildId ": "fafafaf21415151351 "
+ * }],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"name",sortOrder":"asc"}
  *     }
  *     }
@@ -593,8 +626,29 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     {"cftList":[{"_id":"56fe1fb340e5982c6467fbba","taskType":"chef","name":"Test Job Durgesh","description":"Durgesh","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","taskConfig":{"_id":"56fe1fb340e5982c6467fbb9","nodeIds":["56fa1a6d2a3efd26530203fb"],"runlist":["recipe[lamp-stack]","recipe[tomcat]"],"taskType":"chef"},"__v":0,"blueprintIds":[],"jobResultURLPattern":[]}],
- *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"name",sortOrder":"asc"}
+ *     {"cftList":[{
+ *	"_id": "56fe1fb340e5982c6467fbba",
+ *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"envId": "df87280c-ef3d-4e45-ac23-fcb77c845409",
+ *	"stackParameters": [{
+ *		"_id": "56fe1fb340e5982c6467fbba",
+ *		"ParameterKey": "JavaStack",
+ *		"ParameterValue": "java-test"
+ *	}],
+ *	"templateFile": "rlCatalyst",
+ *	"infraMangerType": "chef",
+ *	"infraManagerId": "ef074bc9-d61c-4d3a-8038-17878422f965",
+ * 	"infraManagerData": {
+ *		"latestVersion": "0.1",
+ *		"_id": "56fa4959b22e7cf36529f08a",
+ *		"versionsList": [{
+ *			"ver": "0.1",
+ *			"_id": "56fa4959b22e7cf36529f08b",
+ *			"runlist": []
+ *		}]],
+ *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"status",sortOrder":"asc"}
  *     }
  *     }
  *
@@ -649,8 +703,37 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     {"azurearms":[{"_id":"56fe1fb340e5982c6467fbba","taskType":"chef","name":"Test Job Durgesh","description":"Durgesh","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","taskConfig":{"_id":"56fe1fb340e5982c6467fbb9","nodeIds":["56fa1a6d2a3efd26530203fb"],"runlist":["recipe[lamp-stack]","recipe[tomcat]"],"taskType":"chef"},"__v":0,"blueprintIds":[],"jobResultURLPattern":[]}],
- *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"name",sortOrder":"asc"}
+ *     {"azurearms":[{
+ *	"_id": "56fe1fb340e5982c6467fbba",
+ *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"envId": "df87280c-ef3d-4e45-ac23-fcb77c845409",
+ *	"parameters": [{
+ *		"_id": "56fe1fb340e5982c6467fbba",
+ *		"ParameterKey": "JavaStack",
+ *		"ParameterValue": "java-test"
+ *	}],
+ *	"templateFile": "rlCatalyst",
+ *	"infraMangerType": "chef",
+ *	"infraManagerId": "ef074bc9-d61c-4d3a-8038-17878422f965",
+ *	"infraManagerData": {
+ *		"latestVersion": "0.1",
+ *		"_id": "56fa4959b22e7cf36529f08a",
+ *		"versionsList": [{
+ *			"ver": "0.1",
+ *			"_id": "56fa4959b22e7cf36529f08b",
+ *			"runlist": []
+ *		}]
+ *	},
+ *	"cloudProviderId": "56f1459ec9f075275f4ea9be",
+ *	"deploymentName": "DurgeshARM",
+ *	"deploymentId": "56f1459ec9f075275f4ea9be",
+ *	"status": "running",
+ *	"users ": ["superadmin "],
+ *	"resourceGroup ": "Dev "
+ *  }],
+ *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"status",sortOrder":"asc"}
  *     }
  *     }
  *
