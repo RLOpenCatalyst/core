@@ -438,6 +438,8 @@ providerService.createUnassignedInstancesList = function createUnassignedInstanc
         tempInstance.ip = instance.ip;
         tempInstance.os = instance.os;
         tempInstance.state = instance.state;
+        tempInstance.project = instance.project;
+        tempInstance.environment = instance.environment;
         tempInstance.tags = instance.tags;
 
         instancesList.push(tempInstance);

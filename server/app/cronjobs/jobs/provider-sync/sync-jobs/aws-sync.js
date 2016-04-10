@@ -131,7 +131,30 @@ function sync() {
 																			tagInfo[jsonData.Key] = jsonData.Value;
 																		}
 
-																		// logger.debug("AWS instance: ", awsInstances[m].InstanceId);
+																		var catalystProjectId = null;
+																		var catalystProjectName = null;
+																		var catalystEnvironmentId = null;
+																		var catalystEnvironmentName = null;
+
+																		if (projectTag && environmentTag && (awsInstances[m].State.Name !== 'terminated')
+																			&& (projectTag.name in tagInfo) && (environmentTag.name in tagInfo)) {
+
+																			for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
+																				if (projectTag.catalystEntityMapping[y].tagValue == tagInfo[projectTag.name]) {
+																					catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+																					catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+																					break;
+																				}
+																			}
+																			for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+																				if (environmentTag.catalystEntityMapping[y].tagValue == tagInfo[environmentTag.name]) {
+																					catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+																					catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+																					break;
+																				}
+																			}
+
+																		}
 
 																		for (var n = 0; n < instances.length; n++) {
 																			if (instances[n].platformId === awsInstances[m].InstanceId) {
@@ -139,6 +162,11 @@ function sync() {
 																				if (instances[n].instanceState === 'running') {
 																					instances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
 																				}
+																				instances[n].projectId = catalystProjectId;
+																				instances[n].projectName = catalystProjectName;
+																				instances[n].envId = catalystEnvironmentId;
+																				instances[n].environmentName = catalystEnvironmentName;
+
 																				instances[n].save();
 																				found = true;
 
@@ -160,6 +188,11 @@ function sync() {
 																						if (unManagedInstances[n].state === 'running') {
 																							unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
 																						}
+																						unManagedInstances[n].projectId = catalystProjectId;
+																						unManagedInstances[n].projectName = catalystProjectName;
+																						unManagedInstances[n].environmentId = catalystEnvironmentId;
+																						unManagedInstances[n].environmentName = catalystEnvironmentName;
+
 																						unManagedInstances[n].save();
 																					}
 
@@ -175,28 +208,8 @@ function sync() {
 																				if (projectTag && environmentTag && (awsInstances[m].State.Name !== 'terminated')
 																					&& (projectTag.name in tagInfo) && (environmentTag.name in tagInfo)) {
 
-																					var catalystProjectId = null;
-																					var catalystProjectName = null;
-																					var catalystEnvironmentId = null;
-																					var catalystEnvironmentName = null;
-
-																					for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-																						if (projectTag.catalystEntityMapping[y].tagValue == tagInfo[projectTag.name]) {
-																							catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-																							catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
-																							break;
-																						}
-																					}
-																					for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-																						if (environmentTag.catalystEntityMapping[y].tagValue == tagInfo[environmentTag.name]) {
-																							catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-																							catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
-																							break;
-																						}
-																					}
-
 																					if ((catalystProjectId && catalystProjectName)
-																						|| (catalystEnvironmentId && catalystEnvironmentName)) {
+																						&& (catalystEnvironmentId && catalystEnvironmentName)) {
 
 																						addedToUnmanaged = true;
 																						if (awsInstances[m].Platform && awsInstances[m].Platform === 'windows') {
@@ -236,6 +249,15 @@ function sync() {
 																							if (unassignedInstances[n].state === 'running') {
 																								unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
 																							}
+																							unassignedInstances[n].project = {
+																								id: catalystProjectId,
+																								name: catalystProjectName
+																							};
+																							unassignedInstances[n].environment = {
+																								id: catalystEnvironmentId,
+																								name: catalystEnvironmentName
+																							};
+
 																							unassignedInstances[n].save();
 																						}
 
@@ -258,6 +280,14 @@ function sync() {
 																					providerData: {
 																						region: region
 																					},
+																					project: {
+																						id: catalystProjectId,
+																						name: catalystProjectName
+																					},
+																					environment: {
+																						id: catalystEnvironmentId,
+																						name: catalystEnvironmentName
+																					},
 																					platformId: awsInstances[m].InstanceId,
 																					ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
 																					os: os,
@@ -265,13 +295,6 @@ function sync() {
 																					tags: tagInfo
 																				});
 																			}
-
-
-																			//Added By Durgesh
-																			/*else{
-																			 unManagedInstancesDao.updateInstance(awsInstances[m].InstanceId,tagInfo);
-																			 }*/
-																			//End By Durgesh
 
 																		}
 																	}
