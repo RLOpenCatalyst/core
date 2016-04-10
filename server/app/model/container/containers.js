@@ -31,7 +31,7 @@ var ContainerSchema = new Schema({
         validate: schemaValidator.envIdValidator
     },
     Id:{
-        type: Number,
+        type: String,
         required: true,
         trim: true
     },
@@ -133,27 +133,28 @@ ContainerSchema.statics.createContainer = function(containerData, callback) {
     container.save(function(err, data) {
         if (err) {
             logger.error("createContainer Failed", err, containerData);
-            callback(err, null);
             return;
         }
-        logger.debug("Exit createContainer : " + JSON.stringify(data));
+        logger.debug("Exit createContainer : ");
         callback(null, data);
     });
 };
 ContainerSchema.statics.getContainerById = function(containerId, callback) {
-    Container.find({id:containerId},function(err, data) {
+    logger.debug("Enter getContainerById");
+    Container.find({Id:containerId},function(err, data) {
         if (err) {
             logger.error("createContainer Failed", err, containerData);
             callback(err, null);
             return;
         }
-        logger.debug("Exit createContainer : " + JSON.stringify(data));
+        logger.debug("Exit createContainer : ");
         callback(null, data);
     });
 };
-ContainerSchema.updateContainer = function(containerData, callback) {
+ContainerSchema.statics.updateContainer = function(containerData, callback) {
+    logger.debug("Enter updateContainer");
     Container.update({
-        id: containerData.Id
+        Id: containerData.Id
     }, {
         $set: {
             Status: containerData.Status
@@ -163,7 +164,6 @@ ContainerSchema.updateContainer = function(containerData, callback) {
     }, function(err, data) {
         if (err) {
             logger.error("Failed to updateContainer (%s, %s)", err);
-            callback(err, null);
             return;
         }
         logger.debug("Exit updateContainer (%s, %s)");

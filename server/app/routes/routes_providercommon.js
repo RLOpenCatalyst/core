@@ -111,10 +111,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
 							return;
 						}
-						if (!paginationRes.managedInstances.length>0) {
-							res.status(200).send(paginationRes);
-							return;
-						}
 						res.status(200).send(paginationRes);
 					});
 
@@ -126,7 +122,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		//getUnmanagedInstanceList(req,res);
 		ApiUtils.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
@@ -152,10 +147,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					ApiUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
 						if (err) {
 							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
-							return;
-						}
-						if (!paginationRes.unmanagedInstances.length>0) {
-							res.status(200).send(paginationRes);
 							return;
 						}
 						res.status(200).send(paginationRes);
