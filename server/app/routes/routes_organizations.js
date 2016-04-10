@@ -885,7 +885,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				}
 				blueprintData.cloudFormationData = cloudFormationData;
 			} else if (req.body.blueprintData.blueprintType === 'azure_arm') {
-				console.log('templateFile ==> ', req.body.blueprintData.cftTemplateFile);
 				armTemplateData = {
 					cloudProviderId: req.body.blueprintData.cftProviderId,
 					infraManagerType: 'chef',

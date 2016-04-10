@@ -179,7 +179,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				if(err) {
 					next(err);
 				} else {
-					console.log(results);
 					return res.status(200).send(results);
 				}
 			}

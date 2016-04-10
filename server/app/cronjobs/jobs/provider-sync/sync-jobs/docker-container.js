@@ -116,7 +116,6 @@ function sync() {
                                                                                                     logger.error("Error in Updating Container:", err);
                                                                                                     return;
                                                                                                 }
-                                                                                                console.log(updatedata);
                                                                                             })
 
                                                                                         }
@@ -126,7 +125,6 @@ function sync() {
                                                                                                     logger.error("Error in Creation Container:", err);
                                                                                                     return;
                                                                                                 }
-                                                                                                console.log(insertdata);
                                                                                             })
                                                                                         }
 

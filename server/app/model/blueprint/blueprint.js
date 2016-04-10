@@ -470,7 +470,6 @@ BlueprintSchema.statics.getById = function(id, callback) {
                                     callback(err, null);
                                     return;
                                 }
-                                console.log(providerData);
                                 bluePrintInfo['providerType']=providerData.providerType;
                                 bluePrintInfo['providerName']=providerData.providerName;
                                 bluePrintInfo['blueprintConfig']=
