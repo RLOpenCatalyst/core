@@ -186,6 +186,95 @@
                     </div>
                 </div>
             </div>
+             </div>
+            </div>
+        </div>
+    </div>
+    <div  class="tab-pane instancesContainer" id="instancesId">
+        <div class="col-lg-6 col-md-6">
+            <label for="chooseCatalyst">Choose Catalyst Status:</label>
+            <div class="input-groups">
+                <select id="chooseCtalystSelectId" name="" class="required width-100 form-control">
+                    <option val="Managed" data-catalystStatus="Managed">Managed</option>
+                    <option val="Assigned" data-catalystStatus="Assigned">Assigned</option>
+                    <option val="Unasssigned" data-catalystStatus="Unassigned">Unasssigned</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 margin-top10">
+            <div id="Managed">
+                <!--managed instances-->
+                <div  class="tab-pane active instancesListContainer" id="organiz">
+                    <div  class="tabContent table-responsive" id="instanceListDiv" >
+                        <table class="table table-hover table-bordered" id="instanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                            <thead>
+                            <tr>
+                                <th style="text-align: center">InstanceId</th>
+                                <th style="text-align: center">OS</th>
+                                <th style="text-align: center">IP Address</th>
+                                <th style="text-align: center">Region</th>
+                                <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Project</th>
+                                <th style="text-align: center">Environment</th>
+                                <th style="text-align: center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="managedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="Assigned" hidden>
+                <!--unmanaged instances-->
+                <div  class="tab-pane unmanagedInstancesListContainer" id="unmanaged">
+                    <div  class="tabContent table-responsive" id="unmanagedinstanceListDiv" >
+                        <table class="table table-hover table-bordered" id="unmanagedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                            <thead>
+                            <tr>
+                                <th style="text-align: center">InstanceId</th>
+                                <th style="text-align: center">OS</th>
+                                <th style="text-align: center">IP Address</th>
+                                <th style="text-align: center">Region</th>
+                                <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Project</th>
+                                <th style="text-align: center">Environment</th>
+                                <th style="text-align: center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unManagedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer class="footer">
+                        <div style="text-align:center" class="clearfix form-actions">
+                            <div>
+                                <input type="button" id="providerSyncBtn" style="margin-left:200px;" value="Import Instances" class="btn btn-primary showChefImportNodesModalBtn">
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+            <div id="Unassigned" hidden>
+                <div  class="tab-pane unassignedInstancesListContainer" id="unassigned">
+                    <div  class="tabContent table-responsive" id="unassignedinstanceListDiv" >
+                        <table class="table table-hover table-bordered" id="unassignedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align:center";>
+                            <thead>
+                            <tr>
+                                <th style="text-align: center">InstanceId</th>
+                                <th style="text-align: center">OS</th>
+                                <th style="text-align: center">IP Address</th>
+                                <th style="text-align: center">Status</th>
+                                <th style="text-align: center">Project Tag</th>
+                                <th style="text-align: center">Env. Tag</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unAssignedInstance">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -437,7 +526,6 @@
         });
     }
 
-
     $(document).ready(function(e) {
         var urlParams = {};
         (window.onpopstate = function() {
@@ -520,6 +608,36 @@
                 var $tdDesc = $('<td></td>').append($inputTxt);
                 $tr.append($tdDesc);
 
+
+        function loadTagsTabData(tagsListData,providerId) {
+            var $projecttagsList = $('#tagsProjectSelect');
+            var $envtagsList = $('#tagsEnvSelect');
+            $projecttagsList.empty();
+            $envtagsList.empty();
+            $tagsDatatable.clear().draw();
+            
+            for (var i = 0; i < tagsListData.length; i++) {
+                var $tbody = $('#tagsTable tbody').empty();
+                //For Dropdown
+                $projecttagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
+                $envtagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
+
+                //For Table
+                var $tr = $('<tr class=""></tr>');
+                var $tdName = $('<td class="tagName"></td>').append(tagsListData[i].name);
+                $tr.append($tdName);
+
+                if(tagsListData[i].description){
+                    var $inputTxt = '';
+                    var tagsDescription = tagsListData[i].description;
+                    $inputTxt = $('<input id="tagdescinputId'+i+'" value="'+tagsDescription+'" type="text" class="width-90 border-grey tagsDescInput"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
+                }else{
+                    var $inputTxt = '';
+                    $inputTxt = $('<input id="tagdescinputId'+i+'" type="text" class="width-90 border-grey tagsDescInput"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
+                }
+                
+                var $tdDesc = $('<td></td>').append($inputTxt);
+                $tr.append($tdDesc);
                 $tagsDatatable.row.add($tr).draw();
             }
 
@@ -1306,6 +1424,7 @@
             }, 1000);
         });
 
+
                 var $tr = $('<tr></tr>').attr('instanceId', unassignedData.instances[i]._id);
 
                 var $tdId = $('<td></td>').append(unassignedData.instances[i].platformId);
@@ -1325,7 +1444,6 @@
 
                 var $tdEnvTag = $('<td></td>').append(unassignedData.instances[i].envTag);
                 $tr.append($tdEnvTag);
->>>>>>> upstream/topic-1636
 
                 $tbody.append($tr);
                 $instanceUnAssignedDatatable.row.add($tr).draw();
@@ -1354,7 +1472,6 @@
                     loadUnmanagedInstances(unmanagnedInstances);
                 }
                 //$('#unmanagedinstanceListDiv').show();
-
             }).fail(function(jxhr) {
                 var msg = "Provider Sync Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -1415,7 +1532,6 @@
             };
             loadUnassignedInstances(unassignedInstances);*/
         }
->>>>>>> upstream/topic-1636
 
         $('.importNodesBtn').click(function(e) {
             var $checkBoxes = $('.nodeCheckBox:checked');
