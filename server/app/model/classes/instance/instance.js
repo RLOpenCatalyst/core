@@ -180,7 +180,7 @@ var InstanceSchema = new Schema({
     users: [{
         type: String,
         trim: true,
-        required: true,
+       //required: true,
         validate: schemaValidator.catalystUsernameValidator
     }],
     hardware: {
@@ -1641,6 +1641,31 @@ var InstancesDao = function() {
             callback(null, data);
 
         });
+    };
+
+    this.getInstanceIdsByIPs = function(instanceIps, callback) {
+        if (instanceIps.length) {
+            var instanceIds = [];
+            var count = 0;
+            for (var i = 0; i < instanceIps.length; i++) {
+                var instanceIp = instanceIps[i].trim();
+                Instances.find({
+                    "instanceIP": instanceIp
+                }, function(err, data) {
+                    count++;
+                    if(data && data.length){
+                        instanceIds.push(data[0]._id);
+                    }
+                    if(count === instanceIps.length){
+                        callback(null, instanceIds);
+                        return;
+                    }
+                });
+            }
+        }else{
+            callback(null,[]);
+            return;
+        }
     };
 
 };

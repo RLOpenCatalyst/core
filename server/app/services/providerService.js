@@ -215,7 +215,8 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
     var catalystEntityMappingList = [];
     for(var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
         if(!('tagValue' in tagMapping.catalystEntityMapping[i])
-            || !('catalystEntityId' in tagMapping.catalystEntityMapping[i])) {
+            || !('catalystEntityId' in tagMapping.catalystEntityMapping[i])
+            || !('catalystEntityName' in tagMapping.catalystEntityMapping[i])) {
             var err = new Error('Malformed Request');
             err.status = 400;
             return callback(err);
@@ -229,7 +230,8 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
 
         catalystEntityMappingList.push({
             'tagValue': tagMapping.catalystEntityMapping[i].tagValue,
-            'catalystEntityId': tagMapping.catalystEntityMapping[i].catalystEntityId
+            'catalystEntityId': tagMapping.catalystEntityMapping[i].catalystEntityId,
+            'catalystEntityName': tagMapping.catalystEntityMapping[i].catalystEntityName
         });
     }
 
@@ -417,17 +419,22 @@ providerService.createTagMappingObject = function createTagMappingObject(tag, ca
 providerService.createUnassignedInstancesList = function createUnassignedInstancesList(instances, callback) {
     var instancesListObject = {};
     var instancesList = [];
+
     instances.forEach(function(instance) {
-        var tempInstance = instance;
+        var tempInstance = {};
         var provider = {
             'id': instance.providerId,
             'type': instance.providerType,
-            'data': instance.providerData,
+            'data': instance.providerData?instance.providerData:null,
         };
-        delete tempInstance.providerId;
-        delete tempInstance.providerType;
-        delete tempInstance.providerData;
+        tempInstance.id = instance._id;
+        tempInstance.orgId = instance.orgId;
         tempInstance.provider = provider;
+        tempInstance.platformId = instance.platformId;
+        tempInstance.ip = instance.ip;
+        tempInstance.os = instance.os;
+        tempInstance.state = instance.state;
+        tempInstance.tags = instance.tags;
 
         instancesList.push(tempInstance);
     });

@@ -53,7 +53,7 @@ chefTaskSchema.methods.getNodes = function() {
 chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
     var self = this;
     logger.debug("self: ", JSON.stringify(self));
-    if (blueprintIds.length) {
+    if (blueprintIds[0]!= "" && blueprintIds.length) {
         var count = 0;
         var onCompleteResult = [];
         var overallStatus = 0;
