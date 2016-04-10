@@ -185,6 +185,7 @@ function sync() {
 																				instances[n].environmentName = catalystEnvironmentName;
 																			}
 
+																			instances[n].tags = tagInfo;
 																			instances[n].save();
 																			found = true;
 
@@ -211,6 +212,7 @@ function sync() {
 																					unManagedInstances[n].environmentId = catalystEnvironmentId;
 																					unManagedInstances[n].environmentName = catalystEnvironmentName;
 
+																					unManagedInstances[n].tags = tagInfo;
 																					unManagedInstances[n].save();
 																				}
 
@@ -272,6 +274,7 @@ function sync() {
 																							name: catalystEnvironmentName
 																						};
 
+																						unassignedInstances[n].tags = tagInfo;
 																						unassignedInstances[n].save();
 																					}
 
