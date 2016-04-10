@@ -1,15 +1,15 @@
 /*
-Copyright [2016] [Relevance Lab]
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Copyright [2016] [Relevance Lab]
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 var urlParams = {};
 (window.onpopstate = function() {
@@ -119,7 +119,7 @@ function loadPipeline() {
         };
         //sort name ascending then id descending
         deployData.sort(function(a, b) {
-            //note the minus before -cmp, for descending order           
+            //note the minus before -cmp, for descending order
             var versionA = a.applicationVersion
             return cmp(
                 [cmp(a.applicationName, b.applicationName), -cmp(a.applicationVersion, b.applicationVersion)], [cmp(b.applicationName, a.applicationName), -cmp(b.applicationVersion, a.applicationVersion)]
@@ -628,18 +628,17 @@ $('#chooseJobs').change(function() {
     var rowDataSetappVersion = $('#modalpromoteConfigure').data("appVersion");
     var $ul = $('#promoteNodesId');
     $ul.empty();
-
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
             /*$.get('/app/deploy/project/' + projectId + '/env/' + envName + '/application/' + rowDataSetappName + '?version=' + rowDataSetappVersion, function(data) {
-                if (data.length) {
-                    var $ul = $('#promoteNodesId');
-                    for (var i = 0; i < data.length; i++) {
-                        var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + data[i].applicationNodeIP + '><i></i>' + data[i].applicationNodeIP + '</label></li>');
-                        $li.hide();
-                        $ul.append($li);
-                    }
-                }*/
+             if (data.length) {
+             var $ul = $('#promoteNodesId');
+             for (var i = 0; i < data.length; i++) {
+             var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + data[i].applicationNodeIP + '><i></i>' + data[i].applicationNodeIP + '</label></li>');
+             $li.hide();
+             $ul.append($li);
+             }
+             }*/
 
             var nodeIps = [];
             var count = 0;
@@ -649,9 +648,7 @@ $('#chooseJobs').change(function() {
                     if (instance) {
                         nodeIps.push(instance.instanceIP);
                         var $ul = $('#promoteNodesId');
-
                         var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + instance.instanceIP + '><i></i>' + instance.name + '</label></li>');
-
                         $li.hide();
                         $ul.append($li);
                     }
@@ -659,9 +656,7 @@ $('#chooseJobs').change(function() {
                         var checked = false;
                         var exists = {};
                         $('#promoteNodesId').find('li').each(function() {
-
                             var nodeIp = $(this).find('input').val();
-
                             if (nodeIps.indexOf(nodeIp) !== -1) {
                                 if (!exists[nodeIp]) {
                                     $(this).find('input')[0].checked = true;
@@ -748,23 +743,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
             var taskId = $modal.find('#chooseJobs').find('option:selected').val();
             var choosedEnvName = $modal.find('#chooseEnvironments').find('option:selected').text();
             if (sourceEnv === choosedEnvName) {
-                alert("Source environment can't be same as target environment.");
-                return;
-            }
-            if (targetEnvName != choosedEnvName) {
-                alert("Please click on target Environment on Tree view.");
-                return;
-            }
-            if (!choosedEnvName) {
-                alert("Please Choose Environment.");
-                return;
-            }
-            if (!taskId) {
-                alert("Please Choose Job.");
-                return;
-            }
-            if (!nodeList.length) {
-                alert("Please specify atleast one target node.");
                 bootbox.confirm({
                     message: "Source environment can't be same as target environment.",
                     title: "Warning",
@@ -802,7 +780,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                     title: "Warning",
                     callback: function(result) {}
                 });
->>>>>>> upstream/dev-angular
                 return;
             }
 
@@ -824,29 +801,14 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             //tasksData['blueprintIds'] = tasksData.blueprintIds;
 
                             var reqBody = {
-                                    taskData: tasksData
-                                }
-                                //tasksData.taskType = tasksData.taskConfig.taskType;
+                                taskData: tasksData
+                            }
+                            //tasksData.taskType = tasksData.taskConfig.taskType;
                             $.post('../tasks/' + taskId + '/update', reqBody, function(updatedTask) {
                                 console.log(updatedTask);
                             });
                         }
                     });
-                    var artifactId = $('#chooseArtifacts').find('option:selected').val();
-                    var nodeIps = [];
-                    var count = 0;
-                    for (var i = 0; i < tasksData.taskConfig.nodeIds.length; i++) {
-                        $.get('/instances/' + tasksData.taskConfig.nodeIds[i], function(instance) {
-                            count++;
-                            if (instance) {
-                                nodeIps.push(instance.instanceIP);
-                            }
-
-                            if (tasksData.taskConfig.nodeIds.length === count) {
-
-                            }
-                        });
-                    }
                 }
 
                 $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
@@ -894,7 +856,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 console.log("Successfully updated app-data.");
                             },
                             error: function(jqxhr) {
-                                alert("Failed to update update appName in Project.");
                                 bootbox.confirm({
                                     message: "Failed to update update appName in Project.",
                                     title: "Warning",
@@ -907,7 +868,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                         $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
                         $('#modalpromoteConfigure').modal('hide');
                     } else {
-                        alert("Something went wrong,no repository information available.");
                         bootbox.confirm({
                             message: "Something went wrong,no repository information available.",
                             title: "Warning",
