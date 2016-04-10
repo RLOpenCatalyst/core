@@ -1,0 +1,45 @@
+{
+	"name": "catalyst",
+	"version": "3.0.0",
+	"main": "index.js",
+	"license": "MIT",
+	"homepage": "index.html",
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components",
+		"test",
+		"tests"
+	],
+	"authors": [
+		"revinjacob"
+	],
+	"dependencies": {
+		"angular": "~1.4.4",
+		"angular-route": "~1.4.4",
+		"angular-strap": "~2.3.1",
+		"angular-ui-router": "~0.2.15",
+		"font-awesome": "~4.4.0",
+		"restangular": "~1.5.1"
+	},
+	"devDependencies": {
+		"angular": "~1.4.4",
+		"angular-animate": "~1.4.6",
+		"angular-datatables": "~0.5.0",
+		"angular-sanitize": "~1.4.7",
+		"angular-strap": "~2.3.1",
+		"angular-touch": "~1.4.7",
+		"font-awesome": "~4.4.0",
+		"jquery": "~2.1.4",
+		"ngstorage": "~0.3.9",
+		"restangular": "~1.5.1",
+		"angular-ui-grid": "^3.1.1"
+	},
+	"exportsOverride": {
+		"font-awesome": {
+			"fonts": "fonts/*",
+			"css": "css/font-awesome.css",
+			"less": "less/*"
+		}
+	}
+}

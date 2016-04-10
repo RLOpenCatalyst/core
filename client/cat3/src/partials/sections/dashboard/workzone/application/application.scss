@@ -1,0 +1,107 @@
+@import '../../../../theme';
+
+@media (min-width : 0px) and (max-width : 320px) {
+    #applicationPage {
+        .app-panel-heading-text {
+            display: none;
+        }
+    }
+}
+
+@media (min-width : 0px) and (max-width : 480px) {
+    #applicationPage {
+        .panel-heading {
+            .pull-right {
+                .app-deploy-new-button {
+                    margin: -4px 5px 0 0px;
+                    padding: 0px 4px;
+                    font-size: 12px;
+                }
+            }
+        }
+    }
+}
+
+#applicationPage {
+	.app-deploy-new-button {
+        margin: -8px 12px 0 0px;
+    }
+
+    .fa-header {
+        font-size: 16px;
+        margin-right: 5px;
+    }
+
+    .fa-cogs {
+        margin-right: 5px;
+        font-size: 18px;
+    }
+
+    .scrollContent {
+    	padding: 10px;
+    }
+
+    .fa-cloud-upload, .fa-info-circle {
+        font-size: 23px;
+    }
+
+    .pipeline-heading {
+        padding: 5px 0;
+        background: #ddd;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .app-details-card {
+        padding-left: 28px;
+    }
+
+    .env-card {
+        width: 11%;
+        text-align: center;
+    }
+
+    .env-card-wrapper {
+        padding-top: 10px;
+    }
+}
+
+#applicationCardDetailsPage {
+    .modal-body {
+        padding: 15px 15px 50px 15px;
+    }    
+
+    .fa-info-circle {
+        font-size: 23px;
+    }
+}
+
+#deployNewAppPage {
+    label {
+        color: #666;
+        font-weight: 400;
+    }
+
+    .form-control, label {
+        font-size: 13px;
+    }
+
+    .repo-job-details-wrapper {
+        border: 1px solid #dddddd;
+        margin: 0 2px;
+        padding: 0.35em 0.625em 0.75em;
+    }
+
+    .repo-job-details-wrapper-inner {
+        border: 0 none;
+        padding: 0;
+        width: auto;
+        margin-bottom: 0;
+        font-size: 15px;
+        color: #666;
+    }
+
+    .margintop20 {
+        margin-top: 20px;
+    }
+}
