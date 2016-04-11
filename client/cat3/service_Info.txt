@@ -1,0 +1,376 @@
+
+Tree information is coming through
+http://d4d.relevancelab.com:3001/organizations/getTreeForbtv
+
+
+User Feature Access List is coming through
+/d4dMasters/authorizedfiles
+
+/d4dMasters/getuser
+Note-Both the services are providing the same data and consuming in different places, it has to be standardize.
+
+
+In order to create Import By Ip functionality
+
+first check whether Chef or Puppet is configured or not via
+/d4dMasters/readmasterjsonnew/10
+
+then get the list of configs of chef and puppet based on organization id
+/d4dMasters/organization/organization-id/configmanagement/list
+
+then get list of OS via
+/vmimages/os/type/all/list
+
+
+after providing all form data it will create new instance through post request on following url
+
+../organizations/' +org + '/businessgroups/' + bg + '/projects/' + projid + '/environments/' +envid + '/addInstance', reqBody
+org=46d1da9a-d927-41dc-8e9e-7e926d927537&bg=7e3500f1-58f9-43e2-b9eb-347b2e4d129d&projid=b38ccedc-da2c-4e2c-a278-c66333564719&envid=c393e5da-ae81-40db-9347-11f77ee6c0d7
+
+
+
+In order to create More Info Popup in Blueprint
+
+below service will give information about the organization,business unit and projects
+http://supercatalyst.relevancelab.com/organizations/getTreeForbtv
+
+below service will give information about keypair,region,security group,template name and type
+
+http://supercatalyst.relevancelab.com/aws/providers/55c193992b4997ef060e53d0
+
+below service will give information about OS type,OS name and instance size
+http://supercatalyst.relevancelab.com/vmimages/55c193bb2b4997ef060e53d2
+
+Note-Instead Of calling multiple services for retrieving small chunk of information, we should have a single end point to retrieve all the data related to more info popup.
+
+
+
+In order to create ChefRunlist in instances
+
+we need to bring chef repo list based on organization id, it will call below service
+http://supercatalyst.relevancelab.com/organizations/ca8a9158-0426-4a14-9401-a5539a9dda87/chefRunlist
+
+we also need already installed cookbooks list so that we can placed it in the side, that is available in the instances.
+
+
+
+
+Orchestration Execute Functinality (this flow is applicable for jenkins jobs)
+-get the task id and send params on following urls [request type -post]
+/tasks/task-id(5624eca7abfc708639de3a0a)/run
+
+response of creation post request({
+      "buildNumber": 37,
+      "jenkinsServerId": "2a210b62-6ed0-47ea-ad53-25fdc8f1cb91",
+      "jobName": "testparameters",
+      "lastBuildNumber": 36,
+      "nextBuildNumber": 37,
+      "timestamp": 1445260472800,
+      "taskType": "jenkins",
+      "historyId": "5624ecbbabfc708639de3a0b"
+    })
+
+    after that use history id for getting its history [request type- get]
+    /tasks/task-id(5624eca7abfc708639de3a0a)/history/history-id(5624ecbbabfc708639de3a0b)
+
+    response of the getting history
+    {
+      "_id": "5624ecbbabfc708639de3a0b",
+      "taskId": "5624eca7abfc708639de3a0a",
+      "taskType": "jenkins",
+      "user": "superadmin",
+      "jenkinsServerId": "2a210b62-6ed0-47ea-ad53-25fdc8f1cb91",
+      "jobName": "testparameters",
+      "status": "running",
+      "timestampStarted": 1445260472800,
+      "buildNumber": 37,
+      "previousBuildNumber": 36,
+      "__v": 0,
+      "taskHistoryIds": [],
+      "assignedTaskIds": [],
+      "executionResults": [],
+      "jobResultURL": [],
+      "nodeIdsWithActionLog": [],
+      "nodeIds": [],
+      "runlist": []
+    }
+
+    then start pining for logs [request type-get]
+    /jenkins/jenkins-server-id(2a210b62-6ed0-47ea-ad53-25fdc8f1cb91)/jobs/job-Name(testparameters)
+
+    response of the job pinging
+    {
+      "actions": [
+        {},
+        {
+          "parameterDefinitions": [
+            {
+              "defaultParameterValue": {
+                "value": "250MB"
+              },
+              "description": "Heapsize",
+              "name": "HeapSize",
+              "type": "StringParameterDefinition"
+            },
+            {
+              "defaultParameterValue": {},
+              "description": "general password",
+              "name": "kpass",
+              "type": "PasswordParameterDefinition"
+            },
+            {
+              "defaultParameterValue": {
+                "value": false
+              },
+              "description": "",
+              "name": "Test Bollean",
+              "type": "BooleanParameterDefinition"
+            }
+          ]
+        },
+        {},
+        {},
+        {},
+        {},
+        {}
+      ],
+      "description": "",
+      "displayName": "testparameters",
+      "displayNameOrNull": null,
+      "name": "testparameters",
+      "url": "jenkins.rlcatalyst.com/job/testparameters/",
+      "buildable": true,
+      "builds": [
+        {
+          "number": 36,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/36/"
+        },
+        {
+          "number": 35,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/35/"
+        },
+        {
+          "number": 34,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/34/"
+        },
+        {
+          "number": 33,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/33/"
+        },
+        {
+          "number": 32,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/32/"
+        },
+        {
+          "number": 31,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/31/"
+        },
+        {
+          "number": 30,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/30/"
+        },
+        {
+          "number": 29,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/29/"
+        },
+        {
+          "number": 28,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/28/"
+        },
+        {
+          "number": 27,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/27/"
+        },
+        {
+          "number": 26,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/26/"
+        },
+        {
+          "number": 25,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/25/"
+        },
+        {
+          "number": 24,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/24/"
+        },
+        {
+          "number": 23,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/23/"
+        },
+        {
+          "number": 22,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/22/"
+        },
+        {
+          "number": 21,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/21/"
+        },
+        {
+          "number": 20,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/20/"
+        },
+        {
+          "number": 19,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/19/"
+        },
+        {
+          "number": 18,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/18/"
+        },
+        {
+          "number": 17,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/17/"
+        },
+        {
+          "number": 16,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/16/"
+        },
+        {
+          "number": 15,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/15/"
+        },
+        {
+          "number": 14,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/14/"
+        },
+        {
+          "number": 13,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/13/"
+        },
+        {
+          "number": 12,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/12/"
+        },
+        {
+          "number": 11,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/11/"
+        },
+        {
+          "number": 10,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/10/"
+        },
+        {
+          "number": 9,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/9/"
+        },
+        {
+          "number": 8,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/8/"
+        },
+        {
+          "number": 7,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/7/"
+        },
+        {
+          "number": 6,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/6/"
+        },
+        {
+          "number": 5,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/5/"
+        },
+        {
+          "number": 4,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/4/"
+        },
+        {
+          "number": 3,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/3/"
+        },
+        {
+          "number": 2,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/2/"
+        },
+        {
+          "number": 1,
+          "url": "jenkins.rlcatalyst.com/job/testparameters/1/"
+        }
+      ],
+      "color": "blue",
+      "firstBuild": {
+        "number": 1,
+        "url": "jenkins.rlcatalyst.com/job/testparameters/1/"
+      },
+      "healthReport": [
+        {
+          "description": "Build stability: No recent builds failed.",
+          "iconClassName": "icon-health-80plus",
+          "iconUrl": "health-80plus.png",
+          "score": 100
+        }
+      ],
+      "inQueue": false,
+      "keepDependencies": false,
+      "lastBuild": {
+        "number": 36,
+        "url": "jenkins.rlcatalyst.com/job/testparameters/36/"
+      },
+      "lastCompletedBuild": {
+        "number": 36,
+        "url": "jenkins.rlcatalyst.com/job/testparameters/36/"
+      },
+      "lastFailedBuild": null,
+      "lastStableBuild": {
+        "number": 36,
+        "url": "jenkins.rlcatalyst.com/job/testparameters/36/"
+      },
+      "lastSuccessfulBuild": {
+        "number": 36,
+        "url": "jenkins.rlcatalyst.com/job/testparameters/36/"
+      },
+      "lastUnstableBuild": null,
+      "lastUnsuccessfulBuild": {
+        "number": 1,
+        "url": "jenkins.rlcatalyst.com/job/testparameters/1/"
+      },
+      "nextBuildNumber": 37,
+      "property": [
+        {},
+        {
+          "parameterDefinitions": [
+            {
+              "defaultParameterValue": {
+                "name": "HeapSize",
+                "value": "250MB"
+              },
+              "description": "Heapsize",
+              "name": "HeapSize",
+              "type": "StringParameterDefinition"
+            },
+            {
+              "defaultParameterValue": {
+                "name": "kpass"
+              },
+              "description": "general password",
+              "name": "kpass",
+              "type": "PasswordParameterDefinition"
+            },
+            {
+              "defaultParameterValue": {
+                "name": "Test Bollean",
+                "value": false
+              },
+              "description": "",
+              "name": "Test Bollean",
+              "type": "BooleanParameterDefinition"
+            }
+          ]
+        },
+        {}
+      ],
+      "queueItem": null,
+      "concurrentBuild": false,
+      "downstreamProjects": [],
+      "scm": {},
+      "upstreamProjects": []
+    }
+
+
+    Orchestration deleting any task [request type-Delete]
+
+    /tasks/task-id(5624eca7abfc708639de3a0a)
+response will be {
+                   "deleteCount": 1
+                 }
+
+

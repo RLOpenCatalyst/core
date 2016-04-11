@@ -1,0 +1,20 @@
+<div id='updateChefRunlistConfirmationPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> 
+			Confirmation 
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		Are you sure you want to Update the runlist? This will run all the cookbooks available in the Runlist.
+		<div>
+			{{errorMessage}}
+		</div>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">Ok</button>
+	</div>
+</div>

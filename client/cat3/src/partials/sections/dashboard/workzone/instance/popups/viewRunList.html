@@ -1,0 +1,22 @@
+<div class="modal-header">
+	<span class="close" ng-click="cancel()">×</span>
+	<h4 class="modal-title">
+		<i class="fa fa-outdent"></i>&nbsp;
+		Runlists
+	</h4>
+</div>
+
+<div class="modal-body">
+	<div ng-show="!cookbookList.length">
+		<span>There are no runlists available for this instance.</span>
+	</div>
+	<div ng-show="cookbookList.length">
+		<div ng-repeat="cookbook in cookbookList">
+			<span>{{cookbook}}</span>
+		</div>
+	</div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn cat-btn-close" ng-click="cancel()">Close</button>
+</div>

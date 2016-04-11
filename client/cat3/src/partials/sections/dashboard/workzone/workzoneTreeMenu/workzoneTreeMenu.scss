@@ -1,0 +1,78 @@
+@media (min-width : 0px) and (max-width: 480px) {
+	.tree-wrapper {
+		.tree-toggle {
+		    top: -31px;
+		    font-size: 1.2em;
+		}
+	}	
+}
+
+#navigPage {
+	background: transparent;
+	z-index: 1;
+	position: fixed;
+	width: 100%;
+
+	#navigPage-inner {
+		background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
+		color: #fff;
+		z-index: 1;
+		position: fixed;
+		width: 254px;
+		box-shadow: 2px 2px 14px #655D5D;
+		overflow-y: auto;
+	}
+
+	#navigPage-bg {
+		width: 100%;
+		background: #fcfcfc;
+		opacity: 0.5;
+	}
+
+	div[data-angular-treeview] {
+		color: #fff;
+		font-size: 12px;
+		font-family: "Open Sans", Arial, Helvetica, Sans-Serif;
+	}
+
+	div[data-tree-model] li .selected {
+		padding: 0px;
+	}
+
+	div[data-tree-model] li span:hover {
+		text-decoration: underline;
+	}
+
+	div[data-tree-model] li {
+		line-height: 2.2;
+		padding: 0 0 0 15px;
+	}
+
+	div[data-tree-model] li span {
+		margin-left: 4px;
+		color: #fff;
+	}
+
+	div[data-tree-model] li span .selected {
+		margin-left: 4px;
+	}
+
+	.collapse-spacing {
+		padding-right: 10px;
+		color: #fff;
+	}
+
+	.label-spacing {
+		padding-right: 3px;
+	}
+}
+
+.tree-toggle {
+	position: absolute;
+		top: -42px;
+		z-index: 100;
+		color: #fff;
+		font-size: 1.5em;
+		padding: 11px;
+}
+

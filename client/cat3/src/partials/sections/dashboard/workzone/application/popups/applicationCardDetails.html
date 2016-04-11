@@ -1,0 +1,45 @@
+<div id='applicationCardDetailsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-bar-chart-o"></i>&nbsp;&nbsp;Details
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<section>		
+			<table datatable="" class="table-bordered text-center">
+				<thead>
+					<tr>
+						<td>Node IP</td>
+						<td>Last Deploy</td>
+						<td>Status</td>
+						<td>Logs</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="app in applicationsDetails.environments">
+						<td>{{app.applicationNodeIP}}</td>
+						<td>{{app.applicationLastDeploy}}
+							<!--<span ng-repeat="part in (envDetails.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines)">
+								{{part}}
+								<br>
+							</span>-->
+						</td>
+						<td>{{app.applicationStatus}}</td>
+						<td>
+							<i class="fa fa-info-circle cursor" title="More Info" ng-click="viewAppCardLogs(app)"></i>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i>
+			Close
+		</button>
+	</div>
+</div>

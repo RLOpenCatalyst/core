@@ -1,0 +1,111 @@
+@import '../../theme';
+
+#loginContainer {
+	margin-top: 50px;
+}
+
+.grayBorder {
+	border: 1px solid #808080;
+}
+
+.loginform {
+	color: #666;
+	margin: 0px;
+	padding: 0px;
+	box-sizing: content-box;
+	font: $font-serif;
+
+	header {
+		height: 40px;
+		padding: 10px 0px 0px 10px;
+		border-bottom: 1px solid rgba(0, 0, 0, .1);
+		background: rgba(248, 248, 248, .9);
+		font-size: 16px;
+		font-weight: 300;
+		color: $head-color;
+	}
+
+	fieldset {
+		display: block;
+		padding: 25px 14px 5px;
+		border: 0px none;
+		background: none repeat scroll 0% 0% rgba(255, 255, 255, 0.9);
+		position: relative;
+	}
+
+	section {
+		margin-bottom: 15px;
+		position: relative;
+
+		.label {
+			display: block;
+			white-space: nowrap;
+			vertical-align: baseline;
+			margin-bottom: 6px;
+			line-height: 19px;
+			font-weight: 400;
+			font-size: 13px;
+			color: #333;
+			text-align: left;
+			@include border-radius(0.25em);
+		}
+	}
+
+	.loginform_note {
+		margin-top: 6px;
+		padding: 0px 1px;
+		font-size: 11px;
+		line-height: 15px;
+		color: #999;
+	}
+
+	.loginform_input {
+		position: relative;
+		display: block;
+		font-weight: 400;
+		border: 1px solid #BDBDBD;
+		color: #404040;
+		@include box-sizing(border-box);
+	}
+
+	.loginform_input input {
+		width: 80%;
+		padding: 5px 0px 5px 10px;
+		border: none;
+	}
+
+	.loginform_icon-append {
+		position: absolute;
+		top: 5px;
+		width: 22px;
+		height: 22px;
+		font-size: 14px;
+		line-height: 22px;
+		text-align: center;
+		color: #A2A2A2;
+		right: 5px;
+		padding-left: 3px;
+		border-left: 1px solid #BDBDBD;
+	}
+
+	footer:after {
+		content: "";
+		display: table;
+		clear: both;
+	}
+
+	footer .btn {
+		float: right;
+		height: 31px;
+		margin: 10px 0 0 5px;
+		padding: 0 22px;
+		cursor: pointer;
+		color: white;
+	}
+	
+	.loginform_incorlog {
+		color: $color-red;
+		font-size: 9pt;
+		margin-top: 17px;
+	}
+}

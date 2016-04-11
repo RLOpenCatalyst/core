@@ -1,0 +1,135 @@
+<div id="orchestrationHistoryPage">
+	<div class="modal-header">
+		<h4 class="modal-title">
+			<span class="close" ng-click="cancel()">×</span>
+			<span ng-show="task.taskType=='jenkins'">
+				<i class="fa fa-history"></i>&nbsp;
+				Jenkins Job History For - {{task.name}}
+			</span>
+			<span ng-show="task.taskType=='chef'">
+				<i class="fa fa-history"></i>&nbsp;
+				Chef History For -{{task.name}}
+			</span>
+			<span ng-show="task.taskType=='composite'">
+				<i class="fa fa-history"></i>&nbsp;
+				Composite History For -{{task.name}} 
+			</span>
+			<span ng-show="task.taskType=='puppet'">
+				<i class="fa fa-history"></i>&nbsp;
+				Puppet History For -{{task.name}} 
+			</span>
+			<span></span>
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<section>
+			<!--This table will get use when job type will be chef -->
+			 <table datatable="" class="table-bordered text-center" ng-if="task.taskType=='chef'">
+				<thead>
+					<tr class="rowCustomStyle" role="row">
+						<td>Start Time</td>
+						<td>End Time</td>
+						<td>Status</td>
+						<td>Message</td>
+						<td>User</td>
+						<td>Logs</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="hist in history">
+						<td>{{hist.timestampStarted | timestampToLocaleTime}}</td>
+						<td>{{hist.timestampEnded | timestampToLocaleTime}}</td>
+						<td class="{{hist.status}}">{{hist.status}}</td>
+						<td>{{hist.message}}</td>
+						<td>{{hist.user}}</td>
+						<td>
+							<i class="fa fa-info-circle cursor" title="More Info" ng-click="historyLogs(hist)"></i>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<!--This table will get use when job type will be puppet -->
+			<table datatable="" class="table-bordered text-center" ng-if="task.taskType=='puppet'">
+				<thead>
+					<tr>
+						<td>Start Time</td>
+						<td>End Time</td>
+						<td>Status</td>
+						<td>Message</td>
+						<td>User</td>
+						<td>Logs</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="hist in history">
+						<td>{{hist.timestampStarted | timestampToLocaleTime}}</td>
+						<td>{{hist.timestampEnded | timestampToLocaleTime}}</td>
+						<td class="{{hist.status}}">{{hist.status}}</td>
+						<td>{{hist.message}}</td>
+						<td>{{hist.user}}</td>
+						<td>
+							<i class="fa fa-info-circle cursor" title="More Info" ng-click="historyLogs(hist)"></i>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<!--This table will get use when job type will be jenkins -->
+			<table datatable="" class="table-bordered text-center" ng-if="task.taskType=='jenkins'">
+				<thead>
+					<tr>
+						<td>Job Number</td>
+						<td>Job Output</td>
+						<td>Status</td>
+						<td>Start Time</td>
+						<td>End Time</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="hist in history">
+						<td>
+							<a target="_blank" title="Jenkins" ng-href="http://{{task.taskConfig.jobURL+'/'+hist.buildNumber}}">{{hist.buildNumber}}</a>
+						</td>
+						<td>
+							<span title="Jenkins Log" class="fa fa-list bigger-120 btn cat-btn-update btn-sg tableactionbutton" ng-click="historyLogs(hist);">
+							</span>
+						</td>
+						<td class="{{hist.status}}">{{hist.status}}</td>
+						<td>{{hist.timestampStarted | timestampToLocaleTime}}</td>
+						<td>{{hist.timestampEnded | timestampToLocaleTime}}</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!--This table will get use when job type will be composite -->
+			<table datatable="" class="table-bordered text-center" ng-if="task.taskType=='composite'">
+				<thead>
+					<tr>
+						<td>Start Time</td>
+						<td>End Time</td>
+						<td>Status</td>
+						<td>Message</td>
+						<td>User</td>
+						<td>Logs</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="hist in history">
+						<td>{{hist.timestampStarted | timestampToLocaleTime}}</td>
+						<td>{{hist.timestampEnded | timestampToLocaleTime}}</td>
+						<td class="{{hist.status}}">{{hist.status}}</td>
+						<td>{{hist.message}}</td>
+						<td>{{hist.user}}</td>
+						<td>
+							<i class="fa fa-info-circle cursor" title="More Info" ng-click="historyLogs(hist)"></i>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">Close</button>
+	</div>
+</div>

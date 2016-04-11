@@ -1,0 +1,174 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/blueprint/blueprint.css">
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/card/card.css">
+
+<div id='bluePrintPage' class='controller' ng-controller="blueprintCtrl">
+    <loading size="large" name="isBluePrintPageLoading" type="block"></loading>
+    <div ng-show="!isBluePrintPageLoading">
+        <div class="panel-heading">
+            <span class="panel-title">
+                <span>Blueprints</span>
+            </span>
+        </div>
+        <div class="scrollContent">
+            <div class="container">
+                <accordion close-others="oneAtATime">
+                    <div ng-show="blueprints.software_stack.length">
+                        <accordion-group is-open="isFirstOpen" heading="Software Stack">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.software_stack">
+                                <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
+                                    <ul class="list-unstyled system-prop">
+                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                            <i class="fa fa-info-circle"></i>
+                                        </span>
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="CatalystLogstash" class="cardLogo">
+                                        </li>
+                                        <li title="CatalystLogstash" class="card-text-overflow">
+                                            <u><b>{{launcher.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBluePrint(launcher, 'software_stack')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-show="blueprints.os_image.length>0">
+                        <accordion-group heading="OSImage">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.os_image">
+                                <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
+                                    <ul class="list-unstyled system-prop">
+                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                            <i class="fa fa-info-circle"></i>
+                                        </span>
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="CatalystLogstash" class="cardLogo"></li>
+                                        <li title="CatalystLogstash" class="card-text-overflow">
+                                            <u><b>{{launcher.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa  fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBluePrint(launcher, 'os_image')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-show="blueprints.cloudFormation.length>0">
+                        <accordion-group heading="Cloud Formation">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.cloudFormation">
+                                <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
+                                    <ul class="list-unstyled system-prop">
+                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                            <i class="fa fa-info-circle"></i>
+                                        </span>
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="CatalystLogstash" class="cardLogo"></li>
+                                        <li title="{{launcher.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBluePrint(launcher, 'cloudFormation')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-show="blueprints.docker.length>0">
+                        <accordion-group heading="Docker">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.docker">
+                                <div class="productdiv1 cardimage role-Selected1" data-blueprinttype="instance_launch" data-templatetype="chef">
+                                    <ul class="list-unstyled system-prop">
+                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                            <i class="fa fa-info-circle"></i>
+                                        </span>
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="CatalystLogstash" class="cardLogo"></li>
+                                        <li title="CatalystLogstash" class="card-text-overflow">
+                                            <u><b>{{launcher.name}}</b></u>
+                                        </li>
+                                        <li title="Docker Repo Name" class="docker-image-text">
+                                            <i class="fa fa-check-square docker-image-name"></i> {{launcher.dockerImageName}}
+                                        </li>
+                                    </ul>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBluePrint(launcher, 'docker')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div ng-show="blueprints.azureARM.length>0">
+                        <accordion-group heading="AzureARM">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.azureARM">
+                                <div class="productdiv1 cardimage role-Selected1">
+                                    <ul class="list-unstyled system-prop">
+                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                            <i class="fa fa-info-circle"></i>
+                                        </span>
+                                        <li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="{{launcher.iconpath}}" class="cardLogo">
+                                        </li>
+                                        <li title="{{launcher.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBluePrint(launcher, 'software_stack')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                </accordion>
+            </div>
+        </div>
+    </div>
+</div>
