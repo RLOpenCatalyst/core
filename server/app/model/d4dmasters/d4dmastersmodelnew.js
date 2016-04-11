@@ -1272,7 +1272,7 @@ var d4dMastersNexusServer = new mongoose.Schema({
     },
     groupid: {
         type: [String],
-        required: true,
+        required: false,
         trim: true
     },
     active: {
