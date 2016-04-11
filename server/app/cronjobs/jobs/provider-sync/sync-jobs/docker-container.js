@@ -56,7 +56,7 @@ function sync() {
                                                                     return;
                                                                 }
                                                                 var options = {
-                                                                    host: 'localhost',
+                                                                    host: instanceoptions.instanceIP,
                                                                     port: '22',
                                                                     username: decrptedCredentials.username,
                                                                     privateKey: decrptedCredentials.pemFileLocation,
@@ -105,9 +105,9 @@ function sync() {
                                                                                         Status: containers.Status,
                                                                                         HostConfig: containers.HostConfig
                                                                                     };
-                                                                                    containerDao.getContainerById(containers.Id,function(err,data){
+                                                                                    containerDao.getContainerByIdInstanceIP(containerData,function(err,data){
                                                                                         if(err){
-                                                                                            logger.error("Error in fetching Container By ID:", err);
+                                                                                            logger.error("Error in fetching Container By ID and Instance IP:", err);
                                                                                             return;
                                                                                         }
                                                                                         if(data.length){

@@ -139,9 +139,12 @@ ContainerSchema.statics.createContainer = function(containerData, callback) {
         callback(null, data);
     });
 };
-ContainerSchema.statics.getContainerById = function(containerId, callback) {
+ContainerSchema.statics.getContainerByIdInstanceIP = function(containerData, callback) {
     logger.debug("Enter getContainerById");
-    Container.find({Id:containerId},function(err, data) {
+    Container.find({
+        Id:containerData.Id,
+        instanceIP:containerData.instanceIP
+    },function(err, data) {
         if (err) {
             logger.error("createContainer Failed", err, containerData);
             callback(err, null);
