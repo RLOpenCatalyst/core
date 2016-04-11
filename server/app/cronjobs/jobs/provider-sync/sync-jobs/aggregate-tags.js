@@ -34,7 +34,7 @@ function aggregation() {
                                         logger.error("Unable to get tags for provider");
                                         return;
                                     } else {
-                                        tagDetails = {};
+                                        var tagDetails = {};
                                         for(var l = 0; l < tags.length; l++) {
                                             tagDetails[tags[l].name] = tags[l];
                                         }
@@ -77,13 +77,13 @@ function aggregation() {
                                                     tagsModel.updateTag(params, fields);
                                                 }
                                             }
-
-                                            logger.info('Tags aggregation ended');
                                         });
                                     }
 
                                 })
+                                logger.info('Tags aggregation for provider ', provider._id);
                             })(providers[j]);
+                            logger.info('Tags aggregation ended');
                         }
                     }
                 });
