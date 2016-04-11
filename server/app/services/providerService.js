@@ -151,46 +151,70 @@ providerService.updateTag = function updateTag(provider, tagDetails, callback) {
 // @TODO CatalystEntityMapping and values update to be implemented
 // @TODO Handle asynchronous updates to guarantee correctness
 // @TODO Update conflict based on tag names should be handled
+// @TODO Nested callbacks to be handled
 providerService.addMultipleTagMappings = function addMultipleTagMappings(providerId, tagMappings, callback) {
     if(tagMappings.length < 1) {
         return callback(null, []);
     }
     logger.debug(tagMappings.length);
     var tagNames = [];
+
     for(var i = 0; i < tagMappings.length; i++) {
-        if(!('tagName' in tagMappings[i]) || !('catalystEntityType' in tagMappings[i])) {
-            var err = new Error('Malformed Request');
-            err.status = 400;
-            return callback(err);
-        }
-
-        // @TODO entity types to be moved to config
-        if((tagMappings[i].catalystEntityType != 'project')
-            && (tagMappings[i].catalystEntityType != 'environment')) {
-            var err = new Error('Malformed Request');
-            err.status = 400;
-            return callback(err);
-        }
-
-        tagNames.push(tagMappings[i].tagName);
-        var params = {
-            'providerId': providerId,
-            'name': tagMappings[i].tagName
-        };
-        var fields = {
-            'catalystEntityType': tagMappings[i].catalystEntityType
-        };
-        tags.updateTag(params, fields, function(err, tag) {
-            if(err) {
-                var err = new Error('Internal server error');
-                err.status = 500;
-                return callback(err);
-            } else if(!tag) {
-                var err = new Error('Tag not found');
-                err.status = 404;
+        (function(tagMapping) {
+            if (!('tagName' in tagMapping) || !('catalystEntityType' in tagMapping)) {
+                var err = new Error('Malformed Request');
+                err.status = 400;
                 return callback(err);
             }
-        });
+
+            // @TODO entity types to be moved to config
+            if ((tagMapping.catalystEntityType != 'project')
+                && (tagMapping.catalystEntityType != 'environment')) {
+                var err = new Error('Malformed Request');
+                err.status = 400;
+                return callback(err);
+            }
+
+            var deleteParams = {
+                'providerId': providerId,
+                'catalystEntityType': tagMapping.catalystEntityType
+            };
+            var deleteFields = {
+                'catalystEntityType': null,
+                'catalystEntityMapping': []
+            };
+            tags.updateTag(deleteParams, deleteFields, function (err, tag) {
+
+                if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                } else {
+
+                    tagNames.push(tagMapping.tagName);
+                    var params = {
+                        'providerId': providerId,
+                        'name': tagMapping.tagName
+                    };
+                    var fields = {
+                        'catalystEntityType': tagMapping.catalystEntityType
+                    };
+                    tags.updateTag(params, fields, function (err, tag) {
+                        if (err) {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        } else if (!tag) {
+                            var err = new Error('Tag not found');
+                            err.status = 404;
+                            return callback(err);
+                        }
+                    });
+
+                }
+
+            });
+        })(tagMappings[i]);
     }
 
     if(tagNames.length > 0) {
