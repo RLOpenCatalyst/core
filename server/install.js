@@ -61,6 +61,9 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
+        constantData:  {
+            common_field:['envId','providerId','orgId','bgId','projectId'],
+        },
         puppet: {
             puppetReposDirName: 'puppet-repos',
 

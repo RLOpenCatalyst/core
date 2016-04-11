@@ -128,8 +128,8 @@
                         <div class="btn-group pull-right">
                             <span id="spantagsformSaveId" class="colorGreen spanformSaveCSS"></span>
                             <button class="btn btn-primary btn-mini btntagsFormSave">
-                            <i class="ace-icon fa fa-check bigger-110"></i>
-                            Save
+                                <i class="ace-icon fa fa-check bigger-110"></i>
+                                Save
                             </button>
                         </div>
                     </div>
@@ -157,8 +157,8 @@
                     <div class="btn-group pull-right">
                         <span id="spanprojectMappingSaveId" class="colorGreen spanformSaveCSS"></span>
                         <button class="btn btn-primary btn-mini btnprojectMappingSave">
-                        <i class="ace-icon fa fa-check bigger-110"></i>
-                        Save
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Save
                         </button>
                     </div>
                 </div>
@@ -180,8 +180,8 @@
                     <div class="btn-group pull-right">
                         <span id="spanenvMappingSaveId" class="colorGreen spanformSaveCSS"></span>
                         <button class="btn btn-primary btn-mini btnenvMappingSave">
-                        <i class="ace-icon fa fa-check bigger-110"></i>
-                        Save
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Save
                         </button>
                     </div>
                 </div>
@@ -539,10 +539,10 @@
             return;
         }
         if(urlParams.providerId && urlParams.providerId.indexOf("#ajax") == -1){
-          getTagsListData(urlParams.providerId);
-          getManagedInstances();
-          //getUnmanagedInstances();
-          //getUnassignedInstances();
+            getTagsListData(urlParams.providerId);
+            getManagedInstances();
+            //getUnmanagedInstances();
+            //getUnassignedInstances();
         }
         //loading Managed Data
         function getTagsListData(providerId) {
@@ -559,21 +559,21 @@
                 bootbox.alert(msg);
             });
             /*var tagsListdummy = {
-                "tags": [{
-                    "name": "env",
-                    "description": null
-                }, {
-                    "name": "application",
-                    "description": "Project name"
-                },{
-                    "name": "testingEnv",
-                    "description": ""
-                }],
-                "count": 2,
-                "pageSize": 10,
-                "pageIndex": 1
-            };
-            loadTagsTabData(tagsListdummy,providerId);*/
+             "tags": [{
+             "name": "env",
+             "description": null
+             }, {
+             "name": "application",
+             "description": "Project name"
+             },{
+             "name": "testingEnv",
+             "description": ""
+             }],
+             "count": 2,
+             "pageSize": 10,
+             "pageIndex": 1
+             };
+             loadTagsTabData(tagsListdummy,providerId);*/
         }
 
         function loadTagsTabData(tagsListData,providerId) {
@@ -582,7 +582,7 @@
             $projecttagsList.empty();
             $envtagsList.empty();
             $tagsDatatable.clear().draw();
-            
+
             for (var i = 0; i < tagsListData.length; i++) {
                 var $tbody = $('#tagsTable tbody').empty();
                 //For Dropdown
@@ -602,7 +602,7 @@
                     var $inputTxt = '';
                     $inputTxt = $('<input id="tagdescinputId'+i+'" type="text" class="width-90 border-grey tagsDescInput"></input><a class="btn btn-primary saveBtnTagsCSS" title="Save"><i class="ace-icon fa fa-save bigger-110"></i></a>');
                 }
-                
+
                 var $tdDesc = $('<td></td>').append($inputTxt);
                 $tr.append($tdDesc);
 
@@ -610,44 +610,16 @@
             }
 
             $('#tagsTable').on('keypress','.tagsDescInput',function(event){
-                    var keycode = (event.keyCode ? event.keyCode : event.which);
-                    if(keycode == '13'){
-                        var $this = $(this);
-                        var id = $this.attr('id');
-                        var tagName = $this.parents().eq(1).find('.tagName').html();
-                        var tagDesc = $this.parents().eq(1).find('input').val();
-                       
-                        //Send the body update tag
-                        var objupdatetagDesc = {};
-                        objupdatetagDesc["description"] = tagDesc;
-                        $.ajax({
-                            url: '/providers/'+ providerId +'/tags/'+ tagName,
-                            method: 'PUT',
-                            data: JSON.stringify(objupdatetagDesc),
-                            contentType: "application/json",
-                            success: function() {
-                                $('#'+id).css('background-color','lightyellow');
-                            },
-                            error: function(jxhr) {
-                                //alert("Tags description not saved....");
-                            }
-                        }); 
-                    }
-                    //Stop the event from propogation to other handlers
-                    //If this line will be removed, then keypress event handler attached 
-                    //at document level will also be triggered
-                    event.stopPropagation();
-                });
-                $('#tagsTable').on('click','.saveBtnTagsCSS',function(event){
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if(keycode == '13'){
                     var $this = $(this);
-                    var id = $this.parents().eq(1).find('input').attr('id');
+                    var id = $this.attr('id');
                     var tagName = $this.parents().eq(1).find('.tagName').html();
                     var tagDesc = $this.parents().eq(1).find('input').val();
 
                     //Send the body update tag
                     var objupdatetagDesc = {};
                     objupdatetagDesc["description"] = tagDesc;
-                    console.log(objupdatetagDesc);
                     $.ajax({
                         url: '/providers/'+ providerId +'/tags/'+ tagName,
                         method: 'PUT',
@@ -659,8 +631,36 @@
                         error: function(jxhr) {
                             //alert("Tags description not saved....");
                         }
-                    }); 
+                    });
+                }
+                //Stop the event from propogation to other handlers
+                //If this line will be removed, then keypress event handler attached
+                //at document level will also be triggered
+                event.stopPropagation();
+            });
+            $('#tagsTable').on('click','.saveBtnTagsCSS',function(event){
+                var $this = $(this);
+                var id = $this.parents().eq(1).find('input').attr('id');
+                var tagName = $this.parents().eq(1).find('.tagName').html();
+                var tagDesc = $this.parents().eq(1).find('input').val();
+
+                //Send the body update tag
+                var objupdatetagDesc = {};
+                objupdatetagDesc["description"] = tagDesc;
+                console.log(objupdatetagDesc);
+                $.ajax({
+                    url: '/providers/'+ providerId +'/tags/'+ tagName,
+                    method: 'PUT',
+                    data: JSON.stringify(objupdatetagDesc),
+                    contentType: "application/json",
+                    success: function() {
+                        $('#'+id).css('background-color','lightyellow');
+                    },
+                    error: function(jxhr) {
+                        //alert("Tags description not saved....");
+                    }
                 });
+            });
 
 
 
@@ -668,37 +668,37 @@
             loaddefaultTagMappingSelection(blankArr);
         }
         /*var tagsListSelected = {
-            "tagNameMappings": [{
-                "tagName": "application",
-                "tagValues": ["proj1", "proj2"],
-                "catalystEntityType": "project",
-                "catalystEntityMapping": [{
-                    "catalystEntityId": "<MongoID>",
-                    "catalystEntityName": "Project1",
-                    "tagValue": "proj1"
-                }, {
-                    "catalystEntityId": "<MongoID>",
-                    "catalystEntityName": "Project2",
-                    "tagValue": "proj2"
-                }]
-            }, {
-                "tagName": "testingEnv",
-                "tagValues": ["prod", "dev"],
-                "catalystEntityType": "environment",
-                "catalystEntityMapping": [{
-                    "catalystEntityId": "<MongoID>",
-                    "catalystEntityName": "Development",
-                    "tagValue": "dev"
-                }, {
-                    "catalystEntityId": "<MongoID>",
-                    "catalystEntityName": "Production",
-                    "tagValue": "prod"
-                }]
-            }],
-            "count": 2,
-            "pageSize": 10,
-            "pageIndex": 1
-        };*/
+         "tagNameMappings": [{
+         "tagName": "application",
+         "tagValues": ["proj1", "proj2"],
+         "catalystEntityType": "project",
+         "catalystEntityMapping": [{
+         "catalystEntityId": "<MongoID>",
+         "catalystEntityName": "Project1",
+         "tagValue": "proj1"
+         }, {
+         "catalystEntityId": "<MongoID>",
+         "catalystEntityName": "Project2",
+         "tagValue": "proj2"
+         }]
+         }, {
+         "tagName": "testingEnv",
+         "tagValues": ["prod", "dev"],
+         "catalystEntityType": "environment",
+         "catalystEntityMapping": [{
+         "catalystEntityId": "<MongoID>",
+         "catalystEntityName": "Development",
+         "tagValue": "dev"
+         }, {
+         "catalystEntityId": "<MongoID>",
+         "catalystEntityName": "Production",
+         "tagValue": "prod"
+         }]
+         }],
+         "count": 2,
+         "pageSize": 10,
+         "pageIndex": 1
+         };*/
         function loaddefaultTagMappingSelection(catalystEntityTypeListPassed){
             $.ajax({
                 url: '/providers/'+urlParams.providerId+'/tag-mappings',
@@ -737,7 +737,7 @@
                                 for(var k=0; k< tagValues.length; k++){
                                     $mappingprojectSelectList.append($('<option></option>').val(tagValues[k]).html(tagValues[k]));
                                 }
-                                
+
                                 var $tdprojectTagName = $('<td class="mappingprojectTagName"></td>').append($mappingprojectSelectList);
                                 $tr.append($tdprojectTagName);
 
@@ -745,7 +745,7 @@
                                 $mappingprojectDatatable.row.add($tr).draw();
                                 //alert(catalystEntityTypeListPassed[j].rowid);
                                 for(var l = 0; l < catalystEntityMapping.length; l++){
-                                    
+
                                     if(catalystEntityTypeListPassed[j].rowid == catalystEntityMapping[l].catalystEntityId){
                                         //alert("Matched");
                                         $mappingprojectSelectList.val(catalystEntityMapping[l].tagValue);
@@ -757,38 +757,38 @@
                         if(objcatalystEntityType == catalystEntityEnvName){
                             $envtagsList.val(objtagName);
                             /*//For Mapping tab.....
-                            //For environment catalystEntityType
-                            $mappingenvDatatable.clear().draw();
-                            var $tbody = $('#mappingenvTable tbody').empty();
+                             //For environment catalystEntityType
+                             $mappingenvDatatable.clear().draw();
+                             var $tbody = $('#mappingenvTable tbody').empty();
 
-                            for(var m = 0; m < catalystEntityTypeListPassed.length; m++){
-                                //For Table
-                                //alert(catalystEntityTypeListPassed[m].environmentname);
-                                var $tr = $('<tr id="'+catalystEntityTypeListPassed[m].rowid+'" class=""></tr>');
+                             for(var m = 0; m < catalystEntityTypeListPassed.length; m++){
+                             //For Table
+                             //alert(catalystEntityTypeListPassed[m].environmentname);
+                             var $tr = $('<tr id="'+catalystEntityTypeListPassed[m].rowid+'" class=""></tr>');
 
-                                var $tdenvName = $('<td class="mappingenvName"></td>').append(catalystEntityTypeListPassed[m].environmentname);
-                                $tr.append($tdenvName);
+                             var $tdenvName = $('<td class="mappingenvName"></td>').append(catalystEntityTypeListPassed[m].environmentname);
+                             $tr.append($tdenvName);
 
-                                var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
-                                $mappingenvSelectList.empty();
-                                for(var n=0; n< tagValues.length; n++){
-                                    $mappingenvSelectList.append($('<option></option>').val(tagValues[n]).html(tagValues[n]));
-                                }
-                                
-                                var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
-                                $tr.append($tdenvTagName);
+                             var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
+                             $mappingenvSelectList.empty();
+                             for(var n=0; n< tagValues.length; n++){
+                             $mappingenvSelectList.append($('<option></option>').val(tagValues[n]).html(tagValues[n]));
+                             }
+
+                             var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
+                             $tr.append($tdenvTagName);
 
 
-                                $tbody.append($tr);
-                                $mappingenvDatatable.row.add($tr).draw();
+                             $tbody.append($tr);
+                             $mappingenvDatatable.row.add($tr).draw();
 
-                                for(var p = 0; p < catalystEntityMapping.length; p++){
-                                    if(catalystEntityTypeListPassed[m].rowid == catalystEntityMapping[p].catalystEntityId){
-                                        //alert("Matched");
-                                        $mappingenvSelectList.val(catalystEntityMapping[p].tagValue);
-                                    }
-                                }
-                            }*/
+                             for(var p = 0; p < catalystEntityMapping.length; p++){
+                             if(catalystEntityTypeListPassed[m].rowid == catalystEntityMapping[p].catalystEntityId){
+                             //alert("Matched");
+                             $mappingenvSelectList.val(catalystEntityMapping[p].tagValue);
+                             }
+                             }
+                             }*/
                         }
                     }
                 },
@@ -796,7 +796,7 @@
                     //alert("Tags description not saved....");
                 }
             });
-            
+
         }
         $('.btntagsFormSave').on('click',function(){
             var $projecttagsList = $('#tagsProjectSelect');
@@ -815,9 +815,9 @@
 
             //Creating the data to Post for Save tags.
             var tagsData = [{
-                    "catalystEntityType": catalystEntityProjName,
-                    "tagName": tagsProjSelectedVal
-                },
+                "catalystEntityType": catalystEntityProjName,
+                "tagName": tagsProjSelectedVal
+            },
                 {
                     "catalystEntityType": catalystEntityEnvName,
                     "tagName": tagsenvSelectedVal
@@ -837,7 +837,7 @@
                 }
             });
         });
-        
+
         //Mapping tabs operation starts....
         getprojectData();
         getenvironmentData();
@@ -856,66 +856,66 @@
             });
         }
         /*function projectMappingList(projectList){
-            $mappingprojectDatatable.clear().draw();
-            var $tbody = $('#mappingprojectTable tbody').empty();
+         $mappingprojectDatatable.clear().draw();
+         var $tbody = $('#mappingprojectTable tbody').empty();
 
 
 
-            $.get('/providers/'+urlParams.providerId+'/tag-mappings/project', function(data) {
-                //Bring the total for loop inside it.
-            }).fail(function(jxhr) {
-                var msg = "Tags mapping Project Behaved Unexpectedly.";
-                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                    msg = jxhr.responseJSON.message;
-                } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
-                }
-                bootbox.alert(msg);
-            });
+         $.get('/providers/'+urlParams.providerId+'/tag-mappings/project', function(data) {
+         //Bring the total for loop inside it.
+         }).fail(function(jxhr) {
+         var msg = "Tags mapping Project Behaved Unexpectedly.";
+         if (jxhr.responseJSON && jxhr.responseJSON.message) {
+         msg = jxhr.responseJSON.message;
+         } else if (jxhr.responseText) {
+         msg = jxhr.responseText;
+         }
+         bootbox.alert(msg);
+         });
 
-            var tagValues = ["proj1", "proj2"];
-            var catalystEntityMapping = [
-                {
-                    "catalystEntityId": "c7d5ec5e-47ed-418a-b6ba-6b137f7af6bf",
-                    "catalystEntityName": "Project1",
-                    "tagValue": "proj1"
-                },
-                {
-                    "catalystEntityId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-                    "catalystEntityName": "Project2",
-                    "tagValue": "proj2"
+         var tagValues = ["proj1", "proj2"];
+         var catalystEntityMapping = [
+         {
+         "catalystEntityId": "c7d5ec5e-47ed-418a-b6ba-6b137f7af6bf",
+         "catalystEntityName": "Project1",
+         "tagValue": "proj1"
+         },
+         {
+         "catalystEntityId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+         "catalystEntityName": "Project2",
+         "tagValue": "proj2"
 
-                }
-            ];
-            for(var i = 0; i < projectList.length; i++){
-                //For Table
-                var $tr = $('<tr id="'+projectList[i].rowid+'" class=""></tr>');
+         }
+         ];
+         for(var i = 0; i < projectList.length; i++){
+         //For Table
+         var $tr = $('<tr id="'+projectList[i].rowid+'" class=""></tr>');
 
-                var $tdprojectName = $('<td class="mappingprojectName"></td>').append(projectList[i].projectname);
-                $tr.append($tdprojectName);
+         var $tdprojectName = $('<td class="mappingprojectName"></td>').append(projectList[i].projectname);
+         $tr.append($tdprojectName);
 
 
-                var $mappingprojectSelectList= $('<select class="mappingprojectSelectId"></select>');
-                $mappingprojectSelectList.empty();
-                for(var j=0; j< tagValues.length; j++){
-                    $mappingprojectSelectList.append($('<option></option>').val(tagValues[j]).html(tagValues[j]));
-                }
-                
-                var $tdprojectTagName = $('<td class="mappingprojectTagName"></td>').append($mappingprojectSelectList);
-                $tr.append($tdprojectTagName);
+         var $mappingprojectSelectList= $('<select class="mappingprojectSelectId"></select>');
+         $mappingprojectSelectList.empty();
+         for(var j=0; j< tagValues.length; j++){
+         $mappingprojectSelectList.append($('<option></option>').val(tagValues[j]).html(tagValues[j]));
+         }
 
-                $tbody.append($tr);
-                $mappingprojectDatatable.row.add($tr).draw();
-                //alert(projectList[i].rowid);
-                for(var k = 0; k < catalystEntityMapping.length; k++){
-                    
-                    if(projectList[i].rowid == catalystEntityMapping[k].catalystEntityId){
-                        //alert("Matched");
-                        $mappingprojectSelectList.val(catalystEntityMapping[k].tagValue);
-                    }
-                }
-            }
-        }*/
+         var $tdprojectTagName = $('<td class="mappingprojectTagName"></td>').append($mappingprojectSelectList);
+         $tr.append($tdprojectTagName);
+
+         $tbody.append($tr);
+         $mappingprojectDatatable.row.add($tr).draw();
+         //alert(projectList[i].rowid);
+         for(var k = 0; k < catalystEntityMapping.length; k++){
+
+         if(projectList[i].rowid == catalystEntityMapping[k].catalystEntityId){
+         //alert("Matched");
+         $mappingprojectSelectList.val(catalystEntityMapping[k].tagValue);
+         }
+         }
+         }
+         }*/
 
         //For Environment Mapping
         function getenvironmentData(){
@@ -951,7 +951,7 @@
                         for(var j=0; j< data.tagValues.length; j++){
                             $mappingenvSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
                         }
-                        
+
                         var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
                         $tr.append($tdenvTagName);
 
@@ -965,10 +965,10 @@
                                 $mappingenvSelectList.val(data.catalystEntityMapping[k].tagValue);
                             }
                         }
-                    } 
-                }  
+                    }
+                }
             }).fail(function(jxhr) {
-                
+
             });
         }
 
@@ -1005,10 +1005,10 @@
                             $('#spanprojectMappingSaveId').html('Saved successfully');
                         },
                         error: function(jqxhr) {
-                            
+
                         }
                     });
-                }                
+                }
             });
         });
 
@@ -1046,10 +1046,10 @@
                             $('#spanenvMappingSaveId').html('Saved successfully');
                         },
                         error: function(jqxhr) {
-                            
+
                         }
                     });
-                }                
+                }
             });
         });
 
@@ -1271,7 +1271,7 @@
 
                 var $projectName = $('<td></td>').append(managnedData[i].projectName);
                 $tr.append($projectName);
-                 var $environmentName = $('<td></td>').append(managnedData[i].environmentName);
+                var $environmentName = $('<td></td>').append(managnedData[i].environmentName);
                 $tr.append($environmentName);
 
                 var $button = '';
@@ -1347,7 +1347,7 @@
 
                 var $projectName = $('<td></td>').append(unManagnedData[i].projectName);
                 $tr.append($projectName);
-                 var $environmentName = $('<td></td>').append(unManagnedData[i].environmentName);
+                var $environmentName = $('<td></td>').append(unManagnedData[i].environmentName);
                 $tr.append($environmentName);
 
 
@@ -1365,7 +1365,7 @@
 
         function loadUnassignedInstances(unassignedData){
             $instanceUnAssignedDatatable.clear().draw();
-            
+
             for (var i = 0; i < unassignedData.instances.length; i++) {
                 var $tbody = $('#unassignedinstanceListTable tbody').empty();
 
@@ -1429,7 +1429,7 @@
 
         //loading UnAssigned Data
         function getUnassignedInstances() {
-            $.get('/providers/'+ urlParams.providerId +'/unassigned-instances', function(unassignedInstances) {   
+            $.get('/providers/'+ urlParams.providerId +'/unassigned-instances', function(unassignedInstances) {
                 if(unassignedInstances){
                     loadUnassignedInstances(unassignedInstances);
                     //$('#unassignedinstanceListDiv').show();
@@ -1444,37 +1444,37 @@
                 bootbox.alert(msg);
             });
             /*var unassignedInstances = {
-                "instances": [{
-                        "_id": "57039167c6441f419c97a73d",
-                        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-                        "provider": {
-                            "id": "57024031cd01705251922666",
-                            "type": "AWS",
-                            "data": {}
-                        },
-                        "platformId": "i-48b276cc",
-                        "os": "linux",
-                        "state": "running",
-                        "tags": {}
-                    },
-                    {
-                        "_id": "57039167c6441f419c97a73e",
-                        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-                        "provider": {
-                            "id": "57024031cd01705251922666",
-                            "type": "AWS",
-                            "data": {}
-                        },
-                        "platformId": "i-d09b2754",
-                        "os": "linux",
-                        "state": "running",
-                        "tags": {}
-                    }],
-                "count": 2,
-                "pageSize": 10,
-                "pageIndex": 1
-            };
-            loadUnassignedInstances(unassignedInstances);*/
+             "instances": [{
+             "_id": "57039167c6441f419c97a73d",
+             "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+             "provider": {
+             "id": "57024031cd01705251922666",
+             "type": "AWS",
+             "data": {}
+             },
+             "platformId": "i-48b276cc",
+             "os": "linux",
+             "state": "running",
+             "tags": {}
+             },
+             {
+             "_id": "57039167c6441f419c97a73e",
+             "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+             "provider": {
+             "id": "57024031cd01705251922666",
+             "type": "AWS",
+             "data": {}
+             },
+             "platformId": "i-d09b2754",
+             "os": "linux",
+             "state": "running",
+             "tags": {}
+             }],
+             "count": 2,
+             "pageSize": 10,
+             "pageIndex": 1
+             };
+             loadUnassignedInstances(unassignedInstances);*/
         }
 
         $('.importNodesBtn').click(function(e) {

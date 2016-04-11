@@ -1,15 +1,15 @@
 /*
-Copyright [2016] [Relevance Lab]
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Copyright [2016] [Relevance Lab]
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 var urlParams = {};
 (window.onpopstate = function() {
@@ -119,7 +119,7 @@ function loadPipeline() {
         };
         //sort name ascending then id descending
         deployData.sort(function(a, b) {
-            //note the minus before -cmp, for descending order           
+            //note the minus before -cmp, for descending order
             var versionA = a.applicationVersion
             return cmp(
                 [cmp(a.applicationName, b.applicationName), -cmp(a.applicationVersion, b.applicationVersion)], [cmp(b.applicationName, a.applicationName), -cmp(b.applicationVersion, a.applicationVersion)]
@@ -631,14 +631,14 @@ $('#chooseJobs').change(function() {
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
             /*$.get('/app/deploy/project/' + projectId + '/env/' + envName + '/application/' + rowDataSetappName + '?version=' + rowDataSetappVersion, function(data) {
-                if (data.length) {
-                    var $ul = $('#promoteNodesId');
-                    for (var i = 0; i < data.length; i++) {
-                        var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + data[i].applicationNodeIP + '><i></i>' + data[i].applicationNodeIP + '</label></li>');
-                        $li.hide();
-                        $ul.append($li);
-                    }
-                }*/
+             if (data.length) {
+             var $ul = $('#promoteNodesId');
+             for (var i = 0; i < data.length; i++) {
+             var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + data[i].applicationNodeIP + '><i></i>' + data[i].applicationNodeIP + '</label></li>');
+             $li.hide();
+             $ul.append($li);
+             }
+             }*/
 
             var nodeIps = [];
             var count = 0;
@@ -801,9 +801,9 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             //tasksData['blueprintIds'] = tasksData.blueprintIds;
 
                             var reqBody = {
-                                    taskData: tasksData
-                                }
-                                //tasksData.taskType = tasksData.taskConfig.taskType;
+                                taskData: tasksData
+                            }
+                            //tasksData.taskType = tasksData.taskConfig.taskType;
                             $.post('../tasks/' + taskId + '/update', reqBody, function(updatedTask) {
                                 console.log(updatedTask);
                             });

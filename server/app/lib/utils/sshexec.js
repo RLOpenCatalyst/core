@@ -165,7 +165,6 @@ module.exports = function(opts) {
                         execSignal = signal;
 
                     });
-
                     stream.on('close', function(code, signal) {
                         logger.debug('SSH STREAM CLOSE');
                         if (con) {
@@ -193,7 +192,6 @@ module.exports = function(opts) {
 
                     if (typeof onStdErr === 'function') {
                         stream.stderr.on('data', function(data) {
-                            logger.debug('STDERR: ' + data);
                             onStdErr(data);
                         });
                     }

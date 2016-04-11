@@ -39,7 +39,7 @@ for (let i = 0; i < jobFiles.length; i++) {
 
 //logger.info('timedelay ==> '+appConfig.cronjobTimeDelay);
 
-var timeDelay = appConfig.cronjobTimeDelay || "*/2 * * * *";
+var timeDelay = appConfig.cronjobTimeDelay || "* * * * *";
 
 
 
