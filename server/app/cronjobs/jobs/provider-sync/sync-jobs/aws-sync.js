@@ -199,7 +199,10 @@ function sync() {
 																	if (!found) {
 																		var foundInUnManaged = false;
 																		for (var n = 0; n < unManagedInstances.length; n++) {
-																			if (unManagedInstances[n].platformId === awsInstances[m].InstanceId) {
+																			if((unManagedInstances[n].platformId === awsInstances[m].InstanceId)
+																			&& !assignmentFound) {
+																				unManagedInstances[n].remove();
+																			} else if (unManagedInstances[n].platformId === awsInstances[m].InstanceId) {
 																				unManagedInstances[n].state = awsInstances[m].State.Name;
 																				if (unManagedInstances[n].state === 'terminated') {
 																					unManagedInstances[n].remove();
