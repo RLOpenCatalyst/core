@@ -340,15 +340,17 @@
                                 var formData = null;
                                 //force setting the idFieldName to "rowid"
                                 var idFieldName = "_id";
+                                var orgFieldName = "orgName";
                                 formData = d4ddata;
                                 //alert(JSON.stringify(formData));
                                 var formSchema = null;
                                 $.each(d4ddata, function(i, item) {
-                                    console.log("Top:" + JSON.stringify(item)); //rows
+                                    // console.log("Top Arabinda:" + JSON.stringify(item)); //rows
                                     var editButton = null;
                                     var idFieldValue = null;
                                     var imageTD = null;
                                     var providerType = null;
+                                    var orgName = null;
                                     $.each(item, function(k, v) { //columns
                                         // var inputC = null;
                                         // console.log('k:' + k + ' v :' + JSON.stringify(v));
@@ -358,6 +360,9 @@
                                         if (k == 'providerType') {
 
                                             providerType = v;
+                                        }
+                                        if(k == orgFieldName){
+                                            orgName = v;
                                         }
 
                                         inputC = $('.rowtemplate').find("[datafield='" + k + "']");
@@ -489,7 +494,7 @@
                                         if (syncButton && syncButton.length > 0) {
                                             if (providerType === 'AWS') {
 
-                                                syncButton.attr("href", "#ajax/Settings/providerSync.html?" + idFieldValue);
+                                                syncButton.attr("href", "#ajax/Settings/providerSync.html?provider=" + idFieldValue+"&org="+orgName);
                                                 syncButton.removeClass('btn-xs');
                                                 syncButton.addClass('btn-sg');
                                                 syncButton.addClass('tableactionbutton');
