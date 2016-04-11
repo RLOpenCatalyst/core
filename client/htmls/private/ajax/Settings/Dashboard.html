@@ -170,6 +170,15 @@
 </div>
 
 <script type="text/javascript">
+$('#workZoneNew').on('click', function() {
+    locationClick();
+});
+$(document).ready(function() {
+    $('#workZoneNew').attr('href','#');
+    $('#workZoneNew').removeClass('active');
+    $('#Workspace1').addClass('hidden');
+})
+
  var serviceURL = "/d4dMasters/";
  window.selectedOrgName = 'Settings'; 
 
@@ -189,11 +198,11 @@ function setcountontile(){
 }
 setcountontile();
 
-
-
-
-
-
+//added for v3.0 - when navigating from v2.0 workzone to settings-
+$('#Settings_nav').show();
+$('#settingsNew').addClass('active');
+$("#ribbon ol.breadcrumb").empty();
+$("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
 
 
 drawBreadCrumb1();

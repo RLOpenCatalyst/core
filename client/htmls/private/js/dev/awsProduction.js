@@ -275,8 +275,17 @@ function updatecompositedockertableemptymessage() {
 		$('#compositedockertable').append('<tr id="dockerimageemptytr"><td colspan="6" align="center">No images added</td></tr>');
 	}
 }
+ $('#workZoneNew').on('click',function(){
+    locationClick();
+ });
 $(document).ready(function() {
 	$('#selectOrgName').trigger('change');
+	 //added for v3.0 - when navigating from v2.0 workzone to design-
+    	$('#workZoneNew').attr('href','#');
+    	$('#workZoneNew').removeClass('active');
+    	$('#Workspace1').addClass('hidden');
+    	$('#designNew').addClass('active');
+    	$('ul#blueprints').removeClass('hidden');
 	var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
 	if (window.url.indexOf('addnew') > 0) $addal.attr('href', '#ajax/Aws-Production.html?addanother');
 	else $addal.attr('href', '#ajax/Aws-Production.html?addnew');
