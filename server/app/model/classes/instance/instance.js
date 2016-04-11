@@ -141,6 +141,11 @@ var InstanceSchema = new Schema({
         trim: true,
         validate: schemaValidator.envIdValidator
     },
+    environmentName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     providerId: {
         type: String,
         required: false,
