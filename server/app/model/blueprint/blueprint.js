@@ -639,7 +639,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         });
         objectArray.push({
             "rlcatalyst": {
-                "dockerimage": blueprint.docker.image
+                "dockerImage": blueprint.docker.image
             }
         });
 
@@ -678,13 +678,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                 "upgrade": false
             }
         });
-
-        objectArray.push({
-            "rlcatalyst": {
-                "applicationNodeIP": instanceIP
-            }
-        });
-
+        var attrs = utils.mergeObjects(objectArray);
         // Update app-data for promote
         var nodeIp = [];
         nodeIp.push(instance.instanceIP);
@@ -730,7 +724,6 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
             })
         });
 
-        var attrs = utils.mergeObjects(objectArray);
         callback(null, attrs);
         return;
     } else {
