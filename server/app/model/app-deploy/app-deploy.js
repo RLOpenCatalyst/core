@@ -238,8 +238,9 @@ AppDeploySchema.statics.getAppDeployByEnvId = function(envId, callback) {
 };
 
 // Get all AppDeploy informations.
-AppDeploySchema.statics.getAppDeployListByEnvId = function(envId, callback) {
+AppDeploySchema.statics.getAppDeployListByEnvId = function(projectId,envId, callback) {
     this.find({
+        projectId: projectId,
         envId: envId
     }, function(err, appDeploys) {
         if (err) {
@@ -255,30 +256,9 @@ AppDeploySchema.statics.getAppDeployListByEnvId = function(envId, callback) {
     });
 };
 
-AppDeploySchema.statics.getAppDeployListByEnvIdAndProjectId = function(envId,projectId, callback) {
-    this.find({
-        envId: envId,
-        projectId:projectId
-    }, function(err, appDeploys) {
-        if (err) {
-            logger.debug("Got error while fetching AppDeploy: ", err);
-            callback(err, null);
-        }
-        if (appDeploys.length) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploys));
-            callback(null, appDeploys);
-        } else {
-            callback(null, []);
-        }
-    });
-};
-
 // Get all AppDeploy informations by Project.
-AppDeploySchema.statics.getAppDeployByProjectId = function(projectId, appName, callback) {
+AppDeploySchema.statics.getAppDeployByProjectId = function(projectId, callback) {
     this.find({
-        "applicationName": {
-            $in: appName
-        },
         "projectId": projectId
     }, function(err, appDeploy) {
         if (err) {
@@ -346,6 +326,23 @@ AppDeploySchema.statics.getAppDeployWithPage = function(offset, limit, sortBy, s
     logger.debug("query: ", JSON.stringify(query));
     this.paginate(query, options).then(function(appDeploy) {
         callback(null, appDeploy);
+    });
+};
+
+// Get AppData by project,env,app.
+AppDeploySchema.statics.getAppDeployByProjectAndEnv = function(projectId, envId, appName, version, callback) {
+    this.find({
+        projectId: projectId,
+        envId: envId,
+        applicationName: appName,
+        applicationVersion: version
+    }, function(err, appData) {
+        if (err) {
+            logger.debug("Got error while fetching appData: ", err);
+            callback(err, null);
+        }
+        logger.debug("Got appData: ", JSON.stringify(appData));
+        callback(null, appData);
     });
 };
 

@@ -1234,13 +1234,32 @@ $.get('../instances/' + urlParams.id, function(data) {
   // });
 
   var platformId = 'unknown';
+  var providerIdText = 'Instance Id : ';
   if (data.platformId) {
     platformId = data.platformId;
+    switch (data.providerType) {
+      case 'aws':
+        providerIdText = 'AWS Id : ';
+        break;
+      case 'azure':
+        providerIdText = 'Azure Id : ';
+        break;
+      case 'vmware':
+        providerIdText = 'VMware Id : ';
+        break;
+      case 'openstack':
+        providerIdText = 'openstack Id : ';
+        break;
+      default:
+        platformId = 'unknown';
+        providerIdText = 'Instance Id : ';
+
+    }
   }
 
 
 
-  $domainRolesCaption.find('.instance-state').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> Provider Id : ' + platformId + '</span>');
+  $domainRolesCaption.find('.instance-state').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> ' +providerIdText + platformId + '</span>');
 
   if (data.hardware.os !== 'linux') {
     disableSSHBtn(data._id);
