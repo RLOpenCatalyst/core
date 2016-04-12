@@ -35,7 +35,7 @@ $('#syncAppTableView').on("click", function() {
     return;
 });
 $(document).ready(function() {
-
+    managePipelineConfiguration();
     getAllApplicationData();
     $("#divapplicationtableview").hide();
     if ($('#chooseNexusServer :selected').text() == 'Choose Server') {
@@ -626,6 +626,8 @@ $('#chooseJobs').change(function() {
     var envName = $modal.find('#chooseEnvironments').find('option:selected').text();
     var rowDataSetappName = $('#modalpromoteConfigure').data("appName");
     var rowDataSetappVersion = $('#modalpromoteConfigure').data("appVersion");
+    var $ul = $('#promoteNodesId');
+    $ul.empty();
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
             /*$.get('/app/deploy/project/' + projectId + '/env/' + envName + '/application/' + rowDataSetappName + '?version=' + rowDataSetappVersion, function(data) {
@@ -646,7 +648,7 @@ $('#chooseJobs').change(function() {
                     if (instance) {
                         nodeIps.push(instance.instanceIP);
                         var $ul = $('#promoteNodesId');
-                        var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + instance.instanceIP + '><i></i>' + instance.instanceIP + '</label></li>');
+                        var $li = $('<li><label class="checkbox promoteModalCheckBox"><input type="checkbox" name="promoteNodesCheckBox" value=' + instance.instanceIP + '><i></i>' + instance.name + '</label></li>');
                         $li.hide();
                         $ul.append($li);
                     }
@@ -654,7 +656,7 @@ $('#chooseJobs').change(function() {
                         var checked = false;
                         var exists = {};
                         $('#promoteNodesId').find('li').each(function() {
-                            var nodeIp = $(this).text();
+                            var nodeIp = $(this).find('input').val();
                             if (nodeIps.indexOf(nodeIp) !== -1) {
                                 if (!exists[nodeIp]) {
                                     $(this).find('input')[0].checked = true;
@@ -741,23 +743,43 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
             var taskId = $modal.find('#chooseJobs').find('option:selected').val();
             var choosedEnvName = $modal.find('#chooseEnvironments').find('option:selected').text();
             if (sourceEnv === choosedEnvName) {
-                alert("Source environment can't be same as target environment.");
+                bootbox.confirm({
+                    message: "Source environment can't be same as target environment.",
+                    title: "Warning",
+                    callback: function(result) {}
+                });
                 return;
             }
             if (targetEnvName != choosedEnvName) {
-                alert("Please click on target Environment on Tree view.");
+                bootbox.confirm({
+                    message: "Please navigate to target Environment on Tree view in order to promote.",
+                    title: "Warning",
+                    callback: function(result) {}
+                });
                 return;
             }
             if (!choosedEnvName) {
-                alert("Please Choose Environment.");
+                bootbox.confirm({
+                    message: "Please Choose Environment.",
+                    title: "Warning",
+                    callback: function(result) {}
+                });
                 return;
             }
             if (!taskId) {
-                alert("Please Choose Job.");
+                bootbox.confirm({
+                    message: "Please Choose Job.",
+                    title: "Warning",
+                    callback: function(result) {}
+                });
                 return;
             }
             if (!nodeList.length) {
-                alert("Please specify atleast one target node.");
+                bootbox.confirm({
+                    message: "Please specify atleast one target node.",
+                    title: "Warning",
+                    callback: function(result) {}
+                });
                 return;
             }
 
@@ -787,21 +809,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             });
                         }
                     });
-                    var artifactId = $('#chooseArtifacts').find('option:selected').val();
-                    var nodeIps = [];
-                    var count = 0;
-                    for (var i = 0; i < tasksData.taskConfig.nodeIds.length; i++) {
-                        $.get('/instances/' + tasksData.taskConfig.nodeIds[i], function(instance) {
-                            count++;
-                            if (instance) {
-                                nodeIps.push(instance.instanceIP);
-                            }
-
-                            if (tasksData.taskConfig.nodeIds.length === count) {
-
-                            }
-                        });
-                    }
                 }
 
                 $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
@@ -849,7 +856,11 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 console.log("Successfully updated app-data.");
                             },
                             error: function(jqxhr) {
-                                alert("Failed to update update appName in Project.");
+                                bootbox.confirm({
+                                    message: "Failed to update update appName in Project.",
+                                    title: "Warning",
+                                    callback: function(result) {}
+                                });
                                 return;
                             }
                         });
@@ -857,7 +868,11 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                         $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
                         $('#modalpromoteConfigure').modal('hide');
                     } else {
-                        alert("Something went wrong,no repository information available.");
+                        bootbox.confirm({
+                            message: "Something went wrong,no repository information available.",
+                            title: "Warning",
+                            callback: function(result) {}
+                        });
                         return;
                         //$('#modalpromoteConfigure').modal('hide');
                     }
@@ -1128,6 +1143,10 @@ function convertToDateCustom(obj) {
 
 
 $('.appdeployConfigureSaveBtn').click(function() {
+    configurePipeLine();
+});
+
+function configurePipeLine() {
     var $tableconfigureapplication = $('#tableconfigureapplication');
     var projectId = urlParams.projid;
     var configureEnvArray = [];
@@ -1181,7 +1200,8 @@ $('.appdeployConfigureSaveBtn').click(function() {
             $('#modalappcardConfigure').modal('hide');
         }
     });
-});
+};
+
 $('#instanceviewAppCard').click(function() {
     getenvName(function(envName) {
         var dataenvAccordianName = "Application Deployment for : " + envName;
@@ -1830,6 +1850,17 @@ function getprojectName(callback) {
         }
     });
 }
+
+function managePipelineConfiguration() {
+    var projectId = urlParams.projid;
+    $.get('/app/deploy/pipeline/project/' + projectId, function(dataPipeline) {
+        if (!dataPipeline.length) {
+            configurePipeLine();
+            var envs = getTableHeaderData(dataPipeline[0].envId);
+            creationPipelineTableView(projectId, envs.arrEnv, envs.arrPresentEnvSeq, deployData);
+        }
+    });
+};
 
 function getAllApplicationData() {
     var projectId = urlParams.projid;
