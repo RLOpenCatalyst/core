@@ -95,6 +95,7 @@ function sync() {
                                                                                         envId:environments.rowid,
                                                                                         Id: containers.Id,
                                                                                         instanceIP:instanceoptions.instanceIP,
+                                                                                        instanceId:instanceoptions._id,
                                                                                         Names: containers.Names,
                                                                                         Image: containers.Image,
                                                                                         ImageID: containers.ImageID,

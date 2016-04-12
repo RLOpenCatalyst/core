@@ -40,6 +40,11 @@ var ContainerSchema = new Schema({
         required: true,
         trim: true
     },
+    instanceId:{
+        type: String,
+        required: true,
+        trim: true
+    },
     Names: [{
         type: String,
         required: true,
