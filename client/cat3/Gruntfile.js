@@ -13,11 +13,11 @@ module.exports = function(grunt) {
 		},
 		uglify: {
 			options: {
-				sourceMap: true,
+				sourceMap: false,
 				sourceMapName: function(filePath) {
 					return filePath + '.map';
 				},
-				beautify : true,
+				beautify : false,
 				mangle   : true
 			},
 			clientlib: {
@@ -182,7 +182,7 @@ module.exports = function(grunt) {
 				src: ['node_modules']
 			},
 			clientbuild: {
-				src: ['dist', 'catalyst']
+				src: ['dist', 'catalyst', 'index.html']
 			}
 		},
 		processhtml: {
@@ -190,17 +190,22 @@ module.exports = function(grunt) {
 			},
 			dist: {
 				files: {
-					'dist/index.html': ['index.html']
+					'dist/index.html': ['main.html']
 				}
 			},
             prod: {
                 files: {
-                    'index.html': ['index.html']
+                    'index.html': ['main.html']
                 }
             },
             qa: {
                 files: {
-                    'index.html': ['index.html']
+                    'index.html': ['main.html']
+                }
+            },
+            dev: {
+                files: {
+                    'index.html': ['main.html']
                 }
             }
 		}
@@ -218,9 +223,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-processhtml');
 	grunt.registerTask('build-dist', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'concat:jsconcat', 'uglify:clientlib', 'uglify:clientbuild', 'copy', 'processhtml:dist' ]);
-	grunt.registerTask('build-dev', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'uglify:clientlib', 'sass', 'jshint', 'concurrent' ]);
+	grunt.registerTask('build-dev', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'uglify:clientlib', 'processhtml:dev', 'jshint' ]);
     grunt.registerTask('default', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'concat:jsconcat', 'uglify:clientlib', 'uglify:clientbuild', 'processhtml:prod' ]);
-	grunt.registerTask('clean-directory', ['clean:clientlib',  'clean:clientbuild']);
+	grunt.registerTask('clean-directory', ['clean:clientlib',  'clean:clientbuild', 'clean:serverlib']);
 	grunt.registerTask('quality-check', ['jshint']);
 	grunt.registerTask('compile-sass', ['sass']);
 }
