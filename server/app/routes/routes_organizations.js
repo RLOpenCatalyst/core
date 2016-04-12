@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 // This file act as a Controller which contains organization related all end points.
 
@@ -714,8 +714,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var templateType = req.body.blueprintData.templateType;
 		var users = req.body.blueprintData.users || [];
 		var blueprintType = req.body.blueprintData.blueprintType;
-        var nexus = req.body.blueprintData.nexus;
-        var docker = req.body.blueprintData.docker;
+		var nexus = req.body.blueprintData.nexus;
+		var docker = req.body.blueprintData.docker;
 
 		// a temp fix for invalid appurl data. will be removed in next iteration
 		var tempAppUrls = [];
@@ -758,8 +758,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				templateType: templateType,
 				users: users,
 				blueprintType: blueprintType,
-                nexus: nexus,
-                docker: docker
+				nexus: nexus,
+				docker: docker
 			};
 
 			logger.debug('req blueprintData:', blueprintData);
@@ -939,7 +939,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
 		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-		Task.getTasksByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, data) {
+
+		var jsonData={};
+		jsonData['orgId']=req.params.orgId;
+		jsonData['bgId']=req.params.bgId;
+		jsonData['projectId']=req.params.projectId;
+		jsonData['envId']=req.params.envId;
+		Task.getTasksByOrgBgProjectAndEnvId(jsonData, function(err, data) {
 			if (err) {
 				res.send(500);
 				return;
@@ -1005,6 +1011,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
 		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+		var jsonData={};
+		jsonData['orgId']=req.params.orgId;
+		jsonData['bgId']=req.params.bgId;
+		jsonData['projectId']=req.params.projectId;
+		jsonData['envId']=req.params.envId;
+
 		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
 			if (orgbuprojs.length === 0) {
 				logger.debug('User not part of team to see project.');
@@ -1014,7 +1026,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 			if (!err) {
 				if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
-					Task.getTasksByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, tasksData) {
+					Task.getTasksByOrgBgProjectAndEnvId(jsonData, function(err, tasksData) {
 						if (err) {
 							res.send(500);
 							return;

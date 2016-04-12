@@ -20,8 +20,8 @@ var AppData = require('_pr/model/app-deploy/app-data');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instancesDao = require('../model/classes/instance/instance');
+var Task = require('../model/classes/tasks/tasks.js');
 var async = require('async');
-var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/app/deploy/*', sessionVerificationFunc);
@@ -38,6 +38,38 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return;
             }
         });
+    });
+
+    app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/newAppDeploy', function(req, res) {
+       console.log("Welcome");
+        var jsonData= {
+            orgId: req.params.orgId,
+            bgId: req.params.bgId,
+            projectId: req.params.projectId,
+            envId: req.params.envId,
+            nexusId:'26',
+            dockerId:'18'
+        };
+         async.parallel({
+                            tasks:function(callback) {
+                                Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback)
+                            },
+                            docker:function(callback) {
+                                masterUtil.getDockerServer(jsonData, callback)
+                            },
+                            nexus:function(callback) {
+                                masterUtil.getNexusServer(jsonData, callback)
+                            }
+                        },
+                        function(err, results){
+                            if(err)
+                                res.status(500).send("Internal Server Error");
+                            else if(!results)
+                                res.status(400).send("Data is not available for Organization "+req.params.orgId);
+                            else
+                                res.status(200).send(results);
+                        }
+                    );
     });
 
     // Create AppDeploy
