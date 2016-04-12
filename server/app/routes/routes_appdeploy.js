@@ -40,8 +40,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
-    app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/newAppDeploy', function(req, res) {
-       console.log("Welcome");
+    app.get('/app/deploy/organization/:orgId/businessgroup/:bgId/project/:projectId/environment/:envId/newAppDeploy', function(req, res) {
         var jsonData= {
             orgId: req.params.orgId,
             bgId: req.params.bgId,
@@ -63,9 +62,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         },
                         function(err, results){
                             if(err)
-                                res.status(500).send("Internal Server Error");
+                                res.status(500).send({
+                                    code:500,
+                                    erroMessage:"Internal Server Error"});
                             else if(!results)
-                                res.status(400).send("Data is not available for Organization "+req.params.orgId);
+                                res.status(404).send({
+                                    code:404,
+                                    erroMessage:"Data is not available for Organization"+req.params.orgId});
                             else
                                 res.status(200).send(results);
                         }
