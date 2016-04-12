@@ -308,6 +308,27 @@ module.exports.setRoutes = function(app) {
         logger.debug("Return User from session:>>>> ", JSON.stringify(req.session.user));
         res.send(JSON.stringify(req.session.user));
     });
+    app.get('/auth/istokenvalid/:token',function(req,res){
+        logger.debug('hit istokenvalid '+req.params.token);
+        if(req.params.token){
+            AuthToken.findByToken(req.params.token, function(err, authToken) {
+                if (err) {
+                    logger.error('Unable to fetch token from db', err);
+                    res.send({isTokenAvailable:false,message:"token is not valid"});
+                    return;
+                }
+
+                if (authToken) {
+                    res.send({isTokenAvailable:true,message:"token is valid"});
+                } else {
+                    logger.debug("No Valid Session for User - 403");
+                    //res.redirect('/login');
+                    res.send({isTokenAvailable:false,message:"token is not valid"});
+                }
+            });
+        }
+
+    });
 
     var verifySession = function(req, res, next) {
         if (req.session && req.session.user) {
