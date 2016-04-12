@@ -40,14 +40,14 @@ function sync() {
                                                     var jsonData={
                                                         orgId:org.rowid,
                                                         bgId :businessGroups.rowid,
-                                                    projectId:projects.rowid,
+                                                        projectId:projects.rowid,
                                                         envId:environments.rowid
                                                     };
                                                     instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData,function(err,instances){
-                                                     if(err){
-                                                         logger.error("Unable to get InstancesByOrgBgProjectAndEnvId :", err);
-                                                         return;
-                                                     }
+                                                        if(err){
+                                                            logger.error("Unable to get InstancesByOrgBgProjectAndEnvId :", err);
+                                                            return;
+                                                        }
                                                         if (instances.length) {
                                                             var instanceoptions = instances[0];
                                                             credentialCrpto.decryptCredential(instanceoptions.credentials, function(err, decrptedCredentials) {
@@ -56,7 +56,7 @@ function sync() {
                                                                     return;
                                                                 }
                                                                 var options = {
-                                                                    host: 'localhost',
+                                                                    host: instanceoptions.instanceIP,
                                                                     port: '22',
                                                                     username: decrptedCredentials.username,
                                                                     privateKey: decrptedCredentials.pemFileLocation,
@@ -95,6 +95,7 @@ function sync() {
                                                                                         envId:environments.rowid,
                                                                                         Id: containers.Id,
                                                                                         instanceIP:instanceoptions.instanceIP,
+                                                                                        instanceId:instanceoptions._id,
                                                                                         Names: containers.Names,
                                                                                         Image: containers.Image,
                                                                                         ImageID: containers.ImageID,
@@ -105,9 +106,9 @@ function sync() {
                                                                                         Status: containers.Status,
                                                                                         HostConfig: containers.HostConfig
                                                                                     };
-                                                                                    containerDao.getContainerById(containers.Id,function(err,data){
+                                                                                    containerDao.getContainerByIdInstanceIP(containerData,function(err,data){
                                                                                         if(err){
-                                                                                            logger.error("Error in fetching Container By ID:", err);
+                                                                                            logger.error("Error in fetching Container By ID and Instance IP:", err);
                                                                                             return;
                                                                                         }
                                                                                         if(data.length){
@@ -140,7 +141,7 @@ function sync() {
                                                             });
 
                                                         }
-                                                 })
+                                                    })
 
                                                 })(environments[l]);
                                             }

@@ -399,8 +399,8 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
 };
 
 
-BlueprintSchema.statics.getById = function(id, callback) {
-    logger.debug('finding blueprint by id ===>' + id);
+BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
+    logger.debug('finding blueprintInfo by id ===>' + id);
     this.aggregate([
         {
             $match: {
@@ -549,6 +549,18 @@ BlueprintSchema.statics.getById = function(id, callback) {
         }
 
     })
+};
+
+
+BlueprintSchema.statics.getById = function(id, callback) {
+    logger.debug('finding blueprint by id ===>' + id);
+    this.findById(id, function(err, blueprint) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, blueprint);
+    });
 };
 
 BlueprintSchema.statics.getByIds = function(ids, callback) {
