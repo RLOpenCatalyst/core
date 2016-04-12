@@ -182,7 +182,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 
-	app.get('/blueprintInfo/:blueprintId', function(req, res) {
+	app.get('/blueprints/:blueprintId/blueprintInfo', function(req, res) {
 		Blueprints.getBlueprintInfoById(req.params.blueprintId, function(err, blueprintInfo) {
 			if (err) {
 				res.status(500).send({
