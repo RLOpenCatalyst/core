@@ -40,14 +40,14 @@ function sync() {
                                                     var jsonData={
                                                         orgId:org.rowid,
                                                         bgId :businessGroups.rowid,
-                                                    projectId:projects.rowid,
+                                                        projectId:projects.rowid,
                                                         envId:environments.rowid
                                                     };
                                                     instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData,function(err,instances){
-                                                     if(err){
-                                                         logger.error("Unable to get InstancesByOrgBgProjectAndEnvId :", err);
-                                                         return;
-                                                     }
+                                                        if(err){
+                                                            logger.error("Unable to get InstancesByOrgBgProjectAndEnvId :", err);
+                                                            return;
+                                                        }
                                                         if (instances.length) {
                                                             var instanceoptions = instances[0];
                                                             credentialCrpto.decryptCredential(instanceoptions.credentials, function(err, decrptedCredentials) {
@@ -140,7 +140,7 @@ function sync() {
                                                             });
 
                                                         }
-                                                 })
+                                                    })
 
                                                 })(environments[l]);
                                             }
