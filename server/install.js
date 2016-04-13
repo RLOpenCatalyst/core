@@ -264,7 +264,7 @@ function installPackageJson() {
             console.log("Installation Successfull.");
             process.exit(0);
         } else {
-            console.log("Error occured while installing packages from package.json");
+            console.log("Error occured while installing packages from apidoc.json");
             process.exit(1);
         }
     });

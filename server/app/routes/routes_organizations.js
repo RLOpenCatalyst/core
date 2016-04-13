@@ -927,7 +927,55 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 
+
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instances', function(req, res) {
+		var jsonData={};
+		jsonData['orgId']=req.params.orgId;
+		jsonData['bgId']=req.params.bgId;
+		jsonData['projectId']=req.params.projectId;
+		jsonData['envId']=req.params.envId;
+		jsonData['instanceType']=req.query.instanceType;
+		jsonData['userName']=req.session.user.cn;
+		jsonData['id']='instances';
+		instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function(err, instancedata) {
+			if (err) {
+				res.send(500);
+				return;
+			}
+			res.send(instancedata);
+		});
+	});
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
+		var jsonData={};
+		jsonData['orgId']=req.params.orgId;
+		jsonData['bgId']=req.params.bgId;
+		jsonData['projectId']=req.params.projectId;
+		jsonData['envId']=req.params.envId;
+		Task.getTasksByOrgBgProjectAndEnvId(jsonData,function(err, taskdata) {
+			if (err) {
+				res.send(500);
+				return;
+			}
+			res.send(taskdata);
+		});
+	});
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applications', function(req, res) {
+		var jsonData={};
+		jsonData['orgId']=req.params.orgId;
+		jsonData['bgId']=req.params.bgId;
+		jsonData['projectId']=req.params.projectId;
+		Application.getAppCardsByOrgBgAndProjectId(jsonData, function(err, applications) {
+			if (err) {
+				res.send(500);
+				return;
+			}
+			res.send(applications);
+		});
+	});
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList', function(req, res) {
 		ApiUtils.paginationRequest(req.query,'instances',function(err, paginationReq){
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
@@ -956,7 +1004,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		});
 	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList', function(req, res) {
 		ApiUtils.paginationRequest(req.query,'tasks',function(err, paginationReq){
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
@@ -983,7 +1031,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		});
 	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applications', function(req, res) {
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applicationList', function(req, res) {
 		ApiUtils.paginationRequest(req.query,'applications',function(err, paginationReq){
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
@@ -1153,7 +1201,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		});
 	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azurearms', function(req, res) {
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azureArmList', function(req, res) {
 		ApiUtils.paginationRequest(req.query,'azurearms',function(err, paginationReq){
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
@@ -1163,7 +1211,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			paginationReq['bgId']=req.params.bgId;
 			paginationReq['projectId']=req.params.projectId;
 			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='azurearms';
+			paginationReq['id']='azureArms';
 			AzureArm.findByOrgBgProjectAndEnvId(paginationReq, function(err, armsData) {
 				if (err) {
 					res.status(404).send(ApiUtils.errorResponse(404,'azurearms'));
@@ -1182,6 +1230,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
 
+/*
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', function(req, res) {
 		ApiUtils.paginationRequest(req.query,'containerList',function(err, paginationReq){
 			if (err) {
@@ -1208,33 +1257,35 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			});
 		});
 	});
+*/
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', getContainerList);
 
 	function getContainerList(req, res, next) {
-		var pageReq={};
+		var reqData={};
 		async.waterfall(
 			[
 				function(next) {
-					ApiUtils.paginationRequest(req.query,next)
+					ApiUtils.paginationRequest(req.query,'containerList',next);
 				},
-				function(paginationReq, next) {
+				function(paginationReq,next){
 					paginationReq['orgId']=req.params.orgId;
 					paginationReq['bgId']=req.params.bgId;
 					paginationReq['projectId']=req.params.projectId;
 					paginationReq['envId']=req.params.envId;
 					paginationReq['id']='containerList';
-					pageReq=paginationReq;
+					reqData=paginationReq;
 					containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq,next);
 				},
-				ApiUtils.paginationResponse(containerData,pageReq)
-			],
-			function(err, results) {
-				if(err) {
-					next(err);
-				} else {
-					return res.status(200).send(results);
+				function(containerData,next){
+						ApiUtils.paginationResponse(containerData,reqData,next);
 				}
-			}
-		);
+
+			], function(err, results) {
+				if(err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
 	}
 
 

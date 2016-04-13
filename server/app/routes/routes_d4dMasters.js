@@ -41,6 +41,8 @@ var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.passwor
 var waitForPort = require('wait-for-port');
 var parser = require('xml2json');
 var util = require('util');
+var Task = require('../model/classes/tasks/tasks.js');
+var async = require('async');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -3478,4 +3480,32 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     });
+    app.get('/d4dMasters/organization/:orgId/businessgroup/:bgId/project/:projectId/environment/:envId/list', function(req, res) {
+        var jsonData= {
+            orgId: req.params.orgId,
+            bgId: req.params.bgId,
+            projectId: req.params.projectId,
+            envId: req.params.envId,
+            nexusId:'26',
+            dockerId:'18'
+        };
+        async.parallel({
+                tasks:function(callback) {
+                    Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback)
+                },
+                server:function(callback) {
+                    masterUtil.getServerDetails(jsonData, callback)
+                }
+            },
+            function(err, results){
+                if(err)
+                    res.status(500).send("Internal Server Error");
+                else if(!results)
+                    res.status(400).send("Data is not available for Organization "+req.params.orgId);
+                else
+                    res.status(200).send(results);
+            }
+        );
+    });
+
 }
