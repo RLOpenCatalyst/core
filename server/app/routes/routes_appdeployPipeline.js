@@ -64,40 +64,31 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
     app.get('/app/deploy/pipeline/project/:projectId', function(req, res) {
-        AppDeployPipeline.getAppDeployPipeline(req.params.projectId, function(err, appDeployes) {
+        AppDeployPipeline.getAppDeployPipeline(req.params.projectId, function(err, appDeployeProject) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
             }
-            if (appDeployes) {
-                res.send(200, appDeployes);
+            else {if (appDeployes) {
+                res.send(200, appDeployeProject);
                 return;
+               }
+            else{
+                masterUtil.getParticularProject(req.params.projectId,function(err,aProject){
+                    if (err){
+                      res.status(500).send(errorResponses.db.error);
+                      return;
+                    }
+                    else{
+                    res.send(200, aProject);
+                    return
+                    }
+
+                });
             }
+        }
         });
     });
-
-    app.get('/app/deploy/pipeline/project/:projectId/projectData', getAppDeployProjectPipeline);
-
-     function getAppDeployProjectPipeline(req, res, next) {
-         async.waterfall(
-           [
-                function(paginationReq,next){
-                    AppDeployPipeline.getAppDeployPipelineList(req.params.projectId,next);
-                },
-                function(aProject,next){
-                    if(aProject.length)
-                        next(aProject);
-                    else
-                        masterUtil.getParticularProject(req.params.projectId);
-                }
-
-           ], function(err, results) {
-                if(err)
-                        next(err);
-                else
-                    return res.status(200).send(results);
-           });
-     }
 
 
 

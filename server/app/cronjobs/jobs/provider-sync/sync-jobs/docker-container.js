@@ -9,9 +9,6 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var containerDao = require('_pr/model/container');
 var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
-var node_ssh, ssh;
-node_ssh = require('node-ssh');
-ssh = new node_ssh();
 function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
     var orgs = MasterUtils.getAllActiveOrg(function(err, orgs) {
