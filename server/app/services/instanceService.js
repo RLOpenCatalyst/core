@@ -20,6 +20,7 @@ var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
+var tagsModel = require('_pr/model/tags/tags.js');
 
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
@@ -136,20 +137,70 @@ function updateAWSInstanceTag(provider, instance, tags, callback) {
                 return callback(err);
             } else {
                 logger.debug(data);
-                updateUnassignedInstanceTagMappings(instance, tags, callback);
+                return callback(instance);
             }
         }
     );
 }
 
-function updateUnassignedInstanceTagMappings(instance, tags, callback) {
+function updateUnassignedInstanceTagMappings(instance, tags, tagMappingsList, callback) {
+    var catalystEntityTypes = appConfig.catalystEntityTypes;
 
-    var updatedTags = instance.tags;
-    for(var tagName in tags) {
-        updatedTags[tagName] = tags[tagName];
+    var tagMappings = {};
+    for(var i = 0; i < tagMappingsList.size(); i++) {
+        tagMappings[tagMappingsList[i].name] = tagMappingsList[i];
+
+        // @TODO Change tags schema to improve
+        var catalystEntityMappingList = tagMappingsList[i].catalystEntityMapping;
+        var catalystEntityMapping = {};
+        for(var j = 0; j < catalystEntityMappingList.length; j++) {
+            catalystEntityMapping[catalystEntityMappingList[j].tagValue]
+                = catalystEntityMappingList[j];
+        }
+
+        tagMappings[tagMappingsList[i].name].catalystEntityMapping = catalystEntityMapping;
     }
-    instance.save();
 
+    var fields = {};
+    for(var key in tags) {
+        if((key in tagMappings)
+            && (tags[key] in tagMappings[key].catalystEntityMapping)) {
+
+            var tagValue = tags[key];
+
+            switch(tags[key].catalystEntityType) {
+                case catalystEntityTypes.PROJECT:
+                    fields.project = {
+                        'id': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityId,
+                        'name': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityName
+                    }
+                    break;
+                case catalystEntityTypes.ENVIRONMENT:
+                    fields.environment = {
+                        'id': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityId,
+                        'name': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityName
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    var parmas = {
+        '_id': instance._id
+    };
+
+    unassignedInstances.update(params, fields, function(err, instance) {
+        if(err) {
+            logger.error(err);
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else {
+            return callback(null, instance);
+        }
+    });
 }
 
 function createUnassignedInstanceObject(instance, callback) {
@@ -165,7 +216,7 @@ function createUnassignedInstanceObject(instance, callback) {
     instanceObject.id = instance._id;
     delete instanceObject._id;
 
-    callback(null, instance);
+    return callback(null, instanceObject);
 }
 
 function createUnassignedInstancesList(instances, callback) {

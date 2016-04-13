@@ -145,12 +145,9 @@ UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
     );
 };
 
-UnassignedInstancesSchema.statics.updateInstance = function updateInstance(params, fields ,callback) {
-    this.update({
-        "platformId": instanceId,
-    }, {
-        $set: {tags:data}
-    }, function(err, data) {
+UnassignedInstancesSchema.statics.update = function updateInstance(params, fields ,callback) {
+    this.update(params, fields,
+        function(err, data) {
         if (err) {
             logger.error("Failed to update unassigned instance data", err);
             if (typeof callback == 'function') {

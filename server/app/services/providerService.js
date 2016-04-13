@@ -14,8 +14,7 @@
  limitations under the License.
 */
 
-var tags = require('_pr/model/tags/tags.js');
-var unassignedInstances = require('_pr/model/unassigned-instances/');
+var tagsModel = require('_pr/model/tags/tags.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
 
@@ -23,7 +22,6 @@ const errorType = 'provider';
 
 var providerService = module.exports = {};
 
-// @TODO Rename as getProvider
 providerService.checkIfProviderExists = function checkIfProviderExists(providerId, callback) {
     AWSProvider.getAWSProviderById(providerId, function(err, provider) {
         if(err) {
@@ -41,7 +39,7 @@ providerService.checkIfProviderExists = function checkIfProviderExists(providerI
 };
 
 providerService.getTagsByProvider = function getTagsByProvider(provider, callback) {
-    tags.getTagsByProviderId(provider._id, function(err, tags) {
+    tagsModel.getTagsByProviderId(provider._id, function(err, tags) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -57,7 +55,7 @@ providerService.getTagByNameAndProvider = function getTagByNameAndProvider(provi
         'providerId': providerId,
         'name': tagName
     };
-    tags.getTag(params, function(err, tag) {
+    tagsModel.getTag(params, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -70,6 +68,23 @@ providerService.getTagByNameAndProvider = function getTagByNameAndProvider(provi
             return callback(null, tag);
         }
     });
+};
+
+providerService.getTagMappingsByProviderId
+    = function getTagMappingsByProviderId(providerId, callback) {
+    tagsModel.getTagsWithMappingByProviderId(providerId,
+        function(err, tags) {
+            if(err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else if(tags.length == 0) {
+                return callback(null, []);
+            } else {
+                return callback(null, tags);
+            }
+        }
+    );
 };
 
 providerService.getTagByCatalystEntityTypeAndProvider
@@ -85,7 +100,7 @@ providerService.getTagByCatalystEntityTypeAndProvider
         'providerId': providerId,
         'catalystEntityType': catalystEntityType
     };
-    tags.getTag(params, function(err, tag) {
+    tagsModel.getTag(params, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -115,7 +130,7 @@ providerService.updateTag = function updateTag(provider, tagDetails, callback) {
         'description': tagDetails.description
     };
 
-    tags.updateTag(params, fields, function(err, tag) {
+    tagsModel.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -169,7 +184,7 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
                 'catalystEntityType': null,
                 'catalystEntityMapping': []
             };
-            tags.updateTag(deleteParams, deleteFields, function (err, tag) {
+            tagsModel.updateTag(deleteParams, deleteFields, function (err, tag) {
 
                 if (err) {
                     var err = new Error('Internal server error');
@@ -185,7 +200,7 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
                     var fields = {
                         'catalystEntityType': tagMapping.catalystEntityType
                     };
-                    tags.updateTag(params, fields, function (err, tag) {
+                    tagsModel.updateTag(params, fields, function (err, tag) {
                         if (err) {
                             var err = new Error('Internal server error');
                             err.status = 500;
@@ -204,7 +219,7 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
     }
 
     if(tagNames.length > 0) {
-        return tags.getTagsByProviderIdAndNames(providerId, tagNames, callback);
+        return tagsModel.getTagsByProviderIdAndNames(providerId, tagNames, callback);
     } else {
         return callback(null, []);
     }
@@ -252,7 +267,7 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
     var fields = {
         'catalystEntityMapping': catalystEntityMappingList
     };
-    tags.updateTag(params, fields, function(err, tag) {
+    tagsModel.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -303,7 +318,7 @@ providerService.updateCatalystEntityMapping
     var fields = {
         'catalystEntityMapping': catalystEntityMappingList
     };
-    tags.updateTag(params, fields, function(err, tag) {
+    tagsModel.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -325,7 +340,7 @@ providerService.deleteTag = function deleteTag(provider, tagName, callback) {
         'name': tagName
     };
 
-    tags.deleteTag(params, function(err, tag) {
+    tagsModel.deleteTag(params, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -351,7 +366,7 @@ providerService.deleteTagMapping = function deleteTagMapping(providerId, catalys
         'catalystEntityType': null
     }
 
-    tags.updateTag(params, fields, function(err, tag) {
+    tagsModel.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
