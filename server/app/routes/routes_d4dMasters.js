@@ -3480,7 +3480,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     });
-    app.get('/d4dMasters/organization/:orgId/businessgroup/:bgId/project/:projectId/environment/:envId/newAppDeploy', function(req, res) {
+    app.get('/d4dMasters/organization/:orgId/businessgroup/:bgId/project/:projectId/environment/:envId/list', function(req, res) {
         var jsonData= {
             orgId: req.params.orgId,
             bgId: req.params.bgId,
