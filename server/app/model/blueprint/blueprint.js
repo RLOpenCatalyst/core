@@ -651,10 +651,11 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         });
         objectArray.push({
             "rlcatalyst": {
-                "applicationNodeIP": instanceIP
+                "applicationNodeIP": instance.instanceIP
             }
         });
 
+        var attrs = utils.mergeObjects(objectArray);
         // Update app-data for promote
         var nodeIp = [];
         nodeIp.push(instance.instanceIP);
@@ -695,7 +696,6 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
             })
         });
 
-        var attrs = utils.mergeObjects(objectArray);
         callback(null, attrs);
         return;
     } else {
