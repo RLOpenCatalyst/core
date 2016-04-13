@@ -422,11 +422,12 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
             return;
         }
         var bluePrintInfo={};
+        console.log(blueprint[0].masterData[0]);
         if(blueprint) {
                 bluePrintInfo = {
                 orgName: blueprint[0].masterData[0].orgname,
                 bgName: blueprint[0].masterData[0].productgroupname,
-                projectName: blueprint[0].masterData[0].projectName,
+                projectName: blueprint[0].masterData[0].projectname,
                 name: blueprint[0].name,
                 iconpath: blueprint[0].iconpath,
                 templateId: blueprint[0].templateId,
