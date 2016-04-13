@@ -16,33 +16,33 @@ function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
     var orgs = MasterUtils.getAllActiveOrg(function(err, orgs) {
         for (var i = 0; i < orgs.length; i++) {
-            (function(org) {
-                MasterUtils.getBusinessGroupsByOrgId(org.rowid, function(err, businessGroups) {
+            (function(aOrg) {
+                MasterUtils.getBusinessGroupsByOrgId(aOrg.rowid, function(err, businessGroups) {
                     if (err) {
                         logger.error("Unable to get BusinessGroupsByOrgId :", err);
                         return;
                     }
                     for (var j = 0; j < businessGroups.length; j++) {
-                        (function(businessGroups) {
-                            MasterUtils.getProjectsBybgId(businessGroups.rowid, function(err, projects) {
+                        (function(aBusinessGroup) {
+                            MasterUtils.getProjectsBybgId(aBusinessGroup.rowid, function(err, projects) {
                                 if (err) {
                                     logger.error("Unable to get ProjectsBybgId :", err);
                                     return;
                                 }
                                 for (var k = 0; k < projects.length; k++) {
-                                    (function (projects) {
-                                        MasterUtils.getEnvironmentsByprojectId(projects.rowid, function (err, environments) {
+                                    (function (aProject) {
+                                        MasterUtils.getEnvironmentsByprojectId(aProject.rowid, function (err, environments) {
                                             if (err) {
                                                 logger.error("Unable to get EnvironmentsByprojectId :", err);
                                                 return;
                                             }
                                             for (var l = 0; l < environments.length; l++) {
-                                                (function (environments) {
+                                                (function (aEnvironment) {
                                                     var jsonData={
-                                                        orgId:org.rowid,
-                                                        bgId :businessGroups.rowid,
-                                                        projectId:projects.rowid,
-                                                        envId:environments.rowid
+                                                        orgId:aOrg.rowid,
+                                                        bgId :aBusinessGroup.rowid,
+                                                        projectId:aProject.rowid,
+                                                        envId:aEnvironment.rowid
                                                     };
                                                     instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData,function(err,instances){
                                                         if(err){
@@ -51,8 +51,7 @@ function sync() {
                                                         }
                                                         if (instances.length) {
                                                             for(var m =0; m < instances.length; m++) {
-                                                                (function (instances) {
-                                                                    var aInstance = instances;
+                                                                (function (aInstance) {
                                                                     credentialCrpto.decryptCredential(aInstance.credentials, function (err, decrptedCredentials) {
                                                                         if (err) {
                                                                             logger.error("Unable to get InstancesByOrgBgProjectAndEnvId :", err);
@@ -78,6 +77,7 @@ function sync() {
                                                                         } else {
                                                                             sshParamObj.password = options.password;
                                                                         }
+                                                                        console.log(sshParamObj);
                                                                         var sshConnection = new SSH(sshParamObj);
                                                                         var stdOut = '';
                                                                         sshConnection.exec(cmd, function (err, code) {
@@ -89,33 +89,33 @@ function sync() {
                                                                             }
 
                                                                         }, function (stdOutData) {
-                                                                            stdOut += stdOutData;
+                                                                            stdOut += stdOutData.toString();
+                                                                            console.log(stdOut);
                                                                         }, function (stdOutErr) {
                                                                             logger.error("Error hits to fetch docker details", stdOutErr);
                                                                             return;
                                                                         });
-                                                                        console.log(aInstance.instanceIP);
-                                                                        console.log(stdOut);
                                                                         if(stdOut.length>0) {
                                                                             var containers = JSON.parse(stdOut);
                                                                             for (var n = 0; n < containers.length; n++) {
-                                                                                (function (containers) {
+                                                                                (function (aContainer) {
                                                                                     var containerData = {
-                                                                                        orgId: org.rowid,
-                                                                                        bgId: businessGroups.rowid,
-                                                                                        projectId: projects.rowid,
-                                                                                        envId: environments.rowid,
-                                                                                        Id: containers.Id,
-                                                                                        instanceIP: instanceoptions.instanceIP,
-                                                                                        Names: containers.Names,
-                                                                                        Image: containers.Image,
-                                                                                        ImageID: containers.ImageID,
-                                                                                        Command: containers.Command,
-                                                                                        Created: containers.Created,
-                                                                                        Ports: containers.Ports,
-                                                                                        Labels: containers.Labels,
-                                                                                        Status: containers.Status,
-                                                                                        HostConfig: containers.HostConfig
+                                                                                        orgId: aOrg.rowid,
+                                                                                        bgId: aBusinessGroup.rowid,
+                                                                                        projectId: aProject.rowid,
+                                                                                        envId: aEnvironment.rowid,
+                                                                                        Id: aContainer.Id,
+                                                                                        instanceIP: aInstance.instanceIP,
+                                                                                        instanceId:aInstance._id,
+                                                                                        Names: aContainer.Names,
+                                                                                        Image: aContainer.Image,
+                                                                                        ImageID: aContainer.ImageID,
+                                                                                        Command: aContainer.Command,
+                                                                                        Created: aContainer.Created,
+                                                                                        Ports: aContainer.Ports,
+                                                                                        Labels: aContainer.Labels,
+                                                                                        Status: aContainer.Status,
+                                                                                        HostConfig: aContainer.HostConfig
                                                                                     };
                                                                                     containerDao.getContainerByIdInstanceIP(containerData, function (err, data) {
                                                                                         if (err) {
