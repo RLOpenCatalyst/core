@@ -7,6 +7,7 @@ var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var credentialCrpto = require('_pr/lib/credentialcryptography.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var containerDao = require('_pr/model/container');
+var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
 var node_ssh, ssh;
 node_ssh = require('node-ssh');
@@ -49,53 +50,63 @@ function sync() {
                                                             return;
                                                         }
                                                         if (instances.length) {
-                                                            var instanceoptions = instances[0];
-                                                            credentialCrpto.decryptCredential(instanceoptions.credentials, function(err, decrptedCredentials) {
-                                                                if (err) {
-                                                                    logger.error("Unable to get InstancesByOrgBgProjectAndEnvId :", err);
-                                                                    return;
-                                                                }
-                                                                var options = {
-                                                                    host: instanceoptions.instanceIP,
-                                                                    port: '22',
-                                                                    username: decrptedCredentials.username,
-                                                                    privateKey: decrptedCredentials.pemFileLocation,
-                                                                    password: decrptedCredentials.password
-                                                                };
-                                                                var sshParamObj = {
-                                                                    host: options.host,
-                                                                    port: options.port,
-                                                                    username: options.username
-                                                                };
-                                                                if (options.privateKey) {
-                                                                    sshParamObj.privateKey = options.privateKey;
-                                                                    if (options.passphrase) {
-                                                                        sshParamObj.passphrase = options.passphrase;
-                                                                    }
-                                                                } else {
-                                                                    sshParamObj.password = options.password;
-                                                                }
-                                                                ssh.connect(sshParamObj).then(function() {
-                                                                    ssh.execCommand(cmd, {cwd:'', stream: 'both'}).then(function(result) {
-                                                                        if(result.stderr){
-                                                                            logger.error("Error in SSH Connection ",result.stderr);
+                                                            for(var m =0; m < instances.length; m++) {
+                                                                (function (instances) {
+                                                                    var aInstance = instances;
+                                                                    credentialCrpto.decryptCredential(aInstance.credentials, function (err, decrptedCredentials) {
+                                                                        if (err) {
+                                                                            logger.error("Unable to get InstancesByOrgBgProjectAndEnvId :", err);
                                                                             return;
                                                                         }
-                                                                        if(result.stdout){
-                                                                            var data = (result.stdout).split('\n')
-                                                                                .map(function(s) { return s.replace(/^\s*|\s*$/g, ""); })
-                                                                                .filter(function(x) { return x; });
-                                                                            var containers=JSON.parse(data[data.length-1]);
-                                                                            for(var m =0;m < containers.length; m++){
-                                                                                (function(containers){
-                                                                                    var containerData={
-                                                                                        orgId:org.rowid,
-                                                                                        bgId :businessGroups.rowid,
-                                                                                        projectId:projects.rowid,
-                                                                                        envId:environments.rowid,
+                                                                        var options = {
+                                                                            host: aInstance.instanceIP,
+                                                                            port: '22',
+                                                                            username: decrptedCredentials.username,
+                                                                            privateKey: decrptedCredentials.pemFileLocation,
+                                                                            password: decrptedCredentials.password
+                                                                        };
+                                                                        var sshParamObj = {
+                                                                            host: options.host,
+                                                                            port: options.port,
+                                                                            username: options.username
+                                                                        };
+                                                                        if (options.privateKey) {
+                                                                            sshParamObj.privateKey = options.privateKey;
+                                                                            if (options.passphrase) {
+                                                                                sshParamObj.passphrase = options.passphrase;
+                                                                            }
+                                                                        } else {
+                                                                            sshParamObj.password = options.password;
+                                                                        }
+                                                                        var sshConnection = new SSH(sshParamObj);
+                                                                        var stdOut = '';
+                                                                        sshConnection.exec(cmd, function (err, code) {
+                                                                            if (decrptedCredentials.pemFileLocation) {
+                                                                                fileIo.removeFile(decrptedCredentials.pemFileLocation, function () {
+                                                                                    logger.debug('temp file deleted');
+                                                                                });
+
+                                                                            }
+
+                                                                        }, function (stdOutData) {
+                                                                            stdOut += stdOutData;
+                                                                        }, function (stdOutErr) {
+                                                                            logger.error("Error hits to fetch docker details", stdOutErr);
+                                                                            return;
+                                                                        });
+                                                                        console.log(aInstance.instanceIP);
+                                                                        console.log(stdOut);
+                                                                        if(stdOut.length>0) {
+                                                                            var containers = JSON.parse(stdOut);
+                                                                            for (var n = 0; n < containers.length; n++) {
+                                                                                (function (containers) {
+                                                                                    var containerData = {
+                                                                                        orgId: org.rowid,
+                                                                                        bgId: businessGroups.rowid,
+                                                                                        projectId: projects.rowid,
+                                                                                        envId: environments.rowid,
                                                                                         Id: containers.Id,
-                                                                                        instanceIP:instanceoptions.instanceIP,
-                                                                                        instanceId:instanceoptions._id,
+                                                                                        instanceIP: instanceoptions.instanceIP,
                                                                                         Names: containers.Names,
                                                                                         Image: containers.Image,
                                                                                         ImageID: containers.ImageID,
@@ -106,23 +117,23 @@ function sync() {
                                                                                         Status: containers.Status,
                                                                                         HostConfig: containers.HostConfig
                                                                                     };
-                                                                                    containerDao.getContainerByIdInstanceIP(containerData,function(err,data){
-                                                                                        if(err){
+                                                                                    containerDao.getContainerByIdInstanceIP(containerData, function (err, data) {
+                                                                                        if (err) {
                                                                                             logger.error("Error in fetching Container By ID and Instance IP:", err);
                                                                                             return;
                                                                                         }
-                                                                                        if(data.length){
-                                                                                            containerDao.updateContainer(containerData,function(err,updatedata){
-                                                                                                if(err){
+                                                                                        if (data.length) {
+                                                                                            containerDao.updateContainer(containerData, function (err, updatedata) {
+                                                                                                if (err) {
                                                                                                     logger.error("Error in Updating Container:", err);
                                                                                                     return;
                                                                                                 }
                                                                                             })
 
                                                                                         }
-                                                                                        else{
-                                                                                            containerDao.createContainer(containerData,function(err,insertdata){
-                                                                                                if(err){
+                                                                                        else {
+                                                                                            containerDao.createContainer(containerData, function (err, insertdata) {
+                                                                                                if (err) {
                                                                                                     logger.error("Error in Creation Container:", err);
                                                                                                     return;
                                                                                                 }
@@ -132,13 +143,13 @@ function sync() {
                                                                                     })
 
 
-                                                                                })(containers[m]);
+                                                                                })(containers[n]);
                                                                             }
                                                                         }
                                                                     });
-                                                                });
+                                                                })(instances[m]);
+                                                            }
 
-                                                            });
 
                                                         }
                                                     })

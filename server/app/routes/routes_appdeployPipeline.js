@@ -1,18 +1,15 @@
 /*
-Copyright [2016] [Relevance Lab]
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Copyright [2016] [Relevance Lab]
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 // The file contains all the end points for AppDeploy
 
@@ -22,6 +19,9 @@ var errorResponses = require('./error_responses');
 var AppData = require('_pr/model/app-deploy/app-data');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var AppDeployPipeline = require('_pr/model/app-deploy/appdeploy-pipeline');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var async = require('async');
+
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -75,6 +75,41 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
+
+    app.get('/app/deploy/pipeline/project/:projectId/projectList', getAppDeployPipelineList);
+
+    function getAppDeployPipelineList(req, res, next) {
+        var reqData={};
+        async.waterfall(
+            [
+                function(next) {
+                    apiUtil.paginationRequest(req.query,'appDeploy',next);
+                },
+                function(paginationReq,next){
+                    paginationReq['projectId']=req.params.projectId;
+                    reqData=paginationReq;
+                    AppDeployPipeline.getAppDeployPipelineList(paginationReq,next);
+                },
+                function(appDeployData,next){
+                    if(appDeployData.docs.length)
+                        apiUtil.paginationResponse(appDeployData,reqData,next);
+                    else
+                        masterUtil.getParticularProject(req.params.projectId,next);
+                }
+
+            ], function(err, results) {
+                if(err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
+
+
+
+
+
+
     app.post('/app/deploy/data/pipeline/update/configure/project/:projectId', function(req, res) {
         AppDeployPipeline.updateConfigurePipeline(req.params.projectId, req.body.appDeployPipelineUpdateData, function(err, appDeployes) {
             if (err) {

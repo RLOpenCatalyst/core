@@ -58,11 +58,12 @@ var ApiUtil = function() {
         var objAnd = {}
         var objOr=[];
         var databaseCall={};
-        for(var i = 0; i < commons.length; i++){
-            var keyField=commons[i];
+        var columns=commons.common_field;
+        for(var i = 0; i < columns.length; i++){
+            var keyField=columns[i];
             if(jsonData[keyField])
                 objAnd[keyField] = jsonData[keyField];
-        }
+        };
         if(jsonData.search) {
             queryArr.push(objAnd);
             for(var i = 0; i < jsonData.searchColumns.length; i++){
