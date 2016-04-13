@@ -66,6 +66,7 @@ var UnassignedInstancesSchema = new Schema({
     state: String,
     tags: Schema.Types.Mixed
 });
+UnassignedInstancesSchema.index({platformId: 1, providerId: 1}, {unique: true});
 
 UnassignedInstancesSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
@@ -92,6 +93,53 @@ UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(pro
                 return callback(err, null);
             } else {
                 return callback(null, instances);
+            }
+        }
+    );
+};
+
+UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(providerId, callback) {
+    this.find(
+        {'providerId': providerId},
+        function(err, instances) {
+            if (err) {
+                logger.error("Failed getByProviderId (%s)", providerId, err);
+                return callback(err, null);
+            } else {
+                return callback(null, instances);
+            }
+        }
+    );
+};
+
+UnassignedInstancesSchema.statics.getById = function getByProviderId(instanceId, callback) {
+    this.findById(instanceId,
+        function(err, instance) {
+            if (err) {
+                logger.error("Failed to get instance ", instanceId, err);
+                return callback(err);
+            } else {
+                return callback(null, instance);
+            }
+        }
+    );
+};
+
+UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
+    = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
+    var params = {
+        'providerId': providerId,
+        'platformId': platformId
+    };
+    this.find(params,
+        function(err, instances) {
+            if (err) {
+                logger.error("Could not get instance for ", providerId, platformId, err);
+                return callback(err, null);
+            } else if(instances.length > 0) {
+                return callback(null, instances[0]);
+            } else {
+                return callback(null, null);
             }
         }
     );

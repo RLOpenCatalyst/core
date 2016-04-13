@@ -37,6 +37,7 @@ var validate = require('express-validation');
 var tagsValidator = require('_pr/validators/tagsValidator');
 var instanceValidator = require('_pr/validators/instanceValidator');
 var	providerService = require('_pr/services/providerService');
+var instanceService = require('_pr/services/instanceService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
 
@@ -1192,8 +1193,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *			}
      *		}
 	 */
-	// app.get('/providers/:providerId/unassigned-instances/:instanceId',
-	// validate(instanceValidator.update), updateUnassignedInstanceTags);
+	app.patch('/providers/:providerId/unassigned-instances/:instanceId',
+		validate(instanceValidator.update), updateUnassignedInstanceTags);
 
 	function getTagsList(req, res, next) {
 		async.waterfall(
@@ -1220,8 +1221,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				providerService.getUnassignedInstancesByProvider,
-				providerService.createUnassignedInstancesList
+				instanceService.getUnassignedInstancesByProvider,
+				instanceService.createUnassignedInstancesList
 			],
 			function(err, results) {
 				if(err) {
@@ -1439,7 +1440,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	}
 
 	function updateUnassignedInstanceTags(req, res, next) {
-
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					instanceService.updateUnassignedInstanceTags(provider, req.params.instanceId,
+						req.body.tags, next);
+				},
+				instanceService.createUnassignedInstanceObject
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
 	}
 
 };

@@ -23,6 +23,7 @@ const errorType = 'provider';
 
 var providerService = module.exports = {};
 
+// @TODO Rename as getProvider
 providerService.checkIfProviderExists = function checkIfProviderExists(providerId, callback) {
     AWSProvider.getAWSProviderById(providerId, function(err, provider) {
         if(err) {
@@ -95,21 +96,6 @@ providerService.getTagByCatalystEntityTypeAndProvider
             return callback(err);
         }else {
             return callback(null, tag);
-        }
-    });
-};
-
-providerService.getUnassignedInstancesByProvider
-    = function getUnassignedInstancesByProvider(provider, callback) {
-    unassignedInstances.getByProviderId(provider._id, function(err, assignedInstances) {
-        if(err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        } else if(!assignedInstances) {
-            return callback(null, []);
-        }else {
-            return callback(null, assignedInstances);
         }
     });
 };
@@ -443,33 +429,3 @@ providerService.createTagMappingObject = function createTagMappingObject(tag, ca
 
     return callback(null, tagMappingObject);
 };
-
-providerService.createUnassignedInstancesList = function createUnassignedInstancesList(instances, callback) {
-    var instancesListObject = {};
-    var instancesList = [];
-
-    instances.forEach(function(instance) {
-        var tempInstance = {};
-        var provider = {
-            'id': instance.providerId,
-            'type': instance.providerType,
-            'data': instance.providerData?instance.providerData:null,
-        };
-        tempInstance.id = instance._id;
-        tempInstance.orgId = instance.orgId;
-        tempInstance.provider = provider;
-        tempInstance.platformId = instance.platformId;
-        tempInstance.ip = instance.ip;
-        tempInstance.os = instance.os;
-        tempInstance.state = instance.state;
-        tempInstance.project = instance.project;
-        tempInstance.environment = instance.environment;
-        tempInstance.tags = instance.tags;
-
-        instancesList.push(tempInstance);
-    });
-
-    instancesListObject.instances = instancesList;
-
-    return callback(null, instancesListObject);
-}
