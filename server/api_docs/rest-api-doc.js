@@ -1,4 +1,3 @@
-
 /**
  * @api {get} /providers/:providerId/unmanagedInstances?page=1&pageSize=5&search=i-656ae2a3&filterBy=region:us-west-2+state:running,stopped&sortBy=state&sortOrder=asc
  * @apiName /providers/:providerId/unmanagedInstances
@@ -766,71 +765,6 @@
 
 
 /**
- * @api {get}/app/deploy/pipeline/project/:projectId/projectList
- * @apiName /app/deploy/pipeline/project/:projectId/projectList
- * @apiGroup App Deploy Projects
- *
- *
- *
- * @apiParam {String} projectId      Unique Project Id
- * @apiParam {Number} [page]         Current Page default is 1.
- * @apiParam {Number} [pageSize]     Records per page default is 10.
- * @apiParam {String} [search]       User is able to search for specific attribute. User can enter envSequence for specific search.
- * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by loggedInUser.
- * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
- * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=envSequence:Dev.
- *
- *
- *
- * @apiSuccess [JSONObject]
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *	"appProjects": [{
- *		"_id": "570b46a35bff54236e49ef6b",
- *		"loggedInUser": "superadmin",
- *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
- *		"__v": 0,
- *		"envSequence": ["Dev", "Prod"],
- *		"envId": ["Dev", "Prod"]
- *	}],
- *	"metaData": {
- *		"totalRecords": 1,
- *		"pageSize": 10,
- *		"page": 1,
- *		"totalPages": 1
- *	}
- * }
- *
- *
- * @apiError 400 Bad Request.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:400,
- *      message:'Bad Request',
- *      fields:{errorMessage:'Bad Request',attribute:'App Deploy'}
- *     };
- * @apiError 403 Forbidden.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:403,
- *      message:'Forbidden',
- *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'App Deploy'}
- *     };
- * @apiError 500 InternalServerError.
- *
- * @apiErrorExample Error-Response:
- *     {
- *      code:500,
- *      message:'Internal Server Error',
- *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'App Deploy'}
- *     };
- */
-
-/**
  * @api {get}/app/deploy/project/:projectId/appDeploylist
  * @apiName /app/deploy/project/:projectId/appDeploylist
  * @apiGroup All AppDeploy Information by Project
@@ -881,9 +815,9 @@
  *		"totalRecords": 2,
  *		"pageSize": 10,
  *		"page": 1,
- *		"totalPages": 1.
+ *		"totalPages": 1,
  *	    "sortBy":"applicationStatus",
- *	    "sortOrder":desc
+ *	    "sortOrder":"desc"
  *	}
  * }
  *
@@ -914,6 +848,89 @@
  *     };
  */
 
+/**
+ * @api {get}/app/deploy/env/:envName/project/:projectId/appDeploylist
+ * @apiName /app/deploy/env/:envName/project/:projectId/appDeploylist
+ * @apiGroup All AppDeploy Information by Project and Environment Name
+ *
+ *
+ * @apiParam {String} envName        Unique Environment Name
+ * @apiParam {String} projectId      Unique Project Id
+ * @apiParam {Number} [page]         Current Page default is 1.
+ * @apiParam {Number} [pageSize]     Records per page default is 10.
+ * @apiParam {String} [search]       User is able to search for specific attribute. User can enter applicationType or applicationName for specific search.
+ * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by applicationStatus.
+ * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
+ * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=applicationName:D4D.
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *	"appDeploy": [{
+ *	"applicationName": "D4D",
+ *	"applicationVersion": "3.03.106",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"applicationInstanceName": "Supercatalyst",
+ *	"applicationNodeIP": "54.183.1.26",
+ * 	"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
+ *	"applicationStatus": "Successful",
+ *	"containerId": "NA",
+ *	"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *	"envId": "Dev",
+ *	"appLogs": "NA"
+ * }, {
+ *	"applicationName": "D4D",
+ *	"applicationVersion": "3.02.100",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"applicationInstanceName": "Supercatalyst",
+ *	"applicationNodeIP": "54.183.227.76",
+ *	"applicationLastDeploy": "2016-03-30 05:43:17 +0000",
+ *	"applicationStatus": "Successful",
+ *	"containerId": "NA",
+ *	"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *	"envId": "Dev",
+ *	"appLogs": "NA"
+ * }],
+ *	"metaData": {
+ *		"totalRecords": 2,
+ *		"pageSize": 10,
+ *		"page": 1,
+ *		"totalPages": 1,
+ *	    "sortBy":"applicationStatus",
+ *	    "sortOrder":"desc"
+ *	}
+ * }
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy Information'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy Information'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy Information'}
+ *     };
+ */
 
 /**
  * @api {get}/app/deploy/organization/:orgId/businessgroup/:bgId/project/:projectId/environment/:envId/newAppDeploy
