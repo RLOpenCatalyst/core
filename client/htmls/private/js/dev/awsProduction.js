@@ -692,11 +692,11 @@ function getProviderList(cloudProviderId) {
 				len = data.length;
 			str = str + helperConstructOption(data, ['secretKey', 'accessKey', 'providerType'], 'providerName', '_id');
 			$('#providerId').html(str);
-            if(cloudProviderId) {
-                $('#providerId').find('option[value="'+cloudProviderId+'"]').attr('selected','selected');
-                $('#providerId').trigger('change');
-            }
-            //getting openstack provider list
+			if (cloudProviderId) {
+				$('#providerId').find('option[value="' + cloudProviderId + '"]').attr('selected', 'selected');
+				$('#providerId').trigger('change');
+			}
+			//getting openstack provider list
 			// $.ajax({
 			// 	type: "GET",
 			// 	url: "/openstack/providers",
@@ -728,8 +728,9 @@ function getProviderList(cloudProviderId) {
 	});
 }
 
-function getImagesWithOSFilter() {
+function getImagesWithOSFilter(imgId) {
 	function getFilteredList(data, value) {
+		console.log('in ... list filterd');
 		if (!value) {
 			return data;
 		}
@@ -742,16 +743,19 @@ function getImagesWithOSFilter() {
 		console.log(list);
 		return list;
 	}
+	var triggered = false;
 
 	function loadData() {
 		var providerVal = $('#providerId').val();
 		if (providerVal) {
 			$.get("/vmimages/providers/" + providerVal, function(data) {
-				var str = ' <option value="">Select Image</option>',
-					data = getFilteredList(data, $('#instanceOS').val()),
+				var str = ' <option value="">Select Image</option>';
+				console.log('calling ... list filterd');
+				var data = getFilteredList(data, $('#instanceOS').val()),
 					len = data.length;
 				str = str + helperConstructOption(data, ['providerId', 'vType', 'osType', '_id'], 'name', 'imageIdentifier');
 				$('#imageId').html(str);
+
 				//Setting the imageId to the saved value
 				if ($('#imageId').attr('savedval'))
 					helpersetselectvalue($('#imageId'), '_id', $('#imageId').attr('savedval'));
@@ -762,12 +766,27 @@ function getImagesWithOSFilter() {
 					//alert($('#instanceOS option').length);
 				}
 				//setting the selection
+				if (imgId) {
+					$('#imageId').find('option[value="' + imgId + '"]').attr('selected', 'selected');
+					for (var i = 0; i < data.length; i++) {
+						if (data[i]._id === imgId) {
+							$('#instanceOS').find('option[value="' + data[i].osName + '"]').attr('selected', 'selected');
+							if (!triggered) {
+								$('#instanceOS').trigger('change');
+								triggered = true;
+							}
+							break;
+						}
+					}
+
+				}
 				$('#imageId').trigger('change');
 			});
 		} else {
 			$('#imageId').html('<option value="">Select Image</option>').trigger('change');
 		}
 	}
+	console.log('registering event');
 	$('#providerId').on('change', loadData);
 	$('#instanceOS').on('change', loadData);
 
@@ -789,7 +808,7 @@ function setSecurityCheckedList(list) {
 	});
 }
 
-function getImageInstances() {
+function getImageInstances(instanceType) {
 	$('#imageId').on('change', function() {
 		$.get("/vmimages/instancesizes/all/list", function(data) {
 			var vType = $('#imageId').find('option:selected').attr('vType'),
@@ -807,6 +826,10 @@ function getImageInstances() {
 				str = str + '<option value="' + list[i] + '">' + list[i] + '</option>'
 			}
 			$('#instancesize').html(str);
+			if (instanceType) {
+				$('#instancesize').find('option[value="' + instanceType + '"]').attr('selected', 'selected');
+				$('#instancesize').trigger('change');
+			}
 			//Setting the imageId to the saved value
 			if ($('#instancesize').attr('savedval'))
 				helpersetselectvalue($('#instancesize'), 'value', $('#instancesize').attr('savedval'));
@@ -858,19 +881,19 @@ function getSecurityGroup(securityGroupsIds) {
 				},
 				success: function(list) {
 					var str = '',
-						getTemplate = function(val, name,checked) {
-							return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle" rowid="1ae4f099-7adc-4089-81c6-db2248774142"' + 'value="' + val + '" style="width:100%" '+checked+'><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + name + '</label>';
+						getTemplate = function(val, name, checked) {
+							return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle" rowid="1ae4f099-7adc-4089-81c6-db2248774142"' + 'value="' + val + '" style="width:100%" ' + checked + '><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + name + '</label>';
 						},
 						list = bringAllOpenFirst(list),
 						len = list.length;
 					for (var i = 0; i < len; i++) {
-                        if(securityGroupsIds.indexOf(list[i].GroupId) !== -1) {
-                            console.log('here ==> true');
-                            str = str + getTemplate(list[i].GroupId, list[i].GroupId + ' | ' + list[i].GroupName,'checked');
-                        } else {
-                            str = str + getTemplate(list[i].GroupId, list[i].GroupId + ' | ' + list[i].GroupName,'');
-                        }
-						
+						if (securityGroupsIds.indexOf(list[i].GroupId) !== -1) {
+							console.log('here ==> true');
+							str = str + getTemplate(list[i].GroupId, list[i].GroupId + ' | ' + list[i].GroupName, 'checked');
+						} else {
+							str = str + getTemplate(list[i].GroupId, list[i].GroupId + ' | ' + list[i].GroupName, '');
+						}
+
 					}
 					$spinnerSecurityGroup.addClass('hidden');
 					$('#securityGroupIds').html('').append(str);
@@ -909,10 +932,10 @@ function getkeypairList(keyPairId) {
 					str = str + '<option value="' + keylist[i]._id + '">' + keylist[i].keyPairName + '</option>';
 				}
 				$('#keypairId').html(str);
-                if(keyPairId) {
-                    $('#keypairId').find('option[value="'+keypairId+'"]').attr('selected','selected');
-                    $('#keypairId').trigger('change');
-                }
+				if (keyPairId) {
+					$('#keypairId').find('option[value="' + keypairId + '"]').attr('selected', 'selected');
+					$('#keypairId').trigger('change');
+				}
 				//Adding data reader
 				if ($('#keypairId').attr('savedval'))
 					helpersetselectvalue($('#keypairId'), 'value', $('#keypairId').attr('savedval'));
@@ -971,11 +994,11 @@ function getVPC(vpcId) {
 						}
 					}
 					$('#vpcId').html(str)
-                    if(vpcId) {
-                        $('#vpcId').find('option[value="'+vpcId+'"]').attr('selected','selected');
-                    }
+					if (vpcId) {
+						$('#vpcId').find('option[value="' + vpcId + '"]').attr('selected', 'selected');
+					}
 
-                    $('#vpcId').trigger('change');
+					$('#vpcId').trigger('change');
 					$spinner.addClass('hidden');
 				},
 				error: function(xhr) {
@@ -1022,10 +1045,10 @@ function getSubnet(subnetId) {
 					}
 					$spinnerSubnet.addClass('hidden');
 					$('#subnetId').html(str);
-                    if (subnetId) {
-                        $('#subnetId').find('option[value="' + subnetId + '"]').attr('selected','selected');
-                         $('#subnetId').trigger('change');
-                    } 
+					if (subnetId) {
+						$('#subnetId').find('option[value="' + subnetId + '"]').attr('selected', 'selected');
+						$('#subnetId').trigger('change');
+					}
 					//Adding data reader
 					if ($('#subnetId').attr('savedval'))
 						helpersetselectvalue($('#subnetId'), 'value', $('#subnetId').attr('savedval'));
@@ -1047,39 +1070,49 @@ function resetForm() {
 }
 
 function dataLoader(blueprintData) {
+	console.log('callingsdfsdfsdfsdf');
 	var cloudProviderId = null;
 	if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderId) {
 		cloudProviderId = blueprintData.blueprintConfig.cloudProviderId;
 	}
 	getProviderList(cloudProviderId);
-	
-    getImageInstances();
 
-    var securityGroupIds = [];
-    if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.securityGroupIds) {
-        securityGroupIds = blueprintData.blueprintConfig.cloudProviderData.securityGroupIds;
-    }
+	var instanceType = null;
+	if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.instanceType) {
+		instanceType = blueprintData.blueprintConfig.cloudProviderData.instanceType;
+	}
+	getImageInstances(instanceType);
+
+	var securityGroupIds = [];
+	if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.securityGroupIds) {
+		securityGroupIds = blueprintData.blueprintConfig.cloudProviderData.securityGroupIds;
+	}
 	getSecurityGroup(securityGroupIds);
 
-    var keyPairId = null;
-    if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.keyPairId) {
-        securityGroupIds = blueprintData.blueprintConfig.cloudProviderData.keyPairId;
-    }
-    getkeypairList(keyPairId);
-   
-    var vpcId = null;
-    if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.vpcId) {
-        vpcId = blueprintData.blueprintConfig.cloudProviderData.vpcId;
-    }
+	var keyPairId = null;
+	if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.keyPairId) {
+		securityGroupIds = blueprintData.blueprintConfig.cloudProviderData.keyPairId;
+	}
+	getkeypairList(keyPairId);
+
+	var vpcId = null;
+	if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.vpcId) {
+		vpcId = blueprintData.blueprintConfig.cloudProviderData.vpcId;
+	}
 	getVPC(vpcId);
 
-    var subnetId = null;
-    if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.subnetId) {
-        vpcId = blueprintData.blueprintConfig.cloudProviderData.subnetId;
-    }
+	var subnetId = null;
+	if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.subnetId) {
+		subnetId = blueprintData.blueprintConfig.cloudProviderData.subnetId;
+	}
 	getSubnet(subnetId);
 
-	getImagesWithOSFilter();
+	var imageId = null;
+	if (blueprintData && blueprintData.blueprintConfig && blueprintData.blueprintConfig.cloudProviderData && blueprintData.blueprintConfig.cloudProviderData.imageId) {
+		imageId = blueprintData.blueprintConfig.cloudProviderData.imageId;
+	}
+	getImagesWithOSFilter(imageId);
+
 	console.log("Orgname===>" + localStorage.getItem('selectedOrgName'));
 	$.get('../aws/ec2/amiids', function(data) {
 		var $instanceOS = $('#instanceOS');
@@ -2058,7 +2091,7 @@ var $selectedTemplate = $('.productdiv2').click(function(e) {
 	$this.addClass('role-Selected');
 });
 
-var OrgdataLoader = function(editing) {
+var OrgdataLoader = function(editing, blueprintData) {
 	$.ajax({
 		type: "get",
 		dataType: "json",
@@ -2169,8 +2202,12 @@ var OrgdataLoader = function(editing) {
 				var $chooseArtifacts = $('#chooseArtifacts');
 				var $chooseVersions = $('#chooseVersions');
 				var projectId = $(this).val();
+
+				if (blueprintData.nexus) {
+					$('.checkConfigApp').attr('checked', 'checked');
+				}
 				if ($('.checkConfigApp').prop("checked")) {
-					getNexusServer();
+					getNexusServer(blueprintData.nexus);
 				} else {
 					$nexusServer.empty();
 					$nexusServer.append('<option value="">Choose Server</option>');
@@ -2178,7 +2215,7 @@ var OrgdataLoader = function(editing) {
 				}
 				$('.checkConfigApp').click(function() {
 					if ($(this).prop("checked")) {
-						getNexusServer();
+						getNexusServer(blueprintData.nexus);
 					} else {
 						$nexusServer.empty();
 						$nexusServer.append('<option value="">Choose Server</option>');
@@ -2212,7 +2249,7 @@ var OrgdataLoader = function(editing) {
 					$('.jobdetailsspinner').css('display', 'none');
 				}
 
-				function getNexusServer() {
+				function getNexusServer(nexusData) {
 					resetAllFields();
 					$nexusServer.empty();
 					$nexusServer.append('<option value="">Choose Server</option>');
@@ -2225,6 +2262,10 @@ var OrgdataLoader = function(editing) {
 						if (nexus.length) {
 							for (var i = 0; i < nexus.length; i++) {
 								$('#chooseNexusServer').append('<option data-groupId = "' + nexus[i].groupid + '" data-nexusUrl = "' + nexus[i].hostname + '" value=' + nexus[i].rowid + ' data-serverType = "' + nexus[i].configType + '">' + nexus[i].nexusservername + '</option>');
+
+							}
+							if (nexus) {
+								$('#chooseNexusServer').find('option[value="' + nexusData.repoId + '"]').attr('selected', 'selected');
 							}
 						}
 						$.get('/d4dMasters/readmasterjsonnew/18', function(dockerData) {
@@ -2279,8 +2320,8 @@ var OrgdataLoader = function(editing) {
 						$('.containerPortClass').hide();
 						resetAllFields();
 
-						getNexusServerGroupId();
-						getNexusServerRepo($(this).val());
+						getNexusServerGroupId(blueprintData.nexus);
+						getNexusServerRepo($(this).val(), blueprintData.nexus);
 					} else { // It's Docker
 						resetAllFields();
 						$('.groupClass').hide();
@@ -2316,7 +2357,7 @@ var OrgdataLoader = function(editing) {
 					}
 				}
 
-				function getNexusServerRepo(nexusId) {
+				function getNexusServerRepo(nexusId, nexusData) {
 					$('.repospinner').css('display', 'inline-block');
 					if (nexusId) {
 						$.get('/nexus/' + nexusId + '/repositories', function(nexusRepos) {
@@ -2337,8 +2378,15 @@ var OrgdataLoader = function(editing) {
 														}
 													})(x);
 												}
+												if (nexusData) {
+													$chooseRepository.find('option[value="'+nexusData.repoName+'"]').attr('selected', 'selected')
+												    $chooseRepository.change();
+												} else {
+													$('#chooseRepository > option:eq(1)').attr('selected', true).change();
+												}
 
-												$('#chooseRepository > option:eq(1)').attr('selected', true).change();
+
+
 											}
 										}
 									}
@@ -2395,22 +2443,27 @@ var OrgdataLoader = function(editing) {
 					}
 				});
 
-				function getNexusServerGroupId() {
+				function getNexusServerGroupId(nexusData) {
 					var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
 					for (var g = 0; g < groupId.length; g++) {
 						$('#chooseGroupId').append('<option value="' + groupId[g] + '">' + groupId[g] + '</option>');
 					}
-					$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
+					if (nexusData) {
+						$('#chooseGroupId').find('option[value="' + nexusData.groupId + '"]').attr('selected', 'selected');
+						$('#chooseGroupId').change();
+					} else {
+						$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
+					}
 				}
 
 				$chooseGroupId.change(function(e) {
 					var repoName = $('#chooseRepository').find('option:selected').attr('data-repoName');
 					var nexusId = $('#chooseNexusServer').val();
 					var groupId = $('#chooseGroupId').val();
-					getNexusServerRepoArtifact(nexusId, repoName, groupId);
+					getNexusServerRepoArtifact(nexusId, repoName, groupId, blueprintData.nexus);
 				});
 
-				function getNexusServerRepoArtifact(nexusId, repoName, groupId) {
+				function getNexusServerRepoArtifact(nexusId, repoName, groupId, nexusData) {
 					$('.artifactsspinner').css('display', 'inline-block');
 
 					$chooseArtifacts.empty();
@@ -2437,7 +2490,14 @@ var OrgdataLoader = function(editing) {
 								for (var j = 0; j < uniqueArtifacts.length; j++) {
 									$('#chooseArtifacts').append('<option data-groupId="' + uniqueArtifacts[j].groupId + '" value=' + uniqueArtifacts[j].artifactId + '>' + uniqueArtifacts[j].artifactId + '</option>');
 								}
-								$('#chooseArtifacts > option:eq(1)').attr('selected', true).change();
+								if (nexusData) {
+									$('#chooseArtifacts').find('option[value="' + nexusData.artifactId + '"]').attr('selected', 'selected');
+									$('#chooseArtifacts').change();
+
+								} else {
+									$('#chooseArtifacts > option:eq(1)').attr('selected', true).change();
+								}
+
 							}
 						});
 					} else {
@@ -2452,7 +2512,7 @@ var OrgdataLoader = function(editing) {
 					var nexusId = $nexusServer.val();
 					var groupId = $(this).find('option:selected').attr('data-groupId');
 					var artifactId = $(this).val();
-					getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId);
+					getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId, blueprintData.nexus);
 				});
 				var comparer = function compareObject(a, b) {
 					if (a.artifactId === b.artifactId) {
@@ -2462,7 +2522,7 @@ var OrgdataLoader = function(editing) {
 					}
 				}
 
-				function getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId) {
+				function getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId, nexusData) {
 					$('.versionspinner').css('display', 'inline-block');
 					var $chooseVersions = $('#chooseVersions');
 					$chooseVersions.empty();
@@ -2475,7 +2535,14 @@ var OrgdataLoader = function(editing) {
 								for (var i = 0; i < versions.length; i++) {
 									$('#chooseVersions').append('<option value=' + versions[i] + '>' + versions[i] + '</option>');
 								}
-								$chooseVersions.find('option:last-child').attr('selected', true).change();
+								if (nexusData) {
+									$('#chooseVersions').find('option[value="' + nexusData.version + '"]').attr('selected', 'selected');
+									$('#chooseVersions').change();
+								} else {
+									$chooseVersions.find('option:last-child').attr('selected', true).change();
+								}
+
+
 							} else {
 								$('.versionspinner').css('display', 'none');
 							}
@@ -2489,6 +2556,12 @@ var OrgdataLoader = function(editing) {
 			//reading back saved orgname 
 			if ($orgListInput.attr('savedval'))
 				helpersetselectvalue($orgListInput, 'value', $orgListInput.attr('savedval'));
+
+			if(blueprintData && blueprintData.appUrls && blueprintData.appUrls.length) {
+				for(var i=0;i<blueprintData.appUrls.length;i++) {
+					addAppUrlToTable(blueprintData.appUrls[i].name,blueprintData.appUrls[i].url);
+				}
+			}
 		}
 	});
 	/*(function() {
@@ -2532,23 +2605,10 @@ $('#addAppBtn').click(function(e) {
 		return;
 	}
 });
-$('#appURLForm').submit(function(e) {
-	var regexpURL = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+
+function addAppUrlToTable(appName,appUrl){
 	var $row = $('<tr/>');
-	var appName = $(this).find('.appName').val();
-	var appUrl = $(this).find('.appURL').val();
-	if (!(appName)) {
-		alert("Please Enter Name");
-		return false;
-	}
-	if (!(appUrl)) {
-		alert('Please Enter URL');
-		return false;
-	}
-	if (!regexpURL.test(appUrl)) {
-		alert('Please Enter a Valid URL');
-		return false;
-	}
+	
 	$row.data('appUrlData', {
 		name: appName,
 		url: appUrl
@@ -2575,6 +2635,26 @@ $('#appURLForm').submit(function(e) {
 	$('#appUrlTable').find('tbody').append($row);
 	$('#modalAppNameURL').modal('hide');
 	$('#appEntry').addClass('hidden');
+	return false;
+}
+
+$('#appURLForm').submit(function(e) {
+	var regexpURL = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+	var appName = $(this).find('.appName').val();
+	var appUrl = $(this).find('.appURL').val();
+	if (!(appName)) {
+		alert("Please Enter Name");
+		return false;
+	}
+	if (!(appUrl)) {
+		alert('Please Enter URL');
+		return false;
+	}
+	if (!regexpURL.test(appUrl)) {
+		alert('Please Enter a Valid URL');
+		return false;
+	}
+	addAppUrlToTable(appName,appUrl);
 	return false;
 });
 
@@ -2717,7 +2797,7 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 			}
 
 			checkandupdateRunlistTable();
-			OrgdataLoader(); //reloading Org params section 
+			OrgdataLoader(null, blueprintdata); //reloading Org params section 
 			$('#orgnameSelect').trigger('change');
 
 			//Add a productdiv2 with required elements for form rendering
