@@ -44,7 +44,7 @@ var ApiUtil = function() {
             page:data.page,
             totalPages:data.pages,
             sortBy:Object.keys(req.sortBy)[0],
-            sortOrder:req.sortBy ? (req[Object.keys(req.sortBy)]==1 ?'desc' :"asc") : '',
+            sortOrder:req.sortBy ? (req[Object.keys(req.sortBy)]==1 ?'asc' :"desc") : '',
             filterBy:req.filterBy
         };
 
@@ -58,11 +58,12 @@ var ApiUtil = function() {
         var objAnd = {}
         var objOr=[];
         var databaseCall={};
-        for(var i = 0; i < commons.length; i++){
-            var keyField=commons[i];
+        var columns=commons.common_field;
+        for(var i = 0; i < columns.length; i++){
+            var keyField=columns[i];
             if(jsonData[keyField])
                 objAnd[keyField] = jsonData[keyField];
-        }
+        };
         if(jsonData.search) {
             queryArr.push(objAnd);
             for(var i = 0; i < jsonData.searchColumns.length; i++){
@@ -114,10 +115,9 @@ var ApiUtil = function() {
         var skip = pageSize * page;
         var sortBy={};
         if(data.sortBy)
-            sortBy[data.sortBy]=data.sort_order=='desc' ? -1 : 1;
+            sortBy[data.sortBy]=data.sortOrder=='desc' ? -1 : 1;
         else
             sortBy[referanceData[0].sortReferanceData[key]] = referanceData[0].sort_order == 'desc' ? -1 :1;
-
         var request={
             'sortBy':sortBy,
             'record_Skip':skip,

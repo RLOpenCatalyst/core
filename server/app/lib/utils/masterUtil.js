@@ -1503,6 +1503,36 @@ var MasterUtil = function() {
             }
         });
     }
+    this.getServerDetails=function(jsonData,callBack){
+        var serverDetail=[];
+        d4dModelNew.d4dModelMastersDockerConfig.find({
+            orgname_rowid:jsonData.orgId,
+            id:jsonData.dockerId
+        },function(err,dockerData){
+            if(err){
+                callBack(err,null);
+                return;
+            }
+            serverDetail=dockerData;
+            d4dModelNew.d4dModelMastersNexusServer.find({
+                orgname_rowid:jsonData.orgId,
+                id:jsonData.nexusId
+            },function(err,nexusData){
+                if(err){
+                    callBack(err,null);
+                    return;
+                }
+                for(var i = 0; i <nexusData.length; i++){
+                    serverDetail.push(nexusData[i])
+                }
+                callBack(null,serverDetail);
+            })
+        })
+    }
+
+   
+
+
 
     // Return all Nexus Servers specific to User
     this.getNexusServers = function(orgList, callback) {

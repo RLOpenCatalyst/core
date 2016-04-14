@@ -72,6 +72,8 @@ AppDeployPipelineSchema.statics.getAppDeployPipeline = function(projectId, callb
         }
     });
 };
+
+
 //Update AppDeploy Configure
 AppDeployPipelineSchema.statics.updateConfigurePipeline = function(projectId, appDeployPipelineUpdateData, callback) {
 
