@@ -83,74 +83,77 @@ function sync() {
                                                                                 });
 
                                                                             }
+                                                                            var _stdout = stdOut.split('\r\n');
+                                                                            var start = false;
+                                                                            var so = '';
+                                                                            _stdout.forEach(function(k, v) {
+                                                                                if (start == true) {
+                                                                                    so += _stdout[v];
+                                                                                    logger.debug(v + ':' + _stdout[v].length);
+                                                                                }
+                                                                                if (_stdout[v].length == 1)
+                                                                                    start = true;
+                                                                                if (v >= _stdout.length - 1) {
+                                                                                    if(so.indexOf("Names")>0){
+                                                                                        var containers = JSON.parse(so);
+                                                                                        for (var n = 0; n < containers.length; n++) {
+                                                                                            (function (aContainer) {
+                                                                                                var containerData = {
+                                                                                                    orgId: aOrg.rowid,
+                                                                                                    bgId: aBusinessGroup.rowid,
+                                                                                                    projectId: aProject.rowid,
+                                                                                                    envId: aEnvironment.rowid,
+                                                                                                    Id: aContainer.Id,
+                                                                                                    instanceIP: aInstance.instanceIP,
+                                                                                                    instanceId: aInstance._id,
+                                                                                                    Names: aContainer.Names,
+                                                                                                    Image: aContainer.Image,
+                                                                                                    ImageID: aContainer.ImageID,
+                                                                                                    Command: aContainer.Command,
+                                                                                                    Created: aContainer.Created,
+                                                                                                    Ports: aContainer.Ports,
+                                                                                                    Labels: aContainer.Labels,
+                                                                                                    Status: aContainer.Status,
+                                                                                                    HostConfig: aContainer.HostConfig
+                                                                                                };
+                                                                                                containerDao.getContainerByIdInstanceIP(containerData, function (err, data) {
+                                                                                                    if (err) {
+                                                                                                        logger.error("Error in fetching Container By ID and Instance IP:", err);
+                                                                                                        return;
+                                                                                                    }
+                                                                                                    if (data.length) {
+                                                                                                        containerDao.updateContainer(containerData, function (err, updatedata) {
+                                                                                                            if (err) {
+                                                                                                                logger.error("Error in Updating Container:", err);
+                                                                                                                return;
+                                                                                                            }
+                                                                                                        })
+
+                                                                                                    }
+                                                                                                    else {
+                                                                                                        containerDao.createContainer(containerData, function (err, insertdata) {
+                                                                                                            if (err) {
+                                                                                                                logger.error("Error in Creation Container:", err);
+                                                                                                                return;
+                                                                                                            }
+                                                                                                        })
+                                                                                                    }
+
+                                                                                                })
+
+
+                                                                                            })(containers[n]);
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            });
 
                                                                         }, function (stdOutData) {
                                                                             stdOut += stdOutData.toString();
-                                                                            var count=0;
-                                                                            if(stdOut.indexOf("Names") > 0){
-                                                                                count=count+1;
-                                                                                var data = (stdOut).split('\n')
-                                                                                    .map(function(s) { return s.replace(/^\s*|\s*$/g, ""); })
-                                                                                    .filter(function(x) { return x; });
-                                                                                var containers=JSON.parse(data[data.length-1]);
-                                                                                console.log(containers.length);
-                                                                                console.log(count);
-                                                                                if(count > 1){
-                                                                                for(var n =0;n < containers.length; n++) {
-                                                                                    (function (aContainer) {
-                                                                                        var containerData = {
-                                                                                            orgId: aOrg.rowid,
-                                                                                            bgId: aBusinessGroup.rowid,
-                                                                                            projectId: aProject.rowid,
-                                                                                            envId: aEnvironment.rowid,
-                                                                                            Id: aContainer.Id,
-                                                                                            instanceIP: aInstance.instanceIP,
-                                                                                            instanceId: aInstance._id,
-                                                                                            Names: aContainer.Names,
-                                                                                            Image: aContainer.Image,
-                                                                                            ImageID: aContainer.ImageID,
-                                                                                            Command: aContainer.Command,
-                                                                                            Created: aContainer.Created,
-                                                                                            Ports: aContainer.Ports,
-                                                                                            Labels: aContainer.Labels,
-                                                                                            Status: aContainer.Status,
-                                                                                            HostConfig: aContainer.HostConfig
-                                                                                        };
-                                                                                        containerDao.getContainerByIdInstanceIP(containerData, function (err, aData) {
-                                                                                            if (err) {
-                                                                                                logger.error("Error in fetching Container By ID and Instance IP:", err);
-                                                                                                return;
-                                                                                            }
-                                                                                            if (aData.length) {
-                                                                                                containerDao.updateContainer(containerData, function (err, updatedata) {
-                                                                                                    if (err) {
-                                                                                                        logger.error("Error in Updating Container:", err);
-                                                                                                        return;
-                                                                                                    }
-                                                                                                })
-
-                                                                                            }
-                                                                                            else {
-                                                                                                containerDao.createContainer(containerData, function (err, insertdata) {
-                                                                                                    if (err) {
-                                                                                                        logger.error("Error in Creation Container:", err);
-                                                                                                        return;
-                                                                                                    }
-                                                                                                })
-                                                                                            }
-
-                                                                                        })
-
-
-                                                                                    })(containers[n]);
-                                                                                }
-                                                                                }
-                                                                            }
                                                                         }, function (stdOutErr) {
                                                                             logger.error("Error hits to fetch docker details", stdOutErr);
                                                                             return;
                                                                         });
-                                                                        console.log(stdOut);
                                                                     });
                                                                 })(instances[m]);
                                                             }
