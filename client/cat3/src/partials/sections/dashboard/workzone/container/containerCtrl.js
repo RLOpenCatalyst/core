@@ -7,12 +7,74 @@
 
 (function (angular) {
 	"use strict";
-	angular.module('workzone.container', [ 'ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'datatables', 'mgcrea.ngStrap', 'ngSanitize' ])
-		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils) {
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(){
-				$scope.isContainerPageLoading = false;
-				$scope.containerList = [];
-			});
+	angular.module('workzone.container', [ 'ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'datatables', 'mgcrea.ngStrap', 'ngSanitize', 'utility.pagination'])
+		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil) {
+			
+			var containerActCtrl={
+				gridOptions:{}
+			};
+			$scope.gridSettings= function(requestParams){
+
+				var gridOption={
+					paginationPageSizes: [5,10, 20, 50],
+					paginationPageSize: 5,
+					enableColumnMenus:false,
+					enableScrollbars :true,
+					enableHorizontalScrollbar: 0,
+					enableVerticalScrollbar: 1,
+					useExternalPagination: true,
+					useExternalSorting: true
+				};
+				gridOption.data=[];
+				gridOption.columnDefs = [
+					{ name:'Actions',cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="{{ row.entity.isStop ? "fa fa-power-off" : "fa fa-play" }}"></i></span>'
+					+'<span class="containerIcon yellowBg" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="fa fa-undo"></i></span>'
+					+'<span class="containerIcon grayBg" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" ng-show="grid.appScope.checkEdited(row.entity) && checkPausePlay(row.entity)"><i class="fa fa-pause"></i></span>'
+					+'<span class="containerIcon grayBg" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" ng-show="grid.appScope.checkEdited(row.entity) && !checkPausePlay(row.entity)"><i class="fa fa-eject fa fa-roate-90"></i></span>'
+					+'<span class="containerIcon crimsonBg" ng-click="grid.appScope.containerAction(row.entity,6)" id="sign-out" ><i class="fa fa-sign-out"></i></span>', cellTooltip: true},
+					{ name:'State',field:'Status',cellTooltip: true},
+					{ name:'Created',field:'Created',cellTooltip: true},
+					{ name:'Name',cellTemplate:'<span ng-bind-html="row.entity.Names"></span>',cellTooltip: true},
+					{ name:'Instance Ip',field:'instanceIP',cellTooltip: true},
+					{ name:'Container Id',field:'Id',cellTooltip: true},
+					{ name:'Image',field:'Image',cellTooltip: true},
+					{ name:'More Info',cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.dockerMoreInfo(row.entity)"></i></div>',cellTooltip: true}
+				];
+				gridOption.onRegisterApi= function(gridApi) {
+			      gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+			       
+			      });
+			      gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
+			      		console.log(newPage+"------"+pageSize);
+			      		var paginationParams = {};
+			      		paginationParams["page"] = newPage;
+			      		paginationParams["pageSize"] = pageSize;
+			       		workzoneServices.getDockerContainers(requestParams,paginationParams).then(function (response) {
+			       			gridOption.totalItems = response.data.metaData.totalRecords;
+			       			gridOption.data = response.data.containerList;
+			       		});
+			      });
+			    }
+				var paginationParams = {
+                    "page":1,
+                    "pageSize":5
+                };
+				workzoneServices.getDockerContainers(requestParams,paginationParams).then(function (response) {
+					gridOption.totalItems = response.data.metaData.totalRecords;
+					gridOption.data = response.data.containerList;
+					for(var i in gridOption.data){     
+						var statusBool = (gridOption.data[i].Status.indexOf("Up") === 0) ? true : false;                        
+						gridOption.data[i].isStop=statusBool;
+						gridOption.data[i].isPause=statusBool;
+					}
+					$scope.containerList = gridOption.data;
+					$scope.isContainerPageLoading = false;
+                    workzoneUIUtils.makeTabScrollable('containerPage');
+				});
+
+				$scope.gridOptions= gridOption;
+			};
+
 
 			$scope.truncateImageIDLimit = 12;
 			
@@ -24,18 +86,7 @@
 				6:{ page:'dockerterminate', ctrl:'dockerControllers' }
 			};
 
-			workzoneServices.getDockerContainers().then(function (response) {
-					var temp=response.data;
-					/*jslint forin: true */
-					for(var i in temp){     
-						var statusBool = (temp[i].Status.indexOf("Up") === 0) ? true : false;                        
-						temp[i].isStop=statusBool;
-						temp[i].isPause=statusBool;
-					}
-					$scope.containerList = response.data;
-					$scope.isContainerPageLoading = false;
-                    workzoneUIUtils.makeTabScrollable('containerPage');
-				});
+			
 			$scope.checkEdited = function(_app){
 				return (_app.Status.indexOf('Exited') >= 0 ) ? false : true;
 			};
@@ -148,6 +199,13 @@
 					}
 				);
 			};
+			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
+				$scope.requestParams=requestParams;
+				$scope.gridSettings(requestParams);
+				$scope.isContainerPageLoading = false;
+				$scope.containerList = [];
+			});
+			
 		}])
 		.controller('dockercAdvisorCtrl',['$scope','$modalInstance','items','workzoneServices', '$sce', function($scope, $modalInstance ,items,workzoneServices, $sce){
 			$scope.items = items;            
