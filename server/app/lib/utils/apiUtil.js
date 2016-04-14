@@ -82,8 +82,8 @@ var ApiUtil = function() {
         var options = {
             sort: jsonData.sortBy,
             lean: false,
-            skip: jsonData.record_Skip >0 ? jsonData.record_Skip :1,
-            limit: jsonData.record_Limit
+            page: jsonData.page,
+            limit: jsonData.pageSize
         };
         databaseCall['queryObj']=queryObj;
         databaseCall['options']=options;
@@ -93,26 +93,24 @@ var ApiUtil = function() {
     };
 
     this.paginationRequest=function(data,key, callback) {
-        d4dModelNew.d4dModelReferanceData.find({id:101},function(err, referanceData){
+        d4dModelNew.d4dModelReferanceData.find({rowid:'101'},function(err, referanceData){
             if(err){
                 logger.error("In Fetching Reference Data Error");
                 return;
             }
-
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
             if (pageSize > referanceData[0].max_record_limit)
-                pageSize = referanceData[0].max_record_limit;
+                   pageSize = referanceData[0].max_record_limit;
         }
         else
             pageSize = referanceData[0].record_limit;
         if(data.page)
-            page = parseInt(data.page)-1;
+            page = parseInt(data.page);
         else
             page = referanceData[0].skip_Records;
 
-        var skip = pageSize * page;
         var sortBy={};
         if(data.sortBy)
             sortBy[data.sortBy]=data.sortOrder=='desc' ? -1 : 1;
@@ -120,8 +118,8 @@ var ApiUtil = function() {
             sortBy[referanceData[0].sortReferanceData[key]] = referanceData[0].sort_order == 'desc' ? -1 :1;
         var request={
             'sortBy':sortBy,
-            'record_Skip':skip,
-            'record_Limit':pageSize
+            'page':page,
+            'pageSize':pageSize
         };
         var filterBy={};
         if(data.filterBy){

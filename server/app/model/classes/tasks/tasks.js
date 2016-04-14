@@ -392,7 +392,7 @@ taskSchema.statics.createNew = function(taskData, callback) {
 
 // creates a new task
 taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
-	if(jsonData.record_Limit) {
+	if(jsonData.pageSize) {
 		var databaseReq = {};
 		jsonData['searchColumns'] = ['taskType', 'name'];
 		ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
