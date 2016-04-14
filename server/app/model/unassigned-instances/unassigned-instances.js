@@ -145,7 +145,7 @@ UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
     );
 };
 
-UnassignedInstancesSchema.statics.update = function updateInstance(params, fields ,callback) {
+UnassignedInstancesSchema.statics.updateInstance = function updateInstance(params, fields ,callback) {
     this.update(params, fields,
         function(err, data) {
         if (err) {
@@ -154,9 +154,8 @@ UnassignedInstancesSchema.statics.update = function updateInstance(params, field
                 callback(err, null);
             }
             return;
-        }
-        if (typeof callback == 'function') {
-            callback(null, data);
+        } else if(data && (data.ok == 1)) {
+            return callback(null, data);
         }
     });
 };

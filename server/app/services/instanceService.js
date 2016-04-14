@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-var unassignedInstances = require('_pr/model/unassigned-instances/');
+var unassignedInstancesModel = require('_pr/model/unassigned-instances/');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
@@ -25,14 +25,14 @@ var tagsModel = require('_pr/model/tags/tags.js');
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
 instanceService.getUnassignedInstancesByProvider = getUnassignedInstancesByProvider;
-instanceService.updateUnassignedInstanceTags = updateUnassignedInstanceTags;
+instanceService.updateUnassignedInstanceProviderTags = updateUnassignedInstanceProviderTags;
 instanceService.updateAWSInstanceTag = updateAWSInstanceTag;
-instanceService.updateUnassignedInstanceTagMappings = updateUnassignedInstanceTagMappings;
+instanceService.updateUnassignedInstanceTags = updateUnassignedInstanceTags;
 instanceService.createUnassignedInstanceObject = createUnassignedInstanceObject;
 instanceService.createUnassignedInstancesList = createUnassignedInstancesList;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
-    unassignedInstances.getById(instanceId,
+    unassignedInstancesModel.getById(instanceId,
         function(err, instance) {
             if(err) {
                 var err = new Error('Internal server error');
@@ -53,7 +53,7 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
 }
 
 function getUnassignedInstancesByProvider(provider, callback) {
-    unassignedInstances.getByProviderId(provider._id, function(err, assignedInstances) {
+    unassignedInstancesModel.getByProviderId(provider._id, function(err, assignedInstances) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -67,10 +67,10 @@ function getUnassignedInstancesByProvider(provider, callback) {
 }
 
 
-function updateUnassignedInstanceTags(provider, instanceId, tags, callback) {
+function updateUnassignedInstanceProviderTags(provider, instanceId, tags, callback) {
     var providerTypes = appConfig.providerTypes;
 
-    unassignedInstances.getById(instanceId,
+    unassignedInstancesModel.getById(instanceId,
         function(err, instance) {
             if(err) {
                 logger.error(err);
@@ -137,32 +137,35 @@ function updateAWSInstanceTag(provider, instance, tags, callback) {
                 return callback(err);
             } else {
                 logger.debug(data);
-                return callback(instance);
+                return callback(null, instance);
             }
         }
     );
 }
 
-function updateUnassignedInstanceTagMappings(instance, tags, tagMappingsList, callback) {
+// @TODO Remove synchronous loops
+function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback) {
     var catalystEntityTypes = appConfig.catalystEntityTypes;
 
     var tagMappings = {};
-    for(var i = 0; i < tagMappingsList.size(); i++) {
-        tagMappings[tagMappingsList[i].name] = tagMappingsList[i];
+    tagMappingsList.forEach(function(tagMapping) {
+        tagMappings[tagMapping.name] = tagMapping;
 
         // @TODO Change tags schema to improve
-        var catalystEntityMappingList = tagMappingsList[i].catalystEntityMapping;
+        var catalystEntityMappingList = tagMapping.catalystEntityMapping;
         var catalystEntityMapping = {};
         for(var j = 0; j < catalystEntityMappingList.length; j++) {
             catalystEntityMapping[catalystEntityMappingList[j].tagValue]
                 = catalystEntityMappingList[j];
         }
 
-        tagMappings[tagMappingsList[i].name].catalystEntityMapping = catalystEntityMapping;
-    }
+        tagMappings[tagMapping.name].catalystEntityMapping = catalystEntityMapping;
+    });
 
-    var fields = {};
+    instance.tags = tags;
+    var fields = {'tags': instance.tags};
     for(var key in tags) {
+        fields.tags[key] = tags[key];
         if((key in tagMappings)
             && (tags[key] in tagMappings[key].catalystEntityMapping)) {
 
@@ -173,13 +176,15 @@ function updateUnassignedInstanceTagMappings(instance, tags, tagMappingsList, ca
                     fields.project = {
                         'id': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityId,
                         'name': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityName
-                    }
+                    };
+                    instance.project = fields.project;
                     break;
                 case catalystEntityTypes.ENVIRONMENT:
                     fields.environment = {
                         'id': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityId,
                         'name': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityName
-                    }
+                    };
+                    instance.environment = fields.environment;
                     break;
                 default:
                     break;
@@ -187,20 +192,22 @@ function updateUnassignedInstanceTagMappings(instance, tags, tagMappingsList, ca
         }
     }
 
-    var parmas = {
+    var params = {
         '_id': instance._id
     };
 
-    unassignedInstances.update(params, fields, function(err, instance) {
-        if(err) {
-            logger.error(err);
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        } else {
-            return callback(null, instance);
+    unassignedInstancesModel.updateInstance(params, fields,
+        function(err, instanceUpdated) {
+            if(err) {
+                logger.error(err);
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else if(instanceUpdated) {
+                return callback(null, instance);
+            }
         }
-    });
+    );
 }
 
 function createUnassignedInstanceObject(instance, callback) {

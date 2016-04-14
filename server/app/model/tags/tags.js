@@ -156,7 +156,7 @@ TagSchema.statics.getTagsWithMappingByProviderId
     var params = {
         isDeleted: false,
         providerId: providerId,
-        catalystEntityType: {$exists : 1}
+        catalystEntityType: {$exists : true}
     }
     this.find(
         params,
