@@ -1,0 +1,65 @@
+<div id="content" style="margin: 20px">
+   <div next-text="Next" previous-text="Previous" submit-text="Submit" submit-action="testSubmit">
+      <form>
+         <div ng-show="steps[0].isDisplayed">
+            <div title="Docker Images">
+               <table datatable="" class="table-bordered text-center">
+                  <thead>
+                     <tr class="rowCustomStyle" role="row">
+                        <td>Order</td>
+                        <td>Name</td>
+                        <td>Image Path</td>
+                        <td>Tag</td>
+                        <td>Launch Params</td>
+                        <td>Action</td>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr ng-repeat="docker in dockerDetails">
+                        <td>{{$index + 1}}</td>
+                        <td>{{docker.dockercontainerpathstitle}}</td>
+                        <td>{{docker.dockercontainerpaths}}</td>
+                        <td>{{docker.dockerrepotags}}</td>
+                        <td><input type="text" ng-model="docker.dockerlaunchparameters"><i class="icon-append fa fa-list-alt fa-lg" title="Launch Parameters" ng-click="launchParam(docker.dockerlaunchparameters)"></i></td>
+                        <td><i class="fa fa-chevron-circle-up fa-lg"></i><i class="fa fa-chevron-circle-down fa-lg"></i></td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+         <div ng-show="steps[1].isDisplayed">
+            <div title="">
+               <div class="control-group">
+                  <table datatable="" class="table-bordered text-center">
+                     <thead>
+                        <tr class="rowCustomStyle" role="row">
+                           <td>Select Instance</td>
+                           <td>Instance Name</td>
+                           <td>IP Address</td>
+                           <td>Log</td>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr ng-repeat="instance in instanceData">
+                           <td><input type="checkbox"/></td>
+                           <td>{{instance.name}}</td>
+                           <td>{{instance.instanceIP}}</td>
+                           <td>
+                              <i class="fa fa-info-circle cursor" title="More Info" ng-click="viewLogs(instance)"></i>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </form>
+   </div>
+   <div id="navBar">
+      <span>
+      <button class="btn" ng-click="previous()" ng-disabled="!previousEnabled">Previous</button>
+      <button class="btn" ng-click="next()" ng-disabled="!nextEnabled">Next</button>
+      <button class="btn btn-success" ng-click="submit()" ng-disabled="stepForm.$invalid || !submitEnabled">Submit</button>
+      </span>
+   </div>
+</div>
