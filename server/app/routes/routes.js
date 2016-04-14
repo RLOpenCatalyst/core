@@ -215,7 +215,8 @@ module.exports.setRoutes = function(app) {
 			};
 			if ('errors' in err) {
 				for(var i = 0; i < err.errors.length; i++) {
-					errorResponse.errors.push(err.errors[i].messages);
+					if('message' in err.errors[i])
+						errorResponse.errors.push(err.errors[i].messages);
 				}
 			}
 
