@@ -153,6 +153,7 @@ providerService.updateTag = function updateTag(provider, tagDetails, callback) {
 // @TODO Handle asynchronous updates to guarantee correctness
 // @TODO Update conflict based on tag names should be handled
 // @TODO Nested callbacks to be handled
+// @TODO Remove synchronous loops
 providerService.addMultipleTagMappings = function addMultipleTagMappings(providerId, tagMappings, callback) {
     if(tagMappings.length < 1) {
         return callback(null, []);

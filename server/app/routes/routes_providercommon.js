@@ -1446,8 +1446,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
 				function(provider, next) {
-					instanceService.updateUnassignedInstanceTags(provider, req.params.instanceId,
+					instanceService.updateUnassignedInstanceProviderTags(provider, req.params.instanceId,
 						req.body.tags, next);
+				},
+				function(instance, next) {
+					// @TODO Nested callback with anonymous function to be avoided.
+					providerService.getTagMappingsByProviderId(instance.providerId,
+						function(err, tagMappingsList) {
+							if(err) {
+								next(err);
+							} else {
+								instanceService.updateUnassignedInstanceTags(instance,
+									req.body.tags, tagMappingsList, next);
+							}
+						}
+					);
 				},
 				instanceService.createUnassignedInstanceObject
 			],
