@@ -6,7 +6,7 @@
  */
 (function (angular) {
     "use strict";
-    angular.module('apis.workzone',['authentication']).service(
+    angular.module('apis.workzone',['authentication', 'utility.pagination']).service(
             'workzoneEnvironment', [function () {
                     var requestParams;
                     var env = {
@@ -21,8 +21,8 @@
                         setEnvParams: env.setParams,
                         getEnvParams: env.getParams
                     };
-                }]).service('workzoneServices', ['$http', 'session', 'workzoneEnvironment',
-        function ($http, Auth, workzoneEnvironment) {
+                }]).service('workzoneServices', ['$http', 'session', 'workzoneEnvironment', 'paginationUtil',
+        function ($http, Auth, workzoneEnvironment, paginationUtil) {
             var baseAPIUrl = uiConfigs.serverUrl;
             function fullUrl(relUrl){
                 return baseAPIUrl + relUrl;
@@ -112,16 +112,19 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*containerCtrl*/
-                getDockerContainers: function () {
-                    var url = '/cat3/data/dockercontainerdetails_container.json';
+                getDockerContainers: function (envParams,paginationParams) {
+                    var pageStr = paginationUtil.pageObjectToString(paginationParams);
+                    var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
+                    '/projects/' + envParams.proj + '/environments/' + envParams.env + '/containerList'+pageStr;                    
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getDockerMoreInfo: function () {
                     var url = '/cat3/data/dockerMoreInfo.json';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                checkDockerActions: function () { //serviceInterface.checkDockerActions = function (obj, action) {
-                    var url = '/cat3/data/containerActionResult.json';
+                checkDockerActions: function (instanceId, containerId, action) { //serviceInterface.checkDockerActions = function (obj, action) {
+                    //var url = '/cat3/data/containerActionResult.json';
+                    var url = '/instances/dockercontainerdetails/' + instanceId + '/' + containerId + '/' + action;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*instanceCtrl*/
