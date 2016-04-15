@@ -816,7 +816,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                     });
                 }
 
-                $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
+                $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '?application=' + appName + '&version=' + version, function(data) {
                     if (data.length) {
                         var nexusData = {
                             "nexusData": {
@@ -1695,25 +1695,24 @@ function deployNewForDocker() {
             var count = 0;
             var actualDocker = [];
             for (var i = 0; i < tasks.taskConfig.nodeIds.length; i++) {
-                var docker = {
-                    "image": dockerImage,
-                    "containerId": containerId,
-                    "containerPort": containerPort,
-                    "hostPort": hostPort,
-                    "dockerUser": dockerUser,
-                    "dockerPassword": dockerPassword,
-                    "dockerEmailId": dockerEmailId,
-                    "imageTag": imageTag,
-                    "nodeIp": tasks.taskConfig.nodeIds[i]
-                };
-                actualDocker.push(docker);
                 $.get('/instances/' + tasks.taskConfig.nodeIds[i], function(instance) {
                     count++;
+                    var docker = {
+                        "image": dockerImage,
+                        "containerId": containerId,
+                        "containerPort": containerPort,
+                        "hostPort": hostPort,
+                        "dockerUser": dockerUser,
+                        "dockerPassword": dockerPassword,
+                        "dockerEmailId": dockerEmailId,
+                        "imageTag": imageTag,
+                        "nodeIp": instance.instanceIP
+                    };
+                    actualDocker.push(docker);
+
                     if (instance) {
                         nodeIps.push(instance.instanceIP);
                     }
-
-                    alert(tasks.taskConfig.nodeIds.length === count);
                     if (tasks.taskConfig.nodeIds.length === count) {
                         getenvName(function(envName) {
                             var appData = {
@@ -1725,7 +1724,6 @@ function deployNewForDocker() {
                                     "docker": actualDocker
                                 }
                             };
-                            alert(JSON.stringify(appData));
                             $.ajax({
                                 url: '/app/data',
                                 data: JSON.stringify(appData),
