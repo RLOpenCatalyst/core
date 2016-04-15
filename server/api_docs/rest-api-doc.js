@@ -1026,3 +1026,35 @@
  *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'On Load New AppDeploy Information'}
  *     };
  */
+
+
+ //  List image tags w.r.t. docker repo and image
+/**
+     * @api {get} /d4dMasters/docker/:dockerId/repository/:repository/image/:image/tags Request Docker Image Tag information
+     * @apiName GetDockerImageTags
+     * @apiGroup Docker Image Tags
+     *
+     * @apiParam {9507b2ef-4b4f-44dd-8aba-89efd41ad39f} rowid Docker unique ID.
+     * @apiParam {relevancelab} repository Docker Repo.
+     * @apiParam {catalystproductimage} image Docker Image.
+     *
+     * @apiSuccess {layer} layer some unique ID of docker image.
+     * @apiSuccess {name} name  version of the docker image.
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     [
+             {
+                "layer": "b961ba15",
+                "name": "latest"
+             }
+            ]
+     *
+     * @apiError DockerImageNotFound.
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "error": "Docker Image not found."
+     *     }
+     */
