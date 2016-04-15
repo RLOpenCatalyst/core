@@ -23,18 +23,23 @@
             var paginationInterface = {};
             paginationInterface.pageObjectToString = function(pgOptions){
                 var queryString = '';
-                var _strPageSize;
+                var _strPageSize = '';
                 var _paramPageNum = '?page=';
                 var _paramPageSize = '&pageSize=';
-                if(pgOptions.page){
-                    _strPageSize = _paramPageNum + pgOptions.page;
+                var _paramsortBy = '&sortBy=';
+                var _paramsortOrder = '&sortOrder=';
+                if(pgOptions.pages.page){
+                    _strPageSize = _paramPageNum + pgOptions.pages.page;
                 }
-                if(pgOptions.pageSize){
-                    _strPageSize = _strPageSize + _paramPageSize + pgOptions.pageSize;
+                if(pgOptions.pages.pageSize){
+                    _strPageSize = _strPageSize + _paramPageSize + pgOptions.pages.pageSize;
                 }
-
-                //var _strPageSize = _paramPageSize + pgOptions.pageSize;
-
+                if(pgOptions.sort && pgOptions.sort.field){
+                    _strPageSize = _strPageSize + _paramsortBy + pgOptions.sort.field;
+                }
+                if(pgOptions.sort && pgOptions.sort.direction){
+                    _strPageSize = _strPageSize + _paramsortOrder + pgOptions.sort.direction;
+                }
 
                 queryString = _strPageSize; 
                 return queryString;
