@@ -82,7 +82,7 @@ var ApiUtil = function() {
         var options = {
             sort: jsonData.sortBy,
             lean: false,
-            page: jsonData.page,
+            page: jsonData.page > 0 ? jsonData.page : 1 ,
             limit: jsonData.pageSize
         };
         databaseCall['queryObj']=queryObj;

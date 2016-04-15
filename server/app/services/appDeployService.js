@@ -114,6 +114,9 @@ function compareObject(a, b) {
         return 1;
     }
 }
+appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectId(projectId,callback){
+    
+}
 
 
 

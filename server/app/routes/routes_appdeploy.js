@@ -19,6 +19,8 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instancesDao = require('../model/classes/instance/instance');
 var async = require('async');
 var	appDeployService = require('_pr/services/appDeployService');
+var appDeployValidator = require('_pr/validators/appDeployValidator');
+var validate = require('express-validation');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/app/deploy/*', sessionVerificationFunc);
@@ -199,7 +201,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 
+    app.get('/app/deploy/project/:projectId/appDeployList', function(req, res) {
+        validate(appDeployValidator.get);
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.getAppDeployListByProjectId(req.params.projectId, next);
+                }
+            ],
+            function(err, results) {
+                if(err) {
+                    return res.status(500).send({code:500,errMessage:err});
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+
+    });
+
     app.get('/app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList', function(req, res) {
+        validate(appDeployValidator.serverList);
         async.waterfall(
             [
                 function(next) {
@@ -218,6 +240,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList', function(req, res) {
+        validate(appDeployValidator.artifactList);
         async.waterfall(
             [
                 function(next) {
