@@ -4,24 +4,31 @@
  * Written by Relevance UI Team,
  * Aug 2015
  */
-
 (function(angular) {
 	"use strict";
 	angular.module('workzone.blueprint')
 		.controller('dockerParamsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
-			console.log(items);
+			angular.extend($scope, {
+				cancel: function() {
+					$modalInstance.dismiss('cancel');
+				},
+			});
+			$scope.dockerParams = {};
 			var fullParams;
+			//assigning items to fullParams. items gives a string which is the dockerLaunchParams.
 			fullParams = items;
+			//splitting the additional startup from the full params and assigning to scope.
 			var execparam = fullParams.split(' -exec');
+			var startupparam;
 			if (execparam.length > 0 && typeof execparam[1] != "undefined") {
 				var additionalStartUp = execparam[1].trim();
-				$scope.addStartup = additionalStartUp;
+				$scope.dockerParams.addStartup = additionalStartUp;
 				if (execparam[0].indexOf('-c') > 0) //found a startup command
 				{
 					startupparam = execparam[0].split(' -c');
 					if (startupparam.length > 0) {
 						var startupCommand = startupparam[1].trim();
-						$scope.startupCommand = startupCommand;
+						$scope.dockerParams.startupCommand = startupCommand;
 						fullParams = startupparam[0];
 					} else {
 						fullParams = startupparam[0];
@@ -34,28 +41,68 @@
 					startupparam = fullParams.split(' -c');
 					if (startupparam.length > 0) {
 						startupCommand = startupparam[1].trim();
-						$scope.startupCommand = startupCommand;
+						$scope.dockerParams.startupCommand = startupCommand;
 						fullParams = startupparam[0];
 					}
 				}
 			}
-			
-			var startparam;
+
 			var params = fullParams.split(' -');
 
-			//for obtaining the name..
+			//for obtaining the data from the string and showing in the modal.
 			angular.forEach(params, function(value, key) {
 				var subparam = params[key].split(' ');
 				if (subparam.length > 0) {
-					$inp = $('[dockerparamkey="-' + subparam[0] + '"]').first();
-
-					if ($inp.val() != '')
-						$inp.val($inp.val() + ',' + subparam[1]);
-					else
-						$inp.val(subparam[1]);
+					if (subparam.indexOf('p') == 0) {
+						$scope.dockerParams.port = subparam[1];
+					} else if (subparam.indexOf('-link') == 0) {
+						$scope.dockerParams.link = subparam[1];
+					} else if (subparam.indexOf('--name') == 0) {
+						$scope.dockerParams.name = subparam[1];
+					} else if (subparam.indexOf('v') == 0) {
+						$scope.dockerParams.volumes = subparam[1];
+					} else if (subparam.indexOf('-volumes-from') == 0) {
+						$scope.dockerParams.volumesFrom = subparam[1];
+					} else if (subparam.indexOf('e') == 0) {
+						$scope.dockerParams.environment = subparam[1];
+					}
 				}
-				$scope.subparam = subparam[1];
-
 			});
+			//helper method for coverting the object to a string and calling at the modal close.
+			var helper = {
+				dockerParamsString: function() {
+					var dockerParameters = null;
+					if ($scope.dockerParams.name) {
+						dockerParameters = '--name ' + $scope.dockerParams.name;
+					}
+					if ($scope.dockerParams.port) {
+						dockerParameters += ' -p ' + $scope.dockerParams.port;
+					}
+					if ($scope.dockerParams.volumes) {
+						dockerParameters += ' -v ' + $scope.dockerParams.volumes;
+					}
+					if ($scope.dockerParams.volumes) {
+						dockerParameters += ' --volumes-from ' + $scope.dockerParams.volumesFrom;
+					}
+					if ($scope.dockerParams.link) {
+						dockerParameters += ' --link ' + $scope.dockerParams.link;
+					}
+					if ($scope.dockerParams.environment) {
+						dockerParameters += ' -e ' + $scope.dockerParams.environment;
+					}
+					if ($scope.dockerParams.startupCommand) {
+						dockerParameters += ' -c ' + $scope.dockerParams.startupCommand;
+					}
+					if ($scope.dockerParams.addStartup) {
+						dockerParameters += ' -exec ' + $scope.dockerParams.addStartup;
+					}
+					items = dockerParameters;
+				}
+			};
+
+			$scope.ok = function() {
+				helper.dockerParamsString();
+				$modalInstance.close(items);
+			}
 		}]);
 })(angular);
