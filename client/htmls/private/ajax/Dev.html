@@ -1724,6 +1724,19 @@
                         </label>
                         <input id="repositoryUrl" type="text" class="form-control" name="" disabled>
                      </div>
+                     <div class="col-lg-6 col-md-6 margintop15 imageTagClass">
+                        <label for="">Tags:<span class="redSpan">*</span>
+                        <span>
+                        <img class="tagspinner hidden" src="img/select2-spinner.gif">
+                        </img>
+                        </span>
+                        </label>
+                        <div class="input-groups">
+                           <select id="imageTag" name="" class="required width-100 form-control">
+                              <option value="">Choose Tag</option>
+                           </select>
+                        </div>
+                     </div>
                      <div class="col-lg-12 col-md-12 margintop15 containerClass containerIdClass containerUpgradeDeploy">
                         <label>Container Name/ID:
                         <span>
@@ -1742,6 +1755,44 @@
                         </label>
                         <input id="containerPort" type="text" class="form-control" name="">
                      </div>
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass hostPortClass containerUpgradeDeploy">
+                        <label>Host Port:<span class="redSpan">*</span>
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="hostPort" type="text" class="form-control" />
+                     </div>
+
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass dockerUserClass containerUpgradeDeploy">
+                        <label>User Name:
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="dockerUser" type="text" class="form-control" />
+                     </div>
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass dockerPasswordClass containerUpgradeDeploy">
+                        <label>Password:
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="dockerPassword" type="text" class="form-control" />
+                     </div>
+                     <div class="col-lg-12 col-md-12 margintop15 containerClass dockerEmailIdClass containerUpgradeDeploy">
+                        <label>Email ID:
+                        <span>
+                        <img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
+                        </img>
+                        </span>
+                        </label>
+                        <input id="dockerEmailId" type="text" class="form-control" />
+                     </div>
+
                      <input id="upgradeValue" type="hidden" />
                      
                   </fieldset>

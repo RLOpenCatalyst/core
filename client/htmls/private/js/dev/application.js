@@ -83,6 +83,11 @@ $(document).ready(function() {
         $('.groupClass').hide();
         $('.containerIdClass').hide();
         $('.containerPortClass').hide();
+        $('.hostPortClass').hide();
+        $('.dockerUserClass').hide();
+        $('.dockerPasswordClass').hide();
+        $('.dockerEmailIdClass').hide();
+        $('.imageTagClass').hide();
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
@@ -1235,6 +1240,17 @@ function resetAllFields() {
     $containerId.val("");
     var $containerPort = $('#containerPort');
     $containerPort.val("");
+    var $hostPort = $('#hostPort');
+    $hostPort.val("");
+    var $dockerUser = $('#dockerUser');
+    $dockerUser.val("");
+    var $dockerPassword = $('#dockerPassword');
+    $dockerPassword.val("");
+    var $dockerEmailId = $('#dockerEmailId');
+    $dockerEmailId.val("");
+    var $imageTag = $('#imageTag');
+    $imageTag.val("");
+
 }
 
 function resetSpinners() {
@@ -1285,6 +1301,11 @@ $nexusServer.change(function(e) {
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
+        $('.hostPortClass').hide();
+        $('.dockerUserClass').hide();
+        $('.dockerPasswordClass').hide();
+        $('.dockerEmailIdClass').hide();
+        $('.imageTagClass').hide();
         $('.createTaskLinkUpgrade').attr('disabled', 'disabled');
         // Reset all values
         resetAllFields();
@@ -1298,6 +1319,11 @@ $nexusServer.change(function(e) {
         $('.groupClass').show();
         $('.containerIdClass').hide();
         $('.containerPortClass').hide();
+        $('.hostPortClass').hide();
+        $('.dockerUserClass').hide();
+        $('.dockerPasswordClass').hide();
+        $('.dockerEmailIdClass').hide();
+        $('.imageTagClass').hide();
         resetAllFields();
         var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
         for (var g = 0; g < groupId.length; g++) {
@@ -1313,8 +1339,13 @@ $nexusServer.change(function(e) {
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
+        $('.imageTagClass').show();
         $('.containerIdClass').show();
         $('.containerPortClass').show();
+        $('.hostPortClass').show();
+        $('.dockerUserClass').show();
+        $('.dockerPasswordClass').show();
+        $('.dockerEmailIdClass').show();
         var containerId = $('#containerIdInput').val();
         var upgrade = $('#upgradeValue').val();
         if (containerId != "NA" && upgrade == "true") {
@@ -1392,6 +1423,11 @@ $chooseRepository.change(function(e) {
     if (nexusServerType === 'nexus') {
         $('.containerIdClass').hide();
         $('.containerPortClass').hide();
+        $('.hostPortClass').hide();
+        $('.dockerUserClass').hide();
+        $('.dockerPasswordClass').hide();
+        $('.dockerEmailIdClass').hide();
+        $('.imageTagClass').hide();
         $('.repoUrlClass').show();
         $('.artifactClass').show();
         $('.versionClass').show();
@@ -1415,10 +1451,19 @@ $chooseRepository.change(function(e) {
     } else {
         $('.containerIdClass').show();
         $('.containerPortClass').show();
+        $('.hostPortClass').show();
+        $('.dockerUserClass').show();
+        $('.dockerPasswordClass').show();
+        $('.dockerEmailIdClass').show();
+        $('.imageTagClass').show();
         $('.groupClass').hide();
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
+        var $imageTag = $('#imageTag');
+        $imageTag.empty();
+        $('#imageTag').append('<option value= "">Choose Tag</option>');
+        getImageTags();
     }
 });
 
@@ -1506,6 +1551,43 @@ function getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifact
     }
 }
 
+// List all tags w.r.t docker image
+function getImageTags() {
+    var imageName = $('#chooseRepository').find('option:selected').val();
+    if (imageName) {
+        var repository = "";
+        var image = "";
+        if (imageName.indexOf("/") != -1) {
+            repository = imageName.split("/")[0];
+            image = imageName.split("/")[1];
+        }
+
+        if (!repository) {
+            repository = "library";
+        }
+        if (!image) {
+            image = imageName;
+        }
+        if (repository && image) {
+            $('.tagspinner').removeClass('hidden');
+            $.get('/d4dMasters/docker/' + repository + '/' + image + '/tags', function(tags) {
+                $('.tagspinner').addClass('hidden');
+                if (tags.length) {
+                    for (var i = 0; i < tags.length; i++) {
+                        $('#imageTag').append('<option value=' + tags[i].name + '>' + tags[i].name + '</option>');
+
+                    }
+                }
+            });
+        } else {
+            alert("Invalid docker image.");
+            return;
+        }
+    } else {
+        $('.tagspinner').css('display', 'none');
+    }
+}
+
 function getTasks() {
     var orgId = urlParams.org;
     var bgId = urlParams.bg;
@@ -1552,18 +1634,32 @@ function deployNewForDocker() {
         alert("Please select repository server.");
         return false;
     }
-    var repoId = $('#chooseRepository').find('option:selected').val();
-    if (!repoId) {
+    var dockerImage = $('#chooseRepository').find('option:selected').val();
+    if (!dockerImage) {
         alert("Please select repository.");
         return false;
     }
     var containerId = $('#containerIdInput').val();
     var containerPort = $('#containerPort').val();
+    var hostPort = $('#hostPort').val();
+    var dockerUser = $('#dockerUser').val();
+    var dockerPassword = $('#dockerPassword').val();
+    var dockerEmailId = $('#dockerEmailId').val();
+    var imageTag = $('#imageTag').find('option:selected').val();
 
     if (!containerPort) {
-        alert("Please specify port.");
+        alert("Please specify container port.");
         return false;
     }
+    if (!hostPort) {
+        alert("Please specify host port.");
+        return false;
+    }
+    if (!imageTag) {
+        alert("Please specify version.");
+        return false;
+    }
+
     var taskId = $('#chooseJobType').find('option:selected').val();
     if (!taskId) {
         alert("Please select job.");
@@ -1573,7 +1669,7 @@ function deployNewForDocker() {
     var bgId = urlParams.bg;
     var projectId = urlParams.projid;
     var envId = urlParams.envid;
-    var appName = repoId.split("/")[1];
+    var appName = dockerImage.split("/")[1];
     var upgrade = $('#upgradeValue').val();
     var nexusData = {
         "nexusData": {
@@ -1581,7 +1677,12 @@ function deployNewForDocker() {
             "version": "",
             "containerId": containerId,
             "containerPort": containerPort,
-            "dockerRepo": repoId,
+            "dockerImage": dockerImage,
+            "hostPort": hostPort,
+            "dockerUser": dockerUser,
+            "dockerPassword": dockerPassword,
+            "dockerEmailId": dockerEmailId,
+            "imageTag": imageTag,
             "upgrade": upgrade
         }
     };
@@ -1594,9 +1695,14 @@ function deployNewForDocker() {
             var actualDocker = [];
             for (var i = 0; i < tasks.taskConfig.nodeIds.length; i++) {
                 var docker = {
-                    "image": repoId,
-                    "container": containerId,
-                    "port": containerPort,
+                    "image": dockerImage,
+                    "containerId": containerId,
+                    "containerPort": containerPort,
+                    "hostPort": hostPort,
+                    "dockerUser": dockerUser,
+                    "dockerPassword": dockerPassword,
+                    "dockerEmailId": dockerEmailId,
+                    "imageTag": imageTag,
                     "nodeIp": tasks.taskConfig.nodeIds[i]
                 };
                 actualDocker.push(docker);
@@ -1687,7 +1793,12 @@ function upgradeOrDeploy() {
             "version": versionId,
             "containerId": "",
             "containerPort": "",
-            "dockerRepo": "",
+            "dockerImage": "",
+            "hostPort": "",
+            "dockerUser": "",
+            "dockerPassword": "",
+            "dockerEmailId": "",
+            "imageTag": "",
             "upgrade": upgrade
         }
     };

@@ -122,7 +122,12 @@ var BlueprintSchema = new Schema({
     docker: {
         image: String,
         containerId: String,
-        containerPort: String
+        containerPort: String,
+        hostPort: String,
+        dockerUser: String,
+        dockerPassword: String,
+        dockerEmailId: String,
+        imageTag: String
     },
     blueprintConfig: Schema.Types.Mixed
 });
@@ -634,20 +639,46 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         });
         objectArray.push({
             "rlcatalyst": {
-                "dockerRepo": blueprint.docker.image
+                "dockerImage": blueprint.docker.image
             }
         });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "hostPort": blueprint.docker.hostPort
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "dockerUser": blueprint.docker.dockerUser
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "dockerPassword": blueprint.docker.dockerPassword
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "dockerEmailId": blueprint.docker.dockerEmailId
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "imageTag": blueprint.docker.imageTag
+            }
+        });
+
         objectArray.push({
             "rlcatalyst": {
                 "upgrade": false
             }
         });
-        objectArray.push({
-            "rlcatalyst": {
-                "applicationNodeIP": instanceIP
-            }
-        });
-
+        var attrs = utils.mergeObjects(objectArray);
         // Update app-data for promote
         var nodeIp = [];
         nodeIp.push(instance.instanceIP);
@@ -667,15 +698,20 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
             var actualDocker = [];
             var docker = {
                 "image": blueprint.docker.image,
-                "container": blueprint.docker.containerId,
-                "port": blueprint.docker.containerPort,
+                "containerId": blueprint.docker.containerId,
+                "containerPort": blueprint.docker.containerPort,
+                "hostPort": blueprint.docker.hostPort,
+                "dockerUser": blueprint.docker.dockerUser,
+                "dockerPassword": blueprint.docker.dockerPassword,
+                "dockerEmailId": blueprint.docker.dockerEmailId,
+                "imageTag": blueprint.docker.imageTag,
                 "nodeIp": instance.instanceIP
             };
             actualDocker.push(docker);
             var appData = {
                 "projectId": instance.projectId,
                 "envId": envName,
-                "version": actualVersion,
+                "version": blueprint.docker.imageTag,
                 "docker": actualDocker
             };
             AppData.createNewOrUpdate(appData, function(err, data) {
@@ -688,7 +724,6 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
             })
         });
 
-        var attrs = utils.mergeObjects(objectArray);
         callback(null, attrs);
         return;
     } else {

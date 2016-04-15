@@ -3463,6 +3463,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     // List image tags w.r.t. docker repo and image
     app.get('/d4dMasters/docker/:repository/:image/tags', function(req, res) {
+        logger.debug("Called docker image tags.");
         var options_auth = {};
         client = new Client(options_auth);
         var dockerUrl = "https://registry.hub.docker.com/v1/repositories/" + req.params.repository + "/" + req.params.image + "/tags";
