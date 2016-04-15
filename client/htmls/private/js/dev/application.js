@@ -268,7 +268,7 @@ function loadPipeline() {
         var appNamePresent = appDeployDataObj.appNamePresent;
         var appVersionPresent = appDeployDataObj.appVersionPresent;
         $.ajax({
-            url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '/application/' + appNamePresent + '?version=' + appVersionPresent,
+            url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '?application=' + appNamePresent + '&version=' + appVersionPresent,
             type: 'GET',
             contentType: "application/json",
             async: true,
@@ -467,7 +467,7 @@ function btnApproveDetailsPipelineViewClickHandler(e) {
     var appName = $(this).closest('tr').find('.applicationMainIP').html();
     var version = $(this).closest('tr').find('.versionMain').html();
     $.ajax({
-        url: '/deploy/permission/project/' + projectId + '/env/' + envName + '/application/' + appName + '?version=' + version,
+        url: '/deploy/permission/project/' + projectId + '/env/' + envName + '?application=' + appName + '&version=' + version,
         type: 'GET',
         contentType: "application/json",
         success: function(data) {
