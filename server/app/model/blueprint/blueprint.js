@@ -726,6 +726,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
             var appData = {
                 "projectId": instance.projectId,
                 "envId": envName,
+                "appName": artifactId,
                 "version": blueprint.docker.imageTag,
                 "docker": actualDocker
             };

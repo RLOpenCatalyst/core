@@ -1669,7 +1669,8 @@ function deployNewForDocker() {
     var bgId = urlParams.bg;
     var projectId = urlParams.projid;
     var envId = urlParams.envid;
-    var appName = dockerImage.split("/")[1];
+    //var appName = dockerImage.split("/")[1];
+    var appName = dockerImage;
     var upgrade = $('#upgradeValue').val();
     var nexusData = {
         "nexusData": {
@@ -1719,7 +1720,8 @@ function deployNewForDocker() {
                             "appData": {
                                 "projectId": instance.projectId,
                                 "envId": envName,
-                                "appName": repoId,
+                                "appName": dockerImage,
+                                "version": imageTag,
                                 "docker": actualDocker
                             }
                         };
