@@ -276,6 +276,13 @@ function updatecompositedockertableemptymessage() {
     }
 }
 $(document).ready(function() {
+    $('.containerIdClass').hide();
+    $('.containerPortClass').hide();
+    $('.hostPortClass').hide();
+    $('.dockerUserClass').hide();
+    $('.dockerPasswordClass').hide();
+    $('.dockerEmailIdClass').hide();
+    $('.imageTagClass').hide();
     $('#selectOrgName').trigger('change');
     var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
     if (window.url.indexOf('addnew') > 0) $addal.attr('href', '#ajax/Aws-Production.html?addanother');
@@ -1474,14 +1481,38 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                                     var dockerImage = $chooseRepository.val();
                                     var containerId = $('#containerIdDiv').val();
                                     var containerPort = $('#containerPort').val();
+                                    var hostPort = $('#hostPort').val();
+                                    var dockerUser = $('#dockerUser').val();
+                                    var dockerPassword = $('#dockerPassword').val();
+                                    var dockerEmailId = $('#dockerEmailId').val();
+                                    var imageTag = $('#imageTag').find('option:selected').val();
                                     if (!dockerImage) {
                                         alert("Please select repository.");
                                         return false;
                                     }
+
+                                    if (!containerPort) {
+                                        alert("Please specify container port.");
+                                        return false;
+                                    }
+                                    if (!hostPort) {
+                                        alert("Please specify host port.");
+                                        return false;
+                                    }
+                                    if (!imageTag) {
+                                        alert("Please specify version.");
+                                        return false;
+                                    }
+
                                     var docker = {
-                                        "image": dockerImage,
-                                        "containerId": containerId,
-                                        "containerPort": containerPort
+                                        image: dockerImage,
+                                        containerId: containerId,
+                                        containerPort: containerPort,
+                                        hostPort: hostPort,
+                                        dockerUser: dockerUser,
+                                        dockerPassword: dockerPassword,
+                                        dockerEmailId: dockerEmailId,
+                                        imageTag: imageTag
                                     };
                                     reqBody.docker = docker;
                                 }
@@ -1951,6 +1982,16 @@ $.ajax({
                 $containerId.val("");
                 var $containerPort = $('#containerPort');
                 $containerPort.val("");
+                var $hostPort = $('#hostPort');
+                $hostPort.val("");
+                var $dockerUser = $('#dockerUser');
+                $dockerUser.val("");
+                var $dockerPassword = $('#dockerPassword');
+                $dockerPassword.val("");
+                var $dockerEmailId = $('#dockerEmailId');
+                $dockerEmailId.val("");
+                var $imageTag = $('#imageTag');
+                $imageTag.val("");
             }
 
             function resetSpinners() {
@@ -2027,6 +2068,11 @@ $.ajax({
                     $('.versionClass').show();
                     $('.containerIdClass').hide();
                     $('.containerPortClass').hide();
+                    $('.hostPortClass').hide();
+                    $('.dockerUserClass').hide();
+                    $('.dockerPasswordClass').hide();
+                    $('.dockerEmailIdClass').hide();
+                    $('.imageTagClass').hide();
                     resetAllFields();
 
                     getNexusServerGroupId();
@@ -2039,7 +2085,11 @@ $.ajax({
                     $('.versionClass').hide();
                     $('.containerIdClass').show();
                     $('.containerPortClass').show();
-                    var containerId = $('#containerIdInput').val();
+                    $('.hostPortClass').show();
+                    $('.dockerUserClass').show();
+                    $('.dockerPasswordClass').show();
+                    $('.dockerEmailIdClass').show();
+                    $('.imageTagClass').show();
                     getDockerRepoes();
                 }
             });
@@ -2136,14 +2186,61 @@ $.ajax({
                         $('#chooseGroupId > option:eq(1)').attr('selected', true).change();
                     }
                 } else {
-                    $('.groupClass').hide();
                     $('.containerIdClass').show();
                     $('.containerPortClass').show();
+                    $('.hostPortClass').show();
+                    $('.dockerUserClass').show();
+                    $('.dockerPasswordClass').show();
+                    $('.dockerEmailIdClass').show();
+                    $('.imageTagClass').show();
+                    $('.groupClass').hide();
                     $('.repoUrlClass').hide();
                     $('.artifactClass').hide();
                     $('.versionClass').hide();
+                    var $imageTag = $('#imageTag');
+                    $imageTag.empty();
+                    $('#imageTag').append('<option value= "">Choose Tag</option>');
+                    getImageTags();
                 }
             });
+
+
+            // List all tags w.r.t docker image
+            function getImageTags() {
+                var imageName = $('#chooseRepository').find('option:selected').val();
+                if (imageName) {
+                    var repository = "";
+                    var image = "";
+                    if (imageName.indexOf("/") != -1) {
+                        repository = imageName.split("/")[0];
+                        image = imageName.split("/")[1];
+                    }
+
+                    if (!repository) {
+                        repository = "library";
+                    }
+                    if (!image) {
+                        image = imageName;
+                    }
+                    if (repository && image) {
+                        $('.tagspinner').removeClass('hidden');
+                        $.get('/d4dMasters/docker/' + repository + '/' + image + '/tags', function(tags) {
+                            $('.tagspinner').addClass('hidden');
+                            if (tags.length) {
+                                for (var i = 0; i < tags.length; i++) {
+                                    $('#imageTag').append('<option value=' + tags[i].name + '>' + tags[i].name + '</option>');
+
+                                }
+                            }
+                        });
+                    } else {
+                        alert("Invalid docker image.");
+                        return;
+                    }
+                } else {
+                    $('.tagspinner').css('display', 'none');
+                }
+            }
 
             function getNexusServerGroupId() {
                 var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
