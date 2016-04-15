@@ -257,8 +257,8 @@ function sync() {
 
 																		}
 
+																		var foundInUnassigned = false;
 																		if (!addedToUnmanaged) {
-																			var foundInUnassigned = false;
 																			for (var n = 0; n < unassignedInstances.length; n++) {
 																				if (unassignedInstances[n].platformId === awsInstances[m].InstanceId) {
 																					unassignedInstances[n].state = awsInstances[m].State.Name;
@@ -268,14 +268,12 @@ function sync() {
 																						if (unassignedInstances[n].state === 'running') {
 																							unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
 																						}
-																						unassignedInstances[n].project = {
-																							id: catalystProjectId,
-																							name: catalystProjectName
-																						};
-																						unassignedInstances[n].environment = {
-																							id: catalystEnvironmentId,
-																							name: catalystEnvironmentName
-																						};
+
+																						if(projectTag && (projectTag.name in tagInfo))
+																							unassignedInstances[n].projectTag = tagInfo[projectTag.name];
+
+																						if(environmentTag && (environmentTag.name in tagInfo))
+																							unassignedInstances[n].environmentTag = tagInfo[environmentTag.name];
 
 																						unassignedInstances[n].tags = tagInfo;
 																						unassignedInstances[n].save();
@@ -292,33 +290,33 @@ function sync() {
 																				awsInstances[m].InstanceId);
 																		}
 
-																		if (!foundInUnassigned) {
+																		if (!foundInUnManaged && !foundInUnassigned && !addedToUnmanaged) {
 																			var os = 'linux';
 																			if (awsInstances[m].Platform && awsInstances[m].Platform === 'windows') {
 																				os = 'windows';
 																			}
 
-																			unassignedInstancesModel.createNew({
+																			var newUnassignedInstance = {
 																				orgId: org.rowid,
 																				providerId: provider._id,
 																				providerType: 'aws',
 																				providerData: {
 																					region: region
 																				},
-																				project: {
-																					id: catalystProjectId,
-																					name: catalystProjectName
-																				},
-																				environment: {
-																					id: catalystEnvironmentId,
-																					name: catalystEnvironmentName
-																				},
 																				platformId: awsInstances[m].InstanceId,
 																				ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
 																				os: os,
 																				state: awsInstances[m].State.Name,
 																				tags: tagInfo
-																			});
+																			};
+
+																			if(projectTag && (projectTag.name in tagInfo))
+																				newUnassignedInstance.projectTag = tagInfo[projectTag.name];
+
+																			if(environmentTag && (environmentTag.name in tagInfo))
+																				newUnassignedInstance.environmentTag = tagInfo[environmentTag.name];
+
+																			unassignedInstancesModel.createNew(newUnassignedInstance);
 																		}
 
 																	}
