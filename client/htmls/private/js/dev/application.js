@@ -186,6 +186,7 @@ function loadPipeline() {
         });
 
         $mainCard.find('.applicationMainIP').html(applicationName);
+        $mainCard.find('.applicationMainIP').attr('title', applicationName);
         $mainCard.find('.versionMain').html(versionNumber);
 
         //if (applicationName === "catalyst" || applicationName === "Catalyst" || applicationName === "D4D" || applicationName === "core") {
