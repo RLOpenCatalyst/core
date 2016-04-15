@@ -32,29 +32,17 @@ var UnassignedInstancesSchema = new Schema({
     },
     providerType: String,
     providerData: Schema.Types.Mixed,
-    project: {
-        id: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        name: {
-            type: String,
-            required: false,
-            trim: true
-        }
+    projectTag: {
+        type: String,
+        required: false,
+        trim: true,
+        default: null
     },
-    environment: {
-        id: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        name: {
-            type: String,
-            required: false,
-            trim: true
-        }
+    environmentTag: {
+        type: String,
+        required: false,
+        trim: true,
+        default: null
     },
     platformId: String,
     ip: {

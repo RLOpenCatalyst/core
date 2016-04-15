@@ -150,47 +150,28 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
     var tagMappings = {};
     tagMappingsList.forEach(function(tagMapping) {
         tagMappings[tagMapping.name] = tagMapping;
-
-        // @TODO Change tags schema to improve
-        var catalystEntityMappingList = tagMapping.catalystEntityMapping;
-        var catalystEntityMapping = {};
-        for(var j = 0; j < catalystEntityMappingList.length; j++) {
-            catalystEntityMapping[catalystEntityMappingList[j].tagValue]
-                = catalystEntityMappingList[j];
-        }
-
-        tagMappings[tagMapping.name].catalystEntityMapping = catalystEntityMapping;
     });
 
-    instance.tags = tags;
     var fields = {'tags': instance.tags};
     for(var key in tags) {
         fields.tags[key] = tags[key];
-        if((key in tagMappings)
-            && (tags[key] in tagMappings[key].catalystEntityMapping)) {
 
-            var tagValue = tags[key];
-
-            switch(tags[key].catalystEntityType) {
+        if(key in tagMappings) {
+            switch(tagMappings[key].catalystEntityType) {
                 case catalystEntityTypes.PROJECT:
-                    fields.project = {
-                        'id': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityId,
-                        'name': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityName
-                    };
-                    instance.project = fields.project;
+                    fields.projectTag = tags[key];
+                    instance.projectTag = tags[key];
                     break;
                 case catalystEntityTypes.ENVIRONMENT:
-                    fields.environment = {
-                        'id': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityId,
-                        'name': tagMappings[key].catalystEntityMapping[tagValue].catalystEntityName
-                    };
-                    instance.environment = fields.environment;
+                    fields.environmentTag = tags[key];
+                    instance.environmentTag = tags[key];
                     break;
                 default:
                     break;
             }
         }
     }
+    instance.tags = fields.tags;
 
     var params = {
         '_id': instance._id
@@ -211,17 +192,22 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 }
 
 function createUnassignedInstanceObject(instance, callback) {
-    var instanceObject = instance;
-
+    var instanceObject = {};
     var provider = {
         'id': instance.providerId,
         'type': instance.providerType,
         'data': instance.providerData?instance.providerData:null,
     };
-
-    instanceObject.provider = provider;
     instanceObject.id = instance._id;
-    delete instanceObject._id;
+    instanceObject.orgId = instance.orgId;
+    instanceObject.provider = provider;
+    instanceObject.platformId = instance.platformId;
+    instanceObject.ip = instance.ip;
+    instanceObject.os = instance.os;
+    instanceObject.state = instance.state;
+    instanceObject.projectTag = instance.projectTag;
+    instanceObject.environmentTag = instance.environmentTag;
+    instanceObject.tags = instance.tags;
 
     return callback(null, instanceObject);
 }
@@ -245,8 +231,8 @@ function createUnassignedInstancesList(instances, callback) {
         tempInstance.ip = instance.ip;
         tempInstance.os = instance.os;
         tempInstance.state = instance.state;
-        tempInstance.project = instance.project;
-        tempInstance.environment = instance.environment;
+        tempInstance.projectTag = instance.projectTag;
+        tempInstance.environmentTag = instance.environmentTag;
         tempInstance.tags = instance.tags;
 
         instancesList.push(tempInstance);

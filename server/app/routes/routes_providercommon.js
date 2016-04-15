@@ -1167,6 +1167,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {String} instance.provider.id			Provider Id
 	 * @apiSuccess {String} instance.provider.type			Provider type
 	 * @apiSuccess {Object} instance.provider.data			Provider data
+	 * @apiSuccess {Object} instance.projectTag				Project tag
+	 * @apiSuccess {Object} instance.environmentTag			Environment tag
 	 * @apiSuccess {String} instance.platformId				Platform id
 	 * @apiSuccess {String} instance.ip						IP address
 	 * @apiSuccess {String} instance.os						OS
@@ -1183,6 +1185,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *				"data": {
      *						},
      *			}
+     *			"projectTag": "<project tag value>",
+     *			"environmentTag": "<environment tag value>",
      *			"platformId": "platorm-id",
 	 *			"ip": "192.168.1.0",
      *			"os": "Ubuntu",
