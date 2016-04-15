@@ -39,7 +39,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
-    
+
     // Create AppDeploy
     app.post('/app/deploy', function(req, res) {
         logger.debug("Got appDeploy data: ", JSON.stringify(req.body.appDeployData));
@@ -179,7 +179,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
-    
+
 
     // Get AppDeploy w.r.t. projectId
     app.get('/app/deploy/project/:projectId/list', function(req, res) {
@@ -245,6 +245,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             [
                 function(next) {
                     appDeployService.getNexusArtifactList(req.params.nexusId,req.params.repoName,req.params.groupId, next);
+                }
+            ],
+            function(err, results) {
+                if(err) {
+                    return res.status(500).send({code:500,errMessage:err});
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+
+    });
+
+    app.get('/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList', function(req, res) {
+        validate(appDeployValidator.artifactList);
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.getNexusArtifactVersionList(req.params.nexusId,req.params.repoName,req.params.groupId,req.params.artifactId, next);
                 }
             ],
             function(err, results) {

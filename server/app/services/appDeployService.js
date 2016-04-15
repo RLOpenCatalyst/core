@@ -18,6 +18,8 @@
 var logger = require('_pr/logger')(module);
 var nexus = require('../lib/nexus.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var AppDeploy = require('_pr/model/app-deploy/app-deploy');
+var async = require("async");
 
 const errorType = 'appDeploy';
 
@@ -31,6 +33,7 @@ appDeployService.getNexusRepositoryList = function getNexusRepositoryList(nexusI
             return;
         }
         if(!repositories){
+            logger.debug("There is no Nexus Server configured.");
             callback(null,[]);
             return;
         }
@@ -44,6 +47,7 @@ appDeployService.getNexusRepositoryList = function getNexusRepositoryList(nexusI
                     return;
                 }
                 if (!aProject) {
+                    logger.debug("There is no Project configured.");
                     callback(null,[]);
                     return;
                 }
@@ -82,6 +86,7 @@ appDeployService.getNexusArtifactList=function getNexusArtifactList(nexusId,repo
             return;
         }
         if(!artifacts){
+            logger.debug("There is no Nexus Server Artifacts configured.");
             callback(null,[]);
             return;
         }
@@ -115,7 +120,102 @@ function compareObject(a, b) {
     }
 }
 appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectId(projectId,callback){
-    
+    masterUtil.getParticularProject(projectId, function(err, aProject) {
+        if (err) {
+            logger.debug("Failed to fetch  Project");
+            callback(err, null);
+            return;
+        }
+        if (!aProject) {
+            logger.debug("There is no Project configured.");
+            callback(null, []);
+            return;
+        }
+        else{
+            AppDeploy.getDistinctAppDeployVersionByProjectId(projectId, function(err, appDeployVersions) {
+                if (err) {
+                    logger.debug("Failed to fetch App Deploy Versions");
+                    callback(err, null);
+                    return;
+                }
+                if (!appDeployVersions) {
+                    logger.debug("There is no App Deploy Versions configured.");
+                    callback(null, []);
+                    return;
+                }
+                else{
+                    var appDeployList=[];
+                    var aAppDeployObj={};
+                    var count=0;
+                    var environments= aProject[0].environmentname.split(",");
+                    for(var i =0;i < appDeployVersions.length; i++) {
+                        (function(aVersion){
+                        AppDeploy.getLatestAppDeployListByProjectIdVersionId(projectId, aVersion, function (err, appDeploys) {
+                            count++;
+                            if (err) {
+                                logger.debug("Failed to fetch App Deploy");
+                                callback(err, null);
+                                return;
+                            }
+                            if (!appDeploys) {
+                                logger.debug("There is no App Deploy configured.");
+                                callback(null, []);
+                                return;
+                            }
+                            aAppDeployObj['appName']= {
+                                "name":appDeploys[0].applicationName,
+                                "version":appDeploys[0].applicationVersion,
+                                "projectId":appDeploys[0].projectId
+                            };
+                                for (var j = 0; j < appDeploys.length; j++) {
+                                    (function (aAppDeploy) {
+                                        aAppDeployObj[aAppDeploy.envName] = {
+                                            "applicationInstanceName": aAppDeploy.applicationInstanceName,
+                                            "applicationNodeIP": aAppDeploy.applicationNodeIP,
+                                            "applicationLastDeploy": aAppDeploy.lastAppDeployDate,
+                                            "applicationStatus": aAppDeploy.applicationStatus,
+                                            "applicationType":aAppDeploy.applicationType,
+                                            "containerId": aAppDeploy.containerId,
+                                            "hostName": aAppDeploy.hostName,
+                                            "appLogs": aAppDeploy.appLogs
+                                        }
+                                    })(appDeploys[j]);
+                                }
+                                for(var k = 0; k < environments.length; k++){
+                                    if(!aAppDeployObj[environments[k]]){
+                                        aAppDeployObj[environments[k]]={};
+                                    }
+                                }
+                            appDeployList.push(aAppDeployObj);
+                            if (appDeployVersions.length === count) {
+                                callback(null, appDeployList);
+                            }
+                            aAppDeployObj={};
+
+                        });
+                        })(appDeployVersions[i]);
+                    }
+                }
+            });
+        }
+    });
+
+}
+
+appDeployService.getNexusArtifactVersionList=function getNexusArtifactVersionList(nexusId,repoName,groupId,artifactId,callback){
+    nexus.getNexusArtifactVersions(nexusId,repoName,groupId,artifactId,function(err,versions){
+        if(err){
+            logger.debug("Error while fetching nexus artifact Version.");
+            callback(err,null);
+            return;
+        }
+        if(!versions){
+            logger.debug("There is no Nexus Server Versions configured.");
+            callback(null,[]);
+            return;
+        }
+        callback(null,versions.metadata.versioning[0].versions[0].version);
+    });
 }
 
 

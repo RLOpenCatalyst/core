@@ -39,6 +39,15 @@ appDeployValidator.artifactList = {
     }
 };
 
+appDeployValidator.versionList = {
+    options : { flatten : true },
+    params: {
+        nexusId: Joi.string().max(40).required(),
+        repoName: Joi.string().max(20).required(),
+        groupId: Joi.string().max(30).required(),
+        artifactId: Joi.string().max(40).required()
+    }
+};
 
 
 

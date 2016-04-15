@@ -765,19 +765,12 @@
 
 
 /**
- * @api {get}/app/deploy/project/:projectId/appDeploylist
- * @apiName /app/deploy/project/:projectId/appDeploylist
- * @apiGroup All AppDeploy Information by Project
- *
+ * @api {get}/app/deploy/project/:projectId/appDeployList
+ * @apiName /app/deploy/project/:projectId/appDeployList
+ * @apiGroup Pipeline View
  *
  *
  * @apiParam {String} projectId      Unique Project Id
- * @apiParam {Number} [page]         Current Page default is 1.
- * @apiParam {Number} [pageSize]     Records per page default is 10.
- * @apiParam {String} [search]       User is able to search for specific attribute. User can enter applicationType or applicationName for specific search.
- * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by applicationStatus.
- * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
- * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=applicationName:D4D.
  *
  *
  *
@@ -785,36 +778,43 @@
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
- *	"appDeployList": [{
- *	"appName": "D4D",
- *	"appVersion": "3.03.106",
- *  "environments":	{"Dev":{
- *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
- *	"applicationInstanceName": "Supercatalyst",
- *	"applicationNodeIP": "54.183.1.26",
- * 	"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
- *	"applicationStatus": "Successful",
- *	"containerId": "NA",
- *	"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
- *	"appLogs": "NA"
- *    },
- *    "QA":{},"Prod":{}
- *    }},{
- *	"appName": "D4D",
- *	"appVersion": "3.02.100",
- *	"environments":	{"Dev":{},
- *    "QA":{
- *  "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
- *	"applicationInstanceName": "Supercatalyst",
- *	"applicationNodeIP": "54.183.1.26",
- * 	"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
- *	"applicationStatus": "Successful",
- *	"containerId": "NA",
- *	"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
- *	"appLogs": "NA"},"Prod":{}
- *    }}]
- *    }
+ *  [{
+ *		"appName": {
+ *			"name": "D4D",
+ *			"version": "3.03.106"
+ *		},
+ *		"Dev": [{
+ *			"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *			"applicationInstanceName": "Supercatalyst",
+ *			"applicationNodeIP": "54.183.1.26",
+ *			"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
+ *			"applicationStatus": "Successful",
+ *			"containerId": "NA",
+ *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *			"appLogs": "NA"
+ *		}],
+ *		"QA": [],
+ *		"Prod": []
+ *	}, {
+ *		"appName": {
+ *			"name": "D4D",
+ *			"name": "D4D",
+ *			"version": "3.02.100"
+ *		},
+ *		"Dev": [],
+ *		"QA": [{
+ *			"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *			"applicationInstanceName": "Supercatalyst",
+ *			"applicationNodeIP": "54.183.1.26",
+ *			"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
+ *			"applicationStatus": "Successful",
+ *			"containerId": "NA",
+ *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *			"appLogs": "NA"
+ *		}],
+ *		"Prod": []
+ *	}]
+ *
  *
  *
  * @apiError 400 Bad Request.
@@ -823,7 +823,7 @@
  *    {
  *      code:400,
  *      message:'Bad Request',
- *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy Information'}
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy PipeLine Information'}
  *     };
  * @apiError 403 Forbidden.
  *
@@ -831,7 +831,7 @@
  *    {
  *      code:403,
  *      message:'Forbidden',
- *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy Information'}
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy PipeLine Information'}
  *     };
  * @apiError 500 InternalServerError.
  *
@@ -839,7 +839,7 @@
  *     {
  *      code:500,
  *      message:'Internal Server Error',
- *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy Information'}
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy PipeLine Information'}
  *     };
  */
 
@@ -914,5 +914,167 @@
  *      code:500,
  *      message:'Internal Server Error',
  *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'On Load New AppDeploy Information'}
+ *     };
+ */
+
+
+
+/**
+ * @api {get}/app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList
+ * @apiName /app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList
+ * @apiGroup Nexus Repository List
+ *
+ *
+ * @apiParam {String} nexusId      Unique Nexus Id
+ * @apiParam {String} projectId    Unique Project Id
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	    [{
+ *	    "name": "petclinic",
+ *	    "resourceURI": "http://nexus.rlcatalyst.com/nexus/service/local/repositories/petclinic",
+ *	    "id": "petclinic"
+ *	    }, {
+ *	    "name": "catalyst",
+ *	    "resourceURI": "http://nexus.rlcatalyst.com/nexus/service/local/repositories/catalyst",
+ *	    "id": "catalyst"
+ *	    }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'NexusRepositoryList'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'NexusRepositoryList'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'NexusRepositoryList'}
+ *     };
+ */
+
+
+/**
+ * @api {get}/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList
+ * @apiName /app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList
+ * @apiGroup Nexus Repository Artifact List
+ *
+ *
+ * @apiParam {String} nexusId      Unique Nexus Id
+ * @apiParam {String} repoName     Unique Nexus Repository Name
+ * @apiParam {String} groupId      Unique Nexus Group Id
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	    [{
+ *	    "resourceURI": "http://nexus.rlcatalyst.com/nexus/service/local/repositories/catalyst/content/org/catalyst/D4D/2.01.480/D4D-2.01.480.zip",
+ *	    "groupId": "org.catalyst",
+ *	    "artifactId": "D4D",
+ *	    "version": "2.01.480",
+ *	    "packaging": "zip",
+ *	    "extension": "zip",
+ *	    "repoId": "catalyst",
+ *	    "contextId": "catalyst",
+ *	    "pomLink": "http://nexus.rlcatalyst.com/nexus/service/local/artifact/maven/redirect?r=catalyst&amp;g=org.catalyst&amp;a=D4D&amp;v=2.01.480&amp;e=pom",
+ *	    "artifactLink": "http://nexus.rlcatalyst.com/nexus/service/local/artifact/maven/redirect?r=catalyst&amp;g=org.catalyst&amp;a=D4D&amp;v=2.01.480&amp;e=zip",
+ *	    "highlightedFragment": "&lt;blockquote&gt;Group ID&lt;UL&gt;&lt;LI&gt;&lt;B&gt;org&lt;/B&gt;.&lt;B&gt;catalyst&lt;/B&gt;&lt;/LI&gt;&lt;/UL&gt;&lt;/blockquote&gt;"
+ *	    }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'ArtifactList'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'ArtifactList'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'ArtifactList'}
+ *     };
+ */
+
+
+/**
+ * @api {get}/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList
+ * @apiName /app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList
+ * @apiGroup Nexus Repository Artifact Version List
+ *
+ *
+ * @apiParam {String} nexusId      Unique Nexus Id
+ * @apiParam {String} repoName     Unique Nexus Repository Name
+ * @apiParam {String} groupId      Unique Nexus Group Id
+ * @apiParam {String} artifactId   Unique Nexus Repository Artifact Id
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	    ["2.01.480", "2.01.482", "2.01.484", "2.01.485", "2.01.488", "2.01.492", "2.01.496", "2.01.498", "2.01.506", "2.01.520", "2.01.521", "2.01.523", "2.01.524", "3.02.54", "3.02.2", "3.02.3", "3.02.59", "3.02.60", "3.02.61", "3.02.62", "3.02.63", "3.02.64", "3.02.65", "3.02.66", "3.02.67", "3.02.99", "3.02.100", "3.03.101", "3.03.102", "3.03.104", "3.03.105", "3.03.106"]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'VersionList'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'VersionList'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'VersionList'}
  *     };
  */
