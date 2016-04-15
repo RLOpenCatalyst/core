@@ -18,33 +18,28 @@ var Joi = require('joi');
 var tagsValidator = module.exports = {};
 
 tagsValidator.get = {
-    options : { flatten : true },
     params: {
         providerId: Joi.string().max(40).required(),
         tagName: Joi.string().max(40).required()
     }
 };
 tagsValidator.list = {
-    options : { flatten : true },
     params: {
         providerId: Joi.string().max(40).required()
     }
 };
 tagsValidator.update = {
-    options : { flatten : true },
     params: {
         providerId: Joi.string().max(40).required(),
         tagName: Joi.string().max(40).required()
     }
 };
 tagsValidator.create = {
-    options : { flatten : true },
     params: {
         providerId: Joi.string().max(40).required()
     }
 };
 tagsValidator.tagsMapping = {
-    options : { flatten : true },
     params: {
         providerId: Joi.string().max(40).required(),
         catalystEntityType: Joi.string().max(40).required()

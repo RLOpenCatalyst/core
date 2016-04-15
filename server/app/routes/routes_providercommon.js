@@ -37,6 +37,7 @@ var validate = require('express-validation');
 var tagsValidator = require('_pr/validators/tagsValidator');
 var instanceValidator = require('_pr/validators/instanceValidator');
 var	providerService = require('_pr/services/providerService');
+var instanceService = require('_pr/services/instanceService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
 
@@ -1166,6 +1167,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {String} instance.provider.id			Provider Id
 	 * @apiSuccess {String} instance.provider.type			Provider type
 	 * @apiSuccess {Object} instance.provider.data			Provider data
+	 * @apiSuccess {Object} instance.projectTag				Project tag
+	 * @apiSuccess {Object} instance.environmentTag			Environment tag
 	 * @apiSuccess {String} instance.platformId				Platform id
 	 * @apiSuccess {String} instance.ip						IP address
 	 * @apiSuccess {String} instance.os						OS
@@ -1182,6 +1185,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *				"data": {
      *						},
      *			}
+     *			"projectTag": "<project tag value>",
+     *			"environmentTag": "<environment tag value>",
      *			"platformId": "platorm-id",
 	 *			"ip": "192.168.1.0",
      *			"os": "Ubuntu",
@@ -1192,8 +1197,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *			}
      *		}
 	 */
-	// app.get('/providers/:providerId/unassigned-instances/:instanceId',
-	// validate(instanceValidator.update), updateUnassignedInstanceTags);
+	app.patch('/providers/:providerId/unassigned-instances/:instanceId',
+		validate(instanceValidator.update), updateUnassignedInstanceTags);
 
 	function getTagsList(req, res, next) {
 		async.waterfall(
@@ -1220,8 +1225,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				providerService.getUnassignedInstancesByProvider,
-				providerService.createUnassignedInstancesList
+				instanceService.getUnassignedInstancesByProvider,
+				instanceService.createUnassignedInstancesList
 			],
 			function(err, results) {
 				if(err) {
@@ -1439,7 +1444,38 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	}
 
 	function updateUnassignedInstanceTags(req, res, next) {
-
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					instanceService.updateUnassignedInstanceProviderTags(provider, req.params.instanceId,
+						req.body.tags, next);
+				},
+				function(instance, next) {
+					// @TODO Nested callback with anonymous function to be avoided.
+					providerService.getTagMappingsByProviderId(instance.providerId,
+						function(err, tagMappingsList) {
+							if(err) {
+								next(err);
+							} else {
+								instanceService.updateUnassignedInstanceTags(instance,
+									req.body.tags, tagMappingsList, next);
+							}
+						}
+					);
+				},
+				instanceService.createUnassignedInstanceObject
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
 	}
 
 };

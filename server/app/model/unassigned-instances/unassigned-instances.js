@@ -32,29 +32,17 @@ var UnassignedInstancesSchema = new Schema({
     },
     providerType: String,
     providerData: Schema.Types.Mixed,
-    project: {
-        id: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        name: {
-            type: String,
-            required: false,
-            trim: true
-        }
+    projectTag: {
+        type: String,
+        required: false,
+        trim: true,
+        default: null
     },
-    environment: {
-        id: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        name: {
-            type: String,
-            required: false,
-            trim: true
-        }
+    environmentTag: {
+        type: String,
+        required: false,
+        trim: true,
+        default: null
     },
     platformId: String,
     ip: {
@@ -66,6 +54,7 @@ var UnassignedInstancesSchema = new Schema({
     state: String,
     tags: Schema.Types.Mixed
 });
+UnassignedInstancesSchema.index({platformId: 1, providerId: 1}, {unique: true});
 
 UnassignedInstancesSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
@@ -97,21 +86,64 @@ UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(pro
     );
 };
 
+UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(providerId, callback) {
+    this.find(
+        {'providerId': providerId},
+        function(err, instances) {
+            if (err) {
+                logger.error("Failed getByProviderId (%s)", providerId, err);
+                return callback(err, null);
+            } else {
+                return callback(null, instances);
+            }
+        }
+    );
+};
+
+UnassignedInstancesSchema.statics.getById = function getByProviderId(instanceId, callback) {
+    this.findById(instanceId,
+        function(err, instance) {
+            if (err) {
+                logger.error("Failed to get instance ", instanceId, err);
+                return callback(err);
+            } else {
+                return callback(null, instance);
+            }
+        }
+    );
+};
+
+UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
+    = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
+    var params = {
+        'providerId': providerId,
+        'platformId': platformId
+    };
+    this.find(params,
+        function(err, instances) {
+            if (err) {
+                logger.error("Could not get instance for ", providerId, platformId, err);
+                return callback(err, null);
+            } else if(instances.length > 0) {
+                return callback(null, instances[0]);
+            } else {
+                return callback(null, null);
+            }
+        }
+    );
+};
+
 UnassignedInstancesSchema.statics.updateInstance = function updateInstance(params, fields ,callback) {
-    this.update({
-        "platformId": instanceId,
-    }, {
-        $set: {tags:data}
-    }, function(err, data) {
+    this.update(params, fields,
+        function(err, data) {
         if (err) {
             logger.error("Failed to update unassigned instance data", err);
             if (typeof callback == 'function') {
                 callback(err, null);
             }
             return;
-        }
-        if (typeof callback == 'function') {
-            callback(null, data);
+        } else if(data && (data.ok == 1)) {
+            return callback(null, data);
         }
     });
 };
