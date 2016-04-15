@@ -1712,38 +1712,42 @@ function deployNewForDocker() {
                     if (instance) {
                         nodeIps.push(instance.instanceIP);
                     }
-                });
 
-                if (tasks.taskConfig.nodeIds.length === count) {
-                    getenvName(function(envName) {
-                        var appData = {
-                            "appData": {
-                                "projectId": instance.projectId,
-                                "envId": envName,
-                                "appName": dockerImage,
-                                "version": imageTag,
-                                "docker": actualDocker
-                            }
-                        };
-                        $.ajax({
-                            url: '/app/data',
-                            data: JSON.stringify(appData),
-                            type: 'POST',
-                            contentType: "application/json",
-                            success: function(data) {
-                                console.log("Successfully updated app-data");
-                            },
-                            error: function(jqxhr) {
-                                //alert("Failed to update update appName in Project.")
-                            }
+                    alert(tasks.taskConfig.nodeIds.length === count);
+                    if (tasks.taskConfig.nodeIds.length === count) {
+                        getenvName(function(envName) {
+                            var appData = {
+                                "appData": {
+                                    "projectId": instance.projectId,
+                                    "envId": envName,
+                                    "appName": dockerImage,
+                                    "version": imageTag,
+                                    "docker": actualDocker
+                                }
+                            };
+                            alert(JSON.stringify(appData));
+                            $.ajax({
+                                url: '/app/data',
+                                data: JSON.stringify(appData),
+                                type: 'POST',
+                                contentType: "application/json",
+                                success: function(data) {
+                                    console.log("Successfully updated app-data");
+                                },
+                                error: function(jqxhr) {
+                                    //alert("Failed to update update appName in Project.")
+                                }
+                            });
+                            $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
+                            $('#modalUpgradeAppDeploy').modal('hide');
                         });
-                    });
-                }
+                    }
+                });
             }
         }
     });
-    $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
-    $('#modalUpgradeAppDeploy').modal('hide');
+    /*$('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
+    $('#modalUpgradeAppDeploy').modal('hide');*/
     var $containerIdName = $('#containerIdInput').val('');
 }
 
