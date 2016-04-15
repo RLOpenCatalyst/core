@@ -22,7 +22,7 @@ before(function(done){
         });
 })
 
-describe("Blueprint Info ",function() {
+/*describe("Blueprint Info ",function() {
 
     it("Blueprint Information  ", function (done) {
         server
@@ -33,14 +33,14 @@ describe("Blueprint Info ",function() {
                 done();
             });
     });
-});
+});*/
 
-/*
+
 describe("Check UnmanagedInstances List for Perticular Providers ",function(){
 
     it(" Unmanaged Instances List with Pagination ",function(done){
         server
-            .get('/providers/56d41d26708c18ba15138941/unmanagedInstances?page=1&pageSize=5')
+            .get('/providers/56f1459ec9f075275f4ea9be/unmanagedInstances?page=1&pageSize=5')
             .end(function(err,res){
                 assert.equal(res.status, 200);
                 assert.equal(res.body.length,5);
@@ -48,7 +48,7 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
             });
     });
 
-    it(" Search Unmanaged Instances List based on Status ",function(done){
+   /* it(" Search Unmanaged Instances List based on Status ",function(done){
         server
             .get('/providers/56d41d26708c18ba15138941/unmanagedInstances?status=running')
             .end(function(err,res){
@@ -57,9 +57,9 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
                 assert.equal(res.body[0].state,'running');
                 done();
             });
-    });
+    });*/
 
-    it(" Search Unmanaged Instances List based on OS Type with pagination",function(done){
+    /*it(" Search Unmanaged Instances List based on OS Type with pagination",function(done){
         server
             .get('/providers/56d41d26708c18ba15138941/unmanagedInstances?page=1&pageSize=8&osType=linux')
             .end(function(err,res){
@@ -68,11 +68,11 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
                 assert.equal(res.body[0].os,'linux');
                 done();
             });
-    });
+    });*/
 
 });
 
-describe("Check Import by IP  ",function(){
+/*describe("Check Import by IP  ",function(){
     it(" Import By IP with with Request Body ",function(done){
         var obj = xlsx.parse(__dirname + '/data/dataSheets.xlsx');
         for(var i=0;i<(convertToJSON(obj[0].data)).length;i++) {
@@ -110,7 +110,7 @@ describe("Check Import by IP  ",function(){
 
 
 
-});
+});*/
 
 function convertToJSON(array) {
     var first = array[0].join()
@@ -133,5 +133,5 @@ function convertToJSON(array) {
     }
     return jsonData;
 };
-*/
+
 

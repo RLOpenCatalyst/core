@@ -416,7 +416,7 @@ var InstancesDao = function() {
     };
 
    this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
-       if(jsonData.record_Limit) {
+       if(jsonData.pageSize) {
            var databaseReq = {};
            jsonData['searchColumns'] = ['instanceIP', 'instanceState'];
            ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {

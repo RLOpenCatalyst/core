@@ -69,12 +69,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 res.status(500).send(errorResponses.db.error);
                 return;
             }
-            else {if (appDeployes) {
+            else {
+                if (appDeployeProject) {
                 res.send(200, appDeployeProject);
                 return;
-               }
-            else{
-                masterUtil.getParticularProject(req.params.projectId,function(err,aProject){
+                }
+                else{
+                    masterUtil.getParticularProject(req.params.projectId,function(err,aProject){
                     if (err){
                       res.status(500).send(errorResponses.db.error);
                       return;
