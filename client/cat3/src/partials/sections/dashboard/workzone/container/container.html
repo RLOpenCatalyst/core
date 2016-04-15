@@ -14,7 +14,8 @@
 			</span>
 		</div>
 		<div class="scrollContent">
-			<div id="gridContainer" ng-if="gridOptions.data.length > 0" ui-grid="gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
+			<loading size="large" name="isContainerTableLoading" type="block"></loading>
+			<div id="gridContainer" ng-show="!isContainerTableLoading" ng-if="gridOptions.data.length > 0" ui-grid="gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid" style="height: {{gridHeight}}px"></div>
 		</div>
 	</div>
 </div>
