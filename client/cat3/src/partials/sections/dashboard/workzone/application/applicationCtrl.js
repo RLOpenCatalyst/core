@@ -147,7 +147,9 @@
 						keyboard: false,
 						resolve: {
 							items: function() {
-								return {appDepOrUpadate:1};
+								return {
+									appDepOrUpgrade:1
+								};
 							}
 						}
 					})

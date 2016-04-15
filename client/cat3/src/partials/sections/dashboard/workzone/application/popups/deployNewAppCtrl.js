@@ -7,14 +7,14 @@
 
 (function(){
 "use strict";
-angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope', '$rootScope', '$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope, $rootScope, $modal, $modalInstance,workSvs,workEnvt) {
+angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$modal, $modalInstance,workSvs,workEnvt) {
 		/*$scope.isSelectedEnable = true;
 		$scope.serverType='';
 		console.log($scope.serverType);
 		if($scope.serverType==='nexusServer' || $scope.serverType==='rldocker') {
 			$scope.isSelectedEnable = false;
 		}*/
-		angular.extend($scope,{appDepOrUpadate:items.appDepOrUpadate}, {
+		angular.extend($scope,{appDepOrUpgrade:items.appDepOrUpgrade}, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
 			},
@@ -42,47 +42,49 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 		var depNewApp={
 			newEnt:[],
 			serverOptions:[],
-			groupId:[],
+			groupOptions:[],
 			jobOptions:[],
-			repositoryList:[],
+			repositoryOptions:[],
 			artifactsOptions:[],
 			versionsOptions:[]
 			
 		};
 		depNewApp.init =function(){
-			workSvs.getServerList().then(function (serverResult) {
+			$scope.isLoadingServer=true;
+			$scope.isLoadingJob=true;
+			workSvs.repositoryServerList().then(function (serverResult) {
+				$scope.isLoadingServer=false;
 				depNewApp.serverOptions = serverResult.data.server;
 			});
-			depNewApp.jobList();
-		};
-		depNewApp.jobList =function(){
+			// call job API
 			workSvs.getJobTask().then(function (jobResult) {
+				$scope.isLoadingJob=false;
 				depNewApp.jobOptions = jobResult.data;
 			});
-		}
+		};
 		depNewApp.getRepository= function(){
 			if (depNewApp.newEnt.serverTypeInd){
 				depNewApp.newEnt.serverType = depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].configType;
+				// create group select box options
+				angular.forEach(depNewApp.serverOptions,function(val,key){
+					if(val.configType === depNewApp.newEnt.serverType){
+						depNewApp.groupOptions = depNewApp.groupOptions.concat(val.groupid);
+					}
+				});
 			} else {
 				depNewApp.newEnt.serverType = '';
 			}
 			$scope.isLoadingNexus = true;
-			// create group id
-			angular.forEach(depNewApp.serverOptions,function(val,key){
-				if(val.configType === depNewApp.newEnt.serverType){
-					depNewApp.groupId = val.groupid;
-				}
-			});
-			workSvs.getRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
-				depNewApp.repositoryList = repositoryResult.data;
+			workSvs.getNexusRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
+				depNewApp.repositoryOptions = repositoryResult.data;
 				$scope.isLoadingNexus = false;
 			});
-			depNewApp.onchangeFiled('serverType');
+			depNewApp.clearChildField('serverType');
 		}
 		depNewApp.changeRepository = function(){
-			depNewApp.newEnt.repository = depNewApp.repositoryList[depNewApp.newEnt.repositoryInd].id;
-			depNewApp.newEnt.repositoryURL = depNewApp.repositoryList[depNewApp.newEnt.repositoryInd].resourceURI;
-			depNewApp.onchangeFiled('repository');
+			depNewApp.newEnt.repository = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].id;
+			depNewApp.newEnt.repositoryURL = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].resourceURI;
+			depNewApp.clearChildField('repository');
 		}
 		depNewApp.getArtifacts= function(){
 			$scope.isLoadingArtifacts = true;
@@ -91,24 +93,24 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					repositories:depNewApp.newEnt.repository,
 					group:depNewApp.newEnt.groupId
 				}
-			workSvs.getArtifacts(depNewApp.requestData).then(function (artifactsResult) {
+			workSvs.getNexusArtifacts(depNewApp.requestData).then(function (artifactsResult) {
 				depNewApp.artifactsOptions = artifactsResult.data;
 				$scope.isLoadingArtifacts = false;
 			});
-			depNewApp.onchangeFiled('groupId');
+			depNewApp.clearChildField('groupId');
 		}
 		depNewApp.getVersions= function(){
-			$scope.isLoadingVersion = true;
+			$scope.isLoadingNexusVersion = true;
 			depNewApp.newEnt.artifact = depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].artifactId;
 			depNewApp.requestData.artifactId = depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].artifactId;
-			workSvs.getVersions(depNewApp.requestData).then(function (versionsResult) {
+			workSvs.getNexusVersions(depNewApp.requestData).then(function (versionsResult) {
 				depNewApp.versionsOptions = versionsResult.data;
-				$scope.isLoadingVersion = false;
+				$scope.isLoadingNexusVersion = false;
 			});
-			depNewApp.onchangeFiled('artifact');
+			depNewApp.clearChildField('artifact');
 		}
 
-		depNewApp.onchangeFiled = function (field) {
+		depNewApp.clearChildField = function (field) {
 			switch (field){
 				case 'serverType' :
 					depNewApp.newEnt.repository ='';
@@ -139,16 +141,16 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					break;
 			}
 		}
-		depNewApp.changeDemo = function (){
+		depNewApp.submitDemoDeploy = function (){
 			depNewApp.deploymentData = {
 				appData :{
 					projectId:workEnvt.getEnvParams().proj,
 					envId:workEnvt.getEnvParams().env,
-					appName:depNewApp.newEnt.repository,
-					version:depNewApp.newEnt.version,
 					nexus: {
+						taskId:depNewApp.newEnt.job,
+						appName:depNewApp.newEnt.repository,
+						version:depNewApp.newEnt.version,
 						repoURL:depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].resourceURI,
-						nodeIps: ["54.153.57.31"]
 						}
 				}
 			}
