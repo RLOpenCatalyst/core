@@ -464,12 +464,15 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
     //merging attributes Objects
     var attributeObj = {};
     var objectArray = [];
-
-    // Attributes which are configures in blueprint.
+    if (blueprint.blueprintConfig.infraManagerData.versionsList && blueprint.blueprintConfig.infraManagerData.versionsList.length) {
+        // Attributes which are configures in blueprint.
         var attr = blueprint.blueprintConfig.infraManagerData.versionsList[0].attributes;
-        for (var i = 0; i < attr.length; i++) {
-            objectArray.push(attr[i].jsonObj);
+        if (attr && attr.length) {
+            for (var i = 0; i < attr.length; i++) {
+                objectArray.push(attr[i].jsonObj);
+            }
         }
+    }
 
     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
     //var temp = new Date().getTime();
