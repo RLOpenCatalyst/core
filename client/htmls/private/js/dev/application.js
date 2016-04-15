@@ -830,15 +830,20 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                         };
 
 
-                        if (data[0].nexus) {
+                        if (data[0].nexus && data[0].nexus.nodeIps.length) {
                             nexusData["nexusData"]["nexusUrl"] = data[0].nexus.repoURL;
                             nexusData["nexusData"]["version"] = data[0].version;
                         }
 
                         if (data[0].docker.length) {
-                            nexusData["nexusData"]["dockerRepo"] = data[0].docker[0].image;
-                            nexusData["nexusData"]["containerId"] = data[0].docker[0].container;
-                            nexusData["nexusData"]["containerPort"] = data[0].docker[0].port;
+                            nexusData["nexusData"]["dockerImage"] = data[0].docker[0].image;
+                            nexusData["nexusData"]["containerId"] = data[0].docker[0].containerId;
+                            nexusData["nexusData"]["containerPort"] = data[0].docker[0].containerPort;
+                            nexusData["nexusData"]["hostPort"] = data[0].docker[0].hostPort;
+                            nexusData["nexusData"]["dockerUser"] = data[0].docker[0].dockerUser;
+                            nexusData["nexusData"]["dockerPassword"] = data[0].docker[0].dockerPassword;
+                            nexusData["nexusData"]["dockerEmailId"] = data[0].docker[0].dockerEmailId;
+                            nexusData["nexusData"]["imageTag"] = data[0].docker[0].imageTag;
                         }
 
                         var appData = {
