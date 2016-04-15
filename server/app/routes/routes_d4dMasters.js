@@ -3480,19 +3480,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     });
-    app.get('/d4dMasters/organization/:orgId/businessgroup/:bgId/project/:projectId/environment/:envId/list', function(req, res) {
+    app.get('/d4dMasters/organization/:orgId/repositoryServer/list', function(req, res) {
         var jsonData= {
             orgId: req.params.orgId,
-            bgId: req.params.bgId,
-            projectId: req.params.projectId,
-            envId: req.params.envId,
             nexusId:'26',
             dockerId:'18'
         };
         async.parallel({
-                tasks:function(callback) {
-                    Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback)
-                },
                 server:function(callback) {
                     masterUtil.getServerDetails(jsonData, callback)
                 }

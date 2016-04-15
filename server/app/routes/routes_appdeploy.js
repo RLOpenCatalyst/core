@@ -18,6 +18,9 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instancesDao = require('../model/classes/instance/instance');
 var async = require('async');
+var	appDeployService = require('_pr/services/appDeployService');
+var appDeployValidator = require('_pr/validators/appDeployValidator');
+var validate = require('express-validation');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/app/deploy/*', sessionVerificationFunc);
@@ -176,31 +179,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
-
-
-
-    /*app.get('/app/deploy/project/:projectId/appDeployList', getAppDeployListForProject);
-     function getAppDeployListForProject(req, res, next) {
-     async.waterfall(
-     [
-     function(next) {
-     d4dModelNew.d4dModelMastersProjects.find
-     },
-     function(paginationReq,next){
-     apiUtil.paginationRequest(req.query,'appDeploy',next);
-     },
-     providerService.getUnassignedInstancesByProvider,
-     providerService.createUnassignedInstancesList
-     ],
-     function(err, results) {
-     if(err) {
-     next(err);
-     } else {
-     return res.status(200).send(results);
-     }
-     }
-     );
-     }*/
+    
 
     // Get AppDeploy w.r.t. projectId
     app.get('/app/deploy/project/:projectId/list', function(req, res) {
@@ -219,6 +198,64 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return;
             }
         });
+    });
+
+
+    app.get('/app/deploy/project/:projectId/appDeployList', function(req, res) {
+        validate(appDeployValidator.get);
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.getAppDeployListByProjectId(req.params.projectId, next);
+                }
+            ],
+            function(err, results) {
+                if(err) {
+                    return res.status(500).send({code:500,errMessage:err});
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+
+    });
+
+    app.get('/app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList', function(req, res) {
+        validate(appDeployValidator.serverList);
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.getNexusRepositoryList(req.params.nexusId,req.params.projectId, next);
+                }
+            ],
+            function(err, results) {
+                if(err) {
+                    return res.status(500).send({code:500,errMessage:err});
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+
+    });
+
+    app.get('/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList', function(req, res) {
+        validate(appDeployValidator.artifactList);
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.getNexusArtifactList(req.params.nexusId,req.params.repoName,req.params.groupId, next);
+                }
+            ],
+            function(err, results) {
+                if(err) {
+                    return res.status(500).send({code:500,errMessage:err});
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+
     });
 
 

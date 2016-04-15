@@ -85,7 +85,7 @@ var ContainerSchema = new Schema({
 ContainerSchema.plugin(mongoosePaginate);
 
 ContainerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonData, callback) {
-    if(jsonData.record_Limit) {
+    if(jsonData.pageSize) {
         var databaseReq = {};
         jsonData['searchColumns'] = ['instanceIP', 'state'];
         ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
@@ -108,8 +108,9 @@ ContainerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonDa
                 err.status = 404;
                 return callback(err);
             }
-            else
+            else {
                 return callback(null, containerList);
+            }
         });
     }
     else{
@@ -151,11 +152,11 @@ ContainerSchema.statics.getContainerByIdInstanceIP = function(containerData, cal
         instanceIP:containerData.instanceIP
     },function(err, data) {
         if (err) {
-            logger.error("createContainer Failed", err, containerData);
+            logger.error("getContainerById Failed", err, containerData);
             callback(err, null);
             return;
         }
-        logger.debug("Exit createContainer : ");
+        logger.debug("Exit getContainerById : ");
         callback(null, data);
     });
 };

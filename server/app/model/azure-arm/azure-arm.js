@@ -166,7 +166,7 @@ ARMSchema.statics.createNew = function(cfData, callback) {
 
 
 ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
-    if(jsonData.record_Limit) {
+    if(jsonData.pageSize) {
         var databaseReq = {};
         jsonData['searchColumns'] = ['cloudProviderId', 'deploymentName'];
         ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
