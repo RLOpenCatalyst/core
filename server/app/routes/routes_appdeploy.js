@@ -220,6 +220,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
 
+    app.get('/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList', function(req, res) {
+        validate(appDeployValidator.appDeployHistoryList);
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp(req.params.projectId,req.params.envName,req.params.version,req.params.nodeIp, next);
+                }
+            ],
+            function(err, results) {
+                if(err) {
+                    return res.status(500).send({code:500,errMessage:err});
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+
+    });
+
     app.get('/app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList', function(req, res) {
         validate(appDeployValidator.serverList);
         async.waterfall(
@@ -276,6 +295,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
 
     });
+
+
+
 
 
     // Get  appData by Project and Env

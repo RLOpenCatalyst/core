@@ -119,6 +119,23 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdVersionId=function(proj
         });
 };
 
+AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp=function(projectId,envName,version,nodeIp,callback){
+    this.find({
+        projectId: projectId,
+        envId:envName,
+        applicationVersion:version,
+        applicationNodeIP:{$ne:nodeIp}
+    }, function(err, appDeployHistoryList) {
+        if (err) {
+            logger.debug("Got error while fetching AppDeploy History: ", err);
+            callback(err, null);
+        }
+        if (appDeployHistoryList) {
+            callback(null, appDeployHistoryList);
+        }
+    });
+}
+
 // Save all AppDeploy informations.
 AppDeploySchema.statics.createNew = function(appDeployData, callback) {
     var aDeploy = new this(appDeployData);

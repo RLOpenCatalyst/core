@@ -202,6 +202,23 @@ appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectI
 
 }
 
+appDeployService.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp=function getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp(projectId,envName,version,nodeIp,callback){
+    AppDeploy.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp(projectId,envName,version,nodeIp,function(err,appDeployHistoryList){
+        if(err){
+            logger.debug("Error while fetching App Deploy History via projectId,envName,appDeployVersion and nodeIp");
+            callback(err,null);
+            return;
+        }
+        if(!appDeployHistoryList){
+            logger.debug("There is no App Deploy History via projectId,envName,appDeployVersion and nodeIp configured.");
+            callback(null,[]);
+            return;
+        }
+        callback(null,appDeployHistoryList);
+    })
+
+}
+
 appDeployService.getNexusArtifactVersionList=function getNexusArtifactVersionList(nexusId,repoName,groupId,artifactId,callback){
     nexus.getNexusArtifactVersions(nexusId,repoName,groupId,artifactId,function(err,versions){
         if(err){

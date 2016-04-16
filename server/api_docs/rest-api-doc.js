@@ -783,7 +783,7 @@
  *			"name": "D4D",
  *			"version": "3.03.106"
  *		},
- *		"Dev": [{
+ *		"Dev": {
  *			"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
  *			"applicationInstanceName": "Supercatalyst",
  *			"applicationNodeIP": "54.183.1.26",
@@ -792,17 +792,17 @@
  *			"containerId": "NA",
  *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
  *			"appLogs": "NA"
- *		}],
- *		"QA": [],
- *		"Prod": []
+ *		},
+ *		"QA": {},
+ *		"Prod": {}
  *	}, {
  *		"appName": {
  *			"name": "D4D",
  *			"name": "D4D",
  *			"version": "3.02.100"
  *		},
- *		"Dev": [],
- *		"QA": [{
+ *		"Dev": {},
+ *		"QA": {
  *			"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
  *			"applicationInstanceName": "Supercatalyst",
  *			"applicationNodeIP": "54.183.1.26",
@@ -811,8 +811,8 @@
  *			"containerId": "NA",
  *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
  *			"appLogs": "NA"
- *		}],
- *		"Prod": []
+ *		},
+ *		"Prod": {}
  *	}]
  *
  *
@@ -840,6 +840,81 @@
  *      code:500,
  *      message:'Internal Server Error',
  *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy PipeLine Information'}
+ *     };
+ */
+
+
+/**
+ * @api {get}/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
+ * @apiName /app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
+ * @apiGroup App Deploy Pipeline History List
+ *
+ *
+ * @apiParam {String} projectId      Unique Project Id
+ * @apiParam {String} envName        Unique Environment Name
+ * @apiParam {String} version        Unique App Deploy Version
+ * @apiParam {String} nodeIp         Unique Last App Deploy Node IP Address
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *  [{"_id":"570b48fcf1f0f28388f4b071",
+ *  "applicationLastDeploy":"2016-03-30 05:04:05 +0000",
+ *  "appLogs":"NA",
+ *  "applicationName":"D4D",
+ *  "applicationVersion":"3.03.106",
+ *  "applicationInstanceName":"Supercatalyst",
+ *  "applicationNodeIP":"54.183.1.26",
+ *  "envId":"Dev",
+ *  "hostName":"ip-10-0-0-54.us-west-1.compute.internal",
+ *  "containerId":"NA",
+ *  "applicationType":"Package",
+ *  "applicationStatus":"Successful",
+ *  "projectId":"b38ccedc-da2c-4e2c-a278-c66333564719"
+ *  },
+ *  {"_id":"570b48fef1f0f28388f4b077",
+ *  "applicationLastDeploy":"2016-03-30 05:04:05 +0000",
+ *  "appLogs":"NA",
+ *  "applicationName":"D4D",
+ *  "applicationVersion":"3.03.106",
+ *  "applicationInstanceName":"Supercatalyst",
+ *  "applicationNodeIP":"54.183.1.26",
+ *  "envId":"Dev",
+ *  "hostName":"ip-10-0-0-54.us-west-1.compute.internal",
+ *  "containerId":"NA",
+ *  "applicationType":"Package",
+ *  "applicationStatus":"Successful",
+ *  "projectId":"b38ccedc-da2c-4e2c-a278-c66333564719"
+ *	}]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy PipeLine History Information'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy PipeLine History Information'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy PipeLine History Information'}
  *     };
  */
 
