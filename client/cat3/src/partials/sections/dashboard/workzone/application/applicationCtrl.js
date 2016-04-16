@@ -142,12 +142,14 @@
 				   $modal.open({
 						animate: true,
 						templateUrl: "src/partials/sections/dashboard/workzone/application/popups/deployNewApp.html",
-						controller: "deployNewAppCtrl",
+						controller: "deployNewAppCtrl as depNewApp",
 						backdrop : 'static',
 						keyboard: false,
 						resolve: {
 							items: function() {
-								
+								return {
+									appDepOrUpgrade:1
+								};
 							}
 						}
 					})
