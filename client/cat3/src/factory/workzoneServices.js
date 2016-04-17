@@ -153,7 +153,7 @@
                             urlParams.env + '/addInstance';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },
-                postDockerLaunchParamsBlueprint : function(instid,repopath,reqBody){
+                postLaunchDockerBlueprint : function(instid,repopath,reqBody){
                     var url = '/instances/dockercompositeimagepull/' + instid + '/' + repopath;
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },

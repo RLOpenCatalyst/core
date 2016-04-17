@@ -13,68 +13,6 @@
                     $modalInstance.dismiss('cancel');
                 },
             });
-            $scope.dockerDetails = [];
-            //items gives the details of the selected blueprint.
-            var dockerParams = items.blueprintConfig.dockerCompose;
-
-            //gives the dockerParams details to show up the image in the first step of wizard.
-            dockerParams.forEach(function(k, v) {
-                $scope.dockerDetails.push(dockerParams[v]);
-            });
-
-            //call made to get the instance details.(instance name,instanceIP)
-            workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
-                var data;
-                data = response.data.instances;
-                $scope.instanceData = data;
-            });
-
-
-            //modal to show the Docker Parameters Popup
-            $scope.launchParam = function(launchObj, idx) {
-                var modalInstance = $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/dockerParams.html',
-                    controller: 'dockerParamsCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return launchObj.dockerlaunchparameters;
-                        }
-                    }
-                });
-                modalInstance.result.then(function(paramStr) {
-                    $scope.dockerDetails[idx].dockerlaunchparameters = paramStr;
-                    //updating the dockerLaunchParameters for the particular index.
-                }, function() {
-                    console.log('Modal Dismissed at ' + new Date());
-                });
-            };
-            //view the instance logs on click of more info and on start button click.
-            $scope.viewLogs = function(instanceObj) {
-                var _viewLogs = function(resolve, reject) {
-                    var modalInstance = $modal.open({
-                        animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instancelog.html',
-                        controller: 'instanceLogsCtrl',
-                        backdrop: 'static',
-                        keyboard: false,
-                        resolve: {
-                            items: function() {
-                                return instanceObj;
-                            }
-                        }
-                    });
-                    modalInstance.result.then(function(modalClose) {
-                        resolve(modalClose);
-                    }, function(modalCancel) {
-                        reject(modalCancel);
-                    });
-                };
-                return $q(_viewLogs);
-            };
-
             //wizard data setting for step 1 and step 2.
             var index = 0, // points to the current step in the steps array
                 steps = $scope.steps = [{
@@ -138,23 +76,95 @@
                     $scope.submitEnabled = false;
                 }
             };
+            $scope.moveUpChoice = function(arr, index) {
+                var currItem = index;
+                if (currItem > 0) {
+                    arr.splice(currItem - 1, 0, arr.splice(currItem, 1)[0]);
+                }
+            };
 
+            $scope.moveDownChoice = function(arr, index) {
+                var currItem = index;
+                var newPosition = index + 1;
+                if (currItem < arr.length) {
+                    arr.splice(newPosition, 0, arr.splice(currItem, 1)[0]);
+                }
+            };
+            $scope.dockerDetails = [];
+            //items gives the details of the selected blueprint.
+            var dockerParams = items.blueprintConfig.dockerCompose;
+
+            //gives the dockerParams details to show up the image in the first step of wizard.
+            dockerParams.forEach(function(k, v) {
+                $scope.dockerDetails.push(dockerParams[v]);
+            });
+
+            //call made to get the instance details.(instance name,instanceIP)
+            workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
+                $scope.instanceData = response.data.instances;
+            });
+
+
+            //modal to show the Docker Parameters Popup
+            $scope.launchParam = function(launchObj, idx) {
+                var modalInstance = $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/dockerParams.html',
+                    controller: 'dockerParamsCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return launchObj.dockerlaunchparameters;
+                        }
+                    }
+                });
+                modalInstance.result.then(function(paramStr) {
+                    $scope.dockerDetails[idx].dockerlaunchparameters = paramStr;
+                    //updating the dockerLaunchParameters for the particular index.
+                }, function() {
+                    console.log('Modal Dismissed at ' + new Date());
+                });
+            };
+            //view the instance logs on click of more info and on start button click.
+            $scope.viewLogs = function(instanceObj) {
+                var _viewLogs = function(resolve, reject) {
+                    var modalInstance = $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instancelog.html',
+                        controller: 'instanceLogsCtrl',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return instanceObj;
+                            }
+                        }
+                    });
+                    modalInstance.result.then(function(modalClose) {
+                        resolve(modalClose);
+                    }, function(modalCancel) {
+                        reject(modalCancel);
+                    });
+                };
+                return $q(_viewLogs);
+            };
 
             /*user sets the value(instanceId and instance) on the checkbox 
             the user has selected to show the logs once the user clicks on submit
             and restricts the selection to 1*/
-            $scope.value = [];
+            $scope.checkBoxSelectLength = [];
             $scope.limit = 1; /*limiting the checkbox selection to 1*/
             $scope.checked = 0; /*checking the number of checkbox selection.Initially 0*/
             $scope.selectValue = function(instance) {
-                $scope.value = $scope.value || [];
+                $scope.checkBoxSelectLength = $scope.checkBoxSelectLength || [];
                 if (instance.checked) {
                     $scope.instanceSelected = instance;
-                    $scope.value.push(instance);
+                    $scope.checkBoxSelectLength.push(instance);
                     $scope.checked++;
-                    $scope.value = _.uniq($scope.value);
+                    $scope.checkBoxSelectLength = _.uniq($scope.checkBoxSelectLength);
                 } else {
-                    $scope.value = _.without($scope.value, instance);
+                    $scope.checkBoxSelectLength = _.without($scope.checkBoxSelectLength, instance);
                     $scope.checked--;
                 }
             };
@@ -162,9 +172,10 @@
             $scope.submit = function() {
                 var dockerImageParams = JSON.stringify($scope.dockerDetails);
                 var repopath = "null"; //by default set to null.(taken from 2.0);
-                workzoneServices.postDockerLaunchParamsBlueprint($scope.instanceSelected._id, repopath, {
+                var reqBody = {
                     compositedockerimage: encodeURIComponent(dockerImageParams)
-                }).then(function(response) {
+                };
+                workzoneServices.postLaunchDockerBlueprint($scope.instanceSelected._id, repopath, reqBody).then(function(response) {
                     var data = response.data;
                     /*If Response is ok the logs are shown and docker image is pulled*/
                     if (data == "OK") {

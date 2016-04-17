@@ -2,7 +2,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * Written by Relevance UI Team,
- * Aug 2015
+ * April 2016
  */
 (function(angular) {
 	"use strict";
