@@ -73,6 +73,24 @@ AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(projectI
     });
 };
 
+AppDeploySchema.statics.getAppDeployHistoryListByProjectId=function(queryObj,options,callback){
+    this.paginate(queryObj, options, function (err, appDeployHistoryData) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        }
+        else if (!appDeployHistoryData) {
+            var err = new Error('AppDeployHistoryData is not found');
+            err.status = 404;
+            return callback(err);
+        }
+        else {
+            return callback(null, appDeployHistoryData);
+        }
+    });
+};
+
 AppDeploySchema.statics.getLatestAppDeployListByProjectIdVersionId=function(projectId,versionId,callback){
     this.aggregate(
         [

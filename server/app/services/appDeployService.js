@@ -20,6 +20,7 @@ var nexus = require('../lib/nexus.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require("async");
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 const errorType = 'appDeploy';
 
@@ -233,6 +234,31 @@ appDeployService.getNexusArtifactVersionList=function getNexusArtifactVersionLis
         }
         callback(null,versions.metadata.versioning[0].versions[0].version);
     });
+}
+
+appDeployService.getAppDeployHistoryListByProjectId=function getAppDeployHistoryListByProjectId(jsonData,callback){
+    var databaseReq = {};
+    jsonData['searchColumns'] = ['envId', 'applicationVersion'];
+    apiUtil.databaseUtil(jsonData, function (err, databaseCall) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        }
+        else
+            databaseReq = databaseCall;
+    });
+    AppDeploy.getAppDeployHistoryListByProjectId(databaseReq.queryObj, databaseReq.options, function (err, appDeployHistoryData) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        }
+        else {
+            return callback(null, appDeployHistoryData);
+        }
+    });
+
 }
 
 
