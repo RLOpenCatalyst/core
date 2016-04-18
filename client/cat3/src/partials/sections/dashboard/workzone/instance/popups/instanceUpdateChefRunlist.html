@@ -19,15 +19,19 @@
 							<form class="form-inline">
 								<div class="radio-all">
 									<input type="radio" name="cookbookSpecification" value="all" ng-click="changeSelection('all');" checked />
-									<label for="exampleInputName2">All</label>
+									<label for="radioAll">All</label>
 								</div>
 								<div class="radio-roles">
-									<input type="radio" name="cookbookSpecification" value="roles" ng-click="changeSelection('roles');" />
-									<label for="exampleInputName2">Roles</label>
+									<input type="radio" name="cookbookSpecification" value="roles" ng-click="changeSelection('role');" />
+									<label for="radioRoles">Roles</label>
 								</div>
-								<div class="radio-deploy">
-									<input type="radio" name="cookbookSpecification" value="cookbooks" ng-click="changeSelection('deploy');">
-									<label for="exampleInputName2">Cookbooks</label>
+								<div class="radio-cookbooks">
+									<input type="radio" name="cookbookSpecification" value="cookbooks" ng-click="changeSelection('cookbook');">
+									<label for="radioCookbooks">Cookbooks</label>
+								</div>
+								<div class="radio-templates">
+									<input type="radio" name="cookbookSpecification" value="templates" ng-click="changeSelection('template');">
+									<label for="radioTemplates">Templates</label>
 								</div>
 								<div class="chef-factory">
 									<label><a id="chefFactory" href="chefFactory.html?{{chefServerID}}" target="_black">Chef Factory</a></label>
