@@ -116,7 +116,7 @@
 							data = response;
 						}
 						/*Scope apply done to force refresh screen after receiving the AJAX response*/
-						$scope.$apply(function () { 
+						$scope.$apply(function () {
 							$scope.allCBAttributes = $scope.allCBAttributes.concat(data);
 							if (updatedList.length > 1) {
 								var tmp = [];
