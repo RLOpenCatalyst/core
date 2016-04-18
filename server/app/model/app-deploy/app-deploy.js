@@ -64,12 +64,11 @@ AppDeploySchema.statics.getAppDeploy = function(callback) {
 AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(projectId,callback){
     this.distinct("applicationVersion",{projectId: projectId},function(err, appDeployVersions) {
         if (err) {
-            logger.debug("Got error while fetching AppDeploy Version: ", err);
-            callback(err, null);
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
         }
-        if (appDeployVersions) {
-            callback(null, appDeployVersions);
-        }
+        callback(null, appDeployVersions);
     });
 };
 
@@ -131,9 +130,7 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdVersionId=function(proj
                 logger.debug("Got error while fetching AppDeploy: ", err);
                 callback(err, null);
             }
-            if (appDeploys) {
-                callback(null, appDeploys);
-            }
+            callback(null, appDeploys);
         });
 };
 
@@ -148,9 +145,8 @@ AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp=f
             logger.debug("Got error while fetching AppDeploy History: ", err);
             callback(err, null);
         }
-        if (appDeployHistoryList) {
-            callback(null, appDeployHistoryList);
-        }
+        callback(null, appDeployHistoryList);
+
     });
 }
 
@@ -166,6 +162,8 @@ AppDeploySchema.statics.createNew = function(appDeployData, callback) {
             logger.debug("Creating AppDeploy: ", JSON.stringify(appDeploy));
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -194,6 +192,8 @@ AppDeploySchema.statics.updateAppDeploy = function(anId, appDeployData, callback
             logger.debug("Updating AppDeploy: ", JSON.stringify(appDeploy));
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -210,6 +210,8 @@ AppDeploySchema.statics.getAppDeployById = function(anId, callback) {
             logger.debug("Got AppDeploy: ");
             callback(null, appDeploy[0]);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -226,6 +228,8 @@ AppDeploySchema.statics.removeAppDeploy = function(anId, callback) {
             logger.debug("Remove Success....");
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -243,6 +247,8 @@ AppDeploySchema.statics.getAppDeployByNameAndEnvId = function(appName, envId, ca
             logger.debug("Got AppDeploy: ");
             callback(null, appDeploys);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -294,6 +300,8 @@ AppDeploySchema.statics.getAppDeployByName = function(appName, callback) {
         if (appDeploy) {
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -327,6 +335,8 @@ AppDeploySchema.statics.getAppDeployByEnvId = function(envId, callback) {
             logger.debug("Got AppDeploy: ");
             callback(null, appDeploys);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -362,6 +372,8 @@ AppDeploySchema.statics.getAppDeployByProjectId = function(projectId, callback) 
             logger.debug("Got AppDeploy: ");
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -382,6 +394,8 @@ AppDeploySchema.statics.getAppDeployByAppNameAndVersion = function(appName, vers
             logger.debug("Got AppDeploy: ");
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
