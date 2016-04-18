@@ -119,7 +119,6 @@
 					}); 
 				},
 				moreInfo: function(blueprintObj) {
-					var moreInfoXHR = $.get('data/new_blueprintMoreInfo.json?' + blueprintObj._id);
 					var modalInstance = $modal.open({
 						animation: true,
 						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/blueprintMoreInfo.html',
@@ -128,7 +127,7 @@
 						keyboard: false,
 						resolve: {
 							items: function() {
-								return moreInfoXHR;
+								return blueprintObj;
 							}
 						}
 					});
