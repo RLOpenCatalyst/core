@@ -7,7 +7,7 @@
 (function(angular) {
 	"use strict";
 	angular.module('workzone.blueprint')
-		.controller('dockerParamsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
+		.controller('dockerParamsCtrl', ['$scope', '$modalInstance', 'items', function($scope, $modalInstance, items) {
 			angular.extend($scope, {
 				cancel: function() {
 					$modalInstance.dismiss('cancel');
@@ -20,14 +20,15 @@
 			//splitting the additional startup from the full params and assigning to scope.
 			var execparam = fullParams.split(' -exec');
 			var startupparam;
-			if (execparam.length > 0 && typeof execparam[1] != "undefined") {
+			var startupCommand;
+			if (execparam.length > 0 && typeof execparam[1] !== "undefined") {
 				var additionalStartUp = execparam[1].trim();
 				$scope.dockerParams.addStartup = additionalStartUp;
 				if (execparam[0].indexOf('-c') > 0) //found a startup command
 				{
 					startupparam = execparam[0].split(' -c');
 					if (startupparam.length > 0) {
-						var startupCommand = startupparam[1].trim();
+						startupCommand = startupparam[1].trim();
 						$scope.dockerParams.startupCommand = startupCommand;
 						fullParams = startupparam[0];
 					} else {
@@ -53,17 +54,17 @@
 			angular.forEach(params, function(value, key) {
 				var subparam = params[key].split(' ');
 				if (subparam.length > 0) {
-					if (subparam.indexOf('p') == 0) {
+					if (subparam.indexOf('p') === 0) {
 						$scope.dockerParams.port = subparam[1];
-					} else if (subparam.indexOf('-link') == 0) {
+					} else if (subparam.indexOf('-link') === 0) {
 						$scope.dockerParams.link = subparam[1];
-					} else if (subparam.indexOf('--name') == 0) {
+					} else if (subparam.indexOf('--name') === 0) {
 						$scope.dockerParams.name = subparam[1];
-					} else if (subparam.indexOf('v') == 0) {
+					} else if (subparam.indexOf('v') === 0) {
 						$scope.dockerParams.volumes = subparam[1];
-					} else if (subparam.indexOf('-volumes-from') == 0) {
+					} else if (subparam.indexOf('-volumes-from') === 0) {
 						$scope.dockerParams.volumesFrom = subparam[1];
-					} else if (subparam.indexOf('e') == 0) {
+					} else if (subparam.indexOf('e') === 0) {
 						$scope.dockerParams.environment = subparam[1];
 					}
 				}
@@ -103,6 +104,6 @@
 			$scope.ok = function() {
 				helper.dockerParamsString();
 				$modalInstance.close(items);
-			}
+			};
 		}]);
 })(angular);
