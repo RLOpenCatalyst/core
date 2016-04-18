@@ -28,6 +28,7 @@
 		};
 		serviceInterface.getUserPermissions=function(){
 			var url = 'data/userActionAccess.json';
+			//var url = '/auth/getpermissionset;
 			return $http.get(fullUrl(url),session.getHeaderObject());
 		};
 		return serviceInterface;

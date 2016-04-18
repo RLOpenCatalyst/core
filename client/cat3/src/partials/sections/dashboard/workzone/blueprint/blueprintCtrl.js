@@ -50,7 +50,7 @@
 			$scope.isFirstOpen = true;
 
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(){
-				$scope.isBluePrintPageLoading = true;
+				$scope.isBlueprintPageLoading = true;
 				$scope.blueprints = [];
 			});
 
@@ -59,8 +59,8 @@
 				envParams=requestParams;
 				var blueprint = data.blueprints;
 				$scope.blueprints = formatData.getFormattedCollection(blueprint);
-				$scope.isBluePrintPageLoading = false;
-                workzoneUIUtils.makeTabScrollable('bluePrintPage');
+				$scope.isBlueprintPageLoading = false;
+                workzoneUIUtils.makeTabScrollable('blueprintPage');
 			});
 
 			angular.extend($scope, {
@@ -119,16 +119,15 @@
 					}); 
 				},
 				moreInfo: function(blueprintObj) {
-					var moreInfoXHR = $.get('data/new_blueprintMoreInfo.json?' + blueprintObj._id);
 					var modalInstance = $modal.open({
 						animation: true,
-						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/blueprintMoreInfo.html',
-						controller: 'blueprintMoreInfoCtrl',
+						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/blueprintInfo.html',
+						controller: 'blueprintInfoCtrl',
 						backdrop : 'static',
 						keyboard: false,
 						resolve: {
 							items: function() {
-								return moreInfoXHR;
+								return blueprintObj;
 							}
 						}
 					});
@@ -138,7 +137,7 @@
 						
 					});
 				},
-				removeBluePrint: function(blueprintObj, bpType) { 
+				removeBlueprint: function(blueprintObj, bpType) { 
 					$modal.open({
 						animate: true,
 						templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/removeBlueprint.html",

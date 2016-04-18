@@ -7,7 +7,9 @@
 
 (function(){
 	"use strict";
-	angular.module('workzone.orchestration').controller('compositeLogsCtrl',['$scope','workzoneServices','$interval','orchestrationSetting','$timeout',function($scope, workzoneServices, $interval, orchestrationSetting, $timeout){
+	angular.module('workzone.orchestration')
+	.controller('compositeLogsCtrl',['$scope','workzoneServices','$interval','orchestrationSetting','$timeout',function($scope, workzoneServices, $interval, orchestrationSetting, $timeout){
+		$scope.isTaskListLoading = true;
 		var compLogData ={
 			allTaskList:[],
 			selectBoxOption:[],
@@ -61,7 +63,6 @@
 				}
 				compLogData.allTaskHistoryIds=responseHis.data.taskHistoryIds;
 			});
-
 		}
 		/** create option  */
 		compLogData.createOptions= function(taskId,historyId){
@@ -69,6 +70,7 @@
 				if(value._id == taskId){
 					value=angular.extend(value,{historyId:historyId});
 					compLogData.selectBoxOption.push(value);
+					$scope.isTaskListLoading = false;
 				}
 			});
 		}
