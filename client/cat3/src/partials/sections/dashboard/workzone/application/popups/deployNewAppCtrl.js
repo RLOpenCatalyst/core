@@ -7,7 +7,7 @@
 
 (function(){
 "use strict";
-angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$modal, $modalInstance,workSvs,workEnvt) {
+angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$rootScope,$modal, $modalInstance,workSvs,workEnvt) {
 		/*$scope.isSelectedEnable = true;
 		$scope.serverType='';
 		console.log($scope.serverType);
@@ -17,26 +17,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 		angular.extend($scope,{appDepOrUpgrade:items.appDepOrUpgrade}, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
-			},
-			createNewJob: function(type) {
-			   $modal.open({
-					animate: true,
-					templateUrl: "src/partials/sections/dashboard/workzone/orchestration/popup/newTask.html",
-					controller: "newTaskCtrl",
-					backdrop : 'static',
-					size: 'lg',
-					keyboard: false,
-					resolve: {
-						items: function() {
-							return type;
-						}
-					}
-				})
-				.result.then(function(selectedItem) {
-					$scope.selected = selectedItem;
-				}, function() {
-					
-				}); 
 			}
 		});
 		var depNewApp={
@@ -56,12 +36,15 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingServer=false;
 				depNewApp.serverOptions = serverResult.data.server;
 			});
+			depNewApp.getAllJobs();
+		};
+		depNewApp.getAllJobs =function () {
 			// call job API
 			workSvs.getJobTask().then(function (jobResult) {
 				$scope.isLoadingJob=false;
 				depNewApp.jobOptions = jobResult.data;
 			});
-		};
+		}
 		depNewApp.getRepository= function(){
 			if (depNewApp.newEnt.serverTypeInd){
 				depNewApp.newEnt.serverType = depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].configType;
@@ -109,7 +92,9 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			});
 			depNewApp.clearChildField('artifact');
 		}
-
+		depNewApp.createNewJob = function (){
+			$rootScope.$emit("createNewTask");
+		}
 		depNewApp.clearChildField = function (field) {
 			switch (field){
 				case 'serverType' :
@@ -156,7 +141,10 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			}
 			console.log(depNewApp.deploymentData);
 		}
-
+		// call job api after creating new job .
+		$rootScope.$on("getAllJobs", function(){
+			depNewApp.getAllJobs();
+		});
 		depNewApp.init();
 		return depNewApp;
 	}]);
