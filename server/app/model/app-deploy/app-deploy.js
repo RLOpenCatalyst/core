@@ -55,11 +55,102 @@ AppDeploySchema.statics.getAppDeploy = function(callback) {
             callback(err, null);
         }
         if (appDeploy) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploy));
+            logger.debug("Got AppDeploy: ");
             callback(null, appDeploy);
+        }
+        else
+            callback(null, []);
+    });
+};
+
+AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(projectId,callback){
+    this.distinct("applicationVersion",{projectId: projectId},function(err, appDeployVersions) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        }
+        callback(null, appDeployVersions);
+    });
+};
+
+AppDeploySchema.statics.getAppDeployHistoryListByProjectId=function(queryObj,options,callback){
+    this.paginate(queryObj, options, function (err, appDeployHistoryData) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        }
+        else if (!appDeployHistoryData) {
+            var err = new Error('AppDeployHistoryData is not found');
+            err.status = 404;
+            return callback(err);
+        }
+        else {
+            return callback(null, appDeployHistoryData);
         }
     });
 };
+
+AppDeploySchema.statics.getLatestAppDeployListByProjectIdVersionId=function(projectId,versionId,callback){
+    this.aggregate(
+        [
+            {
+                $match: {
+                    projectId : projectId,
+                    applicationVersion:versionId
+                }
+            },
+            {   $sort:  {
+                    envId: 1,
+                    applicationLastDeploy: 1
+                }
+            },
+            {
+                $group:
+                {
+                    _id: "$envId",
+                    applicationName:{ $last: "$applicationName" },
+                    applicationInstanceName:{ $last: "$applicationInstanceName" },
+                    applicationVersion:{ $last: "$applicationVersion" },
+                    applicationNodeIP:{ $last: "$applicationNodeIP" },
+                    applicationStatus:{ $last: "$applicationStatus" },
+                    orgId:{ $last: "$orgId" },
+                    bgId:{ $last: "$bgId" },
+                    projectId:{ $last: "$projectId" },
+                    envName:{ $last: "$envId" },
+                    description:{ $last: "$description" },
+                    applicationType:{ $last: "$applicationType" },
+                    containerId:{ $last: "$containerId" },
+                    hostName:{ $last: "$hostName" },
+                    appLogs:{ $last: "$appLogs" },
+                    lastAppDeployDate: { $last: "$applicationLastDeploy" }
+                }
+            }
+        ],function(err, appDeploys) {
+            if (err) {
+                logger.debug("Got error while fetching AppDeploy: ", err);
+                callback(err, null);
+            }
+            callback(null, appDeploys);
+        });
+};
+
+AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp=function(projectId,envName,version,nodeIp,callback){
+    this.find({
+        projectId: projectId,
+        envId:envName,
+        applicationVersion:version,
+        applicationNodeIP:{$ne:nodeIp}
+    }, function(err, appDeployHistoryList) {
+        if (err) {
+            logger.debug("Got error while fetching AppDeploy History: ", err);
+            callback(err, null);
+        }
+        callback(null, appDeployHistoryList);
+
+    });
+}
 
 // Save all AppDeploy informations.
 AppDeploySchema.statics.createNew = function(appDeployData, callback) {
@@ -73,6 +164,8 @@ AppDeploySchema.statics.createNew = function(appDeployData, callback) {
             logger.debug("Creating AppDeploy: ", JSON.stringify(appDeploy));
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -101,6 +194,8 @@ AppDeploySchema.statics.updateAppDeploy = function(anId, appDeployData, callback
             logger.debug("Updating AppDeploy: ", JSON.stringify(appDeploy));
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -114,9 +209,11 @@ AppDeploySchema.statics.getAppDeployById = function(anId, callback) {
             callback(err, null);
         }
         if (appDeploy) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploy[0]));
+            logger.debug("Got AppDeploy: ");
             callback(null, appDeploy[0]);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -133,6 +230,8 @@ AppDeploySchema.statics.removeAppDeploy = function(anId, callback) {
             logger.debug("Remove Success....");
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -147,9 +246,11 @@ AppDeploySchema.statics.getAppDeployByNameAndEnvId = function(appName, envId, ca
             callback(err, null);
         }
         if (appDeploys) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploys));
+            logger.debug("Got AppDeploy: ");
             callback(null, appDeploys);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -201,6 +302,8 @@ AppDeploySchema.statics.getAppDeployByName = function(appName, callback) {
         if (appDeploy) {
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -231,9 +334,11 @@ AppDeploySchema.statics.getAppDeployByEnvId = function(envId, callback) {
             callback(err, null);
         }
         if (appDeploys) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploys));
+            logger.debug("Got AppDeploy: ");
             callback(null, appDeploys);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -248,7 +353,7 @@ AppDeploySchema.statics.getAppDeployListByEnvId = function(projectId,envId, call
             callback(err, null);
         }
         if (appDeploys.length) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploys));
+            logger.debug("Got AppDeploy: ");
             callback(null, appDeploys);
         } else {
             callback(null, []);
@@ -266,9 +371,11 @@ AppDeploySchema.statics.getAppDeployByProjectId = function(projectId, callback) 
             callback(err, null);
         }
         if (appDeploy) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploy));
+            logger.debug("Got AppDeploy: ");
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
@@ -286,9 +393,11 @@ AppDeploySchema.statics.getAppDeployByAppNameAndVersion = function(appName, vers
             callback(err, null);
         }
         if (appDeploy) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploy));
+            logger.debug("Got AppDeploy: ");
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
