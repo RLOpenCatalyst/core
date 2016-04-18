@@ -78,7 +78,7 @@
 						}
 					})
 					.result.then(function(bpObj) {
-						if (bpObj.bp.blueprintType == "docker") {
+						if (bpObj.bp.blueprintType === "docker") {
 							$modal.open({
 								animate: true,
 								templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/dockerLaunchParams.html",
@@ -90,7 +90,7 @@
 										return bpObj.bp;
 									}
 								}
-							}).result.then(function(selectedItem) {
+							}).result.then(function() {
 								console.log('The modal close is not getting invoked currently. Goes to cancel handler');
 							}, function() {
 								console.log('Cancel Handler getting invoked');

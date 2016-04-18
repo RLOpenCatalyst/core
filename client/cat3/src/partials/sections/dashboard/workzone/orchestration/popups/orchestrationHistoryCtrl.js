@@ -34,7 +34,7 @@
 									taskId : hist.taskId,
 									historyId : hist._id,
 									taskType:hist.taskType
-								}
+								};
 							}
 						}
 					});
