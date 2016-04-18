@@ -35,7 +35,7 @@ $('#syncAppTableView').on("click", function() {
     return;
 });
 $(document).ready(function() {
-
+    managePipelineConfiguration();
     getAllApplicationData();
     $("#divapplicationtableview").hide();
     if ($('#chooseNexusServer :selected').text() == 'Choose Server') {
@@ -1143,6 +1143,10 @@ function convertToDateCustom(obj) {
 
 
 $('.appdeployConfigureSaveBtn').click(function() {
+    configurePipeLine();
+});
+
+function configurePipeLine() {
     var $tableconfigureapplication = $('#tableconfigureapplication');
     var projectId = urlParams.projid;
     var configureEnvArray = [];
@@ -1196,7 +1200,8 @@ $('.appdeployConfigureSaveBtn').click(function() {
             $('#modalappcardConfigure').modal('hide');
         }
     });
-});
+};
+
 $('#instanceviewAppCard').click(function() {
     getenvName(function(envName) {
         var dataenvAccordianName = "Application Deployment for : " + envName;
@@ -1845,6 +1850,17 @@ function getprojectName(callback) {
         }
     });
 }
+
+function managePipelineConfiguration() {
+    var projectId = urlParams.projid;
+    $.get('/app/deploy/pipeline/project/' + projectId, function(dataPipeline) {
+        if (!dataPipeline.length) {
+            configurePipeLine();
+            var envs = getTableHeaderData(dataPipeline[0].envId);
+            creationPipelineTableView(projectId, envs.arrEnv, envs.arrPresentEnvSeq, deployData);
+        }
+    });
+};
 
 function getAllApplicationData() {
     var projectId = urlParams.projid;
