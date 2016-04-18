@@ -86,12 +86,12 @@
                         });
 
                     } else {
-                        return $http.get('/cat3/data/super_instanceAndBlueprintData.json', {
+                        /*return $http.get('/cat3/data/super_instanceAndBlueprintData.json', {
                             cache: true
-                        });
-                        /*var url = '/organizations/' + orgId + '/businessgroups/' + bgId +
+                        });*/
+                        var url = '/organizations/' + orgId + '/businessgroups/' + bgId +
                                 '/projects/' + projId + '/environments/' + envId + '/';
-                        return $http.get(fullUrl(url), Auth.getHeaderObject());*/
+                        return $http.get(fullUrl(url), Auth.getHeaderObject());
                     }
                 },
                 blueprintInfo: function (blueprintID) {
