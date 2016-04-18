@@ -16,6 +16,11 @@
                     Deploy New App
                 </button>
                 <button type="button" class="btn cat-btn-update app-deploy-new-button" 
+                ng-click="upgradeApp()" ng-show="!isPipelineViewActive">
+                    <i class="fa fa-cloud-upload white"></i>
+                    Upgrade App
+                </button>
+                <button type="button" class="btn cat-btn-update app-deploy-new-button" 
                 ng-click="applicationPipelineView()" ng-show="!isPipelineViewActive">
                     <i class="fa fa-chevron-left white"></i>
                     Pipeline View
@@ -101,7 +106,6 @@
                         </td>
                         <td rowspan="1" colspan="1" aria-label="Status">Status</td>
                         <td rowspan="1" colspan="1" aria-label="Logs">Logs</td>
-                        <td rowspan="1" colspan="1" aria-label="Logs">Upgrade</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -124,7 +128,7 @@
                             <i class="fa fa-info-circle cursor" title="More Info" ng-click="appInfo(app)"></i>
                         </td>
                         <td>
-                            <i class="fa fa-cloud-upload cursor" title="Upgrade App" ng-click="upgradeApp()"></i>
+                            <i class="fa fa-cloud-upload cursor" title="Upgrade App"></i>
                         </td>
                     </tr>
                 </tbody>
