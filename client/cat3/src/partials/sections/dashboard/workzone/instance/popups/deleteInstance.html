@@ -1,0 +1,35 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
+
+<div id='deleteInstancePage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> 
+			<i class="fa fa-trash-o"></i>
+			Delete Instance 
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<input type="hidden" id="deleteInstanceIdInput" value="55e94026782ff6df3ca19716">
+		<div class="form-group"><span for="name">
+			You are about to remove this instance, do you want to proceed?</span>
+		</div>
+		<div class="form-group">
+			<label class="font-normal" for="name">Instance Name:</label>
+				<strong><span class="forBootBox" for="name">{{instance.name}}</span></strong>
+		</div>
+		<div class="form-group">
+			<label for="ckbChefDelete-0">
+				<input type="checkbox" name="ckbChefDelete" id="ckbChefDelete" ng-model="isChefChecked"> <span class="font-normal">Delete this node from <span>{{serverType}}</span> server</span>
+			</label>
+		</div>
+		<div class="form-group">
+			Note : This will not terminate the instance from the provider.
+		</div>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
+		<button type="button" class="btn cat-btn-delete" ng-click="ok()">Delete</button>
+	</div>
+</div>

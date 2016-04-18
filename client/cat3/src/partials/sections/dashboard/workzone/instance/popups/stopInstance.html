@@ -1,0 +1,19 @@
+<div id='stopInstancePage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> Confirmation </h4>
+	</div>
+
+	<div class="modal-body no-padding">
+		Are you sure you want to Stop the instance "{{ instance.name }}"
+	</div>
+	<div class="loader-section">
+		<loading size="medium"></loading>
+	</div>
+	<div>{{ authMsg }}</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">Ok</button>
+	</div>
+</div>

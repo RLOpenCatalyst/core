@@ -1,0 +1,36 @@
+<div id="launchBluePrintPage">
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title" ng-show="!showCFTInputs && !showARMInputs"> Confirmation</h4>
+		<h4 class="modal-title" ng-show="showCFTInputs"> Enter a Unique Stack Name</h4>
+		<h4 class="modal-title" ng-show="showARMInputs"> Enter ARM Deployment Name</h4>
+	</div>
+
+	<form name="cftForm" ng-submit="cftSubmitHandler(cftForm.$valid)" novalidate>
+		<div class="modal-body" ng-show="!isBPLogsLoading">
+			<div ng-show="!showCFTInputs && !showARMInputs">Are you sure you want to launch the Blueprint? Press Ok To continue</div>
+			<div ng-show="showCFTInputs || showARMInputs" class="CFTInputs-block">
+				<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>
+				<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<input type="text" name="stackInpt" ng-model="stackName" ng-trim="false" ng-pattern="/^[a-zA-Z0-9]*$/" class="form-control" required>
+					<div class="text-danger help-block" ng-messages="cftForm.stackInpt.$error">
+						<div ng-messages-include="src/partials/globals/formMessages/messages.html"></div>
+					</div>
+				</span>
+			</div>
+		</div>
+
+		<div class="modal-footer" ng-show="!isBPLogsLoading">
+			<div ng-show="!showCFTInputs && !showARMInputs">
+				<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
+				<button type="button" class="btn cat-btn-update" ng-click="launchBP()">Ok</button>
+			</div>
+			<div>
+				<div ng-show="showCFTInputs || showARMInputs">
+					<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
+					<input type="submit" class="btn cat-btn-update" ng-disabled="cftForm.stackInpt.$dirty && cftForm.stackInpt.$invalid" ng-click="launchBP()" value="Ok" />
+				</div>
+			</div>
+		</div>
+	</form>
+</div>

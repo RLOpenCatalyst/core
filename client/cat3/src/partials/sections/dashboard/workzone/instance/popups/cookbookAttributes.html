@@ -1,0 +1,54 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
+
+<div id='cookbookAttributesPage'>
+	<div class="modal-header">
+		<h3 class="modal-title">Edit Attributes</h3>
+	</div>
+
+	<div class="modal-body">
+		<section>
+			<form class="attributesEditFormArea padding10" action="">
+				<table class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter attributesListTable" cellpadding="5px" width="100%">
+					<thead>
+						<tr>
+							<th>Attributes</th>
+							<th>Values</th>
+						</tr>
+					</thead>
+					<tbody class="attributesEditTableBody">
+						<tr>
+							<td>node.JS app path</td>
+							<td>
+								<input type="text" class="attribValueInput" data-attribkey="DTelemetryNewrelicNodeJS/app_path" value="/mnt/jenkins/workspace/Supercatalyst_Upgrade/server" data-attribname="node.JS app path" data-attributerequired="false"><a href="#" data-toggle="tooltip" title="" class="margin" data-original-title="Please specify nodejs app path!"><i
+								class="fa fa-info"></i></a></td>
+						</tr>
+						<tr>
+							<td>App name</td>
+							<td>
+								<input type="text" class="attribValueInput" data-attribkey="DTelemetryNewrelicNodeJS/app_name" value="D4D" data-attribname="App name" data-attributerequired="false"><a href="#" data-toggle="tooltip" title="" class="margin" data-original-title="Please specify App name!"><i
+								class="fa fa-info"></i></a></td>
+						</tr>
+						<tr>
+							<td>APP Main file</td>
+							<td>
+								<input type="text" class="attribValueInput" data-attribkey="DTelemetryNewrelicNodeJS/root_file" value="app.js" data-attribname="APP Main file" data-attributerequired="false"><a href="#" data-toggle="tooltip" title="" class="margin" data-original-title="Please mention application main file!"><i
+								class="fa fa-info"></i></a></td>
+						</tr>
+						<tr>
+							<td>Newrelic Lincense Key</td>
+							<td>
+								<input type="text" class="attribValueInput" data-attribkey="DTelemetryNewrelicNodeJS/license_key" value="b764c5b2cb8e519d639de4f26b6a0ad8a715d6f6" data-attribname="Newrelic Lincense Key" data-attributerequired="false"><a href="#" data-toggle="tooltip" title="" class="margin" data-original-title="Please specify license key which is in active state!"><i
+								class="fa fa-info"></i></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		</section>
+	</div>
+
+	<div class="modal-footer">		
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">Save</button>
+	</div>
+</div>

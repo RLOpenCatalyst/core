@@ -1,0 +1,32 @@
+<div id="controlPanelPage">
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<span class="modal-title title-font"> 
+			<i class="fa fa-gears"></i>&nbsp;
+			Control Panel
+		</span>
+		<div class="cp-header-card-info">
+			<span class="instance-name">{{instInfo.name}}</span>
+			<span> | </span>
+			<span class="instance-state">{{instInfo.instanceState}}</span>
+			<span> | </span>
+			<span class="instance-ip">{{instInfo.instanceIP}}</span>
+		</div>
+	</div>
+
+	<div class="modal-body">
+		<div class="cp-container">
+			<div class="row">
+				<div bs-active-pane="tabs.activeTab" bs-tabs>
+					<div ng-repeat="tab in tabs" title="{{ tab.title }}" name="{{ tab.title }}" bs-pane >
+						<div ng-include="tab.template"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">Close</button>
+	</div>
+</div>

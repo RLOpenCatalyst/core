@@ -1,0 +1,14 @@
+<div id="compositeLogs" ng-controller="compositeLogsCtrl as compLogCtrl">
+		<div class="col-md-12 col-sm-12 col-xs-12 no-padding">
+			<label>Task List : </label>
+			<select  class="form-control" ng-init="compLogCtrl.onchangeCompTask(0)" ng-change="compLogCtrl.onchangeCompTask(null);" ng-model="compLogCtrl.selectTaskInd" ng-options="compLogCtrl.selectBoxOption.indexOf(selectOption) as selectOption.name for selectOption in compLogCtrl.selectBoxOption"></select>
+		</div>
+		<div ng-switch="compLogCtrl.taskType" >
+			<div ng-switch-when="jenkins">
+				<div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/jenkinsLog.html'" ></div>
+			</div>
+			<div ng-switch-when="chef">
+				<div ng-include="'src/partials/sections/dashboard/workzone/orchestration/popups/chefLog.html'" ></div>
+			</div>
+		</div>
+</div>

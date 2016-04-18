@@ -1,0 +1,134 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/application/application.css">
+
+<div id='applicationPage' ng-controller="applicationCtrl">
+    <loading size="large" name="isApplicationPageLoading" type="block"></loading>
+    <div ng-show="!isApplicationPageLoading">
+        <div class="panel-heading">
+            <span class="panel-title">
+                <span class="app-panel-heading-text">Application Deployment for : </span>
+                <span ng-show="isPipelineViewActive">{{orgName}}</span>
+                <span ng-show="!isPipelineViewActive">{{selectedEnv}}</span>
+            </span>
+            <span class="pull-right">
+                <button type="button" class="btn cat-btn-update app-deploy-new-button" 
+                ng-click="deployNewApp()">
+                    <i class="fa fa-plus white"></i>
+                    Deploy New App
+                </button>
+                <button type="button" class="btn cat-btn-update app-deploy-new-button" 
+                ng-click="applicationPipelineView()" ng-show="!isPipelineViewActive">
+                    <i class="fa fa-chevron-left white"></i>
+                    Pipeline View
+                </button>
+                <span ng-click="applicationTableView()" ng-show="isPipelineViewActive"> 
+                    <i class="fa fa-header fa-2x cursor"></i>
+                </span>
+            <span ng-click="configureAppPipelineView()" ng-show="isPipelineViewActive"> 
+                    <i class="fa fa-cogs cursor"></i>
+                </span>
+            </span>
+        </div>
+
+        <section id="pipelineView" class="scrollContent" ng-show="isPipelineViewActive">
+            <!--<ul class="nav nav-pills nav-justified pipeline-heading" ng-repeat="row in applications">
+                <li class="app-details-card">
+                    App Details
+                </li>
+                <li ng-repeat = "(envName, envDetails) in row.environments">
+                    <div class="env-card">
+                        {{envName}}
+                    </div>
+                </li>
+            </ul>-->
+            <ul class="nav nav-justified" ng-repeat="row in applications">
+                <li>
+                    <div id="cardView">
+                        <div class="card app-details">
+                            <div class="card-title">
+                                <div title="{{row.applicationName}}" class="card-title-name"> <strong>{{row.applicationName}}</strong>
+                                </div>
+                                <hr/>
+                            </div>
+                            <div class="card-status-state">
+                                <div class="app-instance-image"></div>
+                            </div>
+                            <div class="instance-ip">
+                                <span>{{row.applicationVersion}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li ng-repeat = "(envName, envDetails) in row.environments" class="env-card-wrapper">
+                    <div id="cardView">
+                        <div class="card">
+                            <div class="card-title">
+                                <div title="{{card.applicationName}}" class="card-title-name"> <strong>{{envDetails.applicationNodeIP}}</strong>
+                                </div>
+                                <hr/>
+                            </div>
+                            <div class="card-status-state">
+                                <div class="status-state {{getAppCardStatus(envDetails.applicationStatus,'image')}}">
+                                    <i class="fa fa-th cursor {{getAppCardStatus(envDetails.applicationStatus,'text')}}" title="App Details" ng-click="appCardDetails(row)"></i>
+                                </div>
+                            </div>
+                            <div class="instance-ip">
+                                <span ng-repeat="part in (envDetails.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines)">
+                                    {{part}}
+                                    <br>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section id="tableView" class="scrollContent" ng-show="!isPipelineViewActive">
+            <table datatable="" class="table-bordered text-center">
+                <thead>
+                    <tr class="rowCustomStyle" role="row">
+                        <td tabindex="0" aria-controls="tableOrchestration" rowspan="1" colspan="1" aria-label="App Name" aria-sort="descending">App
+                        </td>
+                        <td rowspan="1" colspan="1" aria-label="App-Instance Name">
+                            App-Instance
+                        </td>
+                        <td rowspan="1" colspan="1" aria-label="Version">Version</td>
+                        <td rowspan="1" colspan="1" aria-label="Host Name">Host Name</td>
+                        <td rowspan="1" colspan="1" aria-label="Node IP">Node IP</td>
+                        <td rowspan="1" colspan="1" aria-label="Last Deploy">Last Deploy</td>
+                        <td rowspan="1" colspan="1" aria-label="Container ID">Container Name/ID</td>
+                        <td rowspan="1" colspan="1" aria-label="Application Type">Application Type
+                        </td>
+                        <td rowspan="1" colspan="1" aria-label="Status">Status</td>
+                        <td rowspan="1" colspan="1" aria-label="Logs">Logs</td>
+                        <td rowspan="1" colspan="1" aria-label="Logs">Upgrade</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="app in appicationHistoryList">
+                        <td>{{app.applicationName}}</td>
+                        <td>{{app.applicationInstanceName || app.hostName}}</td>
+                        <td>{{app.applicationVersion}}</td>
+                        <td>{{app.hostName}}</td>
+                        <td>{{app.applicationNodeIP}}</td>
+                        <td>
+                            <span ng-repeat="part in (app.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines)">
+                                {{part}}
+                                <br>
+                            </span>
+                        </td>
+                        <td>{{app.containerId || 'NA'}}</td>
+                        <td>{{app.applicationType}}</td>
+                        <td>{{app.applicationStatus}}</td>
+                        <td>
+                            <i class="fa fa-info-circle cursor" title="More Info" ng-click="appInfo(app)"></i>
+                        </td>
+                        <td>
+                            <i class="fa fa-cloud-upload cursor" title="Upgrade App" ng-click="upgradeApp()"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>

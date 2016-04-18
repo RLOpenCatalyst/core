@@ -1,0 +1,48 @@
+<div id='azureARMPage' ng-controller="AzureARMCtrl">
+	<loading size="large" name="isAzureARMPageLoading" type="block"></loading>
+	<div ng-show="!isAzureARMPageLoading">
+		<div class="panel-heading">
+			<span class="panel-title">
+				<span>Deployments</span>
+			</span>
+		</div>
+		<div class="scrollContent">
+			<div class="productdiv4" ng-repeat="arm in arms">
+				<div class="productdiv1 cardimage" data-stackid="561755a879f6f3154823ed09" data-stackname="{{arm.deploymentName}}">
+					<ul class="list-unstyled system-prop">
+						<li>
+							<img src="images/cf-icon.png" alt="azureArm" class="armLogo" />
+						</li>
+						<li title="" class="Cardtextoverflow">
+							<u>
+								<b class="stackNameContainer">{{arm.deploymentName}}</b>
+							</u>
+						</li>
+					</ul>
+					<div class="stack-details-list">
+						<span class="stack-details">
+							<strong class="stackId">
+
+							</strong>
+						</span>
+						<div>
+							<span class="stack-details">
+								status : 
+							</span>
+						</div>
+						<div>
+							<span class="stackStatus {{getStackStateColor()}}">
+								{{arm.status}}
+							</span>
+						</div>
+					</div>
+					<div class="btnicons">
+						<span class="btn btn-danger right-button" title="Delete Arm" ng-click="removeARMDeployment(arm,$index)">
+							<i class="fa fa-trash-o white"></i>
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

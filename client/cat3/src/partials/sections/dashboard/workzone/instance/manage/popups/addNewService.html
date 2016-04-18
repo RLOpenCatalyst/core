@@ -1,0 +1,45 @@
+<div id="addNewServicePage">
+    <div class="modal-header">
+        <span class="close" ng-click="cancel()">×</span>
+        <h4 class="modal-title"> 
+            Add New Service
+        </h4>
+    </div>
+
+    <div class="modal-body body-padding">
+        <table datatable="" class="table-bordered text-center">
+            <thead>
+                <tr class="rowCustomStyle" role="row">
+                    <td class="sorting_disabled" rowspan="1" colspan="1">
+                        Select
+                    </td>
+                    <td class="sorting_disabled" rowspan="1" colspan="1">
+                        Name
+                    </td>
+                    <td class="sorting_disabled" rowspan="1" colspan="1">
+                        Actions
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="service in serviceInfo" ng-show="serviceIds.indexOf(service._id) == -1">
+                    <td>
+                        <input type="checkbox" ng-click="toggleSelection(service._id)" />
+                    </td>
+                    <td>{{service.servicename}}</td>
+                    <td class="sorting_1">
+                        <span ng-repeat="actionItem in service.actionData" class="cp-service-icon {{actionItem.bg}}">
+                            <i class="fa {{actionItem.icon}}"></i>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-close" ng-click="cancel()">Cancel</button>
+        <button type="button" class="btn cat-btn-save" ng-click="ok()">Save</button>
+    </div>
+</div>
+

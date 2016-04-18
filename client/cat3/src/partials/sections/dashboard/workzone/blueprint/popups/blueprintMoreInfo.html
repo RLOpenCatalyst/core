@@ -1,0 +1,130 @@
+<div id='blueprintMoreInfoPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> Blueprint Information-{{blueprintType}}</h4>
+	</div>
+
+	<div class="modal-body">
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th class="th-parameters">Parameters</th>
+					<th class="th-values">Values</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="td-padding">Blueprint Name:</td>
+					<td>
+						<input id="blueprintNameInputNew" disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintName">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Template Type:</td>
+					<td>
+						<input id="blueprintTemplateType" disabled="disabled" class="form-control" ng-model="blueprintInfo.templateType">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Organisation Name:</td>
+					<td>
+						<input id="blueprintORG" disabled="disabled" class="form-control" ng-model="blueprintInfo.org">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Business Group:</td>
+					<td>
+						<input id="blueprintBU" disabled="disabled" class="form-control" ng-model="blueprintInfo.bg">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Project Name:</td>
+					<td>
+						<input id="blueprintProject" disabled="disabled" class="form-control" ng-model="blueprintInfo.project">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Operating System:</td>
+					<td>
+						<input id="instanceOSNew" class="form-control" disabled="disabled" ng-model="blueprintInfo.os">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Instance Size:</td>
+					<td>
+						<input id="instancesizeNew" disabled="disabled" class="form-control" ng-model="blueprintInfo.instanceSize">
+
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Provider Type:</td>
+					<td>
+						<input id="instanceProviderType" disabled="disabled" class="form-control" ng-model="blueprintInfo.providerType">
+
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Provider Name:</td>
+					<td>
+						<input id="instanceProviderName" disabled="disabled" class="form-control" ng-model="blueprintInfo.providerName">
+
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Region:</td>
+					<td>
+						<input id="instanceRegion" disabled="disabled" class="form-control" ng-model="blueprintInfo.region">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Image:</td>
+					<td>
+						<input id="instanceImage" disabled="disabled" class="form-control" ng-model="blueprintInfo.image">
+
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Keypair:</td>
+					<td>
+						<input id="instancekeyPair" disabled="disabled" class="form-control" ng-model="blueprintInfo.keypair">
+
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">VPC ID:</td>
+					<td>
+						<input id="instanceVPC" class="form-control" disabled="disabled" ng-model="blueprintInfo.vpcID">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Subnet:</td>
+					<td>
+						<input id="instanceSubnetId" class="form-control" disabled="disabled" ng-model="blueprintInfo.subnet">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Security Group:</td>
+					<td>
+						<input id="instanceSecurityGroupId" class="form-control" disabled="disabled" ng-model="blueprintInfo.securityGroup">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Version:</td>
+					<td>
+						<input id="instanceVersion" class="form-control" disabled="disabled" ng-model="blueprintInfo.version">
+					</td>
+				</tr>
+				<tr>
+					<td class="td-padding">Runlist:</td>
+					<td>
+						<input id="instanceRunlist" class="form-control" disabled="disabled" ng-model="blueprintInfo.runlist">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">Close</button>
+	</div>
+</div>

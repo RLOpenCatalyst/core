@@ -1,0 +1,34 @@
+<link rel='stylesheet' type='text/css' href='catalyst/partials/sections/login/login.css'>
+
+<div class='row' id='loginContainer'>
+	<div class='col-lg-4 col-md-4 col-sm-12 col-xs-12'></div>
+	<div class='col-lg-4 col-md-4 col-sm-12 col-xs-12'>
+		<div class="well grayBorder">
+			<form id="login-form" class="loginform" nonvalidate>
+				<header>Login</header>
+				<fieldset>
+					<section>
+						<label class='lebel'>Username</label>
+						<label class="loginform_input"><i class="loginform_icon-append fa fa-user"></i>
+							<input name="username" id="username" class="manipulator" type="text" ng-model='username'>
+						</label>
+					</section>
+					<section>
+						<label class='lebel'>Password</label>
+						<label class="loginform_input"><i class="loginform_icon-append fa fa-lock"></i>
+							<input name="pass" id="password" class="manipulator" type="password" ng-model='password'>
+						</label>
+					</section>
+					<div class="loginform_note">
+						<a href="http://www.relevancelab.com/RLCatalyst/RL_Catalyst_SaaS_Evaluation_Agreement.pdf" target="_blank"> Evaluation &amp; trial agreement terms &amp; conditions</a>
+					</div>
+				</fieldset>
+				<footer>
+					<div class="pull-left loginform_incorlog">{{inCorrectLoginMessage}}</div>
+					<button type="submit" class="btn cat-btn-update" id="loginBtn" ng-click='login()'>Login</button>
+				</footer>
+			</form>
+		</div>
+	</div>
+	<div class='col-lg-4 col-md-4 col-sm-12 col-xs-12'></div>
+</div>
