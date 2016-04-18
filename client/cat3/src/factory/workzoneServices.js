@@ -36,7 +36,7 @@
                      env: list[3]
                      * */
                     var p = workzoneEnvironment.getEnvParams();
-                    return serviceInterface.getInstanceBluePrintOrchestration(p.org, p.bg,
+                    return serviceInterface.getInstanceBlueprintOrchestration(p.org, p.bg,
                             p.proj, p.env);
                 },
                 getTree: function () {
@@ -77,7 +77,7 @@
                     return $http.delete(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*blueprintCtrl*/
-                getInstanceBluePrintOrchestration: function (orgId, bgId,
+                getInstanceBlueprintOrchestration: function (orgId, bgId,
                         projId, envId) {
                     if (!orgId) {
 
@@ -98,11 +98,11 @@
                     var url = '/blueprints/' + blueprintID + '/blueprintInfo';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                deleteBluePrint: function (blueprintID) {
+                deleteBlueprint: function (blueprintID) {
                     var url = '/blueprints/' + blueprintID;
                     return $http.delete(fullUrl(url), Auth.getHeaderObject());
                 },
-                launchBluePrint: function (blueprintID, version, envId, stackName) {
+                launchBlueprint: function (blueprintID, version, envId, stackName) {
                     var url = '/blueprints/' + blueprintID + '/launch?version=' + version +
                             '&envId=' + envId + '&stackName=' + stackName;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());

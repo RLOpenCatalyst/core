@@ -47,7 +47,6 @@
 						};
 					}
 				}
-
 			});
 			modalInstance.result.then(function() {
 				$modalInstance.close();
@@ -117,10 +116,7 @@
 						}
 						/*Scope apply done to force refresh screen after receiving the AJAX response*/
 						$scope.$apply(function () {
-							 
 							$scope.allCBAttributes = $scope.allCBAttributes.concat(data);
-						
-
 							if (updatedList.length > 1) {
 								var tmp = [];
 								for (var i = 0; i < updatedList.length; i++) {
@@ -133,8 +129,7 @@
 								}
 								$scope.allCBAttributes = tmp;
 							}
-						
-					});
+						});
 					});
 				} else if(operationType ==='up' || operationType ==='down'){
 					$scope.$apply(function() {
@@ -161,29 +156,6 @@
 						}
 					}
 				}
-				/*var updatedList = arguments[1];
-				if (updatedList.length > 0) {
-					var data = [];
-					for (var i = 0; i < updatedList.length; i++) {
-						data.push(updatedList[i].value);
-					}
-					workzoneServices.getcookBookAttributes(data, chefServerID).then(function(response) {
-						var data;
-						if (response.data) {
-							data = response.data;
-						} else {
-							data = response;
-						}
-						
-						$scope.$apply(function() {
-							$scope.allCBAttributes = data;
-						});
-					});
-				} else {
-					$scope.$apply(function() {
-						$scope.allCBAttributes = [];
-					});
-				}*/
 			},
 		});
 	}]);

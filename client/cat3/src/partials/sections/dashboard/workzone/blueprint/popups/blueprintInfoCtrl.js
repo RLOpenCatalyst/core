@@ -8,7 +8,7 @@
 (function(){
 "use strict";
 angular.module('workzone.blueprint')
-	.controller('blueprintMoreInfoCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
+	.controller('blueprintInfoCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
 		console.log(items);
 		var blueprintName;
 		switch (items.templateType) {

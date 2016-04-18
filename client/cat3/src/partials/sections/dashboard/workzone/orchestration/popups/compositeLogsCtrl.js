@@ -63,7 +63,6 @@
 				}
 				compLogData.allTaskHistoryIds=responseHis.data.taskHistoryIds;
 			});
-
 		}
 		/** create option  */
 		compLogData.createOptions= function(taskId,historyId){
