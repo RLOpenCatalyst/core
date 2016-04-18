@@ -716,7 +716,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var blueprintType = req.body.blueprintData.blueprintType;
         var nexus = req.body.blueprintData.nexus;
         var docker = req.body.blueprintData.docker;
-
 		// a temp fix for invalid appurl data. will be removed in next iteration
 		var tempAppUrls = [];
 		if (!appUrls) {
@@ -793,6 +792,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -812,6 +812,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceImageName: req.body.blueprintData.instanceImageName
 
 				}
@@ -831,6 +832,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceImageName: req.body.blueprintData.instanceImageName
 
 				}
@@ -850,6 +852,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -864,6 +867,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}

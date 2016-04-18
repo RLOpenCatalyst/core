@@ -67,7 +67,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									orgId: providers[i].orgId,
 									__v: providers[i].__v,
 									keyPairs: keyPair,
-									isDefault: aProvider.isDefault
+									isDefault: providers[i].isDefault
 								};
 								providerList.push(dommyProvider);
 								logger.debug("count: ", count);

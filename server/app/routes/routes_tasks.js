@@ -443,7 +443,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
-
         Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
             if (err) {
                 logger.error(err);
