@@ -27,7 +27,6 @@
             function fullUrl(relUrl){
                 return baseAPIUrl + relUrl;
             }
-
             var serviceInterface = {
                 getCurrentSelectedEnvInstanceList: function () {
                     /*params format
@@ -382,6 +381,32 @@
                 postTasksDetails :function(tasksIds){
                     var URL='/tasks';
                     return $http.post(fullUrl(URL),{taskIds:tasksIds});
+                },
+                repositoryServerList:function () {
+                    var p = workzoneEnvironment.getEnvParams();
+                    var url = '/d4dMasters/organization/' + p.org + '/repositoryServer/list';
+                    return $http.get(fullUrl(url));
+                },
+                getJobTask: function () {
+                    var p = workzoneEnvironment.getEnvParams();
+                    var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +
+                        '/projects/' + p.proj + '/environments/' + p.env + '/tasks';
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
+                getNexusRepository:function(nexusId){
+                    var p = workzoneEnvironment.getEnvParams(),
+                        url = '/app/deploy/nexus/'+nexusId+'/project/' + p.proj + '/nexusRepositoryList';
+                    return $http.get(fullUrl(url));
+                },
+                getNexusArtifacts:function(requestData){
+                    var p = workzoneEnvironment.getEnvParams(),
+                        url = '/app/deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifactList';
+                    return $http.get(fullUrl(url));
+                },
+                getNexusVersions:function(requestData){
+                    var p = workzoneEnvironment.getEnvParams(),
+                        url = '/app/deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact/'+requestData.artifactId+'/versionList';
+                    return $http.get(fullUrl(url));
                 }
             };
             return serviceInterface;

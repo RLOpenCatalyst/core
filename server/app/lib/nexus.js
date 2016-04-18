@@ -99,9 +99,7 @@ var Nexus = function() {
                 client.registerMethod("jsonMethod", nexusUrl, "GET");
                 client.methods.jsonMethod(function(data, response) {
                     var json = parser.toJson(data);
-                    logger.debug("artifact data: ", json);
                     json = JSON.parse(json);
-                    logger.debug("Parsed json: ", JSON.stringify(json));
                     var artifactList = [];
                     if (json) {
                         var artifacts = json['search-results'].data.artifact;
@@ -115,7 +113,6 @@ var Nexus = function() {
                             }
                         }
                     }
-                    logger.debug("artifacts:::::  ", JSON.stringify(artifactList));
                     callback(null, artifactList);
                 });
             } else {

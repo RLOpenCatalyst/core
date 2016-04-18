@@ -167,7 +167,7 @@ CloudFormationSchema.statics.createNew = function(cfData, callback) {
 
 
 CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
-    if(jsonData.record_Limit) {
+    if(jsonData.pageSize) {
         var databaseReq = {};
         jsonData['searchColumns'] = ['stackName', 'status'];
         ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
