@@ -250,7 +250,7 @@ $imagePath : "/cat3/images";
 				}
 
 				.icon-ssh {
-					background: url("#{$imagePath}/sprites.png") no-repeat;
+					background: url("#{$imagePath}/global/sprites.png") no-repeat;
 					background-position: -206px -9px;
 					width: 34px;
 					height: 28px;
@@ -258,13 +258,13 @@ $imagePath : "/cat3/images";
 				}
 
 				.icon-ssh-disabled {
-					background: url("#{$imagePath}/ssh-disable.png") no-repeat;
+					background: url("#{$imagePath}/instance/ssh-disable.png") no-repeat;
 					width: 34px;
 					height: 28px;
 				}
 
 				.icon-rdp {
-					background: url("#{$imagePath}/rdp.png");
+					background: url("#{$imagePath}/instance/rdp.png");
 					width: 28px;
 					height: 28px;
 					margin: 0 13px;
@@ -327,7 +327,7 @@ $imagePath : "/cat3/images";
 	}
 
 	.moreinfoBuild, .moreinfoAppDeploy, .moreinfoactionHistory, .actionbuttonChefClientRun, .actionbuttonStart, .actionbuttonStartContainer, .actionbuttonCPStart, .actionbuttonShutdown, .actionbuttonShutdownContainer, .sshIcon, .aws, .azure, .rl, .openstack, .cloudstack, .dock, .logo {
-		background: url('#{$imagePath}/blueprint/sprites.png') no-repeat;
+		background: url('#{$imagePath}/global/sprites.png') no-repeat;
 	}
 
 	.fa-info-circle {
@@ -427,20 +427,20 @@ $imagePath : "/cat3/images";
 
 #cardView, #tableView {
 	.icon-chef {
-		background: url("#{$imagePath}/chef.png");
+		background: url("#{$imagePath}/instance/chef.png");
 		cursor: pointer;
 		width: 28px;
 		height: 28px;
 	}
 
 	.icon-chef-disabled {
-		background: url("#{$imagePath}/chef-disable.png");
+		background: url("#{$imagePath}/instance/chef-disable.png");
 		width: 28px;
 		height: 28px;
 	}
 
 	.icon-puppet {
-		background: url("#{$imagePath}/puppet.png");
+		background: url("#{$imagePath}/global/puppet.png");
 		cursor: pointer;
 		width: 28px;
 		height: 28px;
@@ -448,7 +448,7 @@ $imagePath : "/cat3/images";
 	}
 
 	.icon-puppet-disabled {
-		background: url("#{$imagePath}/puppet.png");
+		background: url("#{$imagePath}/global/puppet.png");
 		width: 28px;
 		height: 28px;
 		background-size: 28px 28px;
@@ -459,22 +459,22 @@ $imagePath : "/cat3/images";
 		background-position: -206px -9px;
 		width: 34px;
 		height: 28px;
-		background: url("#{$imagePath}/sprites.png") no-repeat -206px -9px;
+		background: url("#{$imagePath}/global/sprites.png") no-repeat -206px -9px;
 		background-repeat: no-repeat;
 		float: left;
 	}
 
 	.sshIcon {
 		background-position: -206px -9px;
-		background: url("#{$imagePath}/sprites.png") no-repeat -206px -9px;
+		background: url("#{$imagePath}/global/sprites.png") no-repeat -206px -9px;
 	}
 
 	.sshIcon-disabled {
-		background: url("#{$imagePath}/ssh-disable.png") no-repeat;
+		background: url("#{$imagePath}/instance/ssh-disable.png") no-repeat;
 	}
 
 	.rdpIcon {
-		background: url("#{$imagePath}/rdp.png");
+		background: url("#{$imagePath}/instance/rdp.png");
 		width: 34px;
 		height: 28px;
 		background-repeat: no-repeat;
@@ -502,31 +502,31 @@ $imagePath : "/cat3/images";
 		}
 
 		.instance-state-unknown {
-			background: url("#{$imagePath}/aws-inactive.png");
+			background: url("#{$imagePath}/instance-states/aws-inactive.png");
 		}
 
 		.instance-state-pending {
-			background: url("#{$imagePath}/aws-inactive.png");
+			background: url("#{$imagePath}/instance-states/aws-inactive.png");
 		}
 
 		.instance-state-paused {
-			background: url("#{$imagePath}/aws-paused.png");
+			background: url("#{$imagePath}/instance-states/aws-paused.png");
 		}
 
 		.instance-state-running {
-			background: url("#{$imagePath}/aws-started.png");
+			background: url("#{$imagePath}/instance-states/aws-started.png");
 		}
 
 		.instance-state-stopped {
-			background: url("#{$imagePath}/aws-stopped.png");
+			background: url("#{$imagePath}/instance-states/aws-stopped.png");
 		}
 
 		.instance-state-terminated {
-			background: url("#{$imagePath}/aws-stopped.png");
+			background: url("#{$imagePath}/instance-states/aws-stopped.png");
 		}
 
 		.instance-state-stopping {
-			background: url("#{$imagePath}/aws-paused.png");
+			background: url("#{$imagePath}/instance-states/aws-paused.png");
 		}
 
 		.instance-state-text-unknown {
@@ -572,7 +572,7 @@ $imagePath : "/cat3/images";
 		}
 
 		.shutdown {
-			background: url("#{$imagePath}/shutdown.png") no-repeat;
+			background: url("#{$imagePath}/instance/shutdown.png") no-repeat;
 			height: 25px;
 			width: 26px;
 			cursor: pointer;
@@ -581,7 +581,7 @@ $imagePath : "/cat3/images";
 		}
 
 		.icon-rdp-disabled {
-			background: url("#{$imagePath}/rdp-disable.png");
+			background: url("#{$imagePath}/instance/rdp-disable.png");
 			width: 28px;
 			height: 28px;
 			margin: 0 13px;
@@ -665,7 +665,7 @@ $imagePath : "/cat3/images";
 		}
 
 		.app-instance-image {
-			background: url("#{$imagePath}/cat-logo.png") no-repeat;
+			background: url("#{$imagePath}/global/cat-logo.png") no-repeat;
 			background-size: 25px 25px;
 			cursor: pointer;
 			margin: 20px 0 0 48px;
