@@ -104,7 +104,6 @@
                 $scope.instanceData = response.data.instances;
             });
 
-
             //modal to show the Docker Parameters Popup
             $scope.launchParam = function(launchObj, idx) {
                 var modalInstance = $modal.open({
@@ -132,7 +131,7 @@
                     var modalInstance = $modal.open({
                         animation: true,
                         templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instancelog.html',
-                        controller: 'instanceLogsCtrl',
+                        controller: 'dockerInstanceLogsCtrl',
                         backdrop: 'static',
                         keyboard: false,
                         resolve: {
@@ -170,6 +169,7 @@
             };
 
             $scope.submit = function() {
+                $scope.isLogsLoading = true;
                 var dockerImageParams = JSON.stringify($scope.dockerDetails);
                 var repopath = "null"; //by default set to null.(taken from 2.0);
                 var reqBody = {
@@ -177,6 +177,7 @@
                 };
                 workzoneServices.postLaunchDockerBlueprint($scope.instanceSelected._id, repopath, reqBody).then(function(response) {
                     var data = response.data;
+                    $scope.isLogsLoading = false;
                     /*If Response is ok the logs are shown and docker image is pulled*/
                     if (data == "OK") {
                         $scope.viewLogs($scope.instanceSelected);

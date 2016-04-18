@@ -81,7 +81,7 @@
 					if ($scope.dockerParams.volumes) {
 						dockerParameters += ' -v ' + $scope.dockerParams.volumes;
 					}
-					if ($scope.dockerParams.volumes) {
+					if ($scope.dockerParams.volumesFrom) {
 						dockerParameters += ' --volumes-from ' + $scope.dockerParams.volumesFrom;
 					}
 					if ($scope.dockerParams.link) {

@@ -7,7 +7,7 @@
 
 (function(angular) {
 	"use strict";
-	angular.module('workzone.blueprint', ['ngAnimate', 'ui.bootstrap', 'apis.workzone', 'ngMessages','workzone.instance'])
+	angular.module('workzone.blueprint', ['ngAnimate', 'ui.bootstrap', 'apis.workzone', 'ngMessages'])
 		.factory('formatData', [function() {
 			return {
 				getFormattedCollection: function(obj) {
