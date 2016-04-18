@@ -58,6 +58,8 @@ AppDeploySchema.statics.getAppDeploy = function(callback) {
             logger.debug("Got AppDeploy: ");
             callback(null, appDeploy);
         }
+        else
+            callback(null, []);
     });
 };
 
