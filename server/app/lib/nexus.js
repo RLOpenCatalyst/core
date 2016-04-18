@@ -142,7 +142,6 @@ var Nexus = function() {
                 client.registerMethod("jsonMethod", nexusUrl, "GET");
                 var reqSubmit = client.methods.jsonMethod(function(data, response) {
                     logger.debug("nexusUrl: ", nexusUrl);
-                    logger.debug("data: ", JSON.stringify(data));
                     callback(null, data);
                 });
             } else {

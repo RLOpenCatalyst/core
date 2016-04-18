@@ -78,23 +78,42 @@
 						}
 					})
 					.result.then(function(bpObj) {
-						$modal.open({
-							animate: true,
-							templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunch.html",
-							controller: "blueprintLaunchCtrl",
-							backdrop : 'static',
-							keyboard: false,
-							resolve: {
-								bpItem: function() {
-									return bpObj;
+						if (bpObj.bp.blueprintType == "docker") {
+							$modal.open({
+								animate: true,
+								templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/dockerLaunchParams.html",
+								controller: "dockerLaunchParamsCtrl",
+								backdrop: 'static',
+								keyboard: false,
+								resolve: {
+									items: function() {
+										return bpObj.bp;
+									}
 								}
-							}
-						})
-						.result.then(function(selectedItem) {
-							$scope.selected = selectedItem;
-						}, function() {
-						   
-						});
+							}).result.then(function(selectedItem) {
+								console.log('The modal close is not getting invoked currently. Goes to cancel handler');
+							}, function() {
+								console.log('Cancel Handler getting invoked');
+							});
+						}else{
+						$modal.open({
+								animate: true,
+								templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunch.html",
+								controller: "blueprintLaunchCtrl",
+								backdrop: 'static',
+								keyboard: false,
+								resolve: {
+									bpItem: function() {
+										return bpObj;
+									}
+								}
+							})
+							.result.then(function(selectedItem) {
+								$scope.selected = selectedItem;
+							}, function() {
+
+							});
+						}
 					}, function() {
 						
 					}); 
