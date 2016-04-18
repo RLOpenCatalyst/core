@@ -36,6 +36,10 @@ $imagePath : "../../../../../../cat3/images";
 	color: #333;
 }
 
+.errorMsg {
+    color: $color-red;
+}
+
 /*CSS for header,breadcrumb and tree starts*/
 #bdCrCont {
 	min-height: 40px; 
