@@ -33,7 +33,7 @@ angular.module('workzone.blueprint')
 			$scope.blueprintInfo = response.data;
 		},
 		function(error) {
-			$scope.BPInfoerrorMessage = error.statusText;
+			$scope.BPInfoerrorMessage = error.fields.errorMessage;
 		});
 
 		angular.extend($scope, {
