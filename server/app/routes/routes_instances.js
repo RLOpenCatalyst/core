@@ -3166,4 +3166,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
     });
+
+    // This is post call even though no data insertion bcoz request has to send array of instanceIds.
+    app.post('/instances/instanceIds/instanceList', function(req, res) {
+        instancesDao.getInstancesByIDs(req.body, function(err, instances) {
+            if (err) {
+                logger.error("Failed to fetch Instance  via Ids: ", err);
+                res.send(500);
+                return;
+            }
+            res.send(instances);
+        });
+
+    });
 };

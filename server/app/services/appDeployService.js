@@ -33,7 +33,7 @@ appDeployService.getNexusRepositoryList = function getNexusRepositoryList(nexusI
             callback(err,null);
             return;
         }
-        if(!repositories){
+        if(repositories.length === 0){
             logger.debug("There is no Nexus Server configured.");
             callback(null,[]);
             return;
@@ -47,7 +47,7 @@ appDeployService.getNexusRepositoryList = function getNexusRepositoryList(nexusI
                     callback(err,null);
                     return;
                 }
-                if (!aProject) {
+                if (aProject.length === 0) {
                     logger.debug("There is no Project configured.");
                     callback(null,[]);
                     return;
@@ -86,7 +86,7 @@ appDeployService.getNexusArtifactList=function getNexusArtifactList(nexusId,repo
             callback(err,null);
             return;
         }
-        if(!artifacts){
+        if(artifacts.length === 0){
             logger.debug("There is no Nexus Server Artifacts configured.");
             callback(null,[]);
             return;
@@ -127,7 +127,7 @@ appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectI
             callback(err, null);
             return;
         }
-        if (!aProject) {
+        if (aProject.length === 0) {
             logger.debug("There is no Project configured.");
             callback(null, []);
             return;
@@ -139,7 +139,7 @@ appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectI
                     callback(err, null);
                     return;
                 }
-                if (!appDeployVersions) {
+                if (appDeployVersions.length === 0) {
                     logger.debug("There is no App Deploy Versions configured.");
                     callback(null, []);
                     return;
@@ -158,7 +158,7 @@ appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectI
                                 callback(err, null);
                                 return;
                             }
-                            if (!appDeploys) {
+                            if (appDeploys.length === 0) {
                                 logger.debug("There is no App Deploy configured.");
                                 callback(null, []);
                                 return;
@@ -210,7 +210,7 @@ appDeployService.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp=function
             callback(err,null);
             return;
         }
-        if(!appDeployHistoryList){
+        if(appDeployHistoryList.length === 0){
             logger.debug("There is no App Deploy History via projectId,envName,appDeployVersion and nodeIp configured.");
             callback(null,[]);
             return;
@@ -227,7 +227,7 @@ appDeployService.getNexusArtifactVersionList=function getNexusArtifactVersionLis
             callback(err,null);
             return;
         }
-        if(!versions){
+        if(versions.length === 0){
             logger.debug("There is no Nexus Server Versions configured.");
             callback(null,[]);
             return;

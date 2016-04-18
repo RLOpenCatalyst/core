@@ -38,27 +38,16 @@ var AppDeployPipelineSchema = new Schema({
 // Save all appData informations.
 AppDeployPipelineSchema.statics.createNew = function(appDeployPipelineData, callback) {
     var aDeploy = new this(appDeployPipelineData);
-    this.find({
-        projectId: appDeployPipelineData.projectId
-    }, function(err, data) {
-        if (err) {
-            logger.debug("Error fetching record.", err);
-        } else {
-            aDeploy.save(function(err, appDeploy) {
+    aDeploy.save(function(err, appDeploy) {
                 if (err) {
                     logger.debug("Got error while creating AppDeploy: ", err);
                     callback(err, null);
                 }
-                if (appDeploy) {
-                    logger.debug("Creating AppDeploy: ", JSON.stringify(appDeploy));
-                    callback(null, appDeploy);
-                }
+                callback(null, appDeploy);
             });
-        }
-    });
 };
 // Get all AppDeploy informations.
-AppDeployPipelineSchema.statics.getAppDeployPipeline = function(projectId, callback) {
+AppDeployPipelineSchema.statics.getAppDeployPipelineByProjectId = function(projectId, callback) {
     this.find({
         "projectId": projectId
     }, function(err, appDeploy) {
@@ -66,17 +55,13 @@ AppDeployPipelineSchema.statics.getAppDeployPipeline = function(projectId, callb
             logger.debug("Got error while fetching AppDeploy: ", err);
             callback(err, null);
         }
-        if (appDeploy) {
-            logger.debug("Got AppDeploy: ", JSON.stringify(appDeploy));
-            callback(null, appDeploy);
-        }
+        callback(null, appDeploy);
     });
 };
 
 
 //Update AppDeploy Configure
 AppDeployPipelineSchema.statics.updateConfigurePipeline = function(projectId, appDeployPipelineUpdateData, callback) {
-
     this.update({
         "projectId": projectId
     }, {
@@ -85,13 +70,10 @@ AppDeployPipelineSchema.statics.updateConfigurePipeline = function(projectId, ap
         upsert: false
     }, function(err, appDeploy) {
         if (err) {
-            logger.debug("Got error while creating AppDeploy: ", err);
+            logger.debug("Got error while updating AppDeploy: ", err);
             callback(err, null);
         }
-        if (appDeploy) {
-            logger.debug("Updating AppDeploy: ", JSON.stringify(appDeploy));
-            callback(null, appDeploy);
-        }
+        callback(null, appDeploy);
     });
 };
 

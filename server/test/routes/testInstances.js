@@ -38,7 +38,7 @@ before(function(done){
 
 describe("Check UnmanagedInstances List for Perticular Providers ",function(){
 
-    it(" Unmanaged Instances List with Pagination ",function(done){
+  /*  it(" Unmanaged Instances List with Pagination ",function(done){
         server
             .get('/providers/56f1459ec9f075275f4ea9be/unmanagedInstances?page=1&pageSize=5')
             .end(function(err,res){
@@ -46,7 +46,43 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
                 assert.equal(res.body.length,5);
                 done();
             });
+    });*/
+
+
+   /* it(" Instance List for Promote ",function(done){
+        var reqBody =['56fa1a6d2a3efd26530203fb','57064bafd8d28d385d8c72b0','570ccd6f1a2e8485367d3884'];
+        server
+            .post('/instances/instanceIds/list')
+            .send(reqBody)
+            .end(function(err,res){
+                console.log(res.body);
+                assert.equal(res.status, 200);
+                done();
+            });
+    });*/
+
+    it(" Save and Update pipeline Data  ",function(done){
+        var reqBody = {
+            'appDeployPipelineData': {
+                'projectId': "b38ccedc-da2c-4e2c-a278-c66333564719",
+                'envSequence': ['Dev', 'Prod', 'QA', 'PreProd'],
+                'envId': ['Dev', 'QA', 'PreProd']
+            }
+        }
+            server
+            .post('/app/deploy/data/pipeline/configurePipeLine')
+            .send(reqBody)
+            .end(function(err,res){
+                console.log(res.body);
+                assert.equal(res.status, 200);
+                done();
+            });
     });
+
+
+
+
+
 
    /* it(" Search Unmanaged Instances List based on Status ",function(done){
         server

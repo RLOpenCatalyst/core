@@ -847,7 +847,7 @@
 /**
  * @api {get}/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
  * @apiName /app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
- * @apiGroup App Deploy Pipeline History List
+ * @apiGroup App Deploy Pipeline History List By Project, Environment,App Deploy Version and Last Updated Node IP
  *
  *
  * @apiParam {String} projectId      Unique Project Id
@@ -889,6 +889,142 @@
  *  "applicationStatus":"Successful",
  *  "projectId":"b38ccedc-da2c-4e2c-a278-c66333564719"
  *	}]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy PipeLine History Information'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy PipeLine History Information'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy PipeLine History Information'}
+ *     };
+ */
+
+/**
+ * @api {get}/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
+ * @apiName /app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
+ * @apiGroup App Deploy Pipeline History List By Project with Pagination,Search,Filter and Sort
+ *
+ *
+ * @apiParam {String} projectId      Unique Project Id
+ * @apiParam {Number} [page]         Current Page default is 1.
+ * @apiParam {Number} [pageSize]     Records per page default is 10.
+ * @apiParam {String} [search]       User is able to search for specific attribute. User can enter Environment Name or App Deploy Version for specific search.
+ * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by Environment Name.
+ * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
+ * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=envId:Dev,QA.
+ *
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ * {
+ *	"appDeploy": [{
+ *		"_id": "570b48fcf1f0f28388f4b072",
+ *		"applicationLastDeploy": "2016-03-30 05:28:34 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.03.106",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}, {
+ *		"_id": "570b48fdf1f0f28388f4b073",
+ *		"applicationLastDeploy": "2016-03-30 05:43:17 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.02.100",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}, {
+ *		"_id": "570b48fdf1f0f28388f4b075",
+ *		"applicationLastDeploy": "2015-03-31 11:17:25 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.02.100",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-25.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}, {
+ *		"_id": "570b48fef1f0f28388f4b078",
+ *		"applicationLastDeploy": "2016-03-30 05:28:34 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.03.106",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}, {
+ *		"_id": "570b48fef1f0f28388f4b079",
+ *		"applicationLastDeploy": "2016-03-30 05:43:17 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.02.100",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}],
+ *	"metaData": {
+ *		"totalRecords": 103,
+ *		"pageSize": 5,
+ *		"page": 1,
+ *		"totalPages": 21,
+ *		"sortBy": "envId",
+ *		"sortOrder": "desc"
+ *	}
+ * }
  *
  *
  *

@@ -1668,6 +1668,25 @@ var InstancesDao = function() {
         }
     };
 
+    this.getInstancesByIDs = function(instanceIds, callback) {
+        if (instanceIds.length) {
+            Instances.find({
+                "_id": {$in: instanceIds},
+            }, function (err, instances) {
+                if(err){
+                    logger.error("Failed getInstancesByIDs (%s)", instances, err);
+                    callback(err, null);
+                    return;
+                }
+                callback(null,instances);
+
+            })
+        }
+        else{
+            callback(null,[]);
+            return;
+        }
+    };
 };
 
 module.exports = new InstancesDao();
