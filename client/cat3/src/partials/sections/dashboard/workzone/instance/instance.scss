@@ -190,10 +190,10 @@ $imagePath : "../../../../../../images";
 	}	
 }
 
-@media (min-width : 321px) {
+@media (min-width : 481px) {
 	#instanceUpdateChefRunlistPage {
-		.radio-all, .radio-roles, .radio-deploy, .chef-factory {
-			width: 22%;
+		.radio-all, .radio-roles, .radio-cookbooks, .radio-templates, .chef-factory {
+			width: 18%;
 			float: left;
 		}
 
@@ -469,7 +469,9 @@ $imagePath : "../../../../../../images";
 	.control-margin {
 		margin-top: 15px;
 	}
+}
 
+#instanceImportByIpPage, #instanceSSHPage {
 	.importErrorMsg {
 		color: $color-red;
 		padding-top: 16px;
@@ -481,14 +483,6 @@ $imagePath : "../../../../../../images";
 }
 
 #instanceSSHPage {
-	.ssh-page-height {
-	 height:400px;
-	}
-
-	.sshSubmit {
-		margin-right: 10px;
-	}
-
 	.ssh-error-area {
 		margin-bottom: 4%;
 		padding-top: 60px;
@@ -505,7 +499,6 @@ $imagePath : "../../../../../../images";
 
 	#ssh-errorArea {
 		color:red;
-		margin-left:10px;
 	}
 }
 
