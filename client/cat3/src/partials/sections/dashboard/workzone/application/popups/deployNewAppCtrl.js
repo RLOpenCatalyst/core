@@ -44,7 +44,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingJob=false;
 				depNewApp.jobOptions = jobResult.data;
 			});
-		}
+		};
 		depNewApp.getRepository= function(){
 			if (depNewApp.newEnt.serverTypeInd){
 				depNewApp.newEnt.serverType = depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].configType;
@@ -63,12 +63,12 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingNexus = false;
 			});
 			depNewApp.clearChildField('serverType');
-		}
+		};
 		depNewApp.changeRepository = function(){
 			depNewApp.newEnt.repository = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].id;
 			depNewApp.newEnt.repositoryURL = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].resourceURI;
 			depNewApp.clearChildField('repository');
-		}
+		};
 		depNewApp.getArtifacts= function(){
 			$scope.isLoadingArtifacts = true;
 			depNewApp.requestData={
@@ -81,7 +81,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingArtifacts = false;
 			});
 			depNewApp.clearChildField('groupId');
-		}
+		};
 		depNewApp.getVersions= function(){
 			$scope.isLoadingNexusVersion = true;
 			depNewApp.newEnt.artifact = depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].artifactId;
@@ -91,10 +91,10 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingNexusVersion = false;
 			});
 			depNewApp.clearChildField('artifact');
-		}
+		};
 		depNewApp.createNewJob = function (){
-			$rootScope.$emit("createNewTask");
-		}
+			$rootScope.$emit("CREATE_NEW_JOB");
+		};
 		depNewApp.clearChildField = function (field) {
 			switch (field){
 				case 'serverType' :
@@ -125,7 +125,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					depNewApp.newEnt.version ='';
 					break;
 			}
-		}
+		};
 		depNewApp.submitDemoDeploy = function (){
 			depNewApp.deploymentData = {
 				appData :{
@@ -140,9 +140,9 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				}
 			}
 			console.log(depNewApp.deploymentData);
-		}
+		};
 		// call job api after creating new job .
-		$rootScope.$on("getAllJobs", function(){
+		$rootScope.$on("GET_ALL_TASK", function(){
 			depNewApp.getAllJobs();
 		});
 		depNewApp.init();

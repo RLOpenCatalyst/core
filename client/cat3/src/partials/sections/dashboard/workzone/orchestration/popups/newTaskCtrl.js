@@ -230,7 +230,7 @@
                                     items = reqBody.taskData.name;
                                     $rootScope.$emit('WZ_REFRESH_ENV');
                                     $modalInstance.close(items);
-                                    $rootScope.$emit("getAllJobs");
+                                    $rootScope.$emit("GET_ALL_TASK");
                                 });
                             }
                         },
