@@ -91,11 +91,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    app.post('/app/deploy/data/pipeline/configurePipeLine',saveAndUpdatePipeLineConfiguration);
+    app.post('/app/deploy/data/pipeline/save/configure',validate(appDeployValidator.post),saveAndUpdatePipeLineConfiguration);
+
+    app.put('/app/deploy/data/pipeline/update/configure',validate(appDeployValidator.post), saveAndUpdatePipeLineConfiguration);
 
     function saveAndUpdatePipeLineConfiguration(req, res, next) {
         var loggedInUser = req.session.user.cn;
-        var jsonReqData = req.body.appDeployPipelineData;
+        var jsonReqData = req.body;
         jsonReqData['loggedInUser']=loggedInUser;
         async.waterfall(
             [
@@ -115,6 +117,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 
+
     app.post('/app/deploy/data/pipeline/update/configure/project/:projectId', function(req, res) {
         AppDeployPipeline.updateConfigurePipeline(req.params.projectId, req.body.appDeployPipelineUpdateData, function(err, appDeployes) {
             if (err) {
@@ -127,4 +130,5 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
+
 };

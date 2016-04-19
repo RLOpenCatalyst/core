@@ -49,10 +49,25 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
     });*/
 
 
-    it(" Instance List for Promote ",function(done){
-        var reqBody =['56fa1a6d2a3efd26530203fb','57064bafd8d28d385d8c72b0'];
+  /*  it(" Instance List for Promote ",function(done){
         server
-            .post('/instances/instanceIds/instanceList')
+            .get('/instances/instanceList?instanceIds=56fa1a6d2a3efd26530203fb,57064bafd8d28d385d8c72b0')
+            .end(function(err,res){
+                console.log(res.body);
+                assert.equal(res.status, 200);
+                done();
+            });
+    });*/
+
+    it(" Save and Update pipeline Data  ",function(done){
+        var reqBody = {
+                projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
+                envSequence: ['Dev', 'Prod', 'QA', 'PreProd'],
+                envId: ['Dev', 'QA', 'PreProd']
+            };
+
+            server
+            .put('/app/deploy/data/pipeline/update/configure')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);
@@ -61,24 +76,6 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
             });
     });
 
-    /*it(" Save and Update pipeline Data  ",function(done){
-        var reqBody = {
-            'appDeployPipelineData': {
-                'projectId': "b38ccedc-da2c-4e2c-a278-c66333564719",
-                'envSequence': ['Dev', 'Prod', 'QA', 'PreProd'],
-                'envId': ['Dev', 'QA', 'PreProd']
-            }
-        }
-            server
-            .post('/app/deploy/data/pipeline/configurePipeLine')
-            .send(reqBody)
-            .end(function(err,res){
-                console.log(res.body);
-                assert.equal(res.status, 200);
-                done();
-            });
-    });
-*/
 
 
 

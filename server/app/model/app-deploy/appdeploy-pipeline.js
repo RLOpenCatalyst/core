@@ -26,13 +26,37 @@ var schemaValidator = require('_pr/model/utils/schema-validator');
 var Schema = mongoose.Schema;
 
 var AppDeployPipelineSchema = new Schema({
-    orgId: String,
-    bgId: String,
-    projectId: String,
-    envId: [String],
-    envSequence: [String],
-    loggedInUser: String,
-    isEnabled: Boolean
+    orgId: {
+        type: String,
+        trim: true
+    },
+    bgId: {
+        type: String,
+        trim: true
+    },
+    projectId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    envId: {
+        type: [String],
+        required: true,
+        trim: true
+    },
+    envSequence: {
+        type: [String],
+        required: true,
+        trim: true
+    },
+    loggedInUser: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    isEnabled: {
+        type: Boolean
+    }
 });
 
 // Save all appData informations.
