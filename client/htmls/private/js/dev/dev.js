@@ -4336,7 +4336,7 @@ function devCall() {
 			function showTaskLogsPC(history) {
 				var $ulHeaderArea = $('<ul class="nav nav-tabs bordered taskExecuteTabsHeader"></ul>');
 				var $contentArea = $('<div class="tab-content padding-10 taskExecuteTabsContent"></div>');
-
+                console.log('history ==>',history);
 				if (history.nodeIdsWithActionLog && history.nodeIdsWithActionLog.length) {
 					var ids = [];
 					for (var kk = 0; kk < history.nodeIdsWithActionLog.length; kk++) {
@@ -4405,7 +4405,7 @@ function devCall() {
 							//e.relatedTarget // previous active tab
 						}).first().click();
 					});
-				}
+				} 
 
 				var $template = $('<div role="content"><div class="widget-body"></div></div>');
 				$template.find('.widget-body').append($ulHeaderArea).append($contentArea);
@@ -4507,6 +4507,21 @@ function devCall() {
 						var $logArea = $tabContent.find('.taskLogArea');
 						console.log('innet fetch task ==>' + historyId);
 						$.get('/tasks/' + taskId + '/history/' + historyId, function(historyData) {
+							if(historyData.blueprintExecutionResults) {
+								var success = false;
+								for(var i=0;i<historyData.blueprintExecutionResults.length;i++) {
+									if(historyData.blueprintExecutionResults[i].status === 'success') {
+										success = true;
+									}
+								}
+								if(success) {
+									$logArea.append('Blueprints Launched Successfully');
+								} else {
+									$logArea.append('Unable to Launch Blueprints');
+								
+								}
+								return;
+							}
 
 							switch (historyData.taskType) {
 								case 'puppet':
