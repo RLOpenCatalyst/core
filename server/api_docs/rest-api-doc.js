@@ -999,12 +999,12 @@
      * @apiName GetDockerImageTags
      * @apiGroup Docker Image Tags
      *
-     * @apiParam {9507b2ef-4b4f-44dd-8aba-89efd41ad39f} rowid Docker unique ID.
-     * @apiParam {relevancelab} repository Docker Repo.
-     * @apiParam {catalystproductimage} image Docker Image.
+     * @apiParam {string} rowid Docker unique ID.
+     * @apiParam {string} repository Docker Repo.
+     * @apiParam {string} image Docker Image.
      *
-     * @apiSuccess {layer} layer some unique ID of docker image.
-     * @apiSuccess {name} name  version of the docker image.
+     * @apiSuccess {string} layer some unique ID of docker image.
+     * @apiSuccess {string} name  version of the docker image.
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -1211,7 +1211,7 @@
  	 * @apiParam {String} [version]  Mandatory version for App Data.
 
  	 * @apiParam {String} [taskId]  Mandatory taskId for Task.
- 	 * @apiParam {String} [nodeIds]  Mandatory nodeIds for Task.
+ 	 * @apiParam {[String]} [nodeIds]  Mandatory nodeIds for Task.
      *
      * @apiParamExample {json} Request-Example:
 	 *{
@@ -1289,7 +1289,7 @@
  	 * @apiParam {String} [version]  Mandatory version for App Data.
 
  	 * @apiParam {String} [taskId]  Mandatory taskId for Task.
- 	 * @apiParam {String} [nodeIds]  Mandatory nodeIds for Task.
+ 	 * @apiParam {[String]} [nodeIds]  Mandatory nodeIds for Task.
      *
      * @apiParamExample {json} Request-Example:
 	 *{
@@ -1342,9 +1342,9 @@
 
      //  Promote Application
 /**
-     * @api {put} /app/deploy/upgrade  Upgrade App
-     * @apiName UpgradeApp
-     * @apiGroup Upgrade App
+     * @api {put} /app/deploy/promote  Promote App
+     * @apiName PromoteApp
+     * @apiGroup Promote App
      *
  	 * @apiParam {String} [projectId]  Mandatory projectId for App Data.
  	 * @apiParam {String} [envName]  Mandatory envName for App Data.
@@ -1352,7 +1352,7 @@
  	 * @apiParam {String} [version]  Mandatory version for App Data.
 
  	 * @apiParam {String} [taskId]  Mandatory taskId for Task.
- 	 * @apiParam {String} [nodeIds]  Mandatory nodeIds for Task.
+ 	 * @apiParam {[String]} [nodeIds]  Mandatory nodeIds for Task.
      *
      * @apiParamExample {json} Request-Example:
 	 *{
