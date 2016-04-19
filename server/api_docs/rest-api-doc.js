@@ -919,8 +919,8 @@
  */
 
 /**
- * @api {get}/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
- * @apiName /app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
+ * @api {get}/app/deploy/project/:projectId/appDeployHistoryList
+ * @apiName /app/deploy/project/:projectId/appDeployHistoryList
  * @apiGroup App Deploy Pipeline History List By Project with Pagination,Search,Filter and Sort
  *
  *
@@ -1287,5 +1287,236 @@
  *      code:500,
  *      message:'Internal Server Error',
  *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'VersionList'}
+ *     };
+ */
+
+/**
+ * @api {get}/app/deploy/pipeline/project/:projectId
+ * @apiName /app/deploy/pipeline/project/:projectId
+ * @apiGroup App Deploy Project Information By ProjectId
+ *
+ *
+ * @apiParam {String} projectId      Unique Project Id
+
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	[{
+ *	"_id": "5714cd8f8bf7882c42968d4b",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"loggedInUser": "superadmin",
+ *	"__v": 0,
+ *	"envSequence": ["Dev", "Prod", "QA", "PreProd"],
+ *	"envId": ["Dev", "QA", "PreProd"]
+ *  }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'App Deploy Project Information'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'App Deploy Project Information'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'App Deploy Project Information'}
+ *     };
+ */
+
+
+/**
+ * @api {post}/app/deploy/data/pipeline/configurePipeLine
+ * @apiName /app/deploy/data/pipeline/configurePipeLine
+ * @apiGroup Save and Update App Deploy Pipeline Configuration
+ *
+ *
+ * @apiParam {String} [orgId]      Optional Organization Id.
+ * @apiParam {String} [bgId]       Optional Business Group Id.
+ * @apiParam {String} projectId    Mandatory Project Id.
+ * @apiParam {JSONArray} envId     Mandatory List of Environments.
+ * @apiParam {JSONArray} envSequence     Mandatory List of Environments Sequence.
+ * @apiParam {String} loggedInUser Mandatory Login User Name.
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	[{
+ *	"_id": "5714cd8f8bf7882c42968d4b",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"loggedInUser": "superadmin",
+ *	"envSequence": ["Dev", "Prod", "QA", "PreProd"],
+ *	"envId": ["Dev", "QA", "PreProd"],
+ *  "__v": 0
+ *  }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ */
+
+
+/**
+ * @api {post}/instances/instanceIds/instanceList
+ * @apiName /instances/instanceIds/instanceList
+ * @apiGroup Instance List based on array of Instance IDs
+ *
+ * @apiParam {JSONArray} instanceIds     List of Instance IDs.
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	[{
+ *	"_id": "5710cf1f527af1d0132e9d1d",
+ *	"name": "52.53.223.219",
+ *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"envId": "df87280c-ef3d-4e45-ac23-fcb77c845409",
+ *	"instanceIP": "52.53.223.219",
+ *	"instanceState": "running",
+ *	"bootStrapStatus": "success",
+ *	"taskIds": [],
+ *	"chefClientExecutionIds": [],
+ *	"actionLogs": [{
+ *		"_id": "5710cf1f527af1d0132e9d1e",
+ *		"actionData": {
+ *			"runlist": []
+ *		},
+ *		"timeStarted": 1460719391658,
+ *		"user": "superadmin",
+ *		"success": true,
+ *		"completed": true,
+ *		"name": "Bootstrap",
+ *		"type": 1,
+ *		"timeEnded": 1460719405910
+ *	}, {
+ *		"_id": "5710cf50527af1d0132e9d3e",
+ *		"actionData": {
+ *			"runlist": [
+ *				"recipe[docker_rl]"
+ *			]
+ *		},
+ *		"timeStarted": 1460719440694,
+ *		"user": "superadmin",
+ *		"success": true,
+ *		"completed": true,
+ *		"name": "Chef-Client-Run",
+ *		"type": 2,
+ *		"timeEnded": 1460719505198
+ *	}],
+ *	"serviceIds": [],
+ *	"blueprintData": {
+ *		"blueprintName": "52.53.223.219",
+ *		"templateId": "chef_import",
+ *		"iconPath": "../private/img/templateicons/chef_import.png",
+ *		"templateComponents": []
+ *	},
+ *	"credentials": {
+ *		"username": "ubuntu",
+ *		"pemFileLocation": "/home/rle0333/rlCatalyst/core/server/catdata/catalyst/instance-pemfiles/07fee0c8-f725-4eb7-9b11-07b8fe7d8a2f"
+ *	},
+ *	"software": [],
+ *	"chef": {
+ *		"serverId": "ef074bc9-d61c-4d3a-8038-17878422f965",
+ *		"chefNodeName": "52.53.223.219"
+ *	},
+ *	"hardware": {
+ *		"platform": "ubuntu",
+ *		"platformVersion": "14.04",
+ *		"architecture": "x86_64",
+ *		"memory": {
+ *			"total": "4046872kB",
+ *			"free": "3440100kB"
+ *		},
+ *		"os": "linux"
+ *	},
+ *	"users": [
+ *		"superadmin"
+ *	],
+ *	"appUrls": [],
+ *	"attributes": [],
+ *	"runlist": [
+ *		"recipe[docker_rl]"
+ *	],
+ *	"__v": 0,
+ *	"docker": {
+ *		"dockerEngineStatus": "success",
+ *		"dockerEngineUrl": ""
+ *	}
+ * }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Instance List'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Instance List'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Instance List'}
  *     };
  */

@@ -26,7 +26,7 @@ const errorType = 'appDeployPipeline';
 var appDeployPipelineService = module.exports = {};
 
 appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(projectId,callback){
-    AppDeployPipeline.getAppDeployPipelineByProjectId(req.params.projectId, function(err, appDeployProject) {
+    AppDeployPipeline.getAppDeployPipelineByProjectId(projectId, function(err, appDeployProject) {
         if (err) {
             logger.debug("Error while fetching Project via projectId in App Deploy");
             callback(err,null);
@@ -38,7 +38,7 @@ appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(pr
         }
         else
         {
-            masterUtil.getParticularProject(req.params.projectId,function(err,aProject){
+            masterUtil.getParticularProject(projectId,function(err,aProject){
                 if (err) {
                     logger.debug("Error while fetching Project via projectId in Master Util");
                     callback(err,null);

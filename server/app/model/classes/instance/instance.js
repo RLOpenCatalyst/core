@@ -1674,7 +1674,7 @@ var InstancesDao = function() {
                 "_id": {$in: instanceIds},
             }, function (err, instances) {
                 if(err){
-                    logger.error("Failed getInstancesByIDs (%s)", instances, err);
+                    logger.error("Failed getInstancesByIDs "+err);
                     callback(err, null);
                     return;
                 }

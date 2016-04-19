@@ -49,19 +49,19 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
     });*/
 
 
-   /* it(" Instance List for Promote ",function(done){
-        var reqBody =['56fa1a6d2a3efd26530203fb','57064bafd8d28d385d8c72b0','570ccd6f1a2e8485367d3884'];
+    it(" Instance List for Promote ",function(done){
+        var reqBody =['56fa1a6d2a3efd26530203fb','57064bafd8d28d385d8c72b0'];
         server
-            .post('/instances/instanceIds/list')
+            .post('/instances/instanceIds/instanceList')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);
                 assert.equal(res.status, 200);
                 done();
             });
-    });*/
+    });
 
-    it(" Save and Update pipeline Data  ",function(done){
+    /*it(" Save and Update pipeline Data  ",function(done){
         var reqBody = {
             'appDeployPipelineData': {
                 'projectId': "b38ccedc-da2c-4e2c-a278-c66333564719",
@@ -78,7 +78,7 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
                 done();
             });
     });
-
+*/
 
 
 
