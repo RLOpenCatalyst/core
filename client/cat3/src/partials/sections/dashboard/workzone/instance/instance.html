@@ -38,6 +38,7 @@
 						<div class="card-title-osIcon" title="centos"><img src="images/osIcons/centos.png"/ ng-show="inst.hardware.platform==='centos'">
 						</div>
 						<hr/>
+					</div>
 					<div class="card-status-state">
 					<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
 							<i class="fa fa-info-circle card-circle-info cursor" title="More Info" ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
@@ -156,11 +157,14 @@
 					</div>
 				</div>
 			</div>
-		</div>
+			<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="maxSize" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationChange()" style="bottom:0px;position:fixed;float:left"></pagination>
 		</section>
 
 		<section id="tableView" class="scrollContent" ng-show="!isCardViewActive">
-			<table datatable="" class="table-bordered text-center instance-table">
+			<div id="grid2" ng-if="tabData.length >0"  ui-grid="instancesGridOptions" ui-grid-pagination  class="grid" style="height: {{gridHeight}}px"></div>
+			<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>
+			<div ng-show="!isinstancesTableLoading && gridOptions.data.length > 0" ui-grid="gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid" style="height: {{gridHeight}}px"></div> -->
+			<!-- <table datatable="" class="table-bordered text-center instance-table">
 				<thead>
 					<tr class="rowCustomStyle" role="row">
 						<td tabindex="0" aria-controls="tableOrchestration" rowspan="1" colspan="1" aria-label="App Name" aria-sort="descending">Logo</td>
@@ -176,8 +180,8 @@
 				<tbody>
 					<tr ng-repeat="inst in instanceList" id="{{app._id}}">
 						<td>
-						<img src="/cat3/images/global/chef-import.png" ng-show="inst.chef"/>
-						<img src="/cat3/images/global/chef-import.png" ng-show="inst.puppet"/>
+						<img src="/cat3/images/roles/chef-import.png" ng-show="inst.chef"/>
+						<img src="/cat3/images/roles/chef-import.png" ng-show="inst.puppet"/>
 						</td>
 						<td>
 							<span>{{inst.name}}</span>
@@ -221,7 +225,7 @@
 									</button>
 									<ul class="dropdown-menu">
 										<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
-										&& inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
+								  		&& inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
 											<span>
 												<i class="fa fa-pause dropdown-icon"></i>
 												Start Instance
@@ -289,12 +293,12 @@
 											<li class="cursor" ng-repeat="taskDetail in inst.taskDetails">{{taskDetail.name}}</li>
 										</ul>
 									</ul>
-								</div>
+							  	</div>
 							</div>
 						</td>
 					</tr>
 				</tbody>
-			</table>
+			</table> -->
 		</section>
 	</div>
 </div>

@@ -55,8 +55,144 @@
 		};
 		$scope.perms = _permSet;
 
+
+		$scope.isInstancePageLoading = true;
+		var gridBottomSpace = 60;
+		$scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage')-gridBottomSpace;
+		
+		
+	   	
+
+
+		$scope.paginationParams={
+			pages:{
+				page:1,
+				pageSize:1
+			},
+			sort:{
+				field:'name',
+				direction:'desc'
+			}
+		};
+		// $scope.totalItems = 2;
+		$scope.currentCardPage = $scope.paginationParams.pages.page;
+	   	$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
+	   	$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
+	   	$scope.totalCards = 0;
+
+		$scope.tabData = [];
+		$scope.instancesGridOptions={
+				paginationPageSizes: [1,2,3],
+				paginationPageSize: $scope.paginationParams.pages.pageSize,
+				paginationCurrentPage:$scope.paginationParams.pages.page,
+				enableColumnMenus:false,
+				enableScrollbars :true,
+				enableHorizontalScrollbar: 0,
+				enableVerticalScrollbar: 1,
+				useExternalPagination: true,
+				useExternalSorting: true
+			};
+		$scope.initGrids = function(){
+			
+			$scope.instancesGridOptions.data='tabData';
+			$scope.instancesGridOptions.columnDefs = [
+				{ name:'Logo', cellTemplate:'<img src="/cat3/images/roles/chef-import.png" ng-show="row.entity.chef"/>'
+				+'<img src="/cat3/images/roles/chef-import.png" ng-show="row.entity.puppet"/>', cellTooltip: true},
+				{ name:'Name', cellTemplate:'<span>{{row.entity.name}}</span>'
+				+'<span ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'
+				+'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'
+				+'</span>', cellTooltip: true},
+				{ name:'Ip Address', field:'instanceIP',cellTooltip: true},
+				{ name:'RunLists', cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
+				{ name:'Status', cellTemplate:'<div style="width:100%;height:100%;text-align:center;margin:auto"><div class="status-state {{grid.appScope.getAWSStatusImage(row.entity.instanceState)}}"></div>', cellTooltip: true},
+				{ name:'Log Info', cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
+				{ name:'Chef Run', cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'
+				+'<div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>'
+				+'<div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>'
+				+'<div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled">'
+				+'</div>', cellTooltip: true}
+				
+			];
+					
+		};
+		$scope.instancesGridOptions.onRegisterApi= function(gridApi) {
+			$scope.gridApi = gridApi;
+
+			  //Sorting for sortBy and sortOrder
+		      gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+		      	$scope.paginationParams.sort={
+		      		field:sortColumns[0].field,
+		      		direction: sortColumns[0].sort.direction
+		      	};
+		      	$scope.instancesListCardView();
+				/*workzoneServices.getAllInstancesList($scope.requestParams,$scope.paginationParams).then(function(result){
+					$timeout(function(){
+						$scope.instancesGridOptions.totalItems = result.data.metaData.totalRecords;
+						$scope.tabData = result.data.instances;
+					}, 100);
+				});*/
+		      	/*workzoneServices.getAllTaskList().then(function(result){
+					$scope.instancesGridOptions.data=result.data;
+				});*/
+		      });
+
+		      //Pagination for page and pageSize
+		      gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
+		      	$scope.paginationParams.pages={
+		      		page:newPage,
+		      		pageSize:pageSize
+	      		};
+	      		$scope.currentCardPage = newPage;
+	      		$scope.cardsPerPage = pageSize;
+	      		
+	      		$scope.instancesListCardView();
+	      		/*workzoneServices.getAllInstancesList($scope.requestParams,$scope.paginationParams).then(function(result){
+					$timeout(function(){
+						$scope.instancesGridOptions.totalItems = result.data.metaData.totalRecords;
+						$scope.tabData = result.data.instances;
+					}, 100);
+				});*/
+	      		/*workzoneServices.getAllTaskList().then(function(result){
+					$scope.instancesGridOptions.data=result.data;
+				});*/
+		      });
+		};
+		$scope.cardPaginationChange = function() {
+	   		$scope.paginationParams.pages={
+	      		page:$scope.currentCardPage,
+	      		pageSize:$scope.cardsPerPage
+      		};
+      		$scope.instancesGridOptions.paginationCurrentPage = $scope.currentCardPage;
+	    	$scope.instancesListCardView();
+	   	}
 		//variables used in rendering of the cards and table && checking ssh
 		angular.extend($scope, {
+			instancesListCardView :function(){
+				$scope.isInstancePageLoading = true;
+					
+				//$scope.tabData = [];				
+				$scope.instanceList = [];
+				// service
+				workzoneServices.getAllInstancesList($scope.requestParams,$scope.paginationParams).then(function(result){
+					
+
+					//$scope.instancesGridOptions.data = result.data.instances;
+					$timeout(function(){
+						console.log('setting total to' + result.data.metaData.totalRecords);
+						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
+						$scope.tabData = $scope.instanceList = result.data.instances;
+
+						$scope.isInstancePageLoading = false;
+						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pages.pageSize);
+					}, 100);
+						
+					
+				});
+				
+			},
+			getAWSStatusImage : function(instanceStatus){
+				$scope.getAWSStatus(instanceStatus, 'image');
+			},
 			getAWSStatus: function(instanceStatus,type) {
 				var colorSuffix = '';
 				var instanceStateImagePrefix='instance-state-';
@@ -236,16 +372,45 @@
 				return classPrefixConstant4 + applyClass;
 			}
 		});*/
-		$rootScope.$on('WZ_ENV_CHANGE_START', function(){
-			$scope.isInstancePageLoading = true;
-			$scope.instanceList = [];
+		$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
+			 $scope.instancesGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = 1;
+			$scope.requestParams=requestParams;
+			$scope.initGrids();
+			$scope.instancesListCardView();
+			
 		});
-		$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
+		workzoneUIUtils.makeTabScrollable('instancePage');
+		$rootScope.$on('WZ_TAB_VISIT', function(event, tabName){
+			if(tabName == 'Instances'){
+				//$scope.initGrids();
+				//$scope.gridApi.core.refresh();
+				//$scope.gridHeight = $scope.gridHeight - 1;
+				//$scope.instancesListCardView();
+				 $scope.isInstancePageLoading = true;
+				 var tableData = $scope.tabData;
+				$scope.tabData = [];
+				 $timeout(function(){
+				 	$scope.tabData = tableData;
+				 	$scope.isInstancePageLoading = false;
+				 }, 500);
+			}
+		});	
+		/*$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
 			$scope.isInstancePageLoading = false;
-			completeData = helper.attachListOfTaskWithInstance(data);
-			$scope.instanceList = completeData.instances;
+			//console.log('Araaaaaaaaaaa',requestParams);
+			$scope.requestParams=requestParams;
+			$scope.gridSettings(requestParams);
+			//$scope.instancesCardList(requestParams);
+			$scope.instances = [];
+			$scope.requestParams=requestParams;
+			$scope.initGrids();
+			$scope.instancesListCardView();
+			//$scope.instances = [];
+
+			//completeData = helper.attachListOfTaskWithInstance(data);
+			//$scope.instanceList = completeData.instances;
 			workzoneUIUtils.makeTabScrollable('instancePage');
-		});
+		});*/
 
 		$scope.instanceImportByIP = function() {
 			var whetherConfigListAvailable = workzoneServices.getCheckIfConfigListAvailable();
@@ -292,6 +457,13 @@
 			$scope.isCardViewActive = false;
 			$scope.instanceTableViewSelection = "selectedView";
 			$scope.instanceCardViewSelection = "";
+			//$scope.instancesListCardView();
+			var tableData = $scope.tabData;
+			$scope.tabData = [];
+			$timeout(function(){
+				$scope.tabData = tableData;
+			}, 500);
+
 		};
 
 		$scope.instanceControlPanel = function(instanceObj) {

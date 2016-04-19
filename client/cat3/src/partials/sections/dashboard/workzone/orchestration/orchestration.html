@@ -15,8 +15,17 @@
 				</button>
 			</span>
 		</div>
-		<div class="scrollContent">
-			<table datatable="" class="table-bordered text-center">
+		
+			<!-- <loading size="large" name="isOrchestrationTableLoading" type="block"></loading>
+			<div id="gridOrchestration" ng-show="!isOrchestrationTableLoading && gridOptions.data.length > 0" ui-grid="gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid" style="height: {{gridHeight}}px"></div> -->
+
+
+			<div class="scrollContent">
+			<div id="grid1" ng-if="tabData.length >0"  ui-grid="orcheGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
+
+
+
+			<!-- <table datatable="" class="table-bordered text-center">
 				<thead>
 					<tr class="rowCustomStyle" role="row">
 						<td class="sorting_desc" tabindex="0" aria-controls="tableOrchestration" rowspan="1" colspan="1" aria-label="Job Type: activate to sort column ascending" aria-sort="descending">Job Type</td>
@@ -36,7 +45,7 @@
 							<img src="images/orchestration/jenkins.png" ng-show="task.taskType=='jenkins'" alt="{{task.taskType}}" class="jenkins-img" />
 							<img src="images/orchestration/chef.png" ng-show="task.taskType=='chef'" alt="{{task.taskType}}" class="jenkins-img" />
 							<img src="images/orchestration/composite.jpg" ng-show="task.taskType=='composite'" alt="{{task.taskType}}" class="jenkins-img" />
-							<img src="images/global/puppet.png" ng-show="task.taskType=='puppet' " alt="{{task.taskType}}" class="jenkins-img">
+							<img src="images/orchestration/puppet.png" ng-show="task.taskType=='puppet' " alt="{{task.taskType}}" class="jenkins-img">
 						</td>
 						<td>{{task.name}}</td>
 						<td>{{task.description}}</td>
@@ -62,12 +71,12 @@
 						</td>
 						<td>{{:: task.lastRunTimestamp | timestampToCurrentTime}}</td>
 						<td width="110px">
-							<span title="Edit" class="fa fa-pencil btn cat-btn-update pull-left tableactionbutton btnEditTask btn-sg white" ng-click="createNewTask(task)" ng-show="perms.editTask;"></span>
+							<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white" ng-click="createNewTask(task)" ng-show="perms.editTask;"></span>
 							<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white" ng-click="deleteTask(task)" ng-show="perms.deleteTask;"></span>
 						</td>
 					</tr>
 				</tbody>
-			</table>
+			</table> -->
 		</div>
 	</div>
 </div>

@@ -13,17 +13,75 @@
 				stackEventsPollerTime: 200
 			};
 		}])
-		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', 'workzoneUIUtils', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, workzoneUIUtils) {
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(){
+		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', '$timeout', 'workzoneUIUtils', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, $timeout, workzoneUIUtils) {
+			
+			$scope.paginationParams = {
+				pages: {
+					page: 1,
+					pageSize: 1
+				}
+			};
+			// $scope.totalItems = 2;
+			$scope.currentCardPage = $scope.paginationParams.pages.page;
+			$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
+			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
+			$scope.totalCards = 0;
+
+			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isCloudFormationPageLoading = true;
-				$scope.stacks = [];
+				//$scope.stacks = [];
+				$scope.requestParams=requestParams;
+				$scope.cftListCardView();
 			});
-			$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
+			$rootScope.$on('WZ_TAB_VISIT', function(event, tabName){
+				if(tabName == 'CloudFormation'){
+					//$scope.initGrids();
+					//$scope.gridApi.core.refresh();
+					//$scope.gridHeight = $scope.gridHeight - 1;
+					//$scope.instancesListCardView();
+					 $scope.isCloudFormationPageLoading = true;
+					 var tableData = $scope.tabData;
+					$scope.tabData = [];
+					 $timeout(function(){
+					 	$scope.tabData = tableData;
+					 	$scope.isCloudFormationPageLoading = false;
+					 }, 500);
+				}
+			});
+			/*$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
 				$scope.isCloudFormationPageLoading = false;
 				$scope.stacks = data.stacks;
                 workzoneUIUtils.makeTabScrollable('cloudFormationPage');
-			});
+			});*/
+			$scope.cardPaginationCftChange = function() {
+				$scope.paginationParams.pages = {
+					page: $scope.currentCardPage,
+					pageSize: $scope.cardsPerPage
+				};
+				//$scope.instancesGridOptions.paginationCurrentPage = $scope.currentCardPage;
+				$scope.cftListCardView();
+			}
 			angular.extend($scope, {
+				cftListCardView: function() {
+					$scope.isCloudFormationPageLoading = true;
+
+					//$scope.tabData = [];
+					$scope.stacks = [];
+					// service
+					workzoneServices.getAllCftList($scope.requestParams, $scope.paginationParams).then(function(result) {
+
+
+						//$scope.instancesGridOptions.data = result.data.instances;
+						$timeout(function() {
+							console.log('setting total to' + result.data.metaData.totalRecords);
+							$scope.totalCards = result.data.metaData.totalRecords;
+							$scope.tabData = $scope.stacks = result.data.cftList;
+
+							$scope.isCloudFormationPageLoading = false;
+							$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
+						}, 100);
+					});
+				},
 				getStackStateColor: function(stackState) {
 					var colorRepresentationClass = '';
 					switch (stackState) {
