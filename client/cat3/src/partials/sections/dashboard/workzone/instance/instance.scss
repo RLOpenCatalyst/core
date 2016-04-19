@@ -645,7 +645,7 @@ $imagePath : "../../../../../../images";
 		padding-top:4px; 
 		display:inline-block; 
 		cursor:pointer; 
-		margin-top:5px;
+		margin: 5px 5px 0 0;
 	}
 
 	.greenBg {   
@@ -656,7 +656,7 @@ $imagePath : "../../../../../../images";
 		background: $color-yellow; 
 	}
 
-	.redBg {   
+	.redBg, .frontKill {   
 		background: $color-red;
 	}
 }
