@@ -85,6 +85,7 @@
 								controller: "dockerLaunchParamsCtrl",
 								backdrop: 'static',
 								keyboard: false,
+								size: 'lg',
 								resolve: {
 									items: function() {
 										return bpObj.bp;
