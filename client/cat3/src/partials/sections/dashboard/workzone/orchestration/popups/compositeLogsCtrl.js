@@ -7,7 +7,9 @@
 
 (function(){
 	"use strict";
-	angular.module('workzone.orchestration').controller('compositeLogsCtrl',['$scope','workzoneServices','$interval','orchestrationSetting','$timeout',function($scope, workzoneServices, $interval, orchestrationSetting, $timeout){
+	angular.module('workzone.orchestration')
+	.controller('compositeLogsCtrl',['$scope','workzoneServices','$interval','orchestrationSetting','$timeout',function($scope, workzoneServices, $interval, orchestrationSetting, $timeout){
+		$scope.isTaskListLoading = true;
 		var compLogData ={
 			allTaskList:[],
 			selectBoxOption:[],
@@ -25,7 +27,7 @@
 		var items=$scope.parentItemDetail;
 		compLogData.init=function(){
 			compLogData.pullHistoryDetails();
-		}
+		};
 		/** Task Name
 		 * call inside the task list
 		 * pass params:  object of tasksId
@@ -33,20 +35,20 @@
 		compLogData.pullTaskDetailsWTList = function(taskIdOBJ){
 			workzoneServices.postTasksDetails(taskIdOBJ).then(function(allTaskDetails) {
 				compLogData.allTaskList=angular.extend(compLogData.allTaskList,allTaskDetails.data);
-				angular.forEach(allTaskDetails.data,function(value,key){
+				angular.forEach(allTaskDetails.data,function(value){
 					compLogData.assignedTaskIds.push(value._id);
 				});
 
 				if (compLogData.allTaskHistoryIds.length  < compLogData.assignedTask.assignedTaskIds.length) {
 					compLogData.taskHistoryIds();
 				} else {
-					angular.forEach(compLogData.allTaskHistoryIds,function(valueHis,keyHis){
+					angular.forEach(compLogData.allTaskHistoryIds,function(valueHis){
 						compLogData.createOptions(valueHis.taskId,valueHis.historyId);
 					});
 
 				}
 			});
-		}
+		};
 
 		/**init function
 		 *  fetch all task id and history id .
@@ -55,23 +57,23 @@
 		compLogData.pullHistoryDetails=function() {
 			workzoneServices.getTaskHistoryItem(items.taskId ,items.historyId).then(function (responseHis) {
 				compLogData.assignedTask=responseHis.data;
-				var assTaskIdsArgument=compLogData.assignedTask.assignedTaskIds.filter(function(x) { return compLogData.assignedTaskIds.indexOf(x) < 0 });
+				var assTaskIdsArgument=compLogData.assignedTask.assignedTaskIds.filter(function(x) { return compLogData.assignedTaskIds.indexOf(x) < 0; });
 				if(assTaskIdsArgument.length >0 ){
 					compLogData.pullTaskDetailsWTList(assTaskIdsArgument);
 				}
 				compLogData.allTaskHistoryIds=responseHis.data.taskHistoryIds;
 			});
-
-		}
+		};
 		/** create option  */
 		compLogData.createOptions= function(taskId,historyId){
-			angular.forEach(compLogData.allTaskList,function(value,key){
-				if(value._id == taskId){
+			angular.forEach(compLogData.allTaskList,function(value){
+				if(value._id === taskId){
 					value=angular.extend(value,{historyId:historyId});
 					compLogData.selectBoxOption.push(value);
+					$scope.isTaskListLoading = false;
 				}
 			});
-		}
+		};
 		/** Get taskHistoryIds
 		 * interval */
 		compLogData.taskHistoryIds=function (){
@@ -89,7 +91,7 @@
 					compLogData.taskHistoryIds();
 				}
 			});},3000);
-		}
+		};
 		/** after select task
 		 * pass params : task object index.
 		 */
@@ -108,7 +110,7 @@
 			} else {
 				$timeout(function(){compLogData.onchangeCompTask(index);},2000);
 			}
-		}
+		};
 		compLogData.init();
 		return compLogData;
 	}]);

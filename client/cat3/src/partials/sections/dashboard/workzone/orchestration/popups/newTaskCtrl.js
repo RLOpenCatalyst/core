@@ -90,7 +90,7 @@
                                 return arrayUtil.isValueAvailable(items.taskConfig.nodeIds, id);
                             }
                         },
-                        addJenkinsParams: function (type) {
+                        addJenkinsParams: function () {
                             $modal.open({
                                 templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addJenkinsParams.html',
                                 controller: 'addJenkinsParamsCtrl',

@@ -69,16 +69,15 @@
 						//removed the error helper method as it was failing. Need to test this part again.
 					});
 				}, 10000);
-			}
-
+			};
 
 			$scope.$on('$destroy', function() {
 				$interval.cancel($scope.timerObject);
 			});
 			// broadcast the cancel function to the parent controller
-			$scope.$on('closeWindow', function(e) {
+			$scope.$on('closeWindow', function() {
 				$scope.$parent.close = $scope.cancel();
-			})
+			});
 		}]);
 
 })();

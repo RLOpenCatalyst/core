@@ -36,6 +36,10 @@ $imagePath : "../../../../../../cat3/images";
 	color: #333;
 }
 
+.errorMsg {
+    color: $color-red;
+}
+
 /*CSS for header,breadcrumb and tree starts*/
 #bdCrCont {
 	min-height: 40px; 
@@ -250,7 +254,7 @@ option.composite {
 }
 
 option.puppet {
-	background: url("#{$imagePath}/orchestration/puppet.png");
+	background: url("#{$imagePath}/global/puppet.png");
 }
 /*CSS for Composite Component ends*/
 
@@ -328,7 +332,7 @@ option.puppet {
 }
 
 .cookbook, .deploy {
-	background: url("#{$imagePath}/cookbook.png") no-repeat;
+	background: url("#{$imagePath}/global/cookbook.png") no-repeat;
 	background-repeat: no-repeat;
 	height: 24px;
 	padding-left: 36px;
@@ -338,13 +342,20 @@ option.puppet {
 }
 
 .role, .template {
-	background: url("#{$imagePath}/recipe.png") no-repeat;
 	background-repeat: no-repeat;
 	height: 24px;
 	padding-left: 34px;
 	padding-top: 6px;
-	background-position: 4px 2px;
+	background-position: 4px 2px !important;
 	font-size: 12px; 
+}
+
+.role {
+	background: url("#{$imagePath}/global/recipe.png") no-repeat;
+}
+
+.template {
+	background: url("#{$imagePath}/global/template.png") no-repeat;
 }
 
 .anchorAddi, .anchorRemovei, .anchorUpi, .anchorDowni {

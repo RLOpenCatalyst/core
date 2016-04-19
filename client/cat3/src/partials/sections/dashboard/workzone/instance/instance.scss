@@ -190,10 +190,10 @@ $imagePath : "../../../../../../images";
 	}	
 }
 
-@media (min-width : 321px) {
+@media (min-width : 481px) {
 	#instanceUpdateChefRunlistPage {
-		.radio-all, .radio-roles, .radio-deploy, .chef-factory {
-			width: 22%;
+		.radio-all, .radio-roles, .radio-cookbooks, .radio-templates, .chef-factory {
+			width: 18%;
 			float: left;
 		}
 
@@ -248,6 +248,10 @@ $imagePath : "../../../../../../images";
 		.left-right-selection {
 			margin: 19% 5% 0 0;
 		}
+	}
+
+	.fa-info-circle {
+		font-size: 25px;
 	}
 }
 
@@ -376,27 +380,27 @@ $imagePath : "../../../../../../images";
 		}
 
 		.instance-state-unknown {
-			background: url("#{$imagePath}/aws-inactive.png");
+			background: url("#{$imagePath}/instance-states/aws-inactive.png");
 		}
 
 		.instance-state-pending {
-			background: url("#{$imagePath}/aws-inactive.png");
+			background: url("#{$imagePath}/instance-states/aws-inactive.png");
 		}
 
 		.instance-state-paused {
-			background: url("#{$imagePath}/aws-paused.png");
+			background: url("#{$imagePath}/instance-states/aws-paused.png");
 		}
 
 		.instance-state-running {
-			background: url("#{$imagePath}/aws-started.png");
+			background: url("#{$imagePath}/instance-states/aws-started.png");
 		}
 
 		.instance-state-stopped {
-			background: url("#{$imagePath}/aws-stopped.png");
+			background: url("#{$imagePath}/instance-states/aws-stopped.png");
 		}
 
 		.instance-state-terminated {
-			background: url("#{$imagePath}/aws-stopped.png");
+			background: url("#{$imagePath}/instance-states/aws-stopped.png");
 		}
 
 		.icon-chef, .icon-chef-disabled {
@@ -405,7 +409,7 @@ $imagePath : "../../../../../../images";
 		}
 
 		.icon-rdp-disabled {
-			background: url("#{$imagePath}/rdp-disable.png");
+			background: url("#{$imagePath}/instance/rdp-disable.png");
 			width: 28px;
 			height: 28px;
 		}
@@ -418,7 +422,7 @@ $imagePath : "../../../../../../images";
 		.ChefClientRun {
 			width: 28px;
 			height: 28px;
-			background: url("#{$imagePath}/sprites.png") no-repeat -59px -10px;
+			background: url("#{$imagePath}/global/sprites.png") no-repeat -59px -10px;
 		}
 
 		.dropdown-menu {
@@ -469,7 +473,9 @@ $imagePath : "../../../../../../images";
 	.control-margin {
 		margin-top: 15px;
 	}
+}
 
+#instanceImportByIpPage, #instanceSSHPage {
 	.importErrorMsg {
 		color: $color-red;
 		padding-top: 16px;
@@ -481,14 +487,6 @@ $imagePath : "../../../../../../images";
 }
 
 #instanceSSHPage {
-	.ssh-page-height {
-	 height:400px;
-	}
-
-	.sshSubmit {
-		margin-right: 10px;
-	}
-
 	.ssh-error-area {
 		margin-bottom: 4%;
 		padding-top: 60px;
@@ -505,7 +503,6 @@ $imagePath : "../../../../../../images";
 
 	#ssh-errorArea {
 		color:red;
-		margin-left:10px;
 	}
 }
 
@@ -746,8 +743,4 @@ $imagePath : "../../../../../../images";
 
 .paddingtopbottom10 {
 	padding: 10px 0;
-}
-
-.fa-info-circle {
-	font-size: 25px;
 }

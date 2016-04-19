@@ -263,8 +263,6 @@
 				var c = workzoneServices.getCookBookListForOrg();
 				//promise contains template list
 				var t = workzoneServices.getSoftwareTemplatesForOrg();
-				//promise contains edited cookbook list
-				//var s = $scope.chefComponentSelectorList;
 				var allPromise = $q.all([c, t]);
 				var modalInstance = $modal.open({
 					templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceUpdateChefRunlist.html',

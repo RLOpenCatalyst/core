@@ -36,7 +36,7 @@
                      env: list[3]
                      * */
                     var p = workzoneEnvironment.getEnvParams();
-                    return serviceInterface.getInstanceBluePrintOrchestration(p.org, p.bg,
+                    return serviceInterface.getInstanceBlueprintOrchestration(p.org, p.bg,
                             p.proj, p.env);
                 },
                 getTree: function () {
@@ -72,18 +72,12 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*azureArmCtrl*/
-                //getazureArmDeployments: function (data) { /*use this call when get the actual data from API*/
-                getazureArmDeployments: function () {
-                    var url = '/cat3/data/azureArm.json';
-                    return $http.get(fullUrl(url), Auth.getHeaderObject());
-                },
-                //removeARMDeployment: function (armId,index) { /*use this call when get the actual data from API*/
                 removeARMDeployment: function (armId) {
                     var url = '/azure-arm/' + armId;
                     return $http.delete(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*blueprintCtrl*/
-                getInstanceBluePrintOrchestration: function (orgId, bgId,
+                getInstanceBlueprintOrchestration: function (orgId, bgId,
                         projId, envId) {
                     if (!orgId) {
 
@@ -100,12 +94,15 @@
                         return $http.get(fullUrl(url), Auth.getHeaderObject());
                     }
                 },
-                deleteBluePrint: function (blueprintID) {
+                blueprintInfo: function (blueprintID) {
+                    var url = '/blueprints/' + blueprintID + '/blueprintInfo';
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
+                deleteBlueprint: function (blueprintID) {
                     var url = '/blueprints/' + blueprintID;
                     return $http.delete(fullUrl(url), Auth.getHeaderObject());
                 },
-                launchBluePrint: function (blueprintID, version, envId,
-                        stackName) {
+                launchBlueprint: function (blueprintID, version, envId, stackName) {
                     var url = '/blueprints/' + blueprintID + '/launch?version=' + version +
                             '&envId=' + envId + '&stackName=' + stackName;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
@@ -137,11 +134,6 @@
                             '/configmanagement/list';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getCookBookForOrg: function () {
-                    //return $http.get('/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/chefRunlist');
-                    var url = '/cat3/data/chefCookbookList.json';
-                    return $http.get(fullUrl(url), Auth.getHeaderObject());
-                },
                 postInstanceNameUpdate: function (instanceId, instanceName) {
                     var url = '/instances/' + instanceId + '/updateName';
                     return $http.post(fullUrl(url), instanceName, Auth.getHeaderObject());
@@ -150,6 +142,10 @@
                     var url = '/organizations/' + urlParams.org + '/businessgroups/' +
                             urlParams.bg + '/projects/' + urlParams.proj + '/environments/' +
                             urlParams.env + '/addInstance';
+                    return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
+                },
+                postLaunchDockerBlueprint : function(instid,repopath,reqBody){
+                    var url = '/instances/dockercompositeimagepull/' + instid + '/' + repopath;
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },
                 getInstanceLogs: function (instanceId, timestamp) {
@@ -335,10 +331,9 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getCookBookListForOrg: function () {
-                    //var p = workzoneEnvironment.getEnvParams();
-                    //var url='/organizations/'+p.org+'/chefRunlist';
-                    //return $http.get(url,Auth.getHeaderObject());
-                    return $http.get(fullUrl('/cat3/data/chef.json'));
+                    var p = workzoneEnvironment.getEnvParams();
+                    var url='/organizations/'+p.org+'/chefRunlist';
+                    return $http.get(url,Auth.getHeaderObject());
                 },
                 getSoftwareTemplatesForOrg: function () {
                     var p = workzoneEnvironment.getEnvParams();

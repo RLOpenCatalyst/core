@@ -8,8 +8,8 @@
 (function(){
 	"use strict";
 	angular.module('workzone.orchestration')
-	.controller('addJobLinksCtrl',['$scope', '$modalInstance','items',function($scope, $modalInstance,items){
-        function evaluator(path){
+	.controller('addJobLinksCtrl',['$scope', '$modalInstance',function($scope, $modalInstance){
+        function evaluator(){
 			return true;
 		}
 		$scope.jobLink='';

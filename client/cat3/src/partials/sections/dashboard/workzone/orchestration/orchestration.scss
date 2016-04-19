@@ -200,7 +200,7 @@ $imagePath : "../../../../../../images";
 		}
 	}
 
-	.fa-plus-circle, .fa-question-circle {
+	.fa-plus-circle, .fa-question-circle, .fa-sitemap {
 		font-size: 18px;
 	}
 
@@ -371,6 +371,16 @@ $imagePath : "../../../../../../images";
 
 #jenkinLogs {
 	font-size: 12px;
+}
+
+#compositeLogs {
+	.text-padding {
+		padding-top: 8px;
+	}
+
+	.padding-bottom15 {
+		padding-bottom: 15px;
+	}
 }
 
 .control-label {

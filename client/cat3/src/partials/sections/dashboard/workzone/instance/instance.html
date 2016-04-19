@@ -25,7 +25,7 @@
 				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
 					<div class="card-title">
 						<div class="card-title-role">
-							<img src="images/roles/chef-import.png" ng-show="inst.blueprintData.templateId === 'chef' || inst.blueprintData.templateId==='chef_import'" />
+							<img src="images/global/chef-import.png" ng-show="inst.blueprintData.templateId === 'chef' || inst.blueprintData.templateId==='chef_import'" />
 							<img src="images/templateicons/appFact4.png" ng-show="inst.blueprintData.templateId === 'Apache' || inst.blueprintData.templateId === 'apache'" />
 						</div>
 						<div title="{{inst.name}}" class="card-title-name pull-left">{{inst.name}}</div>
@@ -42,7 +42,7 @@
 					<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
 							<i class="fa fa-info-circle card-circle-info cursor" title="More Info" ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
 							<img class="docker-image dockerenabledinstacne" whatever="2" alt="Docker"
-							src="images/docker.png" ng-show="inst.docker && inst.docker.dockerEngineStatus === 'success'" />
+							src="images/global/docker.png" ng-show="inst.docker && inst.docker.dockerEngineStatus === 'success'" />
 						</div>
 					</div>
 					<div class="instance-ip">
@@ -70,65 +70,65 @@
 								<button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
 								<i class="fa fa-ellipsis-v"></i></button>
 								<ul class="dropdown-menu">
-								  <li class="edit-instance-bs">
-									<span ng-click="operationSet.editInstanceName(inst);">
-										<i class="fa fa-pencil dropdown-icon"></i>
-										Edit Instance Name
-									</span>
-								  </li>
-								  <li class="more-info-bs">
-									<span ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo">
-										<i class="fa fa-info-circle dropdown-icon"></i>
-										More Info
-									</span>
-								  </li>
-								  <li class="ssh-bs">
-									  <span ng-click="operationSet.instanceSSH(inst)" ng-show="inst.hardware.os==='linux' || inst.hardware.os==='centos'">
-										<i class="fa fa-briefcase dropdown-icon"></i>
-										SSH
-									  </span>
-								  </li>
-								  <li class="rdp-bs" ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp">
-									<span>
-										<a class="rdp-anchor" target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}">
-											<i class="fa fa-stack-overflow dropdown-icon"></i>
-											RDP
-										</a>
-									</span>
-								  </li>
-								  <li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
-								  && inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
-									<span>
-										<i class="fa fa-pause dropdown-icon"></i>
-										Start Instance
-									</span>
-								</li>
-								  <li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.stop && inst.instanceState === 'running' && inst.providerId" ng-disabled="instStartStopFlag"  ng-class="{'hideStartStopCur': instStartStopFlag}">
-									<span>
-										<i class="fa fa-play dropdown-icon"></i>
-										Stop Instance
-									</span>
-								  </li>
-								  <li>
-									<span ng-click="instanceControlPanel(inst);">
-										<i class="fa fa-gears dropdown-icon"></i>
-										Control Panel
-									</span>
-								  </li>
-								  <li>
-									<span ng-click="operationSet.deleteInstance(inst, $index);">
-										<i class="fa fa-trash-o dropdown-icon"></i>
-										Delete Instance
-									</span>
-								  </li>
-								  <li class="divider"></li>
-								  <li class="no-action">
-									<span>
-										<i class="fa fa-list-alt dropdown-icon"></i>
-										App Links
-									</span>
-								  </li>
-								  <ul class="paddingleft32 instanceTaskListUL">
+									<li class="edit-instance-bs">
+										<span ng-click="operationSet.editInstanceName(inst);">
+											<i class="fa fa-pencil dropdown-icon"></i>
+											Edit Instance Name
+										</span>
+									</li>
+										<li class="more-info-bs">
+											<span ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo">
+												<i class="fa fa-info-circle dropdown-icon"></i>
+												More Info
+											</span>
+										</li>
+										<li class="ssh-bs">
+											<span ng-click="operationSet.instanceSSH(inst)" ng-show="inst.hardware.os==='linux' || inst.hardware.os==='centos'">
+												<i class="fa fa-briefcase dropdown-icon"></i>
+												SSH
+											</span>
+										</li>
+										<li class="rdp-bs" ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp">
+										<span>
+											<a class="rdp-anchor" target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}">
+												<i class="fa fa-stack-overflow dropdown-icon"></i>
+												RDP
+											</a>
+										</span>
+									  </li>
+									<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
+									  && inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
+										<span>
+											<i class="fa fa-pause dropdown-icon"></i>
+											Start Instance
+										</span>
+									</li>
+									<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.stop && inst.instanceState === 'running' && inst.providerId" ng-disabled="instStartStopFlag"  ng-class="{'hideStartStopCur': instStartStopFlag}">
+										<span>
+											<i class="fa fa-play dropdown-icon"></i>
+											Stop Instance
+										</span>
+									</li>
+									<li>
+										<span ng-click="instanceControlPanel(inst);">
+											<i class="fa fa-gears dropdown-icon"></i>
+											Control Panel
+										</span>
+									</li>
+									<li>
+										<span ng-click="operationSet.deleteInstance(inst, $index);">
+											<i class="fa fa-trash-o dropdown-icon"></i>
+											Delete Instance
+										</span>
+									</li>
+									<li class="divider"></li>
+									<li class="no-action">
+										<span>
+											<i class="fa fa-list-alt dropdown-icon"></i>
+											App Links
+										</span>
+									</li>
+									<ul class="paddingleft32 instanceTaskListUL">
 										<li ng-repeat="applink in inst.appUrls">
 											<a class="app-url cursor" target="_blank" ng-href="{{applink.url}}">
 												{{applink.name}}
@@ -151,11 +151,12 @@
 										<li class="cursor" ng-repeat="taskDetail in inst.taskDetails">{{taskDetail.name}}</li>
 									</ul>
 								</ul>
-						  	</div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 		</section>
 
 		<section id="tableView" class="scrollContent" ng-show="!isCardViewActive">
@@ -175,8 +176,8 @@
 				<tbody>
 					<tr ng-repeat="inst in instanceList" id="{{app._id}}">
 						<td>
-						<img src="/cat3/images/roles/chef-import.png" ng-show="inst.chef"/>
-						<img src="/cat3/images/roles/chef-import.png" ng-show="inst.puppet"/>
+						<img src="/cat3/images/global/chef-import.png" ng-show="inst.chef"/>
+						<img src="/cat3/images/global/chef-import.png" ng-show="inst.puppet"/>
 						</td>
 						<td>
 							<span>{{inst.name}}</span>
@@ -220,7 +221,7 @@
 									</button>
 									<ul class="dropdown-menu">
 										<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
-								  		&& inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
+										&& inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
 											<span>
 												<i class="fa fa-pause dropdown-icon"></i>
 												Start Instance
@@ -288,7 +289,7 @@
 											<li class="cursor" ng-repeat="taskDetail in inst.taskDetails">{{taskDetail.name}}</li>
 										</ul>
 									</ul>
-							  	</div>
+								</div>
 							</div>
 						</td>
 					</tr>
