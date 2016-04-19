@@ -58,7 +58,7 @@
 						$scope.dockerParams.port = subparam[1];
 					} else if (subparam.indexOf('-link') === 0) {
 						$scope.dockerParams.link = subparam[1];
-					} else if (subparam.indexOf('--name') === 0) {
+					} else if (subparam.indexOf('-name') === 0 || subparam.indexOf('--name') === 0) {
 						$scope.dockerParams.name = subparam[1];
 					} else if (subparam.indexOf('v') === 0) {
 						$scope.dockerParams.volumes = subparam[1];

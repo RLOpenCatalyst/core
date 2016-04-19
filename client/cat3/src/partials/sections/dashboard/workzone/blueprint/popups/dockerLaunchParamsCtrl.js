@@ -22,7 +22,7 @@
                 }, {
                     'isDisplayed': false,
                     'name': 'instances',
-                    'title': 'Instances'
+                    'title': 'Select Instance'
                 }];
 
             $scope.nextEnabled = true;
@@ -168,6 +168,8 @@
                 } else {
                     $scope.checkBoxSelectLength = _.without($scope.checkBoxSelectLength, instance);
                     $scope.checked--;
+                    $scope.showNoDockerAvailable = false;
+                    /*Setting to scope to false whenever the user unchecks the checkbox*/
                 }
             };
 
@@ -186,18 +188,9 @@
                         $scope.viewLogs($scope.instanceSelected);
                     } else {
                         if (data.indexOf('No Docker Found') >= 0) {
-                            var modalOptions = {
-                                closeButtonText: 'Cancel',
-                                actionButtonText: 'Ok',
-                                actionButtonStyle: 'cat-btn-update',
-                                headerText: 'Warning',
-                                bodyText: 'Docker was not found on the node : "' + $scope.instanceSelected.name + '". \nDo you wish to install it?'
-                            };
-                            confirmbox.showModal({}, modalOptions).then(function() {
-                                //updateRunlist: function(type) {
-
-                                //}
-                            });
+                            $scope.showNoDockerAvailable = true;
+                            /*Setting the scope to true to show a row beneath which tells that 
+                            docker is not installed on the particular node*/
                         }
                     }
                 });
