@@ -3167,11 +3167,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
 
-    // This is post call even though no data insertion bcoz request has to send array of instanceIds.
-    app.get('/instances/instanceList', function(req, res) {
-        console.log("Durgesh");
-        var instanceIds=(req.query.instanceIds).split(",");
-        console.log(instanceIds);
+
+    app.get('/instances/instanceIds/list', function(req, res) {
+        var instanceIds=(req.query.ids).split(",");
         instancesDao.getInstancesByIDs(instanceIds, function(err, instances) {
             if (err) {
                 logger.error("Failed to fetch Instance  via Ids: ", err);

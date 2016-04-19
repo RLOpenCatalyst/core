@@ -49,17 +49,17 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
     });*/
 
 
-  /*  it(" Instance List for Promote ",function(done){
+    it(" Instance List ",function(done){
         server
-            .get('/instances/instanceList?instanceIds=56fa1a6d2a3efd26530203fb,57064bafd8d28d385d8c72b0')
+            .get('/instances/instanceIds')
             .end(function(err,res){
                 console.log(res.body);
                 assert.equal(res.status, 200);
                 done();
             });
-    });*/
+    });
 
-    it(" Save and Update pipeline Data  ",function(done){
+   /* it(" Save and Update pipeline Data  ",function(done){
         var reqBody = {
                 projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
                 envSequence: ['Dev', 'Prod', 'QA', 'PreProd'],
@@ -74,7 +74,7 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
                 assert.equal(res.status, 200);
                 done();
             });
-    });
+    });*/
 
 
 
