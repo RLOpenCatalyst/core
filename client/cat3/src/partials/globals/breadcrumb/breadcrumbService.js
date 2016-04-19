@@ -36,14 +36,14 @@
 			$scope.treeCrmbData = treeParams;
 			var _arrayPart1 = treeParams;
 			var _arrayPart2 = $scope.rightCrmbData;
-			$scope.brdCrmbData = _arrayPart1.concat(_arrayPart2);
+			$scope.breadcrumbData = _arrayPart1.concat(_arrayPart2);
 		});
 
 		$rootScope.$on('rightPanelNavigation', function(event, rightPanelName, level) {
 			$scope.rightCrmbData[level] = rightPanelName;
 			var _arrayPart1 = $scope.treeCrmbData;
 			var _arrayPart2 = $scope.rightCrmbData;
-			$scope.brdCrmbData = _arrayPart1.concat(_arrayPart2);
+			$scope.breadcrumbData = _arrayPart1.concat(_arrayPart2);
 		});
 
 		$rootScope.$on('HIDE_BREADCRUMB',function(){

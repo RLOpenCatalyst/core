@@ -100,7 +100,7 @@
             'workzoneUIUtils', [function () {
                 var makeTabScrollable = function(divID) {
                     var windowHeight = $(window).innerHeight();
-                    var brdcrmbHeight = $('#bdCrCont').outerHeight();
+                    var brdcrmbHeight = $('#breadcrumb-block').outerHeight();
                     var headerHeight = $('#header').outerHeight();
                     var instancepanelHeight = $('#' + divID + ' .panel-heading').outerHeight();
                     var rightpanelPaddingtop = parseInt($("#rightPanel").css("padding-top"));
