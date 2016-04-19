@@ -13,7 +13,7 @@
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.removeBP = function() {
-				workzoneServices.deleteBluePrint(items._id).then(
+				workzoneServices.deleteBlueprint(items._id).then(
 					function() {
 						$modalInstance.close(items);
 					},

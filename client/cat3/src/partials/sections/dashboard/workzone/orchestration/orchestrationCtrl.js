@@ -17,7 +17,7 @@
 			$scope.perms = _permSet;
 			var helper = {
 				orchestrationLogModal: function(id,historyId,taskType) {
-					var modalInstance = $modal.open({
+					$modal.open({
 						animation: true,
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
 						controller: 'orchestrationLogCtrl as orchLogCtrl',
@@ -29,7 +29,7 @@
 									taskId: id,
 									historyId: historyId,
 									taskType: taskType
-								}
+								};
 							}
 						}
 					});
@@ -172,7 +172,7 @@
 							}
 						}
 					}).result.then(function(taskName) {
-						if (type == 'new') {
+						if (type === 'new') {
 							$rootScope.globalSuccessMessage = 'New Job ' + taskName + ' created successfully';
 						} else {
 							$rootScope.globalSuccessMessage = taskName + ' has been updated successfully';

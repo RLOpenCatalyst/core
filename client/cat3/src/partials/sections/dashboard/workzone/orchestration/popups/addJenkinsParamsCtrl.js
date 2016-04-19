@@ -24,7 +24,7 @@
 			var v=$scope.params;
 			if($scope.selectionType && v.defaultValue && v.name && v.description){
 				$scope.params.parameterName=$scope.selectionType;
-				if($scope.params.parameterName == "Choice"){
+				if($scope.params.parameterName === "Choice"){
 					$scope.params.defaultValue = $scope.params.defaultValue.split(',');	
 				}else{
 					$scope.params.defaultValue=$scope.params.defaultValue;	

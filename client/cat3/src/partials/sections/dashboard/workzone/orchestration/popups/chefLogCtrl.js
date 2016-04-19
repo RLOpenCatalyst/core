@@ -14,7 +14,6 @@
 
 			var items=$scope.parentItemDetail;
 			$scope.isInstanceListLoading = true;
-			$scope.selectedInstance; //scope to get the selected instance.
 			angular.extend($scope, {
 				logList: [],
 				cancel: function() {
@@ -27,7 +26,7 @@
 				nodeIdsWithActionLog: {},
 				logData: []				
 			};
-			var timerObject, logList, isFullLogs = true;
+			var timerObject, logList = true;
 			
 			var helper = {
 				lastTimeStamp: '',
@@ -43,10 +42,6 @@
 							.then(function(resp) {
 								if (resp.data.length) {
 									helper.lastTimeStamp = helper.getlastTimeStamp(resp.data);
-									var logData = {
-										logs: resp.data,
-										fullLogs: false
-									};
 									chefLogData.logData.logs.push.apply(chefLogData.logData.logs, resp.data);
 								}
 							});
@@ -62,7 +57,7 @@
 				$scope.selectedInstance = firstInstance;
 				chefLogData.instanceChange();
 			};
-			var init = function(firstInstance) {
+			var init = function() {
 				//get the details of one chef history entry
 				workzoneServices.getTaskHistoryItem(items.taskId, items.historyId).then(function(response) {
 					chefLogData.createInstanceList(response.data);
@@ -89,11 +84,12 @@
 					}					
 				}, function(error) {
 					$scope.isInstanceListLoading = false;
+					console.log(error);
 					$scope.errorMessage = "";
 				});
 			};
 			//method called when user changes the instance name from the dropdown.
-			chefLogData.instanceChange = function(instance) {
+			chefLogData.instanceChange = function() {
 				$scope.isLogsLoading = true;
 				helper.stopPolling(); //Ensuring polling is stopped, eventhough the scope values for instance id and actionlog id are updated on change
 				helper.lastTimeStamp = '';
@@ -112,6 +108,7 @@
 						chefLogData.logData = logData;
 					}, function(error){
 						$scope.isLogsLoading = false;
+						console.log(error);
 						$scope.errorMessage = "Unable to fetch logs for this instance";
 					});
 				}
@@ -133,6 +130,7 @@
 						chefLogData.logData = logData;
 					}, function(error){
 						$scope.isLogsLoading = false;
+						console.log(error);
 						$scope.errorMessage = "Unable to fetch logs for this instance";
 					});
 				}

@@ -13,7 +13,7 @@
 				launch : function(){
 					$modalInstance.close({bp:items,stackName:$scope.stackName});
 				}
-			} 
+			};
 			$scope.stackName='';
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');

@@ -35,7 +35,7 @@
                     return;
                 }
                 // If we're at the last step, then stay there.
-                if (index == steps.length - 1) {
+                if (index === steps.length - 1) {
                     return;
                 }
 
@@ -62,7 +62,7 @@
 
             /* Sets the correct buttons to be enabled or disabled.*/
             $scope.setButtons = function() {
-                if (index == steps.length - 1) {
+                if (index === steps.length - 1) {
                     $scope.nextEnabled = false;
                     $scope.previousEnabled = true;
                     $scope.submitEnabled = true;
@@ -76,13 +76,16 @@
                     $scope.submitEnabled = false;
                 }
             };
+            /*method added for allowing the user to move the 
+            table row up  in dockerLaunchParams section*/
             $scope.moveUpChoice = function(arr, index) {
                 var currItem = index;
                 if (currItem > 0) {
                     arr.splice(currItem - 1, 0, arr.splice(currItem, 1)[0]);
                 }
             };
-
+            /*method added for allowing the user to move the
+             table row down in dockerLaunchParams section*/
             $scope.moveDownChoice = function(arr, index) {
                 var currItem = index;
                 var newPosition = index + 1;
@@ -179,7 +182,7 @@
                     var data = response.data;
                     $scope.isLogsLoading = false;
                     /*If Response is ok the logs are shown and docker image is pulled*/
-                    if (data == "OK") {
+                    if (data === "OK") {
                         $scope.viewLogs($scope.instanceSelected);
                     } else {
                         if (data.indexOf('No Docker Found') >= 0) {
@@ -199,5 +202,5 @@
                     }
                 });
             };
-        }])
+        }]);
 })(angular);
