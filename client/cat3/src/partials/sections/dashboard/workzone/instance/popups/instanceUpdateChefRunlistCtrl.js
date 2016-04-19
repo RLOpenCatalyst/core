@@ -20,7 +20,7 @@
 		var list = responseFormatter.formatDataForChefClientRun(items[0].data);
 		var template = responseFormatter.formatTemplateDataForChefClient(items[1].data);
 		var totalElements = responseFormatter.merge(list, template);
-		var selectedElements = responseFormatter.findDataForEditValue(items[2]);
+		var selectedElements = items[2];
 		var factory = chefSelectorComponent.getComponent;
 		var compositeSelector;
 		$scope.allCBAttributes = [];
@@ -51,7 +51,6 @@
 			});
 			modalInstance.result.then(function() {
 				$modalInstance.close();
-				//TODO show instance logs
 			});
 		};
 
@@ -101,11 +100,15 @@
 				}
 			},
 			updateAttributeList: function() {
-				//var value=arguments[0];
+				var nodesList = arguments[0];
 				var updatedList = arguments[1];
-				//var operationType=arguments[2];
-				if (updatedList.length > 0) {
-					workzoneServices.getcookBookAttributes(updatedList, chefServerID).then(function(response) {
+				var operationType = arguments[2];
+				if (operationType === 'add') {
+					var data = [];
+					for (var i = 0; i < nodesList.length; i++) {
+						data.push(nodesList[i].value);
+					}
+					workzoneServices.getcookBookAttributes(data, chefServerID).then(function (response) {
 						var data;
 						if (response.data) {
 							data = response.data;
@@ -113,14 +116,46 @@
 							data = response;
 						}
 						/*Scope apply done to force refresh screen after receiving the AJAX response*/
-						$scope.$apply(function() {
-							$scope.allCBAttributes = data;
+						$scope.$apply(function () {
+							$scope.allCBAttributes = $scope.allCBAttributes.concat(data);
+							if (updatedList.length > 1) {
+								var tmp = [];
+								for (var i = 0; i < updatedList.length; i++) {
+									for (var k = 0; k < $scope.allCBAttributes.length; k++) {
+										if (updatedList[i].value === $scope.allCBAttributes[k].cookbookName) {
+											tmp.push($scope.allCBAttributes[k]);
+											break;
+										}
+									}
+								}
+								$scope.allCBAttributes = tmp;
+							}
 						});
 					});
-				} else {
+				} else if(operationType ==='up' || operationType ==='down'){
 					$scope.$apply(function() {
-						$scope.allCBAttributes = [];
+						var tmp = [];
+						//reorder attribute list as per chaged runlist order.
+						for (var i = 0; i < updatedList.length; i++) {
+							for (var k = 0; k < $scope.allCBAttributes.length; k++) {
+								if (updatedList[i].value === $scope.allCBAttributes[k].cookbookName) {
+									tmp.push($scope.allCBAttributes[k]);
+									break;
+								}
+							}
+						}
+						$scope.allCBAttributes = tmp;
 					});
+				} else {
+					for (var j = 0; j < nodesList.length; j++) {
+						var nodeVal = nodesList[j].value;
+						for (var k = 0; k < $scope.allCBAttributes.length; k++) {
+							if (nodeVal === $scope.allCBAttributes[k].cookbookName) {
+								$scope.allCBAttributes.splice(k, 1);
+								break;
+							}
+						}
+					}
 				}
 			},
 		});

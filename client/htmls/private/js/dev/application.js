@@ -868,12 +868,13 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 console.log("Successfully updated app-data.");
                             },
                             error: function(jqxhr) {
-                                bootbox.confirm({
-                                    message: "Failed to update update appName in Project.",
+                                /*bootbox.confirm({
+                                    message: "Failed to update app-data.",
                                     title: "Warning",
                                     callback: function(result) {}
                                 });
-                                return;
+                                return;*/
+                                console.log("Failed to update app-data.");
                             }
                         });
 

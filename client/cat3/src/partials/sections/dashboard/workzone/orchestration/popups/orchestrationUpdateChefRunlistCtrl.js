@@ -14,7 +14,7 @@
 		/*Removing the reference to parent object, as
 		items === angular.copy(items); // => false
 		*/
-		var items = angular.copy(items);
+		items = angular.copy(items);
 		/*Open only One Accordian-Group at a time*/
 		$scope.oneAtATime = true;
 		/*Initialising First Accordian-group open on load*/

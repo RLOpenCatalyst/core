@@ -1742,7 +1742,6 @@ var MasterUtil = function() {
             if (err) {
                 logger.debug("App deploy fetch error.", err);
             }
-            logger.debug("App deploy: ", JSON.stringify(data));
             callback(null,data);
         });
     };
@@ -1903,7 +1902,6 @@ var MasterUtil = function() {
                         logger.debug("App deploy fetch error.", err);
                         callback(err, null);
                     }
-                    logger.debug("App deploy: ", JSON.stringify(appData));
                     if (appData.length) {
                         var filterArray = [];
                         var finalJson = [];
