@@ -656,8 +656,12 @@ $imagePath : "../../../../../../images";
 		background: $color-yellow; 
 	}
 
-	.redBg, .frontKill {   
+	.redBg {   
 		background: $color-red;
+	}
+
+	.frontKill {   
+		background: $color-lightBlack;
 	}
 }
 
