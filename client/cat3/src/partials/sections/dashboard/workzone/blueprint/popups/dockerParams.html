@@ -17,37 +17,37 @@
 		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 			<label for="portMappings">Port Mappings
 			</label>
-			<input type="text" ng-model="dockerParams.port" class="form-control"/>
+			<input type="text" ng-model="dockerParams.port" placeholder="Map host ports to container ports" class="form-control"/>
 		</span>
-		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
 			<label for="volumes">Volumes
 			</label>
-			<input type="text" ng-model="dockerParams.volumes" class="form-control"/>
+			<input type="text" ng-model="dockerParams.volumes" placeholder="Map host folders to container folders" class="form-control"/>
 		</span>
-		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
 			<label for="Volumes-from">Volumes-from
 			</label>
-			<input type="text" ng-model="dockerParams.volumesFrom" class="form-control"/>
+			<input type="text" ng-model="dockerParams.volumesFrom" placeholder="Comma separated container names" class="form-control"/>
 		</span>
-		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
 			<label for="container">Linked Container
 			</label>
-			<input type="text" ng-model="dockerParams.link" class="form-control"/>
+			<input type="text" ng-model="dockerParams.link" placeholder="The name of a container this one links to" class="form-control"/>
 		</span>
-		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
 			<label for="env">Environment Variables
 			</label>
-			<input type="text" ng-model="dockerParams.environment" class="form-control"/>
+			<input type="text" ng-model="dockerParams.environment" placeholder="Comma seperated environment variables" placeholder="Optional startup command for the container" placeholder="Comma seperated environment variables" class="form-control"/>
 		</span>
-		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
 			<label for="startupCommand">Startup Command
 			</label>
-			<input type="text" ng-model="dockerParams.startupCommand" class="form-control"/>
+			<input type="text" ng-model="dockerParams.startupCommand" placeholder="Optional startup command for the container" class="form-control"/>
 		</span>
-		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		<span class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
 			<label for="additionalStartup">Additional Startup
 			</label>
-			<input type="text" ng-model="dockerParams.addStartup" class="form-control"/>
+			<input type="text" ng-model="dockerParams.addStartup" placeholder="Optional startup command for the container" class="form-control"/>
 		</span>
 	</fieldset>
 	</div>
