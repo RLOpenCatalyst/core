@@ -48,6 +48,9 @@
     .margin-top10{
         margin-top: 10px;
     }
+    .margin-top45{
+        margin-top: 45px;
+    }
     .saveBtnTagsCSS{
         float: right;
         font-size: 10px;
@@ -55,6 +58,16 @@
     }
     .width-90{
         width:90%;
+    }
+    input[type=search] {
+        border-color: #ddd !important;
+    }
+    .tagsContainer .dataTables_wrapper .dataTables_paginate .paginate_button{
+        font-size: 12px !important;
+        padding: 7px;
+    }
+    #tagsTable_info{
+        font-size: 12px !important;
     }
 </style>
 
@@ -77,9 +90,9 @@
 <!--tab content starts here-->
 <div class="tab-content">
     <!-- Tab panes -->
-    <div  class="tab-pane active tagsContainer" id="tagsId">
-        <div  class="tabContent table-responsive" id="tagsIdDiv">
-            <table class="table table-hover table-bordered text-center" id="tagsTable" style="font-size:13px;";>
+    <div class="tab-pane active tagsContainer" id="tagsId">
+        <div class="tabContent table-responsive col-lg-6" id="tagsIdDiv" style="left:0px !important">
+            <table class="table table-hover table-bordered" id="tagsTable" style="font-size:13px;margin-top:45px";>
                 <thead>
                 <tr>
                     <th class="text-center">Tag Name</th>
@@ -90,9 +103,9 @@
                 </tbody>
             </table>
         </div>
-        <div>
+        <div class="col-lg-6">
             <div action="" id="tagsFormId">
-                <div class="widget-box">
+                <div class="widget-box margin-top45">
                     <div class="widget-header">
                         <h4 class="widget-margin" style="color:#666;font-size:14px">Create tag name to catalyst entity mapping</h4>
                     </div>
@@ -204,7 +217,7 @@
                 <!--managed instances-->
                 <div  class="tab-pane active instancesListContainer" id="organiz">
                     <div  class="tabContent table-responsive" id="instanceListDiv" >
-                        <table class="table table-hover table-bordered" id="instanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                        <table class="table table-hover table-bordered" id="instanceListTable" style="font-size:13px;margin-top:45px;text-align: center";>
                             <thead>
                             <tr>
                                 <th style="text-align: center">InstanceId</th>
@@ -227,7 +240,7 @@
                 <!--unmanaged instances-->
                 <div  class="tab-pane unmanagedInstancesListContainer" id="unmanaged">
                     <div  class="tabContent table-responsive" id="unmanagedinstanceListDiv" >
-                        <table class="table table-hover table-bordered" id="unmanagedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align: center";>
+                        <table class="table table-hover table-bordered" id="unmanagedinstanceListTable" style="font-size:13px;margin-top:45px;text-align: center";>
                             <thead>
                             <tr>
                                 <th style="text-align: center">InstanceId</th>
@@ -256,7 +269,7 @@
             <div id="Unassigned" hidden>
                 <div  class="tab-pane unassignedInstancesListContainer" id="unassigned">
                     <div  class="tabContent table-responsive" id="unassignedinstanceListDiv" >
-                        <table class="table table-hover table-bordered" id="unassignedinstanceListTable" style="font-size:13px;margin-bottom:55px;text-align:center";>
+                        <table class="table table-hover table-bordered" id="unassignedinstanceListTable" style="font-size:13px;margin-top:45px;text-align:center";>
                             <thead>
                             <tr>
                                 <th style="text-align: center">InstanceId</th>
@@ -400,10 +413,10 @@
     if (!$.fn.dataTable.isDataTable('#tagsTable')) {
         var $tagsDatatable = $('#tagsTable').DataTable({
             "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
             "aoColumns": [{
                 "bSortable": false
             }, {
@@ -444,10 +457,10 @@
     if (!$.fn.dataTable.isDataTable('#instanceListTable')) {
         var $instanceManagedDatatable = $('#instanceListTable').DataTable({
             "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
             "aaSorting": [[ 4, "asc" ]],
             "aoColumns": [{
                 "bSortable": false
@@ -473,10 +486,10 @@
     if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
         var $instanceUnManagedDatatable = $('#unmanagedinstanceListTable').DataTable({
             "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
             "aaSorting": [[ 4, "asc" ]],
             "aoColumns": [{
                 "bSortable": false
@@ -502,10 +515,10 @@
     if (!$.fn.dataTable.isDataTable('#unassignedinstanceListTable')) {
         var $instanceUnAssignedDatatable = $('#unassignedinstanceListTable').DataTable({
             "pagingType": "full_numbers",
-            "bInfo": false,
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
             "aaSorting": [[ 4, "asc" ]],
             "aoColumns": [{
                 "bSortable": false
@@ -525,7 +538,7 @@
     }
 
     $(document).ready(function(e) {
-        var urlParams = {};
+        /*var urlParams = {};
         (window.onpopstate = function() {
             var url = window.location.href;
             var indexOfQues = url.lastIndexOf("?");
@@ -534,21 +547,38 @@
                 //console.log(sub);
                 urlParams.providerId = sub;
             }
+        })();*/
+
+        var urlParams = {};
+        (window.onpopstate = function() {
+            var url = window.location.href;
+            var indexOfQues = url.lastIndexOf("?");
+            if (indexOfQues != -1) {
+                var sub = url.substring(indexOfQues + 1);
+                var params = sub.split('&')
+                for (var i = 0; i < params.length; i++) {
+                    var paramParts = params[i].split('=');
+                    urlParams[paramParts[0]] = paramParts[1];
+                }
+            }
+
         })();
-        if (!urlParams.providerId) {
+        var urlproviderId = urlParams['provider'];
+        var urlorgName = urlParams['org'];
+
+        if (!urlproviderId) {
             return;
         }
-        if(urlParams.providerId && urlParams.providerId.indexOf("#ajax") == -1){
-            getTagsListData(urlParams.providerId);
-            getManagedInstances();
-            //getUnmanagedInstances();
-            //getUnassignedInstances();
+        if(urlproviderId && urlproviderId.indexOf("#ajax") == -1){
+          getTagsListData(urlproviderId);
+          getManagedInstances();
+          //getUnmanagedInstances();
+          //getUnassignedInstances();
         }
         //loading Managed Data
         function getTagsListData(providerId) {
             $.get('/providers/' + providerId + '/tags', function(tagsList) {
                 loadTagsTabData(tagsList,providerId);
-                //$('#tagsIdDiv').show();
             }).fail(function(jxhr) {
                 var msg = "Tags List Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -583,9 +613,12 @@
             $envtagsList.empty();
             $tagsDatatable.clear().draw();
 
+            $projecttagsList.append($('<option></option>').html("Choose Project"));
+            $envtagsList.append($('<option></option>').html("Choose Environment"));
             for (var i = 0; i < tagsListData.length; i++) {
                 var $tbody = $('#tagsTable tbody').empty();
                 //For Dropdown
+
                 $projecttagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
                 $envtagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
 
@@ -610,8 +643,35 @@
             }
 
             $('#tagsTable').on('keypress','.tagsDescInput',function(event){
-                var keycode = (event.keyCode ? event.keyCode : event.which);
-                if(keycode == '13'){
+                    var keycode = (event.keyCode ? event.keyCode : event.which);
+                    if(keycode == '13'){
+                        var $this = $(this);
+                        var id = $this.attr('id');
+                        var tagName = $this.parents().eq(1).find('.tagName').html();
+                        var tagDesc = $this.parents().eq(1).find('input').val();
+                       
+                        //Send the body update tag
+                        var objupdatetagDesc = {};
+                        objupdatetagDesc["description"] = tagDesc;
+                        $.ajax({
+                            url: '/providers/'+ providerId +'/tags/'+ tagName,
+                            method: 'PUT',
+                            data: JSON.stringify(objupdatetagDesc),
+                            contentType: "application/json",
+                            success: function() {
+                                $('#'+id).css('background-color','lightyellow');
+                            },
+                            error: function(jxhr) {
+                               
+                            }
+                        }); 
+                    }
+                    //Stop the event from propogation to other handlers
+                    //If this line will be removed, then keypress event handler attached 
+                    //at document level will also be triggered
+                    event.stopPropagation();
+                });
+                $('#tagsTable').on('click','.saveBtnTagsCSS',function(event){
                     var $this = $(this);
                     var id = $this.attr('id');
                     var tagName = $this.parents().eq(1).find('.tagName').html();
@@ -629,7 +689,7 @@
                             $('#'+id).css('background-color','lightyellow');
                         },
                         error: function(jxhr) {
-                            //alert("Tags description not saved....");
+                            
                         }
                     });
                 }
@@ -701,7 +761,7 @@
          };*/
         function loaddefaultTagMappingSelection(catalystEntityTypeListPassed){
             $.ajax({
-                url: '/providers/'+urlParams.providerId+'/tag-mappings',
+                url: '/providers/'+urlproviderId+'/tag-mappings',
                 method: 'GET',
                 contentType: "application/json",
                 success: function(tagsListSelected) {
@@ -743,11 +803,10 @@
 
                                 $tbody.append($tr);
                                 $mappingprojectDatatable.row.add($tr).draw();
-                                //alert(catalystEntityTypeListPassed[j].rowid);
+
                                 for(var l = 0; l < catalystEntityMapping.length; l++){
 
                                     if(catalystEntityTypeListPassed[j].rowid == catalystEntityMapping[l].catalystEntityId){
-                                        //alert("Matched");
                                         $mappingprojectSelectList.val(catalystEntityMapping[l].tagValue);
                                     }
                                 }
@@ -793,7 +852,7 @@
                     }
                 },
                 error: function(jxhr) {
-                    //alert("Tags description not saved....");
+                    
                 }
             });
 
@@ -823,7 +882,7 @@
                     "tagName": tagsenvSelectedVal
                 }];
             $.ajax({
-                url: '/providers/'+urlParams.providerId+'/tag-mappings',
+                url: '/providers/'+urlproviderId+'/tag-mappings',
                 method: 'POST',
                 data: JSON.stringify(tagsData),
                 contentType: "application/json",
@@ -833,7 +892,7 @@
                     getenvironmentData();
                 },
                 error: function(jxhr) {
-                    //alert("Tags description not saved....");
+                    
                 }
             });
         });
@@ -844,7 +903,17 @@
         //For Project Mapping
         function getprojectData(){
             $.get('/d4dMasters/readmasterjsonnew/4', function(projectist) {
-                loaddefaultTagMappingSelection(projectist);
+                var orgId = urlorgName;
+                var projectListArr = [];
+                for (var i = 0; i < projectist.length; i++) {
+                    for(var j=0;j<projectist[i].orgname.length;j++){
+                        if(orgId == projectist[i].orgname[j]){
+                            //alert("Hello");
+                            projectListArr.push(projectist[i]);
+                        }
+                    }
+                };
+                loaddefaultTagMappingSelection(projectListArr);
             }).fail(function(jxhr) {
                 var msg = "Getting Project List Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -855,72 +924,20 @@
                 bootbox.alert(msg);
             });
         }
-        /*function projectMappingList(projectList){
-         $mappingprojectDatatable.clear().draw();
-         var $tbody = $('#mappingprojectTable tbody').empty();
-
-
-
-         $.get('/providers/'+urlParams.providerId+'/tag-mappings/project', function(data) {
-         //Bring the total for loop inside it.
-         }).fail(function(jxhr) {
-         var msg = "Tags mapping Project Behaved Unexpectedly.";
-         if (jxhr.responseJSON && jxhr.responseJSON.message) {
-         msg = jxhr.responseJSON.message;
-         } else if (jxhr.responseText) {
-         msg = jxhr.responseText;
-         }
-         bootbox.alert(msg);
-         });
-
-         var tagValues = ["proj1", "proj2"];
-         var catalystEntityMapping = [
-         {
-         "catalystEntityId": "c7d5ec5e-47ed-418a-b6ba-6b137f7af6bf",
-         "catalystEntityName": "Project1",
-         "tagValue": "proj1"
-         },
-         {
-         "catalystEntityId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-         "catalystEntityName": "Project2",
-         "tagValue": "proj2"
-
-         }
-         ];
-         for(var i = 0; i < projectList.length; i++){
-         //For Table
-         var $tr = $('<tr id="'+projectList[i].rowid+'" class=""></tr>');
-
-         var $tdprojectName = $('<td class="mappingprojectName"></td>').append(projectList[i].projectname);
-         $tr.append($tdprojectName);
-
-
-         var $mappingprojectSelectList= $('<select class="mappingprojectSelectId"></select>');
-         $mappingprojectSelectList.empty();
-         for(var j=0; j< tagValues.length; j++){
-         $mappingprojectSelectList.append($('<option></option>').val(tagValues[j]).html(tagValues[j]));
-         }
-
-         var $tdprojectTagName = $('<td class="mappingprojectTagName"></td>').append($mappingprojectSelectList);
-         $tr.append($tdprojectTagName);
-
-         $tbody.append($tr);
-         $mappingprojectDatatable.row.add($tr).draw();
-         //alert(projectList[i].rowid);
-         for(var k = 0; k < catalystEntityMapping.length; k++){
-
-         if(projectList[i].rowid == catalystEntityMapping[k].catalystEntityId){
-         //alert("Matched");
-         $mappingprojectSelectList.val(catalystEntityMapping[k].tagValue);
-         }
-         }
-         }
-         }*/
 
         //For Environment Mapping
         function getenvironmentData(){
             $.get('/d4dMasters/readmasterjsonnew/3', function(envList) {
-                envMappingList(envList);
+                var envListArr = [];
+                var orgId = urlorgName;
+                for (var i = 0; i < envList.length; i++) {
+                    for(var j=0;j<envList[i].orgname.length;j++){
+                        if(orgId == envList[i].orgname[j]){
+                            envListArr.push(envList[i]);
+                        }
+                    }
+                };
+                envMappingList(envListArr);
             }).fail(function(jxhr) {
                 var msg = "Project Mapping Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -933,14 +950,12 @@
         }
         function envMappingList(envList){
             $mappingenvDatatable.clear().draw();
-            //console.log("Environment List: ",envList);
 
-            $.get('/providers/'+urlParams.providerId+'/tag-mappings/environment', function(data) {
+            $.get('/providers/'+urlproviderId+'/tag-mappings/environment', function(data) {
                 if(data){
                     var $tbody = $('#mappingenvTable tbody').empty();
                     for(var i = 0; i < envList.length; i++){
                         //For Table
-                        //alert(envList[i].environmentname);
                         var $tr = $('<tr id="'+envList[i].rowid+'" class=""></tr>');
 
                         var $tdenvName = $('<td class="mappingenvName"></td>').append(envList[i].environmentname);
@@ -961,7 +976,6 @@
 
                         for(var k = 0; k < data.catalystEntityMapping.length; k++){
                             if(envList[i].rowid == data.catalystEntityMapping[k].catalystEntityId){
-                                //alert("Matched");
                                 $mappingenvSelectList.val(data.catalystEntityMapping[k].tagValue);
                             }
                         }
@@ -981,7 +995,6 @@
                 counter++;
                 $tr = $(this);
                 var projmappingcatalystEntityId = $tr.attr('id');
-                //configureEnvArraySequence.push(envUniqueTextAllEnv);
                 var mappingprojectSelectTagName = $tr.find('.mappingprojectSelectId :selected').val();
                 var mappingprojectName = $tr.find('.mappingprojectName').text();
 
@@ -990,14 +1003,11 @@
                 objprojectMapping["catalystEntityName"] = mappingprojectName;
                 objprojectMapping["tagValue"] = mappingprojectSelectTagName;
 
-                // console.log(objprojectMapping);
                 projectMappingObj.catalystEntityMapping.push(objprojectMapping);
-                // $('#spanprojectMappingSaveId').html('Saved successfully');
 
                 if(counter == $('#mappingprojectTable tbody tr').length){
-                    console.log(projectMappingObj);
                     $.ajax({
-                        url: '/providers/'+urlParams.providerId+'/tag-mappings/project',
+                        url: '/providers/'+urlproviderId+'/tag-mappings/project',
                         data: JSON.stringify(projectMappingObj),
                         type: 'PATCH',
                         contentType: "application/json",
@@ -1023,7 +1033,6 @@
                 counter++;
                 $tr = $(this);
                 var envmappingcatalystEntityId = $tr.attr('id');
-                //configureEnvArraySequence.push(envUniqueTextAllEnv);
                 var mappingenvSelectTagName = $tr.find('.mappingenvSelectId :selected').val();
                 var mappingenvName = $tr.find('.mappingenvName').text();
 
@@ -1033,12 +1042,10 @@
                 objenvMapping["tagValue"] = mappingenvSelectTagName;
 
                 envMappingObj.catalystEntityMapping.push(objenvMapping);
-                //console.log(envMappingObj);
-                //$('#spanenvMappingSaveId').html('Saved successfully');
                 if(counter == $('#mappingenvTable tbody tr').length){
                     console.log(envMappingObj);
                     $.ajax({
-                        url: '/providers/'+urlParams.providerId+'/tag-mappings/environment',
+                        url: '/providers/'+urlproviderId+'/tag-mappings/environment',
                         data: JSON.stringify(envMappingObj),
                         type: 'PATCH',
                         contentType: "application/json",
@@ -1052,20 +1059,6 @@
                 }
             });
         });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         //Instances Tabs Starts here......
         var $chooseCtalystSelectId = $('#chooseCtalystSelectId');
@@ -1181,7 +1174,7 @@
 
 
         //loading provider with org
-        $.get('/providers/' + urlParams.providerId, function(provider) {
+        $.get('/providers/' + urlproviderId, function(provider) {
             var org = provider.org
             $orgListInput.append($('<option></option>').val(org.rowid).html(org.orgname).attr('selected', 'selected'));
             $bgList.empty();
@@ -1204,7 +1197,6 @@
                 $projectList.append($('<option></option>').val('choose').html('Choose'));
 
                 var getProjs = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
-                // alert(JSON.stringify(getProjs));
                 for (var i = 0; i < getProjs.length; i++) {
                     if (getProjs[i].indexOf('|') >= 0) {
                         var txtval = getProjs[i].split('|');
@@ -1395,9 +1387,8 @@
         }
         //loading Managed Data
         function getManagedInstances() {
-            $.get('/providers/' + urlParams.providerId + '/managedInstances', function(managedInstances) {
+            $.get('/providers/' + urlproviderId + '/managedInstances', function(managedInstances) {
                 loadManagedInstances(managedInstances);
-                //$('#instanceListDiv').show();
             }).fail(function(jxhr) {
                 var msg = "Provider Sync Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -1411,11 +1402,10 @@
 
         //loading Assigned Data
         function getUnmanagedInstances() {
-            $.get('/providers/' + urlParams.providerId + '/unmanagedInstances', function(unmanagnedInstances) {
+            $.get('/providers/' + urlproviderId + '/unmanagedInstances', function(unmanagnedInstances) {
                 if(unmanagnedInstances){
                     loadUnmanagedInstances(unmanagnedInstances);
                 }
-                //$('#unmanagedinstanceListDiv').show();
             }).fail(function(jxhr) {
                 var msg = "Provider Sync Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -1429,10 +1419,9 @@
 
         //loading UnAssigned Data
         function getUnassignedInstances() {
-            $.get('/providers/'+ urlParams.providerId +'/unassigned-instances', function(unassignedInstances) {
+            $.get('/providers/'+ urlproviderId +'/unassigned-instances', function(unassignedInstances) {   
                 if(unassignedInstances){
                     loadUnassignedInstances(unassignedInstances);
-                    //$('#unassignedinstanceListDiv').show();
                 }
             }).fail(function(jxhr) {
                 var msg = "Unassigned Instances Behaved Unexpectedly.";
@@ -1542,7 +1531,7 @@
                 $('.importNodesBtn').attr('disabled', 'disabled');
                 console.log("Arab");
                 console.log(reqBody);
-                $.post('../providers/' + urlParams.providerId + '/sync', reqBody, function(data) {
+                $.post('../providers/' + urlproviderId + '/sync', reqBody, function(data) {
                     console.log(data);
                     $('#providerSyncModal').modal('hide');
                     var $chefResultModalContainer = $('#providerSyncResultModal');

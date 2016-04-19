@@ -40,7 +40,7 @@ var	providerService = require('_pr/services/providerService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
 
-
+// @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all("/providers/*", sessionVerificationFunc);
 
