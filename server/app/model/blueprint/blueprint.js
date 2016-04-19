@@ -217,114 +217,113 @@ BlueprintSchema.methods.getCloudProviderData = function() {
 }
 
 BlueprintSchema.methods.launch = function(opts, callback) {
-	var infraManager = this.getInfraManagerData();
-	var self = this;
-	configmgmtDao.getEnvNameFromEnvId(opts.envId, function(err, envName) {
-		if (err) {
-			callback({
-				message: "Failed to get env name from env id"
-			}, null);
-			return;
-		}
-		if (!envName) {
-			callback({
-				"message": "Unable to find environment name from environment id"
-			});
-			return;
-		}
+    var infraManager = this.getInfraManagerData();
+    var self = this;
+    configmgmtDao.getEnvNameFromEnvId(opts.envId, function(err, envName) {
+        if (err) {
+            callback({
+                message: "Failed to get env name from env id"
+            }, null);
+            return;
+        }
+        if (!envName) {
+            callback({
+                "message": "Unable to find environment name from environment id"
+            });
+            return;
+        }
 
-		configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
-			if (err) {
-				logger.error("Failed to getChefServerDetails", err);
-				callback({
-					message: "Failed to getChefServerDetails"
-				}, null);
-				return;
-			}
-			if (!chefDetails) {
-				logger.error("No CHef Server Detailed available.", err);
-				callback({
-					message: "No Chef Server Detailed available"
-				}, null);
-				return;
-			}
-			var chef = new Chef({
-				userChefRepoLocation: chefDetails.chefRepoLocation,
-				chefUserName: chefDetails.loginname,
-				chefUserPemFile: chefDetails.userpemfile,
-				chefValidationPemFile: chefDetails.validatorpemfile,
-				hostedChefUrl: chefDetails.url
-			});
-			logger.debug('Chef Repo Location = ', chefDetails.chefRepoLocation);
+        configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
+            if (err) {
+                logger.error("Failed to getChefServerDetails", err);
+                callback({
+                    message: "Failed to getChefServerDetails"
+                }, null);
+                return;
+            }
+            if (!chefDetails) {
+                logger.error("No CHef Server Detailed available.", err);
+                callback({
+                    message: "No Chef Server Detailed available"
+                }, null);
+                return;
+            }
+            var chef = new Chef({
+                userChefRepoLocation: chefDetails.chefRepoLocation,
+                chefUserName: chefDetails.loginname,
+                chefUserPemFile: chefDetails.userpemfile,
+                chefValidationPemFile: chefDetails.validatorpemfile,
+                hostedChefUrl: chefDetails.url
+            });
+            logger.debug('Chef Repo Location = ', chefDetails.chefRepoLocation);
 
-			var blueprintConfigType = getBlueprintConfigType(self);
+            var blueprintConfigType = getBlueprintConfigType(self);
 
-			if (!self.appUrls) {
-				self.appUrls = [];
-			}
-			var appUrls = self.appUrls;
-			if (appConfig.appUrls && appConfig.appUrls.length) {
-				appUrls = appUrls.concat(appConfig.appUrls);
-			}
+            if (!self.appUrls) {
+                self.appUrls = [];
+            }
+            var appUrls = self.appUrls;
+            if (appConfig.appUrls && appConfig.appUrls.length) {
+                appUrls = appUrls.concat(appConfig.appUrls);
+            }
 
-			chef.getEnvironment(envName, function(err, env) {
-				if (err) {
-					logger.error("Failed chef.getEnvironment", err);
-					res.send(500);
-					return;
-				}
+            chef.getEnvironment(envName, function(err, env) {
+                if (err) {
+                    logger.error("Failed chef.getEnvironment", err);
+                    res.send(500);
+                    return;
+                }
 
-				if (!env) {
-					logger.debug("Blueprint env ID = ", req.query.envId);
-					chef.createEnvironment(envName, function(err) {
-						if (err) {
-							logger.error("Failed chef.createEnvironment", err);
-							res.send(500);
-							return;
-						}
-						blueprintConfigType.launch({
-							infraManager: chef,
-							ver: opts.ver,
-							envName: envName,
-							envId: opts.envId,
-							stackName: opts.stackName,
-							blueprintName: self.name,
-							orgId: self.orgId,
-							bgId: self.bgId,
-							projectId: self.projectId,
-							appUrls: appUrls,
-							sessionUser: opts.sessionUser,
-							users: self.users,
-							blueprintData: self,
-						}, function(err, launchData) {
-							callback(err, launchData);
-						});
+                if (!env) {
+                    chef.createEnvironment(envName, function(err) {
+                        if (err) {
+                            logger.error("Failed chef.createEnvironment", err);
+                            res.send(500);
+                            return;
+                        }
+                        blueprintConfigType.launch({
+                            infraManager: chef,
+                            ver: opts.ver,
+                            envName: envName,
+                            envId: opts.envId,
+                            stackName: opts.stackName,
+                            blueprintName: self.name,
+                            orgId: self.orgId,
+                            bgId: self.bgId,
+                            projectId: self.projectId,
+                            appUrls: appUrls,
+                            sessionUser: opts.sessionUser,
+                            users: self.users,
+                            blueprintData: self,
+                        }, function(err, launchData) {
+                            callback(err, launchData);
+                        });
 
-					});
-				} else {
-					blueprintConfigType.launch({
-						infraManager: chef,
-						ver: opts.ver,
-						envName: envName,
-						envId: opts.envId,
-						stackName: opts.stackName,
-						blueprintName: self.name,
-						orgId: self.orgId,
-						bgId: self.bgId,
-						projectId: self.projectId,
-						appUrls: appUrls,
-						sessionUser: opts.sessionUser,
-						users: self.users,
-						blueprintData: self,
-					}, function(err, launchData) {
-						callback(err, launchData);
-					});
-				}
+                    });
+                } else {
+                    blueprintConfigType.launch({
+                        infraManager: chef,
+                        ver: opts.ver,
+                        envName: envName,
+                        envId: opts.envId,
+                        stackName: opts.stackName,
+                        blueprintName: self.name,
+                        orgId: self.orgId,
+                        bgId: self.bgId,
+                        projectId: self.projectId,
+                        appUrls: appUrls,
+                        sessionUser: opts.sessionUser,
+                        users: self.users,
+                        blueprintData: self,
+                    }, function(err, launchData) {
+                        callback(err, launchData);
+                    });
+                }
 
-			});
+            });
 
-		});
-	});
+        });
+    });
 };
 
 // static methods

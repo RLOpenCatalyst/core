@@ -5992,6 +5992,9 @@ function devCall() {
 
 			$dockercontainertable = $('#dockercontainertable tbody');
 			$('.docctrempty').detach();
+			/*Demo QuickFix - Start*/
+			$('tr[id*="trfordockercontainer_"]').remove();
+			/*Demo QuickFix - End*/
 
 			function showNoContainerRow() {
 				var $docctrempty = $('#dockercontainertabletemplatetr').clone().empty().append('<td class="spinnerLoadForDocker" colspan="8" style="text-align:center">No containers found</td>').removeClass('hidden');
@@ -6012,17 +6015,23 @@ function devCall() {
 
 					var instanceid = $(this).find('[data-instanceid]').attr('data-instanceid');
 					$.get('/instances/dockercontainerdetails/' + instanceid, function(data) {
-						if (!data) {
+						/*Demo QuickFix - Start*/
+						/*if (!data) {
 							$('.spinnerDocker').addClass('hidden');
 							$('.dockerContainerBody').removeClass('hidden');
 							showNoContainerRow();
 							$('.loadingimagefordockertable').addClass('hidden');
 							$('#dockercontainertablerefreshspinner').removeClass('fa-spin');
 							return;
-						}
+						}*/
+						/*Demo QuickFix - End*/
 						if (data) {
 							//Shwoing the loader spinner and clearing the rows.
-							$('tr[id*="trfordockercontainer_"]').remove();
+							
+							/*Demo QuickFix - Start*/
+							//$('tr[id*="trfordockercontainer_"]').remove();
+							/*Demo QuickFix - End*/
+							
 							$('.spinnerDocker').addClass('hidden');
 							$('.dockerContainerBody').removeClass('hidden');
 							$('.docctrempty').detach();
