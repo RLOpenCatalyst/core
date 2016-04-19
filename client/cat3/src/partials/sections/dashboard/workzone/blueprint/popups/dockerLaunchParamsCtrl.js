@@ -7,7 +7,7 @@
 (function(angular) {
     "use strict";
     angular.module('workzone.blueprint')
-        .controller('dockerLaunchParamsCtrl', ['$scope', '$modal', '$modalInstance', 'workzoneServices', '$q', 'items', 'confirmbox', function($scope, $modal, $modalInstance, workzoneServices, $q, items, confirmbox) {
+        .controller('dockerLaunchParamsCtrl', ['$scope', '$modal', '$modalInstance', 'workzoneServices', '$q', 'items', function($scope, $modal, $modalInstance, workzoneServices, $q, items) {
             angular.extend($scope, {
                 cancel: function() {
                     $modalInstance.dismiss('cancel');
