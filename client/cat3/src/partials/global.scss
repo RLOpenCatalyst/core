@@ -490,6 +490,7 @@ option.puppet {
 
 	.ui-grid-cell {
 		text-overflow: ellipsis;
+		overflow: initial;
 	}
 
 	ul.ng-scope {
@@ -505,19 +506,15 @@ option.puppet {
 	    height: auto!important;
 	}
 
-	.ui-grid-cell-contents {
-	    white-space: normal;
-	    text-overflow: inherit;
-	    word-break: break-word;
-	    overflow: hidden;
-		height: 100%;
-	}
-
 	.ui-grid-row > div .ui-grid-cell {
 	    display: table-cell;
 	    float: none;
 	    vertical-align: middle;
 	    height: auto!important;
+	}
+
+	.ui-grid-cell-contents {
+	    white-space: pre-wrap;
 	}
 }
 /*ui grid css ends*/

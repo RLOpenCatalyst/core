@@ -33,14 +33,14 @@
 							<span><i class="fa fa-pencil edit-instance-name cursor" ng-click="operationSet.editInstanceName(inst);" title="Edit Instance Name"></i></span>
 						</div>
 						<div class="card-title-osIcon" title="Linux"><img src="images/osIcons/linux.png"/ ng-show="inst.hardware.platform==='unknown'"></div>
-						<div class="card-title-osIcon" title="Ubuntu"><img src="images/osIcons/ubuntu.png"/ ng-show="inst.hardware.platform==='Ubuntu'"></div>
+						<div class="card-title-osIcon" title="Ubuntu"><img src="images/osIcons/ubuntu.png"/ ng-show="inst.hardware.platform==='ubuntu'"></div>
 						<div class="card-title-osIcon" title="Windows"><img src="images/osIcons/windows.png"/ ng-show="inst.hardware.platform==='windows'"></div>
 						<div class="card-title-osIcon" title="centos"><img src="images/osIcons/centos.png"/ ng-show="inst.hardware.platform==='centos'">
 						</div>
 						<hr/>
 					</div>
 					<div class="card-status-state">
-					<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
+					<div class="status-state {{getAWSStatus(inst.instanceState)}}">
 							<i class="fa fa-info-circle card-circle-info cursor" title="More Info" ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
 							<img class="docker-image dockerenabledinstacne" whatever="2" alt="Docker"
 							src="images/global/docker.png" ng-show="inst.docker && inst.docker.dockerEngineStatus === 'success'" />
@@ -148,8 +148,8 @@
 										</span>
 									</li>
 									<ul class="paddingleft32 instanceTaskListUL">
-										<li ng-show="inst.taskDetails.length==0">No TaskLinks Available</li>
-										<li class="cursor" ng-repeat="taskDetail in inst.taskDetails">{{taskDetail.name}}</li>
+										<li ng-show="inst.taskIds.length==0">No TaskLinks Available</li>
+										<li class="cursor" ng-repeat="taskDetail in inst.Ids">{{taskDetail.name}}</li>
 									</ul>
 								</ul>
 							</div>
@@ -160,8 +160,8 @@
 			<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="maxSize" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationChange()" style="bottom:0px;position:fixed;float:left"></pagination>
 		</section>
 
-		<section id="tableView" class="scrollContent" ng-show="!isCardViewActive">
-			<div id="grid2" ng-if="tabData.length >0"  ui-grid="instancesGridOptions" ui-grid-pagination  class="grid" style="height: {{gridHeight}}px"></div>
+		<section id="tableView" ng-show="!isCardViewActive">
+			<div id="grid2" ng-if="tabData.length >0"  ui-grid="instancesGridOptions" ui-grid-pagination class="grid instance-status"></div>
 			<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>
 			<div ng-show="!isinstancesTableLoading && gridOptions.data.length > 0" ui-grid="gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid" style="height: {{gridHeight}}px"></div> -->
 			<!-- <table datatable="" class="table-bordered text-center instance-table">

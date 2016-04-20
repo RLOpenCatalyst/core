@@ -96,35 +96,36 @@
 			
 			$scope.instancesGridOptions.data='tabData';
 			$scope.instancesGridOptions.columnDefs = [
-				{ name:'Logo', cellTemplate:'<img src="/cat3/images/roles/chef-import.png" ng-show="row.entity.chef"/>'
-				+'<img src="/cat3/images/roles/chef-import.png" ng-show="row.entity.puppet"/>', cellTooltip: true},
-				{ name:'Name', cellTemplate:'<span>{{row.entity.name}}</span>'
-				+'<span ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'
+				{ name:'Logo', cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'
+				+'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>', cellTooltip: true},
+				{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'
+				+'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'
 				+'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'
 				+'</span>', cellTooltip: true},
 				{ name:'Ip Address', field:'instanceIP',cellTooltip: true},
 				{ name:'RunLists', cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
-				{ name:'Status', cellTemplate:'<div style="width:100%;height:100%;text-align:center;margin:auto"><div class="status-state {{grid.appScope.getAWSStatusImage(row.entity.instanceState)}}"></div>', cellTooltip: true},
+				{ name:'Status', cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
 				{ name:'Log Info', cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
 				{ name:'Chef Run', cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'
 				+'<div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>'
 				+'<div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>'
 				+'<div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled">'
-				+'</div>', cellTooltip: true}
-				
+				+'</div>', cellTooltip: true},
+				{ name:'Action', cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}	
 			];
-					
 		};
 		$scope.instancesGridOptions.onRegisterApi= function(gridApi) {
 			$scope.gridApi = gridApi;
 
 			  //Sorting for sortBy and sortOrder
 		      gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
-		      	$scope.paginationParams.sort={
-		      		field:sortColumns[0].field,
-		      		direction: sortColumns[0].sort.direction
-		      	};
-		      	$scope.instancesListCardView();
+		      	if(sortColumns.length){
+			      	$scope.paginationParams.sort={
+			      		field:sortColumns[0].field,
+			      		direction: sortColumns[0].sort.direction
+			      	};
+			      	$scope.instancesListCardView();
+			    }
 				/*workzoneServices.getAllInstancesList($scope.requestParams,$scope.paginationParams).then(function(result){
 					$timeout(function(){
 						$scope.instancesGridOptions.totalItems = result.data.metaData.totalRecords;
@@ -181,7 +182,6 @@
 						console.log('setting total to' + result.data.metaData.totalRecords);
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
 						$scope.tabData = $scope.instanceList = result.data.instances;
-
 						$scope.isInstancePageLoading = false;
 						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pages.pageSize);
 					}, 100);
@@ -190,9 +190,10 @@
 				});
 				
 			},
-			getAWSStatusImage : function(instanceStatus){
+			/*getAWSStatusImage : function(instanceStatus){
 				$scope.getAWSStatus(instanceStatus, 'image');
-			},
+				console.log('')
+			},*/
 			getAWSStatus: function(instanceStatus,type) {
 				var colorSuffix = '';
 				var instanceStateImagePrefix='instance-state-';
@@ -221,7 +222,11 @@
 						colorSuffix = 'unknown';
 						break;
 				}
-				return type==="image" ? instanceStateImagePrefix + colorSuffix : instanceStateTextPrefix + colorSuffix;
+				if (type == 1 || "image") {
+					return instanceStateImagePrefix + colorSuffix;
+				} else if(type=="text") {
+					return instanceStateTextPrefix + colorSuffix;
+				}
 			}, 
 			actionSet: instanceActions
 		});
@@ -441,6 +446,7 @@
 
 		$scope.showAppLinksPopup = function(inst) {
 			inst.showAppLinks = !inst.showAppLinks;
+			console.log(inst.showAppLinks);
 		};
 
 		$scope.selectCard = function(identi) {

@@ -51,7 +51,7 @@
 						{ name:'Job Type',cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="jenkins-img" />'
 						+'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="jenkins-img" />'
 						+'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="jenkins-img" />'
-						+'<img src="images/orchestration/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="jenkins-img">',cellTooltip: true},
+						+'<img src="images/global/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="jenkins-img">',cellTooltip: true},
 						{ name:'Name',field:'name',cellTooltip: true},
 						{ name:'Job Description',field:'description',cellTooltip: true},
 						{ name:'Job Links', cellTemplate:'<div>'
@@ -392,6 +392,7 @@
 							$rootScope.globalSuccessMessage = 'New Job ' + taskName + ' created successfully';
 						} else {
 							$rootScope.globalSuccessMessage = taskName + ' has been updated successfully';
+							$scope.taskListGridView();
 						}
 						$('#globalSuccessMessage').animate({
 							top: '0'
