@@ -237,7 +237,6 @@ appDeployService.getNexusArtifactVersionList=function getNexusArtifactVersionLis
 }
 
 appDeployService.getAppDeployHistoryListByProjectId=function getAppDeployHistoryListByProjectId(jsonData,callback){
-    var databaseReq = {};
     jsonData['searchColumns'] = ['envId', 'applicationVersion'];
     apiUtil.databaseUtil(jsonData, function (err, databaseCall) {
         if (err) {
@@ -245,20 +244,19 @@ appDeployService.getAppDeployHistoryListByProjectId=function getAppDeployHistory
             err.status = 500;
             return callback(err);
         }
-        else
-            databaseReq = databaseCall;
-    });
-    AppDeploy.getAppDeployHistoryListByProjectId(databaseReq.queryObj, databaseReq.options, function (err, appDeployHistoryData) {
-        if (err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        }
         else {
-            return callback(null, appDeployHistoryData);
+            AppDeploy.getAppDeployHistoryListByProjectId(databaseCall.queryObj, databaseCall.options, function (err, appDeployHistoryData) {
+                if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
+                else {
+                    return callback(null, appDeployHistoryData);
+                }
+            });
         }
     });
-
 }
 
 

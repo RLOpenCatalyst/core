@@ -168,7 +168,6 @@ CloudFormationSchema.statics.createNew = function(cfData, callback) {
 
 CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
     if(jsonData.pageSize) {
-        var databaseReq = {};
         jsonData['searchColumns'] = ['stackName', 'status'];
         ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
             if (err) {
@@ -176,21 +175,22 @@ CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, cal
                 err.status = 500;
                 return callback(err);
             }
-            databaseReq = databaseCall;
-        });
-        this.paginate(databaseReq.queryObj, databaseReq.options, function (err, cftData) {
-            if (err) {
-                var err = new Error('Internal server error');
-                err.status = 500;
-                return callback(err);
+            else{
+                this.paginate(databaseCall.queryObj, databaseCall.options, function (err, cftData) {
+                    if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
+                else if (!cftData) {
+                    var err = new Error('Cloud Formation is not found');
+                    err.status = 404;
+                    return callback(err);
+                }
+                else
+                    return callback(null, cftData);
+            });
             }
-            else if (!cftData) {
-                var err = new Error('Cloud Formation is not found');
-                err.status = 404;
-                return callback(err);
-            }
-            else
-                return callback(null, cftData);
         });
     }
     else{
