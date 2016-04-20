@@ -258,21 +258,19 @@
 		};
 
 		serviceInterface.updateCookbook = function(instance) {
+			console.log("instance service");
 			var _viewChefRunList = function() {
-				//promise contain list of cookbooks and roles list
+				/*//promise contain list of cookbooks and roles list
 				var c = workzoneServices.getCookBookListForOrg();
 				//promise contains template list
 				var t = workzoneServices.getSoftwareTemplatesForOrg();
-				var allPromise = $q.all([c, t]);
+				var allPromise = $q.all([c, t]);*/
 				var modalInstance = $modal.open({
 					templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceUpdateChefRunlist.html',
 					controller: 'instanceUpdateChefRunlistCtrl',
 					backdrop: 'static',
 					keyboard: false,
 					resolve: {
-						items: function() {
-							return allPromise;
-						},
 						instanceId: function() {
 							return instance._id;
 						}

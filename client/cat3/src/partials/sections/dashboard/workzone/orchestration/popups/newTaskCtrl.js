@@ -17,31 +17,11 @@
                     angular.extend($scope, {
                         updateCookbook: function () {
                             if ($scope.chefInstanceList.length) {
-                                //promise contain list of cookbooks and roles list
-                                var c = workzoneServices.getCookBookListForOrg();
-                                //promise contains template list
-                                var t = workzoneServices.getSoftwareTemplatesForOrg();
-                                //promise contains selected runlist for edit.
-                                var s = $scope.chefrunlist;
-                                //promise contains edited cookbook attributes list
-                                var a = $scope.cookbookAttributes;
-
-                                var e = $scope.editRunListAttributes;
-
-
-                                var allPromise = $q.all([c, t, s, a, e]);
-
-
                                 $modal.open({
                                     templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
                                     controller: 'orchestrationUpdateChefRunlistCtrl',
                                     backdrop: 'static',
-                                    keyboard: false,
-                                    resolve: {
-                                        items: function () {
-                                            return allPromise;
-                                        }
-                                    }
+                                    keyboard: false
                                 }).result.then(function (selectedCookBooks) {
                                     $scope.editRunListAttributes = false;
                                     $scope.chefrunlist = selectedCookBooks.list;
