@@ -323,30 +323,14 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             var nodeIds = [];
                             var appVersion = "";
                             var appName = "";
-                            if (appData.version) {
-                                appVersion = appData.version;
-                            } else {
-                                appVersion = appData.imageTag;
-                            }
-
-                            if (appData.nexusUrl) {
-                                var lastIndex = appData.nexusUrl.split("/").length - 1;
-                                appName = appData.nexusUrl.split("/")[lastIndex].split("-")[0];
-                            } else {
-                                if (appData.image && appData.image.indexOf("/") != -1) {
-                                    appName = appData.image.split("/")[1];
-                                } else {
-                                    appName = appData.image;
-                                }
-                            }
-
-                            nodeIds.push(instance.instanceIP);
                             var nexus = {};
                             var docker = {};
                             if(appData.nexus){
                                 nexus['repoURL'] = appData.nexus.nexusUrl;
                                 nexus['nodeIds'] = appData.nexus.nodeIds;
                                 nexus['artifactId'] = appData.nexus.artifactId;
+                                appName = appData.nexus.artifactId;
+                                appVersion = appData.nexus.version;
                             }
                             if(appData.docker){
                                 docker['image'] = appData.docker.image;
@@ -358,7 +342,10 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 docker['imageTag'] = appData.docker.imageTag;
                                 docker['nodeIds'] = appData.docker.nodeIds;
                                 docker['hostPort'] = appData.docker.hostPort;
+                                appName = appData.docker.image;
+                                appVersion = appData.docker.imageTag;
                             }
+                            nodeIds.push(instance.instanceIP);
                             var appData = {
                                 "projectId": instance.projectId,
                                 "envName": envName,
