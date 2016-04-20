@@ -76,25 +76,6 @@
                         });
                     };
 
-                    $scope.convertToWorkstation = function () {
-                        $modal.open({
-                            animation: true,
-                            templateUrl: 'src/partials/sections/dashboard/workzone/instance/manage/popups/convertToWorkstation.html',
-                            controller: 'convertToWorkstationCtrl',
-                            backdrop: 'static',
-                            keyboard: false,
-                            resolve: {
-                                selectedInstance: function () {
-                                    return cpInstance;
-                                }
-                            }
-                        }).result.then(function () {
-
-                        }, function () {
-                            console.log('Modal Dismissed at ' + new Date());
-                        });
-                    };
-
                 }]).controller('addNewServiceCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'dataObj', 'cacheServices', 'instanceFactories', function ($scope, $modalInstance, workzoneServices, dataObj, cacheServices, instanceFactories) {
 
             $scope.serviceIds = dataObj.serviceIds;
@@ -157,14 +138,6 @@
                     cpInstance.serviceIds = cpInstance.serviceIds.concat($scope.selection);
                     $modalInstance.close();
                 });
-            };
-        }]).controller('convertToWorkstationCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'selectedInstance', function ($scope, $modalInstance, workzoneServices, selectedInstance) {
-            workzoneServices.convertToWorkstation(selectedInstance._id).then(function (response) {
-                $scope.message = response.level;
-            });
-
-            $scope.cancel = function () {
-                $modalInstance.dismiss('cancel');
             };
         }]);
 })();
