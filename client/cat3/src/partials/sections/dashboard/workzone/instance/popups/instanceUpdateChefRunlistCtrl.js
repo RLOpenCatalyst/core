@@ -79,15 +79,6 @@
 		}, 10);
 
 		angular.extend($scope, {
-			HelpScreen: function() {
-				$modal.open({
-					animation: true,
-					templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceCookBookHelp.html',
-					controller: 'cookbookHelpCtrl',
-					backdrop: 'static',
-					keyboard: false,
-				});
-			},
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
 			},
