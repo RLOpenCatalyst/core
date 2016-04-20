@@ -7,7 +7,7 @@
 
 (function(){
 "use strict";
-angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$modal, $modalInstance,workSvs,workEnvt) {
+angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$rootScope,$modal, $modalInstance,workSvs,workEnvt) {
 		/*$scope.isSelectedEnable = true;
 		$scope.serverType='';
 		console.log($scope.serverType);
@@ -17,26 +17,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 		angular.extend($scope,{appDepOrUpgrade:items.appDepOrUpgrade}, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
-			},
-			createNewJob: function(type) {
-			   $modal.open({
-					animate: true,
-					templateUrl: "src/partials/sections/dashboard/workzone/orchestration/popup/newTask.html",
-					controller: "newTaskCtrl",
-					backdrop : 'static',
-					size: 'lg',
-					keyboard: false,
-					resolve: {
-						items: function() {
-							return type;
-						}
-					}
-				})
-				.result.then(function(selectedItem) {
-					$scope.selected = selectedItem;
-				}, function() {
-					
-				}); 
 			}
 		});
 		var depNewApp={
@@ -56,6 +36,9 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingServer=false;
 				depNewApp.serverOptions = serverResult.data.server;
 			});
+			depNewApp.getAllJobs();
+		};
+		depNewApp.getAllJobs =function () {
 			// call job API
 			workSvs.getJobTask().then(function (jobResult) {
 				$scope.isLoadingJob=false;
@@ -80,12 +63,12 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingNexus = false;
 			});
 			depNewApp.clearChildField('serverType');
-		}
+		};
 		depNewApp.changeRepository = function(){
 			depNewApp.newEnt.repository = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].id;
 			depNewApp.newEnt.repositoryURL = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].resourceURI;
 			depNewApp.clearChildField('repository');
-		}
+		};
 		depNewApp.getArtifacts= function(){
 			$scope.isLoadingArtifacts = true;
 			depNewApp.requestData={
@@ -98,7 +81,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingArtifacts = false;
 			});
 			depNewApp.clearChildField('groupId');
-		}
+		};
 		depNewApp.getVersions= function(){
 			$scope.isLoadingNexusVersion = true;
 			depNewApp.newEnt.artifact = depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].artifactId;
@@ -108,8 +91,10 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingNexusVersion = false;
 			});
 			depNewApp.clearChildField('artifact');
-		}
-
+		};
+		depNewApp.createNewJob = function (){
+			$rootScope.$emit("CREATE_NEW_JOB");
+		};
 		depNewApp.clearChildField = function (field) {
 			switch (field){
 				case 'serverType' :
@@ -140,7 +125,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					depNewApp.newEnt.version ='';
 					break;
 			}
-		}
+		};
 		depNewApp.submitDemoDeploy = function (){
 			depNewApp.deploymentData = {
 				appData :{
@@ -155,8 +140,11 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				}
 			}
 			console.log(depNewApp.deploymentData);
-		}
-
+		};
+		// call job api after creating new job .
+		$rootScope.$on("GET_ALL_TASK", function(){
+			depNewApp.getAllJobs();
+		});
 		depNewApp.init();
 		return depNewApp;
 	}]);

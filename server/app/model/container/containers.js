@@ -83,7 +83,6 @@ ContainerSchema.plugin(mongoosePaginate);
 
 ContainerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonData, callback) {
     if(jsonData.pageSize) {
-        var databaseReq = {};
         jsonData['searchColumns'] = ['instanceIP', 'state'];
         ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
             if (err) {
@@ -91,22 +90,22 @@ ContainerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonDa
                 err.status = 500;
                 return callback(err);
             }
-            else
-                databaseReq = databaseCall;
-        });
-        Container.paginate(databaseReq.queryObj, databaseReq.options, function (err, containerList) {
-            if (err) {
-                var err = new Error('Internal server error');
-                err.status = 500;
-                return callback(err);
-            }
-            else if (!containerList) {
-                var err = new Error('Container List is not found');
-                err.status = 404;
-                return callback(err);
-            }
             else {
-                return callback(null, containerList);
+                Container.paginate(databaseCall.queryObj, databaseCall.options, function (err, containerList) {
+                    if (err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    }
+                    else if (containerList.length === 0) {
+                        var err = new Error('Container List is not found');
+                        err.status = 404;
+                        return callback(err);
+                    }
+                    else {
+                        return callback(null, containerList);
+                    }
+                });
             }
         });
     }

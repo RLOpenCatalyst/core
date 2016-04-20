@@ -24,7 +24,7 @@
 	$(document).ready(function() {
 		function setHeight() {
 			var windowHeight = $(window).innerHeight();
-			var brdcrmbHeight = $('#bdCrCont').outerHeight();
+			var brdcrmbHeight = $('#breadcrumb-block').outerHeight();
 			var headerHeight = $('#header').outerHeight();
 			var setTreeContentHeight = windowHeight - (brdcrmbHeight + headerHeight);
 			$('#navigPage').css('height', (setTreeContentHeight) + 'px');
