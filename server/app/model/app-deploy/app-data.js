@@ -26,26 +26,95 @@ var schemaValidator = require('_pr/model/utils/schema-validator');
 var Schema = mongoose.Schema;
 
 var AppDataSchema = new Schema({
-    projectId: String,
-    envId: String,
-    appName: String,
-    version: String,
-    upgrade: String,
-    nexus:{
-        repoURL: String,
-        nodeIps: [String]
+    projectId: {
+        type: String,
+        required: true,
+        trim: true
     },
-    docker:[{
-        image: String,
-        containerId: String,
-        containerPort: String,
-        hostPort: String,
-        dockerUser: String,
-        dockerPassword: String,
-        dockerEmailId: String,
-        imageTag: String,
-        nodeIp: String
-    }]
+    envName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    appName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    version: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    nexus: {
+        repoURL: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        nodeIds: {
+            type: [String],
+            required: true
+        },
+        artifactId: {
+            type: String,
+            required: true,
+            trim: true
+        }
+    },
+    docker: {
+        image: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        containerName: {
+            type: String,
+            trim: true
+        },
+        containerPort: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        hostPort: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        dockerUser: {
+            type: String,
+            trim: true
+        },
+        dockerPassword: {
+            type: String,
+            trim: true
+        },
+        dockerEmailId: {
+            type: String,
+            trim: true
+        },
+        imageTag: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        nodeIds: {
+            type: [String],
+            required: true
+        }
+    },
+    s3Bucket: {
+        url: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        nodeIds: {
+            type: [String],
+            required: true
+        }
+    }
 });
 
 
@@ -54,7 +123,7 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
     var that = this;
     this.find({
         projectId: appData.projectId,
-        envId: appData.envId,
+        envName: appData.envName,
         appName: appData.appName,
         version: appData.version
     }, function(err, aData) {
@@ -70,7 +139,7 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
             }
             that.update({
                 projectId: appData.projectId,
-                envId: appData.envId,
+                envName: appData.envName,
                 appName: appData.appName,
                 version: appData.version
             }, {
@@ -99,10 +168,10 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
 };
 
 // Get AppData by project,env,appName,version.
-AppDataSchema.statics.getAppDataByProjectAndEnv = function(projectId, envId, appName, version, callback) {
+AppDataSchema.statics.getAppDataByProjectAndEnv = function(projectId, envName, appName, version, callback) {
     this.find({
         projectId: projectId,
-        envId: envId,
+        envName: envName,
         appName: appName,
         version: version
     }, function(err, anAppData) {

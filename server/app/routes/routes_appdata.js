@@ -25,8 +25,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/app/data/*', sessionVerificationFunc);
 
     // Get  AppData by Project and Env
-    app.get('/app/data/project/:projectId/env/:envId', function(req, res) {
-        AppData.getAppDataByProjectAndEnv(req.params.projectId, req.params.envId,req.query.application, req.query.version, function(err, appDatas) {
+    app.get('/app/data/project/:projectId/env/:envName', function(req, res) {
+        AppData.getAppDataByProjectAndEnv(req.params.projectId, req.params.envName,req.query.application, req.query.version, function(err, appDatas) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;

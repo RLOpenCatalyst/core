@@ -52,7 +52,7 @@ chefTaskSchema.methods.getNodes = function() {
 };
 
 // Instance Method :- run task
-chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
+chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete) {
     var self = this;
     logger.debug("self: ", JSON.stringify(self));
     if (blueprintIds[0] != "" && blueprintIds.length) {
@@ -234,80 +234,84 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                     }
 
                     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
-                    if (nexusData) {
+                    if (appData) {
                         masterUtil.getEnvironmentName(instance.envId, function(envName) {
-                            objectArray.push({
-                                "rlcatalyst": {
-                                    "nexusUrl": nexusData.nexusUrl
-                                }
-                            });
-                            objectArray.push({
-                                "rlcatalyst": {
-                                    "version": nexusData.version
-                                }
-                            });
-                            if (nexusData.containerId) {
+                            if (appData.nexus) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "containerId": nexusData.containerId
+                                        "nexusUrl": appData.nexus.nexusUrl
+                                    }
+                                });
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "version": appData.nexus.version
                                     }
                                 });
                             }
-                            if (nexusData.containerPort) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "containerPort": nexusData.containerPort
-                                    }
-                                });
-                            }
-                            if (nexusData.dockerImage) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "dockerImage": nexusData.dockerImage
-                                    }
-                                });
+                            if (appData.docker) {
+                                if (appData.docker.containerName) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "containerId": appData.docker.containerName
+                                        }
+                                    });
+                                }
+                                if (appData.docker.containerPort) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "containerPort": appData.docker.containerPort
+                                        }
+                                    });
+                                }
+                                if (appData.docker.dockerImage) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "dockerImage": appData.docker.dockerImage
+                                        }
+                                    });
+                                }
+
+                                if (appData.docker.hostPort) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "hostPort": appData.docker.hostPort
+                                        }
+                                    });
+                                }
+                                if (appData.docker.dockerUser) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "dockerUser": appData.docker.dockerUser
+                                        }
+                                    });
+                                }
+                                if (appData.docker.dockerPassword) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "dockerPassword": appData.docker.dockerPassword
+                                        }
+                                    });
+                                }
+                                if (appData.docker.dockerEmailId) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "dockerEmailId": appData.docker.dockerEmailId
+                                        }
+                                    });
+                                }
+                                if (appData.docker.imageTag) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "imageTag": appData.docker.imageTag
+                                        }
+                                    });
+                                }
                             }
 
-                            if (nexusData.hostPort) {
+                            if (appData.upgrade) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "hostPort": nexusData.hostPort
-                                    }
-                                });
-                            }
-                            if (nexusData.dockerUser) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "dockerUser": nexusData.dockerUser
-                                    }
-                                });
-                            }
-                            if (nexusData.dockerPassword) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "dockerPassword": nexusData.dockerPassword
-                                    }
-                                });
-                            }
-                            if (nexusData.dockerEmailId) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "dockerEmailId": nexusData.dockerEmailId
-                                    }
-                                });
-                            }
-                            if (nexusData.imageTag) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "imageTag": nexusData.imageTag
-                                    }
-                                });
-                            }
-
-                            if (nexusData.upgrade) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "upgrade": nexusData.upgrade
+                                        "upgrade": appData.upgrade
                                     }
                                 });
                             }
@@ -316,53 +320,52 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                                     "applicationNodeIP": instance.instanceIP
                                 }
                             });
-                            var nodeIp = [];
-                            var actualDocker = [];
+                            var nodeIds = [];
                             var appVersion = "";
                             var appName = "";
-                            if (nexusData.version) {
-                                appVersion = nexusData.version;
+                            if (appData.version) {
+                                appVersion = appData.version;
                             } else {
-                                appVersion = nexusData.imageTag;
+                                appVersion = appData.imageTag;
                             }
 
-                            if (nexusData.nexusUrl) {
-                                var lastIndex = nexusData.nexusUrl.split("/").length - 1;
-                                appName = nexusData.nexusUrl.split("/")[lastIndex].split("-")[0];
+                            if (appData.nexusUrl) {
+                                var lastIndex = appData.nexusUrl.split("/").length - 1;
+                                appName = appData.nexusUrl.split("/")[lastIndex].split("-")[0];
                             } else {
-                                if (nexusData.image && nexusData.image.indexOf("/") != -1) {
-                                    appName = nexusData.image.split("/")[1];
+                                if (appData.image && appData.image.indexOf("/") != -1) {
+                                    appName = appData.image.split("/")[1];
                                 } else {
-                                    appName = nexusData.image;
+                                    appName = appData.image;
                                 }
                             }
 
-                            nodeIp.push(instance.instanceIP);
-                            var nexus = {
-                                "repoURL": nexusData.nexusUrl,
-                                "nodeIps": nodeIp
-                            };
-
-                            var docker = {
-                                "image": nexusData.image,
-                                "containerId": nexusData.containerId,
-                                "containerPort": nexusData.containerPort,
-                                "hostPort": nexusData.hostPort,
-                                "dockerUser": nexusData.dockerUser,
-                                "dockerPassword": nexusData.dockerPassword,
-                                "dockerEmailId": nexusData.dockerEmailId,
-                                "imageTag": nexusData.imageTag,
-                                "nodeIp": instance.instanceIP
-                            };
-                            actualDocker.push(docker);
-
+                            nodeIds.push(instance.instanceIP);
+                            var nexus = {};
+                            var docker = {};
+                            if(appData.nexus){
+                                nexus['repoURL'] = appData.nexus.nexusUrl;
+                                nexus['nodeIds'] = appData.nexus.nodeIds;
+                                nexus['artifactId'] = appData.nexus.artifactId;
+                            }
+                            if(appData.docker){
+                                docker['image'] = appData.docker.image;
+                                docker['containerName'] = appData.docker.containerName;
+                                docker['containerPort'] = appData.docker.containerPort;
+                                docker['dockerUser'] = appData.docker.dockerUser;
+                                docker['dockerPassword'] = appData.docker.dockerPassword;
+                                docker['dockerEmailId'] = appData.docker.dockerEmailId;
+                                docker['imageTag'] = appData.docker.imageTag;
+                                docker['nodeIds'] = appData.docker.nodeIds;
+                                docker['hostPort'] = appData.docker.hostPort;
+                            }
                             var appData = {
                                 "projectId": instance.projectId,
-                                "envId": envName,
+                                "envName": envName,
                                 "appName": appName,
                                 "version": appVersion,
                                 "nexus": nexus,
-                                "docker": actualDocker
+                                "docker": docker
                             };
                             AppData.createNewOrUpdate(appData, function(err, data) {
                                 if (err) {
