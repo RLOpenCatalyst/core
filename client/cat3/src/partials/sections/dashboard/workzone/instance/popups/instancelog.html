@@ -6,7 +6,8 @@
 </div>
 
 <div class="modal-body">
-	<div class="logsArea">
+	<loading size="large" name="isInstanceLogsLoading" align="center" type="block"></loading>
+	<div class="logsArea" ng-show="!isInstanceLogsLoading">
 		<table>
 			<tbody>
 				<tr class="row rowSpacing" ng-repeat="log in logList">
