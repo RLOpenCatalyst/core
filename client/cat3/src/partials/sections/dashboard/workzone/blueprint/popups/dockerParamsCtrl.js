@@ -54,11 +54,13 @@
 			angular.forEach(params, function(value, key) {
 				var subparam = params[key].split(' ');
 				if (subparam.length > 0) {
+					/*Checking if the one of the known parameters are present in the 0th position*/
+					/*When present, a value is assumed to be present as well in the 1st position*/
 					if (subparam.indexOf('p') === 0) {
 						$scope.dockerParams.port = subparam[1];
 					} else if (subparam.indexOf('-link') === 0) {
 						$scope.dockerParams.link = subparam[1];
-					} else if (subparam.indexOf('--name') === 0) {
+					} else if (subparam.indexOf('-name') === 0 || subparam.indexOf('--name') === 0) {
 						$scope.dockerParams.name = subparam[1];
 					} else if (subparam.indexOf('v') === 0) {
 						$scope.dockerParams.volumes = subparam[1];

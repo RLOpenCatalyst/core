@@ -196,7 +196,7 @@
                                     }
                                 }
                                 if (!taskJSON.nodeIds.length) {
-                                    alert('Please selecte atleast one puppet node');
+                                    alert('Please select atleast one puppet node');
                                     return false;
                                 }
                             }
@@ -204,11 +204,22 @@
 
                             if ($scope.taskType === "jenkins") {
                                 taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
+                                if (!taskJSON.jenkinsServerId.length) {
+                                    alert('Please select the Jenkins Server');
+                                    return false;
+                                }
                                 taskJSON.autoSyncFlag = $scope.autoSync.flag;
                                 taskJSON.jobName = $scope.jenkinJobSelected;
-                                taskJSON.jobURL = $scope.jobURL;
+                                if (!taskJSON.jobName.length) {
+                                    alert('Please select one Job');
+                                    return false;
+                                }
+                                taskJSON.jobURL = $scope.jobUrl;
+                                if (!taskJSON.jobURL.length) {
+                                    alert('No Job Url');
+                                    return false;
+                                }
                                 taskJSON.isParameterized = $scope.isParameterized.flag;
-                                taskJSON.jobResultURL = $scope.jobLinkList;
                                 taskJSON.jobResultURLPattern = $scope.jobLinkList;
                                 taskJSON.parameterized = $scope.jenkinsParamsList;
                             }
