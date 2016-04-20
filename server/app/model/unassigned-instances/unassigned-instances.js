@@ -113,6 +113,23 @@ UnassignedInstancesSchema.statics.getById = function getByProviderId(instanceId,
     );
 };
 
+UnassignedInstancesSchema.statics.getAllByIds = function getByProviderId(instanceIds, callback) {
+    var params = {
+        '_id': {$in: instanceIds}
+    };
+
+    this.find(params,function(err, instances) {
+        if (err) {
+            logger.error("Could not get instances");
+            return callback(err, null);
+        } else if(instances.length > 0) {
+            return callback(null, instances[0]);
+        } else {
+            return callback(null, null);
+        }
+    });
+};
+
 UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
     = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
     var params = {
