@@ -30,6 +30,8 @@ instanceService.updateAWSInstanceTag = updateAWSInstanceTag;
 instanceService.updateUnassignedInstanceTags = updateUnassignedInstanceTags;
 instanceService.createUnassignedInstanceObject = createUnassignedInstanceObject;
 instanceService.createUnassignedInstancesList = createUnassignedInstancesList;
+instanceService.bulkUpdateInstanceProviderTags = bulkUpdateInstanceProviderTags;
+instanceService.bulkUpdateUnassignedInstanceTags = bulkUpdateUnassignedInstanceTags;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -64,6 +66,137 @@ function getUnassignedInstancesByProvider(provider, callback) {
             return callback(null, assignedInstances);
         }
     });
+}
+
+function bulkUpdateInstanceProviderTags(provider, instances, callback) {
+    var providerTypes = appConfig.providerTypes;
+
+    if(instances.length > 10) {
+        var err = new Error("Invalid request");
+        err.status = 400;
+        return callback(err);
+    } else {
+        // @TODO nested loop to be avoided
+        var unassignedInstances = [];
+        for(var i = 0; i < instances.length; i++) {
+            (function (j) {
+                // @TODO replace with single query
+                unassignedInstancesModel.getById(instances[j].id, function(err, unassignedInstance) {
+                    if(err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    } else if(!unassignedInstance) {
+                        var err = new Error('Instance not found');
+                        err.status = 404;
+                        return callback(err);
+                    } else if(unassignedInstance) {
+                        logger.debug('Update tags for instance ', unassignedInstance._id);
+                        for (tagName in instances[j].tags) {
+                            unassignedInstance.tags[tagName] = instances[j].tags[tagName];
+                        }
+                        unassignedInstances.push(unassignedInstance);
+                    }
+
+                    if (j == instances.length - 1) {
+                        switch(provider.providerType) {
+                            case providerTypes.AWS:
+                                logger.debug('Update aws instance tags ', unassignedInstances.length);
+                                bulkUpdateAWSInstanceTags(provider, unassignedInstances, callback);
+                                break;
+                            default:
+                                var err = new Error('Invalid request');
+                                err.status = 400;
+                                return callback(err);
+                                break;
+                        }
+                    }
+                })
+            })(i);
+        }
+    }
+}
+
+// @TODO Call to AWS to be handled asynchronously
+// @TODO Remove synchronous calls
+function bulkUpdateAWSInstanceTags(provider, instances, callback) {
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+
+    var awsSettings = {};
+    if (provider.isDefault) {
+        awsSettings = {
+            "isDefault": true
+        };
+    } else {
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm,
+            cryptoConfig.password);
+
+        var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+        var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+        awsSettings = {
+            "access_key": decryptedAccessKey,
+            "secret_key": decryptedSecretKey
+        };
+    }
+
+    for (var i = 0; i < instances.length; i++) {
+        (function (j) {
+            awsSettings.region = instances[j].providerData.region;
+            var ec2 = new EC2(awsSettings);
+            logger.debug('Updating tags for instance ', instances[j]._id);
+
+            ec2.createTags(instances[j].platformId, instances[j].tags,
+                function (err, data) {
+                    if (err) {
+                        logger.error(err);
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    }
+                });
+
+            if(j == instances.length - 1) {
+                return callback(null, instances);
+            }
+
+        })(i);
+    }
+}
+
+
+function bulkUpdateUnassignedInstanceTags(instances, callback) {
+    var catalystEntityTypes = appConfig.catalystEntityTypes;
+
+    for (var i = 0; i < instances.length; i++) {
+        (function (j) {
+            var params = {
+                '_id': instances[j]._id
+            }
+            var fields = {
+                'tags': instances[j].tags
+            }
+            unassignedInstancesModel.updateInstance(params, fields,
+                function(err, instanceUpdated) {
+                    if(err) {
+                        logger.error(err);
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    }
+                }
+            );
+
+            if(i == instances.length - 1) {
+                return callback(null, instances);
+            }
+
+        })(i);
+    }
 }
 
 
@@ -231,9 +364,7 @@ function createUnassignedInstancesList(instances, callback) {
         tempInstance.ip = instance.ip;
         tempInstance.os = instance.os;
         tempInstance.state = instance.state;
-        tempInstance.projectTag = instance.projectTag;
-        tempInstance.environmentTag = instance.environmentTag;
-        tempInstance.tags = instance.tags;
+        tempInstance.tags = ('tags' in instance)?instance.tags:{};
 
         instancesList.push(tempInstance);
     });

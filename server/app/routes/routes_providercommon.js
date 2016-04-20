@@ -777,6 +777,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
 	 *
 	 */
+	// @TODO Response should match doc
+	// @TODO Pagination, search and sorting to be implemented
 	app.get('/providers/:providerId/tags', validate(tagsValidator.list), getTagsList);
 
 	/**
@@ -923,6 +925,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 *			"pageIndex": 1
 	 * 		}
 	 */
+	// @TODO Response should match doc
+	// @TODO Pagination, search and sorting to be implemented
 	app.get('/providers/:providerId/tag-mappings', validate(tagsValidator.list), getTagMappingsList);
 
 	/**
@@ -1128,7 +1132,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *							"type": "AWS",
      *							"data": {
      *							},
-     *					}
+     *					},
      *					"platformId": "platorm-id",
 	 *					"ip": "192.168.1.0",
      *					"os": "Ubuntu",
@@ -1137,12 +1141,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *						"environment": "dev",
      *						"application": "proj1"
      *					}
+     *				}
 	 * 			 ],
 	 *			"count": 2,
 	 *			"pageSize": 10,
 	 *			"pageIndex": 1
 	 * 		}
 	 */
+	 // @TODO Pagination, search and sorting to be implemented
 	app.get('/providers/:providerId/unassigned-instances', validate(instanceValidator.get), getUnassignedInstancesList);
 
 	/**
@@ -1165,10 +1171,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * @apiSuccess {String}	instance.orgId 					Organization id
 	 * @apiSuccess {Object} instance.provider				Provider
 	 * @apiSuccess {String} instance.provider.id			Provider Id
-	 * @apiSuccess {String} instance.provider.type			Provider type
-	 * @apiSuccess {Object} instance.provider.data			Provider data
-	 * @apiSuccess {Object} instance.projectTag				Project tag
-	 * @apiSuccess {Object} instance.environmentTag			Environment tag
 	 * @apiSuccess {String} instance.platformId				Platform id
 	 * @apiSuccess {String} instance.ip						IP address
 	 * @apiSuccess {String} instance.os						OS
@@ -1184,9 +1186,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *				"type": "AWS",
      *				"data": {
      *						},
-     *			}
-     *			"projectTag": "<project tag value>",
-     *			"environmentTag": "<environment tag value>",
+     *			},
      *			"platformId": "platorm-id",
 	 *			"ip": "192.168.1.0",
      *			"os": "Ubuntu",
@@ -1199,6 +1199,69 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 */
 	app.patch('/providers/:providerId/unassigned-instances/:instanceId',
 		validate(instanceValidator.update), updateUnassignedInstanceTags);
+
+	/**
+	 * @api {patch} /providers/:providerId/unassigned-instances		Update unassigned instance
+	 * @apiName bulkUpdateInstances
+	 * @apiGroup unassigned instances
+	 *
+	 * @apiParam {Number} providerId	Provider ID
+	 * @apiParam {Number} instanceId	Instance ID
+	 * @apiSuccessExample {json} Request-example:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"instances": [
+	 *				{
+	 *					"id": "<MongoID>",
+	 *					"tags": {
+	 *						"environment": "dev",
+	 *						"application": "proj1"
+	 * 			 		}
+	 *				},
+	 *				{
+	 *					"id": "<MongoID>",
+	 *					"tags": {
+	 *						"environment": "dev",
+	 *						"application": "proj1"
+	 * 			 		}
+	 *				}
+	 *			]
+	 * 		}
+	 *
+	 * @apiSuccess {Object[]} instance	 					Unasssigned instance
+	 * @apiSuccess {String}	instance.orgId 					Organization id
+	 * @apiSuccess {Object} instance.provider				Provider
+	 * @apiSuccess {String} instance.provider.id			Provider Id
+	 * @apiSuccess {String} instance.provider.type			Provider type
+	 * @apiSuccess {Object} instance.provider.data			Provider data
+	 * @apiSuccess {String} instance.platformId				Platform id
+	 * @apiSuccess {String} instance.ip						IP address
+	 * @apiSuccess {String} instance.os						OS
+	 * @apiSuccess {String} instance.state					Instance state
+	 * @apiSuccess {Object} instance.tags					Instance tags
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 *			"orgId": "organziationID",
+     *			"provider": {
+     *				"id": "providerID",
+     *				"type": "AWS",
+     *				"data": {
+     *						},
+     *			},
+     *			"platformId": "platorm-id",
+	 *			"ip": "192.168.1.0",
+     *			"os": "Ubuntu",
+     *			"state": "running",
+     *			"tags": {
+     *				"environment": "dev",
+     *				"application": "proj1"
+     *			}
+     *		}
+	 */
+	app.patch('/providers/:providerId/unassigned-instances',
+		validate(instanceValidator.get), bulkUpdateUnassignedInstances);
 
 	function getTagsList(req, res, next) {
 		async.waterfall(
@@ -1467,6 +1530,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					);
 				},
 				instanceService.createUnassignedInstanceObject
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function bulkUpdateUnassignedInstances(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					if('instances' in req.body) {
+						instanceService.bulkUpdateInstanceProviderTags(provider, req.body.instances, next);
+					} else {
+						var err = new Error("Malformed request");
+						err.status = 400;
+						next(err);
+					}
+				},
+				function(instances, next) {
+					instanceService.bulkUpdateUnassignedInstanceTags(instances, next);
+				}
 			],
 			function (err, results) {
 				if (err) {
