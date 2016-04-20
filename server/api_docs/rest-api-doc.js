@@ -1217,7 +1217,7 @@
 	 *{
 		"sourceData": {
 			"nexus": {
-				"repoURL": "nexusRepoUrl",
+				"repoURL": "nexusRepoUrl", // nexusArtifact.resourceURI (from nexus artifact call)
 				"version": "version",
 				"artifactId": "artifactId"
 			},
@@ -1235,12 +1235,12 @@
 		"appData": {
 			"projectId": "projectId",
 			"envName": "envName",
-			"appName": "appName",
-			"version": "version"
+			"appName": "appName", // for nexus(nexus.artifactId) and for docker(docker.image)
+			"version": "version" // for nexus(nexus.version) and for docker(docker.imageTag)
 		},
 		"task": {
 			"taskId": "56fb64a19ee332570c311cef",
-			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"]
+			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"] // Send which are checked
 		}
 	  }
      *
@@ -1264,7 +1264,7 @@
 
 
 
-     //  Upgrade Application
+//  Upgrade Application
 /**
      * @api {put} /app/deploy/upgrade  Upgrade App
      * @apiName UpgradeApp
@@ -1295,7 +1295,7 @@
 	 *{
 		"sourceData": {
 			"nexus": {
-				"repoURL": "nexusRepoUrl",
+				"repoURL": "nexusRepoUrl", // nexusArtifact.resourceURI (from nexus artifact call)
 				"version": "version",
 				"artifactId": "artifactId"
 			},
@@ -1313,12 +1313,12 @@
 		"appData": {
 			"projectId": "projectId",
 			"envName": "envName",
-			"appName": "appName",
-			"version": "version"
+			"appName": "appName", // for nexus(nexus.artifactId) and for docker(docker.image)
+			"version": "version" // for nexus(nexus.version) and for docker(docker.imageTag)
 		},
 		"task": {
 			"taskId": "56fb64a19ee332570c311cef",
-			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"]
+			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"] // Send which are checked
 		}
 	  }
      *
@@ -1340,14 +1340,15 @@
      */
 
 
-     //  Promote Application
+//  Promote Application
 /**
      * @api {put} /app/deploy/promote  Promote App
      * @apiName PromoteApp
      * @apiGroup Promote App
      *
  	 * @apiParam {String} [projectId]  Mandatory projectId for App Data.
- 	 * @apiParam {String} [envName]  Mandatory envName for App Data.
+ 	 * @apiParam {String} [sourceEnv]  Mandatory sourceEnv for App Data.
+ 	 * @apiParam {String} [targetEnv]  Mandatory targetEnv for App Data.
  	 * @apiParam {String} [appName]  Mandatory appName for App Data.
  	 * @apiParam {String} [version]  Mandatory version for App Data.
 
@@ -1358,13 +1359,14 @@
 	 *{
 		"appData": {
 			"projectId": "projectId",
-			"envName": "envName",
-			"appName": "appName",
-			"version": "version"
+			"sourceEnv": "sourceEnv",
+	 		"targetEnv": "targetEnv",
+			"appName": "appName", // for nexus(nexus.artifactId) and for docker(docker.image)
+			"version": "version" // for nexus(nexus.version) and for docker(docker.imageTag)
 		},
 		"task": {
 			"taskId": "56fb64a19ee332570c311cef",
-			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"]
+			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"] // Send which are checked
 		}
 	}
      *
