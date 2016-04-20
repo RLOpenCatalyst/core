@@ -34,55 +34,59 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-lg-12 col-md-12 margintop15" ng-if="depNewApp.newEnt.serverType==='docker'">
-						<label ng-click="showHideLoader()">Container Name/ID:</label>
-						<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
-						<input type="text" class="form-control">
-					</div>
-					<div class="col-lg-12 col-md-12" ng-if="depNewApp.newEnt.serverType==='docker'">
-						<label>Container Port:<span class="red">*</span>
-							<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
-						</label>
-						<input type="text" class="form-control">
-					</div>
-					<div class="col-lg-6 col-md-6" ng-if="depNewApp.newEnt.serverType==='nexus'">
-						<label>Group ID:<span class="red">*</span>
-							<loading size="small" name="isLoadingNexus" type="inline"></loading>
-						</label>
-						<div class="input-groups">
-							<select class="form-control" ng-model="depNewApp.newEnt.groupId"  ng-change="depNewApp.getArtifacts()" required>
-								<option value="">Choose Group ID</option>
-								<option ng-repeat="(key , val) in depNewApp.groupOptions" value="{{val}}">{{val}}</option>
-							</select>
+					<div class="col-lg-12 col-md-12"  ng-if="depNewApp.newEnt.serverType==='docker'">
+						<div class="col-lg-12 col-md-12 margintop15" >
+							<label ng-click="showHideLoader()">Container Name/ID:</label>
+							<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+							<input type="text" class="form-control">
+						</div>
+						<div class="col-lg-12 col-md-12" >
+							<label>Container Port:<span class="red">*</span>
+								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+							</label>
+							<input type="text" class="form-control">
 						</div>
 					</div>
-					<div class="col-lg-6 col-md-6" ng-if="depNewApp.newEnt.serverType==='nexus'">
-						<label>Artifacts:<span class="red">*</span>
-							<loading size="small" name="isLoadingArtifacts" type="inline"></loading>
-						</label>
-						<div class="input-groups">
-							<select class="form-control" ng-model="depNewApp.newEnt.artifactInd" ng-change="depNewApp.getVersions();" required>
-								<option value="">Choose Artifacts</option>
-								<option ng-repeat="artifactsOption in depNewApp.artifactsOptions" value="{{depNewApp.artifactsOptions.indexOf(artifactsOption)}}">{{artifactsOption.artifactId}}</option>
-							</select>
+					<div  ng-if="depNewApp.newEnt.serverType==='nexus'">
+						<div class="col-lg-6 col-md-6" >
+							<label>Group ID:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select class="form-control" ng-model="depNewApp.newEnt.groupId"  ng-change="depNewApp.getArtifacts()" required>
+									<option value="">Choose Group ID</option>
+									<option ng-repeat="(key , val) in depNewApp.groupOptions" value="{{val}}">{{val}}</option>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="col-lg-6 col-md-6" ng-if="depNewApp.newEnt.serverType==='nexus'">
-						<label for="">Versions:<span class="red">*</span>
-						<loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
-						</label>
-						<div class="input-groups">
-							<select class="form-control" ng-model="depNewApp.newEnt.version" required>
-								<option value="">Choose Versions</option>
-								<option ng-repeat="(key , values) in depNewApp.versionsOptions" value="{{values}}">{{values}}</option>
-							</select>
+						<div class="col-lg-6 col-md-6">
+							<label>Artifacts:<span class="red">*</span>
+								<loading size="small" name="isLoadingArtifacts" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select class="form-control" ng-model="depNewApp.newEnt.artifactInd" ng-change="depNewApp.getVersions();" required>
+									<option value="">Choose Artifacts</option>
+									<option ng-repeat="artifactsOption in depNewApp.artifactsOptions" value="{{depNewApp.artifactsOptions.indexOf(artifactsOption)}}">{{artifactsOption.artifactId}}</option>
+								</select>
+							</div>
 						</div>
-					</div>
-					<div class="col-lg-12 col-md-12" ng-if="depNewApp.newEnt.serverType==='nexus'">
-						<label>Repository URL:<span class="red">*</span>
-						<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
-						</label>
-						<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						<div class="col-lg-6 col-md-6" >
+							<label for="">Versions:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select class="form-control" ng-model="depNewApp.newEnt.version" required>
+									<option value="">Choose Versions</option>
+									<option ng-repeat="(key , values) in depNewApp.versionsOptions" value="{{values}}">{{values}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-12 col-md-12">
+							<label>Repository URL:<span class="red">*</span>
+								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+							</label>
+							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						</div>
 					</div>
 				</fieldset>
 				<fieldset class="repo-job-details-wrapper margintop20">
@@ -103,7 +107,7 @@
 						<span></span>
 						</label>
 						<div class="input-groups">
-							<button type="button" class="btn cat-btn-update"  ng-click="createNewJob('new')">
+							<button type="button" class="btn cat-btn-update"  ng-click="depNewApp.createNewJob()">
 							<i class="fa fa-plus"></i> Create New Job {{}}
 							</button>
 						</div>
