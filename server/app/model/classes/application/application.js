@@ -384,7 +384,6 @@ ApplicationSchema.statics.createNew = function(appData, callback) {
 };
 
 ApplicationSchema.statics.getAppCardsByOrgBgAndProjectId = function(jsonData, callback) {
-    var databaseReq={};
     jsonData['searchColumns']=['name','buildId'];
     ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
         if(err){
@@ -392,21 +391,22 @@ ApplicationSchema.statics.getAppCardsByOrgBgAndProjectId = function(jsonData, ca
             err.status = 500;
             return callback(err);
         }
-        databaseReq=databaseCall;
-    });
-    this.paginate(databaseReq.queryObj, databaseReq.options, function(err, applications) {
-        if(err){
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
+        else{
+            this.paginate(databaseCall.queryObj, databaseCall.options, function(err, applications) {
+                if(err){
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
+                else if(applications.length === 0) {
+                    var err = new Error('Applications are not found');
+                    err.status = 404;
+                    return callback(err);
+                }
+                else
+                    return callback(null, applications);
+            });
         }
-        else if(!applications) {
-            var err = new Error('Applications are not found');
-            err.status = 404;
-            return callback(err);
-        }
-        else
-            return callback(null, applications);
     });
 };
 

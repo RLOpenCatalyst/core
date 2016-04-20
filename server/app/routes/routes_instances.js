@@ -3159,10 +3159,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         instancesDao.getInstanceIdsByIPs(req.body.ipAddress, function(err, instanceIds) {
             if (err) {
                 logger.error("Failed to fetch ActionLogs: ", err);
-                res.send(500);
+                res.status(500).send(err);
                 return;
             }
             res.send(instanceIds);
+        });
+
+    });
+
+
+    app.get('/instances/instanceIds/list', function(req, res) {
+        var instanceIds=(req.query.ids).split(",");
+        instancesDao.getInstancesByIDs(instanceIds, function(err, instances) {
+            if (err) {
+                logger.error("Failed to fetch Instance  via Ids: ", err);
+                res.status(500).send(err);
+                return;
+            }
+            res.status(200).send(instances);
         });
 
     });

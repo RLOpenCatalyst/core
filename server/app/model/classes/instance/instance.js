@@ -417,7 +417,6 @@ var InstancesDao = function() {
 
    this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
        if(jsonData.pageSize) {
-           var databaseReq = {};
            jsonData['searchColumns'] = ['instanceIP', 'instanceState'];
            ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
                if (err) {
@@ -425,21 +424,22 @@ var InstancesDao = function() {
                    err.status = 500;
                    return callback(err);
                }
-               databaseReq = databaseCall;
-           });
-           Instances.paginate(databaseReq.queryObj, databaseReq.options, function (err, instances) {
-               if (err) {
-                   var err = new Error('Internal server error');
-                   err.status = 500;
-                   return callback(err);
+               else {
+                   Instances.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
+                       if (err) {
+                           var err = new Error('Internal server error');
+                           err.status = 500;
+                           return callback(err);
+                       }
+                       else if (instances.length === 0) {
+                           var err = new Error('Instances are not found');
+                           err.status = 404;
+                           return callback(err);
+                       }
+                       else
+                           return callback(null, instances);
+                   });
                }
-               else if (!instances) {
-                   var err = new Error('Instances are not found');
-                   err.status = 404;
-                   return callback(err);
-               }
-               else
-                   return callback(null, instances);
            });
        }
        else{
@@ -1605,7 +1605,6 @@ var InstancesDao = function() {
     };
 
     this.getByProviderId = function(jsonData, callback) {
-        var databaseReq={};
         jsonData['searchColumns']=['instanceIP','platformId'];
         ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
             if(err){
@@ -1614,15 +1613,16 @@ var InstancesDao = function() {
                 });
                 return;
             }
-            databaseReq=databaseCall;
-        });
-        Instances.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
-            if (err) {
-                logger.error("Failed getByOrgProviderId (%s)", err);
-                callback(err, null);
-                return;
+            else {
+                Instances.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
+                    if (err) {
+                        logger.error("Failed getByProviderId (%s)", err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, instances);
+                });
             }
-            callback(null, instances);
         });
     };
 //End By Durgesh
@@ -1668,6 +1668,25 @@ var InstancesDao = function() {
         }
     };
 
+    this.getInstancesByIDs = function(instanceIds, callback) {
+        if (instanceIds.length) {
+            Instances.find({
+                "_id": {$in: instanceIds},
+            }, function (err, instances) {
+                if(err){
+                    logger.error("Failed getInstancesByIDs "+err);
+                    callback(err, null);
+                    return;
+                }
+                callback(null,instances);
+
+            })
+        }
+        else{
+            callback(null,[]);
+            return;
+        }
+    };
 };
 
 module.exports = new InstancesDao();

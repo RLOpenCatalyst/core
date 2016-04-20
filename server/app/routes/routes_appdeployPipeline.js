@@ -21,15 +21,21 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var AppDeployPipeline = require('_pr/model/app-deploy/appdeploy-pipeline');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var async = require('async');
+var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
+var appDeployValidator = require('_pr/validators/appDeployValidator');
+var validate = require('express-validation');
 
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/app/deploy/*', sessionVerificationFunc);
+
+
+
     app.post('/app/deploy/data/pipeline/configure', function(req, res) {
         var loggedInUser = req.session.user.cn;
         req.body.appDeployPipelineData.loggedInUser = loggedInUser;
-        AppDeployPipeline.getAppDeployPipeline(req.body.appDeployPipelineData.projectId, function(err, appDeployes) {
+        AppDeployPipeline.getAppDeployPipelineByProjectId(req.body.appDeployPipelineData.projectId, function(err, appDeployes) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
@@ -43,18 +49,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         res.status(500).send("Pipeline Data Already Exist.");
                         return;
                     }
-                    if (appDeployes) {
+                    else {
                         res.send(200, appDeployes);
                         return;
                     }
                 });
-            } else {
+            }
+            else {
                 AppDeployPipeline.createNew(req.body.appDeployPipelineData, function(err, appDeployes) {
                     if (err) {
                         res.status(500).send("Pipeline Data Already Exist.");
                         return;
                     }
-                    if (appDeployes) {
+                    else{
                         res.send(200, appDeployes);
                         return;
                     }
@@ -63,35 +70,50 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
     });
-    app.get('/app/deploy/pipeline/project/:projectId', function(req, res) {
-        AppDeployPipeline.getAppDeployPipeline(req.params.projectId, function(err, appDeployeProject) {
-            if (err) {
-                res.status(500).send(errorResponses.db.error);
-                return;
-            }
-            else {
-                if (appDeployeProject) {
-                res.send(200, appDeployeProject);
-                return;
+
+
+    app.get('/app/deploy/pipeline/project/:projectId',validate(appDeployValidator.get),getProject);
+
+    function getProject(req, res, next) {
+        async.waterfall(
+            [
+                function (next) {
+                    appDeployPipelineService.getProjectByProjectId(req.params.projectId, next);
                 }
-                else{
-                    masterUtil.getParticularProject(req.params.projectId,function(err,aProject){
-                    if (err){
-                      res.status(500).send(errorResponses.db.error);
-                      return;
-                    }
-                    else{
-                    res.send(200, aProject);
-                    return
-                    }
-
-                });
+            ],
+            function (err, results) {
+                if (err) {
+                    return res.status(500).send({code: 500, errMessage: err});
+                } else {
+                    return res.status(200).send(results);
+                }
             }
-        }
-        });
-    });
+        );
+    }
 
+    app.post('/app/deploy/data/pipeline/save/configure',validate(appDeployValidator.post),saveAndUpdatePipeLineConfiguration);
 
+    app.put('/app/deploy/data/pipeline/update/configure',validate(appDeployValidator.post), saveAndUpdatePipeLineConfiguration);
+
+    function saveAndUpdatePipeLineConfiguration(req, res, next) {
+        var loggedInUser = req.session.user.cn;
+        var jsonReqData = req.body;
+        jsonReqData['loggedInUser']=loggedInUser;
+        async.waterfall(
+            [
+                function (next) {
+                    appDeployPipelineService.saveAndUpdatePipeLineConfiguration(jsonReqData, next);
+                }
+            ],
+            function (err, results) {
+                if (err) {
+                    return res.status(500).send({code: 500, errMessage: err});
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
 
 
 
@@ -102,10 +124,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 res.send(403, "Pipeline Data Already Exist.");
                 return;
             }
-            if (appDeployes) {
+            else {
                 res.send(200, appDeployes);
                 return;
             }
         });
     });
+
 };
