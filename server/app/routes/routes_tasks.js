@@ -119,7 +119,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
                 return;
-            } else {
+            } else if(err) {
                 logger.error("Failed to execute task.", err);
                 res.status(500).send("Failed to execute task.");
                 return;

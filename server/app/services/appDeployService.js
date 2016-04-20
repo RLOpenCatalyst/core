@@ -306,8 +306,12 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, callback)
                                 return;
                             }
                             logger.debug("Returned historyData: ", JSON.stringify(historyData));
-                            historyData['taskId'] = taskId;
-                            callback(null, historyData);
+                            var taskRes = {
+                                "taskId": historyData.taskId,
+                                "taskType": historyData.taskType,
+                                "historyId": historyData.historyId
+                            };
+                            callback(null, taskRes);
                         });
                     });
                 } else {
@@ -389,8 +393,12 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                                     return;
                                 }
                                 logger.debug("Returned historyData: ", JSON.stringify(historyData));
-                                historyData['taskId'] = taskId;
-                                callback(null, historyData);
+                                var promoteRes = {
+                                    "taskId": historyData.taskId,
+                                    "taskType": historyData.taskType,
+                                    "historyId": historyData.historyId
+                                };
+                                callback(null, promoteRes);
                             });
                         });
                     } else {

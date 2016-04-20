@@ -28,8 +28,7 @@ const errorType = 'task';
 var taskService = module.exports = {};
 
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, callback) {
-    Tasks.getTaskById(req.params.taskId, function(err, task) {
-
+    Tasks.getTaskById(taskId, function(err, task) {
         if (err) {
             logger.error(err);
             callback(err, null);
@@ -40,7 +39,7 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             if (task.blueprintIds && task.blueprintIds.length) {
                 blueprintIds = task.blueprintIds
             }
-            task.execute(req.session.user.cn, req.protocol + '://' + req.get('host'), choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
+            task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
                 if (err) {
                     logger.error(err);
                     callback(err, null);
