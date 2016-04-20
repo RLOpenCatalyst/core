@@ -181,6 +181,7 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdVersionId=function(proj
                 logger.debug("Got error while fetching AppDeploy: ", err);
                 callback(err, null);
             }
+            console.log(appDeploys);
             callback(null, appDeploys);
         });
 };

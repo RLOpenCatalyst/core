@@ -238,7 +238,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     }
 
-    app.get('/app/deploy/project/:projectId/appDeployHistoryList', validate(appDeployValidator.get), getAppDeployHistoryList);
+    app.get('/app/deploy/project/:projectId/env/:envName/appDeployHistoryList', validate(appDeployValidator.get), getAppDeployHistoryList);
     function getAppDeployHistoryList(req, res, next) {
         var reqData = {};
         async.waterfall(
@@ -248,6 +248,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function (paginationReq, next) {
                     paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['envId'] = req.params.envName;
                     paginationReq['id'] = 'appDeploy';
                     reqData = paginationReq;
                     appDeployService.getAppDeployHistoryListByProjectId(paginationReq, next);
