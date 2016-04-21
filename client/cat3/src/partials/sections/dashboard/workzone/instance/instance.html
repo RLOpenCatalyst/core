@@ -27,13 +27,17 @@
 						<div class="card-title-role">
 							<img src="images/global/chef-import.png" ng-show="inst.blueprintData.templateId === 'chef' || inst.blueprintData.templateId==='chef_import'" />
 							<img src="images/templateicons/appFact4.png" ng-show="inst.blueprintData.templateId === 'Apache' || inst.blueprintData.templateId === 'apache'" />
+							<img src="images/templateicons/custom-temp.jpg" ng-show="inst.blueprintData.templateId === 'CustomTemplate'" />
+							<img src="images/templateicons/apache-tomcat.jpeg" ng-show="inst.blueprintData.templateId === 'Tomcat'" />
+							<img src="images/templateicons/imgo.jpg" ng-show="inst.blueprintData.templateId === 'Apache3'" />
+							<img src="images/templateicons/cloudformation.png" ng-show="inst.blueprintData.templateId === 'CFT_newco'" />
 						</div>
 						<div title="{{inst.name}}" class="card-title-name pull-left">{{inst.name}}</div>
 						<div class='card-title-edit'>
 							<span><i class="fa fa-pencil edit-instance-name cursor" ng-click="operationSet.editInstanceName(inst);" title="Edit Instance Name"></i></span>
 						</div>
 						<div class="card-title-osIcon" title="Linux"><img src="images/osIcons/linux.png"/ ng-show="inst.hardware.platform==='unknown'"></div>
-						<div class="card-title-osIcon" title="Ubuntu"><img src="images/osIcons/ubuntu.png"/ ng-show="inst.hardware.platform==='Ubuntu'"></div>
+						<div class="card-title-osIcon" title="Ubuntu"><img src="images/osIcons/ubuntu.png"/ ng-show="inst.hardware.platform==='ubuntu'"></div>
 						<div class="card-title-osIcon" title="Windows"><img src="images/osIcons/windows.png"/ ng-show="inst.hardware.platform==='windows'"></div>
 						<div class="card-title-osIcon" title="centos"><img src="images/osIcons/centos.png"/ ng-show="inst.hardware.platform==='centos'">
 						</div>
