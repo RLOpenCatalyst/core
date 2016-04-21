@@ -176,7 +176,7 @@ CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, cal
                 return callback(err);
             }
             else{
-                this.paginate(databaseCall.queryObj, databaseCall.options, function (err, cftData) {
+                CloudFormation.paginate(databaseCall.queryObj, databaseCall.options, function (err, cftData) {
                     if (err) {
                     var err = new Error('Internal server error');
                     err.status = 500;

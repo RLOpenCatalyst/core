@@ -206,17 +206,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         async.waterfall(
             [
                 function (next) {
-                    appDeployService.getAppDeployListByProjectId(req.params.projectId, next);
+                    apiUtil.paginationRequest(req.query, 'appDeploy', next);
+                },
+                function (paginationReq, next) {
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['id'] = 'appDeploy';
+                    appDeployService.getAppDeployListByProjectId(paginationReq, next);
                 }
-            ],
-            function (err, results) {
-                if (err) {
+            ], function (err, results) {
+                if (err)
                     return res.status(500).send({code: 500, errMessage: err});
-                } else {
+                else
                     return res.status(200).send(results);
-                }
-            }
-        );
+            });
     }
 
     app.get('/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
@@ -238,7 +240,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     }
 
-    app.get('/app/deploy/project/:projectId/appDeployHistoryList', validate(appDeployValidator.get), getAppDeployHistoryList);
+    app.get('/app/deploy/project/:projectId/env/:envName/appDeployHistoryList', validate(appDeployValidator.get), getAppDeployHistoryList);
     function getAppDeployHistoryList(req, res, next) {
         var reqData = {};
         async.waterfall(
@@ -248,6 +250,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function (paginationReq, next) {
                     paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['envId'] = req.params.envName;
                     paginationReq['id'] = 'appDeploy';
                     reqData = paginationReq;
                     appDeployService.getAppDeployHistoryListByProjectId(paginationReq, next);

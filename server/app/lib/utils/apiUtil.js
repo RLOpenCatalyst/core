@@ -37,14 +37,15 @@ var ApiUtil = function() {
     }
     this.paginationResponse=function(data,req, callback) {
         var response={};
+        var sortField=req.sortBy;
         response[req.id]=data.docs;
         response['metaData']={
             totalRecords:data.total,
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
-            sortBy:Object.keys(req.sortBy)[0],
-            sortOrder:req.sortBy ? (req[Object.keys(req.sortBy)]==1 ?'asc' :"desc") : '',
+            sortBy:Object.keys(sortField)[0],
+            sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
         };
 
