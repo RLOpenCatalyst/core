@@ -41,35 +41,35 @@ $imagePath : "../../../../../../cat3/images";
 }
 
 /*CSS for header,breadcrumb and tree starts*/
-#bdCrCont {
+#breadcrumb-block {
 	min-height: 40px; 
 	@include theme-bg-color;
 	color: white;
 }
 
-#bdCrCont_treeDiv {
+#section-name {
 	padding: 10px 10px 10px 40px;
 	font-size: 14px; 
 	font-weight: bold;
 }
 
-#bdCrCont_bdCrDiv {
+#breadcrumb-nav {
 	padding-top: 10px;
 	padding-left: 60px;
 }
 
-#bdCrCont #bdCrCont_bdCrDiv ul {
+#breadcrumb-block #breadcrumb-nav ul {
 	margin: 0px;
 	padding: 0px;
 }
 
-#bdCrCont #bdCrCont_bdCrDiv ul li {
+#breadcrumb-block #breadcrumb-nav ul li {
 	list-style: none;
 	display: inline;
 }
 
 @media (min-width : 0px) and (max-width: 767px) {
-	#bdCrCont_bdCrDiv {
+	#breadcrumb-nav {
 		display: none;
 	}
 }
@@ -120,11 +120,11 @@ $imagePath : "../../../../../../cat3/images";
 	}
 
 	.breadcrumb-wrapper {
-		#bdCrCont {
+		#breadcrumb-block {
 			height: 22px;
 			min-height: 22px;
 
-			#bdCrCont_treeDiv {
+			#section-name {
 			    padding: 3px 10px 2px 40px;
 			    font-size: 12px;
 			}
@@ -419,12 +419,7 @@ option.puppet {
 	background-color: #b3ddba;
 	border-bottom: 1px solid #d6e9c6;
 	color: #3c763d;
-}
-
-#globalErrorMessage {
-	background-color: #f2dede;
-	border-bottom: 1px solid #ebccd1;
-	color: #a94442;
+	/*color: #a94442;*/
 }
 
 .globalPopup .close {

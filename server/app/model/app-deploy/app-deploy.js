@@ -28,21 +28,76 @@ var mongoosePaginate = require('mongoose-paginate');
 var Schema = mongoose.Schema;
 
 var AppDeploySchema = new Schema({
-    applicationName: String,
-    applicationInstanceName: String,
-    applicationVersion: String,
-    applicationNodeIP: String,
-    applicationLastDeploy: String,
-    applicationStatus: String,
-    orgId: String,
-    bgId: String,
-    projectId: String,
-    envId: String,
-    description: String,
-    applicationType: String,
-    containerId: String,
-    hostName: String,
-    appLogs: String
+    applicationName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationInstanceName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationVersion: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationNodeIP: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationLastDeploy:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationStatus:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    orgId:  {
+        type: String,
+        trim: true
+    },
+    bgId:  {
+        type: String,
+        trim: true
+    },
+    projectId:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    envId:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    description:  {
+        type: String,
+        trim: true
+    },
+    applicationType:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    containerId:  {
+        type: String,
+        trim: true
+    },
+    hostName:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    appLogs:  {
+        type: String,
+        trim: true
+    }
 
 });
 
@@ -81,14 +136,8 @@ AppDeploySchema.statics.getAppDeployHistoryListByProjectId=function(queryObj,opt
             err.status = 500;
             return callback(err);
         }
-        else if (!appDeployHistoryData) {
-            var err = new Error('AppDeployHistoryData is not found');
-            err.status = 404;
-            return callback(err);
-        }
-        else {
-            return callback(null, appDeployHistoryData);
-        }
+        callback(null, appDeployHistoryData);
+
     });
 };
 

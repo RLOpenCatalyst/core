@@ -217,7 +217,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
             }
         );
-
     }
 
     app.get('/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);

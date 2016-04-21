@@ -20,7 +20,7 @@ var appDeployValidator = module.exports = {};
 appDeployValidator.get = {
     options : { flatten : true },
     params: {
-        projectId: Joi.string().max(40).required(),
+        projectId: Joi.string().max(40).required()
     }
 };
 appDeployValidator.serverList = {
@@ -58,6 +58,39 @@ appDeployValidator.appDeployHistoryList = {
         nodeIp: Joi.string().max(30).required()
     }
 };
+
+appDeployValidator.post={
+    options : { flatten : true },
+    body: {
+        projectId: Joi.string().min(1).max(40).required(),
+        envId:     Joi.array().max(10).required(),
+        envSequence:  Joi.array().max(10).required()
+    }
+};
+
+appDeployValidator.getDeployPermission={
+    options : { flatten : true },
+    params: {
+            projectId: Joi.string().min(1).max(40).required(),
+            envId:     Joi.string().max(10).required(),
+            appName:  Joi.string().max(40).required(),
+            version:  Joi.string().max(40).required()
+    }
+};
+
+appDeployValidator.deployPermission={
+    options : { flatten : true },
+    body: {
+        projectId: Joi.string().min(1).max(40).required(),
+        envId:     Joi.string().max(10).required(),
+        appName:  Joi.string().max(40).required(),
+        version:  Joi.string().max(40).required(),
+        comments: Joi.string().max(100),
+        isApproved: Joi.boolean().required()
+    }
+};
+
+
 
 
 
