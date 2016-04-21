@@ -1,6 +1,6 @@
 <link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/container/container.css">
 
-<div id='containerPage' ng-controller="containerCtrl">
+<div id='containerPage'  ng-controller="containerCtrl as containerActCtrl">
 	<loading size="large" name="isContainerPageLoading" type="block"></loading>
 	<div ng-show="!isContainerPageLoading">
 		<div class="panel-heading">
@@ -8,62 +8,14 @@
 				<span>Containers</span>
 			</span>
 			<span class="pull-right">
-				<span ng-click='reloadContainers()' alt="Refresh View">
+				<span ng-click='gridSettings(requestParams);' alt="Refresh View">
 					<i class="fa fa-refresh cursor"></i>
 				</span>
 			</span>
 		</div>
 		<div class="scrollContent">
-			<table datatable="" class="table-bordered text-center">
-				<thead>
-				<tr class="rowCustomStyle" role="row">
-					<td tabindex="0" aria-controls="tableOrchestration" rowspan="1" colspan="1"
-						aria-label="App Name" aria-sort="descending">Actions
-					</td>
-					<td rowspan="1" colspan="1" aria-label="App-Instance Name">State</td>
-					<td rowspan="1" colspan="1" aria-label="Version">Created</td>
-					<td rowspan="1" colspan="1" aria-label="Host Name">Name</td>
-					<td rowspan="1" colspan="1" aria-label="Node IP">Host Instance IP</td>
-					<td rowspan="1" colspan="1" aria-label="Last Deploy">Container ID</td>
-					<td rowspan="1" colspan="1" aria-label="Status">Image</td>
-					<td rowspan="1" colspan="1" aria-label="Application Type">Logs</td>
-					<td rowspan="1" colspan="1" aria-label="info">More Info</td>
-				</tr>
-				</thead>
-				<tbody>
-				<tr ng-repeat="app in containerList">
-					<td>
-						<span class="containerIcon greenBg" ng-click="containerAction(app,'2')" id="power-off"  ng-show="checkEdited(app)">
-							<i class="{{ app.isStop ? 'fa fa-power-off' : 'fa fa-play' }}"></i>
-						</span>
-						<span class="containerIcon yellowBg" ng-click="containerAction(app,'3')" id="undo"  ng-show="checkEdited(app)">
-							<i class="fa fa-undo"></i>
-						</span>
-						<span class="containerIcon grayBg" ng-click="containerAction(app,'4')" id="pause" ng-show="checkEdited(app) && checkPausePlay(app)">
-							<i class='fa fa-pause'></i>
-						</span>
-						<span class="containerIcon grayBg" ng-click="containerAction(app,'5')" id="play" ng-show="checkEdited(app) && !checkPausePlay(app)">
-							<i class='fa fa-eject fa fa-roate-90'></i>
-						</span>
-						<span class="containerIcon crimsonBg" ng-click="containerAction(app,'6')" id="sign-out" >
-							<i class="fa fa-sign-out"></i>
-						</span>
-					</td>
-					<td>{{app.Status}}
-						<span class="containerIcon" ng-show="checkcAdvisor(app)" ng-click="showcAdvisor(app);">
-							<i class="fa fa-line-chart fa-5"></i>
-						</span>
-					</td>
-					<td>{{:: app.Created | timestampToCurrentTime}}</td>
-					<td>{{app.Names.join(" ").toString()}}</td>
-					<td>{{app.instanceip}}</td>
-					<td>{{app.Id.substring(0,truncateImageIDLimit)}}</td>
-					<td>{{app.Image}}</td>
-					<td ng-click="applicationLogs(app)">Logs</td>
-					<td><div class="containerIcon" ng-click="dockerMoreInfo(app)"><i class="fa fa-info-circle fa-1"></i></div></td>
-				</tr>
-				</tbody>
-			</table>
+			<loading size="large" name="isContainerTableLoading" type="block"></loading>
+			<div id="gridContainer" ng-show="!isContainerTableLoading" ng-if="gridOptions.data.length > 0" ui-grid="gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid" style="height: {{gridHeight}}px"></div>
 		</div>
 	</div>
 </div>
