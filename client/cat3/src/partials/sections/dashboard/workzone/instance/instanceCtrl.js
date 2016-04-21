@@ -60,10 +60,6 @@
 		var gridBottomSpace = 60;
 		$scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage')-gridBottomSpace;
 		
-		
-	   	
-
-
 		$scope.paginationParams={
 			pages:{
 				page:1,
@@ -74,7 +70,6 @@
 				direction:'desc'
 			}
 		};
-		// $scope.totalItems = 2;
 		$scope.currentCardPage = $scope.paginationParams.pages.page;
 	   	$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
 	   	$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
@@ -126,15 +121,6 @@
 			      	};
 			      	$scope.instancesListCardView();
 			    }
-				/*workzoneServices.getAllInstancesList($scope.requestParams,$scope.paginationParams).then(function(result){
-					$timeout(function(){
-						$scope.instancesGridOptions.totalItems = result.data.metaData.totalRecords;
-						$scope.tabData = result.data.instances;
-					}, 100);
-				});*/
-		      	/*workzoneServices.getAllTaskList().then(function(result){
-					$scope.instancesGridOptions.data=result.data;
-				});*/
 		      });
 
 		      //Pagination for page and pageSize
@@ -147,15 +133,6 @@
 	      		$scope.cardsPerPage = pageSize;
 	      		
 	      		$scope.instancesListCardView();
-	      		/*workzoneServices.getAllInstancesList($scope.requestParams,$scope.paginationParams).then(function(result){
-					$timeout(function(){
-						$scope.instancesGridOptions.totalItems = result.data.metaData.totalRecords;
-						$scope.tabData = result.data.instances;
-					}, 100);
-				});*/
-	      		/*workzoneServices.getAllTaskList().then(function(result){
-					$scope.instancesGridOptions.data=result.data;
-				});*/
 		      });
 		};
 		$scope.cardPaginationChange = function() {
@@ -170,14 +147,9 @@
 		angular.extend($scope, {
 			instancesListCardView :function(){
 				$scope.isInstancePageLoading = true;
-					
-				//$scope.tabData = [];				
 				$scope.instanceList = [];
 				// service
 				workzoneServices.getAllInstancesList($scope.requestParams,$scope.paginationParams).then(function(result){
-					
-
-					//$scope.instancesGridOptions.data = result.data.instances;
 					$timeout(function(){
 						console.log('setting total to' + result.data.metaData.totalRecords);
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
@@ -190,10 +162,6 @@
 				});
 				
 			},
-			/*getAWSStatusImage : function(instanceStatus){
-				$scope.getAWSStatus(instanceStatus, 'image');
-				console.log('')
-			},*/
 			getAWSStatus: function(instanceStatus,type) {
 				var colorSuffix = '';
 				var instanceStateImagePrefix='instance-state-';
@@ -241,6 +209,7 @@
 			promise.then(function(resolveMessage) {
 				console.log("Promise resolved deleteInstance:" + resolveMessage);
 				$scope.instanceList.splice(index, 1);
+				$scope.instancesListCardView();
 			}, function(rejectMessage) {
 				console.log("Promise rejected deleteInstance:" + rejectMessage);
 			});
@@ -338,15 +307,6 @@
 							if( response.data.instanceState === 'stopped' || response.data.instanceState === 'running' ){
 								$scope.instStartStopFlag = false;
 								console.log(response.data.instanceState, ' polling complete');
-
-								/*if (data.appUrls && data.appUrls.length) {
-									for (var k = 0; k < data.appUrls.length; k++) {
-										var url = data.appUrls[k].url;
-										url = url.replace('$host', data.instanceIP);
-										$('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url);
-									}
-								}*/
-
 							}else{
 								$scope.operationSet.checkInstanceStatus(_instObj, 5000);
 							}
@@ -359,24 +319,6 @@
 		};
 		/*END: Methods which make use of instanceService*/
 
-		/*angular.extend($scope, {
-			getbootStrapStatus: function(status) {
-				var applyClass = '';
-				var classPrefixConstant1='card_btns_chef';
-				var classPrefixConstant2='card_btns_puppet';
-				var classPrefixConstant3='card_btns_ssh';
-				var classPrefixConstant4='card_btns_rdp';
-				if (status === 'success') {
-					applyClass = '1';
-				} else if (status === 'pending' || status === 'stopping') {
-					applyClass = '1_disabled';
-				}
-				return classPrefixConstant1 + applyClass;
-				return classPrefixConstant2 + applyClass;
-				return classPrefixConstant3 + applyClass;
-				return classPrefixConstant4 + applyClass;
-			}
-		});*/
 		$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 			 $scope.instancesGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = 1;
 			$scope.requestParams=requestParams;
@@ -387,10 +329,6 @@
 		workzoneUIUtils.makeTabScrollable('instancePage');
 		$rootScope.$on('WZ_TAB_VISIT', function(event, tabName){
 			if(tabName == 'Instances'){
-				//$scope.initGrids();
-				//$scope.gridApi.core.refresh();
-				//$scope.gridHeight = $scope.gridHeight - 1;
-				//$scope.instancesListCardView();
 				 $scope.isInstancePageLoading = true;
 				 var tableData = $scope.tabData;
 				$scope.tabData = [];
@@ -400,22 +338,6 @@
 				 }, 500);
 			}
 		});	
-		/*$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
-			$scope.isInstancePageLoading = false;
-			//console.log('Araaaaaaaaaaa',requestParams);
-			$scope.requestParams=requestParams;
-			$scope.gridSettings(requestParams);
-			//$scope.instancesCardList(requestParams);
-			$scope.instances = [];
-			$scope.requestParams=requestParams;
-			$scope.initGrids();
-			$scope.instancesListCardView();
-			//$scope.instances = [];
-
-			//completeData = helper.attachListOfTaskWithInstance(data);
-			//$scope.instanceList = completeData.instances;
-			workzoneUIUtils.makeTabScrollable('instancePage');
-		});*/
 
 		$scope.instanceImportByIP = function() {
 			var whetherConfigListAvailable = workzoneServices.getCheckIfConfigListAvailable();
@@ -489,7 +411,6 @@
 		};
 		$scope.init = function(){
 			$scope.instanceCardView();
-			//workzoneUIUtils.attachResizeTabEvent('instancePage');
 		};
 		
 		$scope.init();
