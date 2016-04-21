@@ -233,7 +233,6 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         }, 1, instance._id, null, actionLog._id);
                         return;
                     }
-
                     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
                     if (appData) {
                         if (appData.nexus) {
@@ -263,10 +262,10 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                     }
                                 });
                             }
-                            if (appData.docker.dockerImage) {
+                            if (appData.docker.image) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerImage": appData.docker.dockerImage
+                                        "dockerImage": appData.docker.image
                                     }
                                 });
                             }
@@ -326,12 +325,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         var nexus = {};
                         var docker = {};
                         if (appData.nexus) {
-                            if (appData.nexus.nexusUrl) {
-                                nexus['repoURL'] = appData.nexus.nexusUrl;
-                            } else {
-                                nexus['repoURL'] = appData.nexus.repoURL;
-                            }
-
+                            nexus['repoURL'] = appData.nexus.repoURL;
                             nexus['nodeIds'] = appData.nexus.nodeIds;
                             nexus['artifactId'] = appData.nexus.artifactId;
                             appName = appData.nexus.artifactId;
@@ -351,7 +345,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             appVersion = appData.docker.imageTag;
                         }
                         nodeIds.push(instance.instanceIP);
-                        masterUtil.getEnvironmentName(instance.envId, function(err,envName) {
+                        masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
                             var appData = {
                                 "projectId": instance.projectId,
                                 "envName": envName,

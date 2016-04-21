@@ -861,7 +861,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
             }
             var docker = {
                 "image": blueprint.docker.image,
-                "containerId": blueprint.docker.containerId,
+                "containerName": blueprint.docker.containerId,
                 "containerPort": blueprint.docker.containerPort,
                 "hostPort": blueprint.docker.hostPort,
                 "dockerUser": blueprint.docker.dockerUser,

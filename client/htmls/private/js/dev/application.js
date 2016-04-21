@@ -828,8 +828,8 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             nexus['artifactId'] = data[0].nexus.artifactId;
                         }
                         if(data[0].docker && data[0].docker.nodeIds.length){
-                            docker['dockerImage'] = data[0].docker.image;
-                            docker['containerName'] = data[0].docker.containerId;
+                            docker['image'] = data[0].docker.image;
+                            docker['containerName'] = data[0].docker.containerName;
                             docker['containerPort'] = data[0].docker.containerPort;
                             docker['hostPort'] = data[0].docker.hostPort;
                             docker['dockerUser'] = data[0].docker.dockerUser;
@@ -1685,7 +1685,7 @@ function deployNewForDocker() {
     var docker = {
         "containerName": containerId,
         "containerPort": containerPort,
-        "dockerImage": dockerImage,
+        "image": dockerImage,
         "hostPort": hostPort,
         "dockerUser": dockerUser,
         "dockerPassword": dockerPassword,
@@ -1808,7 +1808,7 @@ function upgradeOrDeploy() {
         "artifactId": artifactId
     };
     var docker = {
-        "containerId": "",
+        "containerName": "",
         "containerPort": "",
         "dockerImage": "",
         "hostPort": "",
