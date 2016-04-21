@@ -118,19 +118,76 @@ AppDeploySchema.statics.getAppDeploy = function(callback) {
     });
 };
 
-AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(projectId,callback){
-    this.distinct("applicationVersion",{projectId: projectId},function(err, appDeployVersions) {
-        if (err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        }
-        callback(null, appDeployVersions);
-    });
+AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(jsonData,callback){
+                this.aggregate(
+                    [
+                        {
+                            $match: {
+                                projectId: jsonData.projectId
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$applicationVersion",
+                            }
+                        },
+                        {
+                            $sort: jsonData.sortBy
+
+                        },
+                        {
+                            $skip: (jsonData.page - 1) * jsonData.pageSize
+                        },
+                        {
+                            $limit: jsonData.pageSize
+                        }
+                    ], function (err, appDeployVersions) {
+                        if (err) {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        }
+                        callback(null, appDeployVersions);
+                    });
+};
+
+AppDeploySchema.statics.getDistinctCountAppDeployVersionByProjectId=function(projectId,callback){
+    this.aggregate(
+        [
+            {
+                $match: {
+                    projectId: projectId
+                }
+            },
+            {
+                $group:
+                {
+                    _id:"$applicationVersion"
+                }
+            },
+            {
+                $group:
+                {
+                    _id:1,
+                    count:
+                    {
+                        $sum:1
+                    }
+                }
+            }
+        ],
+        function(err, appDeployVersionCount) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }
+            callback(null,appDeployVersionCount[0]);
+        });
 };
 
 AppDeploySchema.statics.getAppDeployHistoryListByProjectId=function(queryObj,options,callback){
-    this.paginate(queryObj, options, function (err, appDeployHistoryData) {
+    AppDeploy.paginate(queryObj, options, function (err, appDeployHistoryData) {
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -482,7 +539,7 @@ AppDeploySchema.statics.getAppDeployWithPage = function(offset, limit, sortBy, s
     }
     logger.debug("options: ", JSON.stringify(options));
     logger.debug("query: ", JSON.stringify(query));
-    this.paginate(query, options).then(function(appDeploy) {
+    AppDeploy.paginate(query, options).then(function(appDeploy) {
         callback(null, appDeploy);
     });
 };

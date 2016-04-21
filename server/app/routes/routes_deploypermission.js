@@ -53,13 +53,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
     });
-    app.get('/deploy/permission/project/:projectId/env/:envId/application/:appName/permissionList',validate(appDeployValidator.getDeployPermission),getDeployPermissionByProjectIdEnvNameAppNameVersion);
+    app.get('/deploy/permission/project/:projectId/env/:envName/application/:appName/permissionList',validate(appDeployValidator.getDeployPermission),getDeployPermissionByProjectIdEnvNameAppNameVersion);
 
     function getDeployPermissionByProjectIdEnvNameAppNameVersion(req, res, next) {
         async.waterfall(
             [
                 function (next) {
-                    appDeployPermissionService.getDeployPermissionByProjectIdEnvNameAppNameVersion(req.params.projectId, req.params.envId,req.params.appName, req.query.version, next);
+                    appDeployPermissionService.getDeployPermissionByProjectIdEnvNameAppNameVersion(req.params.projectId, req.params.envName,req.params.appName, req.query.version, next);
                 }
             ],
             function (err, results) {

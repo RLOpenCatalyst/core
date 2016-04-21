@@ -8,55 +8,72 @@
 (function (angular) {
 	"use strict";
 	angular.module('workzone.orchestration').
-	controller('orchestrationUpdateChefRunlistCtrl', ['$scope', 'items', '$modalInstance',
+	controller('orchestrationUpdateChefRunlistCtrl', ['$scope', '$q', '$modalInstance',
 	'responseFormatter', 'chefSelectorComponent', '$timeout', '$http', 'workzoneServices',
-	function ($scope, items, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices) {
-		/*Removing the reference to parent object, as
-		items === angular.copy(items); // => false
-		*/
-		items = angular.copy(items);
+	function ($scope, $q, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices) {
 		/*Open only One Accordian-Group at a time*/
 		$scope.oneAtATime = true;
 		/*Initialising First Accordian-group open on load*/
 		$scope.isFirstOpen = true;
-		var chefServerID = items[0].data.serverId;
-		$scope.chefServerID = chefServerID;
-		var list = responseFormatter.formatDataForChefClientRun(items[0].data);
-		var template = responseFormatter.formatTemplateDataForChefClient(items[1].data);
-		var totalElements = responseFormatter.merge(list, template);
-		var selectedElements = items[2];
-		var factory = chefSelectorComponent.getComponent;
-		var compositeSelector;
-		$scope.allCBAttributes = items[3];
-		$scope.editRunListAttributes = items[4];
+		$scope.isOrchestrationUpdateChefRunLoading = true;
+		var totalElements, selectedElements, factory, compositeSelector;
+		$scope.allCBAttributes = [];
+		$scope.editRunListAttributes = [];
+		//promise contain list of cookbooks and roles list
+        var c = workzoneServices.getCookBookListForOrg();
+        //promise contains template list
+        var t = workzoneServices.getSoftwareTemplatesForOrg();
+        //promise contains selected runlist for edit.
+        var s = $scope.chefrunlist;
+        //promise contains edited cookbook attributes list
+        var a = $scope.cookbookAttributes;
+        var e = $scope.editRunListAttributes;
+        //var allPromise = $q.all([c, t, s, a, e]);
+        $q.all([c, t, s, a, e]).then(function(allPromise) {
+			$scope.chefServerID = allPromise[0].data.serverId;
+			var list = responseFormatter.formatDataForChefClientRun(allPromise[0].data);
+			var template = responseFormatter.formatTemplateDataForChefClient(allPromise[1].data);
+			totalElements = responseFormatter.merge(list, template);
+			selectedElements = allPromise[2];
+			factory = chefSelectorComponent.getComponent;
+			$scope.allCBAttributes = allPromise[3];
+			$scope.editRunListAttributes = allPromise[4];
+			$scope.isOrchestrationUpdateChefRunLoading = false;
+			$scope.init();
+        });
 
 		function registerUpdateEvent(obj) {
 			obj.addListUpdateListener('updateList', $scope.updateAttributeList);
 		}
 
-		$timeout(function () {
-			//DOM has finished rendering after that initializing the component
-			compositeSelector = new factory({
-				scopeElement: '#chefClientForOrchestration',
-				optionList: totalElements,
-				selectorList: selectedElements,
-				isSortList: true,
-				isSearchBoxEnable: true,
-				isPriorityEnable: true,
-				isExcludeDataFromOption: true,
-				isOverrideHtmlTemplate: false,
-				idList: {
-					selectorList: '#selector',
-					optionSelector: '#option',
-					upBtn: '#btnRunlistItemUp',
-					downBtn: '#btnRunlistItemDown',
-					addToSelector: '#btnaddToRunlist',
-					removeFromSelector: '#btnremoveFromRunlist',
-					searchBox: '#searchBox'
-				}
-			});
-			registerUpdateEvent(compositeSelector);
-		}, 10);
+		$scope.init = function() {
+			$timeout(function () {
+				//DOM has finished rendering after that initializing the component
+				compositeSelector = new factory({
+					scopeElement: '#chefClientForOrchestration',
+					optionList: totalElements,
+					selectorList: selectedElements,
+					isSortList: true,
+					isSearchBoxEnable: true,
+					isPriorityEnable: true,
+					isExcludeDataFromOption: true,
+					isOverrideHtmlTemplate: false,
+					idList: {
+						selectorList: '#selector',
+						optionSelector: '#option',
+						upBtn: '#btnRunlistItemUp',
+						downBtn: '#btnRunlistItemDown',
+						addToSelector: '#btnaddToRunlist',
+						removeFromSelector: '#btnremoveFromRunlist',
+						searchBox: '#searchBox'
+					}
+				});
+				registerUpdateEvent(compositeSelector);
+			}, 10);
+			if (selectedElements && selectedElements.length > 0 && $scope.editRunListAttributes) {
+				$scope.updateAttributeList(selectedElements, selectedElements, 'add');
+			}
+		};
 
 		angular.extend($scope, {
 			cancel: function () {
@@ -81,7 +98,7 @@
 					for (var i = 0; i < nodesList.length; i++) {
 						data.push(nodesList[i].value);
 					}
-					workzoneServices.getcookBookAttributes(data, chefServerID).then(function (response) {
+					workzoneServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
 						var data;
 						if (response.data) {
 							data = response.data;
@@ -149,8 +166,5 @@
 				$modalInstance.close({list: selectedCookBooks, cbAttributes: $scope.allCBAttributes});
 			}
 		});
-		if (selectedElements && selectedElements.length > 0 && $scope.editRunListAttributes) {
-			$scope.updateAttributeList(selectedElements, selectedElements, 'add');
-		}
 	}]);
 })(angular);
