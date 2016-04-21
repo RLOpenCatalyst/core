@@ -83,7 +83,7 @@
 				enableColumnMenus:false,
 				enableScrollbars :true,
 				enableHorizontalScrollbar: 0,
-				enableVerticalScrollbar: 1,
+				enableVerticalScrollbar: 0,
 				useExternalPagination: true,
 				useExternalSorting: true
 			};
@@ -91,22 +91,22 @@
 			
 			$scope.instancesGridOptions.data='tabData';
 			$scope.instancesGridOptions.columnDefs = [
-				{ name:'Logo', cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'
+				{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'
 				+'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>', cellTooltip: true},
 				{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'
 				+'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'
 				+'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'
 				+'</span>', cellTooltip: true},
 				{ name:'Ip Address', field:'instanceIP',cellTooltip: true},
-				{ name:'RunLists', cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
-				{ name:'Status', cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
-				{ name:'Log Info', cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
-				{ name:'Chef Run', cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'
+				{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
+				{ name:'Status', enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
+				{ name:'Log Info', enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
+				{ name:'Chef Run', enableSorting: false ,  cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'
 				+'<div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>'
 				+'<div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>'
 				+'<div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled">'
 				+'</div>', cellTooltip: true},
-				{ name:'Action', cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}	
+				{ name:'Action', enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}	
 			];
 		};
 		$scope.instancesGridOptions.onRegisterApi= function(gridApi) {
@@ -145,22 +145,18 @@
 	   	}
 		//variables used in rendering of the cards and table && checking ssh
 		angular.extend($scope, {
-			instancesListCardView :function(){
-				$scope.isInstancePageLoading = true;
+			instancesListCardView: function() {
 				$scope.instanceList = [];
 				// service
-				workzoneServices.getAllInstancesList($scope.requestParams,$scope.paginationParams).then(function(result){
-					$timeout(function(){
+				workzoneServices.getAllInstancesList($scope.requestParams, $scope.paginationParams).then(function(result) {
+					$timeout(function() {
 						console.log('setting total to' + result.data.metaData.totalRecords);
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
 						$scope.tabData = $scope.instanceList = result.data.instances;
 						$scope.isInstancePageLoading = false;
 						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pages.pageSize);
 					}, 100);
-						
-					
 				});
-				
 			},
 			getAWSStatus: function(instanceStatus,type) {
 				var colorSuffix = '';
@@ -208,7 +204,7 @@
 			var promise = instanceOperations.deleteInstance(inst);
 			promise.then(function(resolveMessage) {
 				console.log("Promise resolved deleteInstance:" + resolveMessage);
-				$scope.instanceList.splice(index, 1);
+				//$scope.instanceList.splice(index, 1);
 				$scope.instancesListCardView();
 			}, function(rejectMessage) {
 				console.log("Promise rejected deleteInstance:" + rejectMessage);
@@ -324,9 +320,8 @@
 			$scope.requestParams=requestParams;
 			$scope.initGrids();
 			$scope.instancesListCardView();
-			
+			workzoneUIUtils.makeTabScrollable('instancePage');//TODO: Ideally this should be on resize event;
 		});
-		workzoneUIUtils.makeTabScrollable('instancePage');
 		$rootScope.$on('WZ_TAB_VISIT', function(event, tabName){
 			if(tabName == 'Instances'){
 				 $scope.isInstancePageLoading = true;
@@ -360,6 +355,7 @@
 				}
 			});
 			modalInstance.result.then(function(newinstId) {
+				$scope.instancesListCardView();
 				$scope.operationSet.viewLogs(newinstId);
 			}, function() {
 				console.log('Modal dismissed at: ' + new Date());

@@ -120,8 +120,9 @@
                     '/projects/' + envParams.proj + '/environments/' + envParams.env + '/containerList'+pageStr;                    
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getDockerMoreInfo: function () {
-                    var url = '/cat3/data/dockerMoreInfo.json';
+                getDockerMoreInfo: function (instanceId,containerId) {
+                    //var url = '/cat3/data/dockerMoreInfo.json';
+                    var url = '/instances/dockercontainerdetails/' + instanceId + '/' + containerId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 checkDockerActions: function (instanceId, containerId, action) { //serviceInterface.checkDockerActions = function (obj, action) {

@@ -109,6 +109,7 @@
                     var setMainContentHeight = windowHeight - (brdcrmbHeight + headerHeight + instancepanelHeight + tabULHeight + rightpanelPaddingtop);
                     $('#' + divID + ' .scrollContent').css('height', (setMainContentHeight) + 'px');
                     $('#' + divID + ' .scrollContent').css('overflow-y', 'auto');
+                    return setMainContentHeight;
                 };
                 return {
                     makeTabScrollable : makeTabScrollable

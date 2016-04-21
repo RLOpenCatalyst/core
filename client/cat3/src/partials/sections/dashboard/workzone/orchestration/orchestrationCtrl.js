@@ -17,7 +17,7 @@
 			$scope.perms = _permSet;
 
 
-			$scope.isOrchestrationPageLoading = true;
+			//$scope.isOrchestrationPageLoading = true;
 			var gridBottomSpace = 60;
 			$scope.gridHeight = workzoneUIUtils.makeTabScrollable('orchestrationPage')-gridBottomSpace;
 			$scope.paginationParams={
@@ -44,17 +44,17 @@
 					enableColumnMenus:false,
 					enableScrollbars :true,
 					enableHorizontalScrollbar: 0,
-					enableVerticalScrollbar: 1,
+					enableVerticalScrollbar: 0,
 					useExternalPagination: true,
 					useExternalSorting: true,
 					columnDefs : [
-						{ name:'Job Type',cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="jenkins-img" />'
+						{ name:'Job Type', enableSorting: false ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="jenkins-img" />'
 						+'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="jenkins-img" />'
 						+'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="jenkins-img" />'
 						+'<img src="images/global/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="jenkins-img">',cellTooltip: true},
 						{ name:'Name',field:'name',cellTooltip: true},
 						{ name:'Job Description',field:'description',cellTooltip: true},
-						{ name:'Job Links', cellTemplate:'<div>'
+						{ name:'Job Links', enableSorting: false , cellTemplate:'<div>'
 						+'<span ng-show="row.entity.taskType===\'chef\'">'
 						+'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'
 						+'<span title="Assign Nodes" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'
@@ -68,10 +68,10 @@
 						+'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'
 						+'</span>'
 						+'</div>' ,cellTooltip: true},
-						{ name:'Execute', cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
-						{ name:'History', cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
+						{ name:'Execute', enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
+						{ name:'History', enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
 						{ name:'Last Run', cellTemplate:'<span>{{row.entity.lastRunTimestamp  | timestampToCurrentTime}}</span>', cellTooltip: true},
-						{ name:'Action', cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white" ng-click="grid.appScope.createNewTask(row.entity)"></span>'
+						{ name:'Action', enableSorting: false , cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white" ng-click="grid.appScope.createNewTask(row.entity)"></span>'
 						+'<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white" ng-click="grid.appScope.deleteTask(row.entity)" ng-show="grid.appScope.perms.deleteTask;"></span>', cellTooltip: true}
 						],
 					onRegisterApi: function(gridApi) {
@@ -86,128 +86,16 @@
 						});
 
 				      //Pagination for page and pageSize
-					$scope.gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
-						$scope.paginationParams.pages = {
-							page: newPage,
-							pageSize: pageSize
-						};
-						$scope.taskListGridView();
-						/*workzoneServices.gettasksList($scope.requestParams,$scope.paginationParams).then(function(result){
-							$timeout(function(){
-								$scope.orcheGridOptions.totalItems = result.data.metaData.totalRecords;
-								$scope.tabData = result.data.tasks;
-							}, 100);
-						});*/
-						/*workzoneServices.getAllTaskList().then(function(result){
-							$scope.orcheGridOptions.data=result.data;
-						});*/
-					});
+						$scope.gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+							$scope.paginationParams.pages = {
+								page: newPage,
+								pageSize: pageSize
+							};
+							$scope.taskListGridView();
+						});
 					}
 				};
 			};
-			/*$scope.gridOptions = {};
-			$scope.paginationParams={
-				pages:{
-					page:1,
-					pageSize:5
-				},
-				sort:{
-					field:'name',
-					direction:'desc'
-				}
-			};
-			$scope.gridSettings= function(requestParams){
-
-				var gridOption={
-					paginationPageSizes: [5, 10, 15, 20],
-					paginationPageSize: $scope.paginationParams.pages.pageSize,
-					paginationCurrentPage:$scope.paginationParams.pages.page,
-					enableColumnMenus:false,
-					enableScrollbars :true,
-					enableHorizontalScrollbar: 0,
-					enableVerticalScrollbar: 1,
-					useExternalPagination: true,
-					useExternalSorting: true
-				};
-				gridOption.data=[];
-				gridOption.columnDefs = [
-					{ name:'Job Type',cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="jenkins-img" />'
-					+'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="jenkins-img" />'
-					+'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="jenkins-img" />'
-					+'<img src="images/orchestration/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="jenkins-img">',cellTooltip: true},
-					{ name:'Name',field:'name',cellTooltip: true},
-					{ name:'Job Description',field:'description',cellTooltip: true},
-					{ name:'Job Links', cellTemplate:'<div>'
-					+'<span ng-show="row.entity.taskType===\'chef\'">'
-					+'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'
-					+'<span title="Assign Nodes" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'
-					+'</span>'
-					+'<span ng-show="row.entity.taskType===\'jenkins\'">'
-					+'<a target="_blank" title="Jenkins" ng-href="http://{{row.entity.taskConfig.jobURL}}">'
-					+'<img class="chefImage-size" src="images/orchestration/joburl.jpg" /> </a>'
-					+'</span>'
-					+'<span ng-show="row.entity.taskType===\'composite\'"> NA </span>'
-					+'<span ng-show="row.entity.taskType==\'puppet\'">'
-					+'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'
-					+'</span>'
-					+'</div>' ,cellTooltip: true},
-					{ name:'Execute', cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
-					{ name:'History', cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
-					{ name:'Last Run', cellTemplate:'<span>{{row.entity.lastRunTimestamp  | timestampToCurrentTime}}</span>', cellTooltip: true},
-					{ name:'Action', cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white" ng-click="grid.appScope.createNewTask(row.entity)"></span>'
-					+'<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white" ng-click="grid.appScope.deleteTask(row.entity)"></span>', cellTooltip: true}
-				];
-				gridOption.onRegisterApi= function(gridApi) {
-
-				  //Sorting for sortBy and sortOrder
-			      gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
-			      	$scope.paginationParams.sort={
-			      		field:sortColumns[0].field,
-			      		direction: sortColumns[0].sort.direction
-			      	};
-			      	getOrchestrationList();
-			      });
-
-			      //Pagination for page and pageSize
-			      gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
-		      		$scope.paginationParams.pages={
-			      		page:newPage,
-			      		pageSize:pageSize
-		      		};
-		      		getOrchestrationList();
-			      });
-			    }
-				
-	      		function getOrchestrationList(){
-	      			$scope.isOrchestrationTableLoading = true;
-	      			workzoneServices.gettasksList(requestParams,$scope.paginationParams).then(function (response) {
-						gridOption.totalItems = response.data.metaData.totalRecords;
-						gridOption.data = response.data.tasks;
-						
-						$scope.tasks = gridOption.data;
-						$scope.isOrchestrationPageLoading = false;
-						$scope.isOrchestrationTableLoading = false;
-						
-	                    workzoneUIUtils.makeTabScrollable('orchestrationPage');
-					});
-	      		}
-	      		getOrchestrationList();
-
-				$scope.gridOptions= gridOption;
-			};*/
-
-
-
-
-
-
-
-
-
-
-
-
-
 			var helper = {
 				orchestrationLogModal: function(id,historyId,taskType) {
 					var modalInstance = $modal.open({
@@ -235,7 +123,7 @@
 					//$scope.tabData = [];
 					// service
 					workzoneServices.gettasksList($scope.requestParams,$scope.paginationParams).then(function(result){
-
+						
 						/*$scope.orcheGridOptions.totalItems = result.data.metaData.totalRecords;
 						$scope.tabData = result.data.tasks;*/
 						$timeout(function(){
@@ -330,7 +218,8 @@
 						workzoneServices.deleteTask(orchestrationObj._id).then(function(response) {
 							if (response.data.deleteCount.ok) {
 								// $scope.tasks = arrayUtil.deleteObjectById($scope.tasks, orchestrationObj._id);
-								$rootScope.$emit('WZ_REFRESH_ENV');
+								$scope.taskListGridView();
+								//$rootScope.$emit('WZ_REFRESH_ENV');
 							}
 						}, function(data) {
 							alert('error:: ' + data.toString());
@@ -390,6 +279,8 @@
 					}).result.then(function(taskName) {
 						if (type === 'new') {
 							$rootScope.globalSuccessMessage = 'New Job ' + taskName + ' created successfully';
+							//$scope.taskListGridView();
+							//TODO : go to last page.
 						} else {
 							$rootScope.globalSuccessMessage = taskName + ' has been updated successfully';
 							$scope.taskListGridView();
@@ -411,10 +302,15 @@
 				//TODO: Set sortBy and sortField to controller defaults;
 				//$scope.tasks = data.tasks;
 			};
+			$scope.setLastPageView = function(){
+				var lastPage = 
+				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = lastPage;
+				//TODO: Set sortBy and sortField to controller defaults;
+				//$scope.tasks = data.tasks;
+			};
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
 				//$scope.isOrchestrationPageLoading = true;
 				$scope.requestParams=requestParams;
-				
 				$scope.initGrids();
 				$scope.setFirstPageView();
 				$scope.taskListGridView();

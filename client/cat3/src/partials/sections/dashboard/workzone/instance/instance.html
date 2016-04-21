@@ -162,7 +162,8 @@
 
 		<section id="tableView" ng-show="!isCardViewActive">
 			<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>-->
-			<div id="grid2" ng-if="tabData.length >0"  ui-grid="instancesGridOptions" ui-grid-pagination class="grid instance-status"></div>
+			<div class="no-data-found" ng-if="!tabData.length > 0"> No data found !</div>
+			<div id="grid2" ng-if="tabData.length >0"  ui-grid="instancesGridOptions" ui-grid-pagination class="grid instance-status" style="height: {{gridHeight}}px"></div>
 		</section>
 	</div>
 </div>

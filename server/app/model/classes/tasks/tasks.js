@@ -401,7 +401,7 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
 				return callback(err);
 			}
 			else{
-				this.paginate(databaseCall.queryObj, databaseCall.options, function (err, tasks) {
+				Tasks.paginate(databaseCall.queryObj, databaseCall.options, function (err, tasks) {
 					if (err) {
 						var err = new Error('Internal server error');
 						err.status = 500;

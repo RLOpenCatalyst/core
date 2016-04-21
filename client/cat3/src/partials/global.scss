@@ -488,6 +488,12 @@ option.puppet {
 		overflow: hidden;
 	}
 
+	div.overlap.ng-scope {
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
 	.ui-grid-cell {
 		text-overflow: ellipsis;
 		overflow: initial;

@@ -9,7 +9,6 @@
 	'use strict';
 	angular.module('workzone.azureARM', ['apis.workzone', 'ngAnimate', 'ui.bootstrap','utility.array'])
 		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', '$timeout', 'workzoneUIUtils', function($scope, workzoneServices, $modal, $rootScope, $timeout, workzoneUIUtils) {
-			
 			$scope.paginationParams = {
 				pages: {
 					page: 1,
@@ -60,9 +59,6 @@
 			}
 			angular.extend($scope, {
 				azureListCardView: function() {
-					$scope.isAzureARMPageLoading = true;
-
-					//$scope.tabData = [];
 					$scope.arms = [];
 					// service
 					workzoneServices.getAllAzureList($scope.requestParams, $scope.paginationParams).then(function(result) {
