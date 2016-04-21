@@ -8,22 +8,32 @@
 (function(angular) {
 	"use strict";
 	angular.module('workzone.instance').
-	controller('instanceUpdateChefRunlistCtrl', ['$scope', 'items', 'instanceId', '$modalInstance',
+	controller('instanceUpdateChefRunlistCtrl', ['$scope', '$q', 'instanceId', '$modalInstance',
 	'responseFormatter', 'chefSelectorComponent', '$timeout', '$http', 'workzoneServices', '$modal',
-	function($scope, items, instanceId, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices, $modal) {
+	function($scope, $q, instanceId, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices, $modal) {
 		/*Open only One Accordian-Group at a time*/
 		$scope.oneAtATime = true;
 		/*Initialising First Accordian-group open on load*/
 		$scope.isFirstOpen = true;
-		var chefServerID = items[0].data.serverId;
-		$scope.chefServerID = chefServerID;
-		var list = responseFormatter.formatDataForChefClientRun(items[0].data);
-		var template = responseFormatter.formatTemplateDataForChefClient(items[1].data);
-		var totalElements = responseFormatter.merge(list, template);
-		var selectedElements = items[2];
-		var factory = chefSelectorComponent.getComponent;
-		var compositeSelector;
+		$scope.isInstanceUpdateChefRunLoading = true;
+		$scope.chefServerID = '';
+		var totalElements, selectedElements, factory, compositeSelector;
 		$scope.allCBAttributes = [];
+		//promise contain list of cookbooks and roles list
+		var c = workzoneServices.getCookBookListForOrg();
+		//promise contains template list
+		var t = workzoneServices.getSoftwareTemplatesForOrg();
+		$q.all([c, t]).then(function(allPromise) {
+			$scope.chefServerID = allPromise[0].data.serverId;
+			var list = responseFormatter.formatDataForChefClientRun(allPromise[0].data);
+			var template = responseFormatter.formatTemplateDataForChefClient(allPromise[1].data);
+			totalElements = responseFormatter.merge(list, template);
+			selectedElements = allPromise[2];
+			factory = chefSelectorComponent.getComponent;
+			$scope.isInstanceUpdateChefRunLoading = false;
+			$scope.init();
+		});
+
 		function registerUpdateEvent(obj) {
 			obj.addListUpdateListener('updateList', $scope.updateAttributeList);
 		}
@@ -47,36 +57,37 @@
 						};
 					}
 				}
-
 			});
 			modalInstance.result.then(function() {
 				$modalInstance.close();
 			});
 		};
 
-		$timeout(function() {
-			//DOM has finished rendering after that initializing the component
-			compositeSelector = new factory({
-				scopeElement: '#chefClientForOrchestration',
-				optionList: totalElements,
-				selectorList: selectedElements,
-				isSortList: true,
-				isSearchBoxEnable: true,
-				isPriorityEnable: true,
-				isExcludeDataFromOption: true,
-				isOverrideHtmlTemplate: false,
-				idList: {
-					selectorList: '#selector',
-					optionSelector: '#option',
-					upBtn: '#btnRunlistItemUp',
-					downBtn: '#btnRunlistItemDown',
-					addToSelector: '#btnaddToRunlist',
-					removeFromSelector: '#btnremoveFromRunlist',
-					searchBox: '#searchBox'
-				}
-			});
-			registerUpdateEvent(compositeSelector);
-		}, 10);
+		$scope.init = function() {
+			$timeout(function() {
+				//DOM has finished rendering after that initializing the component
+				compositeSelector = new factory({
+					scopeElement: '#chefClientForOrchestration',
+					optionList: totalElements,
+					selectorList: selectedElements,
+					isSortList: true,
+					isSearchBoxEnable: true,
+					isPriorityEnable: true,
+					isExcludeDataFromOption: true,
+					isOverrideHtmlTemplate: false,
+					idList: {
+						selectorList: '#selector',
+						optionSelector: '#option',
+						upBtn: '#btnRunlistItemUp',
+						downBtn: '#btnRunlistItemDown',
+						addToSelector: '#btnaddToRunlist',
+						removeFromSelector: '#btnremoveFromRunlist',
+						searchBox: '#searchBox'
+					}
+				});
+				registerUpdateEvent(compositeSelector);
+			}, 10);
+		};
 
 		angular.extend($scope, {
 			cancel: function() {
@@ -99,7 +110,7 @@
 					for (var i = 0; i < nodesList.length; i++) {
 						data.push(nodesList[i].value);
 					}
-					workzoneServices.getcookBookAttributes(data, chefServerID).then(function (response) {
+					workzoneServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
 						var data;
 						if (response.data) {
 							data = response.data;
