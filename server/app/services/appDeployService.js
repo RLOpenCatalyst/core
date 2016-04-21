@@ -255,7 +255,7 @@ appDeployService.getAppDeployHistoryListByProjectId = function getAppDeployHisto
     });
 }
 
-appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, callback) {
+appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req,isUpgrade, callback) {
     var user = req.session.user.cn;
     var hostProtocol = req.protocol + '://' + req.get('host');
     var choiceParam = req.body.choiceParam;
@@ -266,12 +266,14 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, callback)
     if (sourceData && appData && task) {
         var nexus = sourceData.nexus;
         var docker = sourceData.docker;
-        appData['upgrade'] = true;
+        appData['upgrade'] = isUpgrade;
         if (nexus) {
             appData['nexus'] = nexus;
+            appData['nexus']['nodeIds'] = task.nodeIds;
         }
         if (docker) {
             appData['docker'] = docker;
+            appData['docker']['nodeIds'] = task.nodeIds;
         }
         AppData.createNewOrUpdate(appData, function(err, savedData) {
             if (err) {
@@ -300,7 +302,7 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, callback)
                             if (err === 404) {
                                 callback(404, null);
                                 return;
-                            } else if(err) {
+                            } else if (err) {
                                 logger.error("Failed to execute task.", err);
                                 callback(err, null);
                                 return;
@@ -337,29 +339,34 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
     var task = req.body.task;
     var taskId = task.taskId;
     if (appData && task) {
-        var nexus = sourceData.nexus;
-        var docker = sourceData.docker;
-        appData['upgrade'] = true;
-        if (nexus) {
-            appData['nexus'] = nexus;
-        }
-        if (docker) {
-            appData['docker'] = docker;
-        }
-        var applicationData = {
-            "projectId": appData.projectId,
-            "envName": appData.targetEnv,
-            "appName": appData.appName,
-            "version": appData.version,
-            "nexus": nexus,
-            "docker": docker
-        };
         AppData.getAppDataByProjectAndEnv(appData.projectId, appData.sourceEnv, appData.appName, appData.version, function(err, appDatas) {
             if (err) {
                 logger.debug("Failed to fetch app-data: ", err);
                 callback(err, null);
                 return;
             }
+            if (appDatas && appDatas.length) {
+                var nexus = appDatas[0].nexus;
+                var docker = appDatas[0].docker;
+                appData['upgrade'] = true;
+                if (nexus && nexus.nodeIds.length) {
+                    appData['nexus'] = nexus;
+                    appData['nexus']['nodeIds'] = task.nodeIds;
+                }
+                if (docker && docker.nodeIds.length) {
+                    appData['docker'] = docker;
+                    appData['docker']['nodeIds'] = task.nodeIds;
+                }
+                var applicationData = {
+                    "projectId": appData.projectId,
+                    "envName": appData.targetEnv,
+                    "appName": appData.appName,
+                    "version": appData.version,
+                    "nexus": nexus,
+                    "docker": docker
+                };
+            }
+            logger.debug("applicationData: ",JSON.stringify(applicationData));
             AppData.createNewOrUpdate(applicationData, function(err, savedData) {
                 if (err) {
                     logger.debug("Failed to save app-data: ", err);
@@ -387,7 +394,7 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                                 if (err === 404) {
                                     callback(404, null);
                                     return;
-                                } else {
+                                } else if(err){
                                     logger.error("Failed to execute task.", err);
                                     callback(err, null);
                                     return;

@@ -341,7 +341,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     //New App Deploy
     app.post('/app/deploy/new', function(req, res) {
-        appDeployService.appDeployOrUpgrade(req, function(err, resData) {
+        var isUpgrade = false;
+        appDeployService.appDeployOrUpgrade(req,isUpgrade, function(err, resData) {
             if (err) {
                 res.send(err);
                 return;
@@ -352,7 +353,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     //Upgrade App Deploy
     app.put('/app/deploy/upgrade', function(req, res) {
-        appDeployService.appDeployOrUpgrade(req, function(err, resData) {
+        var isUpgrade = true;
+        appDeployService.appDeployOrUpgrade(req,isUpgrade, function(err, resData) {
             if (err) {
                 res.send(err);
                 return;
@@ -363,9 +365,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     //Promote Application
     app.put('/app/deploy/promote', function(req, res) {
-        appDeployService.appDeployOrUpgrade(req, function(err, resData) {
+        appDeployService.promoteApp(req, function(err, resData) {
             if (err) {
-                res.send(err);
+                res.status(500).send(err);
                 return;
             }
             res.send(resData);

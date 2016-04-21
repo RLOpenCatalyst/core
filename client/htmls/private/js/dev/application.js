@@ -823,7 +823,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                         var nexus = {};
                         var docker = {};
                         if(data[0].nexus && data[0].nexus.nodeIds.length){
-                            nexus['nexusUrl'] = data[0].nexus.repoURL;
+                            nexus['repoURL'] = data[0].nexus.repoURL;
                             nexus['version'] = data[0].version;
                             nexus['artifactId'] = data[0].nexus.artifactId;
                         }
@@ -1678,7 +1678,7 @@ function deployNewForDocker() {
     var appName = dockerImage;
     var upgrade = $('#upgradeValue').val();
     var nexus = {
-        "nexusUrl": "",
+        "repoURL": "",
         "version": "",
         "artifactId": ""
     };
@@ -1803,7 +1803,7 @@ function upgradeOrDeploy() {
     }
     var upgrade = $('#upgradeValue').val();
     var nexus = {
-        "nexusUrl": nexusRepoUrl,
+        "repoURL": nexusRepoUrl,
         "version": versionId,
         "artifactId": artifactId
     };
