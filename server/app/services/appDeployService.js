@@ -300,14 +300,14 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, callback)
                             if (err === 404) {
                                 callback(404, null);
                                 return;
-                            } else {
+                            } else if(err) {
                                 logger.error("Failed to execute task.", err);
                                 callback(err, null);
                                 return;
                             }
                             logger.debug("Returned historyData: ", JSON.stringify(historyData));
                             var taskRes = {
-                                "taskId": historyData.taskId,
+                                "taskId": taskId,
                                 "taskType": historyData.taskType,
                                 "historyId": historyData.historyId
                             };
@@ -394,7 +394,7 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                                 }
                                 logger.debug("Returned historyData: ", JSON.stringify(historyData));
                                 var promoteRes = {
-                                    "taskId": historyData.taskId,
+                                    "taskId": taskId,
                                     "taskType": historyData.taskType,
                                     "historyId": historyData.historyId
                                 };

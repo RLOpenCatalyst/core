@@ -49,23 +49,19 @@ var AppDataSchema = new Schema({
     nexus: {
         repoURL: {
             type: String,
-            required: true,
             trim: true
         },
         nodeIds: {
-            type: [String],
-            required: true
+            type: [String]
         },
         artifactId: {
             type: String,
-            required: true,
             trim: true
         }
     },
     docker: {
         image: {
             type: String,
-            required: true,
             trim: true
         },
         containerName: {
@@ -74,12 +70,10 @@ var AppDataSchema = new Schema({
         },
         containerPort: {
             type: String,
-            required: true,
             trim: true
         },
         hostPort: {
             type: String,
-            required: true,
             trim: true
         },
         dockerUser: {
@@ -96,23 +90,19 @@ var AppDataSchema = new Schema({
         },
         imageTag: {
             type: String,
-            required: true,
             trim: true
         },
         nodeIds: {
-            type: [String],
-            required: true
+            type: [String]
         }
     },
     s3Bucket: {
         url: {
             type: String,
-            required: true,
             trim: true
         },
         nodeIds: {
-            type: [String],
-            required: true
+            type: [String]
         }
     }
 });
