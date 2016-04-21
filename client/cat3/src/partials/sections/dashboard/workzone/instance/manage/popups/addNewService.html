@@ -22,9 +22,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="service in serviceInfo" ng-show="serviceIds.indexOf(service._id) == -1">
+                <tr ng-repeat="service in serviceInfo" ng-show="serviceIds.indexOf(service.rowid) == -1">
                     <td>
-                        <input type="checkbox" ng-click="toggleSelection(service._id)" />
+                        <input type="checkbox" ng-click="toggleSelection(service.rowid)" />
                     </td>
                     <td>{{service.servicename}}</td>
                     <td class="sorting_1">
