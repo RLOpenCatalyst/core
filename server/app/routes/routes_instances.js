@@ -480,8 +480,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
                 if (_stdout[v].length == 1)
                     start = true;
-                if (v >= _stdout.length - 1)
-                    res.end(so);
+                if (v >= _stdout.length - 1) {
+                    if(so) {
+                      res.end(so);    
+                    } else {
+                        res.end([]);
+                    }
+                    
+                }
             });
 
         }, function(stdOutData) {
