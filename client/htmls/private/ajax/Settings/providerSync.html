@@ -570,13 +570,13 @@
             "bFilter": true,
             "aaSorting": [[ 4, "asc" ]],
             "aoColumns": [{
-                "bSortable": false
+                "bSortable": true
             }, {
-                "bSortable": false
+                "bSortable": true
             }, {
-                "bSortable": false
+                "bSortable": true
             }, {
-                "bSortable": false
+                "bSortable": true
             }, {
                 "bSortable": false
             }, {
@@ -589,17 +589,6 @@
     }
 
     $(document).ready(function(e) {
-        /*var urlParams = {};
-        (window.onpopstate = function() {
-            var url = window.location.href;
-            var indexOfQues = url.lastIndexOf("?");
-            if (indexOfQues != -1) {
-                var sub = url.substring(indexOfQues + 1);
-                //console.log(sub);
-                urlParams.providerId = sub;
-            }
-        })();*/
-
         var urlParams = {};
         (window.onpopstate = function() {
             var url = window.location.href;
@@ -639,22 +628,6 @@
                 }
                 bootbox.alert(msg);
             });
-            /*var tagsListdummy = {
-                "tags": [{
-                    "name": "env",
-                    "description": null
-                }, {
-                    "name": "application",
-                    "description": "Project name"
-                },{
-                    "name": "testingEnv",
-                    "description": ""
-                }],
-                "count": 2,
-                "pageSize": 10,
-                "pageIndex": 1
-            };
-            loadTagsTabData(tagsListdummy,providerId);*/
         }
 
         function loadTagsTabData(tagsListData,providerId) {
@@ -731,7 +704,6 @@
                 //Send the body update tag
                 var objupdatetagDesc = {};
                 objupdatetagDesc["description"] = tagDesc;
-                console.log(objupdatetagDesc);
                 $.ajax({
                     url: '/providers/'+ providerId +'/tags/'+ tagName,
                     method: 'PUT',
@@ -745,44 +717,9 @@
                     }
                 }); 
             });
-
-
-
             /*var blankArr = [];
             loaddefaultTagMappingSelection(blankArr);*/
         }
-        /*var tagsListSelected = {
-            "tagNameMappings": [{
-                "tagName": "application",
-                "tagValues": ["proj1", "proj2"],
-                "catalystEntityType": "project",
-                "catalystEntityMapping": [{
-                    "catalystEntityId": "<MongoID>",
-                    "catalystEntityName": "Project1",
-                    "tagValue": "proj1"
-                }, {
-                    "catalystEntityId": "<MongoID>",
-                    "catalystEntityName": "Project2",
-                    "tagValue": "proj2"
-                }]
-            }, {
-                "tagName": "testingEnv",
-                "tagValues": ["prod", "dev"],
-                "catalystEntityType": "environment",
-                "catalystEntityMapping": [{
-                    "catalystEntityId": "<MongoID>",
-                    "catalystEntityName": "Development",
-                    "tagValue": "dev"
-                }, {
-                    "catalystEntityId": "<MongoID>",
-                    "catalystEntityName": "Production",
-                    "tagValue": "prod"
-                }]
-            }],
-            "count": 2,
-            "pageSize": 10,
-            "pageIndex": 1
-        };*/
         function loaddefaultTagMappingSelection(catalystEntityTypeListPassed){
             $.ajax({
                 url: '/providers/'+urlproviderId+'/tag-mappings',
@@ -1075,7 +1012,6 @@
 
                 envMappingObj.catalystEntityMapping.push(objenvMapping);
                 if(counter == $('#mappingenvTable tbody tr').length){
-                    console.log(envMappingObj);
                     $.ajax({
                         url: '/providers/'+urlproviderId+'/tag-mappings/environment',
                         data: JSON.stringify(envMappingObj),
@@ -1391,21 +1327,9 @@
 
         function loadUnassignedInstances(unassignedData, envprojMappingObject){
             $instanceUnAssignedDatatable.clear().draw();
-            console.log(envprojMappingObject.project);
-            console.log(envprojMappingObject.environment);
-            //console.log("UnAssignedData",unassignedData);
-            /*console.log("UnAssignedData",unassignedData);
-            console.log("envprojMappingObject",envprojMappingObject);
-            console.log(envprojMappingObject.project);
-            console.log(envprojMappingObject.environment);
-            console.log("Arab");*/
-            console.log(unassignedData.instances.length);
             for (var i = 0; i < unassignedData.instances.length; i++) {
-                var $tbody = $('#unassignedinstanceListTable tbody').empty();
-
-                
+                var $tbody = $('#unassignedinstanceListTable tbody').empty();                
                 var $tr = $('<tr></tr>').attr({ "instanceid" : unassignedData.instances[i].id, "projecttagsmapname" : envprojMappingObject.project, "envtagsmapname" : envprojMappingObject.environment });
-                //var $tr = $('<tr></tr>').attr('instanceId', unassignedData.instances[i].id);
 
                 var $tdId = $('<td></td>').append(unassignedData.instances[i].platformId);
                 $tr.append($tdId);
@@ -1420,32 +1344,25 @@
                 $tr.append($tdStatus);
 
                 //Loop to append the project from the tags
-                //for(var j=0; j<unassignedData.instances[i].)
-                // console.log(unassignedData.instances[i].tags);
                 if(unassignedData.instances[i].tags){
                     if(envprojMappingObject.project in unassignedData.instances[i].tags){
-                        //console.log("Matched");
-                        //console.log(unassignedData.instances[i].tags);
                         var projectTagName = unassignedData.instances[i].tags[envprojMappingObject.project];
                         var $inputTextProject = $('<input type="text" class="form-control projectTagName" value="'+projectTagName+'"></input>');
 
                         var $tdProjectTag = $('<td></td>').append($inputTextProject);
                         $tr.append($tdProjectTag);
                     }else{
-                        //console.log("Not Matched");
                         var $inputTextProject = $('<input type="text" class="form-control projectTagName" value=""></input>');
                         var $tdProjectTag = $('<td></td>').append($inputTextProject);
                         $tr.append($tdProjectTag);
                     }
 
                     if(envprojMappingObject.environment in unassignedData.instances[i].tags){
-                        //console.log("Matched");
                         var environmentTagName = unassignedData.instances[i].tags[envprojMappingObject.environment];
                         var $inputTextEnv = $('<input type="text" class="form-control envTagName" value="'+environmentTagName+'"></input>');
                         var $tdEnvTag = $('<td></td>').append($inputTextEnv);
                         $tr.append($tdEnvTag);
                     }else{
-                        //console.log("Not Matched");
                         var $inputTextEnv = $('<input type="text" class="form-control envTagName" value=""></input>');
                         var $tdEnvTag = $('<td></td>').append($inputTextEnv);
                         $tr.append($tdEnvTag);
@@ -1464,12 +1381,6 @@
                 $inputCheckbox = $('<input class="nodeCheckBox" type="checkbox">');
                 var $tdActionCheckbox = $('<td></td>').append($inputCheckbox);
                 $tr.append($tdActionCheckbox);
-               
-                /*var $tdProjectTag = $('<td></td>').append(unassignedData.instances[i].projectTag);
-                $tr.append($tdProjectTag);
-
-                var $tdEnvTag = $('<td></td>').append(unassignedData.instances[i].envTag);
-                $tr.append($tdEnvTag);*/
 
                 $tbody.append($tr);
                 $instanceUnAssignedDatatable.row.add($tr).draw();
@@ -1528,7 +1439,6 @@
                             envprojMappingObject['environment'] = objtagName;
                         }
                     }
-                    //console.log("Object======>",envprojMappingObject);
                     getunassignedInstanceswithProjectandEnv(envprojMappingObject);
                 }
             }).fail(function(jxhr) {
@@ -1540,41 +1450,6 @@
                 }
                 bootbox.alert(msg);
             });
-
-
-            
-            /*var unassignedInstances = {
-                "instances": [{
-                        "_id": "57039167c6441f419c97a73d",
-                        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-                        "provider": {
-                            "id": "57024031cd01705251922666",
-                            "type": "AWS",
-                            "data": {}
-                        },
-                        "platformId": "i-48b276cc",
-                        "os": "linux",
-                        "state": "running",
-                        "tags": {}
-                    },
-                    {
-                        "_id": "57039167c6441f419c97a73e",
-                        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-                        "provider": {
-                            "id": "57024031cd01705251922666",
-                            "type": "AWS",
-                            "data": {}
-                        },
-                        "platformId": "i-d09b2754",
-                        "os": "linux",
-                        "state": "running",
-                        "tags": {}
-                    }],
-                "count": 2,
-                "pageSize": 10,
-                "pageIndex": 1
-            };
-            loadUnassignedInstances(unassignedInstances);*/
         }
         function getunassignedInstanceswithProjectandEnv(envprojMappingObject){
             $.get('/providers/'+ urlproviderId +'/unassigned-instances', function(unassignedInstances) {   
@@ -1613,7 +1488,6 @@
                updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
             });
             updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
-            console.log(updateInstanceTagsObj);
             $.ajax({
                 url: '/providers/'+urlproviderId+'/unassigned-instances',
                 data: JSON.stringify(updateInstanceTagsObj),
@@ -1693,10 +1567,7 @@
             function makeRequest() {
                 $('#saveSpinner').removeClass('hidden');
                 $('.importNodesBtn').attr('disabled', 'disabled');
-                console.log("Arab");
-                console.log(reqBody);
                 $.post('../providers/' + urlproviderId + '/sync', reqBody, function(data) {
-                    console.log(data);
                     $('#providerSyncModal').modal('hide');
                     var $chefResultModalContainer = $('#providerSyncResultModal');
                     var $modalBody = $chefResultModalContainer.find('.modal-body');
@@ -1719,7 +1590,6 @@
                     function pollTaskStatus(taskId, timestamp) {
                         timeout = setTimeout(function() {
                             $.get('../taskstatus/' + taskId + '/status?timestamp=' + timestamp, function(data) {
-                                console.log(data);
                                 if (!data.completed) {
                                     if (data.statusList && data.statusList.length) {
 
