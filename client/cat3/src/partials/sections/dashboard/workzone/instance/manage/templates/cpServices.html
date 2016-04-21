@@ -8,11 +8,11 @@
                         Service Name
                     </td>
                     <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Description">
-                        <i class="fa fa-fw fa-sort-amount-asc"></i>
+                        <i class="fa fa-fw fa-sort-amount-asc white"></i>
                         Actions
                     </td>
                     <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Links">
-                        <i class="fa fa-fw fa-flash"></i>
+                        <i class="fa fa-fw fa-flash white"></i>
                         Options
                     </td>
                 </tr>
@@ -22,25 +22,17 @@
                     <td>{{service.servicename}}</td>
                     <td class="sorting_1">
                         <span ng-repeat="actionItem in service.actionData" class="cp-service-icon cursor {{actionItem.bg}}" ng-click="serviceAction(service, actionItem.actionType);">
-                            <i class="fa {{actionItem.icon}}"></i>
+                            <i class="fa {{actionItem.icon}} white"></i>
                         </span>
                     </td>
                     <td>
                         <span title="Delete" class="cp-service-icon btn-danger cursor" ng-click="deleteService(service, $index);">
-                            <i class="fa fa-trash-o"></i>
+                            <i class="fa fa-trash-o white"></i>
                         </span>
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
-
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 special-service-section">
-        <label class="service-class pull-left">Special Services:</label>
-        <button type="button" class="btn cat-btn-update workstationBtn" ng-click="convertToWorkstation()">
-            <i class="fa fa-check white"></i>
-            Convert To Workstation
-        </button>
     </div>
     <button type="button" class="btn cat-btn-update add-new-service-btn" ng-click="addNewService()">
         Add New Service

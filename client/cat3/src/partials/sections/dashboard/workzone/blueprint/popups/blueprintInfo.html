@@ -40,11 +40,11 @@
 				<tr>
 					<td class="td-padding">Project Name:</td>
 					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.project">
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.projectName">
 					</td>
 				</tr>
 			</tbody>
-			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.cloudProviderType=='aws'">
+			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.blueprintConfig.cloudProviderType=='aws'">
 				<tr>
 					<td class="td-padding">Operating System:</td>
 					<td>
@@ -81,14 +81,14 @@
 				<tr>
 					<td class="td-padding">Image:</td>
 					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.imageId">
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.imageName">
 
 					</td>
 				</tr>
 				<tr>
 					<td class="td-padding">Keypair:</td>
 					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.keyPairId">
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.keyPairName">
 
 					</td>
 				</tr>
@@ -123,7 +123,7 @@
 					</td>
 				</tr>
 			</tbody>
-			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.cloudProviderType=='azure'">
+			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.blueprintConfig.cloudProviderType=='azure'">
 				<tr>
 					<td class="td-padding">Operating System:</td>
 					<td>
@@ -131,29 +131,9 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="td-padding">Provider Type:</td>
-					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.providerType">
-
-					</td>
-				</tr>
-				<tr>
-					<td class="td-padding">Provider Name:</td>
-					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.providerName">
-
-					</td>
-				</tr>
-				<tr>
-					<td class="td-padding">Region:</td>
-					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.region">
-					</td>
-				</tr>
-				<tr>
 					<td class="td-padding">Image:</td>
 					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.imageId">
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.imageName">
 
 					</td>
 				</tr>
@@ -194,7 +174,7 @@
 				<tr>
 					<td class="td-padding">Image:</td>
 					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.imageId">
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.imageName">
 
 					</td>
 				</tr>
@@ -235,7 +215,7 @@
 				<tr>
 					<td class="td-padding">Image:</td>
 					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.cloudProviderData.imageId">
+						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.blueprintConfig.imageName">
 
 					</td>
 				</tr>
