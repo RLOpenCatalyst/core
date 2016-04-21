@@ -114,7 +114,7 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 			return;
 		}
 		else {
-			this.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
+			UnmanagedInstance.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
 				if (err) {
 					logger.error("Failed getByOrgProviderId (%s)", err);
 					callback(err, null);

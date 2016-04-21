@@ -92,7 +92,11 @@ var taskSchema = new Schema({
 	lastTaskStatus: String,
 	lastRunTimestamp: Number,
 	timestampEnded: Number,
-	blueprintIds: [String]
+	blueprintIds: [String],
+	taskCreatedOn: {
+		type: Date,
+		default: Date.now
+	}
 });
 taskSchema.plugin(mongoosePaginate);
 // instance method :-  
