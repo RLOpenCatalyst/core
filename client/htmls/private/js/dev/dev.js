@@ -785,24 +785,24 @@ function devCall() {
 				tableinstanceview = $('#tableinstanceview').DataTable({
 					"pagingType": "full_numbers",
 					"aoColumns": [{
-								"bSortable": false
-							},
-							null, {
-								"bSortable": false
-							}, {
-								"bSortable": false
-							}, {
-								"bSortable": false
-							}, {
-								"bSortable": false
-							}, {
-								"bSortable": false
-							}, {
-								"bSortable": false,
-								"sWidth": "20%"
-							}
-						]
-						/*"fnRowCallback": function(nRow, aData, iDisplayIndex) {
+							"bSortable": false
+						},
+						null, {
+							"bSortable": false
+						}, {
+							"bSortable": false
+						}, {
+							"bSortable": false
+						}, {
+							"bSortable": false
+						}, {
+							"bSortable": false
+						}, {
+							"bSortable": false,
+							"sWidth": "20%"
+						}
+					]
+					/*"fnRowCallback": function(nRow, aData, iDisplayIndex) {
 
                       $("td:first", nRow).html(iDisplayIndex + 1);
                       return nRow;
@@ -1024,7 +1024,7 @@ function devCall() {
 									$('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url);
 								}
 							}
-/*
+							/*
 
 
 							$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
@@ -1937,7 +1937,7 @@ function devCall() {
 			// } else {
 			//     $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('status : <span class="instance-state instance-state-text-pending">' + data.instanceState + '</strong>');
 			// }
-           /*
+			/*
 			$.get('/instances/' + data._id + '/actionLogs', function(actionLogs) {
 
 				var lastActionLog = actionLogs[actionLogs.length - 1];
@@ -1953,33 +1953,33 @@ function devCall() {
 				$instanceDetailsList.append($instanceDetailItemStatus);
 
 			});*/
-            var platformId = 'unknown';
-            var providerIdText = 'Instance Id : ';
-            if(data.platformId) {
-			  platformId = data.platformId;
-			  switch(data.providerType){
-			  	 case 'aws': 
-			  	    providerIdText = 'AWS Id : '; 
-			  	    break;
-				case 'azure':
-					providerIdText = 'Azure Id : ';
-					break;
-				case 'vmware':
-					providerIdText = 'VMware Id : ';
-					break;
-				case 'openstack':
-				    providerIdText = 'openstack Id : ';	
-				    break;
-				default:
-				    platformId = 'unknown';
-                    providerIdText = 'Instance Id : ';
+			var platformId = 'unknown';
+			var providerIdText = 'Instance Id : ';
+			if (data.platformId) {
+				platformId = data.platformId;
+				switch (data.providerType) {
+					case 'aws':
+						providerIdText = 'AWS Id : ';
+						break;
+					case 'azure':
+						providerIdText = 'Azure Id : ';
+						break;
+					case 'vmware':
+						providerIdText = 'VMware Id : ';
+						break;
+					case 'openstack':
+						providerIdText = 'openstack Id : ';
+						break;
+					default:
+						platformId = 'unknown';
+						providerIdText = 'Instance Id : ';
 
-			  }
-            } 
+				}
+			}
 
 			//$instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span class="instance-state instance-details-id" style="text-overflow: ellipsis;width: 65px;overflow: hidden;display: inline-block;white-space: nowrap;"> Provider Id : ' + platformId + '</span>');
-            $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> '+ providerIdText + platformId + '</span>');
-            $instanceDetailsList.append($instanceDetailItemStatus);
+			$instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span title = "' + platformId + '" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> ' + providerIdText + platformId + '</span>');
+			$instanceDetailsList.append($instanceDetailItemStatus);
 			//$instanceDetailsList.append('<span class="instance-state" style="text-overflow: ellipsis;width: 65px;overflow: hidden;display: inline-block;white-space: nowrap;">' + platformId + '</span>');
 
 
@@ -4336,7 +4336,7 @@ function devCall() {
 			function showTaskLogsPC(history) {
 				var $ulHeaderArea = $('<ul class="nav nav-tabs bordered taskExecuteTabsHeader"></ul>');
 				var $contentArea = $('<div class="tab-content padding-10 taskExecuteTabsContent"></div>');
-
+				console.log('history ==>', history);
 				if (history.nodeIdsWithActionLog && history.nodeIdsWithActionLog.length) {
 					var ids = [];
 					for (var kk = 0; kk < history.nodeIdsWithActionLog.length; kk++) {
@@ -4405,6 +4405,21 @@ function devCall() {
 							//e.relatedTarget // previous active tab
 						}).first().click();
 					});
+				} else if (history.blueprintExecutionResults) {
+					// var success = false;
+					// for (var i = 0; i < history.blueprintExecutionResults.length; i++) {
+					// 	if (history.blueprintExecutionResults[i].status === 'success') {
+					// 		success = true;
+					// 	}
+					// }
+					// if (success) {
+					// 	return 'Blueprints Launched Successfully';
+					// } else {
+					// 	return 'Unable to Launch Blueprints';
+
+					// }
+
+
 				}
 
 				var $template = $('<div role="content"><div class="widget-body"></div></div>');
@@ -4507,6 +4522,21 @@ function devCall() {
 						var $logArea = $tabContent.find('.taskLogArea');
 						console.log('innet fetch task ==>' + historyId);
 						$.get('/tasks/' + taskId + '/history/' + historyId, function(historyData) {
+							if (historyData.blueprintExecutionResults) {
+								var success = false;
+								for (var i = 0; i < historyData.blueprintExecutionResults.length; i++) {
+									if (historyData.blueprintExecutionResults[i].status === 'success') {
+										success = true;
+									}
+								}
+								if (success) {
+									$logArea.append('Blueprints Launched Successfully');
+								} else {
+									$logArea.append('Unable to Launch Blueprints');
+
+								}
+								return;
+							}
 
 							switch (historyData.taskType) {
 								case 'puppet':
@@ -4524,9 +4554,9 @@ function devCall() {
 						//if(headerCount === 1) {
 
 						setTimeout(function() {
-								$liHeader.find('a').click();
-							}, 2000)
-							//}
+							$liHeader.find('a').click();
+						}, 2000)
+						//}
 					});
 
 				}
@@ -5582,7 +5612,7 @@ function devCall() {
 							dockerimages[$(this).attr('paramtype')] = $(this).text() + $(this).val();
 					});
 					$(this).find()
-						// alert(JSON.stringify(dockerimages));
+					// alert(JSON.stringify(dockerimages));
 					dockercompose.push(dockerimages);
 				});
 				return (dockercompose);
@@ -5957,11 +5987,11 @@ function devCall() {
 						/*Demo QuickFix - End*/
 						if (data) {
 							//Shwoing the loader spinner and clearing the rows.
-							
+
 							/*Demo QuickFix - Start*/
 							//$('tr[id*="trfordockercontainer_"]').remove();
 							/*Demo QuickFix - End*/
-							
+
 							$('.spinnerDocker').addClass('hidden');
 							$('.dockerContainerBody').removeClass('hidden');
 							$('.docctrempty').detach();

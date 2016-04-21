@@ -89,6 +89,10 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                     } else {
                         msg = "You can monitor logs from the Launched Instances.";
                     }
+
+                    logger.debug('onComplete result ==>',onCompleteResult);
+
+
                     onExecute(null, {
                         blueprintMessage: msg,
                         onCompleteResult: onCompleteResult
@@ -134,7 +138,42 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                             logger.error('blueprint launch error. blueprint id ==>', blueprint.id, err);
                             status = 1;
                         }
-                        blueprintOnCompleteHandler(err, status, blueprint.id, launchData);
+
+                        logger.debug('launchData ==>', launchData);
+
+                        if (launchData.id && launchData.id.length) {
+                            var actionLogFetchCount = 0;
+                            var launchResult = [];
+                            for (j = 0; j < launchData.id.length; j++) {
+                                (function(instanceId) {
+                                    logger.debug('action logs instanceId-->', instanceId);
+                                    process.nextTick(function() {
+                                        instancesDao.getAllActionLogs(instanceId, function(err, actionLogs) {
+                                            actionLogFetchCount++;
+                                            if (err) {
+                                                logger.error("Failed to fetch ActionLogs: ", err);
+                                                return;
+                                            }
+
+                                            logger.debug('action logs -->', JSON.stringify(actionLogs));
+
+                                            if (actionLogs && actionLogs.length) {
+
+                                                launchResult.push({
+                                                    instanceId: instanceId,
+                                                    actionLogId: actionLogs[0].id
+                                                });
+                                            }
+                                            if (actionLogFetchCount === launchData.id.length) {
+                                                logger.debug('firing launch result  ==> ', launchResult);
+                                                blueprintOnCompleteHandler(err, status, blueprint.id, launchResult);
+                                            }
+                                        });
+                                    });
+                                })(launchData.id[j]);
+                            }
+                        }
+
                     });
                 })(blueprints[i]);
             }
