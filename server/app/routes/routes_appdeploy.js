@@ -206,17 +206,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         async.waterfall(
             [
                 function (next) {
-                    appDeployService.getAppDeployListByProjectId(req.params.projectId, next);
+                    apiUtil.paginationRequest(req.query, 'appDeploy', next);
+                },
+                function (paginationReq, next) {
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['id'] = 'appDeploy';
+                    appDeployService.getAppDeployListByProjectId(paginationReq, next);
                 }
-            ],
-            function (err, results) {
-                if (err) {
+            ], function (err, results) {
+                if (err)
                     return res.status(500).send({code: 500, errMessage: err});
-                } else {
+                else
                     return res.status(200).send(results);
-                }
-            }
-        );
+            });
     }
 
     app.get('/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
