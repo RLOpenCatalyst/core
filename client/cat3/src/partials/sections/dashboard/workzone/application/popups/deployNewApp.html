@@ -2,9 +2,13 @@
 	<form name="DeploymentForm" novalidate>
 		<div class="modal-header">
 			<span class="close" ng-click="cancel()">×</span>
-			<h4 class="modal-title">
+			<h4 class="modal-title"  ng-if="appDepOrUpgrade == 1">
 				<i class="fa fa-plus"></i></i>&nbsp;
 				New App Deployment
+			</h4>
+			<h4 class="modal-title"  ng-if="appDepOrUpgrade == 2">
+				<i class="fa fa-plus"></i></i>&nbsp;
+				Upgrade App
 			</h4>
 		</div>
 

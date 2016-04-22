@@ -28,6 +28,7 @@ var angularApp = angular.module('catapp', ['ui.router',
     'ui.grid',
     'ui.grid.pagination',
     'ui.grid.resizeColumns',
+    'ui.grid.cellNav'
 ]);
 
 angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',
