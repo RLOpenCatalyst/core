@@ -295,9 +295,9 @@ function loadPipeline() {
                     $childPresentCard.find('.applicationChildDetails').removeClass('btn-primary btn-success').addClass('btn-danger');
                 }
                 $childPresentCard.find('.applicationEnvNamePipelineView').html(envnamePresent);
-                if (data.length && (data[0].isApproved == "true")) {
+                if (data.length && (data[0].isApproved == "true") || data.length && data[0].isApproved) {
                     $childPresentCard.find('.btn-promote').removeAttr('disabled');
-                } else if (data.length && (data[0].isApproved == "false")) {
+                } else if (data.length && (data[0].isApproved == "false") || data.length && !data[0].isApproved) {
                     $childPresentCard.find('.btn-promote').attr('disabled', 'disabled');
                 }
 
@@ -473,11 +473,11 @@ function btnApproveDetailsPipelineViewClickHandler(e) {
         type: 'GET',
         contentType: "application/json",
         success: function(data) {
-            if (data.length && (data[0].isApproved == "true")) {
+            if (data.length && (data[0].isApproved == "true") || data.length && data[0].isApproved) {
                 $modal.find('#approvalCommentsDesc').val('');
                 $modal.find('#approvalCommentsDesc').val(data[0].comments);
 
-            } else if (data.length && (data[0].isApproved == "false")) {
+            } else if (data.length && (data[0].isApproved == "false") || data.length && !data[0].isApproved) {
                 $modal.find('#approvalCommentsDesc').val('');
                 $modal.find('#approvalCommentsDesc').val(data[0].comments);
             } else {
@@ -503,7 +503,7 @@ function btnApproveDetailsPipelineViewClickHandler(e) {
                             "appName": appName,
                             "version": version,
                             "comments": comments,
-                            "isApproved": "true"
+                            "isApproved": true
                         }
                     };
                     $.ajax({
@@ -540,7 +540,7 @@ function btnApproveDetailsPipelineViewClickHandler(e) {
                             "appName": appName,
                             "version": version,
                             "comments": comments,
-                            "isApproved": "false"
+                            "isApproved": false
                         }
                     };
                     $.ajax({
@@ -826,6 +826,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             nexus['repoURL'] = data[0].nexus.repoURL;
                             nexus['version'] = data[0].version;
                             nexus['artifactId'] = data[0].nexus.artifactId;
+                            nexus['nodeIds'] = data[0].nexus.nodeIds;
                         }
                         if(data[0].docker && data[0].docker.nodeIds.length){
                             docker['image'] = data[0].docker.image;
@@ -836,6 +837,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             docker['dockerPassword'] = data[0].docker.dockerPassword;
                             docker['dockerEmailId'] = data[0].docker.dockerEmailId;
                             docker['imageTag'] = data[0].docker.imageTag;
+                            docker['nodeIds'] = data[0].docker.nodeIds;
                         }
                         var nexusData = {
                             "appData": {
@@ -1710,7 +1712,7 @@ function deployNewForDocker() {
                 $.get('/instances/' + tasks.taskConfig.nodeIds[i], function(instance) {
                     count++;
                     if (instance) {
-                        nodeIds.push(instance.instanceIP);
+                        nodeIds.push(instance.id);
                     }
                     var docker = {
                         "image": dockerImage,
@@ -1828,13 +1830,13 @@ function upgradeOrDeploy() {
 
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
-            var nodeIps = [];
+            var nodeIds = [];
             var count = 0;
             for (var i = 0; i < tasks.taskConfig.nodeIds.length; i++) {
                 $.get('/instances/' + tasks.taskConfig.nodeIds[i], function(instance) {
                     count++;
                     if (instance) {
-                        nodeIps.push(instance.instanceIP);
+                        nodeIds.push(instance.id);
                     }
 
                     if (tasks.taskConfig.nodeIds.length === count) {
@@ -1847,7 +1849,7 @@ function upgradeOrDeploy() {
                                     "version": versionId,
                                     "nexus": {
                                         "repoURL": nexusRepoUrl,
-                                        "nodeIds": nodeIps,
+                                        "nodeIds": nodeIds,
                                         "artifactId": artifactId
                                     }
                                 }

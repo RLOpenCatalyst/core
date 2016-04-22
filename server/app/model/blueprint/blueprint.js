@@ -740,7 +740,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 
                     // Update app-data for promote
                     var nodeIds = [];
-                    nodeIds.push(instance.instanceIP);
+                    nodeIds.push(instance.id);
                     configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
                         if (err) {
                             callback({
@@ -844,7 +844,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         var attrs = utils.mergeObjects(objectArray);
         // Update app-data for promote
         var nodeIds = [];
-        nodeIds.push(instance.instanceIP);
+        nodeIds.push(instance.id);
         configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
             if (err) {
                 callback({
