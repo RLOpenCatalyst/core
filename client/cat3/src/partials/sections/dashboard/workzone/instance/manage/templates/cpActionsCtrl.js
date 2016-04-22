@@ -27,15 +27,6 @@
 				same sevice is reused in control panel actions tab but promise handlers can be different.
 			*/
 			$scope.operationSet = {};
-			$scope.operationSet.deleteInstance = function(inst){
-				var promise = instanceOperations.deleteInstance(inst);
-				promise.then(function(resolveMessage) {
-					console.log(resolveMessage);
-					$scope.instanceList=arrayUtil.deleteObjectById($scope.instanceList,inst);
-				}, function(rejectMessage) {
-					console.log(rejectMessage);
-				});
-			};
 			$scope.operationSet.editInstanceName = function(inst){
 				var promise = instanceOperations.editInstanceName(inst);
 				promise.then(function(resolveMessage) {
