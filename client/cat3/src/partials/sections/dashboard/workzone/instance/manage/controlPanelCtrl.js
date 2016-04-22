@@ -19,7 +19,7 @@
                         $scope.tabs.activeTab = tabName;
                     };
 
-                    $scope.tabs = [
+                    var allTabs = [
                         {
                             "title": "Action History",
                             "template": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpActionHistory.html"
@@ -35,15 +35,19 @@
                         }, {
                             "title": "Instance Actions",
                             "template": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpActions.html"
-                        }];
+                        }
+                    ];
+                    if (instance.puppet) {
+                        //Dont show Services tab for puppet instance
+                        allTabs.splice(2,1);
+                    }
+                    $scope.tabs = allTabs;
+
                     //make 'Action History' tab active by default
                     $scope.activateTab('Action History');
                     //The cpInstance from this scope is used in the controllers of child tabs.
                     $scope.cpInstance = instance;
                     $scope.instInfo = $scope.cpInstance;
-                    $scope.$watch('tabs.activeTab', function () {
-                        //$rootScope.$emit('rightPanelNavigation', $scope.tabs.activeTab, 0);
-                    });
                 }
             ]);
 })(angular);

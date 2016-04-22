@@ -847,7 +847,7 @@
 /**
  * @api {get}/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
  * @apiName /app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
- * @apiGroup App Deploy Pipeline History List
+ * @apiGroup App Deploy Pipeline History List By Project, Environment,App Deploy Version and Last Updated Node IP
  *
  *
  * @apiParam {String} projectId      Unique Project Id
@@ -889,6 +889,143 @@
  *  "applicationStatus":"Successful",
  *  "projectId":"b38ccedc-da2c-4e2c-a278-c66333564719"
  *	}]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy PipeLine History Information'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy PipeLine History Information'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy PipeLine History Information'}
+ *     };
+ */
+
+/**
+ * @api {get}/app/deploy/project/:projectId/env/:envName/appDeployHistoryList
+ * @apiName /app/deploy/project/:projectId/env/:envName/appDeployHistoryList
+ * @apiGroup App Deploy Pipeline History List By Project with Pagination,Search,Filter and Sort
+ *
+ *
+ * @apiParam {String} projectId      Unique Project Id
+ * @apiParam {String} envName        Unique Environment Id
+ * @apiParam {Number} [page]         Current Page default is 1.
+ * @apiParam {Number} [pageSize]     Records per page default is 10.
+ * @apiParam {String} [search]       User is able to search for specific attribute. User can enter Environment Name or App Deploy Version for specific search.
+ * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by Environment Name.
+ * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
+ * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=envId:Dev,QA.
+ *
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ * {
+ *	"appDeploy": [{
+ *		"_id": "570b48fcf1f0f28388f4b072",
+ *		"applicationLastDeploy": "2016-03-30 05:28:34 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.03.106",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}, {
+ *		"_id": "570b48fdf1f0f28388f4b073",
+ *		"applicationLastDeploy": "2016-03-30 05:43:17 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.02.100",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}, {
+ *		"_id": "570b48fdf1f0f28388f4b075",
+ *		"applicationLastDeploy": "2015-03-31 11:17:25 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.02.100",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-25.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}, {
+ *		"_id": "570b48fef1f0f28388f4b078",
+ *		"applicationLastDeploy": "2016-03-30 05:28:34 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.03.106",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}, {
+ *		"_id": "570b48fef1f0f28388f4b079",
+ *		"applicationLastDeploy": "2016-03-30 05:43:17 +0000",
+ *		"appLogs": "NA",
+ *		"applicationName": "D4D",
+ *		"applicationVersion": "3.02.100",
+ *		"applicationInstanceName": "Supercatalyst",
+ *		"applicationNodeIP": "54.183.227.76",
+ *		"envId": "QA",
+ *		"hostName": "ip-10-0-0-99.us-west-1.compute.internal",
+ *		"containerId": "NA",
+ *		"applicationType": "Package",
+ *		"applicationStatus": "Successful",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0
+ *	}],
+ *	"metaData": {
+ *		"totalRecords": 103,
+ *		"pageSize": 5,
+ *		"page": 1,
+ *		"totalPages": 21,
+ *		"sortBy": "envId",
+ *		"sortOrder": "desc"
+ *	}
+ * }
  *
  *
  *
@@ -1185,7 +1322,6 @@
  */
 
 
-
 //  Deploy New Application
 /**
      * @api {post} /app/deploy/new Deploy New App
@@ -1386,3 +1522,863 @@
      *       "error": "Task not found."
      *     }
      */
+
+/**
+ * @api {get}/app/deploy/pipeline/project/:projectId
+ * @apiName /app/deploy/pipeline/project/:projectId
+ * @apiGroup App Deploy Project Information By ProjectId
+ *
+ *
+ * @apiParam {String} projectId      Unique Project Id
+
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	[{
+ *	"_id": "5714cd8f8bf7882c42968d4b",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"loggedInUser": "superadmin",
+ *	"__v": 0,
+ *	"envSequence": ["Dev", "Prod", "QA", "PreProd"],
+ *	"envId": ["Dev", "QA", "PreProd"]
+ *  }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'App Deploy Project Information'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'App Deploy Project Information'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'App Deploy Project Information'}
+ *     };
+ */
+
+
+/**
+ * @api {post}/app/deploy/data/pipeline/save/configure
+ * @apiName /app/deploy/data/pipeline/save/configure
+ * @apiGroup Save App Deploy Pipeline Configuration
+ *
+ *
+ * @apiParam {String} [orgId]      Optional Organization Id.
+ * @apiParam {String} [bgId]       Optional Business Group Id.
+ * @apiParam {String} projectId    Mandatory Project Id.
+ * @apiParam {JSONArray} envId     Mandatory List of Environments.
+ * @apiParam {JSONArray} envSequence     Mandatory List of Environments Sequence.
+ *
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *	            orgId: "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	            bgId: "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	            projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *              envSequence: ['Dev', 'Prod', 'QA', 'PreProd'],
+ *              envId: ['Dev', 'QA', 'PreProd']
+ * }
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	[{
+ *	"_id": "5714cd8f8bf7882c42968d4b",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"loggedInUser": "superadmin",
+ *	"envSequence": ["Dev", "Prod", "QA", "PreProd"],
+ *	"envId": ["Dev", "QA", "PreProd"],
+ *  "__v": 0
+ *  }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ */
+
+/**
+ * @api {put}/app/deploy/data/pipeline/update/configure
+ * @apiName /app/deploy/data/pipeline/update/configure
+ * @apiGroup Update App Deploy Pipeline Configuration
+ *
+ *
+ * @apiParam {String} [orgId]      Optional Organization Id.
+ * @apiParam {String} [bgId]       Optional Business Group Id.
+ * @apiParam {String} projectId    Mandatory Project Id.
+ * @apiParam {JSONArray} envId     Mandatory List of Environments.
+ * @apiParam {JSONArray} envSequence     Mandatory List of Environments Sequence.
+ *
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *	            orgId: "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	            bgId: "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	            projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *              envSequence: ['Dev', 'Prod', 'QA', 'PreProd'],
+ *              envId: ['Dev', 'QA', 'PreProd']
+ * }
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	{
+ *	           ok: 1, nModified: 0, n: 1
+ *  }
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'App Deploy Pipeline Configuration'}
+ *     };
+ */
+
+/**
+ * @api {get}/instances/instanceIds/list
+ * @apiName /instances/instanceIds/list
+ * @apiGroup Instance List based on array of Instance IDs
+ *
+ * @apiParam {JSONArray} instanceIds     List of Instance IDs.
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	[{
+ *	"_id": "5710cf1f527af1d0132e9d1d",
+ *	"name": "52.53.223.219",
+ *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"envId": "df87280c-ef3d-4e45-ac23-fcb77c845409",
+ *	"instanceIP": "52.53.223.219",
+ *	"instanceState": "running",
+ *	"bootStrapStatus": "success",
+ *	"taskIds": [],
+ *	"chefClientExecutionIds": [],
+ *	"actionLogs": [{
+ *		"_id": "5710cf1f527af1d0132e9d1e",
+ *		"actionData": {
+ *			"runlist": []
+ *		},
+ *		"timeStarted": 1460719391658,
+ *		"user": "superadmin",
+ *		"success": true,
+ *		"completed": true,
+ *		"name": "Bootstrap",
+ *		"type": 1,
+ *		"timeEnded": 1460719405910
+ *	}, {
+ *		"_id": "5710cf50527af1d0132e9d3e",
+ *		"actionData": {
+ *			"runlist": [
+ *				"recipe[docker_rl]"
+ *			]
+ *		},
+ *		"timeStarted": 1460719440694,
+ *		"user": "superadmin",
+ *		"success": true,
+ *		"completed": true,
+ *		"name": "Chef-Client-Run",
+ *		"type": 2,
+ *		"timeEnded": 1460719505198
+ *	}],
+ *	"serviceIds": [],
+ *	"blueprintData": {
+ *		"blueprintName": "52.53.223.219",
+ *		"templateId": "chef_import",
+ *		"iconPath": "../private/img/templateicons/chef_import.png",
+ *		"templateComponents": []
+ *	},
+ *	"credentials": {
+ *		"username": "ubuntu",
+ *		"pemFileLocation": "/home/rle0333/rlCatalyst/core/server/catdata/catalyst/instance-pemfiles/07fee0c8-f725-4eb7-9b11-07b8fe7d8a2f"
+ *	},
+ *	"software": [],
+ *	"chef": {
+ *		"serverId": "ef074bc9-d61c-4d3a-8038-17878422f965",
+ *		"chefNodeName": "52.53.223.219"
+ *	},
+ *	"hardware": {
+ *		"platform": "ubuntu",
+ *		"platformVersion": "14.04",
+ *		"architecture": "x86_64",
+ *		"memory": {
+ *			"total": "4046872kB",
+ *			"free": "3440100kB"
+ *		},
+ *		"os": "linux"
+ *	},
+ *	"users": [
+ *		"superadmin"
+ *	],
+ *	"appUrls": [],
+ *	"attributes": [],
+ *	"runlist": [
+ *		"recipe[docker_rl]"
+ *	],
+ *	"__v": 0,
+ *	"docker": {
+ *		"dockerEngineStatus": "success",
+ *		"dockerEngineUrl": ""
+ *	}
+ * }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Instance List'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Instance List'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Instance List'}
+ *     };
+ */
+
+
+/**
+ * @api {post}/aws/providers
+ * @apiName /aws/providers
+ * @apiGroup Add a new AWS Provider Account
+ *
+ *
+ * @apiParam {String} accessKey     Unique Provider Access Key
+ * @apiParam {String} secretKey     Unique Provider Secret Key
+ * @apiParam {String} providerName  Unique Provider Name
+ * @apiParam {String} providerType  Unique Provider Type
+ * @apiParam {String} orgId         Unique Organization Id
+ * @apiParam {String} fileName      Unique File Name
+ * @apiParam {String} region        Unique Provider Region
+ * @apiParam {String} keyPairName   Unique Key Pair Name
+ * @apiParam {Boolean} [isDefault]   Set Default Provider
+ * 
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *    "providerName" : "AWSProvider",
+ *    "providerType" : "AWS",
+ *    "accessKey" : "0bYiGYDzoomLGPuSW/dtmJ16Wwiua01b3l8Aeui0UsU=",
+ *    "secretKey" : "0mjJkixEIP87EXgmHu54Pxoqt1qiDgUygMwPCCLy3m1MN0RAK6CgJiWgWb68m87D",
+ *    "orgId" : "54edde9c21b4d7e50f29435f",
+ *    "isDefault" : false,
+ *    "fileName" : "cat-cal.pem",
+ *    "region" : "us-west-1",
+ *    "keyPairName:"cat-cal"
+ * }
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *		"_id": "56f1459ec9f075275f4ea9be",
+ *		"id": 9,
+ *		"providerName": "AWSProvider",
+ *		"providerType": "AWS",
+ *		"accessKey": "0bYiGYDzoomLGPuSW/dtmJ16Wwiua01b3l8Aeui0UsU=",
+ *		"secretKey": "0mjJkixEIP87EXgmHu54Pxoqt1qiDgUygMwPCCLy3m1MN0RAK6CgJiWgWb68m87D",
+ *		"orgId": "54edde9c21b4d7e50f29435f",
+ *		"orgName": "PhoenixOrg",
+ *		"keyPairs": {
+ *			"_id": "56f1459ec9f075275f4ea9bf",
+ *			"keyPairName": "cat-cal",
+ *			"region": "us-west-1",
+ *			"fileName": "cat-cal.pem",
+ *			"providerId": "56f1459ec9f075275f4ea9be",
+ *			"id": 99,
+ *			"__v": 0
+ *		},
+ *		"__v": 0
+ *	}
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Provider Creation'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Provider Creation'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Provider Creation'}
+ *     };
+ */
+
+
+/**
+ * @api {post}/blueprints
+ * @apiName /blueprints
+ * @apiGroup Create a new AWS Blueprint(Software Stack)
+ *
+ *
+ * @apiParam {String} orgId  Unique Organization ID
+ * @apiParam {String} bgId   Unique Business Group ID
+ * @apiParam {String} projectId Unique Project ID
+ * @apiParam {String} name  Unique Blueprint Name
+ * @apiParam {String} templateId  Unique Template ID
+ * @apiParam {String} templateType  Unique Template Type
+ * @apiParam {String} blueprintType  Unique Blueprint Type
+ * @apiParam {JSONArray} users  List of Users
+ * @apiParam {JSONArray} [appUrls]  List of Application URLs
+ * @apiParam {String} [iconpath]  Unique Icon Path
+ * @apiParam {String} providerId  Unique Provider ID
+ * @apiParam {String} keyPairId  Unique Key Pair ID
+ * @apiParam {String} instanceType  Unique Instance Type
+ * @apiParam {String} vpcId  Unique VPC ID
+ * @apiParam {String} imageId Unique Image ID
+ * @apiParam {JSONArray} securityGroupIds  List of Security Group ID
+ * @apiParam {String} infraManagerId Unique Infra Manager ID
+ * @apiParam {JSONArray} [runlist] List of Chef Run-List
+ *
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *	"blueprintData": {
+ *		"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *		"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"name": "TestBlueprint",
+ *		"templateId": "TestTemplate",
+ *		"templateType": "chef",
+ *		"blueprintType": "instance_launch",
+ *		"users": ["superadmin"],
+ *		"appUrls": [],
+ *		"iconpath": "",
+ *		"providerId": "56f1459ec9f075275f4ea9be",
+ *		"keyPairId": "56f1459ec9f075275f4ea9bf",
+ *		"instanceType": "t2.micro",
+ *		"instanceAmiid": "ami-06116566",
+ *		"vpcId": "vpc-52110130",
+ *		"subnetId": "subnet-12b4ea54",
+ *		"imageId": "56fa21c02a3efd265302040e",
+ *		"securityGroupIds": ["sg-99a3bcfb"],
+ *		"infraManagerId": "ef074bc9-d61c-4d3a-8038-17878422f965",
+ *		"runlist": ["recipe[lamp-stack]", "recipe[tomcat]"]
+ *	}
+ * }
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *   "_id" : ObjectId("56fa223d2a3efd2653020413"),
+ *   "orgId" : "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *   "bgId" : "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *   "projectId" : "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *   "name" : "TestBlueprint",
+ *   "templateId" : "TestTemplate",
+ *   "templateType" : "chef",
+ *   "blueprintConfig" : {
+ *       "cloudProviderType" : "aws",
+ *       "cloudProviderId" : "56f1459ec9f075275f4ea9be",
+ *       "cloudProviderData" : {
+ *           "keyPairId" : "56f1459ec9f075275f4ea9bf",
+ *           "instanceType" : "t2.micro",
+ *           "instanceAmiid" : "ami-06116566",
+ *           "instanceUsername" : "root",
+ *           "vpcId" : "vpc-52110130",
+ *           "subnetId" : "subnet-12b4ea54",
+ *           "imageId" : "56fa21c02a3efd265302040e",
+ *            "instanceOS" : "linux",
+ *           "instanceCount" : "1",
+ *           "_id" : ObjectId("56fa223d2a3efd265302040f"),
+ *           "securityGroupIds" : [
+ *               "sg-99a3bcfb"
+ *           ]
+ *       },
+ *       "infraMangerType" : "chef",
+ *       "infraManagerId" : "ef074bc9-d61c-4d3a-8038-17878422f965",
+ *       "infraManagerData" : {
+ *           "latestVersion" : "0.1",
+ *           "_id" : ObjectId("56fa223d2a3efd2653020410"),
+ *           "versionsList" : [
+ *              {
+ *                   "ver" : "0.1",
+ *                   "_id" : ObjectId("56fa223d2a3efd2653020411"),
+ *                   "runlist" : [
+ *                       "recipe[lamp-stack]",
+ *                       "recipe[tomcat]"
+ *                   ]
+ *               }
+ *           ]
+ *       },
+ *       "_id" : ObjectId("56fa223d2a3efd2653020412")
+ *   },
+ *   "blueprintType" : "instance_launch",
+ *   "users" : [
+ *       "superadmin"
+ *   ],
+ *   "appUrls" : [],
+ *   "__v" : 0
+ *	}
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Blueprint Creation'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Blueprint Creation'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Blueprint Creation'}
+ *     };
+ */
+
+/**
+ * @api {get}/blueprints/:blueprintId/launch
+ * @apiName /blueprints/:blueprintId/launch
+ * @apiGroup Launch a Blueprint
+ *
+ *
+ * @apiParam {String} blueprintId    Unique Blueprint ID
+ * @apiParam {String} envId          Unique Environment ID
+ * @apiParam {String} version        Unique Blueprint Version
+ * @apiParam {String} stackName      Unique Stack Name
+ *
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *	params:{
+ *	      "blueprintId":"56fa223d2a3efd2653020413"
+ *         },
+ * query: {
+ *        "envId":"24fa223d2a3efd2653020413",
+ *        "version":"0.1",
+ *        "stackName":"Jagadish"
+ *    }
+ * }
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *  {
+ *  InstanceLogs:[]
+ *	}
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Launch a Blueprint'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Launch a Blueprint'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Launch a Blueprint'}
+ *     };
+ */
+
+/**
+ * @api {post}/app/deploy
+ * @apiName /app/deploy
+ * @apiGroup Launch / Deploy apps on an Instance
+ *
+ *
+ * @apiParam {String} applicationName  Unique Application Name
+ * @apiParam {String} applicationInstanceName   Unique Application Instance Name
+ * @apiParam {String} applicationVersion Unique Application Version
+ * @apiParam {String} applicationNodeIP  Unique Application Node IP Address
+ * @apiParam {String} applicationLastDeploy  Unique Application Last Deploy Date
+ * @apiParam {String} applicationStatus  Unique Application Status
+ * @apiParam {String} [orgId]  Unique Organization ID
+ * @apiParam {String} [bgId]  Unique Business Group ID
+ * @apiParam {String} projectId  Unique Project ID
+ * @apiParam {String} envId  Unique Environment Name
+ * @apiParam {String} [description]  Application Description
+ * @apiParam {String} applicationType  Unique Application Type
+ * @apiParam {String} [containerId]  Unique Container ID
+ * @apiParam {String} hostName Unique Host Name
+ * @apiParam {String} [appLogs]  App Logs
+ *
+ *
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *	"appDeployData": {
+ *		 "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *		 "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *		 "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		 "applicationLastDeploy" : "2016-03-30 05:04:05 +0000",
+ *       "appLogs" : "NA",
+ *       "applicationName" : "D4D",
+ *       "applicationVersion" : "3.03.106",
+ *       "applicationInstanceName" : "Supercatalyst",
+ *       "applicationNodeIP" : "54.183.1.26",
+ *       "envId" : "Dev",
+ *       "hostName" : "ip-10-0-0-54.us-west-1.compute.internal",
+ *       "containerId" : "NA",
+ *       "applicationType" : "Package",
+ *       "applicationStatus" : "Successful"
+ *	}
+ * }
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  {
+ *    "_id" : ObjectId("570b48fcf1f0f28388f4b071"),
+ *    "applicationLastDeploy" : "2016-03-30 05:04:05 +0000",
+ *    "appLogs" : "NA",
+ *    "applicationName" : "D4D",
+ *    "applicationVersion" : "3.03.106",
+ *    "applicationInstanceName" : "Supercatalyst",
+ *    "applicationNodeIP" : "54.183.1.26",
+ *    "envId" : "Dev",
+ *    "hostName" : "ip-10-0-0-54.us-west-1.compute.internal",
+ *    "containerId" : "NA",
+ *    "applicationType" : "Package",
+ *    "applicationStatus" : "Successful",
+ *    "projectId" : "b38ccedc-da2c-4e2c-a278-c66333564719",
+  *   "__v" : 0
+ *	 }
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Launch / Deploy apps on an Instance'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Launch / Deploy apps on an Instance'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Launch / Deploy apps on an Instance'}
+ *     };
+ */
+
+/**
+ * @api {post}/deploy/permission/data/save/configure
+ * @apiName /deploy/permission/data/save/configure
+ * @apiGroup Save Deploy Permission
+ *
+ *
+ * @apiParam {String} projectId     Project Id.
+ * @apiParam {String} envId         Environment Name.
+ * @apiParam {String} appName       Application Name.
+ * @apiParam {String} version       Application Version.
+ * @apiParam {String} [comments]    Comment for Approval.
+ * @apiParam {Boolean} isApproved   Approval Status.
+ *
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *	            projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *              envId: "Dev",
+ *              appName:"D4D",
+ *              version:"301.2.105",
+ *              comments:"Approved",
+ *              isApproved:true
+ * }
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	{
+ *	            "_id": "5714cd8f8bf7882c42968d4b",
+ *              projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *              envId: "Dev",
+ *              appName:"D4D",
+ *              version:"301.2.105",
+ *              comments:"Approved",
+ *              isApproved:true
+ *              "__v": 0
+ *  }
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Deploy Permission Configuration'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Deploy Permission Configuration'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Deploy Permission Configuration'}
+ *     };
+ */
+
+/**
+ * @api {put}/deploy/permission/data/update/configure
+ * @apiName /deploy/permission/data/update/configure
+ * @apiGroup Update Deploy Permission
+ *
+ *
+ * @apiParam {String} projectId     Project Id.
+ * @apiParam {String} envId         Environment Name.
+ * @apiParam {String} appName       Application Name.
+ * @apiParam {String} version       Application Version.
+ * @apiParam {String} [comments]    Comment for Approval.
+ * @apiParam {Boolean} isApproved   Approval Status.
+ *
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *	            projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *              envId: "Dev",
+ *              appName:"D4D",
+ *              version:"301.2.105",
+ *              comments:"Approved",
+ *              isApproved:true
+ * }
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *	{
+ *	           ok: 1, nModified: 0, n: 1
+ *  }
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Deploy Permission Configuration'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Deploy Permission Configuration'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Deploy Permission Configuration'}
+ *     };
+ */
+
+/**
+ * @api {get}/deploy/permission/project/:projectId/env/:envName/application/:appName/permissionList
+ * @apiName /deploy/permission/project/:projectId/env/:envName/application/:appName/permissionList
+ * @apiGroup Get Deploy Permission Via Project ID
+ *
+ *
+ * @apiParam {String} projectId     Project Id.
+ * @apiParam {String} envName       Environment Name.
+ * @apiParam {String} appName       Application Name.
+ *
+ * @apiParamExample {json} Request-Example:
+ *  {
+ *	            projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *              envName: "Dev",
+ *              appName:"D4D",
+ * }
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *    [{
+ *	            "_id": "5714cd8f8bf7882c42968d4b",
+ *              projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *              envId: "Dev",
+ *              appName:"D4D",
+ *              version:"301.2.105",
+ *              comments:"Approved",
+ *              isApproved:true
+ *              "__v": 0
+ *  }]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Get Deploy Permission'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Get Deploy Permission'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Get Deploy Permission'}
+ *     };
+ */
+>>>>>>> upstream/dev-angular

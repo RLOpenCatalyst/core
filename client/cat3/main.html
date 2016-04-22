@@ -12,10 +12,10 @@
 		<link rel="stylesheet" type="text/css" href="styles/angular-strap-libs.min.css" />
 		<link rel="stylesheet" type="text/css" href="styles/default.css" />
 		<!-- Application stylesheets -->
-                <link rel="stylesheet" type="text/css" href="catalyst/partials/global.css" />
+        <link rel="stylesheet" type="text/css" href="catalyst/partials/global.css" />
 		<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/header/header.css" />
 		<!-- Library scripts -->
-                <script src="lib/jquery/jquery.js"></script>
+        <script src="lib/jquery/jquery.js"></script>
 		<script src="customlib/jquery.datatable.js"></script>
 		<script src="lib/angular/angular.min.js"></script>
 		<script src="lib/angular-animate/angular-animate.min.js"></script>
@@ -31,17 +31,13 @@
 		<script src="lib/angular-sanitize/angular-sanitize.min.js"></script>
 		<script src="customlib/angular-messages.js"></script>
 		<script src="lib/lodash/lodash.min.js"></script>
-                <!-- Application configuration -->
-                <script src="uiConfig.js"></script>
+        <!-- Application configuration -->
+         <script src="uiConfig.js"></script>
 	</head>
 	<body>
 		<div class="globalPopup" id="globalSuccessMessage">
-			<span class="close green" ng-click="hideGlobalMessage()">×</span> 
+            <span class="close green" ng-click="hideGlobalMessage()">×</span> 
 		    <p>{{globalSuccessMessage}}</p>           
-		</div>
-		<div class="globalPopup" id="globalErrorMessage">
-			<span class="close red" ng-click="hideGlobalMessage()">×</span> 
-		    <p>{{globalErrorMessage}}</p>           
 		</div>
 		<div ng-controller="HeadNavigatorCtrl">
 			<div ng-show="app.isDashboard" class="dashboard">
@@ -52,16 +48,14 @@
 			</div>
 		</div>
 		<div class="breadcrumb-wrapper">
-			<div class="container-fluid" id="bdCrCont" ng-controller="breadcrumbCtrl" ng-show="isBreadCrumbAvailable">
-				<div class="row">
-					<div ng-cloak  id="bdCrCont_treeDiv" class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-						{{sectionName}}
-					</div>
-					<div id="bdCrCont_bdCrDiv" class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
-						<ul>
-							<li ng-cloak ng-repeat="item in brdCrmbData">{{ item }}  {{$last ? "" : " > "}}</li>
-						</ul>
-					</div>
+			<div class="container-fluid" id="breadcrumb-block" ng-controller="breadcrumbCtrl" ng-show="isBreadCrumbAvailable">
+				<div ng-cloak id="section-name" class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+					{{sectionName}}
+				</div>
+				<div id="breadcrumb-nav" class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+					<ul>
+						<li ng-cloak ng-repeat="item in breadcrumbData">{{ item }}  {{$last ? "" : " > "}}</li>
+					</ul>
 				</div>
 			</div>
 		</div>
@@ -124,7 +118,6 @@
         <script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpServicesCtrl.js"></script>
         <script src="src/partials/sections/dashboard/workzone/instance/popups/InstanceImportByIpCtrl.js"></script>
         <script src="src/partials/sections/dashboard/workzone/instance/popups/deleteInstanceCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceCookBookHelpCtrl.js"></script>
         <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceLogCtrl.js"></script>
         <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceNameEditCtrl.js"></script>
         <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceRunPuppetClientCtrl.js"></script>

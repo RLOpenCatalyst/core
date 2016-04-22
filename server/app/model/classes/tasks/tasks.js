@@ -92,7 +92,11 @@ var taskSchema = new Schema({
 	lastTaskStatus: String,
 	lastRunTimestamp: Number,
 	timestampEnded: Number,
-	blueprintIds: [String]
+	blueprintIds: [String],
+	taskCreatedOn: {
+		type: Date,
+		default: Date.now
+	}
 });
 taskSchema.plugin(mongoosePaginate);
 // instance method :-  
@@ -393,7 +397,6 @@ taskSchema.statics.createNew = function(taskData, callback) {
 // creates a new task
 taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
 	if(jsonData.pageSize) {
-		var databaseReq = {};
 		jsonData['searchColumns'] = ['taskType', 'name'];
 		ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
 			if (err) {
@@ -401,21 +404,21 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
 				err.status = 500;
 				return callback(err);
 			}
-			else
-				databaseReq = databaseCall;
-		});
-		this.paginate(databaseReq.queryObj, databaseReq.options, function (err, tasks) {
-			if (err) {
-				var err = new Error('Internal server error');
-				err.status = 500;
-				return callback(err);
+			else{
+				Tasks.paginate(databaseCall.queryObj, databaseCall.options, function (err, tasks) {
+					if (err) {
+						var err = new Error('Internal server error');
+						err.status = 500;
+						return callback(err);
+					}
+					else if (tasks.length === 0) {
+						var err = new Error('Tasks are not found');
+						err.status = 404;
+						return callback(err);
+					}
+					callback(null, tasks);
+				});
 			}
-			else if (!tasks) {
-				var err = new Error('Tasks are not found');
-				err.status = 404;
-				return callback(err);
-			}
-			callback(null, tasks);
 		});
 	}
 	else{

@@ -28,21 +28,76 @@ var mongoosePaginate = require('mongoose-paginate');
 var Schema = mongoose.Schema;
 
 var AppDeploySchema = new Schema({
-    applicationName: String,
-    applicationInstanceName: String,
-    applicationVersion: String,
-    applicationNodeIP: String,
-    applicationLastDeploy: String,
-    applicationStatus: String,
-    orgId: String,
-    bgId: String,
-    projectId: String,
-    envId: String,
-    description: String,
-    applicationType: String,
-    containerId: String,
-    hostName: String,
-    appLogs: String
+    applicationName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationInstanceName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationVersion: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationNodeIP: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationLastDeploy:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    applicationStatus:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    orgId:  {
+        type: String,
+        trim: true
+    },
+    bgId:  {
+        type: String,
+        trim: true
+    },
+    projectId:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    envId:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    description:  {
+        type: String,
+        trim: true
+    },
+    applicationType:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    containerId:  {
+        type: String,
+        trim: true
+    },
+    hostName:  {
+        type: String,
+        required: true,
+        trim: true
+    },
+    appLogs:  {
+        type: String,
+        trim: true
+    }
 
 });
 
@@ -63,32 +118,83 @@ AppDeploySchema.statics.getAppDeploy = function(callback) {
     });
 };
 
-AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(projectId,callback){
-    this.distinct("applicationVersion",{projectId: projectId},function(err, appDeployVersions) {
-        if (err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        }
-        callback(null, appDeployVersions);
-    });
+AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(jsonData,callback){
+                this.aggregate(
+                    [
+                        {
+                            $match: {
+                                projectId: jsonData.projectId
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$applicationVersion",
+                            }
+                        },
+                        {
+                            $sort: jsonData.sortBy
+
+                        },
+                        {
+                            $skip: (jsonData.page - 1) * jsonData.pageSize
+                        },
+                        {
+                            $limit: jsonData.pageSize
+                        }
+                    ], function (err, appDeployVersions) {
+                        if (err) {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        }
+                        callback(null, appDeployVersions);
+                    });
+};
+
+AppDeploySchema.statics.getDistinctCountAppDeployVersionByProjectId=function(projectId,callback){
+    this.aggregate(
+        [
+            {
+                $match: {
+                    projectId: projectId
+                }
+            },
+            {
+                $group:
+                {
+                    _id:"$applicationVersion"
+                }
+            },
+            {
+                $group:
+                {
+                    _id:1,
+                    count:
+                    {
+                        $sum:1
+                    }
+                }
+            }
+        ],
+        function(err, appDeployVersionCount) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }
+            callback(null,appDeployVersionCount[0]);
+        });
 };
 
 AppDeploySchema.statics.getAppDeployHistoryListByProjectId=function(queryObj,options,callback){
-    this.paginate(queryObj, options, function (err, appDeployHistoryData) {
+    AppDeploy.paginate(queryObj, options, function (err, appDeployHistoryData) {
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
             return callback(err);
         }
-        else if (!appDeployHistoryData) {
-            var err = new Error('AppDeployHistoryData is not found');
-            err.status = 404;
-            return callback(err);
-        }
-        else {
-            return callback(null, appDeployHistoryData);
-        }
+        callback(null, appDeployHistoryData);
+
     });
 };
 
@@ -433,7 +539,7 @@ AppDeploySchema.statics.getAppDeployWithPage = function(offset, limit, sortBy, s
     }
     logger.debug("options: ", JSON.stringify(options));
     logger.debug("query: ", JSON.stringify(query));
-    this.paginate(query, options).then(function(appDeploy) {
+    AppDeploy.paginate(query, options).then(function(appDeploy) {
         callback(null, appDeploy);
     });
 };

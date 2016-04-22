@@ -194,7 +194,9 @@
 				$scope.isOrchestrationPageLoading = true;
 				$scope.tasks = [];
 			});
-
+			$rootScope.$on("CREATE_NEW_JOB", function(){
+				$scope.createNewTask('new');
+			});
 			$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
 				var tasks = data.tasks;
 				$scope.tasks = tasks;

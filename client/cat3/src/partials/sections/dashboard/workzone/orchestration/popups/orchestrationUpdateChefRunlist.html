@@ -12,7 +12,7 @@
             <accordion-group is-open="isFirstOpen" heading="Assign Runlist">
                 <div class="chefRunlistContainer" id="chefClientForOrchestration">
                     <div class="smart-form">
-                        <div class="row margin0">
+                        <div class="row" ng-show="!isOrchestrationUpdateChefRunLoading">
                             <form class="form-inline">
                                 <div class="radio-all">
                                     <input type="radio" name="cookbookSpecification" value="all" ng-click="changeSelection('all');" checked />
@@ -29,7 +29,13 @@
                         </div>
                         <div>
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 no-padding">
-                                <label class="input searchCookbooksRolesLabel">
+                                <div class="chef-client-loader-wrapper" ng-show="isOrchestrationUpdateChefRunLoading">
+                                    <span>
+                                        <b>Loading Cookbooks and Roles</b>
+                                    </span>&nbsp;&nbsp;
+                                    <loading size="medium" name="isOrchestrationUpdateChefRunLoading" type="inline"></loading>
+                                </div>
+                                <label class="input searchCookbooksRolesLabel" ng-show="!isOrchestrationUpdateChefRunLoading">
                                     <i class="icon-append fa fa-search"></i>
                                     <input type="text" placeholder="Search Cookbooks/Roles" id="searchBox">
                                 </label>

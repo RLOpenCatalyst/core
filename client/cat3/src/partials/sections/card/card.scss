@@ -66,10 +66,10 @@ $imagePath : "/cat3/images";
 			}
 
 			.docker-image {
-				height: 40px;
-				margin: 0px 0 0px 12px;
-				width: auto;
-				padding-top: 5px;
+				height: 36px;
+			    margin: 8px 0 0px 0px;
+			    width: auto;
+			    padding-top: 5px;
 			}
 
 			.card-status-state {
@@ -219,8 +219,9 @@ $imagePath : "/cat3/images";
 
 				.docker-image {
 					height: 32px;
-					margin: 10px 0 0 35px;
-					width: auto;
+				    margin: 50px 0px 0 -25px;
+				    width: auto;
+				    position: absolute;
 				}
 
 				.instance-ip, .instance-state {
