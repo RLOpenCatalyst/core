@@ -49,9 +49,10 @@ var AppDeploySchema = new Schema({
         trim: true
     },
     applicationLastDeploy:  {
-        type: String,
+        type: Date,
         required: true,
-        trim: true
+        trim: true,
+        default:Date.now
     },
     applicationStatus:  {
         type: String,
@@ -147,6 +148,7 @@ AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(jsonData
                             err.status = 500;
                             return callback(err);
                         }
+                        console.log(appDeployVersions);
                         callback(null, appDeployVersions);
                     });
 };
