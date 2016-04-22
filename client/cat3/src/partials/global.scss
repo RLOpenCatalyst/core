@@ -40,6 +40,13 @@ $imagePath : "../../../../../../cat3/images";
     color: $color-red;
 }
 
+/*CSS to overwrite input background color for autofill*/
+#loginContainer, #instanceSSHPage {
+	input:-webkit-autofill {
+	    -webkit-box-shadow: 0 0 0px 1000px white inset;
+	}
+}
+
 /*CSS for header,breadcrumb and tree starts*/
 #breadcrumb-block {
 	min-height: 40px; 
