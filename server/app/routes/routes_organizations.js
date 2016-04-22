@@ -975,87 +975,100 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		});
 	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'instances',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-				return;
-			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['instanceType']=req.query.instanceType;
-			paginationReq['userName']=req.session.user.cn;
-			paginationReq['id']='instances';
-			instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, function(err, instanceData) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'instances'));
-					return;
-				}
-				ApiUtils.paginationResponse(instanceData,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'instances'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
-			});
-		});
-	});
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList',getInstanceList);
+	
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'tasks',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-				return;
-			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='tasks';
-			Task.getTasksByOrgBgProjectAndEnvId(paginationReq, function(err, tasks) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'tasks'));
-					return;
+    function getInstanceList(req, res, next) {
+		var reqData={};
+		async.waterfall(
+			[
+				function(next) {
+					ApiUtils.paginationRequest(req.query,'instances',next);
+				},
+				function(paginationReq,next){
+					paginationReq['orgId']=req.params.orgId;
+			        paginationReq['bgId']=req.params.bgId;
+			        paginationReq['projectId']=req.params.projectId;
+			        paginationReq['envId']=req.params.envId;
+			        paginationReq['instanceType']=req.query.instanceType;
+			        paginationReq['userName']=req.session.user.cn;
+					reqData=paginationReq;
+					instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq,next);
+				},
+				function(instances,next){
+					ApiUtils.paginationResponse(instances,reqData,next);
 				}
-				ApiUtils.paginationResponse(tasks,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'tasks'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
-			});
-		});
-	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applicationList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'applications',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-				return;
-			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['id']='applications';
-			Application.getAppCardsByOrgBgAndProjectId(paginationReq, function(err, applications) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'applications'));
-					return;
-				}
-				ApiUtils.paginationResponse(applications,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'applications'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
+			], function(err, results) {
+				if(err)
+					next(err);
+				else
+					return res.status(200).send(results);
 			});
-		});
-	});
+	}
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList', getTaskList);
+		
+
+	function getTaskList(req, res, next) {
+		var reqData={};
+		async.waterfall(
+			[
+				function(next) {
+					ApiUtils.paginationRequest(req.query,'tasks',next);
+				},
+				function(paginationReq,next){
+					paginationReq['orgId']=req.params.orgId;
+			        paginationReq['bgId']=req.params.bgId;
+			        paginationReq['projectId']=req.params.projectId;
+			        paginationReq['envId']=req.params.envId;
+					reqData=paginationReq;
+					Task.getTasksByOrgBgProjectAndEnvId(paginationReq,next);
+				},
+				function(tasks,next){
+					ApiUtils.paginationResponse(tasks,reqData,next);
+				}
+
+			], function(err, results) {
+				if(err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	}
+
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applicationList', getApplicationList);
+	 
+    function getApplicationList(req, res, next) {
+		var reqData={};
+		async.waterfall(
+			[
+				function(next) {
+					ApiUtils.paginationRequest(req.query,'applications',next);
+				},
+				function(paginationReq,next){
+					paginationReq['orgId']=req.params.orgId;
+			        paginationReq['bgId']=req.params.bgId;
+			        paginationReq['projectId']=req.params.projectId;
+					reqData=paginationReq;
+					Application.getAppCardsByOrgBgAndProjectId(paginationReq,next);
+				},
+				function(applications,next){
+					ApiUtils.paginationResponse(applications,reqData,next);
+				}
+
+			], function(err, results) {
+				if(err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	}
+
+
+
+
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applications/:applicationId/build/:buildId', function(req, res) {
 		Application.getApplicationById(req.params.applicationId, function(err, application) {
@@ -1174,90 +1187,64 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'cftList',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-				return;
-			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='cftList';
-			CloudFormation.findByOrgBgProjectAndEnvId(paginationReq, function(err, cftData) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'cftList'));
-					return;
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', getCftList);
+  
+    function getCftList(req, res, next) {
+		var reqData={};
+		async.waterfall(
+			[
+				function(next) {
+					ApiUtils.paginationRequest(req.query,'cftList',next);
+				},
+				function(paginationReq,next){
+					paginationReq['orgId']=req.params.orgId;
+			        paginationReq['bgId']=req.params.bgId;
+			        paginationReq['projectId']=req.params.projectId;
+			        paginationReq['envId']=req.params.envId;
+					reqData=paginationReq;
+					CloudFormation.findByOrgBgProjectAndEnvId(paginationReq,next);
+				},
+				function(cftData,next){
+					ApiUtils.paginationResponse(cftData,reqData,next);
 				}
-				ApiUtils.paginationResponse(cftData,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'cftList'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
-			});
-		});
-	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azureArmList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'azurearms',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-				return;
-			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='azureArms';
-			AzureArm.findByOrgBgProjectAndEnvId(paginationReq, function(err, armsData) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'azurearms'));
-					return;
+			], function(err, results) {
+				if(err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	}
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azureArmList', getAzureArmList);
+
+	function getAzureArmList(req, res, next) {
+		var reqData={};
+		async.waterfall(
+			[
+				function(next) {
+					ApiUtils.paginationRequest(req.query,'azurearms',next);
+				},
+				function(paginationReq,next){
+					paginationReq['orgId']=req.params.orgId;
+			        paginationReq['bgId']=req.params.bgId;
+			        paginationReq['projectId']=req.params.projectId;
+			        paginationReq['envId']=req.params.envId;
+					reqData=paginationReq;
+					AzureArm.findByOrgBgProjectAndEnvId(paginationReq,next);
+				},
+				function(armsData,next){
+					ApiUtils.paginationResponse(armsData,reqData,next);
 				}
-				ApiUtils.paginationResponse(armsData,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'azurearms'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
+
+			], function(err, results) {
+				if(err)
+					next(err);
+				else
+					return res.status(200).send(results);
 			});
-		});
-	});
+	}
 
-
-
-/*
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'containerList',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-				return;
-			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='containerList';
-			containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq, function(err, containerList) {
-					if (err) {
-						res.status(404).send(ApiUtils.errorResponse(404,'containerList'));
-						return;
-					}
-					ApiUtils.paginationResponse(containerList,paginationReq,function(err, paginationRes){
-						if (err) {
-							res.status(400).send(ApiUtils.errorResponse(400,'containerList'));
-							return;
-						}
-						res.status(200).send(paginationRes);
-					});
-			});
-		});
-	});
-*/
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', getContainerList);
 
 	function getContainerList(req, res, next) {
@@ -1272,7 +1259,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					paginationReq['bgId']=req.params.bgId;
 					paginationReq['projectId']=req.params.projectId;
 					paginationReq['envId']=req.params.envId;
-					paginationReq['id']='containerList';
 					reqData=paginationReq;
 					containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq,next);
 				},

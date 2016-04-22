@@ -252,7 +252,11 @@ var InstanceSchema = new Schema({
     taskIds: [String],
     tempActionLogId: String,
     cloudFormationId: String,
-    armId: String
+    armId: String,
+    instanceCreatedOn: {
+        type:Date,
+        default:Date.now
+    }
 
 });
 

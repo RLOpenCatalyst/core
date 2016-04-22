@@ -244,20 +244,46 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdVersionId=function(proj
         });
 };
 
-AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp=function(projectId,envName,version,nodeIp,callback){
-    this.find({
-        projectId: projectId,
-        envId:envName,
-        applicationVersion:version,
-        applicationNodeIP:{$ne:nodeIp}
-    }, function(err, appDeployHistoryList) {
-        if (err) {
-            logger.debug("Got error while fetching AppDeploy History: ", err);
-            callback(err, null);
-        }
-        callback(null, appDeployHistoryList);
-
-    });
+AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion=function(projectId,envName,appName,version,callback){
+ this.aggregate(
+        [
+            {
+                $match: 
+                {
+                    projectId: projectId,
+                    envId:envName,
+                    applicationName:appName,
+                    applicationVersion:version
+                }
+            },
+            {   
+                $sort:  
+                {
+                    applicationLastDeploy: 1
+                }
+            },
+            {   
+                $project: 
+                {  
+                    _id:1,
+                    applicationName : 1 ,
+                    applicationInstanceName : 1 ,
+                    applicationVersion : 1 ,
+                    applicationNodeIP : 1 ,
+                    applicationStatus : 1,
+                    applicationType : 1,
+                    containerId : 1,
+                    lastAppDeployDate : 1,
+                    hostName :1
+                } 
+            }
+        ],function(err, appDeployHistoryList) {
+            if (err) {
+                logger.debug("Got error while fetching AppDeploy History: ", err);
+                callback(err, null);
+            }
+            callback(null, appDeployHistoryList);
+        });
 }
 
 // Save all AppDeploy informations.

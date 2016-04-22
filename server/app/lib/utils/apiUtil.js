@@ -120,7 +120,8 @@ var ApiUtil = function() {
         var request={
             'sortBy':sortBy,
             'page':page,
-            'pageSize':pageSize
+            'pageSize':pageSize,
+            'id':key
         };
         var filterBy={};
         if(data.filterBy){
