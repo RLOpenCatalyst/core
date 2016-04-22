@@ -374,7 +374,6 @@
 			angular.element('.card').removeClass('selected-card');
 			pipeLineData.selectCardClass=($rootScope.pipeLineActBarShow == true )? 'selected-card':'';
 
-
 		};
 		return pipeLineData;
 	}]);
