@@ -12,10 +12,10 @@
 		<link rel="stylesheet" type="text/css" href="styles/angular-strap-libs.min.css" />
 		<link rel="stylesheet" type="text/css" href="styles/default.css" />
 		<!-- Application stylesheets -->
-        <link rel="stylesheet" type="text/css" href="catalyst/partials/global.css" />
+		<link rel="stylesheet" type="text/css" href="catalyst/partials/global.css" />
 		<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/header/header.css" />
 		<!-- Library scripts -->
-        <script src="lib/jquery/jquery.js"></script>
+		<script src="lib/jquery/jquery.js"></script>
 		<script src="customlib/jquery.datatable.js"></script>
 		<script src="lib/angular/angular.min.js"></script>
 		<script src="lib/angular-animate/angular-animate.min.js"></script>
@@ -31,13 +31,13 @@
 		<script src="lib/angular-sanitize/angular-sanitize.min.js"></script>
 		<script src="customlib/angular-messages.js"></script>
 		<script src="lib/lodash/lodash.min.js"></script>
-        <!-- Application configuration -->
-         <script src="uiConfig.js"></script>
+		<!-- Application configuration -->
+		 <script src="uiConfig.js"></script>
 	</head>
 	<body>
 		<div class="globalPopup" id="globalSuccessMessage">
-            <span class="close green" ng-click="hideGlobalMessage()">×</span> 
-		    <p>{{globalSuccessMessage}}</p>           
+			<span class="close green" ng-click="hideGlobalMessage()">×</span> 
+			<p>{{globalSuccessMessage}}</p>           
 		</div>
 		<div ng-controller="HeadNavigatorCtrl">
 			<div ng-show="app.isDashboard" class="dashboard">
@@ -60,91 +60,99 @@
 			</div>
 		</div>
 		<div ui-view></div>
-        <!-- build:js:dist,prod,qa catalyst/concatjs/catalyst.js-->
-        <script src="src/main.js"></script>
-        <script src="src/clientRoutes.js"></script>
-        <script src="src/factory/access_permission_service.js"></script>
-        <script src="src/factory/authenticationAPI.js"></script>
-        <script src="src/factory/authenticationFactory.js"></script>
-        <script src="src/factory/cacheServices.js"></script>
-        <script src="src/factory/chefDataFormatterService.js"></script>
-        <script src="src/factory/instanceServices.js"></script>
-        <script src="src/factory/localStorageFactory.js"></script>
-        <script src="src/factory/sessionFactory.js"></script>
-        <script src="src/factory/workzoneFactories.js"></script>
-        <script src="src/factory/workzonePermissionServices.js"></script>
-        <script src="src/factory/workzoneServices.js"></script>
-        <script src="src/custom_filter/timeConversionFilter.js"></script>
-        <script src="src/partials/globals/breadcrumb/breadcrumbService.js"></script>
-        <script src="src/partials/globals/chefSelectorComponent/chefSelectorComponent.js"></script>
-        <script src="src/partials/globals/chefSelectorComponent/chefSelectorService.js"></script>
-        <script src="src/partials/globals/confirmModal/confirmModalService.js"></script>
-        <script src="src/partials/globals/loader/loaderModule.js"></script>
-        <script src="src/partials/globals/treeComponent/treeDirective.js"></script>
-        <script src="src/partials/sections/dashboard/design/designCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/help/helpCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/setting/organization/organizationCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/setting/organization/organizationListCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/setting/organization/organizationNewCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/setting/settingCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/track/trackCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/application/applicationCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/application/popups/applicationCardDetailsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/application/popups/applicationCardLogsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/application/popups/applicationHistoryLogsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/application/popups/configurePipelineViewCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/application/popups/deployNewAppCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/application/popups/upgradeAppCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/azureARM/azureARMCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/azureARM/popups/removeARMDeploymentCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/blueprint/blueprintCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/blueprint/popups/blueprintInfoCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParamsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/blueprint/popups/dockerInstanceLogsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/blueprint/popups/dockerLaunchParamsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/blueprint/popups/dockerParamsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/blueprint/popups/removeBlueprintCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/cloudFormation/cloudFormationCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/cloudFormation/popups/removeCFTCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/cloudFormation/popups/stackInfoCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/container/containerCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/instanceCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/manage/controlPanelCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpActionHistoryCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpActionsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpInfoCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpLogsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpServicesCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/InstanceImportByIpCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/deleteInstanceCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceLogCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceNameEditCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceRunPuppetClientCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceSSHCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/instanceUpdateChefRunlistCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/startStopInstanceCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/updateChefRunlistConfirmationCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/instance/popups/viewRunListCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/orchestrationCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/addJenkinsParamsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/addJobLinksCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/assignNodesCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/chefLogCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/chefPuppetCompositeLogsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/compositeLogsCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/jenkinsLogCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/newTaskCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistoryCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLogCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlistCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/runParamConfigCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/orchestration/popups/viewNodesCtrl.js"></script>
-        <script src="src/partials/sections/dashboard/workzone/workzoneCtrl.js"></script>
-        <script src="src/partials/sections/login/loginCtrl.js"></script>
-        <script src="src/utility/arrayUtility.js"></script>
-        <script src="src/utility/logger.js"></script>
-        <script src="src/utility/validation.js"></script>
-        <!-- /build-->
+		<!-- build:remove:qa,prod,dist -->
+		<script src="src/main.js"></script>
+		<script src="src/clientRoutes.js"></script>
+		<script src="src/factory/access_permission_service.js"></script>
+		<script src="src/factory/authenticationAPI.js"></script>
+		<script src="src/factory/authenticationFactory.js"></script>
+		<script src="src/factory/cacheServices.js"></script>
+		<script src="src/factory/chefDataFormatterService.js"></script>
+		<script src="src/factory/instanceServices.js"></script>
+		<script src="src/factory/localStorageFactory.js"></script>
+		<script src="src/factory/sessionFactory.js"></script>
+		<script src="src/factory/workzoneFactories.js"></script>
+		<script src="src/factory/workzonePermissionServices.js"></script>
+		<script src="src/factory/workzoneServices.js"></script>
+		<script src="src/custom_filter/timeConversionFilter.js"></script>
+		<script src="src/partials/globals/breadcrumb/breadcrumbService.js"></script>
+		<script src="src/partials/globals/chefSelectorComponent/chefSelectorComponent.js"></script>
+		<script src="src/partials/globals/chefSelectorComponent/chefSelectorService.js"></script>
+		<script src="src/partials/globals/confirmModal/confirmModalService.js"></script>
+		<script src="src/partials/globals/loader/loaderModule.js"></script>
+		<script src="src/partials/globals/treeComponent/treeDirective.js"></script>
+		<script src="src/partials/sections/dashboard/design/designCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/help/helpCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/setting/organization/organizationCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/setting/organization/organizationListCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/setting/organization/organizationNewCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/setting/settingCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/track/trackCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/application/applicationCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/application/popups/applicationCardDetailsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/application/popups/applicationCardLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/application/popups/applicationHistoryLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/application/popups/configurePipelineViewCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/application/popups/deployNewAppCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/application/popups/upgradeAppCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/azureARM/azureARMCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/azureARM/popups/removeARMDeploymentCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/blueprint/blueprintCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/blueprint/popups/blueprintInfoCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParamsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/blueprint/popups/dockerInstanceLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/blueprint/popups/dockerLaunchParamsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/blueprint/popups/dockerParamsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/blueprint/popups/removeBlueprintCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/cloudFormation/cloudFormationCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/cloudFormation/popups/removeCFTCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/cloudFormation/popups/stackInfoCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/container/containerCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/instanceCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/manage/controlPanelCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpActionHistoryCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpActionsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpInfoCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/manage/templates/cpServicesCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/InstanceImportByIpCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/deleteInstanceCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/instanceLogCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/instanceNameEditCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/instanceRunPuppetClientCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/instanceSSHCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/instanceUpdateChefRunlistCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/startStopInstanceCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/updateChefRunlistConfirmationCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/instance/popups/viewRunListCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/orchestrationCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/addJenkinsParamsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/addJobLinksCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/assignNodesCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/chefLogCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/chefPuppetCompositeLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/compositeLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/jenkinsLogCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/newTaskCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistoryCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLogCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlistCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/runParamConfigCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/viewNodesCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/workzoneCtrl.js"></script>
+		<script src="src/partials/sections/login/loginCtrl.js"></script>
+		<script src="src/utility/arrayUtility.js"></script>
+		<script src="src/utility/logger.js"></script>
+		<script src="src/utility/validation.js"></script>
+		<!-- /build-->
+		
+		<!-- build:js:prod,dist catalyst/catalyst.min.js-->
+		<!-- /build-->
+		
+		<!-- build:remove:dev,prod,dist-->
+		<script src="catalyst/concatjs/catalyst.js"></script>
+		<!-- /build-->
+	
 	</body>
 </html>
