@@ -1685,6 +1685,9 @@ function devCall() {
 				$("a[href$='#l4']").trigger('click');
 			});
 			//$rowContainter.append('<td></td>');
+			console.log("Arabbbbbb");
+			console.log(data);
+			console.log("Bindaaaaaa");
 			$rowContainter.append('<td><img src="' + data.blueprintData.iconPath + '" style="width:auto;height:30px;" /></td>');
 
 			var name = data.name;
@@ -1923,7 +1926,7 @@ function devCall() {
 			var $divInstanceDetails = $('<div></div>')
 			var $instanceDetailsList = $('<div></div>').addClass('instance-details-list');
 			var $instanceDetailItemId = $('<span></span>').addClass('instance-details-id').html('IP : <strong class="instanceip">' + data.instanceIP + '</strong>');
-			//Arab
+
 
 			$instanceDetailsList.append($instanceDetailItemId);
 			var $instanceDetailItemStatus;
@@ -2161,7 +2164,6 @@ function devCall() {
 			var $cardContainer = $li.find('.container').click(function(e) {
 				$('.container').removeClass('role-Selectedcard');
 				$(this).addClass('role-Selectedcard');
-				//Arab
 				localStorage.setItem("cardIndex", $(".container").index($(this)));
 				console.log("Card Index is :" + $(".container").index($(this)));
 			});
@@ -3186,15 +3188,26 @@ function devCall() {
 										}
 										for(var i = 0; i < dataInstancesList.instances.length; i++) {
 											//console.log("hello");
-											 //var $tdlogs = '<div class="btn btn-primary btn-sm width27borderradius50 appSpecificLogs " data-logs="' + rowSetDetailsLogs + '"  data-nodeIp="' + nodeIp + '"><i class="fa fa-info font-size-11"></i></a>';
+											var imagePath;
+											if (dataInstancesList.instances[i].blueprintData.iconPath == undefined) {
+												imagePath = dataInstancesList.instances[i].blueprintData.iconPath = 'img/imgo.jpg';
+											}else{
+												imagePath = dataInstancesList.instances[i].blueprintData.iconPath;
+											}
+											var $tdcheckbox = '<input type="checkbox" class="instanceselectedfordocker"><img src="' + imagePath + '" style="width:auto;height:30px;" />';
+											//data-instanceid="' + $(this).attr('data-instanceid') + '"
+											var $moreinfo = '<a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceId="' + dataInstancesList.instances[i]._id + '" class="tableMoreInfo moreInfo dockerLeft"></a>';
+											$(this).find('.moreInfo').click(instanceLogsHandler);
+											//var $tdlogs = '<div class="btn btn-primary btn-sm width27borderradius50 appSpecificLogs " data-logs="' + rowSetDetailsLogs + '"  data-nodeIp="' + nodeIp + '"><i class="fa fa-info font-size-11"></i></a>';
+								            //Arab
+
 								            $dockerinstancesDatatable.row.add([
-								                dataInstancesList.instances[i].name,
+								                $tdcheckbox,
 								                dataInstancesList.instances[i].name,
 								                dataInstancesList.instances[i].instanceIP,
-								                dataInstancesList.instances[i].name
+								                $moreinfo
 								            ]).draw();
 										}
-
 
 
 										
