@@ -3138,7 +3138,15 @@ function devCall() {
 										// launchparams[1] = startparams;
 										// // alert(execparam);
 										// launchparams[2] = execparam;
-										$('#' + $('#myModalLabelDockerContainer').attr('saveto')).val(lp[0] + ' -c ' + lp[1] + ' -exec ' + lp[2]);
+										var dockerParamsList = lp[0];
+
+										if((lp[1] !== undefined) && (lp[1] != ''))
+											dockerParamsList += ' -c ' + lp[1];
+
+										if((lp[2] !== undefined) && (lp[2] != ''))
+											dockerParamsList += ' -exec ' + lp[2];
+
+										$('#' + $('#myModalLabelDockerContainer').attr('saveto')).val(dockerParamsList);
 										$('#myModalLabelDockerContainer').removeAttr('saveto').modal('hide');
 									}
 								});
