@@ -34,6 +34,7 @@ var errorResponses = require('./error_responses');
 var waitForPort = require('wait-for-port');
 var logger = require('_pr/logger')(module);
 var masterUtil = require('../lib/utils/masterUtil.js');
+var Docker = require('_pr/model/docker.js');
 
 module.exports.setRoutes = function(app, verificationFunc) {
 
@@ -325,6 +326,24 @@ module.exports.setRoutes = function(app, verificationFunc) {
 							log: "Node Imported",
 							timestamp: new Date().getTime()
 						});
+
+						var _docker = new Docker();
+						_docker.checkDockerStatus(data._id, function(err, retCode) {
+							if (err) {
+								logger.error("Failed _docker.checkDockerStatus", err);
+								return;
+							}
+							logger.debug('Docker Check Returned:' + retCode);
+							if (retCode == '0') {
+								instancesDao.updateInstanceDockerStatus(data._id, "success", '', function(data) {
+									logger.debug('Instance Docker Status set to Success');
+								});
+
+							}
+						});
+
+
+
 						callback(null, data);
 
 					});

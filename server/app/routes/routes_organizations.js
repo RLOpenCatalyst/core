@@ -1725,7 +1725,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 															_docker.checkDockerStatus(instance.id, function(err, retCode) {
 																if (err) {
 																	logger.error("Failed _docker.checkDockerStatus", err);
-																	res.send(500);
 																	return;
 																	//res.end('200');
 

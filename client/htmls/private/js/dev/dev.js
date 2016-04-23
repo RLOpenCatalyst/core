@@ -904,7 +904,7 @@ function devCall() {
 			}
 			$divinstancescardview.find('.item').first().addClass('active');
 
-			loadContainersTable();
+			//loadContainersTable();
 
 			$(".appFactoryPanel").find(".productdiv1").first().trigger('click');
 
@@ -5630,6 +5630,10 @@ function devCall() {
 			compositedockerimage = JSON.stringify(compositedockerimage);
 			// alert(JSON.stringify(compositedockerimage));
 			//return;
+			if(!$('.instanceselectedfordocker:checked').length) {
+               alert("Please select atleast one instance");
+               return;
+			}
 			$('.instanceselectedfordocker').each(function() {
 				if ($(this).is(':checked')) {
 					var repopath = "null"; //would be referenced from the json supplied.
@@ -5649,14 +5653,15 @@ function devCall() {
 
 					//var repopath = $('.productdiv1.role-Selected1').first().attr('dockerreponame');
 
-					if (amoreinfo)
-						amoreinfo.trigger('click');
-
+					
 					$.post('../instances/dockercompositeimagepull/' + instid + '/' + repopath, {
 						compositedockerimage: encodeURIComponent(compositedockerimage)
 					}, function(data) {
 						//alert(JSON.stringify(data));
 						if (data == "OK") {
+							if (amoreinfo)
+								amoreinfo.trigger('click');
+
 							var $statmessage = $td.find('.dockerspinner').parent();
 							$td.find('.moreInfo').first().click(); //showing the log window.
 
@@ -5687,6 +5692,7 @@ function devCall() {
 									//Docker launcer popup had to be hidden due to overlap issue.
 									$('#launchDockerInstanceSelector').modal('hide');
 									$('a.actionbuttonChefClientRun[data-instanceid="' + instid + '"]').first().trigger('click');
+								    
 								}
 							} else {
 								var $statmessage = $('.dockerspinner').parent();
@@ -5711,6 +5717,7 @@ function devCall() {
 				initializeInstanceArea(data.instances);
 				initializeStackArea(data.stacks);
 				initializeARMArea(data.arms);
+				loadContainersTable();
 			});
 			if (orgId) {
 				$.get('/d4dMasters/organization/' + orgId + '/configmanagement/list', function(configMgmntList) {
@@ -5976,6 +5983,10 @@ function devCall() {
 				$('.dockerContainerBody').removeClass('hidden');
 				showNoContainerRow();
 			}
+			var dockerCount = 0;
+			var containerLength = $('.container').length;
+			var rowAdded = false;
+
 			$('.container').each(function() {
 				var $docker = $(this).find('.dockerenabledinstacne');
 				if ($docker.html() != undefined) {
@@ -5983,6 +5994,7 @@ function devCall() {
 
 					var instanceid = $(this).find('[data-instanceid]').attr('data-instanceid');
 					$.get('/instances/dockercontainerdetails/' + instanceid, function(data) {
+						dockerCount++;
 						/*Demo QuickFix - Start*/
 						/*if (!data) {
 							$('.spinnerDocker').addClass('hidden');
@@ -5993,20 +6005,20 @@ function devCall() {
 							return;
 						}*/
 						/*Demo QuickFix - End*/
-						if (data) {
-							//Shwoing the loader spinner and clearing the rows.
+						console.log('data ==> ', data);
+						//if (data) {
+						//Shwoing the loader spinner and clearing the rows.
 
-							/*Demo QuickFix - Start*/
-							//$('tr[id*="trfordockercontainer_"]').remove();
-							/*Demo QuickFix - End*/
+						/*Demo QuickFix - Start*/
+						//$('tr[id*="trfordockercontainer_"]').remove();
+						/*Demo QuickFix - End*/
 
-							$('.spinnerDocker').addClass('hidden');
-							$('.dockerContainerBody').removeClass('hidden');
-							$('.docctrempty').detach();
-							$('.loadingimagefordockertable').addClass('hidden');
-							$('#dockercontainertablerefreshspinner').removeClass('fa-spin');
+						//}
+						var dockerContainerData = [];
+						if (typeof data === 'string') {
+							 dockerContainerData = JSON.parse(data);
 						}
-						var dockerContainerData = JSON.parse(data);
+
 
 						if (dockerContainerData.length <= 0) {
 							$('.docctrempty').detach();
@@ -6017,6 +6029,7 @@ function devCall() {
 							// alert($docctr.html());
 
 							$dockercontainertable.append($docctr);
+							rowAdded = true;
 							if (i >= dockerContainerData.length - 1) {
 								// alert('in' + i);
 								$('.dockeractionbutton').unbind("click");
@@ -6130,8 +6143,37 @@ function devCall() {
 								return;
 							}
 						});
-					})
+
+						if (dockerCount === containerLength) {
+							$('.spinnerDocker').addClass('hidden');
+							$('.dockerContainerBody').removeClass('hidden');
+							$('.docctrempty').detach();
+							$('.loadingimagefordockertable').addClass('hidden');
+							$('#dockercontainertablerefreshspinner').removeClass('fa-spin');
+							if(!rowAdded) {
+                                showNoContainerRow();
+							}
+							
+
+						}
+
+
+					}).fail(function() {
+						dockerCount++;
+						if (dockerCount === containerLength) {
+							$('.spinnerDocker').addClass('hidden');
+							$('.dockerContainerBody').removeClass('hidden');
+							$('.docctrempty').detach();
+							$('.loadingimagefordockertable').addClass('hidden');
+							$('#dockercontainertablerefreshspinner').removeClass('fa-spin');
+                            if(!rowAdded) {
+                                showNoContainerRow();
+							}
+
+						}
+					});
 				} else { //no docker found
+					dockerCount++;
 					$('.loadingimagefordockertable').addClass('hidden');
 					//$('li.Containers').addClass('hidden');
 				}
