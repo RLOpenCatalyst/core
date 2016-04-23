@@ -3149,9 +3149,50 @@ function devCall() {
 								$launchDockerInstanceSelector.data('blueprintId', blueprintId);
 								//  $launchDockerInstanceSelector.data('blueprintId',blueprintId);
 
+								loadInstancesContainerList();
+								// start Need to change Arabinda
+								function loadInstancesContainerList(){
+									$launchDockerInstanceSelector.modal('show');
+									$('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
+									$.get('../organizations/' + urlParams.org + '/businessgroups/' + urlParams['bg'] + '/projects/' + urlParams.projid + '/environments/' + urlParams.envid + '/', function(dataInstancesList) {
+										//$('#dockerinstancesselctorview').empty();
+										//<div class=\"col-lg-12 col-sm-12\ dockerinstances"></div>
+										if (!$.fn.dataTable.isDataTable('#dockerinstancesTable')) {
+											//var $taskListArea = $('.taskListArea').empty();
+											var $dockerinstancesDatatable = $('#dockerinstancesTable').DataTable({
+												"pagingType": "full_numbers",
+												"aaSorting": [
+													[0, "desc"]
+												],
+												"aoColumns": [{
+													"bSortable": false
+												}, {
+													"bSortable": true
+												}, {
+													"bSortable": true
+												}, {
+													"bSortable": false
+												}]
+
+											});
+										}
+										for(var i = 0; i < dataInstancesList.instances.length; i++) {
+											//console.log("hello");
+											 //var $tdlogs = '<div class="btn btn-primary btn-sm width27borderradius50 appSpecificLogs " data-logs="' + rowSetDetailsLogs + '"  data-nodeIp="' + nodeIp + '"><i class="fa fa-info font-size-11"></i></a>';
+								            $dockerinstancesDatatable.row.add([
+								                dataInstancesList.instances[i].name,
+								                dataInstancesList.instances[i].name,
+								                dataInstancesList.instances[i].instanceIP,
+								                dataInstancesList.instances[i].name
+								            ]).draw();
+										}
 
 
-								$('#dockerinstancesselctorview').empty().append('<span><div class=\"modal-body\"><div><div class=\"row\"><div style=\"color:;\" class=\"col-lg-12 col-sm-12\ dockerinstances"></div></div></div></div></div></span>');
+
+										
+									});
+								}
+								/*$('#dockerinstancesselctorview').empty().append('<span><div class=\"modal-body\"><div><div class=\"row\"><div style=\"color:;\" class=\"col-lg-12 col-sm-12\ dockerinstances"></div></div></div></div></div></span>');
 								var $newinstancetable = $("<table></table>").append("<thead><tr><td>Instance Name</td><td>IP Address</td><td>Log Info</td><td class='hidden'>Add Docker Engine</td></tr></thead>");
 								var $newinstancetbody = $('<tbody></tbody>');
 								$newinstancetable.append($newinstancetbody);
@@ -3159,6 +3200,7 @@ function devCall() {
 								$instancetable.find('tbody tr').each(function() {
 									var $newinstancetr = $("<tr><tr>");
 									$(this).find('td').each(function(k, v) {
+										alert(v + $(this).html());
 										$newinstancetr.append('<td>' + v + $(this).html() + '</td>');
 									});
 									$newinstancetbody.append($newinstancetr);
@@ -3201,10 +3243,12 @@ function devCall() {
 								$('#dockerInstanceSelectionTitle').empty().append('Select Instances to pull  "' + dockerreponame + '" into');
 								$launchDockerInstanceSelector.modal('show');
 								$('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
-								$('#dockerintsancestab thead').empty().append('<tr><td>Select Instance</td><td>Instance Name</td><td>IP Address</td><td>Log</td><td  class="hidden">Add Docker Engine</td></tr>');
+								$('#dockerintsancestab thead').empty().append('<tr><td>Select Instance</td><td>Instance Name</td><td>IP Address</td><td>LogTest</td><td  class="hidden">Add Docker Engine</td></tr>');
 								$('#dockerintsancestab').dataTable({
 									"bPaginate": false
-								});
+								});*/
+
+								//Need to change Arabinda
 								return;
 							}
 
