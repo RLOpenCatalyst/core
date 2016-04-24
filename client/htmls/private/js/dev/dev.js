@@ -3165,10 +3165,7 @@ function devCall() {
 									$launchDockerInstanceSelector.modal('show');
 									$('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
 									$.get('../organizations/' + urlParams.org + '/businessgroups/' + urlParams['bg'] + '/projects/' + urlParams.projid + '/environments/' + urlParams.envid + '/', function(dataInstancesList) {
-										//$('#dockerinstancesselctorview').empty();
-										//<div class=\"col-lg-12 col-sm-12\ dockerinstances"></div>
 										if (!$.fn.dataTable.isDataTable('#dockerinstancesTable')) {
-											//var $taskListArea = $('.taskListArea').empty();
 											var $dockerinstancesDatatable = $('#dockerinstancesTable').DataTable({
 												"pagingType": "full_numbers",
 												"aaSorting": [
@@ -3186,31 +3183,29 @@ function devCall() {
 
 											});
 										}
+										$dockerinstancesDatatable.clear().draw(false);
 										for(var i = 0; i < dataInstancesList.instances.length; i++) {
-											//console.log("hello");
 											var imagePath;
 											if (dataInstancesList.instances[i].blueprintData.iconPath == undefined) {
 												imagePath = dataInstancesList.instances[i].blueprintData.iconPath = 'img/imgo.jpg';
 											}else{
 												imagePath = dataInstancesList.instances[i].blueprintData.iconPath;
 											}
-											var $tdcheckbox = '<input type="checkbox" class="instanceselectedfordocker"><img src="' + imagePath + '" style="width:auto;height:30px;" />';
-											//data-instanceid="' + $(this).attr('data-instanceid') + '"
-											var $moreinfo = '<a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceId="' + dataInstancesList.instances[i]._id + '" class="tableMoreInfo moreInfo dockerLeft"></a>';
-											$(this).find('.moreInfo').click(instanceLogsHandler);
-											//var $tdlogs = '<div class="btn btn-primary btn-sm width27borderradius50 appSpecificLogs " data-logs="' + rowSetDetailsLogs + '"  data-nodeIp="' + nodeIp + '"><i class="fa fa-info font-size-11"></i></a>';
-								            //Arab
-
-								            $dockerinstancesDatatable.row.add([
+											
+											var $tdcheckbox = '<div class="text-center"><input type="checkbox" class="instanceselectedfordocker"><img src="' + imagePath + '" style="width:auto;height:30px;" /></div>';
+											var $tdname = '<div class="dockerinstanceClass text-center" data-instanceId="' + dataInstancesList.instances[i]._id + '" data-blueprintname="'+dataInstancesList.instances[i].blueprintData.blueprintName+'">'+dataInstancesList.instances[i].name+'</div>';
+											var $tdinstanceip = '<div class="text-center">'+dataInstancesList.instances[i].instanceIP+'</div>';		
+											var $moreinfo = '<a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceId="' + dataInstancesList.instances[i]._id + '" class="tableMoreInfo moreInfo dockerintsancesmoreInfo"></a>';
+				
+											var  $dockerinstancesDatatable = $('#dockerinstancesTable');
+								            $dockerinstancesDatatable.dataTable().fnAddData([
 								                $tdcheckbox,
-								                dataInstancesList.instances[i].name,
-								                dataInstancesList.instances[i].instanceIP,
+								                $tdname,
+								                $tdinstanceip,
 								                $moreinfo
-								            ]).draw();
+								            ]);
+								            $dockerinstancesDatatable .on('click', '.dockerintsancesmoreInfo', instanceLogsHandler);
 										}
-
-
-										
 									});
 								}
 								/*$('#dockerinstancesselctorview').empty().append('<span><div class=\"modal-body\"><div><div class=\"row\"><div style=\"color:;\" class=\"col-lg-12 col-sm-12\ dockerinstances"></div></div></div></div></div></span>');
@@ -5691,15 +5686,16 @@ function devCall() {
                alert("Please select atleast one instance");
                return;
 			}
-			$('.instanceselectedfordocker').each(function() {
-				if ($(this).is(':checked')) {
+			$('.instanceselectedfordocker:checked').each(function() {
+				//if ($(this).is(':checked')) {
 					var repopath = "null"; //would be referenced from the json supplied.
-					var instid = $(this).closest('tr').attr('data-instanceid');
-					var instbpname = $(this).closest('tr').attr('data-blueprintname');
+					var instid = $(this).closest('tr').find('.dockerinstanceClass').attr('data-instanceid');
+					var instbpname = $(this).closest('tr').find('.dockerinstanceClass').attr('data-blueprintname');
 					var amoreinfo = $(this).closest('tr').find('.moreInfo');
 					if (instid)
 						var $that = $(this);
 					var $td = $that.closest('td');
+
 					var tdtext = $td.text();
 					$td.find('.dockerspinner').detach();
 					$td.find('.dockermessage').detach();
@@ -5759,7 +5755,74 @@ function devCall() {
 							}
 						}
 					});
-				}
+				//}
+				//Replaced below code with Above....
+				/*if ($(this).is(':checked')) {
+					var repopath = "null"; //would be referenced from the json supplied.
+					var instid = $(this).closest('tr').attr('data-instanceid');
+					var instbpname = $(this).closest('tr').attr('data-blueprintname');
+					var amoreinfo = $(this).closest('tr').find('.moreInfo');
+					if (instid)
+						var $that = $(this);
+					var $td = $that.closest('td');
+					var tdtext = $td.text();
+					$td.find('.dockerspinner').detach();
+					$td.find('.dockermessage').detach();
+					$td.append('<img class="dockerspinner" style="margin-left:5px" src="img/select2-spinner.gif"></img>');
+					$td.attr('title', 'Pulling in Images');
+					// var imagename = $('.productdiv1.role-Selected1').first().attr('dockercontainerpaths');
+					// var repotag = $('.productdiv1.role-Selected1').find('.dockerrepotagselect').first().val();
+
+					//var repopath = $('.productdiv1.role-Selected1').first().attr('dockerreponame');
+
+					if (amoreinfo)
+						amoreinfo.trigger('click');
+
+					$.post('../instances/dockercompositeimagepull/' + instid + '/' + repopath, {
+						compositedockerimage: encodeURIComponent(compositedockerimage)
+					}, function(data) {
+						//alert(JSON.stringify(data));
+						if (data == "OK") {
+							var $statmessage = $td.find('.dockerspinner').parent();
+							$td.find('.moreInfo').first().click(); //showing the log window.
+
+
+							$td.find('.dockerspinner').detach();
+							$statmessage.append('<span style="margin-left:5px;text-decoration:none" class="dockermessage"></span>');
+
+							//Updating instance card to show the docker icon.
+							//$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:42px;height:42px;margin-left:32px;" class="dockerenabledinstacne"/>');
+							//Updated from above to move docker image out of circle.
+							$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:auto;height:27px;margin-left:96px;margin-top:-105px" class="dockerenabledinstacne"/>');
+							//find the instance card - to do instance table view update
+							var $instancecard = $('div[data-instanceid="' + instid + '"]');
+							if ($instancecard.find('.dockerenabledinstacne').length <= 0) {
+								$instancecard.find('.componentlistContainer').first().append($dockericon);
+							}
+							//debugger;
+							loadContainersTable(); //Clearing and loading the containers again.
+						} else {
+							//alert(data);
+							if (data.indexOf('No Docker Found') >= 0) {
+								var $statmessage = $('.dockerspinner').parent();
+								$('.dockerspinner').detach();
+								$td.find('.dockermessage').detach();
+								$statmessage.append('<span style="margin-left:5px;color:red" title="Docker not found"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
+								//Prompt user to execute the docker cookbook.
+								if (confirm('Docker was not found on the node : "' + instbpname + '". \nDo you wish to install it?')) {
+									//Docker launcer popup had to be hidden due to overlap issue.
+									$('#launchDockerInstanceSelector').modal('hide');
+									$('a.actionbuttonChefClientRun[data-instanceid="' + instid + '"]').first().trigger('click');
+								}
+							} else {
+								var $statmessage = $('.dockerspinner').parent();
+								$('.dockerspinner').detach();
+								$td.find('.dockermessage').detach();
+								$statmessage.append('<span style="margin-left:5px;color:red" title="' + data + '"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
+							}
+						}
+					});
+				}*/
 			});
 		});
 
