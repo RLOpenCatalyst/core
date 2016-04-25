@@ -12,6 +12,9 @@
  * @apiParam {String} [sortOrder]  The sort order if sort parameter is provided. One of asc or desc. Default: desc
  * @apiParam {String} [filterBy]  User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped.
  *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/providers/56f1459ec9f075275f4ea9be/unmanagedInstances?page=1&pageSize=5&search=i-656ae2a3&filterBy=region:us-west-2+state:running,stopped&sortBy=state&sortOrder=asc
+ * 
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
@@ -74,6 +77,9 @@
  *
  *
  * @apiParam {String} blueprintId          Unique Blueprint Id.
+
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/blueprints/56fa223d2a3efd2653020413/blueprintInfo
  *
  * @apiSuccess [JSONObject]   Blueprint Info
  *
@@ -353,7 +359,8 @@
  * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
  * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped.
  *
- *
+ * @apiParamExample {url} Request-Example:
+ *  http://localhost:3001/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/df87280c-ef3d-4e45-ac23-fcb77c845409/containerList?page=1&pageSize=10
  *
  * @apiSuccess [JSONObject]
  *
@@ -420,16 +427,18 @@
  * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped.
  *
  *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/df87280c-ef3d-4e45-ac23-fcb77c845409/instanceList?page=1&pageSize=10
  *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     {"instances":[{"_id":"56fa1a6d2a3efd26530203fb","name":"192.168.152.208","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","instanceIP":"192.168.152.208","instanceState":"running","bootStrapStatus":"success","__v":0,"taskIds":[],"chefClientExecutionIds":[],"actionLogs":[{"_id":"56fa1a6d2a3efd26530203fd","actionData":{"runlist":[]},"timeStarted":1459231341803,"user":"superadmin","success":true,"completed":true,"name":"Bootstrap","type":1,"timeEnded":1459231495251}],"serviceIds":[],"blueprintData":{"blueprintName":"192.168.152.208","templateId":"chef_import","iconPath":"../private/img/templateicons/chef_import.png","templateComponents":[]},"credentials":{"username":"rle0333","password":"OtKDQ4yY8+rl6z90Ll3KUA=="},"software":[],"chef":{"serverId":"ef074bc9-d61c-4d3a-8038-17878422f965","chefNodeName":"192.168.152.208"},"hardware":{"platform":"ubuntu","platformVersion":"14.04","architecture":"x86_64","os":"linux","memory":{"total":"8094692kB","free":"2871460kB"}},"users":["superadmin"],"appUrls":[{"name":"catalyst","url":"http://localhost:3001/","_id":"56fa1a6d2a3efd26530203fc"}],"attributes":[],"runlist":[]}],
+ *     "instances":[{"_id":"56fa1a6d2a3efd26530203fb","name":"192.168.152.208","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","instanceIP":"192.168.152.208","instanceState":"running","bootStrapStatus":"success","__v":0,"taskIds":[],"chefClientExecutionIds":[],"actionLogs":[{"_id":"56fa1a6d2a3efd26530203fd","actionData":{"runlist":[]},"timeStarted":1459231341803,"user":"superadmin","success":true,"completed":true,"name":"Bootstrap","type":1,"timeEnded":1459231495251}],"serviceIds":[],"blueprintData":{"blueprintName":"192.168.152.208","templateId":"chef_import","iconPath":"../private/img/templateicons/chef_import.png","templateComponents":[]},"credentials":{"username":"rle0333","password":"OtKDQ4yY8+rl6z90Ll3KUA=="},"software":[],"chef":{"serverId":"ef074bc9-d61c-4d3a-8038-17878422f965","chefNodeName":"192.168.152.208"},"hardware":{"platform":"ubuntu","platformVersion":"14.04","architecture":"x86_64","os":"linux","memory":{"total":"8094692kB","free":"2871460kB"}},"users":["superadmin"],"appUrls":[{"name":"catalyst","url":"http://localhost:3001/","_id":"56fa1a6d2a3efd26530203fc"}],"attributes":[],"runlist":[]}],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"instanceState","sortOrder":"asc"}
  *     }
- *     }
+ *     
  *
  * @apiError 400 Bad Request.
  *
@@ -475,13 +484,14 @@
  * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped.
  *
  *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/df87280c-ef3d-4e45-ac23-fcb77c845409/taskList?page=1&pageSize=10
  *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
- *     {"tasks":[{
+ *  {"tasks":[{
  *	"_id": "56fe1fb340e5982c6467fbba",
  *	"taskType": "chef",
  *	"name": "Test Job Durgesh",
@@ -501,8 +511,7 @@
  *	"jobResultURLPattern": []
  * }],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"name",sortOrder":"asc"}
- *     }
- *     }
+ * }
  *
  *
  * @apiError 400 Bad Request.
@@ -548,13 +557,14 @@
  * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped.
  *
  *
+ * @apiParamExample {url} Request-Example:
+ *	http://localhost:3001/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/applicationList?page=1&pageSize=10
  *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
- *     {"applications":[{
+ *  {"applications":[{
  *	"_id": "56fe1fb340e5982c6467fbba",
  *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
  *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
@@ -571,8 +581,8 @@
  *	"buildId ": "fafafaf21415151351 "
  * }],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"name",sortOrder":"asc"}
- *     }
- *     }
+ * }
+ *     
  *
  *
  * @apiError 400 Bad Request.
@@ -618,14 +628,14 @@
  * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
  * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped.
  *
- *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/df87280c-ef3d-4e45-ac23-fcb77c845409/cftList?page=1&pageSize=10
  *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
- *     {"cftList":[{
+ *  {"cftList":[{
  *	"_id": "56fe1fb340e5982c6467fbba",
  *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
  *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
@@ -648,7 +658,6 @@
  *			"runlist": []
  *		}]],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"status",sortOrder":"asc"}
- *     }
  *     }
  *
  *
@@ -696,13 +705,14 @@
  * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=region:us-west-2+state:running,stopped.
  *
  *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/df87280c-ef3d-4e45-ac23-fcb77c845409/azureArmList?page=1&pageSize=10
  *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
- *     {"azureArms":[{
+ *  {"azureArms":[{
  *	"_id": "56fe1fb340e5982c6467fbba",
  *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
  *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
@@ -734,7 +744,7 @@
  *  }],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"status",sortOrder":"asc"}
  *     }
- *     }
+ *     
  *
  *
  * @apiError 400 Bad Request.
@@ -767,53 +777,60 @@
 /**
  * @api {get}/app/deploy/project/:projectId/appDeployList
  * @apiName /app/deploy/project/:projectId/appDeployList
- * @apiGroup Pipeline View
+ * @apiGroup Pipeline View with Pagination
  *
  *
  * @apiParam {String} projectId      Unique Project Id
  *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/app/deploy/project/b38ccedc-da2c-4e2c-a278-c66333564719/appDeployList?page=1&pageSize=10
  *
  *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *  [{
+ * {
+ *  "appDeploy":[{
  *		"appName": {
  *			"name": "D4D",
  *			"version": "3.03.106"
  *		},
  *		"Dev": {
- *			"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
  *			"applicationInstanceName": "Supercatalyst",
  *			"applicationNodeIP": "54.183.1.26",
  *			"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
  *			"applicationStatus": "Successful",
  *			"containerId": "NA",
  *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
- *			"appLogs": "NA"
  *		},
  *		"QA": {},
  *		"Prod": {}
  *	}, {
  *		"appName": {
  *			"name": "D4D",
- *			"name": "D4D",
  *			"version": "3.02.100"
  *		},
  *		"Dev": {},
  *		"QA": {
- *			"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
  *			"applicationInstanceName": "Supercatalyst",
  *			"applicationNodeIP": "54.183.1.26",
  *			"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
  *			"applicationStatus": "Successful",
  *			"containerId": "NA",
  *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
- *			"appLogs": "NA"
  *		},
  *		"Prod": {}
- *	}]
+ *	}],
+ *  "metaData":{
+ *    "totalRecords":2,
+ *    "pageSize":10,
+ *    "page":1,
+ *    "totalPages":1,
+ *    "sortBy":"envId",
+ *    "sortOrder":"desc"
+ *    }
+ *  }
  *
  *
  *
@@ -845,50 +862,34 @@
 
 
 /**
- * @api {get}/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
- * @apiName /app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList
- * @apiGroup App Deploy Pipeline History List By Project, Environment,App Deploy Version and Last Updated Node IP
+ * @api {get}/app/deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList
+ * @apiName /app/deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList
+ * @apiGroup App Deploy Pipeline View History for Particular Environment, AppName and Version
  *
  *
  * @apiParam {String} projectId      Unique Project Id
  * @apiParam {String} envName        Unique Environment Name
+ * @apiParam {String} appName        Unique Application Name
  * @apiParam {String} version        Unique App Deploy Version
- * @apiParam {String} nodeIp         Unique Last App Deploy Node IP Address
  *
- *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/app/deploy/project/b38ccedc-da2c-4e2c-a278-c66333564719/env/PreProd/appName/petclinic_db/version/1.0.1/appDeployHistoryList
  *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *  [{"_id":"570b48fcf1f0f28388f4b071",
- *  "applicationLastDeploy":"2016-03-30 05:04:05 +0000",
- *  "appLogs":"NA",
- *  "applicationName":"D4D",
- *  "applicationVersion":"3.03.106",
- *  "applicationInstanceName":"Supercatalyst",
- *  "applicationNodeIP":"54.183.1.26",
- *  "envId":"Dev",
- *  "hostName":"ip-10-0-0-54.us-west-1.compute.internal",
- *  "containerId":"NA",
- *  "applicationType":"Package",
- *  "applicationStatus":"Successful",
- *  "projectId":"b38ccedc-da2c-4e2c-a278-c66333564719"
- *  },
- *  {"_id":"570b48fef1f0f28388f4b077",
- *  "applicationLastDeploy":"2016-03-30 05:04:05 +0000",
- *  "appLogs":"NA",
- *  "applicationName":"D4D",
- *  "applicationVersion":"3.03.106",
- *  "applicationInstanceName":"Supercatalyst",
- *  "applicationNodeIP":"54.183.1.26",
- *  "envId":"Dev",
- *  "hostName":"ip-10-0-0-54.us-west-1.compute.internal",
- *  "containerId":"NA",
- *  "applicationType":"Package",
- *  "applicationStatus":"Successful",
- *  "projectId":"b38ccedc-da2c-4e2c-a278-c66333564719"
- *	}]
+ *  [{
+ *	"_id": "5718c856400f00be828a8972",
+ *	"applicationName": "petclinic_db",
+ *	"applicationVersion": "1.0.1",
+ *	"applicationInstanceName": "petclinic_db",
+ *	"applicationNodeIP": "54.183.22.15",
+ *	"hostName": "ip-10-0-0-246.us-west-1.compute.internal",
+ *	"containerId": "NA",
+ *	"applicationType": "Database Update",
+ *	"applicationStatus": "successful"
+ *  }]
  *
  *
  *
@@ -921,7 +922,7 @@
 /**
  * @api {get}/app/deploy/project/:projectId/env/:envName/appDeployHistoryList
  * @apiName /app/deploy/project/:projectId/env/:envName/appDeployHistoryList
- * @apiGroup App Deploy Pipeline History List By Project with Pagination,Search,Filter and Sort
+ * @apiGroup App Deploy Pipeline History List By Project and Environment with Pagination,Search,Filter and Sort
  *
  *
  * @apiParam {String} projectId      Unique Project Id
@@ -934,6 +935,8 @@
  * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=envId:Dev,QA.
  *
  *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/app/deploy/project/b38ccedc-da2c-4e2c-a278-c66333564719/env/Dev/appDeployHistoryList?page=1&pageSize=10
  *
  *
  * @apiSuccess [JSONObject]
@@ -1064,6 +1067,8 @@
  *
  * @apiParam {String} orgId      Unique Organization Id
  *
+ * @apiParamExample {url} Request-Example:
+ *	http://localhost:3001/d4dMasters/organization/46d1da9a-d927-41dc-8e9e-7e926d927537/repositoryServer/list
  *
  * @apiSuccess [JSONObject]
  *
@@ -1171,6 +1176,10 @@
  * @apiParam {String} projectId    Unique Project Id
  *
  *
+ * @apiParamExample {url} Request-Example:
+ *	http://localhost:3001/app/deploy/nexus/6f284219-8009-40f1-8ffc-3235c2f107ca/project/b38ccedc-da2c-4e2c-a278-c66333564719/nexusRepositoryList
+ *
+ *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
@@ -1225,6 +1234,8 @@
  * @apiParam {String} repoName     Unique Nexus Repository Name
  * @apiParam {String} groupId      Unique Nexus Group Id
  *
+ * @apiParamExample {url} Request-Example:
+ *	http://localhost:3001/app/deploy/nexus/6f284219-8009-40f1-8ffc-3235c2f107ca/repositories/catalyst/group/org.catalyst/artifactList
  *
  * @apiSuccess [JSONObject]
  *
@@ -1285,6 +1296,9 @@
  * @apiParam {String} groupId      Unique Nexus Group Id
  * @apiParam {String} artifactId   Unique Nexus Repository Artifact Id
  *
+ * @apiParamExample {url} Request-Example:   
+ * http://localhost:3001/app/deploy/nexus/6f284219-8009-40f1-8ffc-3235c2f107ca/repositories/catalyst/group/org.catalyst/artifact/D4D/versionList
+ *  
  *
  * @apiSuccess [JSONObject]
  *
@@ -1526,11 +1540,14 @@
 /**
  * @api {get}/app/deploy/pipeline/project/:projectId
  * @apiName /app/deploy/pipeline/project/:projectId
- * @apiGroup App Deploy Project Information By ProjectId
+ * @apiGroup Pipeline View Information
  *
  *
  * @apiParam {String} projectId      Unique Project Id
-
+ *
+ * @apiParamExample {url} Request-Example:
+ *  http://localhost:3001/app/deploy/pipeline/project/b38ccedc-da2c-4e2c-a278-c66333564719
+ *  
  *
  *
  * @apiSuccess [JSONObject]
@@ -1555,7 +1572,7 @@
  *    {
  *      code:400,
  *      message:'Bad Request',
- *      fields:{errorMessage:'Bad Request',attribute:'App Deploy Project Information'}
+ *      fields:{errorMessage:'Bad Request',attribute:'Pipeline View Information'}
  *     };
  * @apiError 403 Forbidden.
  *
@@ -1563,7 +1580,7 @@
  *    {
  *      code:403,
  *      message:'Forbidden',
- *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'App Deploy Project Information'}
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Pipeline View Information'}
  *     };
  * @apiError 500 InternalServerError.
  *
@@ -1571,7 +1588,7 @@
  *     {
  *      code:500,
  *      message:'Internal Server Error',
- *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'App Deploy Project Information'}
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Pipeline View Information'}
  *     };
  */
 
@@ -2051,12 +2068,12 @@
  * @apiParam {String} version        Unique Blueprint Version
  * @apiParam {String} stackName      Unique Stack Name
  *
- * @apiParamExample {json} Request-Example:
+ * @apiParamExample {url} Request-Example:
  *  {
  *	params:{
  *	      "blueprintId":"56fa223d2a3efd2653020413"
  *         },
- * query: {
+ *  query: {
  *        "envId":"24fa223d2a3efd2653020413",
  *        "version":"0.1",
  *        "stackName":"Jagadish"
@@ -2331,19 +2348,15 @@
  * @apiParam {String} envName       Environment Name.
  * @apiParam {String} appName       Application Name.
  *
- * @apiParamExample {json} Request-Example:
- *  {
- *	            projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
- *              envName: "Dev",
- *              appName:"D4D",
- * }
+ * @apiParamExample {url} Request-Example:          
+ * http://localhost:3001/deploy/permission/project/b38ccedc-da2c-4e2c-a278-c66333564719/env/Dev/application/D4D/permissionList
  *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
  *
- *    [{
+ *  [{
  *	            "_id": "5714cd8f8bf7882c42968d4b",
  *              projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
  *              envId: "Dev",

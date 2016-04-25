@@ -38,17 +38,33 @@ appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(pr
         }
         else
         {
-            masterUtil.getParticularProject(projectId,function(err,aProject){
+            var responseProjectList=[];
+            var responseProject={};
+            var count = 0;
+            masterUtil.getParticularProject(projectId,function(err,projects){
                 if (err) {
                     logger.debug("Error while fetching Project via projectId in Master Util");
                     callback(err,null);
                     return;
                 }
-                else{
-                    callback(null,aProject);
-                    return
+                else
+                {
+                    for (var i = 0; i < projects.length; i++) {
+                        (function (aProject) {
+                            count++
+                            responseProject['_id'] = aProject._id;
+                            responseProject['projectId'] = aProject.rowid;
+                            responseProject['envSequence'] = aProject.environmentname.split(",");
+                            responseProject['envId'] = aProject.environmentname.split(",");
+                            responseProjectList.push(responseProject);
+                            if (aProject.length === count) {
+                                callback(null, responseProjectList);
+                                return;
+                            }
+                            responseProject={};
+                        })(projects[i]);
+                    }
                 }
-
             });
         }
     });

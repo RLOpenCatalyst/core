@@ -633,6 +633,16 @@ taskSchema.statics.listTasks = function(callback) {
 		callback(null, tasks);
 	});
 };
+taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId=function(jsonData,callback){
+	this.find(jsonData,function(err, chefTasks) {
+		if (err) {
+			logger.error(err);
+			callback(err, null);
+			return;
+		}
+		callback(null, chefTasks);
+	});
+}
 
 taskSchema.statics.updateTaskConfig = function(taskId, taskConfig, callback) {
 	Tasks.update({

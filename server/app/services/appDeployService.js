@@ -170,8 +170,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                         }
                                         aAppDeployObj['appName'] = {
                                             "name": appDeploys[0].applicationName,
-                                            "version": appDeploys[0].applicationVersion,
-                                            "projectId": appDeploys[0].projectId
+                                            "version": appDeploys[0].applicationVersion
                                         };
                                         for (var j = 0; j < appDeploys.length; j++) {
                                             (function(aAppDeploy) {
@@ -182,8 +181,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                     "applicationStatus": aAppDeploy.applicationStatus,
                                                     "applicationType": aAppDeploy.applicationType,
                                                     "containerId": aAppDeploy.containerId,
-                                                    "hostName": aAppDeploy.hostName,
-                                                    "appLogs": aAppDeploy.appLogs
+                                                    "hostName": aAppDeploy.hostName
                                                 }
                                             })(appDeploys[j]);
                                         }
@@ -224,16 +222,16 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
 
 }
 
-appDeployService.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp = function getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp(projectId, envName, version, nodeIp, callback) {
-    AppDeploy.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp(projectId, envName, version, nodeIp, function(err, appDeployHistoryList) {
-        if (err) {
-            logger.debug("Error while fetching App Deploy History via projectId,envName,appDeployVersion and nodeIp");
-            callback(err, null);
+appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion=function getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId,envName,appName,version,callback){
+    AppDeploy.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId,envName,appName,version,function(err,appDeployHistoryList){
+        if(err){
+            logger.debug("Error while fetching App Deploy History via projectId,envName,appName and appDeployVersion");
+            callback(err,null);
             return;
         }
-        if (appDeployHistoryList.length === 0) {
-            logger.debug("There is no App Deploy History via projectId,envName,appDeployVersion and nodeIp configured.");
-            callback(null, []);
+        if(appDeployHistoryList.length === 0){
+            logger.debug("There is no App Deploy History via projectId,envName,appName and appDeployVersion configured.");
+            callback(null,[]);
             return;
         }
         callback(null, appDeployHistoryList);
