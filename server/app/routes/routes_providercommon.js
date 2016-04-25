@@ -40,6 +40,8 @@ var	providerService = require('_pr/services/providerService');
 var instanceService = require('_pr/services/instanceService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
+var Docker = require('_pr/model/docker.js');
+
 
 // @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -113,33 +115,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		logger.debug("Provider ID is >>>>>"+req.params.providerId);
-		var pageSize,page;
-		if(req.query.pageSize)
+		logger.debug("Provider ID is >>>>>" + req.params.providerId);
+		var pageSize, page;
+		if (req.query.pageSize)
 			pageSize = parseInt(req.query.pageSize);
 		else
 			pageSize = constantData.record_limit;
-		if(req.query.page)
-			page = parseInt(req.query.page)-1;
+		if (req.query.page)
+			page = parseInt(req.query.page) - 1;
 		else
 			page = constantData.skip_Records;
 
 		var skip = pageSize * page;
-		var searchParameter,searchParameterValue;
-		if(req.query.status){
+		var searchParameter, searchParameterValue;
+		if (req.query.status) {
 			searchParameter = "state";
-			searchParameterValue = req.query.status+"";
-		}
-		else if(req.query.osType){
+			searchParameterValue = req.query.status + "";
+		} else if (req.query.osType) {
 			searchParameter = "os";
-			searchParameterValue = req.query.osType+"";
+			searchParameterValue = req.query.osType + "";
 		}
-		var jsonData={
-			'providerId':req.params.providerId,
-			'searchParameter':searchParameter,
-			'searchParameterValue':searchParameterValue,
-			'record_Skip':skip,
-			'record_Limit':pageSize
+		var jsonData = {
+			'providerId': req.params.providerId,
+			'searchParameter': searchParameter,
+			'searchParameterValue': searchParameterValue,
+			'record_Skip': skip,
+			'record_Limit': pageSize
 		};
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 
@@ -160,7 +161,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send(unmanagedInstances);
 					return;
 				}
-				if(unmanagedInstances.length > 0)
+				if (unmanagedInstances.length > 0)
 					res.status(200).send(unmanagedInstances);
 				else
 					res.status(404).send({
@@ -665,6 +666,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 																					}
 																				});
 																			}
+
+
+																			var _docker = new Docker();
+																			_docker.checkDockerStatus(instance.id, function(err, retCode) {
+																				if (err) {
+																					logger.error("Failed _docker.checkDockerStatus", err);
+																					return;
+																					//res.end('200');
+
+																				}
+																				logger.debug('Docker Check Returned:' + retCode);
+																				if (retCode == '0') {
+																					instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
+																						logger.debug('Instance Docker Status set to Success');
+																					});
+
+																				}
+																			});
 
 																		} else {
 																			instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
@@ -1252,13 +1271,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *			},
      *			"platformId": "platorm-id",
 	 *			"ip": "192.168.1.0",
-     *			"os": "Ubuntu",
-     *			"state": "running",
-     *			"tags": {
-     *				"environment": "dev",
-     *				"application": "proj1"
-     *			}
-     *		}
+	 *			"os": "Ubuntu",
+	 *			"state": "running",
+	 *			"tags": {
+	 *				"environment": "dev",
+	 *				"application": "proj1"
+	 *			}
+	 *		}
 	 */
 	app.patch('/providers/:providerId/unassigned-instances',
 		validate(instanceValidator.get), bulkUpdateUnassignedInstances);
@@ -1266,6 +1285,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getTagsList(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1273,7 +1293,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagsList
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1285,6 +1305,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getUnassignedInstancesList(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1292,7 +1313,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				instanceService.createUnassignedInstancesList
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1304,6 +1325,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getTag(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1313,7 +1335,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagObject
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1323,12 +1345,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	}
 
 	// @TODO to be implemented
-	function createTags(req, res, next) {
-	}
+	function createTags(req, res, next) {}
 
 	function updateTag(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1342,7 +1364,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagObject
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1354,6 +1376,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function deleteTag(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1362,7 +1385,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1374,6 +1397,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getTagMappingsList(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1381,7 +1405,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagMappingList
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1393,6 +1417,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getTagMapping(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1403,7 +1428,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagMappingObject
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1415,15 +1440,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function addTagMappings(req, res, next) {
 		async.waterfall(
 			[
-				function (next) {
+
+				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				function (provider, next) {
+				function(provider, next) {
 					providerService.addMultipleTagMappings(provider._id, req.body, next);
 				},
 				providerService.createTagMappingList
 			],
-			function (err, results) {
+			function(err, results) {
 				if (err) {
 					next(err);
 				} else {
@@ -1437,22 +1463,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function updateTagMapping(req, res, next) {
 		async.waterfall(
 			[
-				function (next) {
+
+				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				function (provider, next) {
+				function(provider, next) {
 					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
 						req.params.catalystEntityType, next);
 				},
-				function (tag, next) {
+				function(tag, next) {
 					providerService.updateTagMapping(tag, req.body, next);
 				},
-				function (tag, next) {
+				function(tag, next) {
 					providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
 				},
 				providerService.createTagMappingObject
 			],
-			function (err, results) {
+			function(err, results) {
 				if (err) {
 					next(err);
 				} else {
@@ -1465,6 +1492,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function deleteTagMapping(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1473,7 +1501,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1485,18 +1513,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getCatalystEntityMapping(req, res, next) {
 		async.waterfall(
 			[
-				function (next) {
+
+				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				function (provider, next) {
+				function(provider, next) {
 					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
 						req.params.catalystEntityType, next);
 				},
-				function (tag, next) {
+				function(tag, next) {
 					providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
 				}
 			],
-			function (err, results) {
+			function(err, results) {
 				if (err) {
 					next(err);
 				} else {
