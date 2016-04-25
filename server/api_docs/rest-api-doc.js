@@ -2162,3 +2162,96 @@
  *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Get Deploy Permission'}
  *     };
  */
+
+ /**
+ * @api {get}/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks
+ * @apiName /organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks
+ * @apiGroup Chef Task List
+ *
+ *
+ * @apiParam {String} orgId         Unique Organization ID.
+ * @apiParam {String} bgId          Unique Business Group ID.
+ * @apiParam {String} projectId     Unique Project ID.
+ * @apiParam {String} envId         Unique Environment ID.
+ *
+ * @apiParamExample {url} Request-Example:          
+ * http://localhost:3001/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/df87280c-ef3d-4e45-ac23-fcb77c845409/chefTasks
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ *
+ *  [{
+ *	"_id": "571892c1f016754c2b94a36f",
+ *	"taskType": "chef",
+ *	"name": "TestJob",
+ *	"taskConfig": {
+ *		"_id": "571892c1f016754c2b94a36e",
+ *		"nodeIds": ["570f611abf8189032f643299"],
+ *		"runlist": ["role[catalyst]"],
+ *		"attributes": [],
+ *		"taskType": "chef"
+ *	},
+ *	"blueprintIds": []
+ *  },{
+ *	"_id": "571de1fd4d5f815a29bbdd47",
+ *	"taskType": "chef",
+ *	"name": "Testing",
+ *	"taskConfig": {
+ *		"_id": "571de1fd4d5f815a29bbdd46",
+ *		"nodeIds": ["57161ba18cd32c644a0f79ab"],
+ *		"runlist": [],
+ *		"attributes": [],
+ *		"taskType": "chef"
+ *	},
+ *	"blueprintIds": []
+ *  }, {
+ *	"_id": "571de1be4d5f815a29bbdd3f",
+ *	"taskType": "composite",
+ *	"name": "TestComposite",
+ *	"taskConfig": {
+ *		"_id": "571de1be4d5f815a29bbdd3e",
+ *		"assignTasks": ["57189283f016754c2b94a35d", "5718916cf016754c2b94a323"],
+ *		"taskType": "composite"
+ *	},
+ *	"blueprintIds": []
+ *  }, {
+ *	"_id": "571de1eb4d5f815a29bbdd43",
+ *	"taskType": "composite",
+ *	"name": "Test3",
+ *	"taskConfig": {
+ *		"_id": "571de1eb4d5f815a29bbdd42",
+ *		"assignTasks": ["571de1d24d5f815a29bbdd41", "57189239f016754c2b94a355", "5718916cf016754c2b94a323"],
+ *		"taskType": "composite"
+ *	},
+ *	"blueprintIds": []
+ *}]
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'Chef Tasks'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Chef Tasks'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Chef Tasks'}
+ *     };
+ */
