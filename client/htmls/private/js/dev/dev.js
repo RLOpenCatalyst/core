@@ -3188,7 +3188,7 @@ function devCall() {
 												imagePath = dataInstancesList.instances[i].blueprintData.iconPath;
 											}
 											if(dataInstancesList.instances[i].instanceState == 'running'){
-												var $tdcheckbox = '<div class="text-center"><input type="checkbox" class="instanceselectedfordocker"><img src="' + imagePath + '" style="width:auto;height:30px;" /></div>';
+												var $tdcheckbox = '<div class="text-center"><input type="checkbox" class="instanceselectedfordocker"><img src="' + imagePath + '" style="width:40px;height:30px;" /></div>';
 												var $tdname = '<div class="dockerinstanceClass text-center" data-instanceId="' + dataInstancesList.instances[i]._id + '" data-blueprintname="'+dataInstancesList.instances[i].blueprintData.blueprintName+'">'+dataInstancesList.instances[i].name+'</div>';
 												var $tdinstanceip = '<div class="text-center">'+dataInstancesList.instances[i].instanceIP+'</div>';		
 												var $moreinfo = '<a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceId="' + dataInstancesList.instances[i]._id + '" class="tableMoreInfo moreInfo dockerintsancesmoreInfo"></a>';
