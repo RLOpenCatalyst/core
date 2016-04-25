@@ -1,0 +1,40 @@
+<div ng-if="cardDetails.name" class="text-center">
+        <div class="cardView">
+            <div class="card app-details">
+                <div class="card-title">
+                    <div title="{{cardDetails.applicationName}}" class="card-title-name"> <strong>{{cardDetails.name}}</strong>
+                    </div>
+                    <hr/>
+                </div>
+                <div class="card-status-state">
+                    <div class="app-instance-image"></div>
+                </div>
+                <div class="instance-ip">
+                    <span>{{cardDetails.version}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="!cardDetails.name" class="env-card-wrapper text-center">
+        <div class="cardView">
+            <div class="card {{selectedCardClass}}"  ng-click="pipeCtrl.selectedCard($event,cardDetails)">
+                <div class="card-title">
+                    <div title="{{cardDetails.applicationInstanceName}}" class="card-title-name"> <strong>{{cardDetails.applicationNodeIP}}</strong>
+                    </div>
+                    <hr/>
+                </div>
+                <div class="card-status-state">
+                    <div class="status-state {{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'image')}}">
+                        <i class="fa fa-th cursor {{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'text')}}" title="App Details" ></i>
+                    </div>
+                </div>
+                <div class="instance-ip">
+                                <span ng-repeat="part in (cardDetails.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines)">
+                                    {{part}}
+                                    <br>
+                                </span>
+                </div>
+           </div>
+        </div>
+    </div>
