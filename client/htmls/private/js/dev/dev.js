@@ -1685,9 +1685,6 @@ function devCall() {
 				$("a[href$='#l4']").trigger('click');
 			});
 			//$rowContainter.append('<td></td>');
-			console.log("Arabbbbbb");
-			console.log(data);
-			console.log("Bindaaaaaa");
 			$rowContainter.append('<td><img src="' + data.blueprintData.iconPath + '" style="width:auto;height:30px;" /></td>');
 
 			var name = data.name;
@@ -3217,7 +3214,6 @@ function devCall() {
 								$instancetable.find('tbody tr').each(function() {
 									var $newinstancetr = $("<tr><tr>");
 									$(this).find('td').each(function(k, v) {
-										alert(v + $(this).html());
 										$newinstancetr.append('<td>' + v + $(this).html() + '</td>');
 									});
 									$newinstancetbody.append($newinstancetr);
@@ -3260,7 +3256,7 @@ function devCall() {
 								$('#dockerInstanceSelectionTitle').empty().append('Select Instances to pull  "' + dockerreponame + '" into');
 								$launchDockerInstanceSelector.modal('show');
 								$('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
-								$('#dockerintsancestab thead').empty().append('<tr><td>Select Instance</td><td>Instance Name</td><td>IP Address</td><td>LogTest</td><td  class="hidden">Add Docker Engine</td></tr>');
+								$('#dockerintsancestab thead').empty().append('<tr><td>Select Instance</td><td>Instance Name</td><td>IP Address</td><td>Log</td><td  class="hidden">Add Docker Engine</td></tr>');
 								$('#dockerintsancestab').dataTable({
 									"bPaginate": false
 								});*/
@@ -5683,7 +5679,6 @@ function devCall() {
 			// alert(JSON.stringify(compositedockerimage));
 			//return;
 			if(!$('.instanceselectedfordocker:checked').length) {
-               //alert("Please select atleast one instance");
                bootbox.confirm({
                     message: "Please select atleast one instance.",
                     title: "Warning",
