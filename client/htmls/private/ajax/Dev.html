@@ -2010,7 +2010,7 @@
     </div>
 </div>
 <!--launching docker parameters-->
-<div class="modal fade bs-example-modal-lg" id="launchDockerInstanceSelector" tabindex="-1" style="z-index:1600" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+<div class="modal fade bs-example-modal-lg" id="launchDockerInstanceSelector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -2116,6 +2116,17 @@
                                 </div>
                                 <div class="tab-pane" id="tab2">
                                     <div id="dockerinstancesselctorview" style="margin-top: 26px;">
+                                       <table class="table table-striped table-bordered table-hover dataTable no-footer" id="dockerinstancesTable" cellpadding="5px" width="100%">
+                                          <thead>
+                                             <tr>
+                                                 <th class="text-center">Select Instance</th>
+                                                 <th class="text-center">Instance Name</th>
+                                                 <th class="text-center">IP Address</th>
+                                                 <th class="text-center">Log</th>
+                                             </tr>
+                                          </thead>
+                                          <tbody></tbody>
+                                      </table>
                                     </div>
                                     <div class="btn-group">
                                         <a type="button" class="btn btn-default btn-primary hidden" data-dismiss="modal">Close</a>
