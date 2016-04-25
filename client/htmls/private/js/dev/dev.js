@@ -5683,7 +5683,12 @@ function devCall() {
 			// alert(JSON.stringify(compositedockerimage));
 			//return;
 			if(!$('.instanceselectedfordocker:checked').length) {
-               alert("Please select atleast one instance");
+               //alert("Please select atleast one instance");
+               bootbox.confirm({
+                    message: "Please select atleast one instance.",
+                    title: "Warning",
+                    callback: function(result) {}
+                });
                return;
 			}
 			$('.instanceselectedfordocker:checked').each(function() {
