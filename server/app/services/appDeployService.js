@@ -140,7 +140,7 @@ appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectI
                     callback(err, null);
                     return;
                 }
-                if (countAppDeployVersions.count > 0) {
+                if (countAppDeployVersions.length > 0) {
                     AppDeploy.getDistinctAppDeployVersionByProjectId(jsonData, function (err, appDeployVersions) {
                         if (err) {
                             logger.debug("Failed to fetch App Deploy Versions");
@@ -198,10 +198,10 @@ appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectI
                                             var response = {};
                                             response[jsonData.id] = appDeployList;
                                             response['metaData'] = {
-                                                totalRecords: countAppDeployVersions.count,
+                                                totalRecords: countAppDeployVersions[0].count,
                                                 pageSize: jsonData.pageSize,
                                                 page: jsonData.page,
-                                                totalPages: Math.ceil(countAppDeployVersions.count / jsonData.pageSize),
+                                                totalPages: Math.ceil(countAppDeployVersions[0].count / jsonData.pageSize),
                                                 sortBy: Object.keys(jsonData.sortBy)[0],
                                                 sortOrder: jsonData.sortBy ? (jsonData[Object.keys(jsonData.sortBy)] == 1 ? 'asc' : "desc") : '',
                                             };
@@ -215,7 +215,8 @@ appDeployService.getAppDeployListByProjectId=function getAppDeployListByProjectI
                         }
                     });
                 }
-                else{
+                else
+                {
                     logger.debug("There is no App Deploy Versions configured.");
                     callback(null, []);
                     return;

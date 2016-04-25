@@ -148,7 +148,6 @@ AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(jsonData
                             err.status = 500;
                             return callback(err);
                         }
-                        console.log(appDeployVersions);
                         callback(null, appDeployVersions);
                     });
 };
@@ -184,7 +183,7 @@ AppDeploySchema.statics.getDistinctCountAppDeployVersionByProjectId=function(pro
                 err.status = 500;
                 return callback(err);
             }
-            callback(null,appDeployVersionCount[0]);
+            callback(null,appDeployVersionCount);
         });
 };
 
