@@ -249,6 +249,8 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
 				if (resultData.instancesResults && resultData.instancesResults.length) {
 					taskHistory.executionResults = resultData.instancesResults;
 				} else if (resultData.blueprintResults && resultData.blueprintResults.length) {
+					logger.debug("resultData blueprint ==>  ", JSON.stringify(resultData.blueprintResults));
+
 					taskHistory.blueprintExecutionResults = resultData.blueprintResults;
 				}
 
