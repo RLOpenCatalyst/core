@@ -175,7 +175,7 @@ ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
                 return callback(err);
             }
             else {
-                this.paginate(databaseCall.queryObj, databaseCall.options, function (err, cftData) {
+                azureARM.paginate(databaseCall.queryObj, databaseCall.options, function (err, cftData) {
                     if (err) {
                         var err = new Error('Internal server error');
                         err.status = 500;

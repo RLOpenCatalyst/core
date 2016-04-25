@@ -392,7 +392,7 @@ ApplicationSchema.statics.getAppCardsByOrgBgAndProjectId = function(jsonData, ca
             return callback(err);
         }
         else{
-            this.paginate(databaseCall.queryObj, databaseCall.options, function(err, applications) {
+            Application.paginate(databaseCall.queryObj, databaseCall.options, function(err, applications) {
                 if(err){
                     var err = new Error('Internal server error');
                     err.status = 500;
