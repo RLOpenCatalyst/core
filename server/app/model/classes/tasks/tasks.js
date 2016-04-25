@@ -632,7 +632,7 @@ taskSchema.statics.listTasks = function(callback) {
 	});
 };
 taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId=function(jsonData,callback){
-	this.find(jsonData,function(err, chefTasks) {
+	this.find(jsonData,{_id:1,taskType:1,name:1,taskConfig:1,blueprintIds:1},function(err, chefTasks) {
 		if (err) {
 			logger.error(err);
 			callback(err, null);
