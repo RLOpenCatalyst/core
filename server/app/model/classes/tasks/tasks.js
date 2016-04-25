@@ -640,7 +640,17 @@ taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId=function(jsonData,callback
 		}
 		callback(null, chefTasks);
 	});
-}
+};
+taskSchema.statics.getDistinctTaskTypeByIds=function(ids,callback){
+	this.distinct("taskType",{_id:{$in:ids}},function(err,distinctTaskTypes){
+		if (err) {
+			logger.error(err);
+			callback(err, null);
+			return;
+		}
+		callback(null, distinctTaskTypes);
+	});
+};
 
 var Tasks = mongoose.model('Tasks', taskSchema);
 
