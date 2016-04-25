@@ -44,6 +44,8 @@ var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
 var async = require('async');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var orgValidator = require('_pr/validators/organizationValidator');
+var validate = require('express-validation');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -704,6 +706,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 		//validating if user has permission to save a blueprint
 		logger.debug('Verifying User permission set');
+		console.log(req.body);
+		console.log(JSON.stringify(req.body));
 		var user = req.session.user;
 		var category = 'blueprints';
 		var permissionto = 'create';
@@ -975,7 +979,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		});
 	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList',getInstanceList);
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList',validate(orgValidator.get),getInstanceList);
 	
 
     function getInstanceList(req, res, next) {
@@ -1007,7 +1011,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			});
 	}
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList', getTaskList);
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList',validate(orgValidator.get), getTaskList);
 		
 
 	function getTaskList(req, res, next) {
@@ -1037,8 +1041,24 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			});
 	}
 
+   	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks',validate(orgValidator.applications), function(req, res) {
+   		var jsonData={};
+   		jsonData['orgId']=req.params.orgId;
+	    jsonData['bgId']=req.params.bgId;
+	    jsonData['projectId']=req.params.projectId;
+		jsonData['envId']=req.params.envId;
+		jsonData['taskType']="chef";
+		Task.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
+			if (err) {
+				logger.err(err);
+				res.send(500);
+				return;
+			}
+			res.send(chefTasks);
+		});
+	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applicationList', getApplicationList);
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applicationList',validate(orgValidator.applications), getApplicationList);
 	 
     function getApplicationList(req, res, next) {
 		var reqData={};
@@ -1187,7 +1207,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', getCftList);
+
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList',validate(orgValidator.get), getCftList);
   
     function getCftList(req, res, next) {
 		var reqData={};
@@ -1216,7 +1238,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			});
 	}
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azureArmList', getAzureArmList);
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azureArmList',validate(orgValidator.get), getAzureArmList);
 
 	function getAzureArmList(req, res, next) {
 		var reqData={};
@@ -1245,7 +1267,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			});
 	}
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', getContainerList);
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList',validate(orgValidator.get), getContainerList);
 
 	function getContainerList(req, res, next) {
 		var reqData={};
