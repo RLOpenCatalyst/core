@@ -222,9 +222,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-newer');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-processhtml');
-	grunt.registerTask('build-dist', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'concat:jsconcat', 'uglify:clientlib', 'uglify:clientbuild', 'copy', 'processhtml:dist' ]);
 	grunt.registerTask('build-dev', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'uglify:clientlib', 'processhtml:dev', 'jshint' ]);
-    grunt.registerTask('default', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'concat:jsconcat', 'uglify:clientlib', 'uglify:clientbuild', 'processhtml:prod' ]);
+    grunt.registerTask('build-qa', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'concat:jsconcat', 'uglify:clientlib', 'uglify:clientbuild', 'processhtml:qa' ]);
+    grunt.registerTask('build-prod', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'concat:jsconcat', 'uglify:clientlib', 'uglify:clientbuild', 'processhtml:prod' ]);
+	grunt.registerTask('default', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'concat:jsconcat', 'uglify:clientlib', 'uglify:clientbuild', 'processhtml:prod' ]);
+	grunt.registerTask('build-dist', ['clean:clientlib', 'clean:clientbuild', 'bower:install', 'sass', 'concat:jsconcat', 'uglify:clientlib', 'uglify:clientbuild', 'copy', 'processhtml:dist' ]);
 	grunt.registerTask('clean-directory', ['clean:clientlib',  'clean:clientbuild', 'clean:serverlib']);
 	grunt.registerTask('quality-check', ['jshint']);
 	grunt.registerTask('compile-sass', ['sass']);

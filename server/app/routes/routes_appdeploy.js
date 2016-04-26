@@ -221,12 +221,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     }
 
-    app.get('/app/deploy/project/:projectId/env/:envName/version/:version/node/:nodeIp/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
+    app.get('/app/deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
     function getAppDeployHistoryForPipeLineList(req, res, next) {
         async.waterfall(
             [
                 function (next) {
-                    appDeployService.getAppDeployHistoryListByProjectIdEnvNameVersionNodeIp(req.params.projectId, req.params.envName, req.params.version, req.params.nodeIp, next);
+                    appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(req.params.projectId, req.params.envName, req.params.appName, req.params.version, next);
                 }
             ],
             function (err, results) {

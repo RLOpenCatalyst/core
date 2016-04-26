@@ -55,7 +55,7 @@ appDeployValidator.appDeployHistoryList = {
         projectId: Joi.string().max(40).required(),
         envName: Joi.string().max(20).required(),
         version: Joi.string().max(20).required(),
-        nodeIp: Joi.string().max(30).required()
+        appName: Joi.string().max(30).required()
     }
 };
 
