@@ -11,7 +11,6 @@
 		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil','$timeout', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil, $timeout) {
 			$scope.isContainerPageLoading = true;
 			var gridBottomSpace = 60;
-			//$scope.containerGridOptions = {};
 			$scope.paginationParams={
 				pages:{
 					page:1,
@@ -32,65 +31,67 @@
 				enableColumnMenus:false,
 				enableScrollbars :true,
 				enableHorizontalScrollbar: 0,
-				enableVerticalScrollbar: 0,
+				enableVerticalScrollbar: 1,
 				useExternalPagination: true,
 				useExternalSorting: true
 			};
 			$scope.initGrids = function(){
 				$scope.containerGridOptions.data = 'tabData';
 				$scope.containerGridOptions.columnDefs = [
-					{ name:'Actions',cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="{{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'
-					+'<span class="marginleft5 containerIcon yellowBg" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="fa fa-undo"></i></span>'
-					+'<span class="marginleft5 containerIcon grayBg" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" ng-show="grid.appScope.checkEdited(row.entity) && checkPausePlay(row.entity)"><i class="fa fa-pause"></i></span>'
-					+'<span class="marginleft5 containerIcon grayBg" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" ng-show="grid.appScope.checkEdited(row.entity) && !checkPausePlay(row.entity)"><i class="fa fa-eject fa fa-rotate-90"></i></span>'
-					+'<span class="marginleft5 containerIcon crimsonBg" ng-click="grid.appScope.containerAction(row.entity,6)" id="sign-out" ><i class="fa fa-sign-out"></i></span>', enableSorting: false, cellTooltip: true},
+					{ name:'Actions',enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
+					'<span class="marginleft5 containerIcon yellowBg white" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="white fa fa-undo"></i></span>'+
+					'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" ng-show="grid.appScope.checkEdited(row.entity) && checkPausePlay(row.entity)"><i class="white fa fa-pause"></i></span>'+
+					'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" ng-show="grid.appScope.checkEdited(row.entity) && !checkPausePlay(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
+					'<span class="marginleft5 containerIcon crimsonBg white" ng-click="grid.appScope.containerAction(row.entity,6)" id="sign-out" ><i class="white fa fa-sign-out"></i></span>', cellTooltip: true},
 					{ name:'State',field:'Status',cellTooltip: true},
 					{ name:'Created',cellTemplate:'<span>{{row.entity.Created  | timestampToCurrentTime}}</span>',cellTooltip: true},
 					{ name:'Name',cellTemplate:'<span ng-bind-html="row.entity.Names"></span>', enableSorting: false, cellTooltip: true},
 					{ name:'Instance IP',field:'instanceIP','displayName':'Instance IP',cellTooltip: true},
-					{ name:'Container ID','displayName':'Container ID', cellTemplate:'<div class=""><span title="{{row.entity.Id.substring(0,truncateImageIDLimit)}}">{{row.entity.Id.substring(0,truncateImageIDLimit)}}</span></div>', cellTooltip:true},
+					{ name:'Container ID',enableSorting: false ,'displayName':'Container ID', cellTemplate:'<div class=""><span title="{{row.entity.Id}}">{{grid.appScope.getImageId(row.entity.Id)}}</span></div>', cellTooltip:true},
 					{ name:'Image',field:'Image',cellTooltip: true},
-					{ name:'More Info',cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.dockerMoreInfo(row.entity)"></i></div>', enableSorting: false, cellTooltip: true}
+					{ name:'More Info',enableSorting: false ,cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.dockerMoreInfo(row.entity)"></i></div>', cellTooltip: true}
 				];
 			};
-			$scope.containerGridOptions.onRegisterApi= function(gridApi) {
-					$scope.gridApi = gridApi;
-
-
-				  //Sorting for sortBy and sortOrder
-			      gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
-			      	$scope.paginationParams.sort={
-			      		field:sortColumns[0].field,
-			      		direction: sortColumns[0].sort.direction
-			      	};
-			      	$scope.getContainerList();
-			      });
-
-			      //Pagination for page and pageSize
-			      gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
-		      		$scope.paginationParams.pages={
-			      		page:newPage,
-			      		pageSize:pageSize
-		      		};
-		      		$scope.getContainerList();
-			      });
-			    }
-			$scope.getContainerList = function(){
-				//$scope.tabData = [];
-				workzoneServices.getDockerContainers($scope.requestParams,$scope.paginationParams).then(function(result){
-
-					$timeout(function(){
+			$scope.containerGridOptions.onRegisterApi = function(gridApi) {
+				$scope.gridApi = gridApi;
+				//Sorting for sortBy and sortOrder
+				gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+					$scope.paginationParams.sort = {
+						field: sortColumns[0].field,
+						direction: sortColumns[0].sort.direction
+					};
+					$scope.getContainerList();
+				});
+				//Pagination for page and pageSize
+				gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+					$scope.paginationParams.pages = {
+						page: newPage,
+						pageSize: pageSize
+					};
+					$scope.getContainerList();
+				});
+			};
+			$scope.getContainerList = function() {
+				$scope.isContainerPageLoading = true;
+				workzoneServices.getDockerContainers($scope.requestParams, $scope.paginationParams).then(function(result) {
+					$timeout(function() {
 						$scope.containerGridOptions.totalItems = result.data.metaData.totalRecords;
 						$scope.tabData = result.data.containerList;
 						$scope.isContainerPageLoading = false;
 					}, 100);
+				}, function(error) {
+					$scope.isContainerPageLoading = false;
+					console.log(error);
+					$scope.errorMessage = "No Records found";
 				});
-			}
+			};
 			$scope.stopDockerFunction = function(actionType){
 				return (actionType)? "fa fa-power-off" : "fa fa-play";
-			}
-			
-			$scope.truncateImageIDLimit = 12;
+			};
+			$scope.getImageId = function(imageId){
+				$scope.truncateImageIDLimit = 12;
+				return imageId.substring(0,$scope.truncateImageIDLimit);
+			};
 			
 			$scope.dockerPopUpPages= {
 				2:{ page:'dockerstopplay', ctrl:'dockerControllers' },
@@ -134,43 +135,40 @@
 					}
 				);
 			};
-			$scope.containerAction = function(app,action){
+			$scope.containerAction = function(app, action) {
 				var itemIdx = $scope.tabData.indexOf(app);
 				var modalInstance = $modal.open({
-					animate:true,
-					templateUrl:'src/partials/sections/dashboard/workzone/container/popups/'+$scope.dockerPopUpPages[action].page+'.html',
-					controller:'dockerControllers',
-					backdrop : 'static',
+					animate: true,
+					templateUrl: 'src/partials/sections/dashboard/workzone/container/popups/' + $scope.dockerPopUpPages[action].page + '.html',
+					controller: 'dockerControllers',
+					backdrop: 'static',
 					keyboard: false,
-					resolve:{
-						items:function(){
-							return app.Id.substring(0,$scope.truncateImageIDLimit);                            
+					resolve: {
+						items: function() {
+							return app.Id.substring(0, $scope.truncateImageIDLimit);
 						}
 					}
 				});
-				modalInstance.result.then(
-					function() {
+				modalInstance.result.then(function() {
 						workzoneServices.checkDockerActions(app.instanceId, app.Id, action)
-							.then(
-								function(response) {
-									if (response.data.data === "ok") {
-										if (action === "2") { //STOP AND PLAY CONTAINER
-											$scope.tabData[itemIdx].isStop = !$scope.tabData[itemIdx].isStop;
-										} else if (action === "3") { //RELOAD CONTAINERS
-											workzoneServices.getDockerContainers()
-												.then(function(response) {
-													$scope.tabData[itemIdx] = response.data[itemIdx];
-												});
-										} else if (action === "4") { // PAUSE CONTAINER
-											$scope.tabData[itemIdx].isPause = !$scope.tabData[itemIdx].isPause;
-										} else if (action === "5") { // PLAY CONTAINER
-											$scope.tabData[itemIdx].isPause = !$scope.tabData[itemIdx].isPause;
-										} else if (action === "6") { // DELETE CONTAINER
-											$scope.tabData.splice(itemIdx, 1);
-										}
+							.then(function(response) {
+								if (response.data.data === "ok") {
+									if (action === "2") { //STOP AND PLAY CONTAINER
+										$scope.tabData[itemIdx].isStop = !$scope.tabData[itemIdx].isStop;
+									} else if (action === "3") { //RELOAD CONTAINERS
+										workzoneServices.getDockerContainers()
+											.then(function(response) {
+												$scope.tabData[itemIdx] = response.data[itemIdx];
+											});
+									} else if (action === "4") { // PAUSE CONTAINER
+										$scope.tabData[itemIdx].isPause = !$scope.tabData[itemIdx].isPause;
+									} else if (action === "5") { // PLAY CONTAINER
+										$scope.tabData[itemIdx].isPause = !$scope.tabData[itemIdx].isPause;
+									} else if (action === "6") { // DELETE CONTAINER
+										$scope.tabData.splice(itemIdx, 1);
 									}
 								}
-							);
+							});
 					},
 					function() {
 						$scope.tabData[itemIdx].isActive = true;
@@ -200,35 +198,23 @@
 					}
 				);
 			};
-			$rootScope.$on('WZ_TAB_VISIT', function(event, tabName){
-				if(tabName == 'Containers'){
-					//$scope.getContainerList();
-				// 	var temp = $scope.tabData;
-				// $scope.tabData = [];
-				// $scope.tabData = temp;
-					//$("#containerPage .scrollContent").height($("#containerPage .scrollContent").height() - 1);
-					//$scope.gridHeight = $scope.gridHeight - 1;
-					//$scope.isInstancePageLoading = true;
+			$rootScope.$on('WZ_TAB_VISIT', function(event, tabName) {
+				if (tabName === 'Containers') {
+					$scope.isContainerPageLoading = true;
 					var tableData = $scope.tabData;
 					$scope.tabData = [];
-					$timeout(function(){
+					$timeout(function() {
 						$scope.tabData = tableData;
-					//$scope.isInstancePageLoading = false;
+						$scope.isContainerPageLoading = false;
 					}, 500);
 				}
 			});
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
-				/*console.log("Arab info::::".requestParams);*/
 				$scope.requestParams = requestParams;
 				$scope.initGrids();
 				$scope.getContainerList();
 				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('containerPage')-gridBottomSpace;
-				console.log("grid",$scope.gridHeight);
-				//$scope.containerList = [];
 			});
-			
-			//$scope.gridSettings();
-			
 		}])
 		.controller('dockercAdvisorCtrl',['$scope','$modalInstance','items','workzoneServices', '$sce', function($scope, $modalInstance ,items,workzoneServices, $sce){
 			$scope.items = items;            

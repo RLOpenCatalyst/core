@@ -15,68 +15,6 @@
 				</button>
 			</span>
 		</div>
-		
-			<!-- <loading size="large" name="isOrchestrationTableLoading" type="block"></loading>
-			<div id="gridOrchestration" ng-show="!isOrchestrationTableLoading && gridOptions.data.length > 0" ui-grid="gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid" style="height: {{gridHeight}}px"></div> -->
-
-
-			
-			<div id="grid1" ng-if="tabData.length >0"  ui-grid="orcheGridOptions" ui-grid-pagination class="grid"></div>
-
-
-
-			<!-- <table datatable="" class="table-bordered text-center">
-				<thead>
-					<tr class="rowCustomStyle" role="row">
-						<td class="sorting_desc" tabindex="0" aria-controls="tableOrchestration" rowspan="1" colspan="1" aria-label="Job Type: activate to sort column ascending" aria-sort="descending">Job Type</td>
-						<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Name">Name</td>
-						<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Description">Job Description
-						</td>
-						<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Links">Job Links</td>
-						<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Execute">Execute</td>
-						<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="History">History</td>
-						<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Last Run">Last Run</td>
-						<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Action">Action</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="task in tasks">
-						<td>
-							<img src="images/orchestration/jenkins.png" ng-show="task.taskType=='jenkins'" alt="{{task.taskType}}" class="jenkins-img" />
-							<img src="images/orchestration/chef.png" ng-show="task.taskType=='chef'" alt="{{task.taskType}}" class="jenkins-img" />
-							<img src="images/orchestration/composite.jpg" ng-show="task.taskType=='composite'" alt="{{task.taskType}}" class="jenkins-img" />
-							<img src="images/orchestration/puppet.png" ng-show="task.taskType=='puppet' " alt="{{task.taskType}}" class="jenkins-img">
-						</td>
-						<td>{{task.name}}</td>
-						<td>{{task.description}}</td>
-						<td class="task-section">
-							<span ng-show="task.taskType==='chef'">
-							<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="viewNodes(task);"></span>
-							<span title="Assign Nodes" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="assignedRunList(task);"></span>
-							</span>
-							<span ng-show="task.taskType==='jenkins'">
-							<a target="_blank" title="Jenkins" ng-href="http://{{task.taskConfig.jobURL}}">
-								<img class="chefImage-size" src="images/orchestration/joburl.jpg" /> </a>
-							</span>
-							<span ng-show="task.taskType==='composite'"> NA </span>
-							<span ng-show="task.taskType=='puppet'">
-								<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="viewNodes(task);"></span>
-							</span>
-						</td>
-						<td>
-							<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="execute(task)"></span>
-						</td>
-						<td>
-							<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="getHistory(task)"></span>
-						</td>
-						<td>{{:: task.lastRunTimestamp | timestampToCurrentTime}}</td>
-						<td width="110px">
-							<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white" ng-click="createNewTask(task)" ng-show="perms.editTask;"></span>
-							<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white" ng-click="deleteTask(task)" ng-show="perms.deleteTask;"></span>
-						</td>
-					</tr>
-				</tbody>
-			</table> -->
-		
+		<div id="grid1" ng-if="tabData.length >0"  ui-grid="orcheGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
 	</div>
 </div>

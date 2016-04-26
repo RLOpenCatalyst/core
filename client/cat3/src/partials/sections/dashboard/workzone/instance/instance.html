@@ -19,7 +19,6 @@
 			<span id="instanceview" ng-click="instanceTableView()"> <i class="fa fa-align-justify fa-2x cursor" ng-class="instanceTableViewSelection" title="Table View"></i></span>
 			</span>
 		</div>
-
 		<section id="cardView" class="scrollContent" ng-show="isCardViewActive">
 			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
 				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
@@ -40,7 +39,7 @@
 						<hr/>
 					</div>
 					<div class="card-status-state">
-					<div class="status-state {{getAWSStatus(inst.instanceState)}}">
+					<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
 							<i class="fa fa-info-circle card-circle-info cursor" title="More Info" ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
 							<img class="docker-image dockerenabledinstacne" whatever="2" alt="Docker"
 							src="images/global/docker.png" ng-show="inst.docker && inst.docker.dockerEngineStatus === 'success'" />
@@ -157,12 +156,11 @@
 					</div>
 				</div>
 			</div>
-			<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="maxSize" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationChange()" style="bottom:0px;position:fixed;float:left"></pagination>
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="10" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationChange()" style="bottom:0px;float:left"></pagination></div>
 		</section>
-
 		<section id="tableView" ng-show="!isCardViewActive">
 			<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>-->
-			<div class="no-data-found" ng-if="!tabData.length > 0"> No data found !</div>
 			<div id="grid2" ng-if="tabData.length >0"  ui-grid="instancesGridOptions" ui-grid-pagination class="grid instance-status" style="height: {{gridHeight}}px"></div>
 		</section>
 	</div>
