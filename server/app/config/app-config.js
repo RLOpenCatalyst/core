@@ -44,6 +44,16 @@ try {
     appUrlsConfig = null;
 }
 
+var catalystConstants;
+try {
+    catalystConstants = fs.readFileSync(currentDirectory + '/catalyst-constants.json', {
+        'encoding': 'utf8'
+    });
+
+} catch (err) {
+    logger.error(err);
+    catalystConstants = null;
+}
 
 if (configJson) {
     var config = JSON.parse(configJson);
@@ -54,8 +64,13 @@ if (appUrlsConfig) {
     appUrlsConfig = JSON.parse(appUrlsConfig);
 }
 
+if(catalystConstants) {
+    catalystConstants = JSON.parse(catalystConstants);
+}
 
 config.appUrls = appUrlsConfig.appUrls;
+config.providerTypes = catalystConstants.providerTypes;
+config.catalystEntityTypes = catalystConstants.catalystEntityTypes;
 
 //creating path
 mkdirp.sync(config.catalystHome);
