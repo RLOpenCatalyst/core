@@ -827,6 +827,9 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             nexus['version'] = data[0].version;
                             nexus['artifactId'] = data[0].nexus.artifactId;
                             nexus['nodeIds'] = data[0].nexus.nodeIds;
+                            nexus['repository'] = data[0].nexus.repository;
+                            nexus['groupId'] = data[0].nexus.groupId;
+                            nexus['taskId'] = data[0].nexus.taskId;
                         }
                         if(data[0].docker && data[0].docker.nodeIds.length){
                             docker['image'] = data[0].docker.image;
@@ -838,6 +841,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             docker['dockerEmailId'] = data[0].docker.dockerEmailId;
                             docker['imageTag'] = data[0].docker.imageTag;
                             docker['nodeIds'] = data[0].docker.nodeIds;
+                            docker['taskId'] = data[0].docker.taskId;
                         }
                         var nexusData = {
                             "appData": {
@@ -1723,7 +1727,8 @@ function deployNewForDocker() {
                         "dockerPassword": dockerPassword,
                         "dockerEmailId": dockerEmailId,
                         "imageTag": imageTag,
-                        "nodeIds": nodeIds
+                        "nodeIds": nodeIds,
+                        "taskId": taskId,
                     };
 
                     if (tasks.taskConfig.nodeIds.length === count) {
@@ -1850,7 +1855,10 @@ function upgradeOrDeploy() {
                                     "nexus": {
                                         "repoURL": nexusRepoUrl,
                                         "nodeIds": nodeIds,
-                                        "artifactId": artifactId
+                                        "artifactId": artifactId,
+                                        "repository": repoId,
+                                        "groupId": groupId,
+                                        "taskId": taskId
                                     }
                                 }
                             };

@@ -762,7 +762,10 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                             "nexus": {
                                 "repoURL": url,
                                 "artifactId": artifactId,
-                                "nodeIds": nodeIds
+                                "nodeIds": nodeIds,
+                                "repository": repoName,
+                                "groupId": groupId,
+                                "taskId": ""
                             }
                         };
                         AppData.createNewOrUpdate(appData, function(err, data) {
@@ -867,14 +870,15 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                 "dockerPassword": blueprint.docker.dockerPassword,
                 "dockerEmailId": blueprint.docker.dockerEmailId,
                 "imageTag": blueprint.docker.imageTag,
-                "nodeIds": nodeIds
+                "nodeIds": nodeIds,
+                "taskId": ""
             };
             var appData = {
-                    "projectId": instance.projectId,
-                    "envName": envName,
-                    "appName": blueprint.docker.image,
-                    "version": blueprint.docker.imageTag,
-                    "docker": docker
+                "projectId": instance.projectId,
+                "envName": envName,
+                "appName": blueprint.docker.image,
+                "version": blueprint.docker.imageTag,
+                "docker": docker
             };
             AppData.createNewOrUpdate(appData, function(err, data) {
                 if (err) {

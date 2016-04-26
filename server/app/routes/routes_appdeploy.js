@@ -345,7 +345,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var isUpgrade = false;
         appDeployService.appDeployOrUpgrade(req,isUpgrade, function(err, resData) {
             if (err) {
-                res.send(err);
+                res.status(500).send("Failed to deploy app.");
                 return;
             }
             res.send(resData);
@@ -357,7 +357,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var isUpgrade = true;
         appDeployService.appDeployOrUpgrade(req,isUpgrade, function(err, resData) {
             if (err) {
-                res.send(err);
+                res.status(500).send("Failed to upgrade app.");
                 return;
             }
             res.send(resData);
@@ -368,7 +368,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.put('/app/deploy/promote', function(req, res) {
         appDeployService.promoteApp(req, function(err, resData) {
             if (err) {
-                res.status(500).send(err);
+                res.status(500).send("Failed to promote app.");
                 return;
             }
             res.send(resData);

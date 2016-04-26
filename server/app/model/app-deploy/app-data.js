@@ -47,6 +47,10 @@ var AppDataSchema = new Schema({
         trim: true
     },
     nexus: {
+        repository: {
+            type: String,
+            trim: true
+        },
         repoURL: {
             type: String,
             trim: true
@@ -55,6 +59,14 @@ var AppDataSchema = new Schema({
             type: [String]
         },
         artifactId: {
+            type: String,
+            trim: true
+        },
+        groupId: {
+            type: String,
+            trim: true
+        },
+        taskId: {
             type: String,
             trim: true
         }
@@ -94,6 +106,10 @@ var AppDataSchema = new Schema({
         },
         nodeIds: {
             type: [String]
+        },
+        taskId: {
+            type: String,
+            trim: true
         }
     },
     s3Bucket: {
@@ -103,6 +119,10 @@ var AppDataSchema = new Schema({
         },
         nodeIds: {
             type: [String]
+        },
+        taskId: {
+            type: String,
+            trim: true
         }
     }
 });

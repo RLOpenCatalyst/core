@@ -90,7 +90,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         msg = "You can monitor logs from the Launched Instances.";
                     }
 
-                    logger.debug('onComplete result ==>',onCompleteResult);
+                    logger.debug('onComplete result ==>', onCompleteResult);
 
 
                     onExecute(null, {
@@ -367,6 +367,9 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             nexus['repoURL'] = appData.nexus.repoURL;
                             nexus['nodeIds'] = appData.nexus.nodeIds;
                             nexus['artifactId'] = appData.nexus.artifactId;
+                            nexus['repository'] = appData.nexus.repository;
+                            nexus['groupId'] = appData.nexus.groupId;
+                            nexus['taskId'] = this.id;
                             appName = appData.nexus.artifactId;
                             appVersion = appData.nexus.version;
                         }
@@ -380,6 +383,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             docker['imageTag'] = appData.docker.imageTag;
                             docker['nodeIds'] = appData.docker.nodeIds;
                             docker['hostPort'] = appData.docker.hostPort;
+                            nexus['taskId'] = this.id;
                             appName = appData.docker.image;
                             appVersion = appData.docker.imageTag;
                         }
