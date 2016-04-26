@@ -67,9 +67,10 @@ compositeTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, n
 
 		function executeTasks(count) {
 
-			task[count].execute(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, function(err, taskExecuteData, history) {
+			task[count].execute(userName, baseUrl, choiceParam, nexusData, task[count].blueprintIds, envId, function(err, taskExecuteData, history) {
 				logger.debug("Calling...");
 				if (err) {
+					console.error(err);
 					return;
 				}
 				if (!(taskHistory.taskHistoryIds && taskHistory.taskHistoryIds.length)) {
