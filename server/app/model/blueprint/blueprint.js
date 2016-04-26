@@ -111,18 +111,23 @@ var BlueprintSchema = new Schema({
 		trim: true
 	},
 	nexus: {
-		repoId: String,
-		url: String,
-		version: String,
-		repoName: String,
-		groupId: String,
-		artifactId: String
-	},
-	docker: {
-		image: String,
-		containerId: String,
-		containerPort: String
-	},
+        repoId: String,
+        url: String,
+        version: String,
+        repoName: String,
+        groupId: String,
+        artifactId: String
+    },
+    docker: {
+        image: String,
+        containerId: String,
+        containerPort: String,
+        hostPort: String,
+        dockerUser: String,
+        dockerPassword: String,
+        dockerEmailId: String,
+        imageTag: String
+    },
 	blueprintConfig: Schema.Types.Mixed,
 	version: {
 		type: String,
@@ -133,6 +138,7 @@ var BlueprintSchema = new Schema({
 		type: String,
 		required: false
 	}
+
 });
 
 function getBlueprintConfigType(blueprint) {
@@ -611,6 +617,7 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
 };
 
 
+
 var findBlueprintVersionObject = function(blueprints, parentId) {
 	var versions = [];
 	logger.debug('Entering getBlueprintVersionObject', parentId);
@@ -660,6 +667,7 @@ var consolidateVersionOnBlueprint = function(blueprints) {
 	}
 	return (blueprints);
 }
+
 
 
 BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, projId, filterBlueprintType, callback) {
@@ -748,6 +756,16 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 	//merging attributes Objects
 	var attributeObj = {};
 	var objectArray = [];
+	if (blueprint.blueprintConfig.infraManagerData.versionsList && blueprint.blueprintConfig.infraManagerData.versionsList.length) {
+		// Attributes which are configures in blueprint.
+		var attr = blueprint.blueprintConfig.infraManagerData.versionsList[0].attributes;
+		if (attr && attr.length) {
+			for (var i = 0; i < attr.length; i++) {
+				objectArray.push(attr[i].jsonObj);
+			}
+		}
+	}
+
 	// While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
 	//var temp = new Date().getTime();
 	if (blueprint.nexus.url) {
@@ -923,9 +941,40 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 		});
 		objectArray.push({
 			"rlcatalyst": {
-				"dockerRepo": blueprint.docker.image
+				"dockerImage": blueprint.docker.image
 			}
 		});
+
+		objectArray.push({
+			"rlcatalyst": {
+				"hostPort": blueprint.docker.hostPort
+			}
+		});
+
+		objectArray.push({
+			"rlcatalyst": {
+				"dockerUser": blueprint.docker.dockerUser
+			}
+		});
+
+		objectArray.push({
+			"rlcatalyst": {
+				"dockerPassword": blueprint.docker.dockerPassword
+			}
+		});
+
+		objectArray.push({
+			"rlcatalyst": {
+				"dockerEmailId": blueprint.docker.dockerEmailId
+			}
+		});
+
+		objectArray.push({
+			"rlcatalyst": {
+				"imageTag": blueprint.docker.imageTag
+			}
+		});
+
 		objectArray.push({
 			"rlcatalyst": {
 				"upgrade": false
@@ -933,10 +982,10 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 		});
 		objectArray.push({
 			"rlcatalyst": {
-				"applicationNodeIP": instanceIP
+				"applicationNodeIP": instance.instanceIP
 			}
 		});
-
+		var attrs = utils.mergeObjects(objectArray);
 		// Update app-data for promote
 		var nodeIp = [];
 		nodeIp.push(instance.instanceIP);
@@ -956,15 +1005,21 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 			var actualDocker = [];
 			var docker = {
 				"image": blueprint.docker.image,
-				"container": blueprint.docker.containerId,
-				"port": blueprint.docker.containerPort,
+				"containerId": blueprint.docker.containerId,
+				"containerPort": blueprint.docker.containerPort,
+				"hostPort": blueprint.docker.hostPort,
+				"dockerUser": blueprint.docker.dockerUser,
+				"dockerPassword": blueprint.docker.dockerPassword,
+				"dockerEmailId": blueprint.docker.dockerEmailId,
+				"imageTag": blueprint.docker.imageTag,
 				"nodeIp": instance.instanceIP
 			};
 			actualDocker.push(docker);
 			var appData = {
 				"projectId": instance.projectId,
 				"envId": envName,
-				"version": actualVersion,
+				"appName": artifactId,
+				"version": blueprint.docker.imageTag,
 				"docker": actualDocker
 			};
 			AppData.createNewOrUpdate(appData, function(err, data) {
@@ -977,7 +1032,6 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 			})
 		});
 
-		var attrs = utils.mergeObjects(objectArray);
 		callback(null, attrs);
 		return;
 	} else {
@@ -986,7 +1040,6 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 		});
 	}
 };
-
 var Blueprints = mongoose.model('blueprints', BlueprintSchema);
 
 module.exports = Blueprints;

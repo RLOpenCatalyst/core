@@ -468,21 +468,43 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         logger.debug('cmd received: ', cmd);
         var stdOut = '';
         _docker.runDockerCommands(cmd, instanceid, function(err, retCode) {
-            var _stdout = stdOut.split('\r\n');
-            logger.debug('Docker containers : %s', _stdout.length);
-            var start = false;
-            var so = '';
-            _stdout.forEach(function(k, v) {
-                logger.debug(_stdout[v] + ':' + _stdout[v].length);
-                if (start == true) {
-                    so += _stdout[v];
-                    logger.debug(v + ':' + _stdout[v].length);
-                }
-                if (_stdout[v].length == 1)
-                    start = true;
-                if (v >= _stdout.length - 1)
-                    res.end(so);
-            });
+            if (err) {
+                logger.error(err);
+                res.status(500).send({
+                    message: "unbale to run cmd",
+                    retCode: retCode
+                });
+            }
+
+            if (retCode === 0) {
+                var _stdout = stdOut.split('\r\n');
+                logger.debug('Docker containers : %s', _stdout.length);
+                var start = false;
+                var so = '';
+                _stdout.forEach(function(k, v) {
+                    logger.debug(_stdout[v] + ':' + _stdout[v].length);
+                    if (start == true) {
+                        so += _stdout[v];
+                        logger.debug(v + ':' + _stdout[v].length);
+                    }
+                    if (_stdout[v].length == 1)
+                        start = true;
+                    if (v >= _stdout.length - 1) {
+                        if (so) {
+                            res.end(so);
+                        } else {
+                            res.end([]);
+                        }
+
+                    }
+                });
+            } else {
+                res.status(500).send({
+                    message: "unbale to run cmd",
+                    retCode: retCode
+                });
+            }
+
 
         }, function(stdOutData) {
             stdOut += stdOutData;
@@ -596,7 +618,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 break;
         }
 
-        var cmd = 'curl -XPOST http://localhost:4243/containers/' + req.params.containerid + '/' + action;
+       var cmd = 'sudo docker ' + action + ' ' + req.params.containerid;
         if (action == 'delete') {
             cmd = 'sudo docker stop ' + req.params.containerid + ' &&  sudo docker rm ' + req.params.containerid;
         }

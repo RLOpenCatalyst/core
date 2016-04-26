@@ -189,7 +189,8 @@ InstanceBlueprintSchema.statics.createNew = function(data) {
 	if (data.infraManagerType === INFRA_MANAGER_TYPE.CHEF) {
 		infraManagerType = INFRA_MANAGER_TYPE.CHEF;
 		infraManagerBlueprint = CHEFInfraBlueprint.createNew({
-			runlist: data.runlist
+			runlist: data.runlist,
+			attributes: data.attributes
 		});
 
 	} else if (data.infraManagerType === INFRA_MANAGER_TYPE.PUPPET) {

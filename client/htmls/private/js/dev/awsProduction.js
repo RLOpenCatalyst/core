@@ -30,6 +30,7 @@ var checkandupdateRunlistTable = function() {
 			}]
 		});
 	}
+
 }
 checkandupdateRunlistTable();
 
@@ -60,6 +61,7 @@ $('#saveRunlist').click(function(e) {
 
 
 $('#editAttributesBtn').click(function(e) {
+
 	var $ccrs = $('.cookbookShow').data('$ccrs');
 	var runlist = $ccrs.getSelectedRunlist();
 	if (!runlist.length) {
@@ -284,6 +286,17 @@ function updatecompositedockertableemptymessage() {
 }
 
 $(document).ready(function() {
+	$('.containerIdClass').hide();
+	$('.containerPortClass').hide();
+	$('.hostPortClass').hide();
+	$('.dockerUserClass').hide();
+	$('.dockerPasswordClass').hide();
+	$('.dockerEmailIdClass').hide();
+	$('.imageTagClass').hide();
+	$('.groupClass').hide();
+	$('.repoUrlClass').hide();
+	$('.artifactClass').hide();
+	$('.versionClass').hide();
 	$('#selectOrgName').trigger('change');
 	var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
 	if (window.url.indexOf('addnew') > 0) $addal.attr('href', '#ajax/Aws-Production.html?addanother');
@@ -525,6 +538,7 @@ function addDockerTemplateToTable(title, repopath, tagname, reponame, optionalla
 }
 
 function showdockertemplateadder() {
+
 	$('#dockertemplateselector').val('');
 	$('#dockertemplatetagselector').empty().val('');
 	//populating template selector with templates
@@ -548,6 +562,7 @@ function showdockertemplateadder() {
 		$('#myModalDockerTemplateContainer').modal('show');
 	});
 
+
 }
 
 function addrows() { //only for testing to be removed
@@ -557,6 +572,7 @@ function addrows() { //only for testing to be removed
 }
 
 function imagechanged() {
+
 	$('#btnaddDockerTemplateToTable').attr('disabled', 'disabled');
 	$('#dockertemplateSpinner').removeClass('hidden');
 	$('#dockertemplatetagselector').empty().val('');
@@ -580,6 +596,7 @@ function imagechanged() {
 		}
 
 	});
+
 }
 
 function removeimage(what, index) {
@@ -680,6 +697,7 @@ function helperConstructOption(data, keyList, nameKey, valueKey) {
 	}
 	return str;
 }
+
 
 function getProviderList(cloudProviderId) {
 	$.ajax({
@@ -835,6 +853,7 @@ function getImageInstances(instanceType) {
 				helpersetselectvalue($('#instancesize'), 'value', $('#instancesize').attr('savedval'));
 		});
 	});
+
 }
 var regionList;
 
@@ -844,6 +863,7 @@ function getCompleteRegionList() {
 	});
 }
 getCompleteRegionList();
+
 
 function getSecurityGroup(securityGroupsIds) {
 	function bringAllOpenFirst(data) {
@@ -1063,11 +1083,13 @@ function getSubnet(subnetId) {
 		}
 	}
 	$('#vpcId').on('change', populateData);
+
 }
 
 function resetForm() {
 	$('[multiselect]').empty();
 }
+
 
 function dataLoader(blueprintData) {
 	console.log('callingsdfsdfsdfsdf');
@@ -1207,14 +1229,14 @@ $(document).ready(function() {
 							getDesignTypeImg = "/d4dMasters/image/" + getDesignTypeRowID + "__designtemplateicon__" + getDesignTypeImg;
 						}
 						containerTemp += '<div class="" style="width:222px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv appfactory" data-' + 'templateType="' + data[i]
-							['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
+						['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
 							'<img  style="height:25px;padding:2px" alt="" src="img/app-store-' + 'icons/Logoheader.png"><span style="padding-top:4px;position:absolute;' +
 							'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' +
 							'<div style="padding-top:10px;padding-left:0px;text-align:center;">' + '<img alt="Template Icon" ' + 'src="' + getDesignTypeImg +
 							'" style="height:60px;width:auto;">' + '</div></div></div>';
 					} else {
 						containerTemp += '<div class="" style="width:222px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv appfactory" data-' + 'templateType="' + data[i]
-							['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
+						['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
 							'<img  style="height:25px;padding:2px" alt="" src="img/app-store-' + 'icons/Logoheader.png"><span style="padding-top:4px;position:absolute;' +
 							'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' + '<div style="padding-top:10px;padding-left:27px;">' +
 							'<img style="height:40px;width:auto;" alt="" ' + 'src="img/logo.png">' + '</div></div></div>';
@@ -1240,11 +1262,13 @@ $(document).ready(function() {
 			resetForm();
 		}
 	});
+
 });
 
 
 
 var reqBody;
+
 
 var formInitializer = function(editing, blueprintData, callback) {
 		var $selectedItem = $('.role-Selected');
@@ -2071,6 +2095,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 			validatorForm.resetForm();
 		}
 	}
+
 });
 var $rolesCards = $('.blueprintdiv')
 $('.blueprintdiv').on("click", function() {
@@ -2090,6 +2115,7 @@ var $selectedTemplate = $('.productdiv2').click(function(e) {
 	}));
 	$this.addClass('role-Selected');
 });
+
 
 var OrgdataLoader = function(editing, blueprintData) {
 	$.ajax({
@@ -2379,8 +2405,8 @@ var OrgdataLoader = function(editing, blueprintData) {
 													})(x);
 												}
 												if (nexusData) {
-													$chooseRepository.find('option[value="'+nexusData.repoName+'"]').attr('selected', 'selected')
-												    $chooseRepository.change();
+													$chooseRepository.find('option[value="' + nexusData.repoName + '"]').attr('selected', 'selected')
+													$chooseRepository.change();
 												} else {
 													$('#chooseRepository > option:eq(1)').attr('selected', true).change();
 												}
@@ -2557,9 +2583,9 @@ var OrgdataLoader = function(editing, blueprintData) {
 			if ($orgListInput.attr('savedval'))
 				helpersetselectvalue($orgListInput, 'value', $orgListInput.attr('savedval'));
 
-			if(blueprintData && blueprintData.appUrls && blueprintData.appUrls.length) {
-				for(var i=0;i<blueprintData.appUrls.length;i++) {
-					addAppUrlToTable(blueprintData.appUrls[i].name,blueprintData.appUrls[i].url);
+			if (blueprintData && blueprintData.appUrls && blueprintData.appUrls.length) {
+				for (var i = 0; i < blueprintData.appUrls.length; i++) {
+					addAppUrlToTable(blueprintData.appUrls[i].name, blueprintData.appUrls[i].url);
 				}
 			}
 		}
@@ -2591,6 +2617,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 
 OrgdataLoader(); //Wrapped for editing
 
+
 $(document).ready(function() {
 	$("#blueprintNameInput").focus();
 });
@@ -2606,9 +2633,10 @@ $('#addAppBtn').click(function(e) {
 	}
 });
 
-function addAppUrlToTable(appName,appUrl){
+
+function addAppUrlToTable(appName, appUrl) {
 	var $row = $('<tr/>');
-	
+
 	$row.data('appUrlData', {
 		name: appName,
 		url: appUrl
@@ -2654,8 +2682,9 @@ $('#appURLForm').submit(function(e) {
 		alert('Please Enter a Valid URL');
 		return false;
 	}
-	addAppUrlToTable(appName,appUrl);
+	addAppUrlToTable(appName, appUrl);
 	return false;
+
 });
 
 
@@ -2843,6 +2872,7 @@ function sortResults(versions, prop, asc) {
 
 
 function initializeBlueprintAreaNew(data) {
+
 	var reqBodyNew = {};
 	var $orgListInput = $('#orgnameSelectExisting');
 	reqBodyNew.orgId = $orgListInput.val();
@@ -3080,7 +3110,7 @@ function initializeBlueprintAreaNew(data) {
 									$blueprintReadContainer.find('.modal-body #instanceSecurityGroupId').val(blueprint.blueprintConfig.cloudProviderData.securityGroupIds);
 									//for getting the VPC
 									$blueprintReadContainer.find('.modal-body #instanceVPC').val(blueprint.blueprintConfig.cloudProviderData.vpcId)
-										// loop for getting runlist
+									// loop for getting runlist
 									for (var j = 0; j < blueprint.blueprintConfig.infraManagerData.versionsList.length; j++) {
 										$blueprintReadContainer.find('.modal-body #instanceRunlist').val(blueprint.blueprintConfig.infraManagerData.versionsList[j].runlist);
 										//for getting the version
@@ -3220,10 +3250,12 @@ function initializeBlueprintAreaNew(data) {
 		//$(e.target).find('.productdiv1').first().click(); //removed click to avoid accidental copy
 	});
 	//Expanding the fist Accordion.
+
 };
 
 //for removing the selected blueprint in the Existing Blueprints tab
 function removeSelectedBlueprint() {
+
 	var blueprintId = [];
 	$('.productdiv1.role-Selected1').each(function() {
 		blueprintId.push($(this).find('button[title="Edit"]').first().attr('blueprintid'));
@@ -3263,6 +3295,7 @@ function removeSelectedBlueprint() {
 			title: 'Warning'
 		});
 	}
+
 }
 
 function showbpcopydialog() {
