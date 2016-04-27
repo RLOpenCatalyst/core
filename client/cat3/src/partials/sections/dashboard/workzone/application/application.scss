@@ -109,3 +109,38 @@
         margin-top: 20px;
     }
 }
+
+
+#pipelineView{
+    .ui-grid-cell{
+        background-color: inherit;
+        border-right: none !important;
+    }
+    .ui-grid-row:nth-child(odd) {
+        .ui-grid-cell {
+             background-color: transparent !important;
+        }
+    }
+    .ui-grid-row:nth-child(even){
+        .ui-grid-cell {
+            background-color: transparent !important;
+        }
+    }
+    .ui-grid-pager-panel{
+        border-top-color: #ccc;
+        border-top-style: solid;
+        border-top-width: 1px;
+    }
+    .cardView{
+        width: 130px;
+        margin: auto;
+    }
+    .ui-grid .ui-grid-render-container-body{
+        .ui-grid-viewport {
+            overflow-x: auto !important;
+        }
+    }
+    .selected-card{
+        border: 1px solid #31b0d5 !important;
+    }
+}
