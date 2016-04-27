@@ -8,9 +8,11 @@
 (function(){
    "use strict";
 	angular.module('workzone.application')
-		.controller('applicationCardDetailsCtrl', ['$scope', '$modal', '$modalInstance', 'workzoneServices', 'workzoneEnvironment', 'items', function($scope, $modal, $modalInstance, workzoneServices, workzoneEnvironment, items) {
+		.controller('applicationCardDetailsCtrl', ['$scope', '$modal', '$modalInstance', 'workzoneServices', 'workzoneEnvironment', 'items','uiGridOptionsServices', function($scope, $modal, $modalInstance, workzoneServices, workzoneEnvironment, items,uiGridOptiSer) {
 			$scope.applicationsDetails = items;
-			var appDetail = {}
+			var appDetail = {
+				gridOptions:uiGridOptiSer.options().gridOption
+			}
 			angular.extend($scope, {
 				cancel: function () {
 					$modalInstance.dismiss('cancel');
@@ -36,14 +38,9 @@
 			});
 
 			appDetail.init = function () {
-				appDetail.gridOptions = {
-					paginationPageSizes: [10, 20, 50, 75],
-					paginationPageSize: 10,
-					enableColumnMenus: false,
-					enableScrollbars: true,
-					enableHorizontalScrollbar: 0,
-					enableVerticalScrollbar: 0,
-					columnDefs: [
+				appDetail.gridOptions.useExternalPagination= false;
+				appDetail.gridOptions.useExternalSorting=false;
+				appDetail.gridOptions.columnDefs= [
 						{name: 'Node IP', field: 'applicationNodeIP', displayName: 'Node IP'},
 						{name: 'Last Deploy', field: 'applicationLastDeploy', displayName: 'Last Deploy'},
 						{name: 'Status', field: 'applicationStatus', displayName: 'Status'},
@@ -54,9 +51,7 @@
 							displayName: 'Logs',
 							cellTemplate: '<i class="fa fa-info-circle cursor" title="More Info" ng-click="appInfo(app)"></i>'
 						},
-					]
-
-				};
+					];
 				workzoneServices.getCardDetails($scope.applicationsDetails).then(function (response) {
 					appDetail.gridOptions.data = response.data.appDeploy;
 				});
