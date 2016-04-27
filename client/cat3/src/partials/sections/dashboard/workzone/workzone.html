@@ -6,7 +6,11 @@
 			<div ng-include="'src/partials/sections/dashboard/workzone/workzoneTreeMenu/workzoneTreeMenu.html'"></div>
 		</div>
 		<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 panelRight'>
-			<div id='rightPanel' class='container-fluid'>
+			<div ng-if="config.message" class="alert alert-warning text-center">
+				<span ng-bind-html=config.message>
+				</span>
+			</div>
+			<div ng-if="!config.message" id='rightPanel' class='container-fluid'>
 				<ul id="myTab3" class="nav nav-tabs tabs-pull-left">
 					<li class="dropdown active InfrastructureLocalStorage">
 						<a data-toggle="dropdown" class="dropdown-toggle" href="javascript:void(0);">Infrastructure<b class="caret"></b></a>
@@ -79,6 +83,7 @@
 					  <div ng-include="tab.templates.application.url"></div>
 				</div>
 			</div>
+
 		</div>
 	</div>
 </div>
