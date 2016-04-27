@@ -90,6 +90,7 @@ var taskSchema = new Schema({
 	},
 	taskConfig: Schema.Types.Mixed,
 	lastTaskStatus: String,
+	normalized: String,
 	lastRunTimestamp: Number,
 	timestampEnded: Number,
 	blueprintIds: [String],
@@ -650,6 +651,42 @@ taskSchema.statics.getDistinctTaskTypeByIds=function(ids,callback){
 		}
 		callback(null, distinctTaskTypes);
 	});
+};
+
+taskSchema.statics.NormalizedTasks=function(queryObj,fieldName,callback){
+		this.find(queryObj,function(err,tasks){
+			if(err){
+				logger.error(err);
+				callback(err, null);
+				return;
+			}
+			var count=0;
+			for(var i =0;i < tasks.length;i++) {
+				(function(aTask){
+					count++;
+					var normalized=aTask[fieldName];
+					Tasks.update({
+						"_id": new ObjectId(aTask._id)
+					}, {
+						$set: {
+							normalized: normalized.toLowerCase()
+						}
+					}, {
+						upsert: false
+					},function(err,updatedTask){
+						if(err){
+				          logger.error(err);
+				          callback(err, null);
+				          return;
+			            }
+			           console.log(updatedTask);
+			           if(tasks.lenght === count){
+			           	callback(null,updatedTask);
+			           }
+					});
+				})(tasks[i]);
+			}
+		})
 };
 
 var Tasks = mongoose.model('Tasks', taskSchema);

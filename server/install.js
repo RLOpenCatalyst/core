@@ -63,6 +63,7 @@ function getDefaultsConfig() {
         },
         constantData:  {
             common_field:['envId','providerId','orgId','bgId','projectId'],
+            sort_field:['name','description']
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
