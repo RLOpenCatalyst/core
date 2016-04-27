@@ -1841,7 +1841,7 @@ function upgradeOrDeploy() {
                 $.get('/instances/' + tasks.taskConfig.nodeIds[i], function(instance) {
                     count++;
                     if (instance) {
-                        nodeIds.push(instance.id);
+                        nodeIds.push(instance._id);
                     }
 
                     if (tasks.taskConfig.nodeIds.length === count) {
