@@ -34,28 +34,28 @@
         </div>
 
         <section id="pipelineView" class="scrollContent" ng-show="isPipelineViewActive" >
-            <div ng-if="PipeGridOptions.data.length > 0">
+            <div ng-if="pipeGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
                     <div ng-show="pipeLineActBarShow">
                         <p>
                             <button type="button" class="btn btn-xs btn-info" ng-click="appCardDetail(pipeLineActBarData)">Info</button>
                             <button type="button" class="btn btn-xs btn-default" ng-click="appInfo(pipeLineActBarData)">Log</button>
                             <button type="button" class="btn btn-xs btn-primary">Promote</button>
-                            <button type="button" class="btn btn-xs btn-success">Upgrade</button>
+                            <button type="button" class="btn btn-xs btn-success" ng-click="upgradeApp(pipeLineActBarData)">Upgrade</button>
                             <button type="button" class="btn btn-xs btn-warning">Rollback</button>
                             <button type="button" class="btn btn-xs btn-danger">Delete</button>
                         </p>
                     </div>
                 </div>
-                <div id="grid1"  ui-grid="PipeGridOptions"  ui-grid-pagination class="grid"></div>
+                <div  ui-grid="pipeGridOptions"  ui-grid-pagination class="grid"></div>
             </div>
-            <div class="no-data-found" ng-if="!PipeGridOptions.data.length > 0"> No data found !</div>
+            <div class="no-data-found" ng-if="!pipeGridOptions.data.length > 0"> No data found !</div>
 
         </section>
 
-        <section id="tableView" class="scrollContent" style="position: relative;" ng-show="!isPipelineViewActive">
+        <section id="tableView" class="scrollContent"  ng-show="!isPipelineViewActive">
             <div class="no-data-found" ng-if="!historyGridOptions.data.length > 0"> No data found !</div>
-            <div id="grid2" ng-if="historyGridOptions.data.length > 0"  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
+            <div ng-if="historyGridOptions.data.length > 0"  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
         </section>
     </div>
 </div>

@@ -39,7 +39,7 @@
 							keyboard: false,
 							resolve: {
 								items: function() {
-									return items;
+									return angular.extend(items,$scope.requestParams);
 								}
 							}
 						})
@@ -141,18 +141,18 @@
 
 			function getApplicationPipeLineData(envParams) {
 				workzoneServices.getPipelineConfig(envParams).then(function(configResult){
-					$scope.PipeGridOptions=angular.extend(appData.gridOption,{enableSorting: false},{
+					$scope.pipeGridOptions=angular.extend(appData.gridOption,{enableSorting: false},{
 						onRegisterApi: function(gridApi) {
 							gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
 								$scope.pagiOptionsCard.page=newPage;
 								$scope.pagiOptionsCard.pageSize=pageSize;
 								getApplicationCardService(envParams,$scope.pagiOptionsCard);
 								$scope.pipeLineActBarShow=false;
-								angular.element('.card').removeClass('selected-card');
+								//angular.element('#pipelineView .card').removeClass('selected-card');
 							});
 						}
 					});
-					$scope.PipeGridOptions.columnDefs=[{ name:'appName',field:'appName',displayName:'App Name',cellTemplate:'<div pipeline-card card-details="row.entity.appName"></div>',cellTooltip: true}];
+					$scope.pipeGridOptions.columnDefs=[{ name:'appName',field:'appName',displayName:'App Name',cellTemplate:'<div pipeline-card card-details="row.entity.appName"></div>',cellTooltip: true}];
 					angular.forEach(configResult.data[0].envSequence,function(val,key){
 						if(configResult.data[0].envId.indexOf(val) != -1) {
 							var optionObject = {
@@ -160,9 +160,9 @@
 								field: val,
 								displayName: val,
 								cellTooltip: true,
-								cellTemplate: '<div pipeline-card card-details="row.entity[col.field]"></div>'
+								cellTemplate: '<div pipeline-card env-name="'+val+'" card-details="row.entity[col.field]"></div>'
 							};
-							$scope.PipeGridOptions.columnDefs.push(optionObject);
+							$scope.pipeGridOptions.columnDefs.push(optionObject);
 						}
 					});
 					getApplicationCardService(envParams,$scope.pagiOptionsCard);
@@ -170,8 +170,8 @@
 			}
 			function getApplicationCardService(envParams,pagiOptionsCard){
 				workzoneServices.getPipelineView(envParams,pagiOptionsCard).then(function(cardResult){
-					$scope.PipeGridOptions.data= cardResult.data.appDeploy;
-					$scope.PipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
+					$scope.pipeGridOptions.data= cardResult.data.appDeploy;
+					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 					$scope.isApplicationPageLoading=false;
 				});
 			}
@@ -216,12 +216,12 @@
 				});
 			}
 
-			$scope.$on('SELECTED-CARD' ,function (event,cardDetails){
+			$scope.$on('SELECTED-CARD' ,function (event,cardDetails,envName){
 				$scope.pipeLineActBarData ='';
 				if(!cardDetails){
 					return ;
 				}
-				$scope.pipeLineActBarData = cardDetails;
+				$scope.pipeLineActBarData = angular.extend(cardDetails,{env:envName});
 				if(!$scope.currentTargetId) {
 					$scope.pipeLineActBarShow =true;
 					$scope.currentTargetId = cardDetails.applicationLastDeploy;
@@ -268,8 +268,8 @@
 			}
 			return type==="image" ? appCardStateImagePrefix + colorSuffix : instanceStateTextPrefix + colorSuffix;
 		};
-		pipeLineData.selectedCard = function($event,cardDetails){
-			$scope.$emit('SELECTED-CARD',cardDetails);
+		pipeLineData.selectedCard = function($event,cardDetails,envName){
+			$scope.$emit('SELECTED-CARD',cardDetails,envName);
 		};
 
 		return pipeLineData;

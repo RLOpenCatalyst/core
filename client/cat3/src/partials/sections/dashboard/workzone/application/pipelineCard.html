@@ -1,8 +1,8 @@
 <div ng-if="cardDetails.name" class="text-center">
         <div class="cardView">
-            <div class="card app-details">
+            <div class="card app-details" title="{{cardDetails.name}}">
                 <div class="card-title">
-                    <div title="{{cardDetails.applicationName}}" class="card-title-name"> <strong>{{cardDetails.name}}</strong>
+                    <div  class="card-title-name"> <strong>{{cardDetails.name}}</strong>
                     </div>
                     <hr/>
                 </div>
@@ -18,9 +18,9 @@
 
     <div ng-if="!cardDetails.name" class="env-card-wrapper text-center">
         <div class="cardView">
-            <div class="card {{selectedCardClass}}"  ng-click="pipeCtrl.selectedCard($event,cardDetails)">
+            <div class="card {{selectedCardClass}}" title="{{cardDetails.applicationInstanceName}}"  ng-click="pipeCtrl.selectedCard($event,cardDetails,envName)">
                 <div class="card-title">
-                    <div title="{{cardDetails.applicationInstanceName}}" class="card-title-name"> <strong>{{cardDetails.applicationNodeIP}}</strong>
+                    <div  class="card-title-name"> <strong>{{cardDetails.applicationInstanceName}}</strong>
                     </div>
                     <hr/>
                 </div>
