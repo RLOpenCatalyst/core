@@ -8,6 +8,7 @@ var commons=appConfig.constantData;
 var Cryptography = require('_pr/lib/utils/cryptography.js');
 var cryptoConfig = appConfig.cryptoSettings;
 var d4dModelNew = require('../../model/d4dmasters/d4dmastersmodelnew.js');
+var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
 
 
 var ApiUtil = function() {
@@ -60,6 +61,17 @@ var ApiUtil = function() {
         var objOr=[];
         var databaseCall={};
         var columns=commons.common_field;
+        var fields=commons.sort_field;
+        var sortField=jsonData.mirrorSort;
+        var key=Object.keys(sortField)[0];
+        if(fields.indexOf(key) !== -1){
+            if(jsonData.id === 'tasks'){
+                normalizedUtil.normalizedSort(jsonData,key);
+                var sortBy={};
+                sortBy['normalized'] = sortField[key];
+                jsonData.sortBy=sortBy;
+            }
+        }
         for(var i = 0; i < columns.length; i++){
             var keyField=columns[i];
             if(jsonData[keyField])
@@ -91,6 +103,7 @@ var ApiUtil = function() {
         callback(null, databaseCall);
         return;
 
+
     };
 
     this.paginationRequest=function(data,key, callback) {
@@ -119,6 +132,7 @@ var ApiUtil = function() {
             sortBy[referanceData[0].sortReferanceData[key]] = referanceData[0].sort_order == 'desc' ? -1 :1;
         var request={
             'sortBy':sortBy,
+            'mirrorSort' :sortBy,
             'page':page,
             'pageSize':pageSize,
             'id':key

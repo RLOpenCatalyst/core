@@ -653,7 +653,13 @@ taskSchema.statics.getDistinctTaskTypeByIds=function(ids,callback){
 	});
 };
 
-taskSchema.statics.NormalizedTasks=function(queryObj,fieldName,callback){
+taskSchema.statics.NormalizedTasks=function(jsonData,fieldName,callback){
+	var queryObj = {
+			orgId: jsonData.orgId,
+			bgId: jsonData.bgId,
+			projectId: jsonData.projectId,
+			envId: jsonData.envId
+		};
 		this.find(queryObj,function(err,tasks){
 			if(err){
 				logger.error(err);
@@ -679,8 +685,7 @@ taskSchema.statics.NormalizedTasks=function(queryObj,fieldName,callback){
 				          callback(err, null);
 				          return;
 			            }
-			           console.log(updatedTask);
-			           if(tasks.lenght === count){
+			           if(tasks.length === count){
 			           	callback(null,updatedTask);
 			           }
 					});
