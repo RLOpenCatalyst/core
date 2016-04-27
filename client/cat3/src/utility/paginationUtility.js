@@ -6,19 +6,42 @@
  */
 (function (angular) {
     'use strict';
-    angular.module('utility.pagination', [])
-        .service('paginationUtil', [function () {
+    angular.module('utility.pagination', []).service('uiGridOptionsService', [function(){
+        return {
+            options: function() {
+                return {
+                    pagination: {
+                        pageSize: 10,
+                        page: 1,
+                        sortBy: "",
+                        sortOrder: ""
+                    },
+                    gridOption: {
+                        paginationPageSizes: [10, 20, 50, 75],
+                        paginationPageSize: 10,
+                        enableColumnMenus: false,
+                        enableScrollbars: true,
+                        enableHorizontalScrollbar: 0,
+                        enableVerticalScrollbar: 1,
+                        useExternalPagination: true,
+                        useExternalSorting: true,
+                        multiSelect: false,
+                        modifierKeysToMultiSelect: false,
+                        enableRowSelection: true,
+                        enableRowHeaderSelection: false
+                    }
+                };
+            }
+        }
+    }]).service('paginationUtil', [function () {
            
             var paginationInterface = {};
             /*pgOptions will come like this
-                pages:{
-                    page:'', // set the page number
-                    pageSize:'' //set the pageSize
-                },
-                sort:{
-                    field:'', //set the field by which you want to sort
-                    direction:'' //set the direction in which you want to sort.
-                }*/
+                page:'', // set the page number
+                pageSize:'' //set the pageSize
+                field:'', //set the field by which you want to sort
+                direction:'' //set the direction in which you want to sort.
+            */
             paginationInterface.pageObjectToString = function(pgOptions){
                 var queryString = '';
                 var _paramPageNum = '';
@@ -27,14 +50,14 @@
                 var _paramsortOrder = '';
                 var firstAvailable = '';
                 var restAvailableArray = [];
-                if(pgOptions.pages.page){
-                    _paramPageNum = 'page='+pgOptions.pages.page;
+                if(pgOptions.page){
+                    _paramPageNum = 'page='+pgOptions.page;
                     if(!firstAvailable){
                         firstAvailable = _paramPageNum;     
                     }
                 }
-                if(pgOptions.pages.pageSize){
-                    _paramPageSize = 'pageSize='+pgOptions.pages.pageSize;
+                if(pgOptions.pageSize){
+                    _paramPageSize = 'pageSize='+pgOptions.pageSize;
                     if(!firstAvailable){
                         firstAvailable = _paramPageSize;
                     }
@@ -42,16 +65,16 @@
                         restAvailableArray.push(_paramPageSize);
                     }
                 }
-                if(pgOptions.sort && pgOptions.sort.field){
-                    _paramsortBy = 'sortBy='+pgOptions.sort.field;
+                if(pgOptions && pgOptions.sortBy){
+                    _paramsortBy = 'sortBy='+pgOptions.sortBy;
                     if(!firstAvailable){
                         firstAvailable = _paramsortBy;
                     }else{
                         restAvailableArray.push(_paramsortBy);
                     }
                 }
-                if(pgOptions.sort && pgOptions.sort.direction){
-                    _paramsortOrder = 'sortOrder='+pgOptions.sort.direction;
+                if(pgOptions && pgOptions.sortOrder){
+                    _paramsortOrder = 'sortOrder='+pgOptions.sortOrder;
                     if(!firstAvailable){
                         firstAvailable = _paramsortOrder;
                     }else{

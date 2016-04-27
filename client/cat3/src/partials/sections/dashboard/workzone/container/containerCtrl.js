@@ -8,71 +8,52 @@
 (function (angular) {
 	"use strict";
 	angular.module('workzone.container', [ 'ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'mgcrea.ngStrap', 'ngSanitize', 'utility.pagination'])
-		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil','$timeout', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil, $timeout) {
+		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil','$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
 			$scope.isContainerPageLoading = true;
 			var gridBottomSpace = 60;
-			$scope.paginationParams={
-				pages:{
-					page:1,
-					pageSize:5
-				},
-				sort:{
-					field:'',
-					direction:''
-				}
-			};
-
+			var containerData = uiGridOptionsService.options();
+			$scope.paginationParams = containerData.pagination;
 			$scope.tabData = [];
 			$scope.truncateImageIDLimit = 12;
-			$scope.containerGridOptions={
-				paginationPageSizes: [5, 10, 15],
-				paginationPageSize: $scope.paginationParams.pages.pageSize,
-				paginationCurrentPage:$scope.paginationParams.pages.page,
-				enableColumnMenus:false,
-				enableScrollbars :true,
-				enableHorizontalScrollbar: 0,
-				enableVerticalScrollbar: 1,
-				useExternalPagination: true,
-				useExternalSorting: true
-			};
+			
 			$scope.initGrids = function(){
-				$scope.containerGridOptions.data = 'tabData';
-				$scope.containerGridOptions.columnDefs = [
-					{ name:'Actions',enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
-					'<span class="marginleft5 containerIcon yellowBg white" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="white fa fa-undo"></i></span>'+
-					'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" ng-show="grid.appScope.checkEdited(row.entity) && checkPausePlay(row.entity)"><i class="white fa fa-pause"></i></span>'+
-					'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" ng-show="grid.appScope.checkEdited(row.entity) && !checkPausePlay(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
-					'<span class="marginleft5 containerIcon crimsonBg white" ng-click="grid.appScope.containerAction(row.entity,6)" id="sign-out" ><i class="white fa fa-sign-out"></i></span>', cellTooltip: true},
-					{ name:'State',field:'Status',cellTooltip: true},
-					{ name:'Created',cellTemplate:'<span>{{row.entity.Created  | timestampToCurrentTime}}</span>',cellTooltip: true},
-					{ name:'Name',cellTemplate:'<span ng-bind-html="row.entity.Names"></span>', enableSorting: false, cellTooltip: true},
-					{ name:'Instance IP',field:'instanceIP','displayName':'Instance IP',cellTooltip: true},
-					{ name:'Container ID',enableSorting: false ,'displayName':'Container ID', cellTemplate:'<div class=""><span title="{{row.entity.Id}}">{{grid.appScope.getImageId(row.entity.Id)}}</span></div>', cellTooltip:true},
-					{ name:'Image',field:'Image',cellTooltip: true},
-					{ name:'More Info',enableSorting: false ,cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.dockerMoreInfo(row.entity)"></i></div>', cellTooltip: true}
-				];
+				$scope.containerGridOptions=angular.extend(containerData.gridOption,{
+				data : 'tabData',
+					columnDefs : [
+						{ name:'Actions',enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
+						'<span class="marginleft5 containerIcon yellowBg white" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="white fa fa-undo"></i></span>'+
+						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" ng-show="grid.appScope.checkEdited(row.entity) && checkPausePlay(row.entity)"><i class="white fa fa-pause"></i></span>'+
+						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" ng-show="grid.appScope.checkEdited(row.entity) && !checkPausePlay(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
+						'<span class="marginleft5 containerIcon crimsonBg white" ng-click="grid.appScope.containerAction(row.entity,6)" id="sign-out" ><i class="white fa fa-sign-out"></i></span>', cellTooltip: true},
+						{ name:'State',field:'Status',cellTooltip: true},
+						{ name:'Created',cellTemplate:'<span>{{row.entity.Created  | timestampToCurrentTime}}</span>',cellTooltip: true},
+						{ name:'Name',cellTemplate:'<span ng-bind-html="row.entity.Names"></span>', enableSorting: false, cellTooltip: true},
+						{ name:'Instance IP',field:'instanceIP','displayName':'Instance IP',cellTooltip: true},
+						{ name:'Container ID',enableSorting: false ,'displayName':'Container ID', cellTemplate:'<div class=""><span title="{{row.entity.Id}}">{{grid.appScope.getImageId(row.entity.Id)}}</span></div>', cellTooltip:true},
+						{ name:'Image',field:'Image',cellTooltip: true},
+						{ name:'More Info',enableSorting: false ,cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.dockerMoreInfo(row.entity)"></i></div>', cellTooltip: true}
+					],
+				});
 			};
 			/*APIs registered are triggered as ui-grid is configured 
 			for server side(external) pagination.*/
-			$scope.containerGridOptions.onRegisterApi = function(gridApi) {
-				$scope.gridApi = gridApi;
-				//Sorting for sortBy and sortOrder
-				gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
-					$scope.paginationParams.sort = {
-						field: sortColumns[0].field,
-						direction: sortColumns[0].sort.direction
-					};
-					$scope.getContainerList();
-				});
-				//Pagination for page and pageSize
-				gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
-					$scope.paginationParams.pages = {
-						page: newPage,
-						pageSize: pageSize
-					};
-					$scope.getContainerList();
-				});
-			};
+			$scope.containerGridOptions = angular.extend(containerData.gridOption, {
+				onRegisterApi :function(gridApi) {
+					$scope.gridApi = gridApi;
+					//Sorting for sortBy and sortOrder
+					gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+						$scope.paginationParams.sortBy = sortColumns[0].field;
+						$scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
+						$scope.getContainerList();
+					});
+					//Pagination for page and pageSize
+					gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+						$scope.paginationParams.page = newPage;
+						$scope.paginationParams.pageSize = pageSize;
+						$scope.getContainerList();
+					});
+				},
+			});
 			$scope.getContainerList = function() {
 				$scope.isContainerPageLoading = true;
 				workzoneServices.getDockerContainers($scope.envParams, $scope.paginationParams).then(function(result) {

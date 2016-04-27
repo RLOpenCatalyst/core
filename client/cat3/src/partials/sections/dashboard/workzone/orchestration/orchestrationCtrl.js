@@ -8,7 +8,7 @@
 (function(angular) {
 	'use strict';
 	angular.module('workzone.orchestration', ['rl.ui.component.library', 'datatables', 'filter.currentTime', 'ngAnimate', 'ui.bootstrap', 'apis.workzone', 'ModalService', 'utility.array', 'workzonePermission', 'chefDataFormatter', 'utility.pagination'])
-		.controller('orchestrationCtrl', ['$scope', '$rootScope', '$modal', 'workzoneServices', 'confirmbox', 'arrayUtil', 'orchestrationPermission', 'workzoneUIUtils', 'paginationUtil', '$timeout', function($scope, $rootScope, $modal, workzoneServices, confirmbox, arrayUtil, orchestrationPerms, workzoneUIUtils, paginationUtil, $timeout) {
+		.controller('orchestrationCtrl', ['$scope', '$rootScope', '$modal', 'workzoneServices', 'confirmbox', 'arrayUtil', 'orchestrationPermission', 'workzoneUIUtils', 'paginationUtil', '$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, workzoneServices, confirmbox, arrayUtil, orchestrationPerms, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
 			var _permSet = {
 				createTask: orchestrationPerms.createTask(),
 				editTask: orchestrationPerms.editTask(),
@@ -17,81 +17,63 @@
 			$scope.perms = _permSet;
 			$scope.isOrchestrationPageLoading = true;
 			var gridBottomSpace = 60;
-			$scope.paginationParams = {
-				pages: {
-					page: 1,
-					pageSize: 10
-				},
-				sort: {
-					field: '',
-					direction: ''
-				}
-			};
+			var orchestrationData = uiGridOptionsService.options();
+			$scope.paginationParams = orchestrationData.pagination;
 			$scope.tabData = [];
-
-			$scope.orcheGridOptions = {
-				paginationPageSizes: [10, 25, 50],
-				paginationPageSize: $scope.paginationParams.pages.pageSize,
-				paginationCurrentPage: $scope.paginationParams.pages.page,
-				enableColumnMenus: false,
-				enableScrollbars: true,
-				enableHorizontalScrollbar: 0,
-				enableVerticalScrollbar: 1,
-				useExternalPagination: true,
-				useExternalSorting: true
-			};
 			
 			$scope.initGrids = function(){
-				$scope.orcheGridOptions.data='tabData';
-				$scope.orcheGridOptions.columnDefs = [
-					{ name:'Job Type', field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="jenkins-img" />'+
-					'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="jenkins-img" />'+
-					'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="jenkins-img" />'+
-					'<img src="images/global/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="jenkins-img">',cellTooltip: true},
-					{ name:'Name',field:'name',cellTooltip: true},
-					{ name:'Job Description',field:'description',cellTooltip: true},
-					{ name:'Job Links', enableSorting: false , cellTemplate:'<div>'+
-					'<span ng-show="row.entity.taskType===\'chef\'">'+
-					'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
-					'<span title="Assign Nodes" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
-					'</span>'+
-					'<span ng-show="row.entity.taskType===\'jenkins\'">'+
-					'<a target="_blank" title="Jenkins" ng-href="http://{{row.entity.taskConfig.jobURL}}">'+
-					'<img class="chefImage-size" src="images/orchestration/joburl.jpg" /> </a>'+
-					'</span>'+
-					'<span ng-show="row.entity.taskType===\'composite\'"> NA </span>'+
-					'<span ng-show="row.entity.taskType==\'puppet\'">'+
-					'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
-					'</span>'+
-					'</div>' ,cellTooltip: true},
-					{ name:'Execute', enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
-					{ name:'History', enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
-					{ name:'Last Run', cellTemplate:'<span>{{row.entity.lastRunTimestamp  | timestampToCurrentTime}}</span>', cellTooltip: true},
-					{ name:'Action', enableSorting: false , cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white marginleft30" ng-click="grid.appScope.createNewTask(row.entity)"></span>'+
-					'<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10" ng-click="grid.appScope.deleteTask(row.entity)" ng-show="grid.appScope.perms.deleteTask;"></span>', cellTooltip: true}
-				];
+				$scope.orcheGridOptions=angular.extend(orchestrationData.gridOption,{
+					data : 'tabData',
+					columnDefs : [
+						{ name:'Job Type', field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="jenkins-img" />'+
+						'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="jenkins-img" />'+
+						'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="jenkins-img" />'+
+						'<img src="images/global/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="jenkins-img">',cellTooltip: true},
+						{ name:'Name',field:'name',cellTooltip: true},
+						{ name:'Job Description',field:'description',cellTooltip: true},
+						{ name:'Job Links', enableSorting: false , cellTemplate:'<div>'+
+						'<span ng-show="row.entity.taskType===\'chef\'">'+
+						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
+						'<span title="Assign Nodes" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
+						'</span>'+
+						'<span ng-show="row.entity.taskType===\'jenkins\'">'+
+						'<a target="_blank" title="Jenkins" ng-href="http://{{row.entity.taskConfig.jobURL}}">'+
+						'<img class="chefImage-size" src="images/orchestration/joburl.jpg" /> </a>'+
+						'</span>'+
+						'<span ng-show="row.entity.taskType===\'composite\'"> NA </span>'+
+						'<span ng-show="row.entity.taskType==\'puppet\'">'+
+						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
+						'</span>'+
+						'</div>' ,cellTooltip: true},
+						{ name:'Execute', enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
+						{ name:'History', enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
+						{ name:'Last Run', cellTemplate:'<span>{{row.entity.lastRunTimestamp  | timestampToCurrentTime}}</span>', cellTooltip: true},
+						{ name:'Action', enableSorting: false , cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white marginleft30" ng-click="grid.appScope.createNewTask(row.entity)"></span>'+
+						'<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10" ng-click="grid.appScope.deleteTask(row.entity)" ng-show="grid.appScope.perms.deleteTask;"></span>', cellTooltip: true}
+					],
+				});
 			};
 			/*APIs registered are triggered as ui-grid is configured 
 			for server side(external) pagination.*/
-			$scope.orcheGridOptions.onRegisterApi = function(gridApi) {
+			$scope.orcheGridOptions = angular.extend(orchestrationData.gridOption, {
+				onRegisterApi :function(gridApi) {
 
-				$scope.gridApi = gridApi;
-				$scope.gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
-					$scope.paginationParams.sort = {
-						field: sortColumns[0].field,
-						direction: sortColumns[0].sort.direction
-					};
-					$scope.taskListGridView();
-				});
-				//Pagination for page and pageSize
-				gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
-					$scope.paginationParams.pages = {
-						page: newPage,
-						pageSize: pageSize
-					};
-					$scope.taskListGridView();
-				});
-			};
+					$scope.gridApi = gridApi;
+					$scope.gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+						if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
+							$scope.paginationParams.sortBy = sortColumns[0].field;
+							$scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
+							$scope.taskListGridView();
+						}
+					});
+					//Pagination for page and pageSize
+					gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+						$scope.paginationParams.page = newPage;
+						$scope.paginationParams.pageSize = pageSize;
+						$scope.taskListGridView();
+					});
+				},
+			});
 				
 			var helper = {
 				orchestrationLogModal: function(id,historyId,taskType) {
@@ -113,16 +95,10 @@
 					});
 				},
 				setPaginationDefaults: function() {
-					$scope.paginationParams = {
-						pages: {
-							page: '',
-							pageSize: ''
-						},
-						sort: {
-							field: 'taskCreateOn',
-							direction: 'desc'
-						}
-					};
+					$scope.paginationParams.page = '';
+					$scope.paginationParams.pageSize = '';
+					$scope.paginationParams.sortBy = 'taskCreateOn';
+					$scope.paginationParams.sortOrder = 'desc';
 				}
 			};
 			
@@ -299,7 +275,7 @@
 			/*method being called to set the first page view*/
 			$scope.setFirstPageView = function(){
 				helper.setPaginationDefaults();
-				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = 1;
+				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
 			};
 			/*method being called to set the last page view when a new task is created*/
 			$scope.setLastPageView = function(){
@@ -309,8 +285,8 @@
 				helper.setPaginationDefaults();
 				/*setting the pageSize value(by default it takes 10 which 
 				will break when we change the pageSize value in the grid)*/
-				$scope.paginationParams.pages.pageSize = $scope.orcheGridOptions.paginationPageSize;
-				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = lastPage;				
+				$scope.paginationParams.pageSize = $scope.orcheGridOptions.paginationPageSize;
+				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = lastPage;				
 				$scope.taskListGridView();
 			};
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
