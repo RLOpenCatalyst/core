@@ -307,6 +307,9 @@
 				var lastPage = (Math.ceil(($scope.orcheGridOptions.totalItems)/$scope.orcheGridOptions.paginationPageSize));
 				//Set sortBy and sortField to controller defaults;
 				helper.setPaginationDefaults();
+				/*setting the pageSize value(by default it takes 10 which 
+				will break when we change the pageSize value in the grid)*/
+				$scope.paginationParams.pages.pageSize = $scope.orcheGridOptions.paginationPageSize;
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = lastPage;				
 				$scope.taskListGridView();
 			};
