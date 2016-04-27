@@ -8,17 +8,48 @@
 (function(angular) {
 	'use strict';
 	angular.module('workzone.azureARM', ['apis.workzone', 'ngAnimate', 'ui.bootstrap','utility.array'])
-		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'workzoneUIUtils', function($scope, workzoneServices, $modal, $rootScope, workzoneUIUtils) {
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(){
+		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', '$timeout', function($scope, workzoneServices, $modal, $rootScope, $timeout) {
+			$scope.isAzureARMPageLoading = true;
+			$scope.paginationParams = {
+				pages: {
+					page: 1,
+					pageSize: 1
+				}
+			};
+			$scope.currentCardPage = $scope.paginationParams.pages.page;
+			$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
+			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
+			$scope.totalCards = 0;
+
+
+			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isAzureARMPageLoading = true;
-				$scope.arms = [];
+				$scope.envParams=requestParams;
+				$scope.azureListCardView();
+
 			});
-			$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
-				$scope.arms = data.arms;
-				$scope.isAzureARMPageLoading = false;
-                workzoneUIUtils.makeTabScrollable('azureARMPage');
-			});
+			$scope.cardPaginationArmChange = function() {
+				$scope.paginationParams.pages = {
+					page: $scope.currentCardPage,
+					pageSize: $scope.cardsPerPage
+				};
+				$scope.azureListCardView();
+			};
 			angular.extend($scope, {
+				azureListCardView: function() {
+					$scope.isAzureARMPageLoading = true;
+					$scope.arms = [];
+					// service to get the list of azureArm
+					workzoneServices.getPaginatedARM($scope.envParams, $scope.paginationParams).then(function(result) {
+						$scope.totalCards = result.data.metaData.totalRecords;
+						$scope.isAzureARMPageLoading = false;
+						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
+					},function(error) {
+						$scope.isAzureARMPageLoading = false;
+						console.log(error);
+						$scope.errorMessage = "No Records found";
+					});
+				},
 				removeARMDeployment: function(arm,index) {
 					var modalInstance=$modal.open({
 						animation:true,
@@ -34,7 +65,6 @@
 					});
 
 					modalInstance.result.then(function(){                                
-						//$scope.stacks=arrayUtil.deleteObjectById($scope.deployments,arms._id);
 						$scope.arms.splice(index,1);
 					},function(){
 						

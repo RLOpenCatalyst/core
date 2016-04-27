@@ -13,17 +13,46 @@
 				stackEventsPollerTime: 200
 			};
 		}])
-		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', 'workzoneUIUtils', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, workzoneUIUtils) {
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(){
+		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', '$timeout', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, $timeout) {
+			
+			$scope.paginationParams = {
+				pages: {
+					page: 1,
+					pageSize: 1
+				}
+			};
+			$scope.currentCardPage = $scope.paginationParams.pages.page;
+			$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
+			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
+			$scope.totalCards = 0;
+
+			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isCloudFormationPageLoading = true;
-				$scope.stacks = [];
+				$scope.envParams=requestParams;
+				$scope.cftListCardView();
 			});
-			$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
-				$scope.isCloudFormationPageLoading = false;
-				$scope.stacks = data.stacks;
-                workzoneUIUtils.makeTabScrollable('cloudFormationPage');
-			});
+			$scope.cardPaginationCftChange = function() {
+				$scope.paginationParams.pages = {
+					page: $scope.currentCardPage,
+					pageSize: $scope.cardsPerPage
+				};
+				$scope.cftListCardView();
+			};
 			angular.extend($scope, {
+				cftListCardView: function() {
+					$scope.isCloudFormationPageLoading = true;
+					$scope.stacks = [];
+					// service to get the list of containers.
+					workzoneServices.getPaginatedCFT($scope.envParams, $scope.paginationParams).then(function(result) {
+						$scope.totalCards = result.data.metaData.totalRecords;
+						$scope.isCloudFormationPageLoading = false;
+						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
+					},function(error) {
+						$scope.isCloudFormationPageLoading = false;
+						console.log(error);
+						$scope.errorMessage = "No Records found";
+					});
+				},
 				getStackStateColor: function(stackState) {
 					var colorRepresentationClass = '';
 					switch (stackState) {

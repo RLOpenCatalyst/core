@@ -55,8 +55,114 @@
 		};
 		$scope.perms = _permSet;
 
+		/*Setting the paginationParams*/
+		$scope.isInstancePageLoading = true;
+		var gridBottomSpace = 60;
+		$scope.paginationParams={
+			pages:{
+				page:1,
+				pageSize:100
+			},
+			sort:{
+				field:'name',
+				direction:'desc'
+			}
+		};
+		$scope.currentCardPage = $scope.paginationParams.pages.page;
+	   	$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
+	   	$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
+	   	$scope.totalCards = 0;
+
+		$scope.tabData = [];
+		$scope.instancesGridOptions = {
+			paginationPageSizes: [10, 25, 50, 100],
+			paginationPageSize: $scope.paginationParams.pages.pageSize,
+			paginationCurrentPage: $scope.paginationParams.pages.page,
+			enableColumnMenus: false,
+			enableScrollbars: true,
+			enableHorizontalScrollbar: 0,
+			enableVerticalScrollbar: 1,
+			useExternalPagination: true,
+			useExternalSorting: true
+		};
+		/*grid method to define the columns that need to be present*/
+		$scope.initGrids = function(){
+			
+			$scope.instancesGridOptions.data='tabData';
+			$scope.instancesGridOptions.columnDefs = [
+				{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'+
+				'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>', cellTooltip: true},
+				{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
+				'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
+				'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+
+				'</span>', cellTooltip: true},
+				{ name:'Ip Address', field:'instanceIP',cellTooltip: true},
+				{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
+				{ name:'Status', enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
+				{ name:'Log Info', enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
+				{ name:'Chef Run', enableSorting: false ,  cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'+
+				'<div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>'+
+				'<div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>'+
+				'<div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled">'+
+				'</div>', cellTooltip: true},
+				{ name:'Action', enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}	
+			];
+		};
+		/*APIs registered are triggered as ui-grid is configured 
+		for server side(external) pagination.*/
+		$scope.instancesGridOptions.onRegisterApi= function(gridApi) {
+			$scope.gridApi = gridApi;
+
+			  //Sorting for sortBy and sortOrder
+		      gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+		      	if(sortColumns.length){
+			      	$scope.paginationParams.sort={
+			      		field:sortColumns[0].field,
+			      		direction: sortColumns[0].sort.direction
+			      	};
+			      	$scope.instancesListCardView();
+			    }
+		      });
+
+		      //Pagination for page and pageSize
+		      gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
+		      	$scope.paginationParams.pages={
+		      		page:newPage,
+		      		pageSize:pageSize
+	      		};
+	      		$scope.currentCardPage = newPage;
+	      		$scope.cardsPerPage = pageSize;
+	      		
+	      		$scope.instancesListCardView();
+		      });
+		};
+		$scope.cardPaginationChange = function() {
+	   		$scope.paginationParams.pages={
+	      		page:$scope.currentCardPage,
+	      		pageSize:$scope.cardsPerPage
+      		};
+      		$scope.instancesGridOptions.paginationCurrentPage = $scope.currentCardPage;
+	   	};
 		//variables used in rendering of the cards and table && checking ssh
 		angular.extend($scope, {
+			instancesListCardView: function() {
+				$scope.isInstancePageLoading = true;
+				$scope.instanceList = [];
+				// service to get the list of instances.
+				workzoneServices.getPaginatedInstances($scope.envParams, $scope.paginationParams).then(function(result) {
+					$timeout(function() {
+						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
+						$scope.tabData = $scope.instanceList = result.data.instances;
+						$scope.isInstancePageLoading = false;
+						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pages.pageSize);
+					}, 100);
+				}, function(error) {
+					$scope.isInstancePageLoading = false;
+					console.log(error);
+					$scope.errorMessage = "No Records found";
+				});
+			},
+			/*method to get the AWS instance status(specific only to AWS currently)*/
 			getAWSStatus: function(instanceStatus,type) {
 				var colorSuffix = '';
 				var instanceStateImagePrefix='instance-state-';
@@ -85,7 +191,11 @@
 						colorSuffix = 'unknown';
 						break;
 				}
-				return type==="image" ? instanceStateImagePrefix + colorSuffix : instanceStateTextPrefix + colorSuffix;
+				if (type === "text") {
+					return instanceStateTextPrefix + colorSuffix;
+				} else {
+					return instanceStateImagePrefix + colorSuffix;
+				}
 			}, 
 			actionSet: instanceActions
 		});
@@ -95,11 +205,11 @@
 			Same sevice is reused in control panel actions tab but promise handlers may be different.
 		*/
 		$scope.operationSet = {};
-		$scope.operationSet.deleteInstance = function(inst,index){
+		$scope.operationSet.deleteInstance = function(inst){
 			var promise = instanceOperations.deleteInstance(inst);
 			promise.then(function(resolveMessage) {
 				console.log("Promise resolved deleteInstance:" + resolveMessage);
-				$scope.instanceList.splice(index, 1);
+				$scope.instancesListCardView();
 			}, function(rejectMessage) {
 				console.log("Promise rejected deleteInstance:" + rejectMessage);
 			});
@@ -197,15 +307,6 @@
 							if( response.data.instanceState === 'stopped' || response.data.instanceState === 'running' ){
 								$scope.instStartStopFlag = false;
 								console.log(response.data.instanceState, ' polling complete');
-
-								/*if (data.appUrls && data.appUrls.length) {
-									for (var k = 0; k < data.appUrls.length; k++) {
-										var url = data.appUrls[k].url;
-										url = url.replace('$host', data.instanceIP);
-										$('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url);
-									}
-								}*/
-
 							}else{
 								$scope.operationSet.checkInstanceStatus(_instObj, 5000);
 							}
@@ -218,33 +319,24 @@
 		};
 		/*END: Methods which make use of instanceService*/
 
-		/*angular.extend($scope, {
-			getbootStrapStatus: function(status) {
-				var applyClass = '';
-				var classPrefixConstant1='card_btns_chef';
-				var classPrefixConstant2='card_btns_puppet';
-				var classPrefixConstant3='card_btns_ssh';
-				var classPrefixConstant4='card_btns_rdp';
-				if (status === 'success') {
-					applyClass = '1';
-				} else if (status === 'pending' || status === 'stopping') {
-					applyClass = '1_disabled';
-				}
-				return classPrefixConstant1 + applyClass;
-				return classPrefixConstant2 + applyClass;
-				return classPrefixConstant3 + applyClass;
-				return classPrefixConstant4 + applyClass;
-			}
-		});*/
-		$rootScope.$on('WZ_ENV_CHANGE_START', function(){
-			$scope.isInstancePageLoading = true;
-			$scope.instanceList = [];
+		$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
+			$scope.instancesGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = 1;
+			$scope.envParams=requestParams;
+			$scope.initGrids();
+			$scope.instancesListCardView();
+			$scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage')-gridBottomSpace;
+			//workzoneUIUtils.makeTabScrollable('instancePage');//TODO: Ideally this should be on resize event;
 		});
-		$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
-			$scope.isInstancePageLoading = false;
-			completeData = helper.attachListOfTaskWithInstance(data);
-			$scope.instanceList = completeData.instances;
-			workzoneUIUtils.makeTabScrollable('instancePage');
+		$rootScope.$on('WZ_TAB_VISIT', function(event, tabName) {
+			if (tabName === 'Instances') {
+				$scope.isInstancePageLoading = true;
+				var tableData = $scope.tabData;
+				$scope.tabData = [];
+				$timeout(function() {
+					$scope.tabData = tableData;
+					$scope.isInstancePageLoading = false;
+				}, 100);
+			}
 		});
 
 		$scope.instanceImportByIP = function() {
@@ -268,6 +360,7 @@
 				}
 			});
 			modalInstance.result.then(function(newinstId) {
+				$scope.instancesListCardView();
 				$scope.operationSet.viewLogs(newinstId);
 			}, function() {
 				console.log('Modal dismissed at: ' + new Date());
@@ -276,6 +369,7 @@
 
 		$scope.showAppLinksPopup = function(inst) {
 			inst.showAppLinks = !inst.showAppLinks;
+			console.log(inst.showAppLinks);
 		};
 
 		$scope.selectCard = function(identi) {
@@ -292,6 +386,13 @@
 			$scope.isCardViewActive = false;
 			$scope.instanceTableViewSelection = "selectedView";
 			$scope.instanceCardViewSelection = "";
+			//$scope.instancesListCardView();
+			var tableData = $scope.tabData;
+			$scope.tabData = [];
+			$timeout(function(){
+				$scope.tabData = tableData;
+			}, 500);
+
 		};
 
 		$scope.instanceControlPanel = function(instanceObj) {
@@ -311,7 +412,6 @@
 		};
 		$scope.init = function(){
 			$scope.instanceCardView();
-			//workzoneUIUtils.attachResizeTabEvent('instancePage');
 		};
 		
 		$scope.init();

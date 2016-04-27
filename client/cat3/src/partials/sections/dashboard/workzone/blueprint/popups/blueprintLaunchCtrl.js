@@ -77,7 +77,7 @@
 				versionOptional = versionsList[versionsList.length-1].ver;
 			}
 
-			workzoneServices.launchBluePrint(bpItem.bp._id, versionOptional, envParams.env, bpItem.stackName).then(function(bpLaunchResponse) {
+			workzoneServices.launchBlueprint(bpItem.bp._id, versionOptional, envParams.env, bpItem.stackName).then(function(bpLaunchResponse) {
 					$scope.isBPLogsLoading = false;
 					var launchingInstance;
 					if(bpLaunchResponse.data.id && bpLaunchResponse.data.id.length>0){

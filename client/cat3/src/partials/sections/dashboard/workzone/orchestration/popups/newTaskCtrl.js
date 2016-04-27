@@ -206,8 +206,8 @@
                             workzoneServices.postNewTask(reqBody).then(function () {
                                 items = reqBody.taskData.name;
                                 $rootScope.$emit('WZ_REFRESH_ENV');
-                                $modalInstance.close(items);
                                 $rootScope.$emit("GET_ALL_TASK");
+                                $modalInstance.close(items);
                             });
                         }
                     },
