@@ -96,8 +96,7 @@
                         }
 
                     };
-                }]).factory(
-            'workzoneUIUtils', [function () {
+                }]).factory('workzoneUIUtils', [function () {
                 var makeTabScrollable = function(divID) {
                     var windowHeight = $(window).innerHeight();
                     var brdcrmbHeight = $('#breadcrumb-block').outerHeight();
@@ -109,6 +108,9 @@
                     var setMainContentHeight = windowHeight - (brdcrmbHeight + headerHeight + instancepanelHeight + tabULHeight + rightpanelPaddingtop);
                     $('#' + divID + ' .scrollContent').css('height', (setMainContentHeight) + 'px');
                     $('#' + divID + ' .scrollContent').css('overflow-y', 'auto');
+                    return setMainContentHeight;
+                    /*return value will be used only by few consumer methods, not all.
+                    (Basically wherever we are trying to set the content height)*/
                 };
                 return {
                     makeTabScrollable : makeTabScrollable

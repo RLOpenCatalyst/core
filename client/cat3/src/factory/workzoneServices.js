@@ -6,7 +6,7 @@
  */
 (function (angular) {
     "use strict";
-    angular.module('apis.workzone',['authentication']).service(
+    angular.module('apis.workzone',['authentication', 'utility.pagination']).service(
             'workzoneEnvironment', [function () {
                     var requestParams;
                     var env = {
@@ -21,8 +21,8 @@
                         setEnvParams: env.setParams,
                         getEnvParams: env.getParams
                     };
-                }]).service('workzoneServices', ['$http', 'session', 'workzoneEnvironment',
-        function ($http, Auth, workzoneEnvironment) {
+                }]).service('workzoneServices', ['$http', 'session', 'workzoneEnvironment', 'paginationUtil',
+        function ($http, Auth, workzoneEnvironment, paginationUtil) {
             var baseAPIUrl = uiConfigs.serverUrl;
             function fullUrl(relUrl){
                 return baseAPIUrl + relUrl;
@@ -62,9 +62,10 @@
                     var url = '/app/deploy/pipeline' + '/project/' + projId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getApplicationHistoryForEnv: function (envName, projId) {
-                    //var url = '/cat3/data/appDeployEnvList.json';
-                    var url = '/app/deploy/env/' + envName + '/project/' + projId + '/list';
+                getApplicationHistoryForEnv: function (envName, projId,pagiOpti) {
+                    var pageiReq='pageNumber='+pagiOpti.page+',pageSize='+pagiOpti.pageSize+',field='+pagiOpti.sortBy+',direction='+pagiOpti.sortOrder;
+                    var url = '/app/deploy/project/' + projId + '/env/'+ envName +'/appDeployHistoryList?'+pageiReq;
+
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getApplicationHistoryLogs: function(appId) {
@@ -72,6 +73,12 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*azureArmCtrl*/
+                getPaginatedARM: function(envParams,paginationParams) {
+                    var pageStr = paginationUtil.pageObjectToString(paginationParams);
+                    var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
+                    '/projects/' + envParams.proj + '/environments/' + envParams.env + '/azureArmList'+pageStr;                    
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
                 removeARMDeployment: function (armId) {
                     var url = '/azure-arm/' + armId;
                     return $http.delete(fullUrl(url), Auth.getHeaderObject());
@@ -108,19 +115,29 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*containerCtrl*/
-                getDockerContainers: function () {
-                    var url = '/cat3/data/dockercontainerdetails_container.json';
+                getDockerContainers: function (envParams,paginationParams) {
+                    var pageStr = paginationUtil.pageObjectToString(paginationParams);
+                    var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
+                    '/projects/' + envParams.proj + '/environments/' + envParams.env + '/containerList'+pageStr;                    
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getDockerMoreInfo: function () {
-                    var url = '/cat3/data/dockerMoreInfo.json';
+                getDockerMoreInfo: function (instanceId,containerId) {
+                    //var url = '/cat3/data/dockerMoreInfo.json';
+                    var url = '/instances/dockercontainerdetails/' + instanceId + '/' + containerId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                checkDockerActions: function () { //serviceInterface.checkDockerActions = function (obj, action) {
-                    var url = '/cat3/data/containerActionResult.json';
+                checkDockerActions: function (instanceId, containerId, action) { //serviceInterface.checkDockerActions = function (obj, action) {
+                    //var url = '/cat3/data/containerActionResult.json';
+                    var url = '/instances/dockercontainerdetails/' + instanceId + '/' + containerId + '/' + action;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*instanceCtrl*/
+                getPaginatedInstances: function(envParams,paginationParams) {
+                    var pageStr = paginationUtil.pageObjectToString(paginationParams);
+                    var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
+                    '/projects/' + envParams.proj + '/environments/' + envParams.env + '/instanceList'+pageStr;                    
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
                 getCheckIfConfigListAvailable: function () {
                     var url = '/d4dMasters/readmasterjsonnew/10';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
@@ -232,6 +249,12 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*orchestrationCtrl*/
+                getPaginatedTasks: function(envParams,paginationParams) {
+                    var pageStr = paginationUtil.pageObjectToString(paginationParams);
+                    var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
+                    '/projects/' + envParams.proj + '/environments/' + envParams.env + '/taskList'+pageStr;                    
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
                 postRetrieveDetailsForInstanceNames: function (nodeIds) {
                     return $http.post('/instances/', nodeIds, Auth.getHeaderObject());
                 },
@@ -315,6 +338,12 @@
                 },
                 stopInstance: function (instanceID) {
                     var url = '/instances/' + instanceID + '/stopInstance';
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
+                getPaginatedCFT: function(envParams,paginationParams) {
+                    var pageStr = paginationUtil.pageObjectToString(paginationParams);
+                    var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
+                    '/projects/' + envParams.proj + '/environments/' + envParams.env + '/cftList'+pageStr;                    
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 deleteCloudFormation: function (cftIT) {
@@ -401,6 +430,19 @@
                 getNexusVersions:function(requestData){
                     var p = workzoneEnvironment.getEnvParams(),
                         url = '/app/deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact/'+requestData.artifactId+'/versionList';
+                    return $http.get(fullUrl(url));
+                },
+                getPipelineConfig:function(requestEnv){
+                   var url = '/app/deploy/pipeline/project/'+requestEnv.proj;
+                    return $http.get(fullUrl(url));
+                },
+                getPipelineView :function(requestEnv,pgOptions){
+                    var pageiReq='page='+pgOptions.page+'&pageSize='+pgOptions.pageSize+'&sortBy='+pgOptions.sortBy+'&sortOrder='+pgOptions.sortOrder;
+                    var url = '/app/deploy/project/'+requestEnv.proj+'/appDeployList?'+pageiReq;
+                    return $http.get(fullUrl(url));
+                },
+                getCardDetails :function(envDetails){
+                    var url= '/app/deploy/project/' + envDetails.params.proj + '/env/' + envDetails.env + '/appDeployHistoryList?page=1&pageSize=300';
                     return $http.get(fullUrl(url));
                 }
             };

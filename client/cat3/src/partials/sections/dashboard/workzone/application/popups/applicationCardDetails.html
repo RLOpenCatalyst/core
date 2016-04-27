@@ -7,32 +7,9 @@
 	</div>
 
 	<div class="modal-body">
-		<section>		
-			<table datatable="" class="table-bordered text-center">
-				<thead>
-					<tr>
-						<td>Node IP</td>
-						<td>Last Deploy</td>
-						<td>Status</td>
-						<td>Logs</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="app in applicationsDetails.environments">
-						<td>{{app.applicationNodeIP}}</td>
-						<td>{{app.applicationLastDeploy}}
-							<!--<span ng-repeat="part in (envDetails.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines)">
-								{{part}}
-								<br>
-							</span>-->
-						</td>
-						<td>{{app.applicationStatus}}</td>
-						<td>
-							<i class="fa fa-info-circle cursor" title="More Info" ng-click="viewAppCardLogs(app)"></i>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+		<section>
+			<div class="no-data-found" ng-if="!cardDetails.gridOptions.data.length > 0"> No data found !</div>
+			<div id="grid2" ng-if="cardDetails.gridOptions.data.length > 0"  ui-grid="cardDetails.gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
 		</section>
 	</div>
 

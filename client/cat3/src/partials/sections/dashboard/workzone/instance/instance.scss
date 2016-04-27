@@ -343,7 +343,7 @@ $imagePath : "../../../../../../images";
 
 	#tableView {
 		width: 100%;
-		padding: 12px 12px 42px 12px;
+		padding: 0px 0px 42px 0px;
 		margin-bottom: 5px;
 
 		.fa-sort-down {
@@ -359,8 +359,8 @@ $imagePath : "../../../../../../images";
 		}
 
 		.dropdown {
-			width: 60%;
-				float: right;
+			width: 58%;
+			float: right;
 		}
 
 		.dropdown-toggle {
@@ -371,11 +371,12 @@ $imagePath : "../../../../../../images";
 			background: #fff;
 		}
 
-		.instance-table {
+		.instance-status {
 			.status-state {
 				background-repeat: no-repeat;
 				background-position: center;
 				background-size: 30px 30px;
+				height: 30px;
 			}
 		}
 
@@ -426,7 +427,7 @@ $imagePath : "../../../../../../images";
 		}
 
 		.dropdown-menu {
-			left: -110px;
+			left: -98px;
 			border-width: 1px;
 			@include theme-border-color;
 			top: 24px;
@@ -435,6 +436,7 @@ $imagePath : "../../../../../../images";
 		.ssh-rdp-wrapper {
 			float: left;
 			width: 34px;
+			margin-left: 24px;
 		}
 	}
 }
