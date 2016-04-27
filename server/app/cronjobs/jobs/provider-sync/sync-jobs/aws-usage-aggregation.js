@@ -18,12 +18,14 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
-var EC2 = require('_pr/lib/ec2.js');
+var CW = require('_pr/lib/cloudwatch.js');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var async = require('async');
 var tagsModel = require('_pr/model/tags');
+
+module.exports = aggregateAWSUsage;
 
 function aggregateAWSUsage() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
@@ -32,8 +34,7 @@ function aggregateAWSUsage() {
         } else {
             aggregateUsageForProvidersOfOrg(...orgs);
         }
-    })
-
+    });
 }
 
 function aggregateUsageForProvidersOfOrg(org) {
@@ -41,20 +42,23 @@ function aggregateUsageForProvidersOfOrg(org) {
         if(err) {
             logger.error(err);
         } else {
-            aggregateUsageForProvider(...providers);
+            aggregateEC2UsageForProvider(...providers);
         }
     });
 }
 
-function aggregateUsageForProvider(provider) {
-    logger.debug('Usage aggregation for provider: ' + provider._id);
-
+function aggregateEC2UsageForProvider(provider) {
     async.waterfall([
         function (next) {
+            logger.debug('Usage aggregation for provider: ' + provider._id + ' started');
             getManagedAndUnmanagedInstances(provider, next);
         },
-        function(provider, instances, next) {
-            logger.debug('Number of instances ' + instances.length);
+        function (provider, instances, next) {
+            getEC2InstanceUsageMetrics(provider, instances, next);
+        },
+        function (ec2UsageMetrics, next) {
+            console.log(ec2UsageMetrics);
+            // saveResourceUsageMetrics(resourceMetrics, next);
         }
     ],
     function(err) {
@@ -89,8 +93,88 @@ function getManagedAndUnmanagedInstances(provider, next) {
     );
 }
 
-function getAWSUsageMetrics(provider, instances) {
+function getEC2InstanceUsageMetrics(provider, instances, next) {
+    // @TODO Create promise for creating cw client
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var amazonConfig;
 
+    if (provider.isDefault) {
+        amazonConfig = {
+            "isDefault": true
+        };
+    } else {
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm,
+            cryptoConfig.password);
+
+        var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+        var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+        amazonConfig = {
+            "access_key": decryptedAccessKey,
+            "secret_key": decryptedSecretKey
+        };
+    }
+
+    var instanceUsageMetrics = [];
+    var endTime = new Date();
+    var startTime = new Date(endTime.getTime() - 1000*60*60*24);
+    for(var i = 0; i < instances.length; i++) {
+        (function(j) {
+            amazonConfig.region = instances[j].providerData.region;
+            cw = new CW(amazonConfig);
+
+            async.parallel({
+                CPUUtilization: function (callback) {
+                    cw.getUsageMetricsFor24Hours('CPUUtilization', instances[j].platformId,
+                        startTime, endTime, callback);
+                },
+                NetworkOut: function (callback) {
+                    cw.getUsageMetricsFor24Hours('NetworkOut', instances[j].platformId,
+                        startTime, endTime, callback);
+                },
+                NetworkIn: function (callback) {
+                    cw.getUsageMetricsFor24Hours('NetworkIn', instances[j].platformId,
+                        startTime, endTime, callback);
+                },
+                DiskReadBytes: function (callback) {
+                    cw.getUsageMetricsFor24Hours('DiskReadBytes', instances[j].platformId,
+                        startTime, endTime, callback);
+                },
+                DiskWriteBytes: function (callback) {
+                    cw.getUsageMetricsFor24Hours('DiskWriteBytes', instances[j].platformId,
+                        startTime, endTime, callback);
+                }
+            },
+            function (err, results) {
+                if(err) {
+                    logger.error(err)
+                } else {
+                    instanceUsageMetrics.push({
+                        providerId: provider._id,
+                        providerType: provider.providerType,
+                        orgId: provider.orgId[0],
+                        projectId: instances[j].projectId,
+                        instanceId: instances[j]._id,
+                        platform: 'AWS',
+                        platformId: instances[j].platformId,
+                        resourceType: 'EC2',
+                        startTime: startTime,
+                        endTime: endTime,
+                        usageMetrics: results
+                    });
+
+                    if(instanceUsageMetrics.length == instances.length) {
+                        next(null, instanceUsageMetrics);
+                    }
+                }
+            });
+        })(i);
+    }
 }
 
-module.exports = aggregateAWSUsage;
+function saveResourceUsageMetrics () {
+}

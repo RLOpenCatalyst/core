@@ -29,7 +29,7 @@ var ResourceMetricsSchema = new Schema({
         required: false,
         trim: true
     },
-    organisationId: {
+    orgId: {
         type: String,
         required: false,
         trim: true
@@ -45,6 +45,11 @@ var ResourceMetricsSchema = new Schema({
         trim: true
     },
     platform: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    platformId: {
         type: String,
         required: false,
         trim: true

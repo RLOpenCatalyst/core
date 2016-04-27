@@ -34,11 +34,22 @@ if (process.env.http_proxy) {
 // });
 
 var CW = function(awsSettings) {
-    var cloudwatch = new aws.CloudWatch({
-        "accessKeyId": awsSettings.access_key,
-        "secretAccessKey": awsSettings.secret_key,
-        "region": awsSettings.region
-    });
+
+    var params = new Object();
+
+    if (typeof awsSettings.region !== undefined) {
+        params.region = awsSettings.region;
+    }
+
+    if (typeof awsSettings.isDefault !== undefined && awsSettings.isDefault === true) {
+        params.credentials = new aws.EC2MetadataCredentials({httpOptions: {timeout: 5000}});
+    } else if (typeof awsSettings.access_key !== undefined && typeof awsSettings.secret_key !== undefined) {
+        params.accessKeyId = awsSettings.access_key;
+        params.secretAccessKey = awsSettings.secret_key;
+    }
+
+    var cloudwatch = new aws.CloudWatch(params);
+
     var date = new Date();
     //var last = new Date(date.getHours());
     var last = new Date(date.getTime() -(1000*60*60*6+(1000*60*30)));
@@ -102,7 +113,8 @@ var CW = function(awsSettings) {
           }
       ],
     };
-    this.getTotalCostMaximum = function(callback){
+
+    this.getTotalCostMaximum = function getTotalCostMaximum(callback) {
         cloudwatch.getMetricStatistics(params,function(err,data){
             if(err){
                 logger.debug("Error occurred for listing aws instances: ",err);
@@ -114,7 +126,8 @@ var CW = function(awsSettings) {
             }
         });
     };
-    this.getTotalCostMinimum = function(nodes,callback){
+
+    this.getTotalCostMinimum = function getTotalCostMinimum(nodes,callback) {
         cloudwatch.getMetricStatistics(params1,function(err,data1){
             if(err){
                 logger.debug("Error occurred for listing aws instances: ",err);
@@ -130,6 +143,30 @@ var CW = function(awsSettings) {
             }
         });
     };
+
+    this.getUsageMetricsFor24Hours = function getUsageMetrics(metric, instanceId, startTime, endTime, next) {
+        var params = {
+            EndTime: endTime,
+            MetricName: metric,
+            Namespace: 'AWS/EC2',
+            Period: 86400,
+            StartTime: startTime,
+            Statistics: ['Average'],
+            Dimensions: [{Name:'InstanceId',Value:instanceId}]
+        };
+
+        cloudwatch.getMetricStatistics(params,function(err, data) {
+            // console.log('inside cw api');
+            if(err) {
+                callback(err,null);
+            } else if(data.Datapoints.length > 0) {
+                next(null, data.Datapoints[0].Average);
+            } else if(data.Datapoints.length == 0) {
+                next(null, 0);
+            }
+        });
+    }
+
 }
 
 module.exports = CW;
