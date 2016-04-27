@@ -72,7 +72,7 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*azureArmCtrl*/
-                getAllAzureList: function(envParams,paginationParams) {
+                getPaginatedARM: function(envParams,paginationParams) {
                     var pageStr = paginationUtil.pageObjectToString(paginationParams);
                     var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
                     '/projects/' + envParams.proj + '/environments/' + envParams.env + '/azureArmList'+pageStr;                    
@@ -131,7 +131,7 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*instanceCtrl*/
-                getAllInstancesList: function(envParams,paginationParams) {
+                getPaginatedInstances: function(envParams,paginationParams) {
                     var pageStr = paginationUtil.pageObjectToString(paginationParams);
                     var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
                     '/projects/' + envParams.proj + '/environments/' + envParams.env + '/instanceList'+pageStr;                    
@@ -248,7 +248,7 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*orchestrationCtrl*/
-                gettasksList: function(envParams,paginationParams) {
+                getPaginatedTasks: function(envParams,paginationParams) {
                     var pageStr = paginationUtil.pageObjectToString(paginationParams);
                     var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
                     '/projects/' + envParams.proj + '/environments/' + envParams.env + '/taskList'+pageStr;                    
@@ -339,7 +339,7 @@
                     var url = '/instances/' + instanceID + '/stopInstance';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getAllCftList: function(envParams,paginationParams) {
+                getPaginatedCFT: function(envParams,paginationParams) {
                     var pageStr = paginationUtil.pageObjectToString(paginationParams);
                     var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
                     '/projects/' + envParams.proj + '/environments/' + envParams.env + '/cftList'+pageStr;                    

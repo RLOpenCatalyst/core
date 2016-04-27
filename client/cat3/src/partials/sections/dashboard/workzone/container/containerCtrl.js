@@ -7,25 +7,25 @@
 
 (function (angular) {
 	"use strict";
-	angular.module('workzone.container', [ 'ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'datatables', 'mgcrea.ngStrap', 'ngSanitize', 'utility.pagination'])
+	angular.module('workzone.container', [ 'ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'mgcrea.ngStrap', 'ngSanitize', 'utility.pagination'])
 		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil','$timeout', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil, $timeout) {
 			$scope.isContainerPageLoading = true;
 			var gridBottomSpace = 60;
 			$scope.paginationParams={
 				pages:{
 					page:1,
-					pageSize:1
+					pageSize:5
 				},
 				sort:{
-					field:'Names',
-					direction:'desc'
+					field:'',
+					direction:''
 				}
 			};
 
 			$scope.tabData = [];
-
+			$scope.truncateImageIDLimit = 12;
 			$scope.containerGridOptions={
-				paginationPageSizes: [1, 2, 3, 4],
+				paginationPageSizes: [5, 10, 15],
 				paginationPageSize: $scope.paginationParams.pages.pageSize,
 				paginationCurrentPage:$scope.paginationParams.pages.page,
 				enableColumnMenus:false,
@@ -52,6 +52,8 @@
 					{ name:'More Info',enableSorting: false ,cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.dockerMoreInfo(row.entity)"></i></div>', cellTooltip: true}
 				];
 			};
+			/*APIs registered are triggered as ui-grid is configured 
+			for server side(external) pagination.*/
 			$scope.containerGridOptions.onRegisterApi = function(gridApi) {
 				$scope.gridApi = gridApi;
 				//Sorting for sortBy and sortOrder
@@ -73,7 +75,7 @@
 			};
 			$scope.getContainerList = function() {
 				$scope.isContainerPageLoading = true;
-				workzoneServices.getDockerContainers($scope.requestParams, $scope.paginationParams).then(function(result) {
+				workzoneServices.getDockerContainers($scope.envParams, $scope.paginationParams).then(function(result) {
 					$timeout(function() {
 						$scope.containerGridOptions.totalItems = result.data.metaData.totalRecords;
 						$scope.tabData = result.data.containerList;
@@ -89,7 +91,6 @@
 				return (actionType)? "fa fa-power-off" : "fa fa-play";
 			};
 			$scope.getImageId = function(imageId){
-				$scope.truncateImageIDLimit = 12;
 				return imageId.substring(0,$scope.truncateImageIDLimit);
 			};
 			
@@ -206,11 +207,11 @@
 					$timeout(function() {
 						$scope.tabData = tableData;
 						$scope.isContainerPageLoading = false;
-					}, 500);
+					}, 100);
 				}
 			});
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
-				$scope.requestParams = requestParams;
+				$scope.envParams = requestParams;
 				$scope.initGrids();
 				$scope.getContainerList();
 				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('containerPage')-gridBottomSpace;

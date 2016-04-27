@@ -108,6 +108,8 @@
 				{ name:'Action', enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}	
 			];
 		};
+		/*APIs registered are triggered as ui-grid is configured 
+		for server side(external) pagination.*/
 		$scope.instancesGridOptions.onRegisterApi= function(gridApi) {
 			$scope.gridApi = gridApi;
 
@@ -140,7 +142,6 @@
 	      		pageSize:$scope.cardsPerPage
       		};
       		$scope.instancesGridOptions.paginationCurrentPage = $scope.currentCardPage;
-	    	$scope.instancesListCardView();
 	   	};
 		//variables used in rendering of the cards and table && checking ssh
 		angular.extend($scope, {
@@ -148,7 +149,7 @@
 				$scope.isInstancePageLoading = true;
 				$scope.instanceList = [];
 				// service to get the list of instances.
-				workzoneServices.getAllInstancesList($scope.requestParams, $scope.paginationParams).then(function(result) {
+				workzoneServices.getPaginatedInstances($scope.envParams, $scope.paginationParams).then(function(result) {
 					$timeout(function() {
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
 						$scope.tabData = $scope.instanceList = result.data.instances;
@@ -320,11 +321,11 @@
 
 		$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 			$scope.instancesGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = 1;
-			$scope.requestParams=requestParams;
+			$scope.envParams=requestParams;
 			$scope.initGrids();
 			$scope.instancesListCardView();
 			$scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage')-gridBottomSpace;
-			workzoneUIUtils.makeTabScrollable('instancePage');//TODO: Ideally this should be on resize event;
+			//workzoneUIUtils.makeTabScrollable('instancePage');//TODO: Ideally this should be on resize event;
 		});
 		$rootScope.$on('WZ_TAB_VISIT', function(event, tabName) {
 			if (tabName === 'Instances') {
@@ -334,7 +335,7 @@
 				$timeout(function() {
 					$scope.tabData = tableData;
 					$scope.isInstancePageLoading = false;
-				}, 500);
+				}, 100);
 			}
 		});
 

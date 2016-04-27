@@ -24,20 +24,9 @@
 
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isAzureARMPageLoading = true;
-				$scope.requestParams=requestParams;
+				$scope.envParams=requestParams;
 				$scope.azureListCardView();
 
-			});
-			$rootScope.$on('WZ_TAB_VISIT', function(event, tabName) {
-				if (tabName === 'azureARM') {
-					$scope.isAzureARMPageLoading = true;
-					var tableData = $scope.tabData;
-					$scope.tabData = [];
-					$timeout(function() {
-						$scope.tabData = tableData;
-						$scope.isAzureARMPageLoading = false;
-					}, 500);
-				}
 			});
 			$scope.cardPaginationArmChange = function() {
 				$scope.paginationParams.pages = {
@@ -51,13 +40,10 @@
 					$scope.isAzureARMPageLoading = true;
 					$scope.arms = [];
 					// service to get the list of azureArm
-					workzoneServices.getAllAzureList($scope.requestParams, $scope.paginationParams).then(function(result) {
-						$timeout(function() {
-							$scope.totalCards = result.data.metaData.totalRecords;
-							$scope.tabData = $scope.arms = result.data.azureArms;
-							$scope.isAzureARMPageLoading = false;
-							$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
-						}, 100);
+					workzoneServices.getPaginatedARM($scope.envParams, $scope.paginationParams).then(function(result) {
+						$scope.totalCards = result.data.metaData.totalRecords;
+						$scope.isAzureARMPageLoading = false;
+						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
 					},function(error) {
 						$scope.isAzureARMPageLoading = false;
 						console.log(error);

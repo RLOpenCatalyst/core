@@ -20,7 +20,7 @@
 			$scope.paginationParams = {
 				pages: {
 					page: 1,
-					pageSize: 5
+					pageSize: 10
 				},
 				sort: {
 					field: '',
@@ -30,7 +30,7 @@
 			$scope.tabData = [];
 
 			$scope.orcheGridOptions = {
-				paginationPageSizes: [5, 10, 15],
+				paginationPageSizes: [10, 25, 50],
 				paginationPageSize: $scope.paginationParams.pages.pageSize,
 				paginationCurrentPage: $scope.paginationParams.pages.page,
 				enableColumnMenus: false,
@@ -71,7 +71,8 @@
 					'<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10" ng-click="grid.appScope.deleteTask(row.entity)" ng-show="grid.appScope.perms.deleteTask;"></span>', cellTooltip: true}
 				];
 			};
-
+			/*APIs registered are triggered as ui-grid is configured 
+			for server side(external) pagination.*/
 			$scope.orcheGridOptions.onRegisterApi = function(gridApi) {
 
 				$scope.gridApi = gridApi;
@@ -111,11 +112,11 @@
 						}
 					});
 				},
-				paginationParams: function() {
+				setPaginationDefaults: function() {
 					$scope.paginationParams = {
 						pages: {
-							page: 1,
-							pageSize: 5
+							page: '',
+							pageSize: ''
 						},
 						sort: {
 							field: 'taskCreateOn',
@@ -129,7 +130,7 @@
 				taskListGridView: function() {
 					$scope.isOrchestrationPageLoading = true;
 					// service to get the list of tasks
-					workzoneServices.gettasksList($scope.requestParams, $scope.paginationParams).then(function(result) {
+					workzoneServices.getPaginatedTasks($scope.envParams, $scope.paginationParams).then(function(result) {
 						$timeout(function() {
 							$scope.orcheGridOptions.totalItems = result.data.metaData.totalRecords;
 							$scope.tabData = result.data.tasks;
@@ -297,7 +298,7 @@
 			});
 			/*method being called to set the first page view*/
 			$scope.setFirstPageView = function(){
-				helper.paginationParams();
+				helper.setPaginationDefaults();
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = 1;
 			};
 			/*method being called to set the last page view when a new task is created*/
@@ -305,13 +306,13 @@
 				$scope.orcheGridOptions.totalItems = $scope.orcheGridOptions.totalItems + 1;
 				var lastPage = (Math.ceil(($scope.orcheGridOptions.totalItems)/$scope.orcheGridOptions.paginationPageSize));
 				//Set sortBy and sortField to controller defaults;
-				helper.paginationParams();
+				helper.setPaginationDefaults();
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = lastPage;				
 				$scope.taskListGridView();
 			};
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
 				$scope.isOrchestrationPageLoading = true;
-				$scope.requestParams=requestParams;
+				$scope.envParams=requestParams;
 				$scope.initGrids();
 				$scope.setFirstPageView();
 				$scope.taskListGridView();
@@ -326,7 +327,7 @@
 					$timeout(function(){
 						$scope.tabData = tableData;
 						$scope.isOrchestrationPageLoading = false;
-					}, 500);
+					}, 100);
 				}
 			});
 		}]);

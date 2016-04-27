@@ -28,19 +28,8 @@
 
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isCloudFormationPageLoading = true;
-				$scope.requestParams=requestParams;
+				$scope.envParams=requestParams;
 				$scope.cftListCardView();
-			});
-			$rootScope.$on('WZ_TAB_VISIT', function(event, tabName) {
-				if (tabName === 'CloudFormation') {
-					$scope.isCloudFormationPageLoading = true;
-					var tableData = $scope.tabData;
-					$scope.tabData = [];
-					$timeout(function() {
-						$scope.tabData = tableData;
-						$scope.isCloudFormationPageLoading = false;
-					}, 500);
-				}
 			});
 			$scope.cardPaginationCftChange = function() {
 				$scope.paginationParams.pages = {
@@ -54,14 +43,10 @@
 					$scope.isCloudFormationPageLoading = true;
 					$scope.stacks = [];
 					// service to get the list of containers.
-					workzoneServices.getAllCftList($scope.requestParams, $scope.paginationParams).then(function(result) {
-						$timeout(function() {
-							console.log('setting total to' + result.data.metaData.totalRecords);
-							$scope.totalCards = result.data.metaData.totalRecords;
-							$scope.tabData = $scope.stacks = result.data.cftList;
-							$scope.isCloudFormationPageLoading = false;
-							$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
-						}, 100);
+					workzoneServices.getPaginatedCFT($scope.envParams, $scope.paginationParams).then(function(result) {
+						$scope.totalCards = result.data.metaData.totalRecords;
+						$scope.isCloudFormationPageLoading = false;
+						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
 					},function(error) {
 						$scope.isCloudFormationPageLoading = false;
 						console.log(error);
