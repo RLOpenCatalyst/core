@@ -62,9 +62,10 @@
                     var url = '/app/deploy/pipeline' + '/project/' + projId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getApplicationHistoryForEnv: function (envName, projId) {
-                    //var url = '/cat3/data/appDeployEnvList.json';
-                    var url = '/app/deploy/env/' + envName + '/project/' + projId + '/list';
+                getApplicationHistoryForEnv: function (envName, projId,pagiOpti) {
+                    var pageiReq='pageNumber='+pagiOpti.page+',pageSize='+pagiOpti.pageSize+',field='+pagiOpti.sortBy+',direction='+pagiOpti.sortOrder;
+                    var url = '/app/deploy/project/' + projId + '/env/'+ envName +'/appDeployHistoryList?'+pageiReq;
+
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getApplicationHistoryLogs: function(appId) {
@@ -429,6 +430,19 @@
                 getNexusVersions:function(requestData){
                     var p = workzoneEnvironment.getEnvParams(),
                         url = '/app/deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact/'+requestData.artifactId+'/versionList';
+                    return $http.get(fullUrl(url));
+                },
+                getPipelineConfig:function(requestEnv){
+                   var url = '/app/deploy/pipeline/project/'+requestEnv.proj;
+                    return $http.get(fullUrl(url));
+                },
+                getPipelineView :function(requestEnv,pgOptions){
+                    var pageiReq='page='+pgOptions.page+'&pageSize='+pgOptions.pageSize+'&sortBy='+pgOptions.sortBy+'&sortOrder='+pgOptions.sortOrder;
+                    var url = '/app/deploy/project/'+requestEnv.proj+'/appDeployList?'+pageiReq;
+                    return $http.get(fullUrl(url));
+                },
+                getCardDetails :function(envDetails){
+                    var url= '/app/deploy/project/' + envDetails.params.proj + '/env/' + envDetails.env + '/appDeployHistoryList?page=1&pageSize=300';
                     return $http.get(fullUrl(url));
                 }
             };
