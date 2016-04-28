@@ -829,19 +829,20 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             nexus['nodeIds'] = data[0].nexus.nodeIds;
                             nexus['repository'] = data[0].nexus.repository;
                             nexus['groupId'] = data[0].nexus.groupId;
-                            nexus['taskId'] = data[0].nexus.taskId;
+                            nexus['taskId'] = taskId;
                         }
-                        if(data[0].docker && data[0].docker.nodeIds.length){
-                            docker['image'] = data[0].docker.image;
-                            docker['containerName'] = data[0].docker.containerName;
-                            docker['containerPort'] = data[0].docker.containerPort;
-                            docker['hostPort'] = data[0].docker.hostPort;
-                            docker['dockerUser'] = data[0].docker.dockerUser;
-                            docker['dockerPassword'] = data[0].docker.dockerPassword;
-                            docker['dockerEmailId'] = data[0].docker.dockerEmailId;
-                            docker['imageTag'] = data[0].docker.imageTag;
-                            docker['nodeIds'] = data[0].docker.nodeIds;
-                            docker['taskId'] = data[0].docker.taskId;
+
+                        if(data[0].docker && data[0].docker.length && data[0].docker[0].nodeIds.length){
+                            docker['image'] = data[0].docker[0].image;
+                            docker['containerName'] = data[0].docker[0].containerName;
+                            docker['containerPort'] = data[0].docker[0].containerPort;
+                            docker['hostPort'] = data[0].docker[0].hostPort;
+                            docker['dockerUser'] = data[0].docker[0].dockerUser;
+                            docker['dockerPassword'] = data[0].docker[0].dockerPassword;
+                            docker['dockerEmailId'] = data[0].docker[0].dockerEmailId;
+                            docker['imageTag'] = data[0].docker[0].imageTag;
+                            docker['nodeIds'] = data[0].docker[0].nodeIds;
+                            docker['taskId'] = taskId;
                         }
                         var nexusData = {
                             "appData": {
@@ -857,8 +858,8 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 "envName": targetEnvName,
                                 "appName": data[0].appName,
                                 "version": data[0].version,
-                                "nexus": data[0].nexus,
-                                "docker": data[0].docker
+                                "nexus": nexus,
+                                "docker": docker
                             }
                         };
                         $.ajax({

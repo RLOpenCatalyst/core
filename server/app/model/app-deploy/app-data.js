@@ -71,7 +71,7 @@ var AppDataSchema = new Schema({
             trim: true
         }
     },
-    docker: {
+    docker: [{
         image: {
             type: String,
             trim: true
@@ -111,7 +111,7 @@ var AppDataSchema = new Schema({
             type: String,
             trim: true
         }
-    },
+    }],
     s3Bucket: {
         url: {
             type: String,

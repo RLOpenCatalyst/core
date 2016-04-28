@@ -385,7 +385,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             docker['imageTag'] = appData.docker.imageTag;
                             docker['nodeIds'] = appData.docker.nodeIds;
                             docker['hostPort'] = appData.docker.hostPort;
-                            nexus['taskId'] = this.id;
+                            docker['taskId'] = this.id;
                             appName = appData.docker.image;
                             appVersion = appData.docker.imageTag;
                         }
