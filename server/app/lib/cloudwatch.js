@@ -144,14 +144,14 @@ var CW = function(awsSettings) {
         });
     };
 
-    this.getUsageMetricsFor24Hours = function getUsageMetrics(metric, instanceId, startTime, endTime, next) {
+    this.getUsageMetricsFor24Hours = function getUsageMetrics(metric, instanceId, startTime, endTime, callback) {
         var params = {
             EndTime: endTime,
             MetricName: metric,
             Namespace: 'AWS/EC2',
             Period: 86400,
             StartTime: startTime,
-            Statistics: ['Average'],
+            Statistics: ['Average', 'Minimum', 'Maximum'],
             Dimensions: [{Name:'InstanceId',Value:instanceId}]
         };
 
@@ -160,9 +160,19 @@ var CW = function(awsSettings) {
             if(err) {
                 callback(err,null);
             } else if(data.Datapoints.length > 0) {
-                next(null, data.Datapoints[0].Average);
+                var result = {
+                    average: data.Datapoints[0].Average,
+                    minimum: data.Datapoints[0].Minimum,
+                    maximum: data.Datapoints[0].Maximum
+                };
+                callback(null, result);
             } else if(data.Datapoints.length == 0) {
-                next(null, 0);
+                var result = {
+                    average: 0,
+                    minimum: 0,
+                    maximum: 0
+                };
+                callback(null, result);
             }
         });
     }

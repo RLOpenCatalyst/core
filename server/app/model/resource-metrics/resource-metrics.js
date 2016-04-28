@@ -68,8 +68,21 @@ var ResourceMetricsSchema = new Schema({
         required: false,
         trim: true
     },
-    usageMetrics: Schema.Types.Mixed
+    metrics: Schema.Types.Mixed
 });
+
+ResourceMetricsSchema.statics.createNew = function createNew(data, callback) {
+    var self = this;
+    var resuourceMetrics = new self(data);
+
+    resuourceMetrics.save(function (err, data) {
+        if (err && typeof callback == 'function') {
+            return callback(err, null);
+        } else if(typeof callback == 'function') {
+            return callback(null, resuourceMetrics);
+        }
+    });
+};
 
 var ResourceMetrics = mongoose.model('ResourceMetrics', ResourceMetricsSchema);
 module.exports = ResourceMetrics;

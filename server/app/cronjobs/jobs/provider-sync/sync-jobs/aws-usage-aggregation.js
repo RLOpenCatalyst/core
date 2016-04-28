@@ -22,6 +22,7 @@ var CW = require('_pr/lib/cloudwatch.js');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
+var resourceMetricsModel = require('_pr/model/resource-metrics');
 var async = require('async');
 var tagsModel = require('_pr/model/tags');
 
@@ -57,12 +58,14 @@ function aggregateEC2UsageForProvider(provider) {
             getEC2InstanceUsageMetrics(provider, instances, next);
         },
         function (ec2UsageMetrics, next) {
-            console.log(ec2UsageMetrics);
-            // saveResourceUsageMetrics(resourceMetrics, next);
+            saveResourceUsageMetrics(ec2UsageMetrics, next);
         }
     ],
-    function(err) {
-        logger.error(err);
+    function(err, results) {
+        if(err)
+            logger.error(err);
+        else if(results)
+            logger.debug('Usage aggregation for provider: ' + provider._id + ' ended');
     });
 }
 
@@ -164,7 +167,7 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
                         resourceType: 'EC2',
                         startTime: startTime,
                         endTime: endTime,
-                        usageMetrics: results
+                        metrics: results
                     });
 
                     if(instanceUsageMetrics.length == instances.length) {
@@ -176,5 +179,23 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
     }
 }
 
-function saveResourceUsageMetrics () {
+function saveResourceUsageMetrics (resourceMetrics, next) {
+    var results = [];
+    for(var i = 0; i < resourceMetrics.length; i++) {
+        (function(j) {
+            resourceMetricsModel.createNew(resourceMetrics[j],
+                function(err, resourceMetricsObj) {
+                    if(err) {
+                        next(err);
+                    } else {
+                        results.push(resourceMetricsObj);
+                    }
+
+                    if(results.length == resourceMetrics.length) {
+                        next(null, results);
+                    }
+                }
+            );
+        })(i);
+    };
 }
