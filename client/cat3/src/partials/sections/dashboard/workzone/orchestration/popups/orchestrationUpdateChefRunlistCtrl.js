@@ -79,8 +79,6 @@
 			cancel: function () {
 				$modalInstance.dismiss('cancel');
 			},
-			HelpScreen: function () {
-			},
 			changeSelection: function (className) {
 				//compositeSelector.
 				if (className === "all") {

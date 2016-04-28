@@ -71,6 +71,65 @@
 					console.log("Promise rejected puppetRunClient:" + rejectMessage);
 				});
 			};
+			$scope.operationSet.changeInstanceStatus = function(inst) {
+			//$scope.instStartStopFlag = true;
+			var instObj = {_inst:inst, _id:inst._id, state:inst.instanceState, instIdx:$scope.instanceList.indexOf(inst)};
+			workzoneServices.getInstanceData(inst).then(
+				function(response){
+					if(response.data.instanceState==="running"){						
+						var stopPromise = instanceOperations.stopInstanceHandler(inst, $scope.perms.stop);
+						stopPromise.then(function(){
+							$scope.operationSet.checkInstanceStatus(instObj, 2000);
+							$scope.operationSet.viewLogs(inst);
+						}, function(rejectMessage){
+							$scope.instStartStopFlag = false;
+							console.log("Promise rejected " + rejectMessage);
+						});
+					}else{						
+						var startPromise = instanceOperations.startInstanceHandler(inst, $scope.perms.start);
+						startPromise.then(function(){
+							$scope.operationSet.checkInstanceStatus(instObj, 2000);
+							$scope.operationSet.viewLogs(inst);
+						}, function(rejectMessage){
+							$scope.instStartStopFlag = false;
+							console.log("Promise rejected " + rejectMessage);
+						});
+					}
+				}
+			);
+		};
+		$scope.operationSet.checkInstanceStatus = function(instObj, delay){
+			var _instObj = instObj;
+
+			$timeout(function(){
+				workzoneServices.getInstanceData(instObj._inst).then(
+					function(response){
+						if(response){
+							$scope.instanceList[_instObj.instIdx].instanceState = response.data.instanceState;
+							console.log(response.data.instanceState, ' polling');
+
+							if( response.data.instanceState === 'stopped' || response.data.instanceState === 'running' ){
+								$scope.instStartStopFlag = false;
+								console.log(response.data.instanceState, ' polling complete');
+
+								/*if (data.appUrls && data.appUrls.length) {
+									for (var k = 0; k < data.appUrls.length; k++) {
+										var url = data.appUrls[k].url;
+										url = url.replace('$host', data.instanceIP);
+										$('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url);
+									}
+								}*/
+
+							}else{
+								$scope.operationSet.checkInstanceStatus(_instObj, 5000);
+							}
+						}
+					},
+					function(){
+					}
+				);
+			}, delay);
+		};
 			/*END: Methods which make use of instanceService*/
 
 			angular.extend($scope, {

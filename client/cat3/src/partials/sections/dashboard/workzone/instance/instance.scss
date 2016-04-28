@@ -718,6 +718,13 @@ $imagePath : "../../../../../../images";
 	}
 }
 
+#inspectSoftwarePage {
+	.inspect-software-content {
+		height: 370px;
+		overflow-y: auto;
+	}
+}
+
 /*Global CSS in Instance Page*/
 .app_url {
 	font-size: 10px;

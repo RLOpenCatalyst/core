@@ -3,14 +3,12 @@
 	<h4 class="modal-title"> Confirmation </h4>
 </div>
 
-<div class="modal-body no-padding">
+<div class="modal-body">
 	Are you sure you want to Start the instance "{{ instance.name }}"
 </div>
-
-<loading size="small"></loading>
-
-<div >{{ authMsg }}</div>
 <div class="modal-footer">
+	<loading name="isStartStopInstanceLoading" size="small" type="block" align="right"></loading>
+	<div ng-show="!isStartStopInstanceLoading">{{ authMsg }}</div>
 	<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
 	<button type="button" class="btn cat-btn-update" ng-click="ok()">Ok</button>
 </div>
