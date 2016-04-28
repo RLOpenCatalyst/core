@@ -1291,8 +1291,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 hostedChefUrl: infraManagerDetails.url,
                                             });
 
-                                            //console.log('update Runlist ==>',jsonAttributeObj);
-
                                             runOptions = {
                                                 privateKey: decryptedCredentials.pemFileLocation,
                                                 username: decryptedCredentials.username,

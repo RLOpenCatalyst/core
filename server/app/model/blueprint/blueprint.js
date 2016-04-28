@@ -473,9 +473,6 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         }
     }
 
-
-    console.log('object Array ===> ',objectArray);
-
     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
     //var temp = new Date().getTime();
     if (blueprint.nexus.url) {
