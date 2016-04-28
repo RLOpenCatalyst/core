@@ -187,9 +187,9 @@
 								$rootScope.$emit('WZ_REFRESH_ENV');
 							}, function(response) {
 								console.log('error:: ' + response.toString());
-						});
-					}
-				},
+							});
+						}
+					},
 				getHistory: function(task) {
 					$modal.open({
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
