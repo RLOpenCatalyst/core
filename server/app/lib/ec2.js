@@ -401,7 +401,30 @@ var EC2 = function(awsSettings) {
 		});
 	};
 
+	this.createTags = function(instanceId, tags, callback) {
+		var tagsArray = [];
+		for(var key in tags) {
+			tagsArray.push({
+				Key: key,
+				Value: tags[key]
+			});
+		}
+		console.log(tagsArray);
 
+		var params = {
+			Resources: [
+				instanceId
+			],
+			Tags: tagsArray
+		}
+		ec.createTags(params, function(err, instanceData) {
+			if(err) {
+				callback(err);
+			} else {
+				callback(null, instanceData);
+			}
+		});
+	}
 }
 
 module.exports = EC2;
