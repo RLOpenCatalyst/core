@@ -20,7 +20,6 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('../../dao/schema-validator');
-var uniqueValidator = require('mongoose-unique-validator');
 var ChefTask = require('./taskTypeChef');
 var JenkinsTask = require('./taskTypeJenkins');
 var TaskHistory = require('./taskHistory');
@@ -90,6 +89,7 @@ var taskSchema = new Schema({
 	},
 	taskConfig: Schema.Types.Mixed,
 	lastTaskStatus: String,
+	normalized: String,
 	lastRunTimestamp: Number,
 	timestampEnded: Number,
 	blueprintIds: [String],
@@ -632,7 +632,7 @@ taskSchema.statics.listTasks = function(callback) {
 	});
 };
 taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId=function(jsonData,callback){
-	this.find(jsonData,function(err, chefTasks) {
+	this.find(jsonData,{_id:1,taskType:1,name:1,taskConfig:1,blueprintIds:1},function(err, chefTasks) {
 		if (err) {
 			logger.error(err);
 			callback(err, null);
@@ -640,7 +640,58 @@ taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId=function(jsonData,callback
 		}
 		callback(null, chefTasks);
 	});
-}
+};
+taskSchema.statics.getDistinctTaskTypeByIds=function(ids,callback){
+	this.distinct("taskType",{_id:{$in:ids}},function(err,distinctTaskTypes){
+		if (err) {
+			logger.error(err);
+			callback(err, null);
+			return;
+		}
+		callback(null, distinctTaskTypes);
+	});
+};
+
+taskSchema.statics.NormalizedTasks=function(jsonData,fieldName,callback){
+	var queryObj = {
+			orgId: jsonData.orgId,
+			bgId: jsonData.bgId,
+			projectId: jsonData.projectId,
+			envId: jsonData.envId
+		};
+		this.find(queryObj,function(err,tasks){
+			if(err){
+				logger.error(err);
+				callback(err, null);
+				return;
+			}
+			var count=0;
+			for(var i =0;i < tasks.length;i++) {
+				(function(aTask){
+					count++;
+					var normalized=aTask[fieldName];
+					Tasks.update({
+						"_id": new ObjectId(aTask._id)
+					}, {
+						$set: {
+							normalized: normalized.toLowerCase()
+						}
+					}, {
+						upsert: false
+					},function(err,updatedTask){
+						if(err){
+				          logger.error(err);
+				          callback(err, null);
+				          return;
+			            }
+			           if(tasks.length === count){
+			           	callback(null,updatedTask);
+			           }
+					});
+				})(tasks[i]);
+			}
+		})
+};
 
 var Tasks = mongoose.model('Tasks', taskSchema);
 
