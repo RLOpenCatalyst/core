@@ -43,7 +43,7 @@
         "blueprintName": "Demo",
         "templateId": "NodeJS",
         "templateType": "AppFactory",
-        "iconPath": "images/templateicons/imgo.jpg"
+        "iconPath": "/d4dMasters/image/533a5752-4238-4622-ad9c-29344ba2a38b__templatesicon__appFact2.png"
       },
       "credentials": {
         "username": "root",
@@ -72,7 +72,7 @@
       "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
       "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
       "name": "Demo",
-      "iconpath": "images/templateicons/imgo.jpg",
+      "iconpath": "/d4dMasters/image/533a5752-4238-4622-ad9c-29344ba2a38b__templatesicon__appFact2.png",
       "templateId": "NodeJS",
       "templateType": "AppFactory",
       "blueprintConfig": {
