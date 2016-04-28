@@ -26,6 +26,10 @@
 						<div class="card-title-role">
 							<img src="images/global/chef-import.png" ng-show="inst.blueprintData.templateType === 'chef' || inst.blueprintData.templateId==='chef_import'" />
 							<img src="images/templateicons/appFact4.png" ng-show="inst.blueprintData.templateId === 'Apache' || inst.blueprintData.templateId === 'apache'" />
+							<img src="images/templateicons/custom-temp.jpg" ng-show="inst.blueprintData.templateId === 'CustomTemplate'" />
+							<img src="images/templateicons/apache-tomcat.jpeg" ng-show="inst.blueprintData.templateId === 'Tomcat'" />
+							<img src="images/templateicons/imgo.jpg" ng-show="inst.blueprintData.templateId === 'Apache3'" />
+							<img src="images/templateicons/cloudformation.png" ng-show="inst.blueprintData.templateId === 'CFT_newco'" />
 						</div>
 						<div title="{{inst.name}}" class="card-title-name pull-left">{{inst.name}}</div>
 						<div class='card-title-edit'>

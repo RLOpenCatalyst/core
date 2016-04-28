@@ -98,7 +98,6 @@
 		</div>
 
 		<div class="modal-footer">
-			<loading size="small" name="isSubmitLoading" type="block"></loading>
 			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 importErrorMsg text-right error-padding" ng-show="!isSubmitLoading">
 				{{ importErrorMessage }}
 			</div>
@@ -106,9 +105,10 @@
 				<button type="button" class="btn cat-btn-cancel" ng-click="cancel();">
 					<i class="fa fa-times fa-1x black"></i>&nbsp;Cancel
 				</button>
-				<button type="submit" class="btn cat-btn-update" id="addInstanceBtn" ng-click="ok();">
+				<button type="submit" class="btn cat-btn-update" id="addInstanceBtn" ng-click="ok();" ng-disabled="isSubmitLoading">
 					<i class="fa fa-upload fa-1x white"></i>&nbsp;Import
 				</button>
+				<loading size="small" name="isSubmitLoading" type="inline"></loading>
 			</div>
 		</div>
 	</form>
