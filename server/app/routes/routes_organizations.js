@@ -1246,7 +1246,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		async.waterfall(
 			[
 				function(next) {
-					ApiUtils.paginationRequest(req.query,'azurearms',next);
+					ApiUtils.paginationRequest(req.query,'azureArms',next);
 				},
 				function(paginationReq,next){
 					paginationReq['orgId']=req.params.orgId;

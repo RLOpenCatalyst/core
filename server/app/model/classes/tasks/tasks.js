@@ -20,7 +20,6 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('../../dao/schema-validator');
-var uniqueValidator = require('mongoose-unique-validator');
 var ChefTask = require('./taskTypeChef');
 var JenkinsTask = require('./taskTypeJenkins');
 var TaskHistory = require('./taskHistory');

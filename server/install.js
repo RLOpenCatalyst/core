@@ -63,7 +63,26 @@ function getDefaultsConfig() {
         },
         constantData:  {
             common_field:['envId','providerId','orgId','bgId','projectId'],
-            sort_field:['name','description']
+            sort_field:['name','description'],
+            filterReferanceData : {
+                                     "unmanagedInstances" : [{"state" : "running"},{"os" : "linux"}],
+                                     "managedInstances" : [{"instanceState" : "running"}]
+                                  },
+            sort_order : "desc",
+            sortReferanceData : {
+                                     "unmanagedInstances" : "state",
+                                     "managedInstances" : "instanceState",
+                                     "instances" : "instanceCreatedOn",
+                                     "tasks" : "taskCreatedOn",
+                                     "applications" : "name",
+                                     "azureArms" : "status",
+                                     "containerList" : "Status",
+                                     "cftList" : "status",
+                                     "appDeploy" : "envId"
+                                 },
+            skip_Records : 1,
+            max_record_limit : 200,
+            record_limit : 10,
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
