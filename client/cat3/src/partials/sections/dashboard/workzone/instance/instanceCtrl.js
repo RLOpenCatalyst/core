@@ -9,7 +9,7 @@
 	"use strict";
 	angular.module('workzone.instance', ['ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone','utility.array','workzonePermission', 'instanceServices', 'chefDataFormatter'])
 	.controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices','arrayUtil', 'instancePermission', 
-		'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices,arrayUtil, instancePerms, instanceActions, instanceOperations,workzoneEnvironment, $timeout, workzoneUIUtils) {
+		'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService' , function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices,arrayUtil, instancePerms, instanceActions, instanceOperations,workzoneEnvironment, $timeout, workzoneUIUtils,uiGridOptionsService) {
 			console.log('instanceCtrl');
 		var helper = {
 			attachListOfTaskWithInstance: function(completeData) {
@@ -58,91 +58,67 @@
 		/*Setting the paginationParams*/
 		$scope.isInstancePageLoading = true;
 		var gridBottomSpace = 60;
-		$scope.paginationParams={
-			pages:{
-				page:1,
-				pageSize:100
-			},
-			sort:{
-				field:'name',
-				direction:'desc'
-			}
-		};
-		$scope.currentCardPage = $scope.paginationParams.pages.page;
-	   	$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
+		var instanceUIGridDefaults = uiGridOptionsService.options();
+		$scope.paginationParams = instanceUIGridDefaults.pagination;
+		$scope.currentCardPage = instanceUIGridDefaults.pagination.page;
+	   	$scope.cardsPerPage = instanceUIGridDefaults.pagination.pageSize;
 	   	$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
 	   	$scope.totalCards = 0;
 
 		$scope.tabData = [];
-		$scope.instancesGridOptions = {
-			paginationPageSizes: [10, 25, 50, 100],
-			paginationPageSize: $scope.paginationParams.pages.pageSize,
-			paginationCurrentPage: $scope.paginationParams.pages.page,
-			enableColumnMenus: false,
-			enableScrollbars: true,
-			enableHorizontalScrollbar: 0,
-			enableVerticalScrollbar: 1,
-			useExternalPagination: true,
-			useExternalSorting: true
-		};
 		/*grid method to define the columns that need to be present*/
 		$scope.initGrids = function(){
-			
-			$scope.instancesGridOptions.data='tabData';
-			$scope.instancesGridOptions.columnDefs = [
-				{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'+
-				'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>', cellTooltip: true},
-				{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
-				'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
-				'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+
-				'</span>', cellTooltip: true},
-				{ name:'Ip Address', field:'instanceIP',cellTooltip: true},
-				{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
-				{ name:'Status', enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
-				{ name:'Log Info', enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
-				{ name:'Chef Run', enableSorting: false ,  cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'+
-				'<div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>'+
-				'<div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>'+
-				'<div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled">'+
-				'</div>', cellTooltip: true},
-				{ name:'Action', enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}	
-			];
+			$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption,{
+			data:'tabData',
+				columnDefs : [
+					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'+
+					'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>', cellTooltip: true},
+					{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
+					'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
+					'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+
+					'</span>', cellTooltip: true},
+					{ name:'Ip Address', field:'instanceIP',cellTooltip: true},
+					{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
+					{ name:'Status', enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
+					{ name:'Log Info', enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
+					{ name:'Chef Run', enableSorting: false ,  cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'+
+					'<div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>'+
+					'<div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>'+
+					'<div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled">'+
+					'</div>', cellTooltip: true},
+					{ name:'Action', enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}	
+				],
+			});
 		};
 		/*APIs registered are triggered as ui-grid is configured 
 		for server side(external) pagination.*/
-		$scope.instancesGridOptions.onRegisterApi= function(gridApi) {
-			$scope.gridApi = gridApi;
+		$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption, {
+			onRegisterApi: function(gridApi) {
+				$scope.gridApi = gridApi;
 
-			  //Sorting for sortBy and sortOrder
-		      gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
-		      	if(sortColumns.length){
-			      	$scope.paginationParams.sort={
-			      		field:sortColumns[0].field,
-			      		direction: sortColumns[0].sort.direction
-			      	};
-			      	$scope.instancesListCardView();
-			    }
-		      });
-
-		      //Pagination for page and pageSize
-		      gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
-		      	$scope.paginationParams.pages={
-		      		page:newPage,
-		      		pageSize:pageSize
-	      		};
-	      		$scope.currentCardPage = newPage;
-	      		$scope.cardsPerPage = pageSize;
-	      		
-	      		$scope.instancesListCardView();
-		      });
-		};
+				//Sorting for sortBy and sortOrder
+				gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+					if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
+						$scope.paginationParams.sortBy = sortColumns[0].field;
+						$scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
+						$scope.instancesListCardView();
+					}
+				});
+				//Pagination for page and pageSize
+				gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+					$scope.paginationParams.page = newPage;
+					$scope.paginationParams.pageSize = pageSize;
+					$scope.currentCardPage = newPage;
+					$scope.cardsPerPage = pageSize;
+					$scope.instancesListCardView();
+				});
+			},
+		});
 		$scope.cardPaginationChange = function() {
-	   		$scope.paginationParams.pages={
-	      		page:$scope.currentCardPage,
-	      		pageSize:$scope.cardsPerPage
-      		};
-      		$scope.instancesGridOptions.paginationCurrentPage = $scope.currentCardPage;
-	   	};
+			$scope.paginationParams.page = $scope.currentCardPage;
+			$scope.paginationParams.pageSize = $scope.cardsPerPage;
+			$scope.instancesGridOptions.paginationCurrentPage = $scope.currentCardPage;
+		};
 		//variables used in rendering of the cards and table && checking ssh
 		angular.extend($scope, {
 			instancesListCardView: function() {
@@ -154,7 +130,7 @@
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
 						$scope.tabData = $scope.instanceList = result.data.instances;
 						$scope.isInstancePageLoading = false;
-						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pages.pageSize);
+						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pageSize);
 					}, 100);
 				}, function(error) {
 					$scope.isInstancePageLoading = false;
@@ -318,9 +294,13 @@
 			}, delay);
 		};
 		/*END: Methods which make use of instanceService*/
+		/*setting the firstPageView*/
+		$scope.setFirstPageView = function() {
+			$scope.instancesGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
+		};
 
 		$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
-			$scope.instancesGridOptions.paginationCurrentPage = $scope.paginationParams.pages.page = 1;
+			$scope.setFirstPageView();
 			$scope.envParams=requestParams;
 			$scope.initGrids();
 			$scope.instancesListCardView();
@@ -338,6 +318,15 @@
 				}, 100);
 			}
 		});
+
+		var helper = {
+			setPaginationDefaults: function() {
+				$scope.paginationParams.page = '';
+				$scope.paginationParams.pageSize = '';
+				$scope.paginationParams.sortBy = 'instanceCreatedOn';
+				$scope.paginationParams.sortOrder = 'desc';
+			}
+		}
 
 		$scope.instanceImportByIP = function() {
 			var whetherConfigListAvailable = workzoneServices.getCheckIfConfigListAvailable();
@@ -360,6 +349,8 @@
 				}
 			});
 			modalInstance.result.then(function(newinstId) {
+				$scope.setFirstPageView();
+				helper.setPaginationDefaults();
 				$scope.instancesListCardView();
 				$scope.operationSet.viewLogs(newinstId);
 			}, function() {
@@ -386,7 +377,6 @@
 			$scope.isCardViewActive = false;
 			$scope.instanceTableViewSelection = "selectedView";
 			$scope.instanceCardViewSelection = "";
-			//$scope.instancesListCardView();
 			var tableData = $scope.tabData;
 			$scope.tabData = [];
 			$timeout(function(){

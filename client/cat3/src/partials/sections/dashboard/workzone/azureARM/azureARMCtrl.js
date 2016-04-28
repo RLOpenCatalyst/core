@@ -8,16 +8,12 @@
 (function(angular) {
 	'use strict';
 	angular.module('workzone.azureARM', ['apis.workzone', 'ngAnimate', 'ui.bootstrap','utility.array'])
-		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', '$timeout', function($scope, workzoneServices, $modal, $rootScope, $timeout) {
+		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', '$timeout', 'uiGridOptionsService', function($scope, workzoneServices, $modal, $rootScope, $timeout, uiGridOptionsService) {
 			$scope.isAzureARMPageLoading = true;
-			$scope.paginationParams = {
-				pages: {
-					page: 1,
-					pageSize: 1
-				}
-			};
-			$scope.currentCardPage = $scope.paginationParams.pages.page;
-			$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
+			var armPaginationDefault = uiGridOptionsService.options();
+			$scope.paginationParams = armPaginationDefault.pagination;
+			$scope.currentCardPage = armPaginationDefault.pagination.page;
+			$scope.cardsPerPage = armPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
 
@@ -29,10 +25,8 @@
 
 			});
 			$scope.cardPaginationArmChange = function() {
-				$scope.paginationParams.pages = {
-					page: $scope.currentCardPage,
-					pageSize: $scope.cardsPerPage
-				};
+				$scope.paginationParams.page = $scope.currentCardPage,
+				$scope.paginationParams.pageSize = $scope.cardsPerPage;
 				$scope.azureListCardView();
 			};
 			angular.extend($scope, {
@@ -43,7 +37,7 @@
 					workzoneServices.getPaginatedARM($scope.envParams, $scope.paginationParams).then(function(result) {
 						$scope.totalCards = result.data.metaData.totalRecords;
 						$scope.isAzureARMPageLoading = false;
-						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
+						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pageSize);
 					},function(error) {
 						$scope.isAzureARMPageLoading = false;
 						console.log(error);
