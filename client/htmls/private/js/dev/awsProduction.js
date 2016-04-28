@@ -24,6 +24,7 @@ if (!$.fn.dataTable.isDataTable('#tableRunlistForBlueprint')) {
         "bLengthChange": false,
         "paging": false,
         "bFilter": false,
+        "bSort": false,
         "aoColumns": [{
             "bSortable": false
         }]

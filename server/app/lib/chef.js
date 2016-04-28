@@ -477,8 +477,7 @@ var Chef = function(settings) {
                 argList.push('--use-sudo-password');
             }
             argList.push('-P');
-            if (params.instanceOS == 'windows' && !params.instancePassword) {
-            } else {
+            if (params.instanceOS == 'windows' && !params.instancePassword) {} else {
                 argList.push('\"' + params.instancePassword + '\"');
             }
         }
@@ -530,10 +529,12 @@ var Chef = function(settings) {
             logger.debug('procEnv closed: ');
         });
 
+
         if (params.jsonAttributes) {
             argList.push('-j');
             var jsonAttributesString = JSON.stringify(params.jsonAttributes);
             jsonAttributesString = jsonAttributesString.split('"').join('\\\"');
+            jsonAttributesString =  '"' + jsonAttributesString + '"';
             argList.push(jsonAttributesString);
         }
         procNodeDelete.on('close', function(code) {
@@ -671,8 +672,7 @@ var Chef = function(settings) {
             }
 
             logger.debug('host name ==>', options.host);
-            if (!options.password) {
-            }
+            if (!options.password) {}
             var proc = new Process('knife', ['winrm', options.host, ' "chef-client -o ' + runlist.join() + '"', '-m', '-P\"' + options.password + '\"', '-x' + options.username], processOptions);
             proc.start();
         }
@@ -702,8 +702,7 @@ var Chef = function(settings) {
                 callbackOnStdErr(data);
             }
         }
-        if (!options.password) {
-        }
+        if (!options.password) {}
         var proc = new Process('knife', ['winrm', options.host, "\'" + cmd + "\'", '-m', '-P\"', options.password + '\"', '-x', options.username], processOptions);
         proc.start();
     };
