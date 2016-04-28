@@ -473,6 +473,9 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         }
     }
 
+
+    console.log('object Array ===> ',objectArray);
+
     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
     //var temp = new Date().getTime();
     if (blueprint.nexus.url) {
@@ -636,57 +639,75 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 
         });
     } else if (blueprint.docker.image) {
-        objectArray.push({
-            "rlcatalyst": {
-                "containerId": blueprint.docker.containerId
-            }
-        });
-        objectArray.push({
-            "rlcatalyst": {
-                "containerPort": blueprint.docker.containerPort
-            }
-        });
-        objectArray.push({
-            "rlcatalyst": {
-                "dockerImage": blueprint.docker.image
-            }
-        });
+        if (blueprint.docker.containerId) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "containerId": blueprint.docker.containerId
+                }
+            });
+        }
 
-        objectArray.push({
-            "rlcatalyst": {
-                "hostPort": blueprint.docker.hostPort
-            }
-        });
+        if (blueprint.docker.containerPort) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "containerPort": blueprint.docker.containerPort
+                }
+            });
+        }
 
-        objectArray.push({
-            "rlcatalyst": {
-                "dockerUser": blueprint.docker.dockerUser
-            }
-        });
+        if (blueprint.docker.image) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "dockerImage": blueprint.docker.image
+                }
+            });
+        }
 
-        objectArray.push({
-            "rlcatalyst": {
-                "dockerPassword": blueprint.docker.dockerPassword
-            }
-        });
+        if (blueprint.docker.hostPort) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "hostPort": blueprint.docker.hostPort
+                }
+            });
+        }
 
-        objectArray.push({
-            "rlcatalyst": {
-                "dockerEmailId": blueprint.docker.dockerEmailId
-            }
-        });
+        if (blueprint.docker.dockerUser) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "dockerUser": blueprint.docker.dockerUser
+                }
+            });
+        }
 
-        objectArray.push({
-            "rlcatalyst": {
-                "imageTag": blueprint.docker.imageTag
-            }
-        });
+        if (blueprint.docker.dockerPassword) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "dockerPassword": blueprint.docker.dockerPassword
+                }
+            });
+        }
 
+        if (blueprint.docker.dockerEmailId) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "dockerEmailId": blueprint.docker.dockerEmailId
+                }
+            });
+        }
+
+        if (blueprint.docker.imageTag) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "imageTag": blueprint.docker.imageTag
+                }
+            });
+        }
         objectArray.push({
             "rlcatalyst": {
                 "upgrade": false
             }
         });
+
         objectArray.push({
             "rlcatalyst": {
                 "applicationNodeIP": instance.instanceIP
@@ -742,9 +763,12 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         callback(null, attrs);
         return;
     } else {
-        process.nextTick(function() {
+        var attributeObj = utils.mergeObjects(objectArray);
+        callback(null, attributeObj);
+        return;
+        /*process.nextTick(function() {
             callback(null, {});
-        });
+        });*/
     }
 };
 
