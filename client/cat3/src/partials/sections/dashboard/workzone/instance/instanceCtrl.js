@@ -58,17 +58,17 @@
 		/*Setting the paginationParams*/
 		$scope.isInstancePageLoading = true;
 		var gridBottomSpace = 60;
-		var instanceData = uiGridOptionsService.options();
-		$scope.paginationParams = instanceData.pagination;
-		$scope.currentCardPage = instanceData.pagination.page;
-	   	$scope.cardsPerPage = instanceData.pagination.pageSize;
+		var instanceUIGridDefaults = uiGridOptionsService.options();
+		$scope.paginationParams = instanceUIGridDefaults.pagination;
+		$scope.currentCardPage = instanceUIGridDefaults.pagination.page;
+	   	$scope.cardsPerPage = instanceUIGridDefaults.pagination.pageSize;
 	   	$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
 	   	$scope.totalCards = 0;
 
 		$scope.tabData = [];
 		/*grid method to define the columns that need to be present*/
 		$scope.initGrids = function(){
-			$scope.instancesGridOptions = angular.extend(instanceData.gridOption,{
+			$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption,{
 			data:'tabData',
 				columnDefs : [
 					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'+
@@ -92,7 +92,7 @@
 		};
 		/*APIs registered are triggered as ui-grid is configured 
 		for server side(external) pagination.*/
-		$scope.instancesGridOptions = angular.extend(instanceData.gridOption, {
+		$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption, {
 			onRegisterApi: function(gridApi) {
 				$scope.gridApi = gridApi;
 

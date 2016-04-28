@@ -10,10 +10,10 @@
 	angular.module('workzone.azureARM', ['apis.workzone', 'ngAnimate', 'ui.bootstrap','utility.array'])
 		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', '$timeout', 'uiGridOptionsService', function($scope, workzoneServices, $modal, $rootScope, $timeout, uiGridOptionsService) {
 			$scope.isAzureARMPageLoading = true;
-			var armData = uiGridOptionsService.options();
-			$scope.paginationParams = armData.pagination;
-			$scope.currentCardPage = armData.pagination.page;
-			$scope.cardsPerPage = armData.pagination.pageSize;
+			var armPaginationDefault = uiGridOptionsService.options();
+			$scope.paginationParams = armPaginationDefault.pagination;
+			$scope.currentCardPage = armPaginationDefault.pagination.page;
+			$scope.cardsPerPage = armPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
 

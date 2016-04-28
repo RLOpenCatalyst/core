@@ -15,10 +15,10 @@
 		}])
 		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', '$timeout','uiGridOptionsService', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, $timeout,uiGridOptionsService) {
 			
-			var cftData = uiGridOptionsService.options();
-			$scope.paginationParams = cftData.pagination;
-			$scope.currentCardPage = cftData.pagination.page;
-			$scope.cardsPerPage = cftData.pagination.pageSize;
+			var cftPaginationDefault = uiGridOptionsService.options();
+			$scope.paginationParams = cftPaginationDefault.pagination;
+			$scope.currentCardPage = cftPaginationDefault.pagination.page;
+			$scope.cardsPerPage = cftPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
 

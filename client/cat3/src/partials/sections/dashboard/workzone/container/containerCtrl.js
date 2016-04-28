@@ -11,13 +11,13 @@
 		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil','$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
 			$scope.isContainerPageLoading = true;
 			var gridBottomSpace = 60;
-			var containerData = uiGridOptionsService.options();
-			$scope.paginationParams = containerData.pagination;
+			var containerUIGridDefaults = uiGridOptionsService.options();
+			$scope.paginationParams = containerUIGridDefaults.pagination;
 			$scope.tabData = [];
 			$scope.truncateImageIDLimit = 12;
 			
 			$scope.initGrids = function(){
-				$scope.containerGridOptions=angular.extend(containerData.gridOption,{
+				$scope.containerGridOptions=angular.extend(containerUIGridDefaults.gridOption,{
 				data : 'tabData',
 					columnDefs : [
 						{ name:'Actions',enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="grid.appScope.checkEdited(row.entity)"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
@@ -37,7 +37,7 @@
 			};
 			/*APIs registered are triggered as ui-grid is configured 
 			for server side(external) pagination.*/
-			$scope.containerGridOptions = angular.extend(containerData.gridOption, {
+			$scope.containerGridOptions = angular.extend(containerUIGridDefaults.gridOption, {
 				onRegisterApi :function(gridApi) {
 					$scope.gridApi = gridApi;
 					//Sorting for sortBy and sortOrder

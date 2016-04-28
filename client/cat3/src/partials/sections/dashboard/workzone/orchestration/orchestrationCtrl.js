@@ -17,12 +17,12 @@
 			$scope.perms = _permSet;
 			$scope.isOrchestrationPageLoading = true;
 			var gridBottomSpace = 60;
-			var orchestrationData = uiGridOptionsService.options();
-			$scope.paginationParams = orchestrationData.pagination;
+			var orchestrationUIGridDefaults = uiGridOptionsService.options();
+			$scope.paginationParams = orchestrationUIGridDefaults.pagination;
 			$scope.tabData = [];
 			
 			$scope.initGrids = function(){
-				$scope.orcheGridOptions=angular.extend(orchestrationData.gridOption,{
+				$scope.orcheGridOptions=angular.extend(orchestrationUIGridDefaults.gridOption,{
 					data : 'tabData',
 					columnDefs : [
 						{ name:'Job Type', field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="jenkins-img" />'+
@@ -55,11 +55,11 @@
 			};
 			/*APIs registered are triggered as ui-grid is configured 
 			for server side(external) pagination.*/
-			$scope.orcheGridOptions = angular.extend(orchestrationData.gridOption, {
+			$scope.orcheGridOptions = angular.extend(orchestrationUIGridDefaults.gridOption, {
 				onRegisterApi :function(gridApi) {
 
 					$scope.gridApi = gridApi;
-					$scope.gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+					gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
 						if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
 							$scope.paginationParams.sortBy = sortColumns[0].field;
 							$scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
@@ -95,8 +95,6 @@
 					});
 				},
 				setPaginationDefaults: function() {
-					$scope.paginationParams.page = '';
-					$scope.paginationParams.pageSize = '';
 					$scope.paginationParams.sortBy = 'taskCreateOn';
 					$scope.paginationParams.sortOrder = 'desc';
 				}
@@ -274,18 +272,14 @@
 			});
 			/*method being called to set the first page view*/
 			$scope.setFirstPageView = function(){
-				helper.setPaginationDefaults();
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
 			};
 			/*method being called to set the last page view when a new task is created*/
 			$scope.setLastPageView = function(){
-				$scope.orcheGridOptions.totalItems = $scope.orcheGridOptions.totalItems + 1;
-				var lastPage = (Math.ceil(($scope.orcheGridOptions.totalItems)/$scope.orcheGridOptions.paginationPageSize));
+				var totalItems = $scope.orcheGridOptions.totalItems + 1;
+				var lastPage = (Math.ceil((totalItems)/$scope.paginationParams.pageSize));
 				//Set sortBy and sortField to controller defaults;
 				helper.setPaginationDefaults();
-				/*setting the pageSize value(by default it takes 10 which 
-				will break when we change the pageSize value in the grid)*/
-				$scope.paginationParams.pageSize = $scope.orcheGridOptions.paginationPageSize;
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = lastPage;				
 				$scope.taskListGridView();
 			};

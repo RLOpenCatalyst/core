@@ -11,10 +11,10 @@
             options: function() {
                 return {
                     pagination: {
-                        pageSize: 10,
                         page: 1,
-                        sortBy: "",
-                        sortOrder: ""
+                        pageSize: 10,
+                        sortBy: '',
+                        sortOrder: ''
                     },
                     gridOption: {
                         paginationPageSizes: [10, 20, 50, 75],
