@@ -619,7 +619,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 break;
         }
 
-        var cmd = 'curl -XPOST http://localhost:4243/containers/' + req.params.containerid + '/' + action;
+       var cmd = 'sudo docker ' + action + ' ' + req.params.containerid;
         if (action == 'delete') {
             cmd = 'sudo docker stop ' + req.params.containerid + ' &&  sudo docker rm ' + req.params.containerid;
         }

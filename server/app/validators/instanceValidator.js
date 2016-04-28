@@ -18,13 +18,11 @@ var Joi = require('joi');
 var instanceValidator = module.exports = {};
 
 instanceValidator.get = {
-    options : { flatten : true },
     params: {
         providerId: Joi.string().max(40).required()
     }
 };
 instanceValidator.update = {
-    options : { flatten : true },
     params: {
         providerId: Joi.string().max(40).required(),
         instanceId: Joi.string().max(80).required()
