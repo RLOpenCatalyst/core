@@ -29,6 +29,7 @@
 			var template = responseFormatter.formatTemplateDataForChefClient(allPromise[1].data);
 			totalElements = responseFormatter.merge(list, template);
 			selectedElements = allPromise[2];
+			console.log(totalElements);
 			factory = chefSelectorComponent.getComponent;
 			$scope.isInstanceUpdateChefRunLoading = false;
 			$scope.init();
