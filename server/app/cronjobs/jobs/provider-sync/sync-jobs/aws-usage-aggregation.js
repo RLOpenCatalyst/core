@@ -21,10 +21,8 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var CW = require('_pr/lib/cloudwatch.js');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
-var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var resourceMetricsModel = require('_pr/model/resource-metrics');
 var async = require('async');
-var tagsModel = require('_pr/model/tags');
 
 module.exports = aggregateAWSUsage;
 

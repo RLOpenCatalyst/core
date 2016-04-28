@@ -61,12 +61,11 @@ var ResourceMetricsSchema = new Schema({
     },
     startTime: {
         type: Date,
-        required: false
+        required: true
     },
     endTime: {
-        type: String,
-        required: false,
-        trim: true
+        type: Date,
+        required: true
     },
     metrics: Schema.Types.Mixed
 });
