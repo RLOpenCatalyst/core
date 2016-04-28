@@ -18,7 +18,7 @@
       "blueprintData": {
         "blueprintName": "52.11.22.146",
         "templateId": "chef_import",
-        "iconPath": "images/templateicons/imgo.jpg",
+        "iconPath": "../private/img/templateicons/chef_import.png",
         "templateComponents": []
       },
       "credentials": {
@@ -64,7 +64,7 @@
       "blueprintData": {
         "blueprintName": "52.11.200.48",
         "templateId": "chef_import",
-        "iconPath": "images/templateicons/imgo.jpg",
+        "iconPath": "../private/img/templateicons/chef_import.png",
         "templateComponents": []
       },
       "credentials": {
@@ -120,7 +120,7 @@
         "blueprintName": "apacheTest",
         "templateId": "apache",
         "templateType": "chef",
-        "iconPath": "images/templateicons/imgo.jpg",
+        "iconPath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
         "templateComponents": []
       },
       "credentials": {
@@ -183,7 +183,7 @@
         "blueprintName": "apacheTest",
         "templateId": "apache",
         "templateType": "chef",
-        "iconPath": "images/templateicons/imgo.jpg",
+        "iconPath": "/d4dMasters/image/297a2668-c985-4fe2-80d0-31f2832dfde0__templatesicon__apache.png",
         "templateComponents": []
       },
       "credentials": {
@@ -291,7 +291,7 @@
       "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
       "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
       "name": "Catalyst",
-      "iconpath": "images/templateicons/imgo.jpg",
+      "iconpath": "/d4dMasters/image/756ea0c6-5df8-45d5-8e50-5f8624ae0a4c__templatesicon__Docker.png",
       "templateId": "Docker",
       "templateType": "docker",
       "blueprintConfig": {
@@ -335,7 +335,7 @@
       "bgId": "f8075f04-d224-4940-afea-967b1b8dc951",
       "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
       "name": "CatalystLogstash",
-      "iconpath": "images/templateicons/imgo.jpg",
+      "iconpath": "/d4dMasters/image/e13165ed-dbcd-4d86-aa83-abf23f7c5f48__templatesicon__Custom_temp.jpg",
       "templateId": "CustomTemplate",
       "templateType": "chef",
       "blueprintConfig": {
