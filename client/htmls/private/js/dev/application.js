@@ -35,7 +35,7 @@ $('#syncAppTableView').on("click", function() {
     return;
 });
 $(document).ready(function() {
-
+    managePipelineConfiguration();
     getAllApplicationData();
     $("#divapplicationtableview").hide();
     if ($('#chooseNexusServer :selected').text() == 'Choose Server') {
@@ -83,6 +83,11 @@ $(document).ready(function() {
         $('.groupClass').hide();
         $('.containerIdClass').hide();
         $('.containerPortClass').hide();
+        $('.hostPortClass').hide();
+        $('.dockerUserClass').hide();
+        $('.dockerPasswordClass').hide();
+        $('.dockerEmailIdClass').hide();
+        $('.imageTagClass').hide();
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
@@ -181,12 +186,14 @@ function loadPipeline() {
         });
 
         $mainCard.find('.applicationMainIP').html(applicationName);
+        $mainCard.find('.applicationMainIP').attr('title', applicationName);
         $mainCard.find('.versionMain').html(versionNumber);
 
-        if (applicationName === "catalyst" || applicationName === "Catalyst" || applicationName === "D4D" || applicationName === "core") {
-            $mainCard.find('.mainImageHeight').attr("src", "img/rsz_logo.png");
-        } else {
+        //if (applicationName === "catalyst" || applicationName === "Catalyst" || applicationName === "D4D" || applicationName === "core") {
+        if (applicationName === "petclinic"){
             $mainCard.find('.mainImageHeight').attr("src", "img/petclinic.png");
+        } else {
+            $mainCard.find('.mainImageHeight').attr("src", "img/rsz_logo.png");
         }
         return $mainCard;
     }
@@ -263,7 +270,7 @@ function loadPipeline() {
         var appNamePresent = appDeployDataObj.appNamePresent;
         var appVersionPresent = appDeployDataObj.appVersionPresent;
         $.ajax({
-            url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '/application/' + appNamePresent + '?version=' + appVersionPresent,
+            url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '?application=' + appNamePresent + '&version=' + appVersionPresent,
             type: 'GET',
             contentType: "application/json",
             async: true,
@@ -462,7 +469,7 @@ function btnApproveDetailsPipelineViewClickHandler(e) {
     var appName = $(this).closest('tr').find('.applicationMainIP').html();
     var version = $(this).closest('tr').find('.versionMain').html();
     $.ajax({
-        url: '/deploy/permission/project/' + projectId + '/env/' + envName + '/application/' + appName + '?version=' + version,
+        url: '/deploy/permission/project/' + projectId + '/env/' + envName + '?application=' + appName + '&version=' + version,
         type: 'GET',
         contentType: "application/json",
         success: function(data) {
@@ -811,7 +818,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                     });
                 }
 
-                $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '/application/' + appName + '?version=' + version, function(data) {
+                $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '?application=' + appName + '&version=' + version, function(data) {
                     if (data.length) {
                         var nexusData = {
                             "nexusData": {
@@ -825,15 +832,20 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                         };
 
 
-                        if (data[0].nexus) {
+                        if (data[0].nexus && data[0].nexus.nodeIps.length) {
                             nexusData["nexusData"]["nexusUrl"] = data[0].nexus.repoURL;
                             nexusData["nexusData"]["version"] = data[0].version;
                         }
 
                         if (data[0].docker.length) {
-                            nexusData["nexusData"]["dockerRepo"] = data[0].docker[0].image;
-                            nexusData["nexusData"]["containerId"] = data[0].docker[0].container;
-                            nexusData["nexusData"]["containerPort"] = data[0].docker[0].port;
+                            nexusData["nexusData"]["dockerImage"] = data[0].docker[0].image;
+                            nexusData["nexusData"]["containerId"] = data[0].docker[0].containerId;
+                            nexusData["nexusData"]["containerPort"] = data[0].docker[0].containerPort;
+                            nexusData["nexusData"]["hostPort"] = data[0].docker[0].hostPort;
+                            nexusData["nexusData"]["dockerUser"] = data[0].docker[0].dockerUser;
+                            nexusData["nexusData"]["dockerPassword"] = data[0].docker[0].dockerPassword;
+                            nexusData["nexusData"]["dockerEmailId"] = data[0].docker[0].dockerEmailId;
+                            nexusData["nexusData"]["imageTag"] = data[0].docker[0].imageTag;
                         }
 
                         var appData = {
@@ -1143,6 +1155,10 @@ function convertToDateCustom(obj) {
 
 
 $('.appdeployConfigureSaveBtn').click(function() {
+    configurePipeLine();
+});
+
+function configurePipeLine() {
     var $tableconfigureapplication = $('#tableconfigureapplication');
     var projectId = urlParams.projid;
     var configureEnvArray = [];
@@ -1196,7 +1212,8 @@ $('.appdeployConfigureSaveBtn').click(function() {
             $('#modalappcardConfigure').modal('hide');
         }
     });
-});
+};
+
 $('#instanceviewAppCard').click(function() {
     getenvName(function(envName) {
         var dataenvAccordianName = "Application Deployment for : " + envName;
@@ -1230,6 +1247,17 @@ function resetAllFields() {
     $containerId.val("");
     var $containerPort = $('#containerPort');
     $containerPort.val("");
+    var $hostPort = $('#hostPort');
+    $hostPort.val("");
+    var $dockerUser = $('#dockerUser');
+    $dockerUser.val("");
+    var $dockerPassword = $('#dockerPassword');
+    $dockerPassword.val("");
+    var $dockerEmailId = $('#dockerEmailId');
+    $dockerEmailId.val("");
+    var $imageTag = $('#imageTag');
+    $imageTag.val("");
+
 }
 
 function resetSpinners() {
@@ -1280,6 +1308,11 @@ $nexusServer.change(function(e) {
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
+        $('.hostPortClass').hide();
+        $('.dockerUserClass').hide();
+        $('.dockerPasswordClass').hide();
+        $('.dockerEmailIdClass').hide();
+        $('.imageTagClass').hide();
         $('.createTaskLinkUpgrade').attr('disabled', 'disabled');
         // Reset all values
         resetAllFields();
@@ -1293,6 +1326,11 @@ $nexusServer.change(function(e) {
         $('.groupClass').show();
         $('.containerIdClass').hide();
         $('.containerPortClass').hide();
+        $('.hostPortClass').hide();
+        $('.dockerUserClass').hide();
+        $('.dockerPasswordClass').hide();
+        $('.dockerEmailIdClass').hide();
+        $('.imageTagClass').hide();
         resetAllFields();
         var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
         for (var g = 0; g < groupId.length; g++) {
@@ -1308,8 +1346,13 @@ $nexusServer.change(function(e) {
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
+        $('.imageTagClass').show();
         $('.containerIdClass').show();
         $('.containerPortClass').show();
+        $('.hostPortClass').show();
+        $('.dockerUserClass').show();
+        $('.dockerPasswordClass').show();
+        $('.dockerEmailIdClass').show();
         var containerId = $('#containerIdInput').val();
         var upgrade = $('#upgradeValue').val();
         if (containerId != "NA" && upgrade == "true") {
@@ -1387,6 +1430,11 @@ $chooseRepository.change(function(e) {
     if (nexusServerType === 'nexus') {
         $('.containerIdClass').hide();
         $('.containerPortClass').hide();
+        $('.hostPortClass').hide();
+        $('.dockerUserClass').hide();
+        $('.dockerPasswordClass').hide();
+        $('.dockerEmailIdClass').hide();
+        $('.imageTagClass').hide();
         $('.repoUrlClass').show();
         $('.artifactClass').show();
         $('.versionClass').show();
@@ -1410,10 +1458,19 @@ $chooseRepository.change(function(e) {
     } else {
         $('.containerIdClass').show();
         $('.containerPortClass').show();
+        $('.hostPortClass').show();
+        $('.dockerUserClass').show();
+        $('.dockerPasswordClass').show();
+        $('.dockerEmailIdClass').show();
+        $('.imageTagClass').show();
         $('.groupClass').hide();
         $('.repoUrlClass').hide();
         $('.artifactClass').hide();
         $('.versionClass').hide();
+        var $imageTag = $('#imageTag');
+        $imageTag.empty();
+        $('#imageTag').append('<option value= "">Choose Tag</option>');
+        getImageTags();
     }
 });
 
@@ -1501,6 +1558,43 @@ function getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifact
     }
 }
 
+// List all tags w.r.t docker image
+function getImageTags() {
+    var imageName = $('#chooseRepository').find('option:selected').val();
+    if (imageName) {
+        var repository = "";
+        var image = "";
+        if (imageName.indexOf("/") != -1) {
+            repository = imageName.split("/")[0];
+            image = imageName.split("/")[1];
+        }
+
+        if (!repository) {
+            repository = "library";
+        }
+        if (!image) {
+            image = imageName;
+        }
+        if (repository && image) {
+            $('.tagspinner').removeClass('hidden');
+            $.get('/d4dMasters/docker/' + repository + '/' + image + '/tags', function(tags) {
+                $('.tagspinner').addClass('hidden');
+                if (tags.length) {
+                    for (var i = 0; i < tags.length; i++) {
+                        $('#imageTag').append('<option value=' + tags[i].name + '>' + tags[i].name + '</option>');
+
+                    }
+                }
+            });
+        } else {
+            alert("Invalid docker image.");
+            return;
+        }
+    } else {
+        $('.tagspinner').css('display', 'none');
+    }
+}
+
 function getTasks() {
     var orgId = urlParams.org;
     var bgId = urlParams.bg;
@@ -1547,18 +1641,32 @@ function deployNewForDocker() {
         alert("Please select repository server.");
         return false;
     }
-    var repoId = $('#chooseRepository').find('option:selected').val();
-    if (!repoId) {
+    var dockerImage = $('#chooseRepository').find('option:selected').val();
+    if (!dockerImage) {
         alert("Please select repository.");
         return false;
     }
     var containerId = $('#containerIdInput').val();
     var containerPort = $('#containerPort').val();
+    var hostPort = $('#hostPort').val();
+    var dockerUser = $('#dockerUser').val();
+    var dockerPassword = $('#dockerPassword').val();
+    var dockerEmailId = $('#dockerEmailId').val();
+    var imageTag = $('#imageTag').find('option:selected').val();
 
     if (!containerPort) {
-        alert("Please specify port.");
+        alert("Please specify container port.");
         return false;
     }
+    if (!hostPort) {
+        alert("Please specify host port.");
+        return false;
+    }
+    if (!imageTag) {
+        alert("Please specify version.");
+        return false;
+    }
+
     var taskId = $('#chooseJobType').find('option:selected').val();
     if (!taskId) {
         alert("Please select job.");
@@ -1568,7 +1676,8 @@ function deployNewForDocker() {
     var bgId = urlParams.bg;
     var projectId = urlParams.projid;
     var envId = urlParams.envid;
-    var appName = repoId.split("/")[1];
+    //var appName = dockerImage.split("/")[1];
+    var appName = dockerImage;
     var upgrade = $('#upgradeValue').val();
     var nexusData = {
         "nexusData": {
@@ -1576,7 +1685,12 @@ function deployNewForDocker() {
             "version": "",
             "containerId": containerId,
             "containerPort": containerPort,
-            "dockerRepo": repoId,
+            "dockerImage": dockerImage,
+            "hostPort": hostPort,
+            "dockerUser": dockerUser,
+            "dockerPassword": dockerPassword,
+            "dockerEmailId": dockerEmailId,
+            "imageTag": imageTag,
             "upgrade": upgrade
         }
     };
@@ -1588,49 +1702,57 @@ function deployNewForDocker() {
             var count = 0;
             var actualDocker = [];
             for (var i = 0; i < tasks.taskConfig.nodeIds.length; i++) {
-                var docker = {
-                    "image": repoId,
-                    "container": containerId,
-                    "port": containerPort,
-                    "nodeIp": tasks.taskConfig.nodeIds[i]
-                };
-                actualDocker.push(docker);
                 $.get('/instances/' + tasks.taskConfig.nodeIds[i], function(instance) {
                     count++;
+                    var docker = {
+                        "image": dockerImage,
+                        "containerId": containerId,
+                        "containerPort": containerPort,
+                        "hostPort": hostPort,
+                        "dockerUser": dockerUser,
+                        "dockerPassword": dockerPassword,
+                        "dockerEmailId": dockerEmailId,
+                        "imageTag": imageTag,
+                        "nodeIp": instance.instanceIP
+                    };
+                    actualDocker.push(docker);
+
                     if (instance) {
                         nodeIps.push(instance.instanceIP);
                     }
-                });
-
-                if (tasks.taskConfig.nodeIds.length === count) {
-                    getenvName(function(envName) {
-                        var appData = {
-                            "appData": {
-                                "projectId": instance.projectId,
-                                "envId": envName,
-                                "appName": repoId,
-                                "docker": actualDocker
-                            }
-                        };
-                        $.ajax({
-                            url: '/app/data',
-                            data: JSON.stringify(appData),
-                            type: 'POST',
-                            contentType: "application/json",
-                            success: function(data) {
-                                console.log("Successfully updated app-data");
-                            },
-                            error: function(jqxhr) {
-                                //alert("Failed to update update appName in Project.")
-                            }
+                    if (tasks.taskConfig.nodeIds.length === count) {
+                        getenvName(function(envName) {
+                            var appData = {
+                                "appData": {
+                                    "projectId": instance.projectId,
+                                    "envId": envName,
+                                    "appName": dockerImage,
+                                    "version": imageTag,
+                                    "docker": actualDocker
+                                }
+                            };
+                            $.ajax({
+                                url: '/app/data',
+                                data: JSON.stringify(appData),
+                                type: 'POST',
+                                contentType: "application/json",
+                                success: function(data) {
+                                    console.log("Successfully updated app-data");
+                                },
+                                error: function(jqxhr) {
+                                    //alert("Failed to update update appName in Project.")
+                                }
+                            });
+                            $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
+                            $('#modalUpgradeAppDeploy').modal('hide');
                         });
-                    });
-                }
+                    }
+                });
             }
         }
     });
-    $('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
-    $('#modalUpgradeAppDeploy').modal('hide');
+    /*$('a[data-executetaskid=' + taskId + ']').trigger('click', nexusData);
+    $('#modalUpgradeAppDeploy').modal('hide');*/
     var $containerIdName = $('#containerIdInput').val('');
 }
 
@@ -1682,7 +1804,12 @@ function upgradeOrDeploy() {
             "version": versionId,
             "containerId": "",
             "containerPort": "",
-            "dockerRepo": "",
+            "dockerImage": "",
+            "hostPort": "",
+            "dockerUser": "",
+            "dockerPassword": "",
+            "dockerEmailId": "",
+            "imageTag": "",
             "upgrade": upgrade
         }
     };
@@ -1845,6 +1972,17 @@ function getprojectName(callback) {
         }
     });
 }
+
+function managePipelineConfiguration() {
+    var projectId = urlParams.projid;
+    $.get('/app/deploy/pipeline/project/' + projectId, function(dataPipeline) {
+        if (!dataPipeline.length) {
+            configurePipeLine();
+            var envs = getTableHeaderData(dataPipeline[0].envId);
+            creationPipelineTableView(projectId, envs.arrEnv, envs.arrPresentEnvSeq, deployData);
+        }
+    });
+};
 
 function getAllApplicationData() {
     var projectId = urlParams.projid;

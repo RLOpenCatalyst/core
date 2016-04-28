@@ -37,10 +37,13 @@ var validate = require('express-validation');
 var tagsValidator = require('_pr/validators/tagsValidator');
 var instanceValidator = require('_pr/validators/instanceValidator');
 var	providerService = require('_pr/services/providerService');
+var instanceService = require('_pr/services/instanceService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
+var Docker = require('_pr/model/docker.js');
 
 
+// @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all("/providers/*", sessionVerificationFunc);
 
@@ -112,33 +115,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		logger.debug("Provider ID is >>>>>"+req.params.providerId);
-		var pageSize,page;
-		if(req.query.pageSize)
+		logger.debug("Provider ID is >>>>>" + req.params.providerId);
+		var pageSize, page;
+		if (req.query.pageSize)
 			pageSize = parseInt(req.query.pageSize);
 		else
 			pageSize = constantData.record_limit;
-		if(req.query.page)
-			page = parseInt(req.query.page)-1;
+		if (req.query.page)
+			page = parseInt(req.query.page) - 1;
 		else
 			page = constantData.skip_Records;
 
 		var skip = pageSize * page;
-		var searchParameter,searchParameterValue;
-		if(req.query.status){
+		var searchParameter, searchParameterValue;
+		if (req.query.status) {
 			searchParameter = "state";
-			searchParameterValue = req.query.status+"";
-		}
-		else if(req.query.osType){
+			searchParameterValue = req.query.status + "";
+		} else if (req.query.osType) {
 			searchParameter = "os";
-			searchParameterValue = req.query.osType+"";
+			searchParameterValue = req.query.osType + "";
 		}
-		var jsonData={
-			'providerId':req.params.providerId,
-			'searchParameter':searchParameter,
-			'searchParameterValue':searchParameterValue,
-			'record_Skip':skip,
-			'record_Limit':pageSize
+		var jsonData = {
+			'providerId': req.params.providerId,
+			'searchParameter': searchParameter,
+			'searchParameterValue': searchParameterValue,
+			'record_Skip': skip,
+			'record_Limit': pageSize
 		};
 		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 
@@ -159,7 +161,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send(unmanagedInstances);
 					return;
 				}
-				if(unmanagedInstances.length > 0)
+				if (unmanagedInstances.length > 0)
 					res.status(200).send(unmanagedInstances);
 				else
 					res.status(404).send({
@@ -665,6 +667,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 																				});
 																			}
 
+
+																			var _docker = new Docker();
+																			_docker.checkDockerStatus(instance.id, function(err, retCode) {
+																				if (err) {
+																					logger.error("Failed _docker.checkDockerStatus", err);
+																					return;
+																					//res.end('200');
+
+																				}
+																				logger.debug('Docker Check Returned:' + retCode);
+																				if (retCode == '0') {
+																					instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
+																						logger.debug('Instance Docker Status set to Success');
+																					});
+
+																				}
+																			});
+
 																		} else {
 																			instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
 																				if (err) {
@@ -776,6 +796,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
 	 *
 	 */
+	// @TODO Response should match doc
+	// @TODO Pagination, search and sorting to be implemented
 	app.get('/providers/:providerId/tags', validate(tagsValidator.list), getTagsList);
 
 	/**
@@ -922,6 +944,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 *			"pageIndex": 1
 	 * 		}
 	 */
+	// @TODO Response should match doc
+	// @TODO Pagination, search and sorting to be implemented
 	app.get('/providers/:providerId/tag-mappings', validate(tagsValidator.list), getTagMappingsList);
 
 	/**
@@ -1127,7 +1151,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *							"type": "AWS",
      *							"data": {
      *							},
-     *					}
+     *					},
      *					"platformId": "platorm-id",
 	 *					"ip": "192.168.1.0",
      *					"os": "Ubuntu",
@@ -1136,12 +1160,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *						"environment": "dev",
      *						"application": "proj1"
      *					}
+     *				}
 	 * 			 ],
 	 *			"count": 2,
 	 *			"pageSize": 10,
 	 *			"pageIndex": 1
 	 * 		}
 	 */
+	 // @TODO Pagination, search and sorting to be implemented
 	app.get('/providers/:providerId/unassigned-instances', validate(instanceValidator.get), getUnassignedInstancesList);
 
 	/**
@@ -1158,6 +1184,67 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 *				"environment": "dev",
 	 *				"application": "proj1"
 	 * 			 }
+	 * 		}
+	 *
+	 * @apiSuccess {Object[]} instance	 					Unasssigned instance
+	 * @apiSuccess {String}	instance.orgId 					Organization id
+	 * @apiSuccess {Object} instance.provider				Provider
+	 * @apiSuccess {String} instance.provider.id			Provider Id
+	 * @apiSuccess {String} instance.platformId				Platform id
+	 * @apiSuccess {String} instance.ip						IP address
+	 * @apiSuccess {String} instance.os						OS
+	 * @apiSuccess {String} instance.state					Instance state
+	 * @apiSuccess {Object} instance.tags					Instance tags
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 *			"orgId": "organziationID",
+     *			"provider": {
+     *				"id": "providerID",
+     *				"type": "AWS",
+     *				"data": {
+     *						},
+     *			},
+     *			"platformId": "platorm-id",
+	 *			"ip": "192.168.1.0",
+     *			"os": "Ubuntu",
+     *			"state": "running",
+     *			"tags": {
+     *				"environment": "dev",
+     *				"application": "proj1"
+     *			}
+     *		}
+	 */
+	app.patch('/providers/:providerId/unassigned-instances/:instanceId',
+		validate(instanceValidator.update), updateUnassignedInstanceTags);
+
+	/**
+	 * @api {patch} /providers/:providerId/unassigned-instances		Update unassigned instance
+	 * @apiName bulkUpdateInstances
+	 * @apiGroup unassigned instances
+	 *
+	 * @apiParam {Number} providerId	Provider ID
+	 * @apiParam {Number} instanceId	Instance ID
+	 * @apiSuccessExample {json} Request-example:
+	 * 		HTTP/1.1 200 OK
+	 * 		{
+	 * 			"instances": [
+	 *				{
+	 *					"id": "<MongoID>",
+	 *					"tags": {
+	 *						"environment": "dev",
+	 *						"application": "proj1"
+	 * 			 		}
+	 *				},
+	 *				{
+	 *					"id": "<MongoID>",
+	 *					"tags": {
+	 *						"environment": "dev",
+	 *						"application": "proj1"
+	 * 			 		}
+	 *				}
+	 *			]
 	 * 		}
 	 *
 	 * @apiSuccess {Object[]} instance	 					Unasssigned instance
@@ -1181,23 +1268,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *				"type": "AWS",
      *				"data": {
      *						},
-     *			}
+     *			},
      *			"platformId": "platorm-id",
 	 *			"ip": "192.168.1.0",
-     *			"os": "Ubuntu",
-     *			"state": "running",
-     *			"tags": {
-     *				"environment": "dev",
-     *				"application": "proj1"
-     *			}
-     *		}
+	 *			"os": "Ubuntu",
+	 *			"state": "running",
+	 *			"tags": {
+	 *				"environment": "dev",
+	 *				"application": "proj1"
+	 *			}
+	 *		}
 	 */
-	// app.get('/providers/:providerId/unassigned-instances/:instanceId',
-	// validate(instanceValidator.update), updateUnassignedInstanceTags);
+	app.patch('/providers/:providerId/unassigned-instances',
+		validate(instanceValidator.get), bulkUpdateUnassignedInstances);
 
 	function getTagsList(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1205,7 +1293,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagsList
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1217,14 +1305,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getUnassignedInstancesList(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				providerService.getUnassignedInstancesByProvider,
-				providerService.createUnassignedInstancesList
+				instanceService.getUnassignedInstancesByProvider,
+				instanceService.createUnassignedInstancesList
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1236,6 +1325,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getTag(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1245,7 +1335,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagObject
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1255,12 +1345,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	}
 
 	// @TODO to be implemented
-	function createTags(req, res, next) {
-	}
+	function createTags(req, res, next) {}
 
 	function updateTag(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1274,7 +1364,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagObject
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1286,6 +1376,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function deleteTag(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1294,7 +1385,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1306,6 +1397,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getTagMappingsList(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1313,7 +1405,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagMappingList
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1325,6 +1417,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getTagMapping(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1335,7 +1428,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				providerService.createTagMappingObject
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1347,15 +1440,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function addTagMappings(req, res, next) {
 		async.waterfall(
 			[
-				function (next) {
+
+				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				function (provider, next) {
+				function(provider, next) {
 					providerService.addMultipleTagMappings(provider._id, req.body, next);
 				},
 				providerService.createTagMappingList
 			],
-			function (err, results) {
+			function(err, results) {
 				if (err) {
 					next(err);
 				} else {
@@ -1369,22 +1463,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function updateTagMapping(req, res, next) {
 		async.waterfall(
 			[
-				function (next) {
+
+				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				function (provider, next) {
+				function(provider, next) {
 					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
 						req.params.catalystEntityType, next);
 				},
-				function (tag, next) {
+				function(tag, next) {
 					providerService.updateTagMapping(tag, req.body, next);
 				},
-				function (tag, next) {
+				function(tag, next) {
 					providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
 				},
 				providerService.createTagMappingObject
 			],
-			function (err, results) {
+			function(err, results) {
 				if (err) {
 					next(err);
 				} else {
@@ -1397,6 +1492,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function deleteTagMapping(req, res, next) {
 		async.waterfall(
 			[
+
 				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
@@ -1405,7 +1501,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 			],
 			function(err, results) {
-				if(err) {
+				if (err) {
 					next(err);
 				} else {
 					return res.status(200).send(results);
@@ -1417,16 +1513,52 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	function getCatalystEntityMapping(req, res, next) {
 		async.waterfall(
 			[
-				function (next) {
+
+				function(next) {
 					providerService.checkIfProviderExists(req.params.providerId, next);
 				},
-				function (provider, next) {
+				function(provider, next) {
 					providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
 						req.params.catalystEntityType, next);
 				},
-				function (tag, next) {
+				function(tag, next) {
 					providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
 				}
+			],
+			function(err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
+
+	function updateUnassignedInstanceTags(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					instanceService.updateUnassignedInstanceProviderTags(provider, req.params.instanceId,
+						req.body.tags, next);
+				},
+				function(instance, next) {
+					// @TODO Nested callback with anonymous function to be avoided.
+					providerService.getTagMappingsByProviderId(instance.providerId,
+						function(err, tagMappingsList) {
+							if(err) {
+								next(err);
+							} else {
+								instanceService.updateUnassignedInstanceTags(instance,
+									req.body.tags, tagMappingsList, next);
+							}
+						}
+					);
+				},
+				instanceService.createUnassignedInstanceObject
 			],
 			function (err, results) {
 				if (err) {
@@ -1438,8 +1570,33 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		);
 	}
 
-	function updateUnassignedInstanceTags(req, res, next) {
-
+	function bulkUpdateUnassignedInstances(req, res, next) {
+		async.waterfall(
+			[
+				function (next) {
+					providerService.checkIfProviderExists(req.params.providerId, next);
+				},
+				function(provider, next) {
+					if('instances' in req.body) {
+						instanceService.bulkUpdateInstanceProviderTags(provider, req.body.instances, next);
+					} else {
+						var err = new Error("Malformed request");
+						err.status = 400;
+						next(err);
+					}
+				},
+				function(instances, next) {
+					instanceService.bulkUpdateUnassignedInstanceTags(instances, next);
+				}
+			],
+			function (err, results) {
+				if (err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
 	}
 
 };

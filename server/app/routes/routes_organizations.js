@@ -41,6 +41,7 @@ var Task = require('../model/classes/tasks/tasks.js');
 var masterUtil = require('../lib/utils/masterUtil.js');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
+var Docker = require('_pr/model/docker.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -716,7 +717,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var blueprintType = req.body.blueprintData.blueprintType;
 		var nexus = req.body.blueprintData.nexus;
 		var docker = req.body.blueprintData.docker;
-
 		// a temp fix for invalid appurl data. will be removed in next iteration
 		var tempAppUrls = [];
 		if (!appUrls) {
@@ -793,6 +793,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -812,6 +813,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceImageName: req.body.blueprintData.instanceImageName
 
 				}
@@ -831,6 +833,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceImageName: req.body.blueprintData.instanceImageName
 
 				}
@@ -850,6 +853,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -864,6 +868,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -1305,8 +1310,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 	app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/addInstance', function(req, res) {
 		logger.debug("Enter post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-		logger.debug("Body::::"+req.body);
-		logger.debug("JSON Body::::"+JSON.stringify(req.body));
+		logger.debug("Body::::" + req.body);
+		logger.debug("JSON Body::::" + JSON.stringify(req.body));
 		if (!(req.body.fqdn && req.body.os)) {
 			res.send(400);
 			return;
@@ -1727,6 +1732,23 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																	}
 																});
 															}
+
+															var _docker = new Docker();
+															_docker.checkDockerStatus(instance.id, function(err, retCode) {
+																if (err) {
+																	logger.error("Failed _docker.checkDockerStatus", err);
+																	return;
+																	//res.end('200');
+
+																}
+																logger.debug('Docker Check Returned:' + retCode);
+																if (retCode == '0') {
+																	instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
+																		logger.debug('Instance Docker Status set to Success');
+																	});
+
+																}
+															});
 
 														} else {
 															instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {

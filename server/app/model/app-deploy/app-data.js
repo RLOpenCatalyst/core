@@ -37,8 +37,13 @@ var AppDataSchema = new Schema({
     },
     docker:[{
         image: String,
-        container: String,
-        port: String,
+        containerId: String,
+        containerPort: String,
+        hostPort: String,
+        dockerUser: String,
+        dockerPassword: String,
+        dockerEmailId: String,
+        imageTag: String,
         nodeIp: String
     }]
 });
