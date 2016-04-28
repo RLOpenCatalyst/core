@@ -19,25 +19,29 @@
 			<span id="instanceview" ng-click="instanceTableView()"> <i class="fa fa-align-justify fa-2x cursor" ng-class="instanceTableViewSelection" title="Table View"></i></span>
 			</span>
 		</div>
-
 		<section id="cardView" class="scrollContent" ng-show="isCardViewActive">
 			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
 				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
 					<div class="card-title">
 						<div class="card-title-role">
-							<img src="images/global/chef-import.png" ng-show="inst.blueprintData.templateId === 'chef' || inst.blueprintData.templateId==='chef_import'" />
+							<img src="images/global/chef-import.png" ng-show="inst.blueprintData.templateType === 'chef' || inst.blueprintData.templateId==='chef_import'" />
 							<img src="images/templateicons/appFact4.png" ng-show="inst.blueprintData.templateId === 'Apache' || inst.blueprintData.templateId === 'apache'" />
+							<img src="images/templateicons/custom-temp.jpg" ng-show="inst.blueprintData.templateId === 'CustomTemplate'" />
+							<img src="images/templateicons/apache-tomcat.jpeg" ng-show="inst.blueprintData.templateId === 'Tomcat'" />
+							<img src="images/templateicons/imgo.jpg" ng-show="inst.blueprintData.templateId === 'Apache3'" />
+							<img src="images/templateicons/cloudformation.png" ng-show="inst.blueprintData.templateId === 'CFT_newco'" />
 						</div>
 						<div title="{{inst.name}}" class="card-title-name pull-left">{{inst.name}}</div>
 						<div class='card-title-edit'>
 							<span><i class="fa fa-pencil edit-instance-name cursor" ng-click="operationSet.editInstanceName(inst);" title="Edit Instance Name"></i></span>
 						</div>
 						<div class="card-title-osIcon" title="Linux"><img src="images/osIcons/linux.png"/ ng-show="inst.hardware.platform==='unknown'"></div>
-						<div class="card-title-osIcon" title="Ubuntu"><img src="images/osIcons/ubuntu.png"/ ng-show="inst.hardware.platform==='Ubuntu'"></div>
+						<div class="card-title-osIcon" title="Ubuntu"><img src="images/osIcons/ubuntu.png"/ ng-show="inst.hardware.platform==='ubuntu'"></div>
 						<div class="card-title-osIcon" title="Windows"><img src="images/osIcons/windows.png"/ ng-show="inst.hardware.platform==='windows'"></div>
 						<div class="card-title-osIcon" title="centos"><img src="images/osIcons/centos.png"/ ng-show="inst.hardware.platform==='centos'">
 						</div>
 						<hr/>
+					</div>
 					<div class="card-status-state">
 					<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
 							<i class="fa fa-info-circle card-circle-info cursor" title="More Info" ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
@@ -147,8 +151,8 @@
 										</span>
 									</li>
 									<ul class="paddingleft32 instanceTaskListUL">
-										<li ng-show="inst.taskDetails.length==0">No TaskLinks Available</li>
-										<li class="cursor" ng-repeat="taskDetail in inst.taskDetails">{{taskDetail.name}}</li>
+										<li ng-show="inst.taskIds.length==0">No TaskLinks Available</li>
+										<li class="cursor" ng-repeat="taskDetail in inst.Ids">{{taskDetail.name}}</li>
 									</ul>
 								</ul>
 							</div>
@@ -156,145 +160,13 @@
 					</div>
 				</div>
 			</div>
-		</div>
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="10" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationChange()" class="paginationStyle"></pagination>
+			</div>
 		</section>
-
-		<section id="tableView" class="scrollContent" ng-show="!isCardViewActive">
-			<table datatable="" class="table-bordered text-center instance-table">
-				<thead>
-					<tr class="rowCustomStyle" role="row">
-						<td tabindex="0" aria-controls="tableOrchestration" rowspan="1" colspan="1" aria-label="App Name" aria-sort="descending">Logo</td>
-						<td rowspan="1" colspan="1" aria-label="App-Instance Name">Name</td>
-						<td rowspan="1" colspan="1" aria-label="Version">IP Address</td>
-						<td rowspan="1" colspan="1" aria-label="Host Name">RunLists</td>
-						<td rowspan="1" colspan="1" aria-label="Node IP">Status</td>
-						<td rowspan="1" colspan="1" aria-label="Last Deploy">Log Info</td>
-						<td rowspan="1" colspan="1" aria-label="Status">Chef Run</td>
-						<td width="140px" rowspan="1" colspan="1" aria-label="Application Type">Action</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="inst in instanceList" id="{{app._id}}">
-						<td>
-						<img src="/cat3/images/global/chef-import.png" ng-show="inst.chef"/>
-						<img src="/cat3/images/global/chef-import.png" ng-show="inst.puppet"/>
-						</td>
-						<td>
-							<span>{{inst.name}}</span>
-							<span ng-click="operationSet.editInstanceName(inst);">
-						<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i></span>
-						</td>
-						<td>{{inst.instanceIP}}</td>
-						<td>
-							<span class="blue cursor" ng-click="operationSet.viewRunList(inst)">{{"View All RunList"}}</span>
-						</td>
-					<td class="status-state {{getAWSStatus(inst.instanceState,'image')}}"></td>
-						<td>
-							<i class="fa fa-info-circle cursor" title="More Info" 
-							ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
-						</td>
-						<td>
-							<div ng-show="actionSet.isChefEnabled(inst) &amp;&amp; perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef"
-							 ng-click="operationSet.updateCookbook(inst);">
-							</div>
-							<div ng-show="actionSet.isChefDisabled(inst) &amp;&amp; perms.chefClientRun" class="btn-icons icon-chef-disabled">
-							</div>
-							<div ng-show="actionSet.isPuppetEnabled(inst) &amp;&amp; perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="operationSet.puppetRunClient(inst);">
-							</div>
-							<div ng-show="actionSet.isPuppetDisabled(inst) &amp;&amp; perms.puppet" class="btn-icons icon-puppet-disabled">
-							</div>
-						</td>
-						<td>
-							<div class="ssh-rdp-wrapper">
-								<span class="sshIcon cursor" ng-click="operationSet.instanceSSH(inst)" title="SSH" ng-show="actionSet.isSSHEnabled(inst) &amp;&amp; perms.ssh"></span>
-								<span class="sshIcon-disabled" ng-show="actionSet.isSSHDisabled(inst) &amp;&amp; perms.ssh"></span>
-								<span class="rdpIcon" ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp">
-									<a title="RDP" target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}"></a>
-								</span>
-								<span class='rdpIcon icon-rdp-disabled' ng-show="actionSet.isRDPDisabled(inst) &amp;&amp; perms.rdp"></span>
-							</div>
-							<div class="options-menu-wrapper">
-								<div class="btn-icons dropdown">
-									<button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
-										<i class="fa fa-gear"></i>
-										<i class="fa fa-sort-down"></i>
-									</button>
-									<ul class="dropdown-menu">
-										<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
-										&& inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
-											<span>
-												<i class="fa fa-pause dropdown-icon"></i>
-												Start Instance
-											</span>
-										</li>
-										<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.stop && inst.instanceState === 'running' && inst.providerId" ng-disabled="instStartStopFlag"  ng-class="{'hideStartStopCur': instStartStopFlag}">
-											<span>
-												<i class="fa fa-play dropdown-icon"></i>
-												Stop Instance
-											</span>
-										</li>
-										<li class="ssh-bs">
-											  <span ng-click="operationSet.instanceSSH(inst)" ng-show="inst.hardware.os==='linux' || inst.hardware.os==='centos'">
-												<i class="fa fa-briefcase dropdown-icon"></i>
-												SSH
-											  </span>
-										  </li>
-										  <li class="rdp-bs" ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp">
-											<span>
-												<a class="rdp-anchor" target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}">
-													<i class="fa fa-stack-overflow dropdown-icon"></i>
-													RDP
-												</a>
-											</span>
-										  </li>
-										  <li>
-											<span ng-click="instanceControlPanel(inst);">
-												<i class="fa fa-gears dropdown-icon"></i>
-												Control Panel
-											</span>
-										  </li>
-										  <li>
-											<span ng-click="operationSet.deleteInstance(inst);">
-												<i class="fa fa-trash-o dropdown-icon"></i>
-												Delete Instance
-											</span>
-										  </li>
-										  <li class="divider"></li>
-										  <li class="no-action">
-											<span>
-												<i class="fa fa-list-alt dropdown-icon"></i>
-												App Links
-											</span>
-										  </li>
-										<ul class="paddingleft32 instanceTaskListUL">
-											<li ng-repeat="applink in inst.appUrls">
-												<a class="app-url cursor" target="_blank" ng-href="{{applink.url}}">
-													{{applink.name}}
-												</a>
-											</li>
-											<li ng-show="inst.appUrls.length==0">
-												<span class="app-url">
-													No AppLinks Available
-												</span>
-											</li>
-										</ul>
-										<li class="no-action">
-											<span class="menuTaskSpan">
-												<i class="fa fa-outdent dropdown-icon"></i>
-												Task Links
-											</span>
-										</li>
-										<ul class="paddingleft32 instanceTaskListUL">
-											<li ng-show="inst.taskDetails.length==0">No TaskLinks Available</li>
-											<li class="cursor" ng-repeat="taskDetail in inst.taskDetails">{{taskDetail.name}}</li>
-										</ul>
-									</ul>
-								</div>
-							</div>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+		<section id="tableView" ng-show="!isCardViewActive">
+			<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>-->
+			<div id="grid2" ng-if="tabData.length >0"  ui-grid="instancesGridOptions" ui-grid-pagination class="grid instance-status" style="height: {{gridHeight}}px"></div>
 		</section>
 	</div>
 </div>

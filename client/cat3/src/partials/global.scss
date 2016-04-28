@@ -40,6 +40,13 @@ $imagePath : "../../../../../../cat3/images";
     color: $color-red;
 }
 
+/*CSS to overwrite input background color for autofill*/
+#loginContainer, #instanceSSHPage {
+	input:-webkit-autofill {
+	    -webkit-box-shadow: 0 0 0px 1000px white inset;
+	}
+}
+
 /*CSS for header,breadcrumb and tree starts*/
 #breadcrumb-block {
 	min-height: 40px; 
@@ -491,9 +498,10 @@ option.puppet {
 		text-overflow: ellipsis;
 		overflow: hidden;
 	}
-
+	
 	.ui-grid-cell {
 		text-overflow: ellipsis;
+		overflow: initial;
 	}
 
 	ul.ng-scope {
@@ -509,12 +517,8 @@ option.puppet {
 	    height: auto!important;
 	}
 
-	.ui-grid-cell-contents {
-	    white-space: normal;
-	    text-overflow: inherit;
-	    word-break: break-word;
-	    overflow: hidden;
-		height: 100%;
+	.ui-grid-pager-panel.ng-scope {
+		background: #ccc;
 	}
 
 	.ui-grid-row > div .ui-grid-cell {
@@ -522,7 +526,18 @@ option.puppet {
 	    float: none;
 	    vertical-align: middle;
 	    height: auto!important;
+	    padding:6px;
+	}
+
+	.ui-grid-cell-contents {
+	    white-space: pre-wrap;
 	}
 }
 /*ui grid css ends*/
 
+/*pagination Styling*/
+
+.paginationStyle {
+	bottom:0px;
+	float:left;	
+}

@@ -47,6 +47,7 @@ var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
+var	orgService = require('_pr/services/organizationService');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -1046,14 +1047,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			});
 	}
 
-   	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks',validate(orgValidator.applications), function(req, res) {
+   	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks',validate(orgValidator.get), getChefTaskList);
+   	function getChefTaskList(req,res,next){
    		var jsonData={};
    		jsonData['orgId']=req.params.orgId;
 	    jsonData['bgId']=req.params.bgId;
 	    jsonData['projectId']=req.params.projectId;
 		jsonData['envId']=req.params.envId;
-		jsonData['taskType']="chef";
-		Task.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
+		orgService.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
 			if (err) {
 				logger.err(err);
 				res.send(500);
@@ -1061,7 +1062,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			}
 			res.send(chefTasks);
 		});
-	});
+	}
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applicationList',validate(orgValidator.applications), getApplicationList);
 	 
@@ -1250,7 +1251,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		async.waterfall(
 			[
 				function(next) {
-					ApiUtils.paginationRequest(req.query,'azurearms',next);
+					ApiUtils.paginationRequest(req.query,'azureArms',next);
 				},
 				function(paginationReq,next){
 					paginationReq['orgId']=req.params.orgId;

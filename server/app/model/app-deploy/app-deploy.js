@@ -123,23 +123,14 @@ AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(jsonData
                     [
                         {
                             $match: {
-                                projectId: jsonData.projectId
+                                projectId: jsonData.projectId,
+                                applicationName:jsonData.appName
                             }
                         },
                         {
                             $group: {
                                 _id: "$applicationVersion",
                             }
-                        },
-                        {
-                            $sort: jsonData.sortBy
-
-                        },
-                        {
-                            $skip: (jsonData.page - 1) * jsonData.pageSize
-                        },
-                        {
-                            $limit: jsonData.pageSize
                         }
                     ], function (err, appDeployVersions) {
                         if (err) {
@@ -147,43 +138,83 @@ AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId=function(jsonData
                             err.status = 500;
                             return callback(err);
                         }
-                        console.log(appDeployVersions);
                         callback(null, appDeployVersions);
                     });
 };
 
-AppDeploySchema.statics.getDistinctCountAppDeployVersionByProjectId=function(projectId,callback){
+AppDeploySchema.statics.getDistinctAppDeployApplicationNameByProjectId=function(jsonData,callback){
+    var responseObj={};
     this.aggregate(
         [
             {
                 $match: {
-                    projectId: projectId
+                    projectId: jsonData.projectId
                 }
             },
             {
                 $group:
                 {
-                    _id:"$applicationVersion"
+                    _id:"$applicationName"
                 }
             },
             {
-                $group:
-                {
-                    _id:1,
-                    count:
-                    {
-                        $sum:1
-                    }
-                }
+                $sort: jsonData.sortBy
+            },
+            {
+                $skip: (jsonData.page - 1) * jsonData.pageSize
+            },
+            {
+                $limit: jsonData.pageSize
             }
         ],
-        function(err, appDeployVersionCount) {
+        function(err, distinctAppDeployApplicationNames) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
                 return callback(err);
             }
-            callback(null,appDeployVersionCount[0]);
+            if(distinctAppDeployApplicationNames.length > 0){
+            var appNames=[];
+            for(var i = 0; i < distinctAppDeployApplicationNames.length; i++){
+                appNames.push(distinctAppDeployApplicationNames[i]._id);
+            }
+            AppDeploy.aggregate(
+                [
+                    { $match: { applicationName: {$in:appNames} } },
+                    { $group: { "_id": { name: "$applicationName", version: "$applicationVersion" } } },
+                    { $group: {
+                        "_id":{version: "$applicationVersion"},
+                        "count": { "$sum": 1 }}}
+                ],function(err,pageSize){
+                    if (err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    }
+                    AppDeploy.aggregate(
+                [
+                    { $group: { "_id": { name: "$applicationName"} } },
+                    { $group: {
+                        "_id":{version: "$applicationVersion"},
+                        "count": { "$sum": 1 }}}
+                ],function(err,totalRecords){
+                    if (err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    }
+                    responseObj['applicationNames']=distinctAppDeployApplicationNames;
+                    responseObj['totalRecords']=totalRecords[0].count;
+                    responseObj['pageSize']=pageSize[0].count;
+                    callback(null,responseObj);
+                });
+                });
+         }
+         else{
+                    responseObj['applicationNames']=[];
+                    callback(null,responseObj);
+          }
+
         });
 };
 
@@ -199,13 +230,14 @@ AppDeploySchema.statics.getAppDeployHistoryListByProjectId=function(queryObj,opt
     });
 };
 
-AppDeploySchema.statics.getLatestAppDeployListByProjectIdVersionId=function(projectId,versionId,callback){
+AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId=function(projectId,appName,versionId,callback){
     this.aggregate(
         [
             {
                 $match: {
                     projectId : projectId,
-                    applicationVersion:versionId
+                    applicationVersion:versionId,
+                    applicationName:appName
                 }
             },
             {   $sort:  {

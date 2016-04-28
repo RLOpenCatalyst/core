@@ -7,10 +7,15 @@
 
 function workzoneFunct($scope, $rootScope) {
 	'use strict';
+	$scope.config = {
+		message : '',
+		type: ''
+	};
 	var _tab = {
 		tab : "Instances",
 		setTab : function (tabId) {
 			_tab.tab = tabId;
+			$rootScope.$emit('WZ_TAB_VISIT', $scope.tab.tab);		
 		},
 		isSet : function (tabId) {
 			return _tab.tab === tabId;
@@ -59,6 +64,23 @@ function workzoneFunct($scope, $rootScope) {
 		$rootScope.$emit('RIGHT_PANEL_NAVIGATION', $scope.tab.tab, 0);
 	});
 	$rootScope.$emit('HEADER_NAV_CHANGE', 'WORKZONE');
+
+	$scope.setWorkZoneMessage = function(type, msg) {
+		var message;
+		/*If type comes, find a configured message for that type*/
+		switch(type){
+			case  'NO_ENV_CONFIGURED':
+			message = 'Please configure your Chef Server & Environments. Check your <a href="../../../../#ajax/Settings/Dashboard.html">SETTINGS</a>';
+		}
+		/*Consider message received as priority */
+		if(msg){
+			message = msg;
+		}
+		$scope.config = {
+			message : message,
+			type : type
+		}
+	}
 }
 angular.module('dashboard.workzone', ['angularTreeview', 'ngAnimate', 'mgcrea.ngStrap', 'workzone.instance', 'workzone.blueprint', 'workzone.orchestration', 'workzone.container', 'workzone.cloudFormation', 'workzone.azureARM', 'workzone.application', 'apis.workzone', 'workzone.factories'])
 	.controller('workzoneCtrl', ['$scope', '$rootScope', workzoneFunct])
@@ -101,7 +123,11 @@ angular.module('dashboard.workzone', ['angularTreeview', 'ngAnimate', 'mgcrea.ng
 		}
 
 		function treeDefaultSelection() {
-			$('[data-nodetype="env"]').eq(0).click();
+			if($('[data-nodetype="env"]').length){
+				$('[data-nodetype="env"]').eq(0).click();	
+			}else{
+				$scope.setWorkZoneMessage('NO_ENV_CONFIGURED');
+			}
 		}
 
 		workzoneServices.getTree().then(function (response) {

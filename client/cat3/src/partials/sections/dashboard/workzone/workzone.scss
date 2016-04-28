@@ -136,6 +136,10 @@
 	    background: #40BAF1;
 	}
 
+	.nav-tabs>li.active>a:first-child {
+		color: #337ab7;
+	}
+
 	.nav-tabs {
 		border-bottom-width: 1px;
 		@include theme-border-color;
