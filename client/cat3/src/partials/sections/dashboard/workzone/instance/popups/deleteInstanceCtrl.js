@@ -16,14 +16,12 @@
 				}
 				workzoneServices.deleteInstance(urlParams).then(function(data) {
 					if (data==="OK") {
-					  //  items = null;
 						$modalInstance.close(items);
 					} else {
 						alert('Unexpected Behaviour');
 					}
 				}, function(error) {
 					error = error.responseText || error;
-
 					if (error.message) {
 						alert(error.message);
 					} else {
