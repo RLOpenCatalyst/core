@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 // This file act as a Controller which contains organization related all end points.
 
@@ -42,11 +42,14 @@ var Task = require('../model/classes/tasks/tasks.js');
 var masterUtil = require('../lib/utils/masterUtil.js');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
+
 var async = require('async');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
 var	orgService = require('_pr/services/organizationService');
+var Docker = require('_pr/model/docker.js');
+
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -722,9 +725,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var templateType = req.body.blueprintData.templateType;
 		var users = req.body.blueprintData.users || [];
 		var blueprintType = req.body.blueprintData.blueprintType;
-        var nexus = req.body.blueprintData.nexus;
-        var docker = req.body.blueprintData.docker;
-
+		var nexus = req.body.blueprintData.nexus;
+		var docker = req.body.blueprintData.docker;
 		// a temp fix for invalid appurl data. will be removed in next iteration
 		var tempAppUrls = [];
 		if (!appUrls) {
@@ -766,8 +768,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				templateType: templateType,
 				users: users,
 				blueprintType: blueprintType,
-                nexus: nexus,
-                docker: docker
+				nexus: nexus,
+				docker: docker
 			};
 
 			logger.debug('req blueprintData:', blueprintData);
@@ -801,6 +803,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -820,6 +823,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceImageName: req.body.blueprintData.instanceImageName
 
 				}
@@ -839,6 +843,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceImageName: req.body.blueprintData.instanceImageName
 
 				}
@@ -858,6 +863,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -872,6 +878,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -952,6 +959,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
+
 		var jsonData={};
 		jsonData['orgId']=req.params.orgId;
 		jsonData['bgId']=req.params.bgId;
@@ -1142,6 +1150,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		jsonData['userName']=req.session.user.cn;
 		jsonData['blueprintType']=req.query.blueprintType
 
+
 		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
 			if (orgbuprojs.length === 0) {
 				res.send(401, "User not part of team to see project.");
@@ -1164,6 +1173,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 							},
 							arms:	function(callback) {
 								AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback)
+					
 							}
 						},
 						function(err, results){
@@ -1506,8 +1516,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 	app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/addInstance', function(req, res) {
 		logger.debug("Enter post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-		logger.debug("Body::::"+req.body);
-		logger.debug("JSON Body::::"+JSON.stringify(req.body));
+		logger.debug("Body::::" + req.body);
+		logger.debug("JSON Body::::" + JSON.stringify(req.body));
 		if (!(req.body.fqdn && req.body.os)) {
 			res.send(400);
 			return;
@@ -1928,6 +1938,23 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																	}
 																});
 															}
+
+															var _docker = new Docker();
+															_docker.checkDockerStatus(instance.id, function(err, retCode) {
+																if (err) {
+																	logger.error("Failed _docker.checkDockerStatus", err);
+																	return;
+																	//res.end('200');
+
+																}
+																logger.debug('Docker Check Returned:' + retCode);
+																if (retCode == '0') {
+																	instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
+																		logger.debug('Instance Docker Status set to Success');
+																	});
+
+																}
+															});
 
 														} else {
 															instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
