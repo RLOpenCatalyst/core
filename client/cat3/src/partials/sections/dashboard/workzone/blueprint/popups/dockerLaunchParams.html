@@ -51,7 +51,7 @@
                            </tr>
                         </thead>
                         <tbody>
-                           <tr ng-repeat="instance in instanceData">
+                           <tr ng-repeat="instance in instanceData" ng-show="instance.instanceState ==='running'">
                               <td><input type="checkbox" ng-model="instance.checked" ng-click="selectValue(instance)"  value="{{instance._id}}"  ng-disabled="checked==limit && !instance.checked"/></td>
                               <td>{{instance.name}}</td>
                               <td>{{instance.instanceIP}}</td>
