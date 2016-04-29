@@ -822,11 +822,12 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                     if (data && data.length) {
                         var nexus = {};
                         var docker = {};
+                        var dockerArr = [];
                         if(data[0].nexus && data[0].nexus.nodeIds.length){
                             nexus['repoURL'] = data[0].nexus.repoURL;
                             nexus['version'] = data[0].version;
                             nexus['artifactId'] = data[0].nexus.artifactId;
-                            nexus['nodeIds'] = data[0].nexus.nodeIds;
+                            nexus['nodeIds'] = tasksData.taskConfig.nodeIds;
                             nexus['repository'] = data[0].nexus.repository;
                             nexus['groupId'] = data[0].nexus.groupId;
                             nexus['taskId'] = taskId;
@@ -841,9 +842,10 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             docker['dockerPassword'] = data[0].docker[0].dockerPassword;
                             docker['dockerEmailId'] = data[0].docker[0].dockerEmailId;
                             docker['imageTag'] = data[0].docker[0].imageTag;
-                            docker['nodeIds'] = data[0].docker[0].nodeIds;
+                            docker['nodeIds'] = tasksData.taskConfig.nodeIds;
                             docker['taskId'] = taskId;
                         }
+                        dockerArr.push(docker);
                         var nexusData = {
                             "appData": {
                                 "nexus": nexus,
@@ -859,7 +861,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 "appName": data[0].appName,
                                 "version": data[0].version,
                                 "nexus": nexus,
-                                "docker": docker
+                                "docker": dockerArr
                             }
                         };
                         $.ajax({

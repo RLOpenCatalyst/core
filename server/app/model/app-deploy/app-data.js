@@ -142,11 +142,13 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
             callback(err, null);
         }
         if (aData.length) {
+            var existData = checkDuplicate(aData[0],appData);
             var setData = {};
-            var keys = Object.keys(appData);
+            var keys = Object.keys(existData);
             for (var i = 0; i < keys.length; i++) {
-                setData[keys[i]] = appData[keys[i]];
+                setData[keys[i]] = existData[keys[i]];
             }
+            
             that.update({
                 projectId: appData.projectId,
                 envName: appData.envName,
@@ -176,6 +178,28 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
         }
     });
 };
+
+var checkDuplicate = function(aData, reqData) {
+    var existDocker = aData.docker;
+    var reqDocker = reqData.docker;
+    if (existDocker.length && reqDocker.length) {
+        for (var i = 0; i < existDocker.length; i++) {
+            if (existDocker[i].image === reqDocker[0].image && existDocker[i].imageTag === reqDocker[0].imageTag &&
+                existDocker[i].containerPort === reqDocker[0].containerPort && existDocker[i].hostPort === reqDocker[0].hostPort &&
+                existDocker[i].containerName === reqDocker[0].containerName && existDocker[i].dockerUser === reqDocker[0].dockerUser &&
+                existDocker[i].dockerPassword === reqDocker[0].dockerPassword) {
+                if (existDocker[i].nodeIds.indexOf(reqDocker[0].nodeIds[0]) == -1) {
+                    existDocker[i].nodeIds.push(reqDocker[0].nodeIds[0]);
+
+                }
+            } else {
+                existDocker[i].push(reqDocker[0].docker[0]);
+            }
+        }
+    }
+    reqData.docker = existDocker;
+    return reqData;
+}
 
 // Get AppData by project,env,appName,version.
 AppDataSchema.statics.getAppDataByProjectAndEnv = function(projectId, envName, appName, version, callback) {
