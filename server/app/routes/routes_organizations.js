@@ -47,7 +47,7 @@ var async = require('async');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
-var	orgService = require('_pr/services/organizationService');
+var	taskService = require('_pr/services/taskService');
 var Docker = require('_pr/model/docker.js');
 
 
@@ -1057,7 +1057,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	    jsonData['bgId']=req.params.bgId;
 	    jsonData['projectId']=req.params.projectId;
 		jsonData['envId']=req.params.envId;
-		orgService.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
+		taskService.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
 			if (err) {
 				logger.err(err);
 				res.send(500);

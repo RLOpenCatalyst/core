@@ -2,10 +2,10 @@ var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var schemaValidator = require('_pr/model/dao/schema-validator.js');
 
-var ContainerSchema = new Schema({
+var containerSchema = new Schema({
     orgId: {
         type: String,
         required: true,
@@ -76,22 +76,25 @@ var ContainerSchema = new Schema({
         required: true,
         trim: true,
     },
+    isPause:{
+        type: Boolean
+    },
     HostConfig:Schema.Types.Mixed
 
 });
-ContainerSchema.plugin(mongoosePaginate);
+containerSchema.plugin(mongoosePaginate);
 
-ContainerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonData, callback) {
+containerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonData, callback) {
     if(jsonData.pageSize) {
         jsonData['searchColumns'] = ['instanceIP', 'state'];
-        ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+        apiUtil.databaseUtil(jsonData, function (err, databaseCall) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
                 return callback(err);
             }
             else {
-                Container.paginate(databaseCall.queryObj, databaseCall.options, function (err, containerList) {
+                container.paginate(databaseCall.queryObj, databaseCall.options, function (err, containerList) {
                     if (err) {
                         var err = new Error('Internal server error');
                         err.status = 500;
@@ -116,7 +119,7 @@ ContainerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonDa
             projectId: jsonData.projectId,
             envId: jsonData.envId
         }
-        Container.find(queryObj, {
+        container.find(queryObj, {
             'actionLogs': false
         }, function(err, data) {
             if (err) {
@@ -129,10 +132,10 @@ ContainerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonDa
 };
 
 
-ContainerSchema.statics.createContainer = function(containerData, callback) {
+containerSchema.statics.createContainer = function(containerData, callback) {
     logger.debug("Enter createContainer");
-    var container = new Container(containerData);
-    container.save(function(err, data) {
+    var dockerContainer = new container(containerData);
+    dockerContainer.save(function(err, data) {
         if (err) {
             logger.error("createContainer Failed", err, containerData);
             return;
@@ -141,28 +144,29 @@ ContainerSchema.statics.createContainer = function(containerData, callback) {
         callback(null, data);
     });
 };
-ContainerSchema.statics.getContainerByIdInstanceIP = function(containerData, callback) {
-    logger.debug("Enter getContainerById");
-    Container.find({
-        Id:containerData.Id,
-        instanceIP:containerData.instanceIP
-    },function(err, data) {
+containerSchema.statics.getContainerByIdInstanceIP = function(containerId,instanceId, callback) {
+    logger.debug("Enter getContainerByIdInstanceIP");
+    container.find({
+        Id:containerId,
+        instanceId:instanceId
+    },function(err, aContainer) {
         if (err) {
-            logger.error("getContainerById Failed", err, containerData);
+            logger.error("getContainerByIdInstanceIP Failed", err, containerData);
             callback(err, null);
             return;
         }
-        logger.debug("Exit getContainerById : ");
-        callback(null, data);
+        logger.debug("Exit getContainerByIdInstanceIP : ");
+        callback(null, aContainer);
     });
 };
-ContainerSchema.statics.updateContainer = function(containerData, callback) {
+containerSchema.statics.updateContainer = function(containerData, callback) {
     logger.debug("Enter updateContainer");
-    Container.update({
-        Id: containerData.Id
+    container.update({
+        Id: containerData.containerId
     }, {
         $set: {
-            Status: containerData.Status
+            Status: containerData.Status,
+            isPause: containerData.isPause ? containerData.isPause : false
         }
     }, {
         upsert: false
@@ -176,6 +180,20 @@ ContainerSchema.statics.updateContainer = function(containerData, callback) {
     });
 
 };
+containerSchema.statics.deleteContainerById=function(containerId,callback){
+    logger.debug("Enter removeContainerById (%s)", containerId);
+    container.remove({
+        Id: containerId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to removeContainerById (%s)", containerId, err);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit removeContainerById (%s)", containerId);
+        callback(null, data);
+    });
+}
 
-var Container = mongoose.model('containers', ContainerSchema);
-module.exports = Container;
+var container = mongoose.model('containers', containerSchema);
+module.exports = container;

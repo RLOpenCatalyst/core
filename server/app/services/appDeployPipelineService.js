@@ -28,7 +28,7 @@ var appDeployPipelineService = module.exports = {};
 appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(projectId,callback){
     AppDeployPipeline.getAppDeployPipelineByProjectId(projectId, function(err, appDeployProject) {
         if (err) {
-            logger.debug("Error while fetching Project via projectId in App Deploy");
+            logger.error("Error while fetching Project via projectId in App Deploy");
             callback(err,null);
             return;
         }
@@ -38,32 +38,30 @@ appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(pr
         }
         else
         {
+            console.log("Durgesh");
             var responseProjectList=[];
             var responseProject={};
             var count = 0;
-            masterUtil.getParticularProject(projectId,function(err,projects){
+            masterUtil.getParticularProject(projectId,function(err,aProject){
                 if (err) {
-                    logger.debug("Error while fetching Project via projectId in Master Util");
+                    logger.error("Error while fetching Project via projectId in Master Util");
                     callback(err,null);
+                    return;
+                }
+                if(aProject.length === 0)   {
+                    logger.debug("No project is configured in catalyst");
+                    callback(null,[]);
                     return;
                 }
                 else
                 {
-                    for (var i = 0; i < projects.length; i++) {
-                        (function (aProject) {
-                            count++
-                            responseProject['_id'] = aProject._id;
-                            responseProject['projectId'] = aProject.rowid;
-                            responseProject['envSequence'] = aProject.environmentname.split(",");
-                            responseProject['envId'] = aProject.environmentname.split(",");
-                            responseProjectList.push(responseProject);
-                            if (aProject.length === count) {
-                                callback(null, responseProjectList);
-                                return;
-                            }
-                            responseProject={};
-                        })(projects[i]);
-                    }
+                    responseProject['_id'] = aProject[0]._id;
+                    responseProject['projectId'] = aProject[0].rowid;
+                    responseProject['envSequence'] = aProject[0].environmentname.split(",");
+                    responseProject['envId'] = aProject[0].environmentname.split(",");
+                    responseProjectList.push(responseProject);
+                    callback(null, responseProjectList);
+                    return;
                 }
             });
         }

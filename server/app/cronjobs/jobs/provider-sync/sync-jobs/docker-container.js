@@ -1,5 +1,4 @@
 
-
 var logger = require('_pr/logger')(module);
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var credentialCrpto = require('_pr/lib/credentialcryptography.js');
@@ -112,11 +111,12 @@ function sync() {
                                                                                                     Ports: aContainer.Ports,
                                                                                                     Labels: aContainer.Labels,
                                                                                                     Status: aContainer.Status,
-                                                                                                    HostConfig: aContainer.HostConfig
+                                                                                                    HostConfig: aContainer.HostConfig,
+                                                                                                    isPause:aContainer.isPause
                                                                                                 };
-                                                                                                containerDao.getContainerByIdInstanceIP(containerData, function (err, data) {
+                                                                                                containerDao.getContainerByIdInstanceIP(containerData.Id,containerData.instanceId, function (err, data) {
                                                                                                     if (err) {
-                                                                                                        logger.error("Error in fetching Container By ID and Instance IP:", err);
+                                                                                                        logger.error("Error in fetching Container By ID and Instance ID:", err);
                                                                                                         return;
                                                                                                     }
                                                                                                     if (data.length) {
@@ -175,3 +175,6 @@ function sync() {
 }
 
 module.exports = sync;
+
+
+
