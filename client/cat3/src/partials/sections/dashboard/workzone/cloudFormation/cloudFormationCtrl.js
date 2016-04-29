@@ -13,16 +13,12 @@
 				stackEventsPollerTime: 200
 			};
 		}])
-		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', '$timeout', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, $timeout) {
+		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', '$timeout','uiGridOptionsService', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, $timeout,uiGridOptionsService) {
 			
-			$scope.paginationParams = {
-				pages: {
-					page: 1,
-					pageSize: 1
-				}
-			};
-			$scope.currentCardPage = $scope.paginationParams.pages.page;
-			$scope.cardsPerPage = $scope.paginationParams.pages.pageSize;
+			var cftPaginationDefault = uiGridOptionsService.options();
+			$scope.paginationParams = cftPaginationDefault.pagination;
+			$scope.currentCardPage = cftPaginationDefault.pagination.page;
+			$scope.cardsPerPage = cftPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
 
@@ -32,10 +28,8 @@
 				$scope.cftListCardView();
 			});
 			$scope.cardPaginationCftChange = function() {
-				$scope.paginationParams.pages = {
-					page: $scope.currentCardPage,
-					pageSize: $scope.cardsPerPage
-				};
+				$scope.paginationParams.page = $scope.currentCardPage;
+				$scope.paginationParams.pageSize = $scope.cardsPerPage;
 				$scope.cftListCardView();
 			};
 			angular.extend($scope, {
@@ -46,7 +40,7 @@
 					workzoneServices.getPaginatedCFT($scope.envParams, $scope.paginationParams).then(function(result) {
 						$scope.totalCards = result.data.metaData.totalRecords;
 						$scope.isCloudFormationPageLoading = false;
-						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pages.pageSize);
+						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pageSize);
 					},function(error) {
 						$scope.isCloudFormationPageLoading = false;
 						console.log(error);
