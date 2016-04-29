@@ -293,7 +293,7 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, isUpgrade
     var taskId = task.taskId;
     if (sourceData && appData && task) {
         var nexus = sourceData.nexus;
-        var docker = sourceData.docker;
+        var docker = [sourceData.docker];
         appData['upgrade'] = isUpgrade;
         if (nexus) {
             appData['nexus'] = nexus;
@@ -381,7 +381,7 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                     appData['nexus'] = nexus;
                     appData['nexus']['nodeIds'] = task.nodeIds;
                 }
-                if (docker && docker.nodeIds.length) {
+                if (docker && docker.length && docker[0].nodeIds.length) {
                     appData['docker'] = docker;
                     appData['docker']['nodeIds'] = task.nodeIds;
                 }

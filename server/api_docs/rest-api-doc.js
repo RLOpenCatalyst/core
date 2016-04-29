@@ -1345,6 +1345,8 @@
      * @apiParam {String} [repoURL]  Mandatory repoURL for nexus.
      * @apiParam {String} [version]  Mandatory version for nexus.
      * @apiParam {String} [artifactId]  Mandatory artifactId for nexus.
+     * @apiParam {String} [groupId]  Mandatory groupId for nexus.
+     * @apiParam {String} [repository]  Mandatory repository for nexus.
 
  	 * @apiParam {String} [dockerImage]  Mandatory dockerImage for docker.
  	 * @apiParam {String} [containerName]  Optional containerName for docker.
@@ -1369,7 +1371,9 @@
 			"nexus": {
 				"repoURL": "nexusRepoUrl", // nexusArtifact.resourceURI (from nexus artifact call)
 				"version": "version",
-				"artifactId": "artifactId"
+				"artifactId": "artifactId",
+				"groupId": "groupId",
+				"repository": "repository"
 			},
 			"docker": {
 				"image": "dockerImage",
@@ -1423,6 +1427,8 @@
      * @apiParam {String} [repoURL]  Mandatory repoURL for nexus.
      * @apiParam {String} [version]  Mandatory version for nexus.
      * @apiParam {String} [artifactId]  Mandatory artifactId for nexus.
+     * @apiParam {String} [groupId]  Mandatory groupId for nexus.
+     * @apiParam {String} [repository]  Mandatory repository for nexus.
 
  	 * @apiParam {String} [dockerImage]  Mandatory dockerImage for docker.
  	 * @apiParam {String} [containerName]  Optional containerName for docker.
@@ -1447,7 +1453,9 @@
 			"nexus": {
 				"repoURL": "nexusRepoUrl", // nexusArtifact.resourceURI (from nexus artifact call)
 				"version": "version",
-				"artifactId": "artifactId"
+				"artifactId": "artifactId",
+				"groupId": "groupId",
+				"repository": "repository"
 			},
 			"docker": {
 				"image": "dockerImage",

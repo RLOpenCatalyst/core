@@ -822,7 +822,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                     if (data && data.length) {
                         var nexus = {};
                         var docker = {};
-                        var dockerArr = [];
                         if(data[0].nexus && data[0].nexus.nodeIds.length){
                             nexus['repoURL'] = data[0].nexus.repoURL;
                             nexus['version'] = data[0].version;
@@ -845,7 +844,6 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             docker['nodeIds'] = tasksData.taskConfig.nodeIds;
                             docker['taskId'] = taskId;
                         }
-                        dockerArr.push(docker);
                         var nexusData = {
                             "appData": {
                                 "nexus": nexus,
@@ -861,7 +859,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                                 "appName": data[0].appName,
                                 "version": data[0].version,
                                 "nexus": nexus,
-                                "docker": dockerArr
+                                "docker": [docker]
                             }
                         };
                         $.ajax({
