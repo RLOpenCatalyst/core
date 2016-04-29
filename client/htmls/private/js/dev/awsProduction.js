@@ -284,6 +284,8 @@ $(document).ready(function() {
 		$('#Workspace1').addClass('hidden');
 		$('#designNew').addClass('active');
 		$('ul#blueprints').removeClass('hidden');
+        $("#ribbon ol.breadcrumb").empty();
+        $("#ribbon ol.breadcrumb").append($("<li>Design</li>" + "<li>Providers</li>" + "<li>AWS</li>"));
 	}
 	var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
 	if (window.url.indexOf('addnew') > 0) $addal.attr('href', '#ajax/Aws-Production.html?addanother');
