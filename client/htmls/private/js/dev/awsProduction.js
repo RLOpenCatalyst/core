@@ -285,7 +285,9 @@ $(document).ready(function() {
 		$('#designNew').addClass('active');
 		$('ul#blueprints').removeClass('hidden');
         $("#ribbon ol.breadcrumb").empty();
-        $("#ribbon ol.breadcrumb").append($("<li>Design</li>" + "<li>Providers</li>" + "<li>AWS</li>"));
+        var providerselected = $('#blueprints').attr('providerselected');
+        providerselected = providerselected.toUpperCase();
+        $("#ribbon ol.breadcrumb").append($("<li>Design</li>" + "<li>PROVIDERS</li>" + "<li>"+providerselected+"</li>"));
 	}
 	var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
 	if (window.url.indexOf('addnew') > 0) $addal.attr('href', '#ajax/Aws-Production.html?addanother');

@@ -518,9 +518,7 @@ function setleftnavigation(toplink, breadcrumbHeader) {
 
     if ($(toplink).hasClass('active')) {
       if ($(toplink).attr('id') == 'workZoneNew') {
-        if (!isAngularIntegration) {
           selectEnv();
-        }
       }
       return;
     }
@@ -549,9 +547,7 @@ function setleftnavigation(toplink, breadcrumbHeader) {
     //Setting local storage with last selected tab
     localStorage.setItem("lasttabselected", $(toplink).attr('id'));
     if ($(toplink).attr('id') == 'workZoneNew') {
-      if (!isAngularIntegration) {
-        selectEnv();
-      }
+      selectEnv();
     }
 }
 
