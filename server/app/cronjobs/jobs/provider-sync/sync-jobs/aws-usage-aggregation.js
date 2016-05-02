@@ -26,6 +26,10 @@ var async = require('async');
 
 module.exports = aggregateAWSUsage;
 
+// @TODO Reusable functions to be moved to services
+/**
+ *
+ */
 function aggregateAWSUsage() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
@@ -36,6 +40,10 @@ function aggregateAWSUsage() {
     });
 }
 
+/**
+ *
+ * @param org
+ */
 function aggregateUsageForProvidersOfOrg(org) {
     AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
         if(err) {
@@ -46,55 +54,124 @@ function aggregateUsageForProvidersOfOrg(org) {
     });
 }
 
+/**
+ *
+ * @param provider
+ */
 function aggregateEC2UsageForProvider(provider) {
     async.waterfall([
         function (next) {
-            logger.debug('Usage aggregation for provider: ' + provider._id + ' started');
+            logger.debug('EC2 usage aggregation for provider: ' + provider._id + ' started');
             getManagedAndUnmanagedInstances(provider, next);
         },
         function (provider, instances, next) {
-            getEC2InstanceUsageMetrics(provider, instances, next);
+            async.parallel({
+                managed: function(callback) {
+                    generateEC2UsageMetricsForProvider(provider, instances.managed, callback);
+                },
+                unmanaged: function(callback) {
+                    generateEC2UsageMetricsForProvider(provider, instances.unmanaged, callback);
+                }
+            }, function(err, results){
+                if(err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            });
         },
-        function (ec2UsageMetrics, next) {
-            saveResourceUsageMetrics(ec2UsageMetrics, next);
+        function(usageMetrics, next) {
+            async.parallel({
+                managed: function(callback) {
+                    updateManagedInstanceUsage(usageMetrics.managed, callback);
+                },
+                unmanaged: function(callback) {
+                    updateUnmanagedInstanceUsage(usageMetrics.unmanaged, callback);
+                }
+            }, function(err, results){
+                if(err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            });
         }
     ],
     function(err, results) {
         if(err)
             logger.error(err);
         else if(results)
-            logger.debug('Usage aggregation for provider: ' + provider._id + ' ended');
+            logger.debug('EC2 usage aggregation for provider: ' + provider._id + ' ended');
     });
 }
 
+/**
+ *
+ * @param provider
+ * @param next
+ */
 function getManagedAndUnmanagedInstances(provider, next) {
-    async.parallel([
-            function(callback) {
+    async.parallel({
+            managed: function (callback) {
+                instancesModel.getInstanceByProviderId(
+                    provider._id,
+                    callback);
+            },
+            unmanaged: function(callback) {
                 unManagedInstancesModel.getByProviderId({
                         providerId: provider._id,
                     },
                     callback);
-            },
-            function (callback) {
-                instancesModel.getInstanceByProviderId(
-                    provider._id,
-                    callback);
             }
-        ],
+        },
         function(err, results) {
             if(err) {
                 next(err)
             } else {
-                var instances = results.reduce(function(a, b) {
+                /*var instances = results.reduce(function(a, b) {
                     return a.concat(b);
-                }, []);
-                next(null, provider, instances);
+                }, []);*/
+                next(null, provider, results);
             }
         }
     );
 }
 
+/**
+ *
+ * @param provider
+ * @param instances
+ * @param callback
+ */
+function generateEC2UsageMetricsForProvider(provider, instances, callback) {
+    async.waterfall([
+        function (next) {
+            getEC2InstanceUsageMetrics(provider, instances, next);
+        },
+        function (ec2UsageMetrics, next) {
+            saveResourceUsageMetrics(ec2UsageMetrics, next);
+        }
+    ], function(err, results) {
+        if(err) {
+            callback(err);
+        } else {
+            callback(null, results);
+        }
+    });
+}
+
+/**
+ *
+ * @param provider
+ * @param instances
+ * @param next
+ */
 function getEC2InstanceUsageMetrics(provider, instances, next) {
+    var instanceUsageMetrics = [];
+
+    if(instances.length == 0)
+        next(null, instanceUsageMetrics);
+
     // @TODO Create promise for creating cw client
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -120,7 +197,6 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
         };
     }
 
-    var instanceUsageMetrics = [];
     var endTime = new Date();
     var startTime = new Date(endTime.getTime() - 1000*60*60*24);
     for(var i = 0; i < instances.length; i++) {
@@ -177,8 +253,17 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
     }
 }
 
+/**
+ *
+ * @param resourceMetrics
+ * @param next
+ */
 function saveResourceUsageMetrics (resourceMetrics, next) {
     var results = [];
+
+    if(resourceMetrics.length == 0)
+        return next(null, results);
+
     for(var i = 0; i < resourceMetrics.length; i++) {
         (function(j) {
             resourceMetricsModel.createNew(resourceMetrics[j],
@@ -187,13 +272,68 @@ function saveResourceUsageMetrics (resourceMetrics, next) {
                         next(err);
                     } else {
                         results.push(resourceMetricsObj);
-                    }
 
-                    if(results.length == resourceMetrics.length) {
-                        next(null, results);
+                        if(results.length == resourceMetrics.length)
+                            next(null, results);
                     }
                 }
             );
+        })(i);
+    };
+}
+
+/**
+ *
+ * @param instanceUsageMetrics
+ * @param next
+ */
+function updateManagedInstanceUsage(instanceUsageMetrics, next) {
+    var results = [];
+
+    if(instanceUsageMetrics.length == 0)
+        return next(null, results);
+
+    for(var i = 0; i < instanceUsageMetrics.length; i++) {
+        (function (j) {
+            instancesModel.updateInstanceUsage(instanceUsageMetrics[j].instanceId,
+                instanceUsageMetrics[j].metrics, function(err, result) {
+                    if(err) {
+                        next(err);
+                    } else {
+                        results.push(result);
+
+                        if(results.length == instanceUsageMetrics.length)
+                            next(null, results);
+                    }
+            });
+        })(i);
+    };
+}
+
+/**
+ *
+ * @param instanceUsageMetrics
+ * @param next
+ */
+function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
+    var results = [];
+
+    if(instanceUsageMetrics.length == 0)
+        return next(null, results);
+
+    for(var i = 0; i < instanceUsageMetrics.length; i++) {
+        (function (j) {
+            unManagedInstancesModel.updateUsage(instanceUsageMetrics[j].instanceId,
+                instanceUsageMetrics[j].metrics, function(err, result) {
+                    if(err) {
+                        next(err);
+                    } else {
+                        results.push(result);
+
+                        if(results.length == instanceUsageMetrics.length)
+                            next(null, results);
+                    }
+                });
         })(i);
     };
 }
