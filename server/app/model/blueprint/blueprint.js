@@ -512,6 +512,7 @@ BlueprintSchema.statics.removeByIds = function(ids, callback) {
 
 };
 
+
 BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback) {
 	var objids = [];
 	ids.forEach(function(v) {
@@ -618,6 +619,7 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
 
 
 
+
 var findBlueprintVersionObject = function(blueprints, parentId) {
 	var versions = [];
 	logger.debug('Entering getBlueprintVersionObject', parentId);
@@ -669,7 +671,6 @@ var consolidateVersionOnBlueprint = function(blueprints) {
 }
 
 
-
 BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, projId, filterBlueprintType, callback) {
 	logger.debug("Enter getBlueprintsByOrgBgProject(%s,%s, %s, %s)", orgId, bgId, projId, filterBlueprintType);
 	var queryObj = {
@@ -696,6 +697,7 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(orgId, bgId, proj
 
 
 	});
+
 };
 
 BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bgId, projId, filterBlueprintType, provider, callback) {
@@ -752,293 +754,314 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
 };
 
 BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, callback) {
-	var blueprint = this;
-	//merging attributes Objects
-	var attributeObj = {};
-	var objectArray = [];
-	if (blueprint.blueprintConfig.infraManagerData.versionsList && blueprint.blueprintConfig.infraManagerData.versionsList.length) {
-		// Attributes which are configures in blueprint.
-		var attr = blueprint.blueprintConfig.infraManagerData.versionsList[0].attributes;
-		if (attr && attr.length) {
-			for (var i = 0; i < attr.length; i++) {
-				objectArray.push(attr[i].jsonObj);
-			}
-		}
-	}
+    var blueprint = this;
+    //merging attributes Objects
+    var attributeObj = {};
+    var objectArray = [];
+    if (blueprint.blueprintConfig.infraManagerData && blueprint.blueprintConfig.infraManagerData.versionsList && blueprint.blueprintConfig.infraManagerData.versionsList.length) {
+        // Attributes which are configures in blueprint.
+        var attr = blueprint.blueprintConfig.infraManagerData.versionsList[0].attributes;
+        if (attr && attr.length) {
+            for (var i = 0; i < attr.length; i++) {
+                objectArray.push(attr[i].jsonObj);
+            }
+        }
+    }
 
-	// While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
-	//var temp = new Date().getTime();
-	if (blueprint.nexus.url) {
-		masterUtil.updateProject(repoData.projectId, repoData.repoName, function(err, data) {
-			if (err) {
-				logger.debug("Failed to updateProject: ", err);
-			}
-			if (data) {
-				logger.debug("updateProject successful.");
-			}
-		});
-		var url = blueprint.nexus.url;
-		var repoName = blueprint.nexus.repoName;
-		var groupId = blueprint.nexus.groupId;
-		var artifactId = blueprint.nexus.artifactId;
-		var version = blueprint.nexus.version;
-		objectArray.push({
-			"rlcatalyst": {
-				"upgrade": false
-			}
-		});
-		objectArray.push({
-			"rlcatalyst": {
-				"applicationNodeIP": instance.instanceIP
-			}
-		});
+    // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
+    //var temp = new Date().getTime();
+    if (blueprint.nexus.url) {
+        masterUtil.updateProject(repoData.projectId, repoData.repoName, function(err, data) {
+            if (err) {
+                logger.debug("Failed to updateProject: ", err);
+            }
+            if (data) {
+                logger.debug("updateProject successful.");
+            }
+        });
+        var url = blueprint.nexus.url;
+        var repoName = blueprint.nexus.repoName;
+        var groupId = blueprint.nexus.groupId;
+        var artifactId = blueprint.nexus.artifactId;
+        var version = blueprint.nexus.version;
+        objectArray.push({
+            "rlcatalyst": {
+                "upgrade": false
+            }
+        });
+        objectArray.push({
+            "rlcatalyst": {
+                "applicationNodeIP": instance.instanceIP
+            }
+        });
 
-		nexus.getNexusArtifactVersions(blueprint.nexus.repoId, repoName, groupId, artifactId, function(err, data) {
-			if (err) {
-				logger.debug("Failed to fetch Repository from Mongo: ", err);
-				objectArray.push({
-					"rlcatalyst": {
-						"nexusUrl": url
-					}
-				});
-				objectArray.push({
-					"rlcatalyst": {
-						"version": version
-					}
-				});
-			}
+        nexus.getNexusArtifactVersions(blueprint.nexus.repoId, repoName, groupId, artifactId, function(err, data) {
+            if (err) {
+                logger.debug("Failed to fetch Repository from Mongo: ", err);
+                objectArray.push({
+                    "rlcatalyst": {
+                        "nexusUrl": url
+                    }
+                });
+                objectArray.push({
+                    "rlcatalyst": {
+                        "version": version
+                    }
+                });
+            }
 
-			if (data) {
-				var flag = false;
-				var versions = data.metadata.versioning[0].versions[0].version;
-				var latestVersionIndex = versions.length;
-				var latestVersion = versions[latestVersionIndex - 1];
-				//logger.debug("Got latest catalyst version from nexus: ", latestVersion);
+            if (data) {
+                var flag = false;
+                var versions = data.metadata.versioning[0].versions[0].version;
+                var latestVersionIndex = versions.length;
+                var latestVersion = versions[latestVersionIndex - 1];
+                //logger.debug("Got latest catalyst version from nexus: ", latestVersion);
 
-				nexus.getNexusArtifact(blueprint.nexus.repoId, repoName, groupId, function(err, artifacts) {
-					if (err) {
-						logger.debug("Failed to get artifacts.");
-						objectArray.push({
-							"rlcatalyst": {
-								"nexusUrl": url
-							}
-						});
-						objectArray.push({
-							"rlcatalyst": {
-								"version": version
-							}
-						});
-					} else {
-						if (artifacts.length) {
-							for (var i = 0; i < artifacts.length; i++) {
-								if (latestVersion === artifacts[i].version && artifactId === artifacts[i].artifactId) {
-									url = artifacts[i].resourceURI;
+                nexus.getNexusArtifact(blueprint.nexus.repoId, repoName, groupId, function(err, artifacts) {
+                    if (err) {
+                        logger.debug("Failed to get artifacts.");
+                        objectArray.push({
+                            "rlcatalyst": {
+                                "nexusUrl": url
+                            }
+                        });
+                        objectArray.push({
+                            "rlcatalyst": {
+                                "version": version
+                            }
+                        });
+                    } else {
+                        if (artifacts.length) {
+                            for (var i = 0; i < artifacts.length; i++) {
+                                if (latestVersion === artifacts[i].version && artifactId === artifacts[i].artifactId) {
+                                    url = artifacts[i].resourceURI;
 
-									objectArray.push({
-										"rlcatalyst": {
-											"nexusUrl": url
-										}
-									});
-									objectArray.push({
-										"rlcatalyst": {
-											"version": latestVersion
-										}
-									});
-									flag = true;
-									//logger.debug("latest objectArray::: ", JSON.stringify(objectArray));
-									break;
-								}
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "nexusUrl": url
+                                        }
+                                    });
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "version": latestVersion
+                                        }
+                                    });
+                                    flag = true;
+                                    //logger.debug("latest objectArray::: ", JSON.stringify(objectArray));
+                                    break;
+                                }
 
-							}
-							if (!flag) {
-								objectArray.push({
-									"rlcatalyst": {
-										"nexusUrl": url
-									}
-								});
-								objectArray.push({
-									"rlcatalyst": {
-										"version": version
-									}
-								});
-							}
-						} else {
-							objectArray.push({
-								"rlcatalyst": {
-									"nexusUrl": url
-								}
-							});
-							objectArray.push({
-								"rlcatalyst": {
-									"version": latestVersion
-								}
-							});
-						}
-					}
+                            }
+                            if (!flag) {
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "nexusUrl": url
+                                    }
+                                });
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "version": version
+                                    }
+                                });
+                            }
+                        } else {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "nexusUrl": url
+                                }
+                            });
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "version": latestVersion
+                                }
+                            });
+                        }
+                    }
 
-					var actualVersion = "";
-					if (latestVersion) {
-						actualVersion = latestVersion;
-					} else {
-						actualVersion = version;
-					}
+                    var actualVersion = "";
+                    if (latestVersion) {
+                        actualVersion = latestVersion;
+                    } else {
+                        actualVersion = version;
+                    }
 
-					// Update app-data for promote
-					var nodeIp = [];
-					nodeIp.push(instance.instanceIP);
-					configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
-						if (err) {
-							callback({
-								message: "Failed to get env name from env id"
-							}, null);
-							return;
-						}
-						if (!envName) {
-							callback({
-								"message": "Unable to find environment name from environment id"
-							});
-							return;
-						}
-						var appData = {
-							"projectId": instance.projectId,
-							"envId": envName,
-							"appName": artifactId,
-							"version": actualVersion,
-							"nexus": {
-								"repoURL": url,
-								"nodeIps": nodeIp
-							}
-						};
-						AppData.createNewOrUpdate(appData, function(err, data) {
-							if (err) {
-								logger.debug("Failed to create or update app-data: ", err);
-							}
-							if (data) {
-								logger.debug("Created or Updated app-data successfully: ", data);
-							}
-						});
-					});
+                    // Update app-data for promote
+                    var nodeIp = [];
+                    nodeIp.push(instance.instanceIP);
+                    configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+                        if (err) {
+                            callback({
+                                message: "Failed to get env name from env id"
+                            }, null);
+                            return;
+                        }
+                        if (!envName) {
+                            callback({
+                                "message": "Unable to find environment name from environment id"
+                            });
+                            return;
+                        }
+                        var appData = {
+                            "projectId": instance.projectId,
+                            "envId": envName,
+                            "appName": artifactId,
+                            "version": actualVersion,
+                            "nexus": {
+                                "repoURL": url,
+                                "nodeIps": nodeIp
+                            }
+                        };
+                        AppData.createNewOrUpdate(appData, function(err, data) {
+                            if (err) {
+                                logger.debug("Failed to create or update app-data: ", err);
+                            }
+                            if (data) {
+                                logger.debug("Created or Updated app-data successfully: ", data);
+                            }
+                        });
+                    });
 
-					var attributeObj = utils.mergeObjects(objectArray);
-					callback(null, attributeObj);
-					return;
-				});
-			} else {
-				logger.debug("No artifact version found.");
-			}
+                    var attributeObj = utils.mergeObjects(objectArray);
+                    callback(null, attributeObj);
+                    return;
+                });
+            } else {
+                logger.debug("No artifact version found.");
+            }
 
-		});
-	} else if (blueprint.docker.image) {
-		objectArray.push({
-			"rlcatalyst": {
-				"containerId": blueprint.docker.containerId
-			}
-		});
-		objectArray.push({
-			"rlcatalyst": {
-				"containerPort": blueprint.docker.containerPort
-			}
-		});
-		objectArray.push({
-			"rlcatalyst": {
-				"dockerImage": blueprint.docker.image
-			}
-		});
+        });
+    } else if (blueprint.docker.image) {
+        if (blueprint.docker.containerId) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "containerId": blueprint.docker.containerId
+                }
+            });
+        }
 
-		objectArray.push({
-			"rlcatalyst": {
-				"hostPort": blueprint.docker.hostPort
-			}
-		});
+        if (blueprint.docker.containerPort) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "containerPort": blueprint.docker.containerPort
+                }
+            });
+        }
 
-		objectArray.push({
-			"rlcatalyst": {
-				"dockerUser": blueprint.docker.dockerUser
-			}
-		});
+        if (blueprint.docker.image) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "dockerImage": blueprint.docker.image
+                }
+            });
+        }
 
-		objectArray.push({
-			"rlcatalyst": {
-				"dockerPassword": blueprint.docker.dockerPassword
-			}
-		});
+        if (blueprint.docker.hostPort) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "hostPort": blueprint.docker.hostPort
+                }
+            });
+        }
 
-		objectArray.push({
-			"rlcatalyst": {
-				"dockerEmailId": blueprint.docker.dockerEmailId
-			}
-		});
+        if (blueprint.docker.dockerUser) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "dockerUser": blueprint.docker.dockerUser
+                }
+            });
+        }
 
-		objectArray.push({
-			"rlcatalyst": {
-				"imageTag": blueprint.docker.imageTag
-			}
-		});
+        if (blueprint.docker.dockerPassword) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "dockerPassword": blueprint.docker.dockerPassword
+                }
+            });
+        }
 
-		objectArray.push({
-			"rlcatalyst": {
-				"upgrade": false
-			}
-		});
-		objectArray.push({
-			"rlcatalyst": {
-				"applicationNodeIP": instance.instanceIP
-			}
-		});
-		var attrs = utils.mergeObjects(objectArray);
-		// Update app-data for promote
-		var nodeIp = [];
-		nodeIp.push(instance.instanceIP);
-		configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
-			if (err) {
-				callback({
-					message: "Failed to get env name from env id"
-				}, null);
-				return;
-			}
-			if (!envName) {
-				callback({
-					"message": "Unable to find environment name from environment id"
-				});
-				return;
-			}
-			var actualDocker = [];
-			var docker = {
-				"image": blueprint.docker.image,
-				"containerId": blueprint.docker.containerId,
-				"containerPort": blueprint.docker.containerPort,
-				"hostPort": blueprint.docker.hostPort,
-				"dockerUser": blueprint.docker.dockerUser,
-				"dockerPassword": blueprint.docker.dockerPassword,
-				"dockerEmailId": blueprint.docker.dockerEmailId,
-				"imageTag": blueprint.docker.imageTag,
-				"nodeIp": instance.instanceIP
-			};
-			actualDocker.push(docker);
-			var appData = {
-				"projectId": instance.projectId,
-				"envId": envName,
-				"appName": artifactId,
-				"version": blueprint.docker.imageTag,
-				"docker": actualDocker
-			};
-			AppData.createNewOrUpdate(appData, function(err, data) {
-				if (err) {
-					logger.debug("Failed to create or update app-data: ", err);
-				}
-				if (data) {
-					logger.debug("Created or Updated app-data successfully: ", data);
-				}
-			})
-		});
+        if (blueprint.docker.dockerEmailId) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "dockerEmailId": blueprint.docker.dockerEmailId
+                }
+            });
+        }
 
-		callback(null, attrs);
-		return;
-	} else {
-		process.nextTick(function() {
-			callback(null, {});
-		});
-	}
+        if (blueprint.docker.imageTag) {
+            objectArray.push({
+                "rlcatalyst": {
+                    "imageTag": blueprint.docker.imageTag
+                }
+            });
+        }
+        objectArray.push({
+            "rlcatalyst": {
+                "upgrade": false
+            }
+        });
+
+        objectArray.push({
+            "rlcatalyst": {
+                "applicationNodeIP": instance.instanceIP
+            }
+        });
+        var attrs = utils.mergeObjects(objectArray);
+        // Update app-data for promote
+        var nodeIp = [];
+        nodeIp.push(instance.instanceIP);
+        configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+            if (err) {
+                callback({
+                    message: "Failed to get env name from env id"
+                }, null);
+                return;
+            }
+            if (!envName) {
+                callback({
+                    "message": "Unable to find environment name from environment id"
+                });
+                return;
+            }
+            var actualDocker = [];
+            var docker = {
+                "image": blueprint.docker.image,
+                "containerId": blueprint.docker.containerId,
+                "containerPort": blueprint.docker.containerPort,
+                "hostPort": blueprint.docker.hostPort,
+                "dockerUser": blueprint.docker.dockerUser,
+                "dockerPassword": blueprint.docker.dockerPassword,
+                "dockerEmailId": blueprint.docker.dockerEmailId,
+                "imageTag": blueprint.docker.imageTag,
+                "nodeIp": instance.instanceIP
+            };
+            actualDocker.push(docker);
+            var appData = {
+                "projectId": instance.projectId,
+                "envId": envName,
+                "appName": artifactId,
+                "version": blueprint.docker.imageTag,
+                "docker": actualDocker
+            };
+            AppData.createNewOrUpdate(appData, function(err, data) {
+                if (err) {
+                    logger.debug("Failed to create or update app-data: ", err);
+                }
+                if (data) {
+                    logger.debug("Created or Updated app-data successfully: ", data);
+                }
+            })
+        });
+
+        callback(null, attrs);
+        return;
+    } else {
+        var attributeObj = utils.mergeObjects(objectArray);
+        callback(null, attributeObj);
+        return;
+        /*process.nextTick(function() {
+            callback(null, {});
+        });*/
+    }
 };
 var Blueprints = mongoose.model('blueprints', BlueprintSchema);
 

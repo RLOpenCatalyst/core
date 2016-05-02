@@ -92,22 +92,6 @@ TagSchema.statics.createNew = function createNew(data, callback) {
             }
         }
     });
-}
-
-TagSchema.statics.getTagsByOrgIdAndProviderId = function getTagsByOrgIdAndProviderId(params, callback) {
-    // @TODO filters to be used
-    this.find(
-        {'orgId': params.orgId, 'providerId': params.providerId, 'isDeleted': false },
-        hiddenFields,
-        function(err, tag) {
-            if (err) {
-                logger.error(err);
-                return callback(err, null);
-            } else {
-                return callback(null, tag);
-            }
-        }
-    );
 };
 
 TagSchema.statics.getTagsByProviderId = function getTagsByProviderId(providerId, callback) {
@@ -165,6 +149,29 @@ TagSchema.statics.getTagsByProviderIdAndNames
             }
         }
     );
+};
+
+TagSchema.statics.getTagsWithMappingByProviderId
+    = function getTagsWithMappingByProviderId(providerId, callback) {
+    var params = {
+        isDeleted: false,
+        providerId: providerId,
+        catalystEntityType: {$exists : true}
+    }
+    this.find(
+        params,
+        hiddenFields,
+        function(err, tags) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if(tags.length > 0) {
+                return callback(null, tags);
+            } else {
+                return callback(null, []);
+            }
+        }
+    )
 };
 
 TagSchema.statics.updateTag = function updateTag(params, fields, callback) {

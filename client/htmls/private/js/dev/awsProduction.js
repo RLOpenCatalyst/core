@@ -30,7 +30,6 @@ var checkandupdateRunlistTable = function() {
 			}]
 		});
 	}
-
 }
 checkandupdateRunlistTable();
 
@@ -59,9 +58,8 @@ $('#saveRunlist').click(function(e) {
 	return false;
 });
 
-
-$('#editAttributesBtn').click(function(e) {
-
+function editAtrributesHandler(e) {
+    
 	var $ccrs = $('.cookbookShow').data('$ccrs');
 	var runlist = $ccrs.getSelectedRunlist();
 	if (!runlist.length) {
@@ -186,7 +184,8 @@ $('#editAttributesBtn').click(function(e) {
 		$modal.find('.attributesEditFormArea').hide();
 	});
 	return false;
-});
+}
+$('.awsEditAttributesBtn').click(editAtrributesHandler);
 
 function createAttribTableRowFromJson(attributes) {
 	var $table = $('#attributesViewListTable').removeClass('hidden');
@@ -235,7 +234,8 @@ function createAttribTableRowFromJson(attributes) {
 	}
 }
 
-$('.saveAttribBtn').click(function(e) {
+
+function saveAtrributesHandler(e) {
 	var $modal = $('#editAttributesModalContainer');
 	var $tbody = $modal.find('.attributesEditTableBody');
 	var $input = $tbody.find('.attribValueInput');
@@ -276,7 +276,9 @@ $('.saveAttribBtn').click(function(e) {
 	//$('#attrtextarea').text(JSON.stringify(attributeObj));
 	createAttribTableRowFromJson(attributes);
 	$modal.modal('hide');
-});
+}
+
+$('.saveAttribBtn').click(saveAtrributesHandler);
 
 function updatecompositedockertableemptymessage() {
 	if ($('#compositedockertable').find('tr').length <= 1) {
@@ -966,7 +968,9 @@ function getkeypairList(keyPairId) {
 				}
 				$('#region').html(str1);
 				//Adding data reader
+
 				if ($('#region').attr('savedval')) {
+					
 					helpersetselectvalue($('#region'), 'value', $('#region').attr('savedval'));
 					if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
 						$('#instanceOS').attr('disabled', 'disabled');
@@ -2229,11 +2233,16 @@ var OrgdataLoader = function(editing, blueprintData) {
 				var $chooseVersions = $('#chooseVersions');
 				var projectId = $(this).val();
 
-				if (blueprintData.nexus) {
+				if (blueprintData && blueprintData.nexus) {
 					$('.checkConfigApp').attr('checked', 'checked');
 				}
 				if ($('.checkConfigApp').prop("checked")) {
-					getNexusServer(blueprintData.nexus);
+					if (blueprintData && blueprintData.nexus) {
+						getNexusServer(blueprintData.nexus);
+					} else {
+						getNexusServer();
+					}
+
 				} else {
 					$nexusServer.empty();
 					$nexusServer.append('<option value="">Choose Server</option>');
@@ -2241,7 +2250,11 @@ var OrgdataLoader = function(editing, blueprintData) {
 				}
 				$('.checkConfigApp').click(function() {
 					if ($(this).prop("checked")) {
-						getNexusServer(blueprintData.nexus);
+						if (blueprintData && blueprintData.nexus) {
+							getNexusServer(blueprintData.nexus);
+						} else {
+							getNexusServer();
+						}
 					} else {
 						$nexusServer.empty();
 						$nexusServer.append('<option value="">Choose Server</option>');
@@ -2290,7 +2303,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 								$('#chooseNexusServer').append('<option data-groupId = "' + nexus[i].groupid + '" data-nexusUrl = "' + nexus[i].hostname + '" value=' + nexus[i].rowid + ' data-serverType = "' + nexus[i].configType + '">' + nexus[i].nexusservername + '</option>');
 
 							}
-							if (nexus) {
+							if (nexus && nexusData) {
 								$('#chooseNexusServer').find('option[value="' + nexusData.repoId + '"]').attr('selected', 'selected');
 							}
 						}
@@ -2345,9 +2358,15 @@ var OrgdataLoader = function(editing, blueprintData) {
 						$('.containerIdClass').hide();
 						$('.containerPortClass').hide();
 						resetAllFields();
+						if (blueprintData && blueprintData.nexus) {
+							getNexusServerGroupId(blueprintData.nexus);
+							getNexusServerRepo($(this).val(), blueprintData.nexus);
+						} else {
+							getNexusServerGroupId();
+							getNexusServerRepo($(this).val());
+						}
 
-						getNexusServerGroupId(blueprintData.nexus);
-						getNexusServerRepo($(this).val(), blueprintData.nexus);
+
 					} else { // It's Docker
 						resetAllFields();
 						$('.groupClass').hide();
@@ -2486,7 +2505,12 @@ var OrgdataLoader = function(editing, blueprintData) {
 					var repoName = $('#chooseRepository').find('option:selected').attr('data-repoName');
 					var nexusId = $('#chooseNexusServer').val();
 					var groupId = $('#chooseGroupId').val();
-					getNexusServerRepoArtifact(nexusId, repoName, groupId, blueprintData.nexus);
+					if (blueprintData && blueprintData.nexus) {
+						getNexusServerRepoArtifact(nexusId, repoName, groupId, blueprintData.nexus);
+					} else {
+						getNexusServerRepoArtifact(nexusId, repoName, groupId);
+					}
+
 				});
 
 				function getNexusServerRepoArtifact(nexusId, repoName, groupId, nexusData) {
@@ -2538,7 +2562,12 @@ var OrgdataLoader = function(editing, blueprintData) {
 					var nexusId = $nexusServer.val();
 					var groupId = $(this).find('option:selected').attr('data-groupId');
 					var artifactId = $(this).val();
-					getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId, blueprintData.nexus);
+					if (blueprintData && blueprintData.nexus) {
+						getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId, blueprintData.nexus);
+					} else {
+						getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId);
+					}
+
 				});
 				var comparer = function compareObject(a, b) {
 					if (a.artifactId === b.artifactId) {
@@ -2773,6 +2802,9 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 
 			$('#myTab3 a[href="#viewEdit"]').tab('show');
 			var $newformBPEdit = $formBPEdit.clone();
+			
+            
+			
 			$('#bpeditcontent').append($newformBPEdit);
 			$('#bpeditcontent').find('#tab3 *').unbind();
 			cachesavedvalues(blueprintdata);
@@ -2836,6 +2868,9 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 			$card.appendTo($('#bpeditcontent .selectedTemplateArea')); //appending selected card view
 			$('.selectedTemplateArea .productdiv2').append('<img src="' + $('.selectedTemplateArea').find('img[src*="__templatesicon__"]').first().attr('src') + '">');
 			displaySavedBPValues();
+			$newformBPEdit.find('.awsEditAttributesBtn').click(editAtrributesHandler);
+			$newformBPEdit.find('.saveAttribBtn').click(saveAtrributesHandler);
+
 		} else {
 
 		}
