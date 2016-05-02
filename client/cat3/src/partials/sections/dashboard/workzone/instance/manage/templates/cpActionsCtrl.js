@@ -7,7 +7,7 @@
 (function(){
    "use strict";
 	angular.module('workzone.instance')
-		.controller('cpActionsCtrl', ['$scope', 'workzoneServices', 'workzoneEnvironment', 'arrayUtil', 'instancePermission', 'instanceActions', 'instanceOperations', function($scope, workzoneServices, workzoneEnvironment, arrayUtil, instancePerms, instanceActions, instanceOperations) {
+		.controller('cpActionsCtrl', ['$scope', 'workzoneServices', 'workzoneEnvironment', 'arrayUtil', 'instancePermission', 'instanceActions', 'instanceOperations', '$timeout', function($scope, workzoneServices, workzoneEnvironment, arrayUtil, instancePerms, instanceActions, instanceOperations, $timeout) {
 			var cpInstance = $scope.$parent.cpInstance;
 			$scope.inst = cpInstance;
 			var _permSet = {
@@ -45,6 +45,15 @@
 					console.log(rejectMessage);
 				});
 			};
+			$scope.operationSet.viewLogs = function(inst){
+				var promise = instanceOperations.viewLogs(inst);
+				promise.then(function(resolveMessage) {
+					console.log("Promise resolved viewLogs:" + resolveMessage);
+					$scope.selected = inst;
+				}, function(rejectMessage) {
+					console.log("Promise rejected viewLogs:" + rejectMessage);
+				});
+			};
 			$scope.operationSet.viewRunList = function(inst){
 				var promise = instanceOperations.viewRunList(inst);
 				promise.then(function(resolveMessage) {
@@ -72,10 +81,9 @@
 				});
 			};
 			$scope.operationSet.changeInstanceStatus = function(inst) {
-			//$scope.instStartStopFlag = true;
-			var instObj = {_inst:inst, _id:inst._id, state:inst.instanceState, instIdx:$scope.instanceList.indexOf(inst)};
+			var instObj = {_inst:inst, _id:inst._id, state:inst.instanceState, instIdx:$scope.inst._id};
 			workzoneServices.getInstanceData(inst).then(
-				function(response){
+				function(response) {
 					if(response.data.instanceState==="running"){						
 						var stopPromise = instanceOperations.stopInstanceHandler(inst, $scope.perms.stop);
 						stopPromise.then(function(){
@@ -85,7 +93,7 @@
 							$scope.instStartStopFlag = false;
 							console.log("Promise rejected " + rejectMessage);
 						});
-					}else{						
+					} else {						
 						var startPromise = instanceOperations.startInstanceHandler(inst, $scope.perms.start);
 						startPromise.then(function(){
 							$scope.operationSet.checkInstanceStatus(instObj, 2000);
@@ -96,42 +104,30 @@
 						});
 					}
 				}
-			);
-		};
-		$scope.operationSet.checkInstanceStatus = function(instObj, delay){
-			var _instObj = instObj;
+			)};
+			$scope.operationSet.checkInstanceStatus = function(instObj, delay) {
+				var _instObj = instObj;
+				$timeout(function(){
+					workzoneServices.getInstanceData(instObj._inst).then(
+						function(response){
+							if(response){
+								$scope.inst[_instObj.instIdx].instanceState = response.data.instanceState;
+								console.log(response.data.instanceState, ' polling');
 
-			$timeout(function(){
-				workzoneServices.getInstanceData(instObj._inst).then(
-					function(response){
-						if(response){
-							$scope.instanceList[_instObj.instIdx].instanceState = response.data.instanceState;
-							console.log(response.data.instanceState, ' polling');
-
-							if( response.data.instanceState === 'stopped' || response.data.instanceState === 'running' ){
-								$scope.instStartStopFlag = false;
-								console.log(response.data.instanceState, ' polling complete');
-
-								/*if (data.appUrls && data.appUrls.length) {
-									for (var k = 0; k < data.appUrls.length; k++) {
-										var url = data.appUrls[k].url;
-										url = url.replace('$host', data.instanceIP);
-										$('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url);
-									}
-								}*/
-
-							}else{
-								$scope.operationSet.checkInstanceStatus(_instObj, 5000);
+								if (response.data.instanceState === 'stopped' || response.data.instanceState === 'running' ){
+									$scope.instStartStopFlag = false;
+									console.log(response.data.instanceState, ' polling complete');
+								} else{
+									$scope.operationSet.checkInstanceStatus(_instObj, 5000);
+								}
 							}
+						},
+						function(){
 						}
-					},
-					function(){
-					}
-				);
-			}, delay);
-		};
+					);
+				}, delay);
+			};
 			/*END: Methods which make use of instanceService*/
-
 			angular.extend($scope, {
 				actionSet : instanceActions
 			});

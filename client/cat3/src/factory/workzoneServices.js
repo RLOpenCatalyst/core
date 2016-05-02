@@ -67,25 +67,16 @@
                     var url = '/app/deploy/' + appId + '/logs';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                /*getEnvConfig: function(projId) {
-                    //var url = '/data/appDeployEnvList.json';
-                    var url = '/app/deploy/pipeline' + '/project/' + projId;
-                    return $http.get(fullUrl(url), Auth.getHeaderObject());
-                },*/
                 getEnvConfig: function(projId) {
-                    //var url = '/data/appDeployEnvList.json';
                     var url = '/d4dMasters' + '/project/' + projId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                //d4dMasters/project/895990bc-2dc8-43bf-ab65-d75d8e5f5f07
                 postEnvConfig: function(reqBody) {
                     //var url = '/data/appDeployEnvList.json';
                     var url = '/app/deploy/data/pipeline/configure';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
-                    //return $http.post(fullUrl(url), Auth.getHeaderObject());
                 },
                 getUpdatedEnvConfig: function(projId) {
-                    //var url = '/data/appDeployEnvList.json';
                     var url = '/app/deploy/pipeline' + '/project/' + projId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
