@@ -1,4 +1,15 @@
 
+3.0.5 - April 15th, 2016
+----------------------------
+* AWS tag based allocation of instances
+* Promote feature for Application Deployments
+
+3.0.4 - March 21st, 2016
+----------------------------
+* Introducing IAM based authorization to AWS account
+* Import Instances from AWS
+* Application Deployment using Blueprints
+
 3.0.3 - March 7th, 2016
 ----------------------------
 * Hardening application deployment history
