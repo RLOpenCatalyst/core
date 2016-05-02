@@ -141,19 +141,17 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
             logger.debug("Error fetching record.", err);
             callback(err, null);
         }
+        
         if (aData.length) {
-            var existData = checkDuplicate(aData[0],appData);
+            var existData = checkDuplicate(aData[0], appData);
             var setData = {};
             var keys = Object.keys(existData);
             for (var i = 0; i < keys.length; i++) {
                 setData[keys[i]] = existData[keys[i]];
             }
-            
+
             that.update({
-                projectId: appData.projectId,
-                envName: appData.envName,
-                appName: appData.appName,
-                version: appData.version
+                "_id": aData[0].id
             }, {
                 $set: setData
             }, {
@@ -182,7 +180,7 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
 var checkDuplicate = function(aData, reqData) {
     var existDocker = aData.docker;
     var reqDocker = reqData.docker;
-    if (existDocker.length && reqDocker.length) {
+    if (existDocker && existDocker.length && existDocker[0] != null && reqDocker && reqDocker.length && reqDocker[0] != null) {
         for (var i = 0; i < existDocker.length; i++) {
             if (existDocker[i].image === reqDocker[0].image && existDocker[i].imageTag === reqDocker[0].imageTag &&
                 existDocker[i].containerPort === reqDocker[0].containerPort && existDocker[i].hostPort === reqDocker[0].hostPort &&
@@ -190,15 +188,26 @@ var checkDuplicate = function(aData, reqData) {
                 existDocker[i].dockerPassword === reqDocker[0].dockerPassword) {
                 if (existDocker[i].nodeIds.indexOf(reqDocker[0].nodeIds[0]) == -1) {
                     existDocker[i].nodeIds.push(reqDocker[0].nodeIds[0]);
-
                 }
             } else {
                 existDocker[i].push(reqDocker[0].docker[0]);
             }
         }
+        reqData.docker = existDocker;
+        return reqData;
+    } else {
+        var existNexus = aData.nexus;
+        var reqNexus = reqData.nexus;
+        if(existNexus && existNexus.repoURL && reqNexus && reqNexus.repoURL){
+            if(existNexus.nodeIds.indexOf(reqNexus.nodeIds[0]) == -1){
+                existNexus.nodeIds.push(reqNexus.nodeIds[0]);
+            }
+        }else{
+            existNexus = reqNexus;
+        }
+        reqData.nexus.nodeIds = existNexus.nodeIds;
+        return reqData;
     }
-    reqData.docker = existDocker;
-    return reqData;
 }
 
 // Get AppData by project,env,appName,version.
