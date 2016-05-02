@@ -103,8 +103,9 @@
 							}
 						}
 					}).
-					result.then(function() {
-
+					result.then(function(newEnvList) {
+                        $scope.updatedEnvList = newEnvList.envList;
+                        console.log($scope.updatedEnvList);
 					}, function() {
 
 					});
