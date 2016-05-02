@@ -10,8 +10,22 @@
 	angular.module('workzone.application')
 		.controller('configurePipelineViewCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'chefSelectorComponent', 'responseFormatter', 'items', '$q', '$timeout', 
 		function($scope, $modalInstance, workzoneServices, chefSelectorComponent, responseFormatter, items, $q, $timeout) {
-			var compositeSelector;
-			$scope.chefServerID = '';
+			var selectedElements = [];
+			var newEnvList = [];
+			workzoneServices.getUpdatedEnvConfig(items).then(function (response){
+				newEnvList = response.data[0].envSequence;
+				for(var i=0; i<newEnvList.length; i++) {
+					var newList = {
+						"className": "environment",
+					    "value": newEnvList[i],
+					    "data": {
+					    	"key": newEnvList[i],
+					    	"value": newEnvList[i]
+					    }
+					}
+					selectedElements.push(newList);
+				}
+			});
 			var list, selectedElements, factory, compositeSelector;
 			var c = workzoneServices.getEnvConfig(items);
 			c.then(function(allPromise) {
@@ -29,7 +43,6 @@
 					}
 					list.push(obj);
 				}
-				selectedElements = [];
 				var factory = chefSelectorComponent.getComponent;
 				compositeSelector = new factory({
 					scopeElement: '#configure_environments',
@@ -40,18 +53,9 @@
 					isOverrideHtmlTemplate: true,
 					isPriorityEnable: true,
 					isExcludeDataFromOption: true,
-					/*idList: {
-						selectorList: '#selector',
-						optionSelector: '#option',
-						upBtn: '#btnRunlistItemUp',
-						downBtn: '#btnRunlistItemDown',
-						addToSelector: '#btnaddToRunlist',
-						removeFromSelector: '#btnremoveFromRunlist',
-						searchBox: '#searchBox'
-					}*/
 				});
 				console.log(list);
-				console.log(selectorList);
+				console.log(selectedElements);
 				registerUpdateEvent(compositeSelector);
 			});
 			function registerUpdateEvent(obj) {
@@ -59,30 +63,31 @@
 				console.log(updateList);
 			}
 			angular.extend($scope, {
-				ok: function() {
-					var envList = {};
-					/*var selectedCookBooks = compositeSelector.getSelectorList();
-					envList = selectedCookBooks;
-					console.log(envList);*/
-					envList = {
-						"appDeployPipelineData": {
-							"loggedInUser": "",
-							"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-							//"envId": 
-							"envId": ["QA", "Dev", "Prod", "Stage"],
-							"envSequence": ["QA", "Dev", "Prod", "Stage"]
-						}
-					};
-					workzoneServices.postEnvConfig(envList).then(function () {
-						$modalInstance.close();
-					}, function(error){
-						if(error.responseText){
-							$scope.errorMessage = error.responseText;
-						}
-					});
-				},
+			    ok:function(){
+			    	var newEnv=[];
+			    	angular.forEach(compositeSelector.getSelectorList(),function(val){
+			    	newEnv.push(val.value);
+			    });
+			    console.log(newEnv);
+			    var envList = {
+					"appDeployPipelineData": {
+						"loggedInUser": "",
+						"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+						"envId": newEnv,
+						"envSequence": newEnv
+					}
+				};
+		    	workzoneServices.postEnvConfig(envList).then(function () {
+					$modalInstance.close();
+				}, function(error){
+					if(error.responseText){
+						$scope.errorMessage = error.responseText;
+					}
+				});
+				$modalInstance.close({envList: envList.appDeployPipelineData.envSequence});
+			    },
 				cancel: function() {
-					$modalInstance.dismiss('cancel');
+					$modalInstance.close('cancel');
 				}
 			});
 		}
