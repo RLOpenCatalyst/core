@@ -22,8 +22,8 @@
 					columnDefs : [
 						{ name:'Actions',enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="grid.appScope.checkEdited(row.entity) && grid.appScope.checkProgress(row.entity)" title="Stop"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
 						'<span class="marginleft5 containerIcon yellowBg white" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  title="Restart" ng-show="grid.appScope.checkEdited(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-undo"></i></span>'+
-						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" title="Pause" ng-show="grid.appScope.checkEdited(row.entity) && checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-pause"></i></span>'+
-						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" title="Play" ng-show="grid.appScope.checkEdited(row.entity) && !checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
+						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" title="Pause" ng-show="grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-pause"></i></span>'+
+						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" title="Play" ng-show="grid.appScope.checkEdited(row.entity) && grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
 						'<span class="marginleft5 containerIcon crimsonBg white" ng-click="grid.appScope.containerAction(row.entity,6)"  id="sign-out" title="Terminate" ng-show="grid.appScope.checkProgress(row.entity)"><i class="white fa fa-sign-out"></i></span>', cellTooltip: true},
 						{ name:'State',field:'Status',cellTooltip: true},
 						{ name:'Created',cellTemplate:'<span>{{row.entity.Created  | timestampToCurrentTime}}</span>',cellTooltip: true},
@@ -92,13 +92,13 @@
 					return false;
 				else
 					return true;
-			}
+			};
 			$scope.checkcAdvisor = function(_app){
 				return (_app.Image.indexOf('cadvisor') >=0 ) ? true : false;
 			};
 
 			$scope.checkPausePlay = function(_app){
-				return (_app.isPause) ? true : false;
+				return (_app.Status.indexOf('Paused') >=0 ) ? true : false;
 			};
 			$scope.showcAdvisor = function(app){
 				var cAdvisorInstance = $modal.open({

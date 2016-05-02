@@ -4,6 +4,7 @@ var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var schemaValidator = require('_pr/model/dao/schema-validator.js');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 var containerSchema = new Schema({
     orgId: {
@@ -75,9 +76,6 @@ var containerSchema = new Schema({
         type: String,
         required: true,
         trim: true,
-    },
-    isPause:{
-        type: Boolean
     },
     HostConfig:Schema.Types.Mixed
 
@@ -159,14 +157,13 @@ containerSchema.statics.getContainerByIdInstanceIP = function(containerId,instan
         callback(null, aContainer);
     });
 };
-containerSchema.statics.updateContainer = function(containerData, callback) {
+containerSchema.statics.updateContainer = function(containerId,containerStatus, callback) {
     logger.debug("Enter updateContainer");
     container.update({
-        Id: containerData.containerId
+        Id: containerId
     }, {
         $set: {
-            Status: containerData.Status,
-            isPause: containerData.isPause ? containerData.isPause : false
+            Status: containerStatus
         }
     }, {
         upsert: false
