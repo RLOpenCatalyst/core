@@ -8,10 +8,73 @@
 (function(){
    "use strict";
 	angular.module('workzone.instance')
-		.controller('cpActionHistoryCtrl', ['$scope', '$modal', 'workzoneServices', function($scope, $modal , workzoneServices) {
+		.controller('cpActionHistoryCtrl', ['$scope', '$rootScope', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', function($scope, $rootScope, $modal, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices) {
 			var cpInstance = $scope.$parent.cpInstance;
 			$scope.instInfo = cpInstance;
-			var cpActCtrl={
+
+			/*$scope.paginationParams = {
+				pages: {
+					page: 1,
+					pageSize: 10
+				},
+				sort: {
+					field: '',
+					direction: ''
+				}
+			};*/
+
+			$scope.tabData = [];
+
+			/*$scope.cpActionHistoryGridOptions = {
+				paginationPageSizes: [10, 25, 50],
+				paginationPageSize: 10,
+				enableColumnMenus: false,
+				enableScrollbars: true,
+				enableHorizontalScrollbar: 0,
+				enableVerticalScrollbar: 1
+			};*/
+			var gridOptions = uiGridOptionsClient.options().gridOption;
+			$scope.cpActionHistoryGridOptions = gridOptions;
+
+			$scope.initGrids = function(){
+				$scope.cpActionHistoryGridOptions.data='tabData';
+				$scope.cpActionHistoryGridOptions.columnDefs = [
+					//, sort: { direction: 'uiGridConstants.ASC' }
+					{ name:'Type',field:'name',cellTooltip: true},
+					{ name:'Status',field:'success',cellTooltip: true},
+					{ name:'Data',
+					  cellTemplate:'<ul><li title="{{actionKey}} : {{actionValue.join() || actionValue}}" ng-repeat="(actionKey, actionValue) in row.entity.actionData">{{actionKey}} : {{actionValue.join() || actionValue}}</li></ul>'},
+					{ name:'Timestamp', field: 'timeStarted', 
+					  cellTemplate:'<span title="{{row.entity.timeStarted  | timestampToLocaleTime}}">{{row.entity.timeStarted  | timestampToLocaleTime}}</span>'},
+					{ name:'Users',field:'user',cellTooltip: true},
+					{ name:'More Info',
+					  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.moreInfo(row.entity)"></i></div>'}
+				];
+			};
+			angular.extend($scope, {
+				cpActionHistoryListView: function() {
+					// service to get the list of action history
+					if (cpInstance._id) {
+						workzoneServices.getInstanceActionLogs(cpInstance._id).then(function(result){
+							
+							$scope.tabData = [];
+							
+							$timeout(function() {
+								//console.log("Arab");
+								//console.log(result);
+								//$scope.cpActionHistoryGridOptions.totalItems = result.data.length;
+								$scope.tabData = result.data;
+							},100);
+							//gridOption.data = response.data;
+						}, function(error){
+							console.log(error);
+							$scope.errorMessage = "No Records found";
+						});
+					}
+				},
+			});
+			
+			/*var cpActCtrl={
 				gridOptions:{}
 			};
 			cpActCtrl.gridSettings= function(){
@@ -41,7 +104,7 @@
 					});
 				}
 				cpActCtrl.gridOptions= gridOption;
-			};
+			};*/
 
 			$scope.moreInfo = function(actionHistoryData){
 				var modalInstance = $modal.open({
@@ -65,7 +128,25 @@
 					console.log('Modal Dismissed at ' + new Date());
 				});
 			};
-			return cpActCtrl;
+			$scope.init = function(){
+				$scope.initGrids();
+				$scope.cpActionHistoryListView();
+			};
+			
+			$rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
+				if(tabName === 'Action History'){
+					//console.log(tabName);
+					//$scope.isOrchestrationPageLoading = true;
+					var tableData = $scope.tabData;
+					$scope.tabData = [];
+					$timeout(function(){
+						$scope.tabData = tableData;
+						//$scope.isOrchestrationPageLoading = false;
+					}, 100);
+				}
+			});
+			$scope.init();
+			//return cpActCtrl;
 		}]).controller('cpActionHistoryLogCtrl',['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval',function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval){
 			var _instance = items.cpInstance;
 			var _actionItem = items.actionHistoryData;

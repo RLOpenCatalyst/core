@@ -33,6 +33,21 @@
                 };
             }
         }
+    }]).service('uiGridOptionsClient', [function(){
+        return {
+            options: function() {
+                return {
+                    gridOption: {
+                        paginationPageSizes: [10, 25, 50],
+                        paginationPageSize: 10,
+                        enableColumnMenus: false,
+                        enableScrollbars: true,
+                        enableHorizontalScrollbar: 0,
+                        enableVerticalScrollbar: 1
+                    }
+                };
+            }
+        }
     }]).service('paginationUtil', [function () {
            
             var paginationInterface = {};

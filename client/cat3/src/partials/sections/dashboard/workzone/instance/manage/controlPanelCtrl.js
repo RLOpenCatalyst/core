@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('workzone.instance')
-            .controller('controlPanelCtrl', ['$scope', 'instance', 'workzoneServices', 'workzoneEnvironment', '$modalInstance', 'instanceLogs', function ($scope, instance, workzoneServices, workzoneEnvironment, $modalInstance, instanceLogs) {
+            .controller('controlPanelCtrl', ['$scope', '$rootScope', 'instance', 'workzoneServices', 'workzoneEnvironment', '$modalInstance', 'instanceLogs', function ($scope, $rootScope, instance, workzoneServices, workzoneEnvironment, $modalInstance, instanceLogs) {
                     $scope.cancel = function () {
                         instanceLogs.stopLogsPolling();
                         $modalInstance.dismiss('cancel');
@@ -48,6 +48,9 @@
                     //The cpInstance from this scope is used in the controllers of child tabs.
                     $scope.cpInstance = instance;
                     $scope.instInfo = $scope.cpInstance;
+                    $scope.$watch('tabs.activeTab', function () {
+                        $rootScope.$emit('WZ_CONTROLPANEL_TAB_VISIT', $scope.tabs.activeTab);
+                    });
                 }
             ]);
 })(angular);

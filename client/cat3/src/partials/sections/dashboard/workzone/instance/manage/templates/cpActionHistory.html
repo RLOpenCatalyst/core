@@ -1,5 +1,12 @@
-<div id="cpActionHistoryPage" ng-controller="cpActionHistoryCtrl as cpActCtrl">
+<!-- <div id="cpActionHistoryPage" ng-controller="cpActionHistoryCtrl as cpActCtrl">
 	<div class="action-history-container" ng-init="cpActCtrl.gridSettings();">
 		<div id="grid1"  ui-grid="cpActCtrl.gridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
+	</div>
+</div> -->
+
+<div id="cpActionHistoryPage" ng-controller="cpActionHistoryCtrl">
+	<div class="action-history-container">
+		<!-- <loading size="large" name="iscpActionHistoryPageLoading" type="block"></loading> ng-show="!iscpActionHistoryPageLoading"  -->
+		<div id="grid3" ng-if="tabData.length >0"  ui-grid="cpActionHistoryGridOptions" ui-grid-pagination class="grid"></div>
 	</div>
 </div>

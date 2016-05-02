@@ -7,7 +7,7 @@
     </div>
 
     <div class="modal-body body-padding">
-        <table datatable="" class="table-bordered text-center">
+        <!-- <table datatable="" class="table-bordered text-center">
             <thead>
                 <tr class="rowCustomStyle" role="row">
                     <td class="sorting_disabled" rowspan="1" colspan="1">
@@ -34,7 +34,9 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table> -->
+        <div ng-if="tabAddServicesData.length == 0" align="center">No Data Found !!!</div>
+        <div id="grid5" ng-if="tabAddServicesData.length >0"  ui-grid="cpAddNewServicesGridOptions" ui-grid-pagination class="grid"></div>
     </div>
 
     <div class="modal-footer">
