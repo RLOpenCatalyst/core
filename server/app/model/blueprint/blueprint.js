@@ -622,7 +622,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
     //merging attributes Objects
     var attributeObj = {};
     var objectArray = [];
-    if (blueprint.blueprintConfig.infraManagerData.versionsList && blueprint.blueprintConfig.infraManagerData.versionsList.length) {
+    if (blueprint.blueprintConfig.infraManagerData && blueprint.blueprintConfig.infraManagerData.versionsList && blueprint.blueprintConfig.infraManagerData.versionsList.length) {
         // Attributes which are configures in blueprint.
         var attr = blueprint.blueprintConfig.infraManagerData.versionsList[0].attributes;
         if (attr && attr.length) {
