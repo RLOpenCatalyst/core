@@ -130,9 +130,8 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
             logger.debug("There is no Project configured.");
             callback(null, []);
             return;
-        }
-        else {
-            AppDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function (err, distinctAppDeployApplicationNames) {
+        } else {
+            AppDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function(err, distinctAppDeployApplicationNames) {
                 if (err) {
                     logger.debug("Failed to fetch App Deploy Versions");
                     callback(err, null);
@@ -141,12 +140,12 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                 var appDeployList = [];
                 var aAppDeployObj = {};
                 var environments = aProject[0].environmentname.split(",");
-                var applicationNames=distinctAppDeployApplicationNames.applicationNames;
+                var applicationNames = distinctAppDeployApplicationNames.applicationNames;
                 if (applicationNames.length > 0) {
-                    for(var i = 0; i < applicationNames.length;i++){
-                        (function(AppName){
-                            jsonData['appName']=AppName._id;
-                            AppDeploy.getDistinctAppDeployVersionByProjectId(jsonData, function (err, appDeployVersions) {
+                    for (var i = 0; i < applicationNames.length; i++) {
+                        (function(AppName) {
+                            jsonData['appName'] = AppName._id;
+                            AppDeploy.getDistinctAppDeployVersionByProjectId(jsonData, function(err, appDeployVersions) {
                                 if (err) {
                                     logger.debug("Failed to fetch App Deploy Versions");
                                     callback(err, null);
@@ -156,12 +155,11 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                     logger.debug("There is no App Deploy Versions configured.");
                                     callback(null, []);
                                     return;
-                                }
-                                else {
+                                } else {
 
-                                    for (var  j = 0; j < appDeployVersions.length; j++) {
-                                        (function (aVersion) {
-                                            AppDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId,AppName._id, aVersion._id, function (err, appDeploys) {
+                                    for (var j = 0; j < appDeployVersions.length; j++) {
+                                        (function(aVersion) {
+                                            AppDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId, AppName._id, aVersion._id, function(err, appDeploys) {
                                                 if (err) {
                                                     logger.debug("Failed to fetch App Deploy");
                                                     callback(err, null);
@@ -177,7 +175,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                     "version": appDeploys[0].applicationVersion
                                                 };
                                                 for (var k = 0; k < appDeploys.length; k++) {
-                                                    (function (aAppDeploy) {
+                                                    (function(aAppDeploy) {
                                                         aAppDeployObj[aAppDeploy.envName] = {
                                                             "applicationInstanceName": aAppDeploy.applicationInstanceName,
                                                             "applicationNodeIP": aAppDeploy.applicationNodeIP,
@@ -216,9 +214,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                             });
                         })(applicationNames[i]);
                     }
-                }
-                else
-                {
+                } else {
                     logger.debug("There is no App Deploy Versions configured.");
                     callback(null, []);
                     return;
@@ -229,16 +225,16 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
 
 }
 
-appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion=function getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId,envName,appName,version,callback){
-    AppDeploy.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId,envName,appName,version,function(err,appDeployHistoryList){
-        if(err){
+appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion = function getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId, envName, appName, version, callback) {
+    AppDeploy.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId, envName, appName, version, function(err, appDeployHistoryList) {
+        if (err) {
             logger.debug("Error while fetching App Deploy History via projectId,envName,appName and appDeployVersion");
-            callback(err,null);
+            callback(err, null);
             return;
         }
-        if(appDeployHistoryList.length === 0){
+        if (appDeployHistoryList.length === 0) {
             logger.debug("There is no App Deploy History via projectId,envName,appName and appDeployVersion configured.");
-            callback(null,[]);
+            callback(null, []);
             return;
         }
         callback(null, appDeployHistoryList);
@@ -381,7 +377,7 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                     appData['nexus'] = nexus;
                     appData['nexus']['nodeIds'] = task.nodeIds;
                 }
-                if (docker && docker.length && docker[0].nodeIds.length) {
+                if (docker && docker.length && docker[0] != null && docker[0].nodeIds.length) {
                     appData['docker'] = docker;
                     appData['docker']['nodeIds'] = task.nodeIds;
                 }
@@ -393,15 +389,8 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                     "nexus": nexus,
                     "docker": docker
                 };
-            }
-            logger.debug("applicationData: ", JSON.stringify(applicationData));
-            AppData.createNewOrUpdate(applicationData, function(err, savedData) {
-                if (err) {
-                    logger.debug("Failed to save app-data: ", err);
-                    callback(err, null);
-                    return;
-                }
-                logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
+
+                logger.debug("applicationData: ", JSON.stringify(applicationData));
                 Tasks.getTaskById(taskId, function(err, data) {
                     if (err) {
                         logger.error(err);
@@ -433,15 +422,27 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                                     "taskType": historyData.taskType,
                                     "historyId": historyData.historyId
                                 };
+                                AppData.createNewOrUpdate(applicationData, function(err, savedData) {
+                                    if (err) {
+                                        logger.debug("Failed to save app-data: ", err);
+                                        callback(err, null);
+                                        return;
+                                    }
+                                    logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
+                                });
                                 callback(null, promoteRes);
                             });
                         });
                     } else {
+                        logger.debug("Task not Found.");
                         callback(null, 404);
                         return;
                     }
                 });
-            });
+            } else {
+                callback(404, null);
+                return;
+            }
         });
 
     } else {
