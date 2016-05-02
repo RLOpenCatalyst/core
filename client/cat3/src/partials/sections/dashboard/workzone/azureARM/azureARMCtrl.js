@@ -37,6 +37,7 @@
 					workzoneServices.getPaginatedARM($scope.envParams, $scope.paginationParams).then(function(result) {
 						$scope.totalCards = result.data.metaData.totalRecords;
 						$scope.isAzureARMPageLoading = false;
+						$scope.arms = result.data.azureArms;
 						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pageSize);
 					},function(error) {
 						$scope.isAzureARMPageLoading = false;
