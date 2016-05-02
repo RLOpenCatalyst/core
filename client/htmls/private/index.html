@@ -73,7 +73,7 @@
     <aside id="left-panel">
       <div id="Workspace1">
         <div class="leftSpaceStyle">
-          <div class="hiddencollapse treeStyle">WORKZONE</div>
+          <div class="hiddencollapse treeStyle hidden">WORKZONE</div>
         </div>
         <div id="tree" class="font-size-12"></div>
       </div>
@@ -474,6 +474,9 @@ function setleftnavigation(toplink, breadcrumbHeader) {
     var TabID = $(toplink).attr('id');
     if (TabID === "workZoneNew") {
         locationClick();
+        if(isAngularIntegration){
+          return false;
+        }
         loadTreeFuncNew();
         $('#Settings_nav').hide();
         $('#Workspace1').show();
@@ -514,10 +517,10 @@ function setleftnavigation(toplink, breadcrumbHeader) {
     }
 
     if ($(toplink).hasClass('active')) {
-        if ($(toplink).attr('id') == 'workZoneNew') {
-            selectEnv();
-        }
-        return;
+      if ($(toplink).attr('id') == 'workZoneNew') {
+          selectEnv();
+      }
+      return;
     }
     $('.navigationTab').removeClass('active').find("i").removeClass('txt-color-blue');
     $(toplink).addClass('active').find('i').addClass('txt-color-blue');
@@ -544,7 +547,7 @@ function setleftnavigation(toplink, breadcrumbHeader) {
     //Setting local storage with last selected tab
     localStorage.setItem("lasttabselected", $(toplink).attr('id'));
     if ($(toplink).attr('id') == 'workZoneNew') {
-        selectEnv();
+      selectEnv();
     }
 }
 

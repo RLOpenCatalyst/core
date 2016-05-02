@@ -126,7 +126,7 @@
             $scope.deleteAppUrl = function(_appUrl, index) {
                 workzoneServices.deleteAppUrl(cpInstance._id, _appUrl._id).then(function() {
                     var idx = index;
-                    $scope.appUrlInfo.splice(idx);
+                    $scope.appUrlInfo.splice(idx,1);
                 }, function() {
                     alert("Unable to delete URL please try again later");
                 });

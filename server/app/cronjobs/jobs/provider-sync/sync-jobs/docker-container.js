@@ -99,6 +99,7 @@ function sync() {
                                                                 if(so.indexOf("Names")>0){
                                                                     var containers = JSON.parse(so);
                                                                     async.forEach(containers,function(aContainer,next){
+                                                                        var containerName=aContainer.Names.toString().replace('/','');
                                                                         var containerData = {
                                                                             orgId: aOrg.rowid,
                                                                             bgId: aBusinessGroup.rowid,
@@ -107,7 +108,7 @@ function sync() {
                                                                             Id: aContainer.Id,
                                                                             instanceIP: aInstance.instanceIP,
                                                                             instanceId: aInstance._id,
-                                                                            Names: aContainer.Names,
+                                                                            Names: containerName,
                                                                             Image: aContainer.Image,
                                                                             ImageID: aContainer.ImageID,
                                                                             Command: aContainer.Command,

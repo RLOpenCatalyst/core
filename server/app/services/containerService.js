@@ -56,7 +56,8 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             });
         },
         function (retCode,next){
-            console.log(retCode);
+            logger.debug("Code     "+retCode);
+            logger.debug("stdOut     "+stdOut);
             if(retCode === 0){
                 if(stdOut.trim().length === jsonData.containerId.length){
                     containerDao.updateContainer(jsonData.containerId,jsonData.processStatus,next);

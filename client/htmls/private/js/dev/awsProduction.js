@@ -437,6 +437,171 @@ $(document).ready(function() {
             $(".select2-drop ul").removeClass("myErrorClass");
         }
     });
+	$('#selectOrgName').trigger('change');
+	//added for v3.0 - when navigating from v2.0 workzone to design-
+	if (isAngularIntegration) {
+		$('#workZoneNew').attr('href', '#');
+		$('#workZoneNew').removeClass('active');
+		$('#Workspace1').addClass('hidden');
+		$('#designNew').addClass('active');
+		$('ul#blueprints').removeClass('hidden');
+        $("#ribbon ol.breadcrumb").empty();
+        var providerselected = $('#blueprints').attr('providerselected');
+        providerselected = providerselected.toUpperCase();
+        $("#ribbon ol.breadcrumb").append($("<li>Design</li>" + "<li>PROVIDERS</li>" + "<li>"+providerselected+"</li>"));
+	}
+	var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
+	if (window.url.indexOf('addnew') > 0) $addal.attr('href', '#ajax/Aws-Production.html?addanother');
+	else $addal.attr('href', '#ajax/Aws-Production.html?addnew');
+	$.ajax({
+		type: "get",
+		dataType: "json",
+		async: false,
+		url: "../organizations/getTreeNew",
+		success: function(data) {
+			console.log(data);
+			data = JSON.parse(JSON.stringify(data));
+			var $orgListInput = $('#orgnameSelectExisting');
+			var $bgList = $('#bgListInputExisting');
+			var $projectList = $('#projectListInputExisting');
+			var $envList = $('#envListExisting');
+			var $projectList = $('#projectListInputExisting');
+			$bgList.change(function(e) {
+				var bgName = $(this).val();
+				if (bgName == 'choose') {
+					return;
+				}
+				var $selectedOrgOption = $(this).find(":selected");
+				$projectList.empty();
+				var getProjs = bgProjects[bgName];
+				for (var i = 0; i < getProjs.length; i++) {
+					var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+					$projectList.append($option);
+				}
+				$projectList.trigger('change');
+			});
+			var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
+			$('#projectListInputExisting').change(function(e) {
+				var reqBodyNew = {};
+				$spinnerProject.removeClass('hidden');
+				reqBodyNew.orgId = $orgListInput.val();
+				reqBodyNew.bgId = $bgList.val();
+				reqBodyNew.projectId = $projectList.val();
+				reqBodyNew.envId = $envList.val();
+				$.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/', function(data) {
+					console.log('success---3---4');
+					//Syncing up the tree view based on url
+					initializeBlueprintAreaNew(data.blueprints);
+					$spinnerProject.addClass('hidden');
+					if (data.blueprints.length > 0) {
+						$('#accordion-2').removeClass('hidden');
+						$spinnerProject.addClass('hidden');
+					} else {
+						$spinnerProject.addClass('hidden');
+					}
+				});
+			}); //choose env gets over
+			var bgProjects = {};
+			for (var i = 0; i < data.length; i++) {
+				console.log(data[i].businessGroups);
+				$orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
+				for (var j = 0; j < data[i].businessGroups.length; j++) {
+					var rowid = data[i].businessGroups[j].rowid;
+					$bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+					bgProjects[rowid] = data[i].businessGroups[j].projects;
+				}
+				for (var k = 0; k < data[i].environments.length; k++) {
+					$envList.append($('<option></option').val(data[i].environments[k].rowid).html(data[i].environments[k].name))
+				}
+			}
+			$bgList.trigger('change');
+			$('.chooseOrgSelectExisting').change(function(e) {
+				if ($(this).val() == 'choose') {
+					$('#accordion-2').addClass('hidden');
+				}
+				$('.chooseBGExisting').change();
+				$('.chooseProjectExisting').change();
+			});
+		}
+	}); //getTreeNew gets over here
+	//form validation for blueprint save
+	var validator = $('#wizard-1').validate({
+		ignore: [],
+		rules: {
+			"checkbox-toggle": {
+				required: true
+			},
+			blueprintNameInput: {
+				maxlength: 25
+			}
+		},
+		messages: {
+			blueprintNameInput: {
+				maxlength: "Limited to 25 characters"
+			}
+		},
+		onkeyup: false,
+		errorClass: "error",
+		//put error message behind each form element
+		errorPlacement: function(error, element) {
+			console.log(error, element);
+			var elem = $(element);
+			if (element.parent('.input-groups').length) {
+				error.insertBefore(element.parent());
+			} else {
+				if (element.parent('div.inputGroups')) {
+					console.log(element);
+					console.log(element.parent);
+					error.insertBefore('div.inputGroups');
+				}
+				$("select.select2-me").each(function(index, el) {
+					if ($(this).is("[data-rule-required]") && $(this).attr("data-rule-required") == "true") {
+						$(this).on('select2-close', function(e) {
+							$(this).valid()
+						});
+					}
+				});
+			}
+		},
+		//When there is an error normally you just add the class to the element.
+		// But in the case of select2s you must add it to a UL to make it visible.
+		// The select element, which would otherwise get the class, is hidden from
+		// view.
+		highlight: function(element, errorClass, validClass) {
+			var elem = $(element);
+			if (elem.hasClass("select2-offscreen")) {
+				$("#s2id_" + elem.attr("id") + " ul").addClass(errorClass);
+			} else {
+				elem.addClass(errorClass);
+			}
+		},
+		//When removing make the same adjustments as when adding
+		unhighlight: function(element, errorClass, validClass) {
+			var elem = $(element);
+			if (elem.hasClass("select2-offscreen")) {
+				$("#s2id_" + elem.attr("id") + " ul").removeClass(errorClass);
+			} else {
+				elem.removeClass(errorClass);
+			}
+		}
+	});
+	$('a#addanotherlink').click(function(e) {
+		validator.resetForm();
+	});
+	$(document).on('change', '.select2-offscreen', function() {
+		if (!$.isEmptyObject(validator.submitted)) {
+			validator.form();
+		}
+	});
+	$(document).on("select2-opening", function(arg) {
+		var elem = $(arg.target);
+		if ($("#s2id_" + elem.attr("id") + " ul").hasClass("myErrorClass")) {
+			//jquery checks if the class exists before adding.
+			$(".select2-drop ul").addClass("myErrorClass");
+		} else {
+			$(".select2-drop ul").removeClass("myErrorClass");
+		}
+	});
 }); //document.ready gets over here
 //the blueprint section gets over here.
 $('#launchParamDocker').click(function() {

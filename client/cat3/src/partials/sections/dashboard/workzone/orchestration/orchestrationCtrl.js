@@ -37,7 +37,7 @@
 						'<span title="Assign Nodes" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
 						'</span>'+
 						'<span ng-show="row.entity.taskType===\'jenkins\'">'+
-						'<a target="_blank" title="Jenkins" ng-href="http://{{row.entity.taskConfig.jobURL}}">'+
+						'<a target="_blank" title="Jenkins" ng-href="{{row.entity.taskConfig.jobURL}}">'+
 						'<img class="chefImage-size" src="images/orchestration/joburl.jpg" /> </a>'+
 						'</span>'+
 						'<span ng-show="row.entity.taskType===\'composite\'"> NA </span>'+

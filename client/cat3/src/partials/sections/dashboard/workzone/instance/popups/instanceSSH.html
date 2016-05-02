@@ -164,6 +164,7 @@
 
                     sshSocket.on('close', function() {
                         destroyTerminal();
+                        $sshContainer.find('.sshSubmit').show();
                     });
 
                     sshSocket.on('error', function(err) {
