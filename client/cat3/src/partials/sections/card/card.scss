@@ -355,6 +355,11 @@ $imagePath : "/cat3/images";
 	.blueprint-buttons {
 		margin: 22px 0 0 21px;
 	}
+
+	.bp-provider {
+		position: absolute;
+    	margin: 24px 0 0 5px;
+	}
 }
 
 #cloudFormationPage, #azureARMPage {
