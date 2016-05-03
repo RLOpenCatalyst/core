@@ -50,6 +50,10 @@ var INFRA_MANAGER_TYPE = {
 
 var CloudFormationBlueprintSchema = new Schema({
 	cloudProviderId: String,
+	cloudProviderType: {
+		type: String,
+		"default": 'aws'
+	},
 	infraMangerType: String,
 	infraManagerId: String,
 	templateFile: String,
@@ -394,6 +398,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
 															projectId: launchParams.projectId,
 															envId: launchParams.envId,
 															providerId: cloudFormation.cloudProviderId,
+															providerType: self.cloudProviderType || 'aws',
 															keyPairId: keyPair._id,
 															chefNodeName: instanceData.InstanceId,
 															runlist: runlist,
@@ -718,7 +723,7 @@ CloudFormationBlueprintSchema.methods.getInfraManagerData = function() {
 	return {
 		infraMangerType: this.infraManagerType,
 		infraManagerId: this.infraManagerId
-			//   infraManagerData: this.infraManagerData
+		//   infraManagerData: this.infraManagerData
 	};
 };
 
@@ -766,7 +771,7 @@ CloudFormationBlueprintSchema.statics.createNew = function(data) {
 		templateFile: data.templateFile,
 		region: data.region,
 		instances: data.instances
-			// instanceUsername: data.instanceUsername
+		// instanceUsername: data.instanceUsername
 	});
 
 
