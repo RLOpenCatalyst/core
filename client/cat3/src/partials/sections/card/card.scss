@@ -15,10 +15,6 @@ $imagePath : "/cat3/images";
 	}
 }
 
-@media (min-width : 480px) {
-
-}
-
 @media (min-width : 0px) and (max-width: 767px) {
 	#instancePage {
 		.card {
@@ -159,11 +155,11 @@ $imagePath : "/cat3/images";
 				position: relative;
 				width: 164px;
 				float: left;
-				margin: 0px 40px 20px 0px;
+				margin: 0px 40px 15px 0px;
 				border: 1px solid #DDDDDD;
 				text-align: center;
 				font-size: 10px;
-				min-height: 230px;
+				min-height: 200px;
 				@include border-radius(11px);
 
 				.card-title {
@@ -205,11 +201,12 @@ $imagePath : "/cat3/images";
 				}
 
 				.status-state {
-					width: 100px;
-					height: 100px;
+					width: 80px;
+					height: 80px;
 					text-align: center;
-					margin-left: 30px;
+					margin-left: 40px;
 					background-repeat: no-repeat;
+					background-size: 80px;
 				}
 
 				.card-circle-info {
@@ -303,6 +300,7 @@ $imagePath : "/cat3/images";
 	.system-prop {
 		position: relative;
 		text-align: center;
+		margin-bottom: 0px;
 	}
 
 	.readBtn {
@@ -352,8 +350,23 @@ $imagePath : "/cat3/images";
 		height: 25px;
 	}
 
+	.docker-repo-list {
+        height: 35px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .docker-repo {
+        padding: 0px;
+        font-size: 12px;
+    }
+
 	.blueprint-buttons {
 		margin: 22px 0 0 21px;
+	}
+
+	.blueprint-buttons-docker {
+		margin: 5px 0 0 21px;
 	}
 
 	.bp-provider {
@@ -494,7 +507,7 @@ $imagePath : "/cat3/images";
 }
 
 #cardView {
-	padding: 25px 0px 0px 25px;
+	padding: 10px 0px 0px 25px;
 	overflow-y: auto;
 
 	.card {
