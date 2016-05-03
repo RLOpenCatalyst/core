@@ -72,6 +72,18 @@ UnmanagedInstanceSchema.statics.updateInstance = function updateInstance(instanc
 };
 //End By Durgesh
 
+UnmanagedInstanceSchema.statics.getByOrgIds = function getByOrgIds(orgIds, callback) {
+	this.find({orgId: {$in: orgIds}},
+		function(err, instances) {
+			if (err) {
+				return callback(err);
+			} else {
+				return callback(null, instances);
+			}
+		}
+	);
+};
+
 UnmanagedInstanceSchema.statics.getByOrgProviderId = function(opts, callback) {
 
 	this.find({
