@@ -101,7 +101,7 @@
 										</span>
 									  </li>
 									<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
-									  && inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
+									  && inst.instanceState === 'stopped' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
 										<span>
 											<i class="fa fa-pause dropdown-icon"></i>
 											Start Instance

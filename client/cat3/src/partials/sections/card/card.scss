@@ -300,6 +300,7 @@ $imagePath : "/cat3/images";
 	.system-prop {
 		position: relative;
 		text-align: center;
+		margin-bottom: 0px;
 	}
 
 	.readBtn {
@@ -349,8 +350,23 @@ $imagePath : "/cat3/images";
 		height: 25px;
 	}
 
+	.docker-repo-list {
+        height: 35px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .docker-repo {
+        padding: 0px;
+        font-size: 12px;
+    }
+
 	.blueprint-buttons {
 		margin: 22px 0 0 21px;
+	}
+
+	.blueprint-buttons-docker {
+		margin: 5px 0 0 21px;
 	}
 
 	.bp-provider {

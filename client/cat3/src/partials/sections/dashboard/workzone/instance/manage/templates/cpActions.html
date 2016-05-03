@@ -35,7 +35,7 @@
 			</span>
 		  </li>
 		  <li ng-click="operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
-		  && inst.instanceState !== 'running' && inst.providerId">
+		  && inst.instanceState === 'stopped' && inst.providerId">
 			<span>
 				<i class="fa fa-pause dropdown-icon"></i>
 				Start Instance
