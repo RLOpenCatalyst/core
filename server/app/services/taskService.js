@@ -46,6 +46,11 @@ taskService.getChefTasksByOrgBgProjectAndEnvId=function getChefTasksByOrgBgProje
                         chefTaskList.push(aTask);
                     } else {
                         taskDao.getDistinctTaskTypeByIds(aTask.taskConfig.assignTasks,function(err,distinctTaskType){
+                            if(err){
+                               logger.debug("Failed to fetch  Distinct Tasks");
+                               callback(err,null);
+                               return;
+                            }
                             count++;
                             if(distinctTaskType.length === 0)
                              logger.debug("There is no composite Tasks Configured");

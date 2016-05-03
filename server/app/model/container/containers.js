@@ -43,7 +43,6 @@ var containerSchema = new Schema({
     },
     instanceId:{
         type: String,
-        required: true,
         trim: true
     },
     Names: [{

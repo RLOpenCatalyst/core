@@ -22,6 +22,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var uniqueValidator = require('mongoose-unique-validator');
 var schemaValidator = require('_pr/model/utils/schema-validator');
 var mongoosePaginate = require('mongoose-paginate');
+var deployPermission = require('_pr/model/app-deploy/deploy-permission');
 
 // File which contains App Deploy DB schema and DAO methods. 
 
@@ -205,6 +206,7 @@ AppDeploySchema.statics.getDistinctAppDeployApplicationNameByProjectId=function(
                         return callback(err);
                     }
                     responseObj['applicationNames']=distinctAppDeployApplicationNames;
+                    responseObj['applicationNamesLength']=distinctAppDeployApplicationNames.length;
                     responseObj['totalRecords']=totalRecords[0].count;
                     responseObj['pageSize']=pageSize[0].count;
                     callback(null,responseObj);
@@ -310,8 +312,33 @@ AppDeploySchema.statics.getPipeLineViewListByProjectIdAppName=function(projectId
             if (err) {
                 logger.debug("Got error while fetching PipeLine View: ", err);
                 callback(err, null);
+            };
+            var count=0;
+            if(appDeploys.length > 0){
+                for(var i = 0; i < appDeploys.length; i++){
+                    (function(aAppDeploy){
+                         deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(projectId,aAppDeploy.envName,appName,aAppDeploy.applicationVersion,function(err,permision){
+                         if (err) {
+                            logger.debug("Got error while fetching Deploy Permission: ", err);
+                            callback(err, null);
+                         }else{
+                            if(permision.length === 0){
+                                count++;
+                                aAppDeploy['isApproved'] = false;
+                            }else{
+                                count++;
+                                aAppDeploy['isApproved'] = permision[0].isApproved;
+                            }
+                            if(appDeploys.length === count) {
+                                callback(null,appDeploys);
+                                return;
+                             }   
+                         }
+
+                         })
+                    })(appDeploys[i]);
+                }
             }
-            callback(null, appDeploys);
         });
 };
 

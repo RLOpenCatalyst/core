@@ -635,7 +635,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(500);
                     return;
             }
-            logger.debug("sendig respose");
             res.status(200).send(containerResponse);
             
         });

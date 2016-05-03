@@ -8,6 +8,7 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var containerDao = require('_pr/model/container');
 var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
+var ObjectId = require('mongoose').Types.ObjectId;
 var async = require('async');
 function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
@@ -107,7 +108,7 @@ function sync() {
                                                                             envId: aEnvironment.rowid,
                                                                             Id: aContainer.Id,
                                                                             instanceIP: aInstance.instanceIP,
-                                                                            instanceId: aInstance._id,
+                                                                            instanceId: new ObjectId(aInstance._id),
                                                                             Names: containerName,
                                                                             Image: aContainer.Image,
                                                                             ImageID: aContainer.ImageID,
