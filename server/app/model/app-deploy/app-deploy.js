@@ -275,6 +275,45 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId=functi
         });
 };
 
+AppDeploySchema.statics.getPipeLineViewListByProjectIdAppName=function(projectId,appName,callback){
+    this.aggregate(
+        [
+            {
+                $match: {
+                    projectId : projectId,
+                    applicationName:appName
+                }
+            },
+            {   $sort:  {
+                envId: 1,
+                applicationLastDeploy: 1
+            }
+            },
+            {
+                $group:
+                {
+                    _id: "$envId",
+                    applicationName:{ $last: "$applicationName" },
+                    applicationInstanceName:{ $last: "$applicationInstanceName" },
+                    applicationVersion:{ $last: "$applicationVersion" },
+                    applicationNodeIP:{ $last: "$applicationNodeIP" },
+                    applicationStatus:{ $last: "$applicationStatus" },
+                    envName:{ $last: "$envId" },
+                    description:{ $last: "$description" },
+                    applicationType:{ $last: "$applicationType" },
+                    containerId:{ $last: "$containerId" },
+                    lastAppDeployDate: { $last: "$applicationLastDeploy" }
+                }
+            }
+        ],function(err, appDeploys) {
+            if (err) {
+                logger.debug("Got error while fetching PipeLine View: ", err);
+                callback(err, null);
+            }
+            callback(null, appDeploys);
+        });
+};
+
 AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion=function(projectId,envName,appName,version,callback){
  this.aggregate(
         [

@@ -320,7 +320,7 @@
                     <footer class="footer">
                         <div class="clearfix form-actions text-center marginleft200 marginbottom0">
                             <div>
-                                <input type="button" id="unassignedSyncBtn" value="Update Tags" class="btn btn-primary"> 
+                                <input type="button" id="unassignedSyncBtn" value="Update Tags" class="btn btn-primary">
                             </div>
                             <div class="margintop-25left250">
                                 <span id="spanunassignedformSaveId" class="colorGreen marginleft14"></span>
@@ -328,9 +328,9 @@
                         </div>
                     </footer>
                     <!-- <div class="clearfix form-actions text-center col-lg-12 margin0">
-                        <div class="col-lg-6"> 
+                        <div class="col-lg-6">
                             <input type="button" id="unassignedSyncBtn" value="Update Tags" class="btn btn-primary pull-right">
-                        </div> 
+                        </div>
                         <div id="spanunassignedformSaveId" class="colorGreen col-lg-6 text-left lineheight30"></div>
                     </div> -->
                 </div>
@@ -673,7 +673,7 @@
                     var id = $this.attr('id');
                     var tagName = $this.parents().eq(1).find('.tagName').html();
                     var tagDesc = $this.parents().eq(1).find('input').val();
-                   
+
                     //Send the body update tag
                     var objupdatetagDesc = {};
                     objupdatetagDesc["description"] = tagDesc;
@@ -686,12 +686,12 @@
                             $('#'+id).css('background-color','lightyellow');
                         },
                         error: function(jxhr) {
-                           
+
                         }
-                    }); 
+                    });
                 }
                 //Stop the event from propogation to other handlers
-                //If this line will be removed, then keypress event handler attached 
+                //If this line will be removed, then keypress event handler attached
                 //at document level will also be triggered
                 event.stopPropagation();
             });
@@ -713,12 +713,11 @@
                         $('#'+id).css('background-color','lightyellow');
                     },
                     error: function(jxhr) {
-                        
                     }
-                }); 
+                });
             });
             /*var blankArr = [];
-            loaddefaultTagMappingSelection(blankArr);*/
+             loaddefaultTagMappingSelection(blankArr);*/
         }
         function loaddefaultTagMappingSelection(catalystEntityTypeListPassed){
             $.ajax({
@@ -731,7 +730,7 @@
                     var $envtagsList = $('#tagsEnvSelect');
                     var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
                     var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
-                    
+
                     for(var i=0;i<tagsListSelected.length;i++){
                         var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
                         var objtagName = tagsListSelected[i].tagName;
@@ -757,8 +756,8 @@
                                 $mappingprojectSelectList.empty();
                                 for(var k=0; k< tagValues.length; k++){
                                     if(tagValues[k] !=''){
-                                       $mappingprojectSelectList.append($('<option></option>').val(tagValues[k]).html(tagValues[k])); 
-                                   }
+                                        $mappingprojectSelectList.append($('<option></option>').val(tagValues[k]).html(tagValues[k]));
+                                    }
                                 }
 
                                 var $tdprojectTagName = $('<td class="mappingprojectTagName"></td>').append($mappingprojectSelectList);
@@ -779,43 +778,43 @@
                         if(objcatalystEntityType == catalystEntityEnvName){
                             $envtagsList.val(objtagName);
                             /*//For Mapping tab.....
-                            //For environment catalystEntityType
-                            $mappingenvDatatable.clear().draw();
-                            var $tbody = $('#mappingenvTable tbody').empty();
+                             //For environment catalystEntityType
+                             $mappingenvDatatable.clear().draw();
+                             var $tbody = $('#mappingenvTable tbody').empty();
 
-                            for(var m = 0; m < catalystEntityTypeListPassed.length; m++){
-                                //For Table
-                                //alert(catalystEntityTypeListPassed[m].environmentname);
-                                var $tr = $('<tr id="'+catalystEntityTypeListPassed[m].rowid+'" class=""></tr>');
+                             for(var m = 0; m < catalystEntityTypeListPassed.length; m++){
+                             //For Table
+                             //alert(catalystEntityTypeListPassed[m].environmentname);
+                             var $tr = $('<tr id="'+catalystEntityTypeListPassed[m].rowid+'" class=""></tr>');
 
-                                var $tdenvName = $('<td class="mappingenvName"></td>').append(catalystEntityTypeListPassed[m].environmentname);
-                                $tr.append($tdenvName);
+                             var $tdenvName = $('<td class="mappingenvName"></td>').append(catalystEntityTypeListPassed[m].environmentname);
+                             $tr.append($tdenvName);
 
-                                var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
-                                $mappingenvSelectList.empty();
-                                for(var n=0; n< tagValues.length; n++){
-                                    $mappingenvSelectList.append($('<option></option>').val(tagValues[n]).html(tagValues[n]));
-                                }
-                                
-                                var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
-                                $tr.append($tdenvTagName);
+                             var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
+                             $mappingenvSelectList.empty();
+                             for(var n=0; n< tagValues.length; n++){
+                             $mappingenvSelectList.append($('<option></option>').val(tagValues[n]).html(tagValues[n]));
+                             }
+
+                             var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
+                             $tr.append($tdenvTagName);
 
 
-                                $tbody.append($tr);
-                                $mappingenvDatatable.row.add($tr).draw();
+                             $tbody.append($tr);
+                             $mappingenvDatatable.row.add($tr).draw();
 
-                                for(var p = 0; p < catalystEntityMapping.length; p++){
-                                    if(catalystEntityTypeListPassed[m].rowid == catalystEntityMapping[p].catalystEntityId){
-                                        //alert("Matched");
-                                        $mappingenvSelectList.val(catalystEntityMapping[p].tagValue);
-                                    }
-                                }
-                            }*/
-                        }                        
+                             for(var p = 0; p < catalystEntityMapping.length; p++){
+                             if(catalystEntityTypeListPassed[m].rowid == catalystEntityMapping[p].catalystEntityId){
+                             //alert("Matched");
+                             $mappingenvSelectList.val(catalystEntityMapping[p].tagValue);
+                             }
+                             }
+                             }*/
+                        }
                     }
                 },
                 error: function(jxhr) {
-                    
+
                 }
             });
 
@@ -857,7 +856,7 @@
                     getenvironmentData();
                 },
                 error: function(jxhr) {
-                    
+
                 }
             });
         });
@@ -931,7 +930,7 @@
                         for(var j=0; j< data.tagValues.length; j++){
                             if(data.tagValues[j] != ''){
                                 $mappingenvSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
-                            }    
+                            }
                         }
 
                         var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
@@ -1328,7 +1327,7 @@
         function loadUnassignedInstances(unassignedData, envprojMappingObject){
             $instanceUnAssignedDatatable.clear().draw();
             for (var i = 0; i < unassignedData.instances.length; i++) {
-                var $tbody = $('#unassignedinstanceListTable tbody').empty();                
+                var $tbody = $('#unassignedinstanceListTable tbody').empty();
                 var $tr = $('<tr></tr>').attr({ "instanceid" : unassignedData.instances[i].id, "projecttagsmapname" : envprojMappingObject.project, "envtagsmapname" : envprojMappingObject.environment });
 
                 var $tdId = $('<td></td>').append(unassignedData.instances[i].platformId);
@@ -1421,7 +1420,7 @@
         //loading UnAssigned Data
         function getUnassignedInstances() {
 
-            $.get('/providers/'+ urlproviderId +'/tag-mappings', function(tagsListSelected) {   
+            $.get('/providers/'+ urlproviderId +'/tag-mappings', function(tagsListSelected) {
                 if(tagsListSelected){
                     var envprojMappingObject = {};
                     var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
@@ -1452,7 +1451,7 @@
             });
         }
         function getunassignedInstanceswithProjectandEnv(envprojMappingObject){
-            $.get('/providers/'+ urlproviderId +'/unassigned-instances', function(unassignedInstances) {   
+            $.get('/providers/'+ urlproviderId +'/unassigned-instances', function(unassignedInstances) {
                 if(unassignedInstances){
                     loadUnassignedInstances(unassignedInstances,envprojMappingObject);
                 }
@@ -1471,21 +1470,21 @@
             var updateInstanceTagsObj = {};
             var updateInstanceTagsArr = [];
             $('#unassignedinstanceListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function() {
-               //Batch update instances tags
-               var updateUniqueInstanceTagsObj = {};
-               var instanceid = $(this).attr("instanceid");
-               var projecttagsmapname = $(this).attr("projecttagsmapname");
-               var envtagsmapname = $(this).attr("envtagsmapname");
+                //Batch update instances tags
+                var updateUniqueInstanceTagsObj = {};
+                var instanceid = $(this).attr("instanceid");
+                var projecttagsmapname = $(this).attr("projecttagsmapname");
+                var envtagsmapname = $(this).attr("envtagsmapname");
 
-               var projectTagName = $(this).find('.projectTagName').val();
-               var envTagName = $(this).find('.envTagName').val();
+                var projectTagName = $(this).find('.projectTagName').val();
+                var envTagName = $(this).find('.envTagName').val();
 
-               updateUniqueInstanceTagsObj["id"] = instanceid;
-               updateUniqueInstanceTagsObj["tags"] = {};
-               updateUniqueInstanceTagsObj["tags"][projecttagsmapname] = projectTagName;
-               updateUniqueInstanceTagsObj["tags"][envtagsmapname] = envTagName;
+                updateUniqueInstanceTagsObj["id"] = instanceid;
+                updateUniqueInstanceTagsObj["tags"] = {};
+                updateUniqueInstanceTagsObj["tags"][projecttagsmapname] = projectTagName;
+                updateUniqueInstanceTagsObj["tags"][envtagsmapname] = envTagName;
 
-               updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
+                updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
             });
             updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
             $.ajax({
@@ -1499,11 +1498,11 @@
                     $('.margintop-25left250').delay(2000).fadeOut();
                 },
                 error: function(jqxhr) {
-                    
+
                 }
             });
         });
-        
+
         $('.importNodesBtn').click(function(e) {
             var $checkBoxes = $('.nodeCheckBox:checked');
             var reqBody = {};

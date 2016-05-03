@@ -26,14 +26,12 @@ var logger = require('_pr/logger')(module);
 var Docker = function() {
     var that = this;
     this.runDockerCommands = function(cmd, instanceid, callback, callbackOnStdOut, callbackOnStdErr) {
-        logger.debug(instanceid);
         instancesDao.getInstanceById(instanceid, function(err, data) {
             if (err) {
-                res.send(500);
+                callback(err,null);
                 return;
             }
             if (data.length) {
-                logger.debug(data[0]);
                 logger.debug('reached docker cmd');
                 var instanceoptions = data[0];
                 credentialCrpto.decryptCredential(instanceoptions.credentials, function(err, decrptedCredentials) {

@@ -14,21 +14,61 @@
  limitations under the License.
  */
 
-var configmgmtDao = require('../model/d4dmasters/configmgmt.js');
-var Jenkins = require('../lib/jenkins');
-var Tasks = require('../model/classes/tasks/tasks.js');
-var Application = require('../model/classes/application/application');
-var instancesDao = require('../model/classes/instance/instance');
-var TaskHistory = require('../model/classes/tasks/taskHistory');
 var logger = require('_pr/logger')(module);
-var async = require("async");
+var taskDao = require('_pr/model/classes/tasks/tasks.js');
 
-const errorType = 'task';
+const errorType = 'taskService';
 
 var taskService = module.exports = {};
 
+taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgProjectAndEnvId(jsonData, callback) {
+    jsonData["taskType"] = { $in: ["chef", "composite"] };
+    taskDao.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
+        if (err) {
+            logger.debug("Failed to fetch  Chef Tasks");
+            callback(err, null);
+            return;
+        }
+        if (chefTasks.length === 0) {
+            logger.debug("There is no chef Tasks Configured");
+            callback(null, []);
+            return;
+        } else {
+            var chefTaskList = [];
+            var count = 0;
+            var compositeObj = {};
+            for (var i = 0; i < chefTasks.length; i++) {
+                (function(aTask) {
+                    if (aTask.taskType === 'chef') {
+                        count++;
+                        chefTaskList.push(aTask);
+                    } else {
+                        taskDao.getDistinctTaskTypeByIds(aTask.taskConfig.assignTasks, function(err, distinctTaskType) {
+                            count++;
+                            if (distinctTaskType.length === 0)
+                                logger.debug("There is no composite Tasks Configured");
+                            if (distinctTaskType.length === 1 && distinctTaskType[0] === 'chef')
+                                chefTaskList.push(aTask);
+                            else
+                                logger.debug("There is composite Tasks Configured with chef and others also");
+                            if (chefTasks.length === count) {
+                                callback(null, chefTaskList);
+                                return;
+                            }
+                        });
+                    }
+                    if (chefTasks.length === count) {
+                        callback(null, chefTaskList);
+                        return;
+                    }
+                })(chefTasks[i]);
+            }
+        }
+    })
+};
+
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, callback) {
-    Tasks.getTaskById(taskId, function(err, task) {
+    taskDao.getTaskById(taskId, function(err, task) {
         if (err) {
             logger.error(err);
             callback(err, null);
@@ -51,8 +91,8 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                 logger.debug("taskRes::::: ", JSON.stringify(taskRes));
                 callback(null, taskRes);
             });
-        }else{
-        	callback(404,null);
+        } else {
+            callback(404, null);
         }
     });
-}
+};

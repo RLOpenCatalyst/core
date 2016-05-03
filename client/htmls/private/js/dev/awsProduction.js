@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 if (!$.fn.dataTable.isDataTable('#tableRunlistForBlueprint')) {
     $tasksRunlist = $('#tableRunlistForBlueprint').DataTable({
@@ -437,6 +437,171 @@ $(document).ready(function() {
             $(".select2-drop ul").removeClass("myErrorClass");
         }
     });
+	$('#selectOrgName').trigger('change');
+	//added for v3.0 - when navigating from v2.0 workzone to design-
+	if (isAngularIntegration) {
+		$('#workZoneNew').attr('href', '#');
+		$('#workZoneNew').removeClass('active');
+		$('#Workspace1').addClass('hidden');
+		$('#designNew').addClass('active');
+		$('ul#blueprints').removeClass('hidden');
+        $("#ribbon ol.breadcrumb").empty();
+        var providerselected = $('#blueprints').attr('providerselected');
+        providerselected = providerselected.toUpperCase();
+        $("#ribbon ol.breadcrumb").append($("<li>Design</li>" + "<li>PROVIDERS</li>" + "<li>"+providerselected+"</li>"));
+	}
+	var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
+	if (window.url.indexOf('addnew') > 0) $addal.attr('href', '#ajax/Aws-Production.html?addanother');
+	else $addal.attr('href', '#ajax/Aws-Production.html?addnew');
+	$.ajax({
+		type: "get",
+		dataType: "json",
+		async: false,
+		url: "../organizations/getTreeNew",
+		success: function(data) {
+			console.log(data);
+			data = JSON.parse(JSON.stringify(data));
+			var $orgListInput = $('#orgnameSelectExisting');
+			var $bgList = $('#bgListInputExisting');
+			var $projectList = $('#projectListInputExisting');
+			var $envList = $('#envListExisting');
+			var $projectList = $('#projectListInputExisting');
+			$bgList.change(function(e) {
+				var bgName = $(this).val();
+				if (bgName == 'choose') {
+					return;
+				}
+				var $selectedOrgOption = $(this).find(":selected");
+				$projectList.empty();
+				var getProjs = bgProjects[bgName];
+				for (var i = 0; i < getProjs.length; i++) {
+					var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+					$projectList.append($option);
+				}
+				$projectList.trigger('change');
+			});
+			var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
+			$('#projectListInputExisting').change(function(e) {
+				var reqBodyNew = {};
+				$spinnerProject.removeClass('hidden');
+				reqBodyNew.orgId = $orgListInput.val();
+				reqBodyNew.bgId = $bgList.val();
+				reqBodyNew.projectId = $projectList.val();
+				reqBodyNew.envId = $envList.val();
+				$.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/', function(data) {
+					console.log('success---3---4');
+					//Syncing up the tree view based on url
+					initializeBlueprintAreaNew(data.blueprints);
+					$spinnerProject.addClass('hidden');
+					if (data.blueprints.length > 0) {
+						$('#accordion-2').removeClass('hidden');
+						$spinnerProject.addClass('hidden');
+					} else {
+						$spinnerProject.addClass('hidden');
+					}
+				});
+			}); //choose env gets over
+			var bgProjects = {};
+			for (var i = 0; i < data.length; i++) {
+				console.log(data[i].businessGroups);
+				$orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
+				for (var j = 0; j < data[i].businessGroups.length; j++) {
+					var rowid = data[i].businessGroups[j].rowid;
+					$bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+					bgProjects[rowid] = data[i].businessGroups[j].projects;
+				}
+				for (var k = 0; k < data[i].environments.length; k++) {
+					$envList.append($('<option></option').val(data[i].environments[k].rowid).html(data[i].environments[k].name))
+				}
+			}
+			$bgList.trigger('change');
+			$('.chooseOrgSelectExisting').change(function(e) {
+				if ($(this).val() == 'choose') {
+					$('#accordion-2').addClass('hidden');
+				}
+				$('.chooseBGExisting').change();
+				$('.chooseProjectExisting').change();
+			});
+		}
+	}); //getTreeNew gets over here
+	//form validation for blueprint save
+	var validator = $('#wizard-1').validate({
+		ignore: [],
+		rules: {
+			"checkbox-toggle": {
+				required: true
+			},
+			blueprintNameInput: {
+				maxlength: 25
+			}
+		},
+		messages: {
+			blueprintNameInput: {
+				maxlength: "Limited to 25 characters"
+			}
+		},
+		onkeyup: false,
+		errorClass: "error",
+		//put error message behind each form element
+		errorPlacement: function(error, element) {
+			console.log(error, element);
+			var elem = $(element);
+			if (element.parent('.input-groups').length) {
+				error.insertBefore(element.parent());
+			} else {
+				if (element.parent('div.inputGroups')) {
+					console.log(element);
+					console.log(element.parent);
+					error.insertBefore('div.inputGroups');
+				}
+				$("select.select2-me").each(function(index, el) {
+					if ($(this).is("[data-rule-required]") && $(this).attr("data-rule-required") == "true") {
+						$(this).on('select2-close', function(e) {
+							$(this).valid()
+						});
+					}
+				});
+			}
+		},
+		//When there is an error normally you just add the class to the element.
+		// But in the case of select2s you must add it to a UL to make it visible.
+		// The select element, which would otherwise get the class, is hidden from
+		// view.
+		highlight: function(element, errorClass, validClass) {
+			var elem = $(element);
+			if (elem.hasClass("select2-offscreen")) {
+				$("#s2id_" + elem.attr("id") + " ul").addClass(errorClass);
+			} else {
+				elem.addClass(errorClass);
+			}
+		},
+		//When removing make the same adjustments as when adding
+		unhighlight: function(element, errorClass, validClass) {
+			var elem = $(element);
+			if (elem.hasClass("select2-offscreen")) {
+				$("#s2id_" + elem.attr("id") + " ul").removeClass(errorClass);
+			} else {
+				elem.removeClass(errorClass);
+			}
+		}
+	});
+	$('a#addanotherlink').click(function(e) {
+		validator.resetForm();
+	});
+	$(document).on('change', '.select2-offscreen', function() {
+		if (!$.isEmptyObject(validator.submitted)) {
+			validator.form();
+		}
+	});
+	$(document).on("select2-opening", function(arg) {
+		var elem = $(arg.target);
+		if ($("#s2id_" + elem.attr("id") + " ul").hasClass("myErrorClass")) {
+			//jquery checks if the class exists before adding.
+			$(".select2-drop ul").addClass("myErrorClass");
+		} else {
+			$(".select2-drop ul").removeClass("myErrorClass");
+		}
+	});
 }); //document.ready gets over here
 //the blueprint section gets over here.
 $('#launchParamDocker').click(function() {
@@ -997,14 +1162,14 @@ $(document).ready(function() {
                             getDesignTypeImg = "/d4dMasters/image/" + getDesignTypeRowID + "__designtemplateicon__" + getDesignTypeImg;
                         }
                         containerTemp += '<div class="" style="width:222px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv appfactory" data-' + 'templateType="' + data[i]
-                            ['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
+                                ['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
                             '<img  style="height:25px;padding:2px" alt="" src="img/app-store-' + 'icons/Logoheader.png"><span style="padding-top:4px;position:absolute;' +
                             'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' +
                             '<div style="padding-top:10px;padding-left:0px;text-align:center;">' + '<img alt="Template Icon" ' + 'src="' + getDesignTypeImg +
                             '" style="height:60px;width:auto;">' + '</div></div></div>';
                     } else {
                         containerTemp += '<div class="" style="width:222px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv appfactory" data-' + 'templateType="' + data[i]
-                            ['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
+                                ['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
                             '<img  style="height:25px;padding:2px" alt="" src="img/app-store-' + 'icons/Logoheader.png"><span style="padding-top:4px;position:absolute;' +
                             'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' + '<div style="padding-top:10px;padding-left:27px;">' +
                             '<img style="height:40px;width:auto;" alt="" ' + 'src="img/logo.png">' + '</div></div></div>';
@@ -1607,11 +1772,11 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                             reqBody.providerId = providerId;
                             reqBody.name = $('#blueprintNameInput').val();
                             /*$('#userListSelect').find('option').attr('selected', 'selected');
-                            reqBody.users = $('#userListSelect').val();
-                            if (!reqBody.users) {
-                                alert("Please choose users");
-                                return false;
-                            }*/
+                             reqBody.users = $('#userListSelect').val();
+                             if (!reqBody.users) {
+                             alert("Please choose users");
+                             return false;
+                             }*/
                             //Checking for docker blueprint images
                             if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
                                 //no rows found add empty message
@@ -2336,29 +2501,29 @@ $.ajax({
     }
 });
 /*
-(function() {
-    var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
-    $.get('../users', function(userList) {
-        var $userListSelect = $('#userListSelect').empty();
-        userList = JSON.parse(userList);
-        userList.sort(function(a, b) {
-            var keyA = Object.keys(a);
-            var keyB = Object.keys(b);
-            if (keyA[0] < keyB[0]) return -1;
-            if (keyA[0] > keyB[0]) return 1;
-            return 0;
-        });
-        for (var i = 0; i < userList.length; i++) {
-            var keys = Object.keys(userList[i]);
-            var $option = $('<option></option>').append(keys[0]).val(keys[0]);
-            $userListSelect.append($option);
-        }
-        $loadingContainer.hide();
-        $userListSelect.show();
-    }).error(function() {
-        $loadingContainer.empty().append('Unable to load users. Please try again later.');
-    });
-})();*/
+ (function() {
+ var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
+ $.get('../users', function(userList) {
+ var $userListSelect = $('#userListSelect').empty();
+ userList = JSON.parse(userList);
+ userList.sort(function(a, b) {
+ var keyA = Object.keys(a);
+ var keyB = Object.keys(b);
+ if (keyA[0] < keyB[0]) return -1;
+ if (keyA[0] > keyB[0]) return 1;
+ return 0;
+ });
+ for (var i = 0; i < userList.length; i++) {
+ var keys = Object.keys(userList[i]);
+ var $option = $('<option></option>').append(keys[0]).val(keys[0]);
+ $userListSelect.append($option);
+ }
+ $loadingContainer.hide();
+ $userListSelect.show();
+ }).error(function() {
+ $loadingContainer.empty().append('Unable to load users. Please try again later.');
+ });
+ })();*/
 $(document).ready(function() {
     $("#blueprintNameInput").focus();
 });
@@ -2608,7 +2773,7 @@ function initializeBlueprintAreaNew(data) {
                                     $blueprintReadContainer.find('.modal-body #instanceSecurityGroupId').val(blueprint.blueprintConfig.cloudProviderData.securityGroupIds);
                                     //for getting the VPC
                                     $blueprintReadContainer.find('.modal-body #instanceVPC').val(blueprint.blueprintConfig.cloudProviderData.vpcId)
-                                        // loop for getting runlist
+                                    // loop for getting runlist
                                     for (var j = 0; j < blueprint.blueprintConfig.infraManagerData.versionsList.length; j++) {
                                         $blueprintReadContainer.find('.modal-body #instanceRunlist').val(blueprint.blueprintConfig.infraManagerData.versionsList[j].runlist);
                                         //for getting the version

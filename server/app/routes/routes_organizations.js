@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 // This file act as a Controller which contains organization related all end points.
 
@@ -47,7 +47,8 @@ var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
-var	orgService = require('_pr/services/organizationService');
+var	taskService = require('_pr/services/taskService');
+var Docker = require('_pr/model/docker.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -957,6 +958,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
+
 		var jsonData={};
 		jsonData['orgId']=req.params.orgId;
 		jsonData['bgId']=req.params.bgId;
@@ -1054,7 +1056,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	    jsonData['bgId']=req.params.bgId;
 	    jsonData['projectId']=req.params.projectId;
 		jsonData['envId']=req.params.envId;
-		orgService.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
+		taskService.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
 			if (err) {
 				logger.err(err);
 				res.send(500);
@@ -1147,6 +1149,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		jsonData['userName']=req.session.user.cn;
 		jsonData['blueprintType']=req.query.blueprintType
 
+
 		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
 			if (orgbuprojs.length === 0) {
 				res.send(401, "User not part of team to see project.");
@@ -1169,6 +1172,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 							},
 							arms:	function(callback) {
 								AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback)
+					
 							}
 						},
 						function(err, results){

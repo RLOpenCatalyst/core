@@ -266,11 +266,11 @@
 							</thead>
 							<tbody>
 								<tr ng-repeat="appUrl in appUrlInfo">
-									<td></td>
-									<td>{{appUrl.name}}</td>
+									<td>{{$index + 1}}</td>
+									<td><a class="app-url cursor" target="_blank" ng-href="{{appUrl.url}}">{{appUrl.name}}</td>
 									<td width="110px">
-										<span title="Edit" class="fa fa-pencil bigger-120 btn btn-info pull-left tableactionbutton btnEditTask btn-sg" ng-click="editAppUrl(appUrl);"></span>
-										<span title="Delete" class="fa fa-trash-o bigger-120 btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask" ng-click="deleteAppUrl(appUrl, $index)"></span>
+										<span title="Edit" class="fa fa-pencil bigger-120 btn btn-info pull-left tableactionbutton btnEditTask btn-sg white" ng-click="editAppUrl(appUrl);"></span>
+										<span title="Delete" class="fa fa-trash-o bigger-120 btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white" ng-click="deleteAppUrl(appUrl, $index)"></span>
 									</td>
 								</tr>
 							</tbody>

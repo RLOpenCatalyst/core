@@ -14,7 +14,7 @@
  *
  * @apiParamExample {url} Request-Example:
  * http://localhost:3001/providers/56f1459ec9f075275f4ea9be/unmanagedInstances?page=1&pageSize=5&search=i-656ae2a3&filterBy=region:us-west-2+state:running,stopped&sortBy=state&sortOrder=asc
- * 
+ *
  * @apiSuccess [JSONObject]
  *
  * @apiSuccessExample Success-Response:
@@ -438,7 +438,7 @@
  *     "instances":[{"_id":"56fa1a6d2a3efd26530203fb","name":"192.168.152.208","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","instanceIP":"192.168.152.208","instanceState":"running","bootStrapStatus":"success","__v":0,"taskIds":[],"chefClientExecutionIds":[],"actionLogs":[{"_id":"56fa1a6d2a3efd26530203fd","actionData":{"runlist":[]},"timeStarted":1459231341803,"user":"superadmin","success":true,"completed":true,"name":"Bootstrap","type":1,"timeEnded":1459231495251}],"serviceIds":[],"blueprintData":{"blueprintName":"192.168.152.208","templateId":"chef_import","iconPath":"../private/img/templateicons/chef_import.png","templateComponents":[]},"credentials":{"username":"rle0333","password":"OtKDQ4yY8+rl6z90Ll3KUA=="},"software":[],"chef":{"serverId":"ef074bc9-d61c-4d3a-8038-17878422f965","chefNodeName":"192.168.152.208"},"hardware":{"platform":"ubuntu","platformVersion":"14.04","architecture":"x86_64","os":"linux","memory":{"total":"8094692kB","free":"2871460kB"}},"users":["superadmin"],"appUrls":[{"name":"catalyst","url":"http://localhost:3001/","_id":"56fa1a6d2a3efd26530203fc"}],"attributes":[],"runlist":[]}],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"instanceState","sortOrder":"asc"}
  *     }
- *     
+ *
  *
  * @apiError 400 Bad Request.
  *
@@ -582,7 +582,7 @@
  * }],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"name",sortOrder":"asc"}
  * }
- *     
+ *
  *
  *
  * @apiError 400 Bad Request.
@@ -744,7 +744,7 @@
  *  }],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"status",sortOrder":"asc"}
  *     }
- *     
+ *
  *
  *
  * @apiError 400 Bad Request.
@@ -1296,9 +1296,9 @@
  * @apiParam {String} groupId      Unique Nexus Group Id
  * @apiParam {String} artifactId   Unique Nexus Repository Artifact Id
  *
- * @apiParamExample {url} Request-Example:   
+ * @apiParamExample {url} Request-Example:
  * http://localhost:3001/app/deploy/nexus/6f284219-8009-40f1-8ffc-3235c2f107ca/repositories/catalyst/group/org.catalyst/artifact/D4D/versionList
- *  
+ *
  *
  * @apiSuccess [JSONObject]
  *
@@ -1555,7 +1555,7 @@
  *
  * @apiParamExample {url} Request-Example:
  *  http://localhost:3001/app/deploy/pipeline/project/b38ccedc-da2c-4e2c-a278-c66333564719
- *  
+ *
  *
  *
  * @apiSuccess [JSONObject]
@@ -1858,7 +1858,7 @@
  * @apiParam {String} region        Unique Provider Region
  * @apiParam {String} keyPairName   Unique Key Pair Name
  * @apiParam {Boolean} [isDefault]   Set Default Provider
- * 
+ *
  * @apiParamExample {json} Request-Example:
  *  {
  *    "providerName" : "AWSProvider",
@@ -2356,7 +2356,7 @@
  * @apiParam {String} envName       Environment Name.
  * @apiParam {String} appName       Application Name.
  *
- * @apiParamExample {url} Request-Example:          
+ * @apiParamExample {url} Request-Example:
  * http://localhost:3001/deploy/permission/project/b38ccedc-da2c-4e2c-a278-c66333564719/env/Dev/application/D4D/permissionList
  *
  * @apiSuccess [JSONObject]
@@ -2403,7 +2403,7 @@
  *     };
  */
 
- /**
+/**
  * @api {get}/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks
  * @apiName /organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks
  * @apiGroup Chef Task List
@@ -2414,7 +2414,7 @@
  * @apiParam {String} projectId     Unique Project ID.
  * @apiParam {String} envId         Unique Environment ID.
  *
- * @apiParamExample {url} Request-Example:          
+ * @apiParamExample {url} Request-Example:
  * http://localhost:3001/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/df87280c-ef3d-4e45-ac23-fcb77c845409/chefTasks
  *
  * @apiSuccess [JSONObject]
