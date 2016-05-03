@@ -119,6 +119,7 @@ var BlueprintSchema = new Schema({
         artifactId: String
     },
     docker: {
+        repoId:String,
         image: String,
         containerId: String,
         containerPort: String,

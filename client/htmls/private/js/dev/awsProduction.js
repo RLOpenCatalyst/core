@@ -59,7 +59,7 @@ $('#saveRunlist').click(function(e) {
 });
 
 function editAtrributesHandler(e) {
-    
+
 	var $ccrs = $('.cookbookShow').data('$ccrs');
 	var runlist = $ccrs.getSelectedRunlist();
 	if (!runlist.length) {
@@ -970,7 +970,7 @@ function getkeypairList(keyPairId) {
 				//Adding data reader
 
 				if ($('#region').attr('savedval')) {
-					
+
 					helpersetselectvalue($('#region'), 'value', $('#region').attr('savedval'));
 					if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
 						$('#instanceOS').attr('disabled', 'disabled');
@@ -1499,7 +1499,11 @@ var formInitializer = function(editing, blueprintData, callback) {
 									$panelBody.append($panelGroup);
 								}
 
-								callback();
+								if (typeof callback === 'function') {
+
+									callback();
+								}
+
 							});
 						});
 					},
@@ -1623,14 +1627,39 @@ var saveblueprint = function(tempType) {
 						var dockerImage = $chooseRepository.val();
 						var containerId = $('#containerIdDiv').val();
 						var containerPort = $('#containerPort').val();
+						var hostPort = $('#hostPort').val();
+						var dockerUser = $('#dockerUser').val();
+						var dockerPassword = $('#dockerPassword').val();
+						var dockerEmailId = $('#dockerEmailId').val();
+						var imageTag = $('#imageTag').find('option:selected').val();
 						if (!dockerImage) {
 							alert("Please select repository.");
 							return false;
 						}
+
+						if (!containerPort) {
+							alert("Please specify container port.");
+							return false;
+						}
+						if (!hostPort) {
+							alert("Please specify host port.");
+							return false;
+						}
+						if (!imageTag) {
+							alert("Please specify version.");
+							return false;
+						}
+
 						var docker = {
-							"image": dockerImage,
-							"containerId": containerId,
-							"containerPort": containerPort
+							repoId: repoId,
+							image: dockerImage,
+							containerId: containerId,
+							containerPort: containerPort,
+							hostPort: hostPort,
+							dockerUser: dockerUser,
+							dockerPassword: dockerPassword,
+							dockerEmailId: dockerEmailId,
+							imageTag: imageTag
 						};
 						reqBody.docker = docker;
 					}
@@ -1761,6 +1790,21 @@ var saveblueprint = function(tempType) {
 					cftInstances.push(instanceObj);
 				});
 				reqBody.cftInstances = cftInstances;
+
+
+				$trAttribute = $('#attributesViewListTable').find('tbody tr');
+				var attributes = [];
+				$trAttribute.each(function() {
+					var $tr = $(this);
+					attributes.push({
+						name: $tr.attr('data-attributeName'),
+						jsonObj: $tr.data('jsonObj')
+					});
+				});
+				reqBody.attributes = attributes;
+
+
+
 				$('.blueprintMsgContainer').hide();
 				if (($('.productdiv2.role-Selected').data('templatetype')).toLowerCase() != "docker") {
 					reqBody.blueprintType = "instance_launch";
@@ -2226,6 +2270,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 				}
 			});
 			$projectList.change(function(e) {
+
 				var $nexusServer = $('#chooseNexusServer');
 				var $chooseRepository = $('#chooseRepository');
 				var $chooseGroupId = $('#chooseGroupId');
@@ -2233,12 +2278,12 @@ var OrgdataLoader = function(editing, blueprintData) {
 				var $chooseVersions = $('#chooseVersions');
 				var projectId = $(this).val();
 
-				if (blueprintData && blueprintData.nexus) {
+				if (blueprintData && (blueprintData.nexus || blueprintData.docker)) {
 					$('.checkConfigApp').attr('checked', 'checked');
 				}
 				if ($('.checkConfigApp').prop("checked")) {
-					if (blueprintData && blueprintData.nexus) {
-						getNexusServer(blueprintData.nexus);
+					if (blueprintData && (blueprintData.nexus || blueprintData.docker)) {
+						getNexusServer(blueprintData.nexus, blueprintData.docker);
 					} else {
 						getNexusServer();
 					}
@@ -2250,8 +2295,8 @@ var OrgdataLoader = function(editing, blueprintData) {
 				}
 				$('.checkConfigApp').click(function() {
 					if ($(this).prop("checked")) {
-						if (blueprintData && blueprintData.nexus) {
-							getNexusServer(blueprintData.nexus);
+						if (blueprintData && (blueprintData.nexus || blueprintData.docker)) {
+							getNexusServer(blueprintData.nexus, blueprintData.docker);
 						} else {
 							getNexusServer();
 						}
@@ -2277,6 +2322,16 @@ var OrgdataLoader = function(editing, blueprintData) {
 					$containerId.val("");
 					var $containerPort = $('#containerPort');
 					$containerPort.val("");
+					var $hostPort = $('#hostPort');
+					$hostPort.val("");
+					var $dockerUser = $('#dockerUser');
+					$dockerUser.val("");
+					var $dockerPassword = $('#dockerPassword');
+					$dockerPassword.val("");
+					var $dockerEmailId = $('#dockerEmailId');
+					$dockerEmailId.val("");
+					var $imageTag = $('#imageTag');
+					$imageTag.val("");
 				}
 
 				function resetSpinners() {
@@ -2288,7 +2343,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 					$('.jobdetailsspinner').css('display', 'none');
 				}
 
-				function getNexusServer(nexusData) {
+				function getNexusServer(nexusBPData, dockerBPdata) {
 					resetAllFields();
 					$nexusServer.empty();
 					$nexusServer.append('<option value="">Choose Server</option>');
@@ -2301,10 +2356,10 @@ var OrgdataLoader = function(editing, blueprintData) {
 						if (nexus.length) {
 							for (var i = 0; i < nexus.length; i++) {
 								$('#chooseNexusServer').append('<option data-groupId = "' + nexus[i].groupid + '" data-nexusUrl = "' + nexus[i].hostname + '" value=' + nexus[i].rowid + ' data-serverType = "' + nexus[i].configType + '">' + nexus[i].nexusservername + '</option>');
-
 							}
-							if (nexus && nexusData) {
-								$('#chooseNexusServer').find('option[value="' + nexusData.repoId + '"]').attr('selected', 'selected');
+
+							if (nexusBPData) {
+								$('#chooseNexusServer').find('option[value="' + nexusBPData.repoId + '"]').attr('selected', 'selected');
 							}
 						}
 						$.get('/d4dMasters/readmasterjsonnew/18', function(dockerData) {
@@ -2312,6 +2367,10 @@ var OrgdataLoader = function(editing, blueprintData) {
 								for (var i = 0; i < dockerData.length; i++) {
 									$nexusServer.append('<option value=' + dockerData[i].rowid + ' data-serverType = "' + dockerData[i].configType + '">' + dockerData[i].dockerreponame + '</option>');
 								}
+								if (dockerBPdata) {
+									$('#chooseNexusServer').find('option[value="' + dockerBPdata.repoId + '"]').attr('selected', 'selected');
+								}
+
 							}
 							var exists = {},
 								elm;
@@ -2357,16 +2416,15 @@ var OrgdataLoader = function(editing, blueprintData) {
 						$('.versionClass').show();
 						$('.containerIdClass').hide();
 						$('.containerPortClass').hide();
+						$('.hostPortClass').hide();
+						$('.dockerUserClass').hide();
+						$('.dockerPasswordClass').hide();
+						$('.dockerEmailIdClass').hide();
+						$('.imageTagClass').hide();
 						resetAllFields();
-						if (blueprintData && blueprintData.nexus) {
-							getNexusServerGroupId(blueprintData.nexus);
-							getNexusServerRepo($(this).val(), blueprintData.nexus);
-						} else {
-							getNexusServerGroupId();
-							getNexusServerRepo($(this).val());
-						}
 
-
+						getNexusServerGroupId();
+						getNexusServerRepo($(this).val());
 					} else { // It's Docker
 						resetAllFields();
 						$('.groupClass').hide();
@@ -2375,7 +2433,11 @@ var OrgdataLoader = function(editing, blueprintData) {
 						$('.versionClass').hide();
 						$('.containerIdClass').show();
 						$('.containerPortClass').show();
-						var containerId = $('#containerIdInput').val();
+						$('.hostPortClass').show();
+						$('.dockerUserClass').show();
+						$('.dockerPasswordClass').show();
+						$('.dockerEmailIdClass').show();
+						$('.imageTagClass').show();
 						getDockerRepoes();
 					}
 				});
@@ -2402,7 +2464,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 					}
 				}
 
-				function getNexusServerRepo(nexusId, nexusData) {
+				function getNexusServerRepo(nexusId) {
 					$('.repospinner').css('display', 'inline-block');
 					if (nexusId) {
 						$.get('/nexus/' + nexusId + '/repositories', function(nexusRepos) {
@@ -2423,15 +2485,8 @@ var OrgdataLoader = function(editing, blueprintData) {
 														}
 													})(x);
 												}
-												if (nexusData) {
-													$chooseRepository.find('option[value="' + nexusData.repoName + '"]').attr('selected', 'selected')
-													$chooseRepository.change();
-												} else {
-													$('#chooseRepository > option:eq(1)').attr('selected', true).change();
-												}
 
-
-
+												$('#chooseRepository > option:eq(1)').attr('selected', true).change();
 											}
 										}
 									}
@@ -2479,41 +2534,78 @@ var OrgdataLoader = function(editing, blueprintData) {
 							$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
 						}
 					} else {
-						$('.groupClass').hide();
 						$('.containerIdClass').show();
 						$('.containerPortClass').show();
+						$('.hostPortClass').show();
+						$('.dockerUserClass').show();
+						$('.dockerPasswordClass').show();
+						$('.dockerEmailIdClass').show();
+						$('.imageTagClass').show();
+						$('.groupClass').hide();
 						$('.repoUrlClass').hide();
 						$('.artifactClass').hide();
 						$('.versionClass').hide();
+						var $imageTag = $('#imageTag');
+						$imageTag.empty();
+						$('#imageTag').append('<option value= "">Choose Tag</option>');
+						getImageTags();
 					}
 				});
 
-				function getNexusServerGroupId(nexusData) {
+
+				// List all tags w.r.t docker image
+				function getImageTags() {
+					var imageName = $('#chooseRepository').find('option:selected').val();
+					if (imageName) {
+						var repository = "";
+						var image = "";
+						if (imageName.indexOf("/") != -1) {
+							repository = imageName.split("/")[0];
+							image = imageName.split("/")[1];
+						}
+
+						if (!repository) {
+							repository = "library";
+						}
+						if (!image) {
+							image = imageName;
+						}
+						if (repository && image) {
+							$('.tagspinner').removeClass('hidden');
+							$.get('/d4dMasters/docker/' + repository + '/' + image + '/tags', function(tags) {
+								$('.tagspinner').addClass('hidden');
+								if (tags.length) {
+									for (var i = 0; i < tags.length; i++) {
+										$('#imageTag').append('<option value=' + tags[i].name + '>' + tags[i].name + '</option>');
+
+									}
+								}
+							});
+						} else {
+							alert("Invalid docker image.");
+							return;
+						}
+					} else {
+						$('.tagspinner').css('display', 'none');
+					}
+				}
+
+				function getNexusServerGroupId() {
 					var groupId = $('#chooseNexusServer :selected').attr('data-groupId').split(",");
 					for (var g = 0; g < groupId.length; g++) {
 						$('#chooseGroupId').append('<option value="' + groupId[g] + '">' + groupId[g] + '</option>');
 					}
-					if (nexusData) {
-						$('#chooseGroupId').find('option[value="' + nexusData.groupId + '"]').attr('selected', 'selected');
-						$('#chooseGroupId').change();
-					} else {
-						$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
-					}
+					$('#chooseGroupId > option:eq(1)').attr('selected', true).change();
 				}
 
 				$chooseGroupId.change(function(e) {
 					var repoName = $('#chooseRepository').find('option:selected').attr('data-repoName');
 					var nexusId = $('#chooseNexusServer').val();
 					var groupId = $('#chooseGroupId').val();
-					if (blueprintData && blueprintData.nexus) {
-						getNexusServerRepoArtifact(nexusId, repoName, groupId, blueprintData.nexus);
-					} else {
-						getNexusServerRepoArtifact(nexusId, repoName, groupId);
-					}
-
+					getNexusServerRepoArtifact(nexusId, repoName, groupId);
 				});
 
-				function getNexusServerRepoArtifact(nexusId, repoName, groupId, nexusData) {
+				function getNexusServerRepoArtifact(nexusId, repoName, groupId) {
 					$('.artifactsspinner').css('display', 'inline-block');
 
 					$chooseArtifacts.empty();
@@ -2540,14 +2632,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 								for (var j = 0; j < uniqueArtifacts.length; j++) {
 									$('#chooseArtifacts').append('<option data-groupId="' + uniqueArtifacts[j].groupId + '" value=' + uniqueArtifacts[j].artifactId + '>' + uniqueArtifacts[j].artifactId + '</option>');
 								}
-								if (nexusData) {
-									$('#chooseArtifacts').find('option[value="' + nexusData.artifactId + '"]').attr('selected', 'selected');
-									$('#chooseArtifacts').change();
-
-								} else {
-									$('#chooseArtifacts > option:eq(1)').attr('selected', true).change();
-								}
-
+								$('#chooseArtifacts > option:eq(1)').attr('selected', true).change();
 							}
 						});
 					} else {
@@ -2562,12 +2647,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 					var nexusId = $nexusServer.val();
 					var groupId = $(this).find('option:selected').attr('data-groupId');
 					var artifactId = $(this).val();
-					if (blueprintData && blueprintData.nexus) {
-						getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId, blueprintData.nexus);
-					} else {
-						getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId);
-					}
-
+					getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId);
 				});
 				var comparer = function compareObject(a, b) {
 					if (a.artifactId === b.artifactId) {
@@ -2577,7 +2657,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 					}
 				}
 
-				function getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId, nexusData) {
+				function getNexusServerRepoArtifactVersions(nexusId, repoName, groupId, artifactId) {
 					$('.versionspinner').css('display', 'inline-block');
 					var $chooseVersions = $('#chooseVersions');
 					$chooseVersions.empty();
@@ -2590,14 +2670,7 @@ var OrgdataLoader = function(editing, blueprintData) {
 								for (var i = 0; i < versions.length; i++) {
 									$('#chooseVersions').append('<option value=' + versions[i] + '>' + versions[i] + '</option>');
 								}
-								if (nexusData) {
-									$('#chooseVersions').find('option[value="' + nexusData.version + '"]').attr('selected', 'selected');
-									$('#chooseVersions').change();
-								} else {
-									$chooseVersions.find('option:last-child').attr('selected', true).change();
-								}
-
-
+								$chooseVersions.find('option:last-child').attr('selected', true).change();
 							} else {
 								$('.versionspinner').css('display', 'none');
 							}
@@ -2607,16 +2680,6 @@ var OrgdataLoader = function(editing, blueprintData) {
 					}
 				}
 			});
-
-			//reading back saved orgname 
-			if ($orgListInput.attr('savedval'))
-				helpersetselectvalue($orgListInput, 'value', $orgListInput.attr('savedval'));
-
-			if (blueprintData && blueprintData.appUrls && blueprintData.appUrls.length) {
-				for (var i = 0; i < blueprintData.appUrls.length; i++) {
-					addAppUrlToTable(blueprintData.appUrls[i].name, blueprintData.appUrls[i].url);
-				}
-			}
 		}
 	});
 	/*(function() {
@@ -2802,9 +2865,9 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 
 			$('#myTab3 a[href="#viewEdit"]').tab('show');
 			var $newformBPEdit = $formBPEdit.clone();
-			
-            
-			
+
+
+
 			$('#bpeditcontent').append($newformBPEdit);
 			$('#bpeditcontent').find('#tab3 *').unbind();
 			cachesavedvalues(blueprintdata);
@@ -2870,6 +2933,14 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 			displaySavedBPValues();
 			$newformBPEdit.find('.awsEditAttributesBtn').click(editAtrributesHandler);
 			$newformBPEdit.find('.saveAttribBtn').click(saveAtrributesHandler);
+
+			if (blueprintdata.blueprintConfig.infraManagerData && blueprintdata.blueprintConfig.infraManagerData.versionsList) {
+				var versionsList = blueprintdata.blueprintConfig.infraManagerData.versionsList;
+				var verData = versionsList[versionsList.length - 1];
+				if (verData && verData.attributes) {
+					createAttribTableRowFromJson(verData.attributes);
+				}
+			}
 
 		} else {
 
