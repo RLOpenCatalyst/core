@@ -58,18 +58,26 @@
                     var url = '/instances/' + instanceNodeIp + '/project/' + projId + '/logs';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getEnvConfig: function(projId) {
-                    var url = '/app/deploy/pipeline' + '/project/' + projId;
-                    return $http.get(fullUrl(url), Auth.getHeaderObject());
-                },
                 getApplicationHistoryForEnv: function (envName, projId,pagiOpti) {
                     var pageiReq='pageNumber='+pagiOpti.page+',pageSize='+pagiOpti.pageSize+',field='+pagiOpti.sortBy+',direction='+pagiOpti.sortOrder;
                     var url = '/app/deploy/project/' + projId + '/env/'+ envName +'/appDeployHistoryList?'+pageiReq;
-
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getApplicationHistoryLogs: function(appId) {
                     var url = '/app/deploy/' + appId + '/logs';
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
+                getEnvConfig: function(projId) {
+                    var url = '/d4dMasters' + '/project/' + projId;
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
+                postEnvConfig: function(reqBody) {
+                    //var url = '/data/appDeployEnvList.json';
+                    var url = '/app/deploy/data/pipeline/configure';
+                    return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
+                },
+                getUpdatedEnvConfig: function(projId) {
+                    var url = '/app/deploy/pipeline' + '/project/' + projId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*azureArmCtrl*/

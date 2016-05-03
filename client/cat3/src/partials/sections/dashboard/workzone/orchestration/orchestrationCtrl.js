@@ -154,17 +154,16 @@
 							headerText: 'Confirmation',
 							bodyText: 'Are you sure you want to execute this Job?'
 						};
-
-						confirmbox.showModal({}, modalOptions).then(function() {
-							workzoneServices.runTask(task._id).then(function(response) {
-								helper.orchestrationLogModal(task._id, response.data.historyId, task.taskType);
+							confirmbox.showModal({}, modalOptions).then(function() {
+								workzoneServices.runTask(task._id).then(function(response) {
+									helper.orchestrationLogModal(task._id,response.data.historyId,task.taskType);
+								});
+								$rootScope.$emit('WZ_REFRESH_ENV');
+							}, function(response) {
+								console.log('error:: ' + response.toString());
 							});
-							$rootScope.$emit('WZ_REFRESH_ENV');
-						}, function(response) {
-							alert('error:: ' + response.toString());
-						});
-					}
-				},
+						}
+					},
 				getHistory: function(task) {
 					$modal.open({
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',

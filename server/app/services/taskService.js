@@ -18,11 +18,11 @@
 var logger = require('_pr/logger')(module);
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
 
-const errorType = 'organizationService';
+const errorType = 'taskService';
 
-var orgService = module.exports = {};
+var taskService = module.exports = {};
 
-orgService.getChefTasksByOrgBgProjectAndEnvId=function getChefTasksByOrgBgProjectAndEnvId(jsonData,callback){
+taskService.getChefTasksByOrgBgProjectAndEnvId=function getChefTasksByOrgBgProjectAndEnvId(jsonData,callback){
     jsonData["taskType"]={$in:["chef","composite"]};
     taskDao.getChefTasksByOrgBgProjectAndEnvId(jsonData,function(err,chefTasks){
         if(err){

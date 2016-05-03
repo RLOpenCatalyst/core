@@ -32,8 +32,7 @@ var TagSchema = new Schema({
     name: {
         type: String,
         trim: true,
-        required: true,
-        index: { unique: true }
+        required: true
     },
     values: {
         type: [String],
@@ -72,8 +71,10 @@ var TagSchema = new Schema({
         type: Boolean,
         required: true,
         default: false
-    }
+    },
 });
+TagSchema.index({name: 1, providerId: 1}, {unique: true});
+
 var hiddenFields = {'_id': 0, 'isDeleted': 0 };
 
 TagSchema.statics.createNew = function createNew(data, callback) {
@@ -91,22 +92,6 @@ TagSchema.statics.createNew = function createNew(data, callback) {
             }
         }
     });
-}
-
-TagSchema.statics.getTagsByOrgIdAndProviderId = function getTagsByOrgIdAndProviderId(params, callback) {
-    // @TODO filters to be used
-    this.find(
-        {'orgId': params.orgId, 'providerId': params.providerId, 'isDeleted': false },
-        hiddenFields,
-        function(err, tag) {
-            if (err) {
-                logger.error(err);
-                return callback(err, null);
-            } else {
-                return callback(null, tag);
-            }
-        }
-    );
 };
 
 TagSchema.statics.getTagsByProviderId = function getTagsByProviderId(providerId, callback) {
@@ -143,9 +128,11 @@ TagSchema.statics.getTag = function getTag(params, callback) {
     );
 };
 
-TagSchema.statics.getTagsByNames = function getTagsByNames(tagNames, callback) {
+TagSchema.statics.getTagsByProviderIdAndNames
+    = function getTagsByProviderIdAndNames(providerId, tagNames, callback) {
     var params = {
             "isDeleted": false,
+            "providerId": providerId,
             "name": {$in : tagNames }
     }
     this.find(
@@ -162,6 +149,29 @@ TagSchema.statics.getTagsByNames = function getTagsByNames(tagNames, callback) {
             }
         }
     );
+};
+
+TagSchema.statics.getTagsWithMappingByProviderId
+    = function getTagsWithMappingByProviderId(providerId, callback) {
+    var params = {
+        isDeleted: false,
+        providerId: providerId,
+        catalystEntityType: {$exists : true}
+    }
+    this.find(
+        params,
+        hiddenFields,
+        function(err, tags) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if(tags.length > 0) {
+                return callback(null, tags);
+            } else {
+                return callback(null, []);
+            }
+        }
+    )
 };
 
 TagSchema.statics.updateTag = function updateTag(params, fields, callback) {

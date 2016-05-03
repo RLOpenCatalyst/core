@@ -24,12 +24,12 @@
 				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
 					<div class="card-title">
 						<div class="card-title-role">
-							<img src="images/global/chef-import.png" ng-show="inst.blueprintData.templateType === 'chef' || inst.blueprintData.templateId==='chef_import'" />
-							<img src="images/templateicons/appFact4.png" ng-show="inst.blueprintData.templateId === 'Apache' || inst.blueprintData.templateId === 'apache'" />
-							<img src="images/templateicons/custom-temp.jpg" ng-show="inst.blueprintData.templateId === 'CustomTemplate'" />
-							<img src="images/templateicons/apache-tomcat.jpeg" ng-show="inst.blueprintData.templateId === 'Tomcat'" />
-							<img src="images/templateicons/imgo.jpg" ng-show="inst.blueprintData.templateId === 'Apache3'" />
-							<img src="images/templateicons/cloudformation.png" ng-show="inst.blueprintData.templateId === 'CFT_newco'" />
+							<img src="images/global/chef-import.png" ng-if="inst.blueprintData.templateId === 'chef' || inst.blueprintData.templateId==='chef_import'" />
+							<img src="images/templateicons/appFact4.png" ng-if="inst.blueprintData.templateId === 'Apache' || inst.blueprintData.templateId === 'apache'" />
+							<img src="images/templateicons/custom-temp.jpg" ng-if="inst.blueprintData.templateId === 'CustomTemplate'" />
+							<img src="images/templateicons/apache-tomcat.jpeg" ng-if="inst.blueprintData.templateId === 'Tomcat'" />
+							<img src="images/templateicons/cloudformation.png" ng-if="inst.blueprintData.templateId === 'CFT_newco'" />
+							<img src="images/templateicons/imgo.jpg" ng-if="(inst.blueprintData.templateId !== 'apache' && inst.blueprintData.templateId !== 'chef' && inst.blueprintData.templateId !== 'chef_import' && inst.blueprintData.templateId !== 'CFT_newco' && inst.blueprintData.templateId !== 'Tomcat')" />
 						</div>
 						<div title="{{inst.name}}" class="card-title-name pull-left">{{inst.name}}</div>
 						<div class='card-title-edit'>
@@ -43,9 +43,9 @@
 						<hr/>
 					</div>
 					<div class="card-status-state">
-					<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
+						<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
 							<i class="fa fa-info-circle card-circle-info cursor" title="More Info" ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
-							<img class="docker-image dockerenabledinstacne" whatever="2" alt="Docker"
+							<img class="docker-image dockerenabledinstacne" alt="Docker"
 							src="images/global/docker.png" ng-show="inst.docker && inst.docker.dockerEngineStatus === 'success'" />
 						</div>
 					</div>
@@ -160,7 +160,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="cardsAvailable">
 				<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="10" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationChange()" class="paginationStyle"></pagination>
 			</div>
 		</section>

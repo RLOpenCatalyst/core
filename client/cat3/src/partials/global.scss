@@ -352,7 +352,7 @@ option.puppet {
 	font-size: 12px; 
 }
 
-.role, .template {
+.role, .template, .environment {
 	background-repeat: no-repeat;
 	height: 24px;
 	padding-left: 34px;
@@ -367,6 +367,10 @@ option.puppet {
 
 .template {
 	background: url("#{$imagePath}/global/template.png") no-repeat;
+}
+
+.environment {
+	background: url("#{$imagePath}/global/environment.png") no-repeat;
 }
 
 .anchorAddi, .anchorRemovei, .anchorUpi, .anchorDowni {

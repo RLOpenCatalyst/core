@@ -438,6 +438,12 @@ $imagePath : "../../../../../../images";
 			width: 34px;
 			margin-left: 24px;
 		}
+
+		.docker-image {
+			width: 35px;
+		    float: right;
+		    margin: -45px 7px 0 0px;
+		}
 	}
 }
 
@@ -715,6 +721,13 @@ $imagePath : "../../../../../../images";
 #stopInstancePage {
 	.loader-section {
 		padding: 0px 0px 15px 15px;
+	}
+}
+
+#inspectSoftwarePage {
+	.inspect-software-content {
+		height: 370px;
+		overflow-y: auto;
 	}
 }
 

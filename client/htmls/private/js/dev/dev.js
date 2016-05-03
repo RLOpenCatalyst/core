@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 //function for showing the tableview and the cardview
 function devCall() {
@@ -351,26 +351,26 @@ function devCall() {
 					var dialog = bootbox.dialog({
 						title: "Delete Instance",
 						message: '<div class="row">  ' +
-							'<div class="col-md-12"> ' +
-							'<div id="deleteInstanceWorkingIndicator" style="display:none"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>' +
-							'<form id="deleteInstanceForm" class="form-horizontal"> ' +
-							'<input type="hidden" id="deleteInstanceIdInput" value="' + instanceId + '"/>' +
-							'<div class="form-group"> ' +
-							'<span class="col-md-12" for="name">You are about to remove this instance, do you want to proceed?</span> ' +
-							'</div>' +
-							'<div class="form-group"> ' +
-							'<label style="color:#333;" class="col-md-3 forBootBox1" for="name">Instance Name:</label> ' +
-							'<strong><span class="col-md-4 forBootBox" for="name">' + data.name + '</span></strong>' +
-							'</div> ' +
-							'<div class="form-group" style="margin-top:-10px"> ' +
-							'<label for="ckbChefDelete"></label> ' +
-							'<div class="col-md-8"> <div class="checkbox"> <label style="color:#333;" for="ckbChefDelete-0"> ' +
-							'<input type="checkbox" name="ckbChefDelete" id="ckbChefDelete"> ' +
-							'Delete this node from ' + infraManager + ' server </label> ' +
-							'</div>' +
-							'</div>' +
-							'<div style="margin-top:20px;" class="col-lg-12">Note : This will not terminate the instance from the provider.</div>' +
-							'</form> </div>  </div>',
+						'<div class="col-md-12"> ' +
+						'<div id="deleteInstanceWorkingIndicator" style="display:none"><img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" /></div>' +
+						'<form id="deleteInstanceForm" class="form-horizontal"> ' +
+						'<input type="hidden" id="deleteInstanceIdInput" value="' + instanceId + '"/>' +
+						'<div class="form-group"> ' +
+						'<span class="col-md-12" for="name">You are about to remove this instance, do you want to proceed?</span> ' +
+						'</div>' +
+						'<div class="form-group"> ' +
+						'<label style="color:#333;" class="col-md-3 forBootBox1" for="name">Instance Name:</label> ' +
+						'<strong><span class="col-md-4 forBootBox" for="name">' + data.name + '</span></strong>' +
+						'</div> ' +
+						'<div class="form-group" style="margin-top:-10px"> ' +
+						'<label for="ckbChefDelete"></label> ' +
+						'<div class="col-md-8"> <div class="checkbox"> <label style="color:#333;" for="ckbChefDelete-0"> ' +
+						'<input type="checkbox" name="ckbChefDelete" id="ckbChefDelete"> ' +
+						'Delete this node from ' + infraManager + ' server </label> ' +
+						'</div>' +
+						'</div>' +
+						'<div style="margin-top:20px;" class="col-lg-12">Note : This will not terminate the instance from the provider.</div>' +
+						'</form> </div>  </div>',
 						buttons: {
 							cancel: {
 								label: "Cancel",
@@ -785,28 +785,28 @@ function devCall() {
 				tableinstanceview = $('#tableinstanceview').DataTable({
 					"pagingType": "full_numbers",
 					"aoColumns": [{
-								"bSortable": false
-							},
-							null, {
-								"bSortable": false
-							}, {
-								"bSortable": false
-							}, {
-								"bSortable": false
-							}, {
-								"bSortable": false
-							}, {
-								"bSortable": false
-							}, {
-								"bSortable": false,
-								"sWidth": "20%"
-							}
-						]
-						/*"fnRowCallback": function(nRow, aData, iDisplayIndex) {
+						"bSortable": false
+					},
+						null, {
+							"bSortable": false
+						}, {
+							"bSortable": false
+						}, {
+							"bSortable": false
+						}, {
+							"bSortable": false
+						}, {
+							"bSortable": false
+						}, {
+							"bSortable": false,
+							"sWidth": "20%"
+						}
+					]
+					/*"fnRowCallback": function(nRow, aData, iDisplayIndex) {
 
-                      $("td:first", nRow).html(iDisplayIndex + 1);
-                      return nRow;
-                  }*/
+					 $("td:first", nRow).html(iDisplayIndex + 1);
+					 return nRow;
+					 }*/
 
 
 				});
@@ -904,7 +904,7 @@ function devCall() {
 			}
 			$divinstancescardview.find('.item').first().addClass('active');
 
-			loadContainersTable();
+			//loadContainersTable();
 
 			$(".appFactoryPanel").find(".productdiv1").first().trigger('click');
 
@@ -1024,25 +1024,25 @@ function devCall() {
 									$('.app-url[data-appUrlId="' + data.appUrls[k]._id + '"]').attr('href', url);
 								}
 							}
-/*
+							/*
 
 
-							$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+							 $.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
 
-								var lastActionLog = actionLogs[actionLogs.length - 1];
+							 var lastActionLog = actionLogs[actionLogs.length - 1];
 
-								var actionLogTimestamp = lastActionLog.timeStarted;
-								if (lastActionLog.completed) {
-									actionLogTimestamp = lastActionLog.timeEnded;
-								}
-								var actionLogTimeString = new Date().setTime(actionLogTimestamp);
-								var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+							 var actionLogTimestamp = lastActionLog.timeStarted;
+							 if (lastActionLog.completed) {
+							 actionLogTimestamp = lastActionLog.timeEnded;
+							 }
+							 var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+							 var actionLogDate = new Date(actionLogTimeString).toLocaleString();
 
-								$parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+							 $parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
 
 
-							});
-*/
+							 });
+							 */
 
 						}
 
@@ -1099,19 +1099,19 @@ function devCall() {
 								$parent.find('.card_os').empty().append('<img src="' + basePath + imgPath + '" height="25" width="25" data-placement="top" data-original-title="' + title.capitalizeFirstLetter() + '" rel="tooltip"/>');
 								/*$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
 
-									var lastActionLog = actionLogs[actionLogs.length - 1];
+								 var lastActionLog = actionLogs[actionLogs.length - 1];
 
-									var actionLogTimestamp = lastActionLog.timeStarted;
-									if (lastActionLog.completed) {
-										actionLogTimestamp = lastActionLog.timeEnded;
-									}
-									var actionLogTimeString = new Date().setTime(actionLogTimestamp);
-									var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+								 var actionLogTimestamp = lastActionLog.timeStarted;
+								 if (lastActionLog.completed) {
+								 actionLogTimestamp = lastActionLog.timeEnded;
+								 }
+								 var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+								 var actionLogDate = new Date(actionLogTimeString).toLocaleString();
 
-									$parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+								 $parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
 
 
-								});*/
+								 });*/
 
 
 							}
@@ -1658,7 +1658,7 @@ function devCall() {
 			$tableInstanceStatusIndicator.attr('data-instanceId', data._id);
 			var $divComponentList = $(cardTemplate.getComponentList()),
 
-				//$divComponentItem = $(cardTemplate.getComponentItem());
+			//$divComponentItem = $(cardTemplate.getComponentItem());
 				$divmoreInfoInstances = $(cardTemplate.getmoreInfoInstances(data._id));
 
 
@@ -1830,21 +1830,21 @@ function devCall() {
 
 								/*
 
-								$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+								 $.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
 
-									var lastActionLog = actionLogs[actionLogs.length - 1];
+								 var lastActionLog = actionLogs[actionLogs.length - 1];
 
-									var actionLogTimestamp = lastActionLog.timeStarted;
-									if (lastActionLog.completed) {
-										actionLogTimestamp = lastActionLog.timeEnded;
-									}
-									var actionLogTimeString = new Date().setTime(actionLogTimestamp);
-									var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+								 var actionLogTimestamp = lastActionLog.timeStarted;
+								 if (lastActionLog.completed) {
+								 actionLogTimestamp = lastActionLog.timeEnded;
+								 }
+								 var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+								 var actionLogDate = new Date(actionLogTimeString).toLocaleString();
 
-									$parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+								 $parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
 
-								});
-								*/
+								 });
+								 */
 							}
 						}
 					});
@@ -1923,7 +1923,7 @@ function devCall() {
 			var $divInstanceDetails = $('<div></div>')
 			var $instanceDetailsList = $('<div></div>').addClass('instance-details-list');
 			var $instanceDetailItemId = $('<span></span>').addClass('instance-details-id').html('IP : <strong class="instanceip">' + data.instanceIP + '</strong>');
-			//Arab
+
 
 			$instanceDetailsList.append($instanceDetailItemId);
 			var $instanceDetailItemStatus;
@@ -1937,49 +1937,49 @@ function devCall() {
 			// } else {
 			//     $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('status : <span class="instance-state instance-state-text-pending">' + data.instanceState + '</strong>');
 			// }
-           /*
-			$.get('/instances/' + data._id + '/actionLogs', function(actionLogs) {
+			/*
+			 $.get('/instances/' + data._id + '/actionLogs', function(actionLogs) {
 
-				var lastActionLog = actionLogs[actionLogs.length - 1];
+			 var lastActionLog = actionLogs[actionLogs.length - 1];
 
-				var actionLogTimestamp = lastActionLog.timeStarted;
-				if (lastActionLog.completed) {
-					actionLogTimestamp = lastActionLog.timeEnded;
+			 var actionLogTimestamp = lastActionLog.timeStarted;
+			 if (lastActionLog.completed) {
+			 actionLogTimestamp = lastActionLog.timeEnded;
+			 }
+			 var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+			 var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+
+			 $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('Last updated time : <span class="instance-state">' + actionLogDate + '</strong>');
+			 $instanceDetailsList.append($instanceDetailItemStatus);
+
+			 });*/
+			var platformId = 'unknown';
+			var providerIdText = 'Instance Id : ';
+			if (data.platformId) {
+				platformId = data.platformId;
+				switch (data.providerType) {
+					case 'aws':
+						providerIdText = 'AWS Id : ';
+						break;
+					case 'azure':
+						providerIdText = 'Azure Id : ';
+						break;
+					case 'vmware':
+						providerIdText = 'VMware Id : ';
+						break;
+					case 'openstack':
+						providerIdText = 'openstack Id : ';
+						break;
+					default:
+						platformId = 'unknown';
+						providerIdText = 'Instance Id : ';
+
 				}
-				var actionLogTimeString = new Date().setTime(actionLogTimestamp);
-				var actionLogDate = new Date(actionLogTimeString).toLocaleString();
-
-				$instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('Last updated time : <span class="instance-state">' + actionLogDate + '</strong>');
-				$instanceDetailsList.append($instanceDetailItemStatus);
-
-			});*/
-            var platformId = 'unknown';
-            var providerIdText = 'Instance Id : ';
-            if(data.platformId) {
-			  platformId = data.platformId;
-			  switch(data.providerType){
-			  	 case 'aws': 
-			  	    providerIdText = 'AWS Id : '; 
-			  	    break;
-				case 'azure':
-					providerIdText = 'Azure Id : ';
-					break;
-				case 'vmware':
-					providerIdText = 'VMware Id : ';
-					break;
-				case 'openstack':
-				    providerIdText = 'openstack Id : ';	
-				    break;
-				default:
-				    platformId = 'unknown';
-                    providerIdText = 'Instance Id : ';
-
-			  }
-            } 
+			}
 
 			//$instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span class="instance-state instance-details-id" style="text-overflow: ellipsis;width: 65px;overflow: hidden;display: inline-block;white-space: nowrap;"> Provider Id : ' + platformId + '</span>');
-            $instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span title = "'+platformId+'" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> '+ providerIdText + platformId + '</span>');
-            $instanceDetailsList.append($instanceDetailItemStatus);
+			$instanceDetailItemStatus = $('<span></span>').addClass('instance-details-id').html('<span title = "' + platformId + '" class="instance-state" style="text-overflow: ellipsis;width: 130px;overflow: hidden;display: inline-block;white-space: nowrap;"> ' + providerIdText + platformId + '</span>');
+			$instanceDetailsList.append($instanceDetailItemStatus);
 			//$instanceDetailsList.append('<span class="instance-state" style="text-overflow: ellipsis;width: 65px;overflow: hidden;display: inline-block;white-space: nowrap;">' + platformId + '</span>');
 
 
@@ -2161,7 +2161,6 @@ function devCall() {
 			var $cardContainer = $li.find('.container').click(function(e) {
 				$('.container').removeClass('role-Selectedcard');
 				$(this).addClass('role-Selectedcard');
-				//Arab
 				localStorage.setItem("cardIndex", $(".container").index($(this)));
 				console.log("Card Index is :" + $(".container").index($(this)));
 			});
@@ -3138,7 +3137,15 @@ function devCall() {
 										// launchparams[1] = startparams;
 										// // alert(execparam);
 										// launchparams[2] = execparam;
-										$('#' + $('#myModalLabelDockerContainer').attr('saveto')).val(lp[0] + ' -c ' + lp[1] + ' -exec ' + lp[2]);
+										var dockerParamsList = lp[0];
+
+										if((lp[1] !== undefined) && (lp[1] != ''))
+											dockerParamsList += ' -c ' + lp[1];
+
+										if ((lp[2] !== undefined) && (lp[2] != ''))
+											dockerParamsList += ' -exec ' + lp[2];
+
+										$('#' + $('#myModalLabelDockerContainer').attr('saveto')).val(dockerParamsList);
 										$('#myModalLabelDockerContainer').removeAttr('saveto').modal('hide');
 									}
 								});
@@ -3149,62 +3156,112 @@ function devCall() {
 								$launchDockerInstanceSelector.data('blueprintId', blueprintId);
 								//  $launchDockerInstanceSelector.data('blueprintId',blueprintId);
 
+								loadInstancesContainerList();
 
+								function loadInstancesContainerList() {
+									$launchDockerInstanceSelector.modal('show');
+									$('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
+									$.get('../organizations/' + urlParams.org + '/businessgroups/' + urlParams['bg'] + '/projects/' + urlParams.projid + '/environments/' + urlParams.envid + '/', function(dataInstancesList) {
+										if (!$.fn.dataTable.isDataTable('#dockerinstancesTable')) {
+											var $dockerinstancesDatatable = $('#dockerinstancesTable').DataTable({
+												"pagingType": "full_numbers",
+												"aaSorting": [
+													[0, "desc"]
+												],
+												"aoColumns": [{
+													"bSortable": false
+												}, {
+													"bSortable": true
+												}, {
+													"bSortable": true
+												}, {
+													"bSortable": false
+												}]
 
-								$('#dockerinstancesselctorview').empty().append('<span><div class=\"modal-body\"><div><div class=\"row\"><div style=\"color:;\" class=\"col-lg-12 col-sm-12\ dockerinstances"></div></div></div></div></div></span>');
-								var $newinstancetable = $("<table></table>").append("<thead><tr><td>Instance Name</td><td>IP Address</td><td>Log Info</td><td class='hidden'>Add Docker Engine</td></tr></thead>");
-								var $newinstancetbody = $('<tbody></tbody>');
-								$newinstancetable.append($newinstancetbody);
-								var $instancetable = $('#tableinstanceview').clone();
-								$instancetable.find('tbody tr').each(function() {
-									var $newinstancetr = $("<tr><tr>");
-									$(this).find('td').each(function(k, v) {
-										$newinstancetr.append('<td>' + v + $(this).html() + '</td>');
-									});
-									$newinstancetbody.append($newinstancetr);
-								});
+											});
+										}
+										$dockerinstancesDatatable.clear().draw(false);
+										for (var i = 0; i < dataInstancesList.instances.length; i++) {
+											var imagePath;
+											if (dataInstancesList.instances[i].blueprintData.iconPath == undefined) {
+												imagePath = dataInstancesList.instances[i].blueprintData.iconPath = 'img/imgo.jpg';
+											} else {
+												imagePath = dataInstancesList.instances[i].blueprintData.iconPath;
+											}
+											if (dataInstancesList.instances[i].instanceState == 'running') {
+												var $tdcheckbox = '<div class="text-center"><input type="checkbox" class="instanceselectedfordocker"><img src="' + imagePath + '" style="width:40px;height:30px;" /></div>';
+												var $tdname = '<div class="dockerinstanceClass text-center" data-instanceId="' + dataInstancesList.instances[i]._id + '" data-blueprintname="' + dataInstancesList.instances[i].blueprintData.blueprintName + '">' + dataInstancesList.instances[i].name + '</div>';
+												var $tdinstanceip = '<div class="text-center">' + dataInstancesList.instances[i].instanceIP + '</div>';
+												var $moreinfo = '<a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceId="' + dataInstancesList.instances[i]._id + '" class="tableMoreInfo moreInfo dockerintsancesmoreInfo"></a>';
 
-								$instancetable.attr('id', 'dockerintsancestab');
-								$('.dockerinstances').first().append($instancetable);
+												var $dockerinstancesDatatable = $('#dockerinstancesTable');
+												$dockerinstancesDatatable.dataTable().fnAddData([
+													$tdcheckbox,
+													$tdname,
+													$tdinstanceip,
+													$moreinfo
+												]);
+											}
 
-								$('#dockerintsancestab thead td').each(function(k, v) {
-									if (k > 2)
-										$(this).detach();
-								});
-								$('#dockerintsancestab thead').append('<td>Log Info</td>');
-								$('#dockerintsancestab thead tr').append('<td class="hidden" title="Select to add a docker engine">Add Engine</td>');
-								$('#dockerintsancestab tbody tr').each(function(k, v) {
-
-									$(this).removeClass('rowcustomselected');
-									$(this).click(function() {
-										$('#dockerintsancestab tbody tr').removeClass('rowcustomselected');
-										$(this).addClass('rowcustomselected');
-									});
-									$(this).find('td').each(function(k1, v1) {
-
-										if (k1 > 2)
-											$(this).detach();
-										//inserting a checkbox to select instance
-										if (k1 == 0) {
-											$(this).prepend('<input type="checkbox" class="instanceselectedfordocker">&nbsp;');
+											$dockerinstancesDatatable.on('click', '.dockerintsancesmoreInfo', instanceLogsHandler);
 										}
 									});
-									$(this).append('<td  class=""><a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceid="' + $(this).attr('data-instanceid') + '" class="tableMoreInfo moreInfo dockerLeft" stlye=></a></td>');
-									$(this).append('<td  class="hidden"><input type="checkbox"></td>');
-									$(this).find('.moreInfo').click(instanceLogsHandler);
-								});
-								$('.launchdockerinstance').click(function() {
-									$launchResultContainer.find('.modal-body').empty().append('<span><div class=\"modal-body\"><div><h3 class=\"alert alert-success\"><b>Congratulations!</b> Blueprint Launched Successfully !!!</h3>Instance Id : 5460690c6e5c99913e37d0e4<br>Instance Logs :- </div><div class=\"logsAreaBootstrap\"><div><div class=\"row\"><div style=\"color:white;\" class=\"col-lg-12 col-sm-12\"><span>Starting instance</span></div></div></div></div></div></span>');
-									$('#myModalLabel').first().html('Launching Blueprint');
+								}
+								/*$('#dockerinstancesselctorview').empty().append('<span><div class=\"modal-body\"><div><div class=\"row\"><div style=\"color:;\" class=\"col-lg-12 col-sm-12\ dockerinstances"></div></div></div></div></div></span>');
+								 var $newinstancetable = $("<table></table>").append("<thead><tr><td>Instance Name</td><td>IP Address</td><td>Log Info</td><td class='hidden'>Add Docker Engine</td></tr></thead>");
+								 var $newinstancetbody = $('<tbody></tbody>');
+								 $newinstancetable.append($newinstancetbody);
+								 var $instancetable = $('#tableinstanceview').clone();
+								 $instancetable.find('tbody tr').each(function() {
+								 var $newinstancetr = $("<tr><tr>");
+								 $(this).find('td').each(function(k, v) {
+								 $newinstancetr.append('<td>' + v + $(this).html() + '</td>');
+								 });
+								 $newinstancetbody.append($newinstancetr);
+								 });
 
-								});
-								$('#dockerInstanceSelectionTitle').empty().append('Select Instances to pull  "' + dockerreponame + '" into');
-								$launchDockerInstanceSelector.modal('show');
-								$('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
-								$('#dockerintsancestab thead').empty().append('<tr><td>Select Instance</td><td>Instance Name</td><td>IP Address</td><td>Log</td><td  class="hidden">Add Docker Engine</td></tr>');
-								$('#dockerintsancestab').dataTable({
-									"bPaginate": false
-								});
+								 $instancetable.attr('id', 'dockerintsancestab');
+								 $('.dockerinstances').first().append($instancetable);
+
+								 $('#dockerintsancestab thead td').each(function(k, v) {
+								 if (k > 2)
+								 $(this).detach();
+								 });
+								 $('#dockerintsancestab thead').append('<td>Log Info</td>');
+								 $('#dockerintsancestab thead tr').append('<td class="hidden" title="Select to add a docker engine">Add Engine</td>');
+								 $('#dockerintsancestab tbody tr').each(function(k, v) {
+
+								 $(this).removeClass('rowcustomselected');
+								 $(this).click(function() {
+								 $('#dockerintsancestab tbody tr').removeClass('rowcustomselected');
+								 $(this).addClass('rowcustomselected');
+								 });
+								 $(this).find('td').each(function(k1, v1) {
+
+								 if (k1 > 2)
+								 $(this).detach();
+								 //inserting a checkbox to select instance
+								 if (k1 == 0) {
+								 $(this).prepend('<input type="checkbox" class="instanceselectedfordocker">&nbsp;');
+								 }
+								 });
+								 $(this).append('<td  class=""><a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceid="' + $(this).attr('data-instanceid') + '" class="tableMoreInfo moreInfo dockerLeft" stlye=></a></td>');
+								 $(this).append('<td  class="hidden"><input type="checkbox"></td>');
+								 $(this).find('.moreInfo').click(instanceLogsHandler);
+								 });
+								 $('.launchdockerinstance').click(function() {
+								 $launchResultContainer.find('.modal-body').empty().append('<span><div class=\"modal-body\"><div><h3 class=\"alert alert-success\"><b>Congratulations!</b> Blueprint Launched Successfully !!!</h3>Instance Id : 5460690c6e5c99913e37d0e4<br>Instance Logs :- </div><div class=\"logsAreaBootstrap\"><div><div class=\"row\"><div style=\"color:white;\" class=\"col-lg-12 col-sm-12\"><span>Starting instance</span></div></div></div></div></div></span>');
+								 $('#myModalLabel').first().html('Launching Blueprint');
+
+								 });
+								 $('#dockerInstanceSelectionTitle').empty().append('Select Instances to pull  "' + dockerreponame + '" into');
+								 $launchDockerInstanceSelector.modal('show');
+								 $('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
+								 $('#dockerintsancestab thead').empty().append('<tr><td>Select Instance</td><td>Instance Name</td><td>IP Address</td><td>Log</td><td  class="hidden">Add Docker Engine</td></tr>');
+								 $('#dockerintsancestab').dataTable({
+								 "bPaginate": false
+								 });*/
+
 								return;
 							}
 
@@ -4336,7 +4393,7 @@ function devCall() {
 			function showTaskLogsPC(history) {
 				var $ulHeaderArea = $('<ul class="nav nav-tabs bordered taskExecuteTabsHeader"></ul>');
 				var $contentArea = $('<div class="tab-content padding-10 taskExecuteTabsContent"></div>');
-
+				console.log('history ==>', history);
 				if (history.nodeIdsWithActionLog && history.nodeIdsWithActionLog.length) {
 					var ids = [];
 					for (var kk = 0; kk < history.nodeIdsWithActionLog.length; kk++) {
@@ -4405,6 +4462,21 @@ function devCall() {
 							//e.relatedTarget // previous active tab
 						}).first().click();
 					});
+				} else if (history.blueprintExecutionResults) {
+					// var success = false;
+					// for (var i = 0; i < history.blueprintExecutionResults.length; i++) {
+					// 	if (history.blueprintExecutionResults[i].status === 'success') {
+					// 		success = true;
+					// 	}
+					// }
+					// if (success) {
+					// 	return 'Blueprints Launched Successfully';
+					// } else {
+					// 	return 'Unable to Launch Blueprints';
+
+					// }
+
+
 				}
 
 				var $template = $('<div role="content"><div class="widget-body"></div></div>');
@@ -4507,6 +4579,21 @@ function devCall() {
 						var $logArea = $tabContent.find('.taskLogArea');
 						console.log('innet fetch task ==>' + historyId);
 						$.get('/tasks/' + taskId + '/history/' + historyId, function(historyData) {
+							if (historyData.blueprintExecutionResults) {
+								var success = false;
+								for (var i = 0; i < historyData.blueprintExecutionResults.length; i++) {
+									if (historyData.blueprintExecutionResults[i].status === 'success') {
+										success = true;
+									}
+								}
+								if (success) {
+									$logArea.append('Blueprints Launched Successfully');
+								} else {
+									$logArea.append('Unable to Launch Blueprints');
+
+								}
+								return;
+							}
 
 							switch (historyData.taskType) {
 								case 'puppet':
@@ -4524,9 +4611,9 @@ function devCall() {
 						//if(headerCount === 1) {
 
 						setTimeout(function() {
-								$liHeader.find('a').click();
-							}, 2000)
-							//}
+							$liHeader.find('a').click();
+						}, 2000)
+						//}
 					});
 
 				}
@@ -5419,26 +5506,26 @@ function devCall() {
 
 		//If instances are present user will be able to add new Nodes in orchestration
 		/* function registerEventsForSearchInstances() {
-                                                                   $('.searchInstances').keyup(function(e) {
-        //   alert(1);
-           var searchText = $(this).val();
-               //alert(searchText);
-               $allListElements = $('#divinstancescardview ul li .domain-roles-heading .cardHeadingTextoverflow');
-               //alert($allListElements.length);
-               $matchingListElements = $allListElements.filter(function(i, el) {
-                   //alert(el);
-                   return $(el).text().indexOf(searchText) !== -1;
-                 });
-               // $allListElements.parents().eq(6).hide();
-               // $matchingListElements.parents().eq(6).show();
-               $allListElements.parents(".domain-role-thumbnail").hide();
-               $matchingListElements.parents(".domain-role-thumbnail").show();
-               // $allListElements.parent().parent().parent().parent().parent().parent().parent().hide();
-               // $matchingListElements.parent().parent().parent().parent().parent().parent().parent().show();
-             });
+		 $('.searchInstances').keyup(function(e) {
+		 //   alert(1);
+		 var searchText = $(this).val();
+		 //alert(searchText);
+		 $allListElements = $('#divinstancescardview ul li .domain-roles-heading .cardHeadingTextoverflow');
+		 //alert($allListElements.length);
+		 $matchingListElements = $allListElements.filter(function(i, el) {
+		 //alert(el);
+		 return $(el).text().indexOf(searchText) !== -1;
+		 });
+		 // $allListElements.parents().eq(6).hide();
+		 // $matchingListElements.parents().eq(6).show();
+		 $allListElements.parents(".domain-role-thumbnail").hide();
+		 $matchingListElements.parents(".domain-role-thumbnail").show();
+		 // $allListElements.parent().parent().parent().parent().parent().parent().parent().hide();
+		 // $matchingListElements.parent().parent().parent().parent().parent().parent().parent().show();
+		 });
 
-       }
-       */
+		 }
+		 */
 		var wzlink = window.location.href.split('#')[1];
 		//alert(wzlink);
 		$('li[navigation*="Workspace"]').find('a').attr('href', '#' + wzlink);
@@ -5582,7 +5669,7 @@ function devCall() {
 							dockerimages[$(this).attr('paramtype')] = $(this).text() + $(this).val();
 					});
 					$(this).find()
-						// alert(JSON.stringify(dockerimages));
+					// alert(JSON.stringify(dockerimages));
 					dockercompose.push(dockerimages);
 				});
 				return (dockercompose);
@@ -5592,73 +5679,149 @@ function devCall() {
 			compositedockerimage = JSON.stringify(compositedockerimage);
 			// alert(JSON.stringify(compositedockerimage));
 			//return;
-			$('.instanceselectedfordocker').each(function() {
-				if ($(this).is(':checked')) {
-					var repopath = "null"; //would be referenced from the json supplied.
-					var instid = $(this).closest('tr').attr('data-instanceid');
-					var instbpname = $(this).closest('tr').attr('data-blueprintname');
-					var amoreinfo = $(this).closest('tr').find('.moreInfo');
-					if (instid)
-						var $that = $(this);
-					var $td = $that.closest('td');
-					var tdtext = $td.text();
-					$td.find('.dockerspinner').detach();
-					$td.find('.dockermessage').detach();
-					$td.append('<img class="dockerspinner" style="margin-left:5px" src="img/select2-spinner.gif"></img>');
-					$td.attr('title', 'Pulling in Images');
-					// var imagename = $('.productdiv1.role-Selected1').first().attr('dockercontainerpaths');
-					// var repotag = $('.productdiv1.role-Selected1').find('.dockerrepotagselect').first().val();
+			if (!$('.instanceselectedfordocker:checked').length) {
+				bootbox.confirm({
+					message: "Please select atleast one instance.",
+					title: "Warning",
+					callback: function(result) {}
+				});
+				return;
+			}
+			$('.instanceselectedfordocker:checked').each(function() {
+				var repopath = "null"; //would be referenced from the json supplied.
+				var instid = $(this).closest('tr').find('.dockerinstanceClass').attr('data-instanceid');
+				var instbpname = $(this).closest('tr').find('.dockerinstanceClass').attr('data-blueprintname');
+				var amoreinfo = $(this).closest('tr').find('.moreInfo');
+				if (instid)
+					var $that = $(this);
+				var $td = $that.closest('td');
 
-					//var repopath = $('.productdiv1.role-Selected1').first().attr('dockerreponame');
+				var tdtext = $td.text();
+				$td.find('.dockerspinner').detach();
+				$td.find('.dockermessage').detach();
+				$td.append('<img class="dockerspinner" style="margin-left:5px" src="img/select2-spinner.gif"></img>');
+				$td.attr('title', 'Pulling in Images');
+				// var imagename = $('.productdiv1.role-Selected1').first().attr('dockercontainerpaths');
+				// var repotag = $('.productdiv1.role-Selected1').find('.dockerrepotagselect').first().val();
 
-					if (amoreinfo)
-						amoreinfo.trigger('click');
-
-					$.post('../instances/dockercompositeimagepull/' + instid + '/' + repopath, {
-						compositedockerimage: encodeURIComponent(compositedockerimage)
-					}, function(data) {
-						//alert(JSON.stringify(data));
-						if (data == "OK") {
-							var $statmessage = $td.find('.dockerspinner').parent();
-							$td.find('.moreInfo').first().click(); //showing the log window.
+				//var repopath = $('.productdiv1.role-Selected1').first().attr('dockerreponame');
 
 
-							$td.find('.dockerspinner').detach();
-							$statmessage.append('<span style="margin-left:5px;text-decoration:none" class="dockermessage"></span>');
+				$.post('../instances/dockercompositeimagepull/' + instid + '/' + repopath, {
+					compositedockerimage: encodeURIComponent(compositedockerimage)
+				}, function(data) {
+					//alert(JSON.stringify(data));
+					if (data == "OK") {
+						if (amoreinfo)
+							amoreinfo.trigger('click');
 
-							//Updating instance card to show the docker icon.
-							//$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:42px;height:42px;margin-left:32px;" class="dockerenabledinstacne"/>');
-							//Updated from above to move docker image out of circle.
-							$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:auto;height:27px;margin-left:96px;margin-top:-105px" class="dockerenabledinstacne"/>');
-							//find the instance card - to do instance table view update
-							var $instancecard = $('div[data-instanceid="' + instid + '"]');
-							if ($instancecard.find('.dockerenabledinstacne').length <= 0) {
-								$instancecard.find('.componentlistContainer').first().append($dockericon);
-							}
-							//debugger;
-							loadContainersTable(); //Clearing and loading the containers again.
-						} else {
-							//alert(data);
-							if (data.indexOf('No Docker Found') >= 0) {
-								var $statmessage = $('.dockerspinner').parent();
-								$('.dockerspinner').detach();
-								$td.find('.dockermessage').detach();
-								$statmessage.append('<span style="margin-left:5px;color:red" title="Docker not found"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
-								//Prompt user to execute the docker cookbook.
-								if (confirm('Docker was not found on the node : "' + instbpname + '". \nDo you wish to install it?')) {
-									//Docker launcer popup had to be hidden due to overlap issue.
-									$('#launchDockerInstanceSelector').modal('hide');
-									$('a.actionbuttonChefClientRun[data-instanceid="' + instid + '"]').first().trigger('click');
-								}
-							} else {
-								var $statmessage = $('.dockerspinner').parent();
-								$('.dockerspinner').detach();
-								$td.find('.dockermessage').detach();
-								$statmessage.append('<span style="margin-left:5px;color:red" title="' + data + '"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
-							}
+						var $statmessage = $td.find('.dockerspinner').parent();
+						$td.find('.moreInfo').first().click(); //showing the log window.
+
+
+						$td.find('.dockerspinner').detach();
+						$statmessage.append('<span style="margin-left:5px;text-decoration:none" class="dockermessage"></span>');
+
+						//Updating instance card to show the docker icon.
+						//$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:42px;height:42px;margin-left:32px;" class="dockerenabledinstacne"/>');
+						//Updated from above to move docker image out of circle.
+						$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:auto;height:27px;margin-left:96px;margin-top:-105px" class="dockerenabledinstacne"/>');
+						//find the instance card - to do instance table view update
+						var $instancecard = $('div[data-instanceid="' + instid + '"]');
+						if ($instancecard.find('.dockerenabledinstacne').length <= 0) {
+							$instancecard.find('.componentlistContainer').first().append($dockericon);
 						}
-					});
-				}
+						//debugger;
+						loadContainersTable(); //Clearing and loading the containers again.
+					} else {
+						//alert(data);
+						if (data.indexOf('No Docker Found') >= 0) {
+							var $statmessage = $('.dockerspinner').parent();
+							$('.dockerspinner').detach();
+							$td.find('.dockermessage').detach();
+							$statmessage.append('<span style="margin-left:5px;color:red" title="Docker not found"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
+							//Prompt user to execute the docker cookbook.
+							if (confirm('Docker was not found on the node : "' + instbpname + '". \nDo you wish to install it?')) {
+								//Docker launcer popup had to be hidden due to overlap issue.
+								$('#launchDockerInstanceSelector').modal('hide');
+								$('a.actionbuttonChefClientRun[data-instanceid="' + instid + '"]').first().trigger('click');
+
+							}
+						} else {
+							var $statmessage = $('.dockerspinner').parent();
+							$('.dockerspinner').detach();
+							$td.find('.dockermessage').detach();
+							$statmessage.append('<span style="margin-left:5px;color:red" title="' + data + '"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
+						}
+					}
+				});
+				//Replaced below code with Above....
+				/*if ($(this).is(':checked')) {
+				 var repopath = "null"; //would be referenced from the json supplied.
+				 var instid = $(this).closest('tr').attr('data-instanceid');
+				 var instbpname = $(this).closest('tr').attr('data-blueprintname');
+				 var amoreinfo = $(this).closest('tr').find('.moreInfo');
+				 if (instid)
+				 var $that = $(this);
+				 var $td = $that.closest('td');
+				 var tdtext = $td.text();
+				 $td.find('.dockerspinner').detach();
+				 $td.find('.dockermessage').detach();
+				 $td.append('<img class="dockerspinner" style="margin-left:5px" src="img/select2-spinner.gif"></img>');
+				 $td.attr('title', 'Pulling in Images');
+				 // var imagename = $('.productdiv1.role-Selected1').first().attr('dockercontainerpaths');
+				 // var repotag = $('.productdiv1.role-Selected1').find('.dockerrepotagselect').first().val();
+
+				 //var repopath = $('.productdiv1.role-Selected1').first().attr('dockerreponame');
+
+				 if (amoreinfo)
+				 amoreinfo.trigger('click');
+
+				 $.post('../instances/dockercompositeimagepull/' + instid + '/' + repopath, {
+				 compositedockerimage: encodeURIComponent(compositedockerimage)
+				 }, function(data) {
+				 //alert(JSON.stringify(data));
+				 if (data == "OK") {
+				 var $statmessage = $td.find('.dockerspinner').parent();
+				 $td.find('.moreInfo').first().click(); //showing the log window.
+
+
+				 $td.find('.dockerspinner').detach();
+				 $statmessage.append('<span style="margin-left:5px;text-decoration:none" class="dockermessage"></span>');
+
+				 //Updating instance card to show the docker icon.
+				 //$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:42px;height:42px;margin-left:32px;" class="dockerenabledinstacne"/>');
+				 //Updated from above to move docker image out of circle.
+				 $dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:auto;height:27px;margin-left:96px;margin-top:-105px" class="dockerenabledinstacne"/>');
+				 //find the instance card - to do instance table view update
+				 var $instancecard = $('div[data-instanceid="' + instid + '"]');
+				 if ($instancecard.find('.dockerenabledinstacne').length <= 0) {
+				 $instancecard.find('.componentlistContainer').first().append($dockericon);
+				 }
+				 //debugger;
+				 loadContainersTable(); //Clearing and loading the containers again.
+				 } else {
+				 //alert(data);
+				 if (data.indexOf('No Docker Found') >= 0) {
+				 var $statmessage = $('.dockerspinner').parent();
+				 $('.dockerspinner').detach();
+				 $td.find('.dockermessage').detach();
+				 $statmessage.append('<span style="margin-left:5px;color:red" title="Docker not found"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
+				 //Prompt user to execute the docker cookbook.
+				 if (confirm('Docker was not found on the node : "' + instbpname + '". \nDo you wish to install it?')) {
+				 //Docker launcer popup had to be hidden due to overlap issue.
+				 $('#launchDockerInstanceSelector').modal('hide');
+				 $('a.actionbuttonChefClientRun[data-instanceid="' + instid + '"]').first().trigger('click');
+				 }
+				 } else {
+				 var $statmessage = $('.dockerspinner').parent();
+				 $('.dockerspinner').detach();
+				 $td.find('.dockermessage').detach();
+				 $statmessage.append('<span style="margin-left:5px;color:red" title="' + data + '"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
+				 }
+				 }
+				 });
+				 }*/
 			});
 		});
 
@@ -5673,6 +5836,7 @@ function devCall() {
 				initializeInstanceArea(data.instances);
 				initializeStackArea(data.stacks);
 				initializeARMArea(data.arms);
+				loadContainersTable();
 			});
 			if (orgId) {
 				$.get('/d4dMasters/organization/' + orgId + '/configmanagement/list', function(configMgmntList) {
@@ -5726,10 +5890,10 @@ function devCall() {
 				if (orgId === instanceData.orgId && urlParams['bg'] === instanceData.bgId && projectId === instanceData.projectId && envId === instanceData.envId) {
 					var $card = $('#divinstancescardview').find('.domain-roles-caption[data-instanceId=' + instanceData._id + ']');
 					/*$card.find('.instance-state').removeClass().addClass('instance-state instance-state-text-stopped').html(instanceData.instanceState);
-					disableInstanceActionBtns(instanceData._id);
-					$card.find('.componentlistContainer').removeClass().addClass('componentlistContainer stopped');
-					$('#tableinstanceview').find('tr[data-instanceid="'+instanceData._id+'"]').find('.instancestatusindicator').removeClass().addClass('instancestatusindicator stopped');
-					*/
+					 disableInstanceActionBtns(instanceData._id);
+					 $card.find('.componentlistContainer').removeClass().addClass('componentlistContainer stopped');
+					 $('#tableinstanceview').find('tr[data-instanceid="'+instanceData._id+'"]').find('.instancestatusindicator').removeClass().addClass('instancestatusindicator stopped');
+					 */
 
 					var $tableViewInstanceId = $("tr[data-instanceId='" + instanceId + "']");
 					title = instanceData.instanceState == "running" ? "Stop" : instanceData.instanceState == "stopped" ? "Start" : "";
@@ -5754,20 +5918,20 @@ function devCall() {
 
 					//$card.find('.instance-state').removeClass().addClass('instance-state').addClass(cssClassed.textClass).html(instanceData.instanceState);
 					/*
-					$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+					 $.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
 
-						var lastActionLog = actionLogs[actionLogs.length - 1];
+					 var lastActionLog = actionLogs[actionLogs.length - 1];
 
-						var actionLogTimestamp = lastActionLog.timeStarted;
-						if (lastActionLog.completed) {
-							actionLogTimestamp = lastActionLog.timeEnded;
-						}
-						var actionLogTimeString = new Date().setTime(actionLogTimestamp);
-						var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+					 var actionLogTimestamp = lastActionLog.timeStarted;
+					 if (lastActionLog.completed) {
+					 actionLogTimestamp = lastActionLog.timeEnded;
+					 }
+					 var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+					 var actionLogDate = new Date(actionLogTimeString).toLocaleString();
 
-						$card.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+					 $card.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
 
-					});*/
+					 });*/
 
 					$('.instancestatusindicator[data-instanceId="' + instanceId + '"]').removeClass().addClass('instancestatusindicator').addClass(cssClassed.tableViewStatusClass);
 
@@ -5788,41 +5952,41 @@ function devCall() {
 		/*if (orgId && urlParams['bg'] && projectId && envId) {
 
 
-      $('.instanceloaderspinner').removeClass('hidden');
+		 $('.instanceloaderspinner').removeClass('hidden');
 
-      function getInstances() {
+		 function getInstances() {
 
-          $.get('../organizations/' + orgId + '/businessgroups/' + urlParams['bg'] + '/projects/' + projectId + '/environments/' + envId + '/', function(data) {
-              console.log('success---3---4');
-              //Syncing up the tree view based on url
-              if (data.instances.length > 0) {
-                  for (var x = 0; x < data.instances.length; x++) {
+		 $.get('../organizations/' + orgId + '/businessgroups/' + urlParams['bg'] + '/projects/' + projectId + '/environments/' + envId + '/', function(data) {
+		 console.log('success---3---4');
+		 //Syncing up the tree view based on url
+		 if (data.instances.length > 0) {
+		 for (var x = 0; x < data.instances.length; x++) {
 
-                      pollInstanceState(data.instances[x]._id, data.instances[x].instanceState, 1000000);
+		 pollInstanceState(data.instances[x]._id, data.instances[x].instanceState, 1000000);
 
-                  }
-              }
+		 }
+		 }
 
-              $('.instancesList').empty();
-              var $table = $('#tableinstanceview').DataTable();
-              $table.clear().draw();
-
-
-              initializeInstanceArea(data.instances);
-          });
-          setTimeout(getInstances, 120000);
-      }
-
-      getInstances();
+		 $('.instancesList').empty();
+		 var $table = $('#tableinstanceview').DataTable();
+		 $table.clear().draw();
 
 
+		 initializeInstanceArea(data.instances);
+		 });
+		 setTimeout(getInstances, 120000);
+		 }
 
-  } else {
-      var $workzoneTab = $('#workZoneNew');
-      if ($workzoneTab.length) {
-          $workzoneTab.click();
-      }
-  }*/
+		 getInstances();
+
+
+
+		 } else {
+		 var $workzoneTab = $('#workZoneNew');
+		 if ($workzoneTab.length) {
+		 $workzoneTab.click();
+		 }
+		 }*/
 		//Generating the docker launch parameters
 		function generateDockerLaunchParams() {
 			if ($('#Containernamefield').val() == '') {
@@ -5922,6 +6086,9 @@ function devCall() {
 
 			$dockercontainertable = $('#dockercontainertable tbody');
 			$('.docctrempty').detach();
+			/*Demo QuickFix - Start*/
+			$('tr[id*="trfordockercontainer_"]').remove();
+			/*Demo QuickFix - End*/
 
 			function showNoContainerRow() {
 				var $docctrempty = $('#dockercontainertabletemplatetr').clone().empty().append('<td class="spinnerLoadForDocker" colspan="8" style="text-align:center">No containers found</td>').removeClass('hidden');
@@ -5935,6 +6102,10 @@ function devCall() {
 				$('.dockerContainerBody').removeClass('hidden');
 				showNoContainerRow();
 			}
+			var dockerCount = 0;
+			var containerLength = $('.container').length;
+			var rowAdded = false;
+
 			$('.container').each(function() {
 				var $docker = $(this).find('.dockerenabledinstacne');
 				if ($docker.html() != undefined) {
@@ -5942,24 +6113,31 @@ function devCall() {
 
 					var instanceid = $(this).find('[data-instanceid]').attr('data-instanceid');
 					$.get('/instances/dockercontainerdetails/' + instanceid, function(data) {
-						if (!data) {
-							$('.spinnerDocker').addClass('hidden');
-							$('.dockerContainerBody').removeClass('hidden');
-							showNoContainerRow();
-							$('.loadingimagefordockertable').addClass('hidden');
-							$('#dockercontainertablerefreshspinner').removeClass('fa-spin');
-							return;
+						dockerCount++;
+						/*Demo QuickFix - Start*/
+						/*if (!data) {
+						 $('.spinnerDocker').addClass('hidden');
+						 $('.dockerContainerBody').removeClass('hidden');
+						 showNoContainerRow();
+						 $('.loadingimagefordockertable').addClass('hidden');
+						 $('#dockercontainertablerefreshspinner').removeClass('fa-spin');
+						 return;
+						 }*/
+						/*Demo QuickFix - End*/
+						console.log('data ==> ', data);
+						//if (data) {
+						//Shwoing the loader spinner and clearing the rows.
+
+						/*Demo QuickFix - Start*/
+						//$('tr[id*="trfordockercontainer_"]').remove();
+						/*Demo QuickFix - End*/
+
+						//}
+						var dockerContainerData = [];
+						if (typeof data === 'string') {
+							dockerContainerData = JSON.parse(data);
 						}
-						if (data) {
-							//Shwoing the loader spinner and clearing the rows.
-							$('tr[id*="trfordockercontainer_"]').remove();
-							$('.spinnerDocker').addClass('hidden');
-							$('.dockerContainerBody').removeClass('hidden');
-							$('.docctrempty').detach();
-							$('.loadingimagefordockertable').addClass('hidden');
-							$('#dockercontainertablerefreshspinner').removeClass('fa-spin');
-						}
-						var dockerContainerData = JSON.parse(data);
+
 
 						if (dockerContainerData.length <= 0) {
 							$('.docctrempty').detach();
@@ -5970,6 +6148,7 @@ function devCall() {
 							// alert($docctr.html());
 
 							$dockercontainertable.append($docctr);
+							rowAdded = true;
 							if (i >= dockerContainerData.length - 1) {
 								// alert('in' + i);
 								$('.dockeractionbutton').unbind("click");
@@ -6025,6 +6204,9 @@ function devCall() {
 																	//   alert('found constructing ' + item.toString())
 																	var $updatedContainerRow = createdockercontainerrow(item, instanceid);
 																	//Do not bind any action buttons
+																	$('#trfordockercontainer_' + item.Id).replaceWith($updatedContainerRow);
+																	//$dockercontainertable.append($updatedContainerRow);
+																	return;
 																	$updatedContainerRow.find('td').each(function(i, k) {
 																		//alert(i + ':' + k);
 																		if (i > 0 && i < 7) {
@@ -6034,11 +6216,11 @@ function devCall() {
 																	});
 																	$thistr.closest('.container1').find('.flipper').toggleClass('hidden');
 																	//Managing the pause and unpause buttons
-																	if (item.Status.indexOf('Exited') >= 0) {
-																		//  alert('in');
-																		$thistr.closest('.container1').find('.pause').addClass('hidden');
-																		$thistr.closest('.container1').find('.unpause').addClass('hidden');
-																	}
+																	// if (item.Status.indexOf('Exited') >= 0) {
+																	// 	//  alert('in');
+																	// 	$thistr.closest('.container1').find('.pause').addClass('hidden');
+																	// 	$thistr.closest('.container1').find('.unpause').addClass('hidden');
+																	// }
 
 																}
 															});
@@ -6083,8 +6265,37 @@ function devCall() {
 								return;
 							}
 						});
-					})
+
+						if (dockerCount === containerLength) {
+							$('.spinnerDocker').addClass('hidden');
+							$('.dockerContainerBody').removeClass('hidden');
+							$('.docctrempty').detach();
+							$('.loadingimagefordockertable').addClass('hidden');
+							$('#dockercontainertablerefreshspinner').removeClass('fa-spin');
+							if (!rowAdded) {
+								showNoContainerRow();
+							}
+
+
+						}
+
+
+					}).fail(function() {
+						dockerCount++;
+						if (dockerCount === containerLength) {
+							$('.spinnerDocker').addClass('hidden');
+							$('.dockerContainerBody').removeClass('hidden');
+							$('.docctrempty').detach();
+							$('.loadingimagefordockertable').addClass('hidden');
+							$('#dockercontainertablerefreshspinner').removeClass('fa-spin');
+							if (!rowAdded) {
+								showNoContainerRow();
+							}
+
+						}
+					});
 				} else { //no docker found
+					dockerCount++;
 					$('.loadingimagefordockertable').addClass('hidden');
 					//$('li.Containers').addClass('hidden');
 				}
@@ -6158,6 +6369,7 @@ function devCall() {
 				});
 			});
 			//Analysing the status cell
+			console.log('docker status ==>', dockerContainerItem);
 			if (dockerContainerItem.Status.indexOf('Up') >= 0) {
 				//Show Stop
 				//If the container is of type cadvisor show the link
@@ -6190,6 +6402,109 @@ function devCall() {
 				$docctr.find('.stop').addClass('hidden');
 				$docctr.find('.start').removeClass('hidden');
 			}
+
+			$docctr.find('.dockeractionbutton').click(function() {
+				// alert('test' + $(this).attr('dockercontaineraction'));
+				//append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+
+
+				var action = $(this).attr('dockercontaineraction');
+				var instanceid = $(this).closest('tr').attr('instanceid');
+				var containerid = $(this).closest('tr').attr('containerid');
+				var $contextRow = $(this).closest('tr');
+				var $thistr = $(this);
+				// alert('Url : ' + '/instances/dockercontainerdetails/' + instanceid + '/' + containerid + '/' + action);
+				var performAction = function() {
+					$thistr.closest('tr').fadeTo('slow', 0.5);
+					var $progressicon = $thistr.closest('tr').find('.dockercontainerprogress').first();
+
+					$progressicon.removeClass('hidden');
+					if (action == '1' || action == '2' || action == '3' || action == '4' || action == '5' || action == '6') {
+						$.get('/instances/dockercontainerdetails/' + instanceid + '/' + containerid + '/' + action, function(data) {
+							// alert(data);
+							if (data == 'OK') {
+								//$(this).parents('.flip-toggle').toggleClass('flip1');
+								//alert('ok');
+								//  $(this).closest('.container1').first().find('.flipper').toggleClass('hidden');
+								//alert($thistr.closest('.dockercontainertabletemplatetr').html());
+								if (action == '6') {
+									$contextRow.detach(); //removing the row on terminate.
+								} else {
+									$.get('/instances/dockercontainerdetails/' + instanceid, function(data) {
+										var dockerContainerData = JSON.parse(data);
+										//alert(JSON.stringify(dockerContainerData));
+										//Updating More Info dialog
+										// $('#modalContainermoreInfo').find('td[containerdata]').each(function(){
+										//     console.log("dockerContainerData." +  $(this).attr('containerdata'));
+										//      if($(this).attr('containerdata') != '')
+										//         $(this).html(eval("dockerContainerData." +  $(this).attr('containerdata')));
+										// });
+										// // updating row.
+										// $contextRow.find('dockercontainerstatus').html(dockerContainerData);
+										$.each(dockerContainerData, function(i, item) {
+											//alert(item.Id.substring(0,12) + ':' + containerid);
+											if (item.Id.substring(0, 12) == containerid) {
+												//   alert('found constructing ' + item.toString())
+												var $updatedContainerRow = createdockercontainerrow(item, instanceid);
+												//Do not bind any action buttons
+												$('#trfordockercontainer_' + item.Id).replaceWith($updatedContainerRow);
+												//$dockercontainertable.append($updatedContainerRow);
+												return;
+												$updatedContainerRow.find('td').each(function(i, k) {
+													//alert(i + ':' + k);
+													if (i > 0 && i < 7) {
+														$contextRow.find('td:eq(' + i + ')').html('').append($(k).html());
+													}
+
+												});
+												$thistr.closest('.container1').find('.flipper').toggleClass('hidden');
+												//Managing the pause and unpause buttons
+												// if (item.Status.indexOf('Exited') >= 0) {
+												// 	//  alert('in');
+												// 	$thistr.closest('.container1').find('.pause').addClass('hidden');
+												// 	$thistr.closest('.container1').find('.unpause').addClass('hidden');
+												// }
+
+											}
+										});
+
+
+
+										$thistr.closest('tr').fadeTo('slow', 1);
+										$progressicon.addClass('hidden');
+									});
+								}
+
+							} else
+								$progressicon.addClass('hidden');
+
+						});
+					}
+					return (false);
+				}
+
+
+
+				if (action == '6') {
+					bootbox.confirm("Are you sure you would like to terminate container : " + containerid + "?.<br/>This action could have an impact on other containers.", function(result) {
+						if (!result) {
+							return;
+						}
+						performAction();
+					});
+				} else if (action == '2') {
+					bootbox.confirm("Are you sure you would like to stop container : " + containerid + "?.<br/>This action could have an impact on other containers.", function(result) {
+						if (!result) {
+							return;
+						}
+						performAction();
+					});
+				} else {
+					performAction();
+				}
+
+
+			});
 
 			return ($docctr);
 
@@ -6325,32 +6640,32 @@ function devCall() {
 				$('#search').on('click', this.updateUI);
 				/*$('.custom-left').click(function() {
 
-        //previous list
-        var originalList = $('#divinstancescardview');
-        var activeList = originalList.find('.active'),
-            prevList = activeList.prev();
-        if (prevList.length == 1) {
-            activeList.removeClass('active');
-            prevList.addClass('active');
-        } else {
-            activeList.removeClass('active');
-            originalList.find('.item:last').addClass('active');
-        }
-    });
+				 //previous list
+				 var originalList = $('#divinstancescardview');
+				 var activeList = originalList.find('.active'),
+				 prevList = activeList.prev();
+				 if (prevList.length == 1) {
+				 activeList.removeClass('active');
+				 prevList.addClass('active');
+				 } else {
+				 activeList.removeClass('active');
+				 originalList.find('.item:last').addClass('active');
+				 }
+				 });
 
-    $('.custom-right').click(function() {
-        var originalList = $('#divinstancescardview');
-        var activeList = originalList.find('.active'),
-            nextList = activeList.next();
-        if (nextList.length == 1) {
-            nextList.addClass('active');
-            activeList.removeClass('active');
-        } else {
-            activeList.removeClass('active');
-            originalList.find('.item:first').addClass('active');
-        }
+				 $('.custom-right').click(function() {
+				 var originalList = $('#divinstancescardview');
+				 var activeList = originalList.find('.active'),
+				 nextList = activeList.next();
+				 if (nextList.length == 1) {
+				 nextList.addClass('active');
+				 activeList.removeClass('active');
+				 } else {
+				 activeList.removeClass('active');
+				 originalList.find('.item:first').addClass('active');
+				 }
 
-    });*/
+				 });*/
 			},
 			initData: function(data) {
 				x = data;

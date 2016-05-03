@@ -157,6 +157,17 @@ logger.debug('Setting up application routes');
 var routes = require('./routes/routes.js');
 routes.setRoutes(app);
 
+app.use(function(req, res, next) {
+	if (req.accepts('json')) {
+		var errorResponse = {
+			'status': 404,
+			'message': 'Not found'
+		};
+		res.send(errorResponse);
+		return;
+	}
+});
+
 var socketIORoutes = require('./routes/socket.io/routes.js');
 socketIORoutes.setRoutes(io);
 io.set('log level', 1);

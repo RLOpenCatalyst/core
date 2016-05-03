@@ -37,7 +37,6 @@ module.exports = function(opts) {
     function connect(connectionParamsObj, callback) {
         var con = new sshConnection();
         connectionParamsObj.readyTimeout = 40000; //timeout increased to support azure based vms
-
         try {
             con.connect(connectionParamsObj);
         } catch (connectErr) {

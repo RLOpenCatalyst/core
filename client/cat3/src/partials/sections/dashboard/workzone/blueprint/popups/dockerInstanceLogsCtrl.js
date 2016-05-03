@@ -9,6 +9,7 @@
 	"use strict";
 	 angular.module('workzone.blueprint')
 	.controller('dockerInstanceLogsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval', 'instanceLogs', function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval, instanceLogs) {
+		$scope.isInstanceLogsLoading = true;
 		angular.extend($scope, {
 			logList: []				
 		});
@@ -22,6 +23,7 @@
 		},function(notifyMessage) {
 			if(notifyMessage.fullLogs) {
 				$scope.logList = notifyMessage.logs;
+				$scope.isInstanceLogsLoading = false;
 			} else {
 				$scope.logList.push.apply($scope.logList, notifyMessage.logs);
 			}

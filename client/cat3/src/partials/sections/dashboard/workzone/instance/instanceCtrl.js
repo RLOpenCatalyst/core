@@ -64,6 +64,7 @@
 	   	$scope.cardsPerPage = instanceUIGridDefaults.pagination.pageSize;
 	   	$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
 	   	$scope.totalCards = 0;
+	   	$scope.cardsAvailable = false;
 
 		$scope.tabData = [];
 		/*grid method to define the columns that need to be present*/
@@ -72,7 +73,8 @@
 			data:'tabData',
 				columnDefs : [
 					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'+
-					'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>', cellTooltip: true},
+					'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>'+
+					'<img class="docker-image dockerenabledinstacne" alt="Docker" src="images/global/docker.png" ng-show="row.entity.docker"/>', cellTooltip: true},
 					{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
 					'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
 					'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+
@@ -129,6 +131,10 @@
 					$timeout(function() {
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
 						$scope.tabData = $scope.instanceList = result.data.instances;
+						console.log($scope.totalCards);
+					   	if($scope.totalCards > $scope.paginationParams.pageSize) {
+					   		$scope.cardsAvailable = true;
+					   	}
 						$scope.isInstancePageLoading = false;
 						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pageSize);
 					}, 100);

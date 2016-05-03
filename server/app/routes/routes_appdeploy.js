@@ -21,6 +21,9 @@ var async = require('async');
 var	appDeployService = require('_pr/services/appDeployService');
 var appDeployValidator = require('_pr/validators/appDeployValidator');
 var validate = require('express-validation');
+var Task = require('../model/classes/tasks/tasks.js');
+var async = require('async');
+
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/app/deploy/*', sessionVerificationFunc);
@@ -38,7 +41,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
-
 
     // Create AppDeploy
     app.post('/app/deploy', function (req, res) {
@@ -181,9 +183,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 
-    // Get AppDeploy w.r.t. projectId
-    app.get('/app/deploy/project/:projectId/list', function (req, res) {
 
+
+    // Get AppDeploy w.r.t. projectId
+    app.get('/app/deploy/project/:projectId/list', function(req, res) {
         logger.debug("Filtered by projectId called..");
         masterUtil.getAppDeployListForProject(req.params.projectId, function (err, appDeploy) {
             if (err) {
@@ -219,7 +222,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 else
                     return res.status(200).send(results);
             });
-    }
+    };
+
+    app.get('/app/deploy/project/:projectId/pipeLineViewList', validate(appDeployValidator.get), getPipeLineViewList);
+    function getPipeLineViewList(req, res, next) {
+        async.waterfall(
+            [
+                function (next) {
+                    apiUtil.paginationRequest(req.query, 'appDeploy', next);
+                },
+                function (paginationReq, next) {
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['id'] = 'appDeploy';
+                    appDeployService.getPipeLineViewListByProjectId(paginationReq, next);
+                }
+            ], function (err, results) {
+                if (err)
+                    return res.status(500).send({code: 500, errMessage: err});
+                else
+                    return res.status(200).send(results);
+            });
+    };
 
     app.get('/app/deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
     function getAppDeployHistoryForPipeLineList(req, res, next) {
@@ -321,6 +344,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         );
     }
+
 
     // Get  appData by Project and Env
     app.get('/app/deploy/project/:projectId/env/:envId/application/:appName', function (req, res) {
