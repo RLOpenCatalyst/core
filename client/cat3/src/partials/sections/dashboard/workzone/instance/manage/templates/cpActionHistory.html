@@ -5,7 +5,8 @@
 </div> -->
 
 <div id="cpActionHistoryPage" ng-controller="cpActionHistoryCtrl">
-	<div class="action-history-container">
+	<loading size="large" name="isActionHistoryPageLoading" type="block"></loading>
+	<div class="action-history-container" ng-show="!isActionHistoryPageLoading">
 		<!-- <loading size="large" name="iscpActionHistoryPageLoading" type="block"></loading> ng-show="!iscpActionHistoryPageLoading"  -->
 		<div id="grid3" ng-if="tabData.length >0"  ui-grid="cpActionHistoryGridOptions" ui-grid-pagination class="grid"></div>
 	</div>

@@ -130,12 +130,12 @@
             };
             $rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
                 if(tabName === 'Services'){
-                    //$scope.isOrchestrationPageLoading = true;
+                    $scope.isServicePageLoading = true;
                     var tableData = $scope.tabData;
                     $scope.tabData = [];
                     $timeout(function(){
                         $scope.tabData = tableData;
-                        //$scope.isOrchestrationPageLoading = false;
+                        $scope.isServicePageLoading = false;
                     }, 100);
                 }
             });
@@ -216,7 +216,9 @@
             angular.extend($scope, {
                 cpAddNewServivcesListView: function() {
                     // service to get the list of action history
+                    $scope.isAddnewServicePageLoading = true;
                     if (services) {
+                        $scope.isAddnewServicePageLoading = false;
                         $scope.tabAddServicesData = helper.getUnMatchedServices(services, $scope.serviceIds);
                     }else {
                         workzoneServices.getChefServerDetails(cpInstance.chef.serverId).then(function (allServices) {
@@ -228,6 +230,7 @@
                                         $scope.tabAddServicesData.push(servicesCmd[k]);
                                     }
                                 }
+                                $scope.isAddnewServicePageLoading = false;
                                 $scope.tabAddServicesData = instanceFactories.getAllServiceActionItems($scope.tabAddServicesData);
                                 cacheServices.addToCache(cacheKey, allServices.data);
                             }, function () {

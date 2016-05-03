@@ -136,12 +136,12 @@
 			$rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
 				if(tabName === 'Action History'){
 					//console.log(tabName);
-					//$scope.isOrchestrationPageLoading = true;
+					$scope.isActionHistoryPageLoading = true;
 					var tableData = $scope.tabData;
 					$scope.tabData = [];
 					$timeout(function(){
 						$scope.tabData = tableData;
-						//$scope.isOrchestrationPageLoading = false;
+						$scope.isActionHistoryPageLoading = false;
 					}, 100);
 				}
 			});
