@@ -101,7 +101,7 @@
 										</span>
 									  </li>
 									<li ng-click="instStartStopFlag || operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
-									  && inst.instanceState !== 'running' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
+									  && inst.instanceState === 'stopped' && inst.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
 										<span>
 											<i class="fa fa-pause dropdown-icon"></i>
 											Start Instance
@@ -160,7 +160,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="cardsAvailable">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pagination-position" ng-show="cardsAvailable">
 				<pagination total-items="totalCards" items-per-page="cardsPerPage" ng-model="currentCardPage" max-size="10" num-page="numofCardPages" class="pagination-sm" boundary-links="true" ng-change="cardPaginationChange()" class="paginationStyle"></pagination>
 			</div>
 		</section>

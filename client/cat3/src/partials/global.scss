@@ -48,20 +48,19 @@ $imagePath : "../../../../../../cat3/images";
 }
 
 /*CSS for header,breadcrumb and tree starts*/
-#breadcrumb-block {
-	min-height: 40px; 
+#breadcrumb-block { 
 	@include theme-bg-color;
 	color: white;
 }
 
 #section-name {
-	padding: 10px 10px 10px 40px;
+	padding: 6px 10px 6px 40px;
 	font-size: 14px; 
 	font-weight: bold;
 }
 
 #breadcrumb-nav {
-	padding-top: 10px;
+	padding-top: 7px;
 	padding-left: 60px;
 }
 
@@ -98,6 +97,10 @@ $imagePath : "../../../../../../cat3/images";
 		    width: 13%;
 		}
 	}
+
+	.logsArea {
+    	height: 180px;
+    }
 }
 
 @media (min-width : 321px) and (max-width: 480px) {
@@ -112,6 +115,10 @@ $imagePath : "../../../../../../cat3/images";
 			margin: 20% 6% 0 0;
 		}
 	}
+
+	.logsArea {
+    	height: 30px;
+    }
 }
 
 @media (min-width : 0px) and (max-width: 480px) {
@@ -140,7 +147,15 @@ $imagePath : "../../../../../../cat3/images";
 }
 
 @media (min-width : 768px) and (max-width: 991px) {
-	
+	.logsArea {
+    	height: 710px;
+    }
+}
+
+@media (min-width: 991px) {
+	.logsArea {
+    	height: 413px;
+    }
 }
 
 /*CSS for header,breadcrumb and tree ends*/
@@ -411,7 +426,8 @@ option.puppet {
  	background: #fcfcfc;
  	border-bottom-width: 1px;
  	@include theme-border-color;
- 	height: 40px;
+ 	height: 30px;
+ 	padding: 5px 15px;
  }
 
  .panel-title {
@@ -450,7 +466,6 @@ option.puppet {
 /* global styles for logs display across workzone*/
 
 .logsArea {
-    height: 413px;
     overflow-y: auto;
     overflow-x: hidden;
     word-break: break-all;

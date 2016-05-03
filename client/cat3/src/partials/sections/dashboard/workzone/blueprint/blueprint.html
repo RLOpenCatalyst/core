@@ -122,11 +122,16 @@
                                         <li title="{{launcher.name}}" class="card-text-overflow">
                                             <u><b>{{launcher.name}}</b></u>
                                         </li>
-                                        <li title="Docker Repo Name" class="docker-image-text">
-                                            <i class="fa fa-check-square docker-image-name"></i> {{launcher.dockerImageName}}
-                                        </li>
+                                        <div class="docker-repo-list">
+                                            <ul class="docker-repo" ng-repeat="docker in launcher.blueprintConfig.dockerCompose">
+                                                <li class="docker-image-text">
+                                                    <i class="fa fa-check-square docker-image-name"></i> 
+                                                    {{docker.dockercontainerpathstitle}}
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </ul>
-                                    <div class="blueprint-buttons">
+                                    <div class="blueprint-buttons-docker">
                                         <div class="btnicons">
                                             <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
                                                 <i class="fa fa-location-arrow white"></i>

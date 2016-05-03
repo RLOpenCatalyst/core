@@ -302,11 +302,16 @@ module.exports.setRoutes = function(app) {
     });
 
     app.get('/auth/getpermissionset', function(req, res) {
-        logger.debug('hit permissionset ' + req.session.user.cn);
-        if (req.session.user.password)
+        logger.debug('hit permissionset ');
+        if (req && req.session && req.session.user && req.session.user.password)
             delete req.session.user.password;
-        logger.debug("Return User from session:>>>> ", JSON.stringify(req.session.user));
-        res.send(JSON.stringify(req.session.user));
+        if (req && req.session && req.session.user) {
+            logger.debug("Return User from session:>>>> ", JSON.stringify(req.session.user));
+            res.send(JSON.stringify(req.session.user));
+            return;
+        }else{
+            res.send({});
+        }
     });
 
     var verifySession = function(req, res, next) {
