@@ -10,6 +10,7 @@
     angular.module('workzone.instance')
         .controller('cpServicesCtrl', ['$scope', '$rootScope', 'workzoneServices', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'instanceFactories', function ($scope, $rootScope, workzoneServices, $modal, $timeout, uiGridOptionsClient, uiGridConstants, instanceFactories) {
             var cpInstance = $scope.$parent.cpInstance;
+            console.log("cpInstance",cpInstance);
             var helper = {
                 doServiceAction: function (inst, service, actionType) {
                     workzoneServices.getDoServiceActionOnInstance(inst._id, service.rowid, actionType).then(function () {
@@ -19,12 +20,14 @@
                     });
                 },
                 doServiceDelete: function (inst, service, idx) {
+                    console.log('delete clcked outside service');
                     $scope.inactiveGrid = true;
                     workzoneServices.deleteServiceOnInstance(inst._id, service.rowid).then(
                         function () {
                             $scope.inactiveGrid = false;
                             cpInstance.serviceIds.splice(idx, 1);
-                            $scope.tabData.splice(idx, 1);    
+                            $scope.tabData.splice(idx, 1);  
+                            console.log('delete clcked outside service');  
                         }
                     );
                 },
@@ -112,7 +115,8 @@
                         dataObj: function () {
                             return {
                                 serviceIds: cpInstance.serviceIds,
-                                inspectInstance: cpInstance
+                                inspectInstance: cpInstance,
+                                serviceObject:$scope.tabData
                             };
                         }
                     }
@@ -142,11 +146,12 @@
 
             $scope.init();
         }]).controller('addNewServiceCtrl', ['$scope', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', 'dataObj', 'cacheServices', 'instanceFactories', function ($scope, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, dataObj, cacheServices, instanceFactories) {
-            console.log("Data Object::",dataObj.serviceIds);
+        
             $scope.serviceIds = dataObj.serviceIds;
             var cpInstance = dataObj.inspectInstance;
             var cacheKey = 'chefServerServices_' + cpInstance.chef.serverId;
             var services = cacheServices.getFromCache(cacheKey);
+            var tabData =dataObj.serviceObject;
 
             /*if (services) {
                 $scope.serviceInfo = services;
@@ -219,10 +224,11 @@
                     $scope.isAddnewServicePageLoading = true;
                     if (services) {
                         $scope.isAddnewServicePageLoading = false;
-                        $scope.tabAddServicesData = helper.getUnMatchedServices(services, $scope.serviceIds);
+                        $scope.tabAddServicesData = filterService(services, tabData);
+                        //$scope.tabAddServicesData = helper.getUnMatchedServices(services, $scope.serviceIds);
                     }else {
                         workzoneServices.getChefServerDetails(cpInstance.chef.serverId).then(function (allServices) {
-                            $scope.tabAddServicesData = helper.getUnMatchedServices(allServices.data, $scope.serviceIds);
+                            $scope.tabAddServicesData = filterService(allServices.data, tabData);
                             workzoneServices.getServiceCommand().then(function (response) {
                                 var servicesCmd = response.data;
                                 for (var k = 0; k < servicesCmd.length; k++) {
@@ -232,6 +238,7 @@
                                 }
                                 $scope.isAddnewServicePageLoading = false;
                                 $scope.tabAddServicesData = instanceFactories.getAllServiceActionItems($scope.tabAddServicesData);
+                                //cacheServices.addToCache(cacheKey, allServices.data);
                                 cacheServices.addToCache(cacheKey, allServices.data);
                             }, function () {
                                 alert('An error occurred while getting service commands');
@@ -247,6 +254,20 @@
                 $scope.initAddServicesGrids();
                 $scope.cpAddNewServivcesListView();
             };
+
+              function filterService(allServ,preseServ){
+                var newData=[];
+                var PreValArry=[];
+                angular.forEach(preseServ,function(PreVal){
+                       PreValArry.push(PreVal.rowid);
+                });
+                angular.forEach(allServ,function(val){
+                    if(PreValArry.indexOf(val.rowid) == -1){
+                        newData.push(val);
+                    }
+                });
+                return newData;
+            }
 
 
 
