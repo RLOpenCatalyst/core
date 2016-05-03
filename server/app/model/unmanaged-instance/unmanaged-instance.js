@@ -29,6 +29,8 @@ var UnmanagedInstanceSchema = new Schema({
 	os: String,
 	state: String,
 	tags: Schema.Types.Mixed,
+	usage: Schema.Types.Mixed,
+	cost: Schema.Types.Mixed
 });
 
 
@@ -69,6 +71,18 @@ UnmanagedInstanceSchema.statics.updateInstance = function updateInstance(instanc
 	});
 };
 //End By Durgesh
+
+UnmanagedInstanceSchema.statics.getByOrgIds = function getByOrgIds(orgIds, callback) {
+	this.find({orgId: {$in: orgIds}},
+		function(err, instances) {
+			if (err) {
+				return callback(err);
+			} else {
+				return callback(null, instances);
+			}
+		}
+	);
+};
 
 UnmanagedInstanceSchema.statics.getByOrgProviderId = function(opts, callback) {
 
@@ -152,14 +166,6 @@ UnmanagedInstanceSchema.statics.getInstanceTagByProviderId = function(providerId
 	}).limit(jsonData.record_Limit).skip(jsonData.record_Skip).sort({state:1});
 };
 
-
-
-
-
-
-
-
-
 UnmanagedInstanceSchema.statics.getByIds = function(providerIds, callback) {
 	if (!(providerIds && providerIds.length)) {
 		process.nextTick(function() {
@@ -182,10 +188,24 @@ UnmanagedInstanceSchema.statics.getByIds = function(providerIds, callback) {
 	});
 };
 
-
+UnmanagedInstanceSchema.statics.updateUsage = function updateUsage(instanceId, usage, callBack) {
+	this.update({
+		_id: new ObjectId(instanceId)
+	}, {
+		$set: {usage: usage}
+	}, function(err, data) {
+		if (err) {
+			logger.error("Failed to update Unmanaged Instance data", err);
+			if (typeof callBack == 'function') {
+				callBack(err, null);
+			}
+			return;
+		}
+		if (typeof callBack == 'function') {
+			callBack(null, data);
+		}
+	});
+};
 
 var UnmanagedInstance = mongoose.model('unmanagedinstances', UnmanagedInstanceSchema);
-
-
-
 module.exports = UnmanagedInstance;

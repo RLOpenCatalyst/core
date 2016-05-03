@@ -230,7 +230,7 @@ function sync() {
 																		}
 																	}
 
-																	if (!foundInUnManaged) { //making entry in unmanaged database
+																	if (!found && !foundInUnManaged) { //making entry in unmanaged database
 																		var os = 'linux';
 
 																		if (awsInstances[m].State.Name !== 'terminated' && assignmentFound) {

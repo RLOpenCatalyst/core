@@ -14,13 +14,16 @@
  limitations under the License.
  */
 
-var unassignedInstancesModel = require('_pr/model/unassigned-instances/');
+var unassignedInstancesModel = require('_pr/model/unassigned-instances');
+var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
+var instancesModel = require('_pr/model/classes/instance/instance');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
+var async = require('async');
 
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
@@ -32,6 +35,8 @@ instanceService.createUnassignedInstanceObject = createUnassignedInstanceObject;
 instanceService.createUnassignedInstancesList = createUnassignedInstancesList;
 instanceService.bulkUpdateInstanceProviderTags = bulkUpdateInstanceProviderTags;
 instanceService.bulkUpdateUnassignedInstanceTags = bulkUpdateUnassignedInstanceTags;
+instanceService.getTrackedInstancesForProvider = getTrackedInstancesForProvider;
+instanceService.getTrackedInstancesForOrgs = getTrackedInstancesForOrgs;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -76,11 +81,11 @@ function bulkUpdateInstanceProviderTags(provider, instances, callback) {
         err.status = 400;
         return callback(err);
     } else {
-        // @TODO nested loop to be avoided
         var unassignedInstances = [];
         for(var i = 0; i < instances.length; i++) {
             (function (j) {
                 // @TODO replace with single query
+                // @TODO Improve error handling
                 unassignedInstancesModel.getById(instances[j].id, function(err, unassignedInstance) {
                     if(err) {
                         var err = new Error('Internal server error');
@@ -117,8 +122,6 @@ function bulkUpdateInstanceProviderTags(provider, instances, callback) {
     }
 }
 
-// @TODO Call to AWS to be handled asynchronously
-// @TODO Remove synchronous calls
 function bulkUpdateAWSInstanceTags(provider, instances, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -150,6 +153,7 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
             var ec2 = new EC2(awsSettings);
             logger.debug('Updating tags for instance ', instances[j]._id);
 
+            // @TODO Improve error handling
             ec2.createTags(instances[j].platformId, instances[j].tags,
                 function (err, data) {
                     if (err) {
@@ -157,13 +161,10 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
                         var err = new Error('Internal server error');
                         err.status = 500;
                         return callback(err);
+                    } else if (j == instances.length - 1) {
+                        return callback(null, instances);
                     }
                 });
-
-            if(j == instances.length - 1) {
-                return callback(null, instances);
-            }
-
         })(i);
     }
 }
@@ -187,14 +188,11 @@ function bulkUpdateUnassignedInstanceTags(instances, callback) {
                         var err = new Error('Internal server error');
                         err.status = 500;
                         return callback(err);
+                    } else if(j == instances.length - 1) {
+                        return callback(null, instances);
                     }
                 }
             );
-
-            if(i == instances.length - 1) {
-                return callback(null, instances);
-            }
-
         })(i);
     }
 }
@@ -319,6 +317,51 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
                 return callback(err);
             } else if(instanceUpdated) {
                 return callback(null, instance);
+            }
+        }
+    );
+}
+
+function getTrackedInstancesForProvider(provider, next) {
+    async.parallel({
+            managed: function (callback) {
+                instancesModel.getInstanceByProviderId(
+                    {providerId: provider._id}, {}, callback
+                );
+            },
+            unmanaged: function(callback) {
+                unManagedInstancesModel.getByProviderId(
+                    {providerId: provider._id}, {}, callback
+                );
+            }
+        },
+        function(err, results) {
+            if(err) {
+                next(err)
+            } else {
+                /*var instances = results.reduce(function(a, b) {
+                 return a.concat(b);
+                 }, []);*/
+                next(null, provider, results);
+            }
+        }
+    );
+}
+
+function getTrackedInstancesForOrgs(orgIds, next) {
+    async.parallel({
+            managed: function (callback) {
+                instancesModel.getByOrgIds(orgIds, callback);
+            },
+            unmanaged: function(callback) {
+                unManagedInstancesModel.getByOrgIds(orgIds, callback);
+            }
+        },
+        function(err, results) {
+            if(err) {
+                next(err)
+            } else {
+                next(null, results);
             }
         }
     );
