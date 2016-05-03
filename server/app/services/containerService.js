@@ -20,7 +20,6 @@ var containerDao = require('_pr/model/container');
 var userDao = require('_pr/model/users.js');
 var Docker = require('_pr/model/docker.js');
 var async = require('async');
-var conditional = require('async-if-else')({});
 
 const errorType = 'containerService';
 
@@ -41,12 +40,18 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             userDao.haspermission(jsonData.user.cn, category, permissionTo, null, jsonData.permissionSet,next);
         },
         function (permission,next){
-            conditional.if(permission,
-                containerDao.getContainerByIdInstanceIP(jsonData.containerId,jsonData.instanceId,next)).else(callback(null,permission));
+            if(permission){
+                 containerDao.getContainerByIdInstanceIP(jsonData.containerId,jsonData.instanceId,next);
+            }else{
+                 callBackReturn(permission,next)
+            }
         },
         function (aContainer,next){
-            status =aContainer[0].Status;
-            conditional.if(aContainer[0].Status,containerDao.updateContainer(jsonData.containerId,jsonData.status,next)).else(callback(null,[]));
+            if(aContainer.length > 0){
+                 containerDao.getContainerByIdInstanceIP(jsonData.containerId,jsonData.instanceId,next);
+            }else{
+                 callBackReturn(aContainer,next);
+            }
         },
         function(updateContainer,next){
             _docker.runDockerCommands(cmd, jsonData.instanceId,next,function (stdOutData) {
@@ -76,7 +81,11 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         else
             callback(null,results);
     });
-}
+};
+
+function callBackReturn(data,callback){
+    callback(null,data);
+};
 
 
 

@@ -635,9 +635,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(500);
                     return;
             }
-            res.sendStatus(200).send(containerResponse);
+            logger.debug("sendig respose");
+            res.status(200).send(containerResponse);
             
-        })
+        });
     });
     app.get('/instances/checkfordocker/:instanceid', function(req, res) {
         logger.debug("Enter get() for /instances/checkfordocker/%s", req.params.instanceid);

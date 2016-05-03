@@ -222,7 +222,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 else
                     return res.status(200).send(results);
             });
-    }
+    };
+
+    app.get('/app/deploy/project/:projectId/pipeLineViewList', validate(appDeployValidator.get), getPipeLineViewList);
+    function getPipeLineViewList(req, res, next) {
+        async.waterfall(
+            [
+                function (next) {
+                    apiUtil.paginationRequest(req.query, 'appDeploy', next);
+                },
+                function (paginationReq, next) {
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['id'] = 'appDeploy';
+                    appDeployService.getPipeLineViewListByProjectId(paginationReq, next);
+                }
+            ], function (err, results) {
+                if (err)
+                    return res.status(500).send({code: 500, errMessage: err});
+                else
+                    return res.status(200).send(results);
+            });
+    };
 
     app.get('/app/deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
     function getAppDeployHistoryForPipeLineList(req, res, next) {
