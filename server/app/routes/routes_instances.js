@@ -47,7 +47,7 @@ var SCPClient = require('../lib/utils/scp');
 var shellEscape = require('shell-escape');
 var Puppet = require('_pr/lib/puppet.js');
 var masterUtil = require('_pr/lib/utils/masterUtil');
-var containerService =require('_pr/services/containerService');
+var containerService = require('_pr/services/containerService');
 var fs = require('fs');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -504,7 +504,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     retCode: retCode
                 });
             }
-
         }, function(stdOutData) {
             stdOut += stdOutData;
 
@@ -586,8 +585,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
     app.get('/instances/dockercontainerdetails/:instanceid/:containerid/:action', function(req, res) {
-        var actionId=parseInt(req.params.action);
-        var action,action1;
+        var actionId = parseInt(req.params.action);
+        var action, action1;
         switch (actionId) {
             case 1:
                 action = 'start';
@@ -619,24 +618,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 break;
 
         }
-        var jsonData={
-            instanceId:req.params.instanceid,
-            containerId:req.params.containerid,
-            action:action,
-            action1:action1,
-            user:req.session.user,
-            permissionSet:req.session.user.permissionset,
-            status:action+' in Progress',
-            processStatus:action+' Successfully'
+        var jsonData = {
+            instanceId: req.params.instanceid,
+            containerId: req.params.containerid,
+            action: action,
+            action1: action1,
+            user: req.session.user,
+            permissionSet: req.session.user.permissionset,
+            status: action + ' in Progress',
+            processStatus: action + ' Successfully'
         };
-        containerService.executeActionOnContainer(jsonData,function(err,containerResponse){
-            if(err){
-                    logger.error("Failed to Execute Docker command: ", err);
-                    res.send(500);
-                    return;
+        containerService.executeActionOnContainer(jsonData, function(err, containerResponse) {
+            if (err) {
+                logger.error("Failed to Execute Docker command: ", err);
+                res.send(500);
+                return;
             }
             res.status(200).send(containerResponse);
-            
+
         });
     });
     app.get('/instances/checkfordocker/:instanceid', function(req, res) {
@@ -3150,9 +3149,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
 
-
     app.get('/instances/instanceIds/list', function(req, res) {
-        var instanceIds=(req.query.ids).split(",");
+        var instanceIds = (req.query.ids).split(",");
         instancesDao.getInstancesByIDs(instanceIds, function(err, instances) {
             if (err) {
                 logger.error("Failed to fetch Instance  via Ids: ", err);
@@ -3165,4 +3163,3 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 };
-

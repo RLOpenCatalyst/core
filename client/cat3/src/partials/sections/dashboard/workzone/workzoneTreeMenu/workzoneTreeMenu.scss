@@ -12,6 +12,7 @@
 	z-index: 1;
 	position: fixed;
 	width: 100%;
+	z-index: 3;
 
 	#navigPage-inner {
 		background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
@@ -69,10 +70,10 @@
 
 .tree-toggle {
 	position: absolute;
-		top: -42px;
-		z-index: 100;
-		color: #fff;
-		font-size: 1.5em;
-		padding: 11px;
+	top: -35px;
+	z-index: 100;
+	color: #fff;
+	font-size: 1.2em;
+	padding: 11px;
 }
 

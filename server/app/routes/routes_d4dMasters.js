@@ -3481,6 +3481,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     });
+
     app.get('/d4dMasters/organization/:orgId/repositoryServer/list', function(req, res) {
         var jsonData= {
             orgId: req.params.orgId,
@@ -3492,15 +3493,57 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     masterUtil.getServerDetails(jsonData, callback)
                 }
             },
-            function(err, results){
-                if(err)
+            function(err, results) {
+                if (err)
                     res.status(500).send("Internal Server Error");
-                else if(!results)
-                    res.status(400).send("Data is not available for Organization "+req.params.orgId);
+                else if (!results)
+                    res.status(400).send("Data is not available for Organization " + req.params.orgId);
                 else
                     res.status(200).send(results);
             }
         );
+    });
+
+    // List image tags w.r.t. docker repo and image
+    app.get('/d4dMasters/docker/:dockerId/repository/:repository/image/:image/tags', function(req, res) {
+        masterUtil.getDockerById(req.params.dockerId, function(err, docker) {
+            if (err) {
+                logger.debug("Failed to fetch  Docker", err);
+            }
+            logger.debug("docker: ",JSON.stringify(docker));
+            if (docker && docker.length) {
+                var options_auth = {
+                    user: docker[0].dockeruserid,
+                    password: docker[0].dockerpassword
+                };
+                client = new Client(options_auth);
+                var dockerUrl = "https://registry.hub.docker.com/v1/repositories/" + req.params.repository + "/" + req.params.image + "/tags";
+                client.registerMethod("jsonMethod", dockerUrl, "GET");
+                var reqSubmit = client.methods.jsonMethod(function(data, response) {
+                    if (util.isArray(data)) {
+                        res.send(data);
+                        return;
+                    } else {
+                        res.status(404).send("Docker Image not found.");
+                        return;
+                    }
+                });
+            } else {
+                var options_auth = {};
+                client = new Client(options_auth);
+                var dockerUrl = "https://registry.hub.docker.com/v1/repositories/" + req.params.repository + "/" + req.params.image + "/tags";
+                client.registerMethod("jsonMethod", dockerUrl, "GET");
+                var reqSubmit = client.methods.jsonMethod(function(data, response) {
+                    if (util.isArray(data)) {
+                        res.send(data);
+                        return;
+                    } else {
+                        res.status(404).send("Docker Image not found.");
+                        return;
+                    }
+                });
+            }
+        });
     });
 
 }

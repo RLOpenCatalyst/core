@@ -26,26 +26,105 @@ var schemaValidator = require('_pr/model/utils/schema-validator');
 var Schema = mongoose.Schema;
 
 var AppDataSchema = new Schema({
-    projectId: String,
-    envId: String,
-    appName: String,
-    version: String,
-    upgrade: String,
-    nexus:{
-        repoURL: String,
-        nodeIps: [String]
+    projectId: {
+        type: String,
+        required: true,
+        trim: true
     },
-    docker:[{
-        image: String,
-        containerId: String,
-        containerPort: String,
-        hostPort: String,
-        dockerUser: String,
-        dockerPassword: String,
-        dockerEmailId: String,
-        imageTag: String,
-        nodeIp: String
-    }]
+    envName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    appName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    version: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    nexus: {
+        repository: {
+            type: String,
+            trim: true
+        },
+        repoURL: {
+            type: String,
+            trim: true
+        },
+        nodeIds: {
+            type: [String]
+        },
+        artifactId: {
+            type: String,
+            trim: true
+        },
+        groupId: {
+            type: String,
+            trim: true
+        },
+        taskId: {
+            type: String,
+            trim: true
+        }
+    },
+    docker: [{
+        image: {
+            type: String,
+            trim: true
+        },
+        containerName: {
+            type: String,
+            trim: true
+        },
+        containerPort: {
+            type: String,
+            trim: true
+        },
+        hostPort: {
+            type: String,
+            trim: true
+        },
+        dockerUser: {
+            type: String,
+            trim: true
+        },
+        dockerPassword: {
+            type: String,
+            trim: true
+        },
+        dockerEmailId: {
+            type: String,
+            trim: true
+        },
+        imageTag: {
+            type: String,
+            trim: true
+        },
+        nodeIds: {
+            type: [String]
+        },
+        taskId: {
+            type: String,
+            trim: true
+        }
+    }],
+    s3Bucket: {
+        url: {
+            type: String,
+            trim: true
+        },
+        nodeIds: {
+            type: [String]
+        },
+        taskId: {
+            type: String,
+            trim: true
+        }
+    }
 });
 
 
@@ -54,7 +133,7 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
     var that = this;
     this.find({
         projectId: appData.projectId,
-        envId: appData.envId,
+        envName: appData.envName,
         appName: appData.appName,
         version: appData.version
     }, function(err, aData) {
@@ -62,17 +141,17 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
             logger.debug("Error fetching record.", err);
             callback(err, null);
         }
+        
         if (aData.length) {
+            var existData = checkDuplicate(aData[0], appData);
             var setData = {};
-            var keys = Object.keys(appData);
+            var keys = Object.keys(existData);
             for (var i = 0; i < keys.length; i++) {
-                setData[keys[i]] = appData[keys[i]];
+                setData[keys[i]] = existData[keys[i]];
             }
+
             that.update({
-                projectId: appData.projectId,
-                envId: appData.envId,
-                appName: appData.appName,
-                version: appData.version
+                "_id": aData[0].id
             }, {
                 $set: setData
             }, {
@@ -98,11 +177,44 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
     });
 };
 
+var checkDuplicate = function(aData, reqData) {
+    var existDocker = aData.docker;
+    var reqDocker = reqData.docker;
+    if (existDocker && existDocker.length && existDocker[0] != null && reqDocker && reqDocker.length && reqDocker[0] != null) {
+        for (var i = 0; i < existDocker.length; i++) {
+            if (existDocker[i].image === reqDocker[0].image && existDocker[i].imageTag === reqDocker[0].imageTag &&
+                existDocker[i].containerPort === reqDocker[0].containerPort && existDocker[i].hostPort === reqDocker[0].hostPort &&
+                existDocker[i].containerName === reqDocker[0].containerName && existDocker[i].dockerUser === reqDocker[0].dockerUser &&
+                existDocker[i].dockerPassword === reqDocker[0].dockerPassword) {
+                if (existDocker[i].nodeIds.indexOf(reqDocker[0].nodeIds[0]) == -1) {
+                    existDocker[i].nodeIds.push(reqDocker[0].nodeIds[0]);
+                }
+            } else {
+                existDocker[i].push(reqDocker[0].docker[0]);
+            }
+        }
+        reqData.docker = existDocker;
+        return reqData;
+    } else {
+        var existNexus = aData.nexus;
+        var reqNexus = reqData.nexus;
+        if(existNexus && existNexus.repoURL && reqNexus && reqNexus.repoURL){
+            if(existNexus.nodeIds.indexOf(reqNexus.nodeIds[0]) == -1){
+                existNexus.nodeIds.push(reqNexus.nodeIds[0]);
+            }
+        }else{
+            existNexus = reqNexus;
+        }
+        reqData.nexus.nodeIds = existNexus.nodeIds;
+        return reqData;
+    }
+}
+
 // Get AppData by project,env,appName,version.
-AppDataSchema.statics.getAppDataByProjectAndEnv = function(projectId, envId, appName, version, callback) {
+AppDataSchema.statics.getAppDataByProjectAndEnv = function(projectId, envName, appName, version, callback) {
     this.find({
         projectId: projectId,
-        envId: envId,
+        envName: envName,
         appName: appName,
         version: version
     }, function(err, anAppData) {

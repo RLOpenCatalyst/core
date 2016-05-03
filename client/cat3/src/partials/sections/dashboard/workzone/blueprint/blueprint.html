@@ -21,9 +21,9 @@
                                             <i class="fa fa-info-circle"></i>
                                         </span>
                                         <li>
-                                            <img ng-src="{{launcher.iconpath}}" alt="CatalystLogstash" class="cardLogo">
+                                            <img ng-src="{{launcher.iconpath}}" alt="softwareStack" class="cardLogo">
                                         </li>
-                                        <li title="CatalystLogstash" class="card-text-overflow">
+                                        <li title="{{launcher.name}}" class="card-text-overflow">
                                             <u><b>{{launcher.name}}</b></u>
                                         </li>
                                     </ul>
@@ -39,6 +39,12 @@
                                             </span>
                                         </div>
                                     </div>
+                                    <div class="bp-provider">
+                                        <img src="images/providers/azure-card.png" ng-show="launcher.blueprintConfig.cloudProviderData.cloudProviderType === 'azure'" />
+                                        <img src="images/providers/openstack-card.png" ng-show="launcher.providerType=== 'openstack'" />
+                                        <img src="images/providers/vmware-card.png" ng-show="launcher.cloudProviderData.cloudProviderType=== 'vmware'" />
+                                        <img src="images/providers/hpcloud-card.png" ng-show="launcher.cloudProviderType === 'hppubliccloud'" />
+                                    </div>
                                 </div>
                             </div>
                         </accordion-group>
@@ -52,8 +58,8 @@
                                             <i class="fa fa-info-circle"></i>
                                         </span>
                                         <li>
-                                            <img ng-src="{{launcher.iconpath}}" alt="CatalystLogstash" class="cardLogo"></li>
-                                        <li title="CatalystLogstash" class="card-text-overflow">
+                                            <img ng-src="{{launcher.iconpath}}" alt="OSImage" class="cardLogo"></li>
+                                        <li title="{{launcher.name}}" class="card-text-overflow">
                                             <u><b>{{launcher.name}}</b></u>
                                         </li>
                                     </ul>
@@ -82,7 +88,7 @@
                                             <i class="fa fa-info-circle"></i>
                                         </span>
                                         <li>
-                                            <img ng-src="{{launcher.iconpath}}" alt="CatalystLogstash" class="cardLogo"></li>
+                                            <img ng-src="{{launcher.iconpath}}" alt="CFT" class="cardLogo"></li>
                                         <li title="{{launcher.name}}" class="card-text-overflow">
                                             <u><b>{{launcher.name}}</b></u>
                                         </li>
@@ -112,15 +118,20 @@
                                             <i class="fa fa-info-circle"></i>
                                         </span>
                                         <li>
-                                            <img ng-src="{{launcher.iconpath}}" alt="CatalystLogstash" class="cardLogo"></li>
-                                        <li title="CatalystLogstash" class="card-text-overflow">
+                                            <img ng-src="{{launcher.iconpath}}" alt="Docker" class="cardLogo"></li>
+                                        <li title="{{launcher.name}}" class="card-text-overflow">
                                             <u><b>{{launcher.name}}</b></u>
                                         </li>
-                                        <li title="Docker Repo Name" class="docker-image-text">
-                                            <i class="fa fa-check-square docker-image-name"></i> {{launcher.dockerImageName}}
-                                        </li>
+                                        <div class="docker-repo-list">
+                                            <ul class="docker-repo" ng-repeat="docker in launcher.blueprintConfig.dockerCompose">
+                                                <li class="docker-image-text">
+                                                    <i class="fa fa-check-square docker-image-name"></i> 
+                                                    {{docker.dockercontainerpathstitle}}
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </ul>
-                                    <div class="blueprint-buttons">
+                                    <div class="blueprint-buttons-docker">
                                         <div class="btnicons">
                                             <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
                                                 <i class="fa fa-location-arrow white"></i>
@@ -145,7 +156,7 @@
                                             <i class="fa fa-info-circle"></i>
                                         </span>
                                         <li>
-                                            <img ng-src="{{launcher.iconpath}}" alt="{{launcher.iconpath}}" class="cardLogo">
+                                            <img ng-src="{{launcher.iconpath}}" alt="azureARM" class="cardLogo">
                                         </li>
                                         <li title="{{launcher.name}}" class="card-text-overflow">
                                             <u><b>{{launcher.name}}</b></u>
