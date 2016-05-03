@@ -14,8 +14,7 @@
  limitations under the License.
 */
 
-var tags = require('_pr/model/tags/tags.js');
-var unassignedInstances = require('_pr/model/unassigned-instances/');
+var tagsModel = require('_pr/model/tags/tags.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
 
@@ -40,7 +39,7 @@ providerService.checkIfProviderExists = function checkIfProviderExists(providerI
 };
 
 providerService.getTagsByProvider = function getTagsByProvider(provider, callback) {
-    tags.getTagsByProviderId(provider._id, function(err, tags) {
+    tagsModel.getTagsByProviderId(provider._id, function(err, tags) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -56,7 +55,7 @@ providerService.getTagByNameAndProvider = function getTagByNameAndProvider(provi
         'providerId': providerId,
         'name': tagName
     };
-    tags.getTag(params, function(err, tag) {
+    tagsModel.getTag(params, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -69,6 +68,23 @@ providerService.getTagByNameAndProvider = function getTagByNameAndProvider(provi
             return callback(null, tag);
         }
     });
+};
+
+providerService.getTagMappingsByProviderId
+    = function getTagMappingsByProviderId(providerId, callback) {
+    tagsModel.getTagsWithMappingByProviderId(providerId,
+        function(err, tags) {
+            if(err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else if(tags.length == 0) {
+                return callback(null, []);
+            } else {
+                return callback(null, tags);
+            }
+        }
+    );
 };
 
 providerService.getTagByCatalystEntityTypeAndProvider
@@ -84,7 +100,7 @@ providerService.getTagByCatalystEntityTypeAndProvider
         'providerId': providerId,
         'catalystEntityType': catalystEntityType
     };
-    tags.getTag(params, function(err, tag) {
+    tagsModel.getTag(params, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -95,21 +111,6 @@ providerService.getTagByCatalystEntityTypeAndProvider
             return callback(err);
         }else {
             return callback(null, tag);
-        }
-    });
-};
-
-providerService.getUnassignedInstancesByProvider
-    = function getUnassignedInstancesByProvider(provider, callback) {
-    unassignedInstances.getByProviderId(provider._id, function(err, assignedInstances) {
-        if(err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        } else if(!assignedInstances) {
-            return callback(null, []);
-        }else {
-            return callback(null, assignedInstances);
         }
     });
 };
@@ -129,7 +130,7 @@ providerService.updateTag = function updateTag(provider, tagDetails, callback) {
         'description': tagDetails.description
     };
 
-    tags.updateTag(params, fields, function(err, tag) {
+    tagsModel.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -151,50 +152,75 @@ providerService.updateTag = function updateTag(provider, tagDetails, callback) {
 // @TODO CatalystEntityMapping and values update to be implemented
 // @TODO Handle asynchronous updates to guarantee correctness
 // @TODO Update conflict based on tag names should be handled
+// @TODO Nested callbacks to be handled
+// @TODO Remove synchronous loops
 providerService.addMultipleTagMappings = function addMultipleTagMappings(providerId, tagMappings, callback) {
     if(tagMappings.length < 1) {
         return callback(null, []);
     }
     logger.debug(tagMappings.length);
     var tagNames = [];
+
     for(var i = 0; i < tagMappings.length; i++) {
-        if(!('tagName' in tagMappings[i]) || !('catalystEntityType' in tagMappings[i])) {
-            var err = new Error('Malformed Request');
-            err.status = 400;
-            return callback(err);
-        }
-
-        // @TODO entity types to be moved to config
-        if((tagMappings[i].catalystEntityType != 'project')
-            && (tagMappings[i].catalystEntityType != 'environment')) {
-            var err = new Error('Malformed Request');
-            err.status = 400;
-            return callback(err);
-        }
-
-        tagNames.push(tagMappings[i].tagName);
-        var params = {
-            'providerId': providerId,
-            'name': tagMappings[i].tagName
-        };
-        var fields = {
-            'catalystEntityType': tagMappings[i].catalystEntityType
-        };
-        tags.updateTag(params, fields, function(err, tag) {
-            if(err) {
-                var err = new Error('Internal server error');
-                err.status = 500;
-                return callback(err);
-            } else if(!tag) {
-                var err = new Error('Tag not found');
-                err.status = 404;
+        (function(tagMapping) {
+            if (!('tagName' in tagMapping) || !('catalystEntityType' in tagMapping)) {
+                var err = new Error('Malformed Request');
+                err.status = 400;
                 return callback(err);
             }
-        });
+
+            // @TODO entity types to be moved to config
+            if ((tagMapping.catalystEntityType != 'project')
+                && (tagMapping.catalystEntityType != 'environment')) {
+                var err = new Error('Malformed Request');
+                err.status = 400;
+                return callback(err);
+            }
+
+            var deleteParams = {
+                'providerId': providerId,
+                'catalystEntityType': tagMapping.catalystEntityType
+            };
+            var deleteFields = {
+                'catalystEntityType': null,
+                'catalystEntityMapping': []
+            };
+            tagsModel.updateTag(deleteParams, deleteFields, function (err, tag) {
+
+                if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                } else {
+
+                    tagNames.push(tagMapping.tagName);
+                    var params = {
+                        'providerId': providerId,
+                        'name': tagMapping.tagName
+                    };
+                    var fields = {
+                        'catalystEntityType': tagMapping.catalystEntityType
+                    };
+                    tagsModel.updateTag(params, fields, function (err, tag) {
+                        if (err) {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        } else if (!tag) {
+                            var err = new Error('Tag not found');
+                            err.status = 404;
+                            return callback(err);
+                        }
+                    });
+
+                }
+
+            });
+        })(tagMappings[i]);
     }
 
     if(tagNames.length > 0) {
-        return tags.getTagsByNames(tagNames, callback);
+        return tagsModel.getTagsByProviderIdAndNames(providerId, tagNames, callback);
     } else {
         return callback(null, []);
     }
@@ -242,7 +268,7 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
     var fields = {
         'catalystEntityMapping': catalystEntityMappingList
     };
-    tags.updateTag(params, fields, function(err, tag) {
+    tagsModel.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -293,7 +319,7 @@ providerService.updateCatalystEntityMapping
     var fields = {
         'catalystEntityMapping': catalystEntityMappingList
     };
-    tags.updateTag(params, fields, function(err, tag) {
+    tagsModel.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -315,7 +341,7 @@ providerService.deleteTag = function deleteTag(provider, tagName, callback) {
         'name': tagName
     };
 
-    tags.deleteTag(params, function(err, tag) {
+    tagsModel.deleteTag(params, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -341,7 +367,7 @@ providerService.deleteTagMapping = function deleteTagMapping(providerId, catalys
         'catalystEntityType': null
     }
 
-    tags.updateTag(params, fields, function(err, tag) {
+    tagsModel.updateTag(params, fields, function(err, tag) {
         if(err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -386,7 +412,9 @@ providerService.createTagMappingList = function createTagMappingList(tags, callb
         if(tag.catalystEntityType) {
             var tagMapping = {
                 'tagName': tag.name,
-                'tagValues': tag.values ? tag.values : [],
+                'tagValues': tag.values ? tag.values.sort(function (a, b) {
+                                return a.toLowerCase().localeCompare(b.toLowerCase());
+                            }) : [],
                 'catalystEntityType': tag.catalystEntityType ? tag.catalystEntityType : null,
                 'catalystEntityMapping': tag.catalystEntityMapping ? tag.catalystEntityMapping : []
             };
@@ -405,9 +433,11 @@ providerService.createTagMappingList = function createTagMappingList(tags, callb
 providerService.createTagMappingObject = function createTagMappingObject(tag, callback) {
     var tagMappingObject = {
             'tagName': tag.name,
-            'tagValues': tag.values?tag.values:[],
-            'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType:null,
-            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping:[]
+            'tagValues': tag.values ? tag.values.sort(function (a, b) {
+                            return a.toLowerCase().localeCompare(b.toLowerCase());
+                        }) : [],
+            'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType : null,
+            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping : []
     };
     for (var i = 0; i < tagMappingObject.catalystEntityMapping.length; i++) {
         delete tagMappingObject.catalystEntityMapping[i]._id;
@@ -415,31 +445,3 @@ providerService.createTagMappingObject = function createTagMappingObject(tag, ca
 
     return callback(null, tagMappingObject);
 };
-
-providerService.createUnassignedInstancesList = function createUnassignedInstancesList(instances, callback) {
-    var instancesListObject = {};
-    var instancesList = [];
-
-    instances.forEach(function(instance) {
-        var tempInstance = {};
-        var provider = {
-            'id': instance.providerId,
-            'type': instance.providerType,
-            'data': instance.providerData?instance.providerData:null,
-        };
-        tempInstance.id = instance._id;
-        tempInstance.orgId = instance.orgId;
-        tempInstance.provider = provider;
-        tempInstance.platformId = instance.platformId;
-        tempInstance.ip = instance.ip;
-        tempInstance.os = instance.os;
-        tempInstance.state = instance.state;
-        tempInstance.tags = instance.tags;
-
-        instancesList.push(tempInstance);
-    });
-
-    instancesListObject.instances = instancesList;
-
-    return callback(null, instancesListObject);
-}

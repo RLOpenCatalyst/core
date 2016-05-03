@@ -9,7 +9,6 @@ var Cryptography = require('_pr/lib/utils/cryptography.js');
 var cryptoConfig = appConfig.cryptoSettings;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
 
-
 var ApiUtil = function() {
     this.errorResponse=function(code,field){
         var errObj={};
@@ -44,11 +43,11 @@ var ApiUtil = function() {
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
+
             sortBy:Object.keys(sortField)[0],
             sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
         };
-
         callback(null, response);
         return;
     };
@@ -107,7 +106,7 @@ var ApiUtil = function() {
         databaseCall['options']=options;
         callback(null, databaseCall);
         return;
-
+        
 
     };
 
@@ -138,32 +137,32 @@ var ApiUtil = function() {
             'id':key
         };
         var filterBy={};
-        if(data.filterBy){
-            var a=data.filterBy.split(" ");
-            for(var i = 0;i < a.length; i++){
-                var b=a[i].split(":");
+        if(data.filterBy) {
+            var a = data.filterBy.split(" ");
+            for (var i = 0; i < a.length; i++) {
+                var b = a[i].split(":");
                 /*if(b[0]=='region'){
-                    var c=b[1].split(",");
-                    if(c.length > 1)
-                        filterBy['providerData.region'] =  {'$in':c};
-                    else
-                        filterBy['providerData.region']=b[1];
-                }
+                 var c=b[1].split(",");
+                 if(c.length > 1)
+                 filterBy['providerData.region'] =  {'$in':c};
+                 else
+                 filterBy['providerData.region']=b[1];
+                 }
 
-                else {*/
-                    var c=b[1].split(",");
-                    if(c.length > 1)
-                        filterBy[b[0]] =  {'$in':c};
-                    else
-                        filterBy[b[0]] = b[1];
+                 else {*/
+                var c = b[1].split(",");
+                if (c.length > 1)
+                    filterBy[b[0]] = {'$in': c};
+                else
+                    filterBy[b[0]] = b[1];
                 //}
             }
-            request['filterBy']=filterBy;
-           }
-            if (data.instanceType) {
+            request['filterBy'] = filterBy;
+        }
+        if (data.instanceType) {
                 filterBy['blueprintData.templateType'] = data.instanceType;
                 request['filterBy']=filterBy;
-            }
+        }
         if(data.search){
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
             var encrpt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);
