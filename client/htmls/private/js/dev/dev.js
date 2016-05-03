@@ -2492,7 +2492,7 @@ function devCall() {
 					}
 					//To fix template id and template type
 					//alert('in' + data.length);
-					console.log('blueprint data ==>',data);
+					console.log('blueprint data ==>', data);
 					for (var i = 0; i < data.length; i++) {
 						//alert(JSON.stringify(data[i]));
 						//Find a panel-body with the template type class
@@ -2501,7 +2501,7 @@ function devCall() {
 						// alert(data[i].templateType);
 						if ($currRolePanel.length > 0) {
 							var $itemContainer = $('<div></div>').addClass("productdiv4");
-                            
+
 							var $itemBody = $('<div></div>').addClass('productdiv1 cardimage').attr('data-blueprintId', data[i]._id).attr('data-blueprintType', data[i].blueprintType).attr('data-projectId', data[i].projectId).attr('data-envId', data[i].envId).attr('data-chefServerId', data[i].chefServerId).attr('data-templateType', data[i].templateType);
 							var $ul = $('<ul></ul>').addClass('list-unstyled system-prop').css({
 								'text-align': 'center'
@@ -3203,7 +3203,7 @@ function devCall() {
 										// launchparams[2] = execparam;
 										var dockerParamsList = lp[0];
 
-										if((lp[1] !== undefined) && (lp[1] != ''))
+										if ((lp[1] !== undefined) && (lp[1] != ''))
 											dockerParamsList += ' -c ' + lp[1];
 
 										if ((lp[2] !== undefined) && (lp[2] != ''))
@@ -3334,23 +3334,26 @@ function devCall() {
 							if ($selectedItems.length) {
 								var projectId = $($selectedItems.get(0)).attr('data-projectId');
 								var envId = $($selectedItems.get(0)).attr('data-envId');
-
+                 
 								var blueprintId = $($selectedItems.get(0)).find('.blueprintVer').val();
+								
 								if (!blueprintId) {
 									blueprintId = $($selectedItems.get(0)).attr('data-blueprintId');
 								}
+							
 
 								var version = $($selectedItems.get(0)).find('.blueprintVersionDropDown').val();
 
 								var blueprintType = $($selectedItems.get(0)).attr('data-blueprintType');
 								// alert('launching -> ' +'../blueprints/' + blueprintId + '/launch?version=' + version);
 
-								function launchBP(stackName) {
+								function launchBP(blueprintId,stackName) {
 									//   alert(JSON.stringify(stackName));
 									var $launchResultContainer = $('#launchResultContainer');
 									$launchResultContainer.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
 									$launchResultContainer.find('.modal-title').html('Launching Blueprint');
 									$launchResultContainer.modal('show');
+									alert('after ==> '+blueprintId);
 									$.get('/blueprints/' + blueprintId + '/launch?version=' + version + '&envId=' + urlParams['envid'] + '&stackName=' + stackName, function(data) {
 
 
@@ -3516,7 +3519,7 @@ function devCall() {
 												return false;
 											} else {
 
-												launchBP(stackName);
+												launchBP(blueprintId,stackName);
 												$('#cftContainer').modal('hide');
 												e.preventDefault();
 
@@ -3528,11 +3531,11 @@ function devCall() {
 
 								} else if (blueprintType === 'openstack_launch' || blueprintType === 'hppubliccloud_launch') {
 									//alert('attempt launch of openstack');
-									launchBP();
+									launchBP(blueprintId);
 
 
 								} else {
-									launchBP();
+									launchBP(blueprintId);
 								}
 							}
 						}
