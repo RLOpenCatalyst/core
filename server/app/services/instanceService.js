@@ -37,6 +37,7 @@ instanceService.bulkUpdateInstanceProviderTags = bulkUpdateInstanceProviderTags;
 instanceService.bulkUpdateUnassignedInstanceTags = bulkUpdateUnassignedInstanceTags;
 instanceService.getTrackedInstancesForProvider = getTrackedInstancesForProvider;
 instanceService.getTrackedInstancesForOrgs = getTrackedInstancesForOrgs;
+instanceService.createTrackedInstancesResponse = createTrackedInstancesResponse;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -337,6 +338,8 @@ function getTrackedInstancesForProvider(provider, next) {
         },
         function(err, results) {
             if(err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
                 next(err)
             } else {
                 /*var instances = results.reduce(function(a, b) {
@@ -349,19 +352,25 @@ function getTrackedInstancesForProvider(provider, next) {
 }
 
 function getTrackedInstancesForOrgs(orgIds, next) {
-    async.parallel({
-            managed: function (callback) {
+    async.parallel([
+            function (callback) {
                 instancesModel.getByOrgIds(orgIds, callback);
             },
-            unmanaged: function(callback) {
+            function(callback) {
                 unManagedInstancesModel.getByOrgIds(orgIds, callback);
             }
-        },
+        ],
         function(err, results) {
             if(err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
                 next(err)
             } else {
-                next(null, results);
+                var instances = results.reduce(function(a, b) {
+                    return a.concat(b);
+                }, []);
+
+                next(null, instances);
             }
         }
     );
@@ -415,4 +424,30 @@ function createUnassignedInstancesList(instances, callback) {
     instancesListObject.instances = instancesList;
 
     return callback(null, instancesListObject);
+}
+
+function createTrackedInstancesResponse(instances, callback) {
+    var instancesListObject = {};
+    var instancesList = [];
+
+    instancesListObject.trackedInstances = instances.map(function(instance) {
+        var instanceObj = {};
+        instanceObj.id = instance._id;
+        instanceObj.category = ('chefNodeName' in instance)?'managed':'unmanaged';
+        instanceObj.instanceId = instance.platformId;
+        instanceObj.orgName = instance.orgName;
+        instanceObj.projectName = instance.projectName;
+        instanceObj.providerName = instance.providerName;
+        instanceObj.providerId = instance.providerId;
+        instanceObj.environmentName = instance.environmentName;
+        instanceObj.providerType = instance.providerType;
+        instanceObj.cost = ('cost' in instance)?instance.cost:0;
+        if('usage' in instance) {
+            instanceObj.cpuUtilization = Math.round(instance.usage.CPUUtilization.average * 100) + '%';
+        }
+
+        return instanceObj;
+    });
+
+    callback(null, instancesListObject);
 }

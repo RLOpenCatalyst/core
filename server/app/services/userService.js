@@ -31,7 +31,6 @@ function getUserOrgs(user, callback) {
                 err.status = 500;
                 callback(err);
             } else {
-                console.log(orgs);
                 var orgIds = orgs.reduce(function(a, b) {
                     return a.concat(b.rowid);
                 }, []);

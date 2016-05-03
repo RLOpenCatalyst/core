@@ -77,6 +77,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(orgIds, next) {
                     instanceService.getTrackedInstancesForOrgs(orgIds, next);
+                },
+                function(instances, next) {
+                    instanceService.createTrackedInstancesResponse(instances, next);
                 }
             ],
             function(err, results) {
