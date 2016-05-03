@@ -54,7 +54,8 @@ chefTaskSchema.methods.getNodes = function() {
 };
 
 // Instance Method :- run task
-chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
+chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete) {
+    logger.debug("chef appData: ", JSON.stringify(appData));
     var self = this;
     logger.debug("self: ", JSON.stringify(self));
     if (blueprintIds[0] != "" && blueprintIds.length) {
@@ -273,137 +274,130 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                         }, 1, instance._id, null, actionLog._id);
                         return;
                     }
-
                     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
-                    if (nexusData) {
-                        masterUtil.getEnvironmentName(instance.envId, function(envName) {
+                    if (appData) {
+                        if (appData.nexus) {
                             objectArray.push({
                                 "rlcatalyst": {
-                                    "nexusUrl": nexusData.nexusUrl
+                                    "nexusUrl": appData.nexus.repoURL
                                 }
                             });
                             objectArray.push({
                                 "rlcatalyst": {
-                                    "version": nexusData.version
+                                    "version": appData.version
                                 }
                             });
-                            if (nexusData.containerId) {
+                        }
+                        if (appData.docker) {
+                            if (appData.docker.containerName) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "containerId": nexusData.containerId
+                                        "containerId": appData.docker.containerName
                                     }
                                 });
                             }
-                            if (nexusData.containerPort) {
+                            if (appData.docker.containerPort) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "containerPort": nexusData.containerPort
+                                        "containerPort": appData.docker.containerPort
                                     }
                                 });
                             }
-                            if (nexusData.dockerImage) {
+                            if (appData.docker.image) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerImage": nexusData.dockerImage
-                                    }
-                                });
-                            }
-
-                            if (nexusData.hostPort) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "hostPort": nexusData.hostPort
-                                    }
-                                });
-                            }
-                            if (nexusData.dockerUser) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "dockerUser": nexusData.dockerUser
-                                    }
-                                });
-                            }
-                            if (nexusData.dockerPassword) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "dockerPassword": nexusData.dockerPassword
-                                    }
-                                });
-                            }
-                            if (nexusData.dockerEmailId) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "dockerEmailId": nexusData.dockerEmailId
-                                    }
-                                });
-                            }
-                            if (nexusData.imageTag) {
-                                objectArray.push({
-                                    "rlcatalyst": {
-                                        "imageTag": nexusData.imageTag
+                                        "dockerImage": appData.docker.image
                                     }
                                 });
                             }
 
-                            if (nexusData.upgrade) {
+                            if (appData.docker.hostPort) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "upgrade": nexusData.upgrade
+                                        "hostPort": appData.docker.hostPort
                                     }
                                 });
                             }
+                            if (appData.docker.dockerUser) {
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "dockerUser": appData.docker.dockerUser
+                                    }
+                                });
+                            }
+                            if (appData.docker.dockerPassword) {
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "dockerPassword": appData.docker.dockerPassword
+                                    }
+                                });
+                            }
+                            if (appData.docker.dockerEmailId) {
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "dockerEmailId": appData.docker.dockerEmailId
+                                    }
+                                });
+                            }
+                            if (appData.docker.imageTag) {
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "imageTag": appData.docker.imageTag
+                                    }
+                                });
+                            }
+                        }
+
+                        if (appData.upgrade) {
                             objectArray.push({
                                 "rlcatalyst": {
-                                    "applicationNodeIP": instance.instanceIP
+                                    "upgrade": appData.upgrade
                                 }
                             });
-                            var nodeIp = [];
-                            var actualDocker = [];
-                            var appVersion = "";
-                            var appName = "";
-                            if (nexusData.version) {
-                                appVersion = nexusData.version;
-                            } else {
-                                appVersion = nexusData.imageTag;
+                        }
+                        objectArray.push({
+                            "rlcatalyst": {
+                                "applicationNodeIP": instance.instanceIP
                             }
-
-                            if (nexusData.nexusUrl) {
-                                var lastIndex = nexusData.nexusUrl.split("/").length - 1;
-                                appName = nexusData.nexusUrl.split("/")[lastIndex].split("-")[0];
-                            } else {
-                                if (nexusData.image && nexusData.image.indexOf("/") != -1) {
-                                    appName = nexusData.image.split("/")[1];
-                                } else {
-                                    appName = nexusData.image;
-                                }
-                            }
-
-                            nodeIp.push(instance.instanceIP);
-                            var nexus = {
-                                "repoURL": nexusData.nexusUrl,
-                                "nodeIps": nodeIp
-                            };
-
-                            var docker = {
-                                "image": nexusData.image,
-                                "containerId": nexusData.containerId,
-                                "containerPort": nexusData.containerPort,
-                                "hostPort": nexusData.hostPort,
-                                "dockerUser": nexusData.dockerUser,
-                                "dockerPassword": nexusData.dockerPassword,
-                                "dockerEmailId": nexusData.dockerEmailId,
-                                "imageTag": nexusData.imageTag,
-                                "nodeIp": instance.instanceIP
-                            };
-                            actualDocker.push(docker);
-
+                        });
+                        var nodeIds = [];
+                        var appVersion = "";
+                        var appName = "";
+                        var nexus = {};
+                        var docker = {};
+                        if (appData.nexus) {
+                            nexus['repoURL'] = appData.nexus.repoURL;
+                            nexus['nodeIds'] = appData.nexus.nodeIds;
+                            nexus['artifactId'] = appData.nexus.artifactId;
+                            nexus['repository'] = appData.nexus.repository;
+                            nexus['groupId'] = appData.nexus.groupId;
+                            nexus['taskId'] = this.id;
+                            appName = appData.nexus.artifactId;
+                            appVersion = appData.nexus.version;
+                        }
+                        if (appData.docker) {
+                            docker['image'] = appData.docker.image;
+                            docker['containerName'] = appData.docker.containerName;
+                            docker['containerPort'] = appData.docker.containerPort;
+                            docker['dockerUser'] = appData.docker.dockerUser;
+                            docker['dockerPassword'] = appData.docker.dockerPassword;
+                            docker['dockerEmailId'] = appData.docker.dockerEmailId;
+                            docker['imageTag'] = appData.docker.imageTag;
+                            docker['nodeIds'] = appData.docker.nodeIds;
+                            docker['hostPort'] = appData.docker.hostPort;
+                            docker['taskId'] = this.id;
+                            appName = appData.docker.image;
+                            appVersion = appData.docker.imageTag;
+                        }
+                        nodeIds.push(instance.instanceIP);
+                        masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
                             var appData = {
                                 "projectId": instance.projectId,
-                                "envId": envName,
+                                "envName": envName,
                                 "appName": appName,
                                 "version": appVersion,
                                 "nexus": nexus,
-                                "docker": actualDocker
+                                "docker": docker
                             };
                             AppData.createNewOrUpdate(appData, function(err, data) {
                                 if (err) {
@@ -413,45 +407,62 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                                     logger.debug("Created or Updated app-data successfully: ", data);
                                 }
                             });
+                        });
 
-
-                            logger.debug("AppDeploy attributes: ", JSON.stringify(objectArray));
-                            var attributeObj = utils.mergeObjects(objectArray);
-                            configmgmtDao.getChefServerDetails(instance.chef.serverId, function(err, chefDetails) {
+                        logger.debug("AppDeploy attributes: ", JSON.stringify(objectArray));
+                        var attributeObj = utils.mergeObjects(objectArray);
+                        configmgmtDao.getChefServerDetails(instance.chef.serverId, function(err, chefDetails) {
+                            if (err) {
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: true,
+                                    log: "Chef Data Corrupted. Chef Client run failed",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
+                                return;
+                            }
+                            if (!chefDetails) {
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: true,
+                                    log: "Chef Data Corrupted. Chef Client run failed",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                instanceOnCompleteHandler({
+                                    message: "Chef Data Corrupted. Chef Client run failed"
+                                }, 1, instance._id, null, actionLog._id);
+                                return;
+                            }
+                            //decrypting pem file
+                            credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
                                 if (err) {
                                     var timestampEnded = new Date().getTime();
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
                                         err: true,
-                                        log: "Chef Data Corrupted. Chef Client run failed",
+                                        log: "Unable to decrypt pem file. Chef run failed",
                                         timestamp: timestampEnded
                                     });
                                     instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                     instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
                                     return;
                                 }
-                                if (!chefDetails) {
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: true,
-                                        log: "Chef Data Corrupted. Chef Client run failed",
-                                        timestamp: timestampEnded
-                                    });
-                                    instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
-                                    instanceOnCompleteHandler({
-                                        message: "Chef Data Corrupted. Chef Client run failed"
-                                    }, 1, instance._id, null, actionLog._id);
-                                    return;
-                                }
-                                //decrypting pem file
-                                credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
+
+                                ChefClientExecution.createNew({
+                                    instanceId: instance._id
+
+                                }, function(err, chefClientExecution) {
                                     if (err) {
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
                                             err: true,
-                                            log: "Unable to decrypt pem file. Chef run failed",
+                                            log: "Unable to generate chef run execution id. Chef run failed",
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
@@ -459,91 +470,92 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                                         return;
                                     }
 
-                                    ChefClientExecution.createNew({
-                                        instanceId: instance._id
+                                    var executionIdJsonAttributeObj = {
+                                        catalyst_attribute_handler: {
+                                            catalystCallbackUrl: baseUrl + '/chefClientExecution/' + chefClientExecution.id
+                                        }
+                                    };
 
-                                    }, function(err, chefClientExecution) {
+                                    var jsonAttributeObj = utils.mergeObjects([executionIdJsonAttributeObj, attributeObj]);
+                                    var jsonAttributesString = JSON.stringify(jsonAttributeObj);
+
+                                    var chef = new Chef({
+                                        userChefRepoLocation: chefDetails.chefRepoLocation,
+                                        chefUserName: chefDetails.loginname,
+                                        chefUserPemFile: chefDetails.userpemfile,
+                                        chefValidationPemFile: chefDetails.validatorpemfile,
+                                        hostedChefUrl: chefDetails.url,
+                                    });
+
+                                    var chefClientOptions = {
+                                        privateKey: decryptedCredentials.pemFileLocation,
+                                        username: decryptedCredentials.username,
+                                        host: instance.instanceIP,
+                                        instanceOS: instance.hardware.os,
+                                        port: 22,
+                                        runlist: self.runlist, // runing service runlist
+                                        jsonAttributes: jsonAttributesString,
+                                        overrideRunlist: true,
+                                        parallel: true
+                                    }
+                                    if (decryptedCredentials.pemFileLocation) {
+                                        chefClientOptions.privateKey = decryptedCredentials.pemFileLocation;
+                                    } else {
+                                        chefClientOptions.password = decryptedCredentials.password;
+                                    }
+                                    logsDao.insertLog({
+                                        referenceId: logsReferenceIds,
+                                        err: false,
+                                        log: "Executing Task",
+                                        timestamp: new Date().getTime()
+                                    });
+                                    chef.runChefClient(chefClientOptions, function(err, retCode) {
+                                        if (decryptedCredentials.pemFileLocation) {
+                                            fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
+                                                if (err) {
+                                                    logger.error("Unable to delete temp pem file =>", err);
+                                                } else {
+                                                    logger.debug("temp pem file deleted");
+                                                }
+                                            });
+                                        }
                                         if (err) {
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
                                                 referenceId: logsReferenceIds,
                                                 err: true,
-                                                log: "Unable to generate chef run execution id. Chef run failed",
+                                                log: 'Unable to run chef-client',
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
-                                            instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
+                                            instanceOnCompleteHandler(err, 1, instance._id, chefClientExecution.id, actionLog._id);
                                             return;
                                         }
-
-                                        var executionIdJsonAttributeObj = {
-                                            catalyst_attribute_handler: {
-                                                catalystCallbackUrl: baseUrl + '/chefClientExecution/' + chefClientExecution.id
-                                            }
-                                        };
-
-                                        var jsonAttributeObj = utils.mergeObjects([executionIdJsonAttributeObj, attributeObj]);
-                                        var jsonAttributesString = JSON.stringify(jsonAttributeObj);
-
-                                        var chef = new Chef({
-                                            userChefRepoLocation: chefDetails.chefRepoLocation,
-                                            chefUserName: chefDetails.loginname,
-                                            chefUserPemFile: chefDetails.userpemfile,
-                                            chefValidationPemFile: chefDetails.validatorpemfile,
-                                            hostedChefUrl: chefDetails.url,
-                                        });
-
-                                        var chefClientOptions = {
-                                            privateKey: decryptedCredentials.pemFileLocation,
-                                            username: decryptedCredentials.username,
-                                            host: instance.instanceIP,
-                                            instanceOS: instance.hardware.os,
-                                            port: 22,
-                                            runlist: self.runlist, // runing service runlist
-                                            jsonAttributes: jsonAttributesString,
-                                            overrideRunlist: true,
-                                            parallel: true
-                                        }
-                                        if (decryptedCredentials.pemFileLocation) {
-                                            chefClientOptions.privateKey = decryptedCredentials.pemFileLocation;
+                                        if (retCode == 0) {
+                                            var timestampEnded = new Date().getTime();
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: false,
+                                                log: 'Task execution success',
+                                                timestamp: timestampEnded
+                                            });
+                                            instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
+                                            instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
                                         } else {
-                                            chefClientOptions.password = decryptedCredentials.password;
-                                        }
-                                        logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
-                                            err: false,
-                                            log: "Executing Task",
-                                            timestamp: new Date().getTime()
-                                        });
-                                        chef.runChefClient(chefClientOptions, function(err, retCode) {
-                                            if (decryptedCredentials.pemFileLocation) {
-                                                fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
-                                                    if (err) {
-                                                        logger.error("Unable to delete temp pem file =>", err);
-                                                    } else {
-                                                        logger.debug("temp pem file deleted");
-                                                    }
-                                                });
-                                            }
-                                            if (err) {
-                                                var timestampEnded = new Date().getTime();
+                                            instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
+                                            if (retCode === -5000) {
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
                                                     err: true,
-                                                    log: 'Unable to run chef-client',
-                                                    timestamp: timestampEnded
+                                                    log: 'Host Unreachable',
+                                                    timestamp: new Date().getTime()
                                                 });
-                                                instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
-                                                instanceOnCompleteHandler(err, 1, instance._id, chefClientExecution.id, actionLog._id);
-                                                return;
-                                            }
-                                            if (retCode == 0) {
-                                                var timestampEnded = new Date().getTime();
+                                            } else if (retCode === -5001) {
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
-                                                    err: false,
-                                                    log: 'Task execution success',
-                                                    timestamp: timestampEnded
+                                                    err: true,
+                                                    log: 'Invalid credentials',
+                                                    timestamp: new Date().getTime()
                                                 });
                                                 instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
                                                 instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
@@ -566,62 +578,42 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                                                     }
                                                 });
 
-
-
                                             } else {
-                                                instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
-                                                if (retCode === -5000) {
-                                                    logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
-                                                        err: true,
-                                                        log: 'Host Unreachable',
-                                                        timestamp: new Date().getTime()
-                                                    });
-                                                } else if (retCode === -5001) {
-                                                    logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
-                                                        err: true,
-                                                        log: 'Invalid credentials',
-                                                        timestamp: new Date().getTime()
-                                                    });
-                                                } else {
-                                                    logsDao.insertLog({
-                                                        referenceId: logsReferenceIds,
-                                                        err: true,
-                                                        log: 'Unknown error occured. ret code = ' + retCode,
-                                                        timestamp: new Date().getTime()
-                                                    });
-                                                }
-                                                var timestampEnded = new Date().getTime();
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
                                                     err: true,
-                                                    log: 'Error in running chef-client',
-                                                    timestamp: timestampEnded
+                                                    log: 'Unknown error occured. ret code = ' + retCode,
+                                                    timestamp: new Date().getTime()
                                                 });
-                                                instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                             }
-                                        }, function(stdOutData) {
-                                            logsDao.insertLog({
-                                                referenceId: logsReferenceIds,
-                                                err: false,
-                                                log: stdOutData.toString('ascii'),
-                                                timestamp: new Date().getTime()
-                                            });
-                                        }, function(stdOutErr) {
+                                            var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
                                                 referenceId: logsReferenceIds,
                                                 err: true,
-                                                log: stdOutErr.toString('ascii'),
-                                                timestamp: new Date().getTime()
+                                                log: 'Error in running chef-client',
+                                                timestamp: timestampEnded
                                             });
+                                            instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                        }
+                                    }, function(stdOutData) {
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: false,
+                                            log: stdOutData.toString('ascii'),
+                                            timestamp: new Date().getTime()
+                                        });
+                                    }, function(stdOutErr) {
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: true,
+                                            log: stdOutErr.toString('ascii'),
+                                            timestamp: new Date().getTime()
                                         });
                                     });
                                 });
-
                             });
-                        });
 
+                        });
                     } else {
                         logger.debug("AppDeploy attributes: ", JSON.stringify(objectArray));
                         var attributeObj = utils.mergeObjects(objectArray);
