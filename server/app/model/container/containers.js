@@ -141,18 +141,18 @@ containerSchema.statics.createContainer = function(containerData, callback) {
         callback(null, data);
     });
 };
-containerSchema.statics.getContainerByIdInstanceIP = function(containerId,instanceId, callback) {
-    logger.debug("Enter getContainerByIdInstanceIP");
+containerSchema.statics.getContainerByIdInstanceId = function(containerId,instanceId, callback) {
+    logger.debug("Enter getContainerByIdInstanceId");
     container.find({
         Id:containerId,
         instanceId:instanceId
     },function(err, aContainer) {
         if (err) {
-            logger.error("getContainerByIdInstanceIP Failed", err, containerData);
+            logger.error("getContainerByIdInstanceId Failed", err,containerId,instanceId);
             callback(err, null);
             return;
         }
-        logger.debug("Exit getContainerByIdInstanceIP : ");
+        logger.debug("Exit getContainerByIdInstanceId : ");
         callback(null, aContainer);
     });
 };
@@ -177,19 +177,33 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
 
 };
 containerSchema.statics.deleteContainerById=function(containerId,callback){
-    logger.debug("Enter removeContainerById (%s)", containerId);
+    logger.debug("Enter deleteContainerById (%s)", containerId);
     container.remove({
         Id: containerId
     }, function(err, data) {
         if (err) {
-            logger.error("Failed to removeContainerById (%s)", containerId, err);
+            logger.error("Failed to deleteContainerById (%s)", containerId, err);
             callback(err, null);
             return;
         }
-        logger.debug("Exit removeContainerById (%s)", containerId);
+        logger.debug("Exit deleteContainerById (%s)", containerId);
         callback(null, data);
     });
-}
+};
+containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback){
+    logger.debug("Enter deleteContainerByInstanceId (%s)", instanceId);
+    container.remove({
+        instanceId: new ObjectId(instanceId)
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to deleteContainerByInstanceId (%s)", instanceId, err);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit deleteContainerByInstanceId (%s)", instanceId);
+        callback(null, data);
+    });
+};
 
 var container = mongoose.model('containers', containerSchema);
 module.exports = container;

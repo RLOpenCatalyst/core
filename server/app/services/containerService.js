@@ -41,7 +41,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         },
         function (permission,next){
             if(permission){
-                 containerDao.getContainerByIdInstanceIP(jsonData.containerId,jsonData.instanceId,next);
+                 containerDao.getContainerByIdInstanceId(jsonData.containerId,jsonData.instanceId,next);
             }else{
                  callBackReturn(permission,next)
             }

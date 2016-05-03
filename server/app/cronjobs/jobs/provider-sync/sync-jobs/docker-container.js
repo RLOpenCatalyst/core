@@ -48,7 +48,12 @@ function sync() {
                                                return;
                                             };
                                             async.forEach(instances,function(aInstance,next) {
-                                                credentialCrpto.decryptCredential(aInstance.credentials, function (err, decryptedCredentials) {
+                                                containerDao.deleteContainerByInstanceId(aInstance._id,function(err,data){
+                                                    if(err){
+                                                        logger.error(err);
+                                                        return;
+                                                    };
+                                                    credentialCrpto.decryptCredential(aInstance.credentials, function (err, decryptedCredentials) {
                                                     if(err){
                                                        logger.error(err);
                                                        return;
@@ -132,7 +137,8 @@ function sync() {
                                                         logger.error("Error hits to fetch docker details", stdOutErr);
                                                         return;
                                                     });
-                                                });
+                                                    });
+                                                })
                                             })
                                         })
                                     });
@@ -156,14 +162,7 @@ function sync() {
 function containerAction(aContainer){
     async.waterfall([
         function(next){
-            containerDao.getContainerByIdInstanceIP(aContainer.Id,aContainer.instanceId,next);
-        },
-        function(container,next){
-            if(container.length === 0){
                 containerDao.createContainer(aContainer,next);
-            }else{
-                containerDao.updateContainer(aContainer.Id,aContainer.Status,next);
-            }
         }],
         function (err, results) {
             if(err){
