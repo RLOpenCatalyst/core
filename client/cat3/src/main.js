@@ -28,7 +28,7 @@ var angularApp = angular.module('catapp', ['ui.router',
     'ui.grid',
     'ui.grid.pagination',
     'ui.grid.resizeColumns',
-    'global.uiGridOptions'
+    'global.uiGridOptions',
 ]);
 
 angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',

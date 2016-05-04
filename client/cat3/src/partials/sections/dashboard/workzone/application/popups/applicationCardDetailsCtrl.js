@@ -8,7 +8,7 @@
 (function(){
    "use strict";
 	angular.module('workzone.application')
-		.controller('applicationCardDetailsCtrl', ['$scope', '$modal', '$modalInstance', 'workzoneServices', 'workzoneEnvironment', 'items','uiGridOptionsServices', function($scope, $modal, $modalInstance, workzoneServices, workzoneEnvironment, items,uiGridOptiSer) {
+		.controller('applicationCardDetailsCtrl', ['$scope','$rootScope', '$modal', '$modalInstance', 'workzoneServices', 'workzoneEnvironment', 'items','uiGridOptionsServices', function($scope,$rootScope, $modal, $modalInstance, workzoneServices, workzoneEnvironment, items,uiGridOptiSer) {
 			$scope.applicationsDetails = items;
 			var appDetail = {
 				gridOptions:uiGridOptiSer.options().gridOption
@@ -18,22 +18,7 @@
 					$modalInstance.dismiss('cancel');
 				},
 				viewAppCardLogs: function (nodeIp) {
-					$modal.open({
-						animation: true,
-						templateUrl: 'src/partials/sections/dashboard/workzone/application/popups/applicationCardLogs.html',
-						controller: 'applicationCardLogsCtrl',
-						backdrop: 'static',
-						keyboard: false,
-						resolve: {
-							items: function () {
-								return nodeIp;
-							}
-						}
-					}).result.then(function () {
-
-					}, function () {
-
-					});
+					$rootScope.$emit('VIEW-APP-LOGS',nodeIp);
 				},
 			});
 
@@ -49,11 +34,11 @@
 							width: 70,
 							enableSorting: false,
 							displayName: 'Logs',
-							cellTemplate: '<i class="fa fa-info-circle cursor" title="More Info" ng-click="appInfo(app)"></i>'
+							cellTemplate: '<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.viewAppCardLogs(row.entity)"></i>'
 						},
 					];
-				workzoneServices.getCardDetails($scope.applicationsDetails).then(function (response) {
-					appDetail.gridOptions.data = response.data.appDeploy;
+				workzoneServices.getCardHistoryList($scope.applicationsDetails).then(function (response) {
+					appDetail.gridOptions.data = response.data;
 				});
 			};
 			appDetail.init();

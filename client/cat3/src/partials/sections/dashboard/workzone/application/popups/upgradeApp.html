@@ -1,121 +1,127 @@
-<div id='upgradeAppPage'>
-	<div class="modal-header">
-		<span class="close" ng-click="cancel()">×</span>
-		<h4 class="modal-title">
-			<i class="fa fa-th-list"></i>&nbsp;&nbsp;
-			Upgrade : Catalyst {{applicationIp}}
-		</h4>
-	</div>
+<div id='deployNewAppPage'>
+	<form name="upgradeForm" novalidate>
+		<div class="modal-header">
+			<div class="imp-note red" ng-show="upgradeForm.$invalid"><span class="red">*</span> are mandatory fields</div>
+			<span class="close" ng-click="cancel()">×</span>
 
-	<div class="modal-body">
-		<div class="upgradeForAppDeploy">
-			<input type="hidden" id="containerIdInput" value="">
-			<fieldset class="fieldsetCustom">
-				<legend class="legendCustom">Repository Details:</legend>
-				<div class="col-lg-6 col-md-6">
-					<label for="">Repository Server:<span class="redSpan">*</span>
-					</label>
-					<div class="input-groups">
-						<select id="chooseNexusServer" name="" class="required width-100 form-control"><option value="">Choose Server</option><option data-nexusurl="http://nexus.rlcatalyst.com/nexus" value="432a084d-748e-47c8-9fcd-bf51ad7aaa49" data-servertype="nexus">NexusServer</option><option value="40ae633d-108f-48cf-81ab-1e76c26e5490" data-servertype="undefined">rldocker</option></select>
-					</div>
-				</div>
-				<div class="col-lg-6 col-md-6">
-					<label for="">Repository:<span class="redSpan">*</span>
-					<span>
-					<img class="repospinner" src="img/select2-spinner.gif" style="display:none">
-					</span>
-					</label>
-					<div class="input-groups">
-						<select id="chooseRepository" name="" class="required width-100 form-control"><option value="">Choose Repositories</option></select>
-					</div>
-				</div>
-				<div class="col-lg-12 col-md-12 margintop15 repoUrlClass" style="display: none;">
-					<label>Repository URL:<span class="redSpan">*</span>
-					<span>
-					<img class="repourlspinner" src="img/select2-spinner.gif" style="display:none">
-					
-					</span>
-					</label>
-					<input id="repositoryUrl" type="text" class="form-control" name="" disabled="">
-				</div>
-				<div class="col-lg-12 col-md-12 margintop15 containerClass containerIdClass containerUpgradeDeploy" style="display: none;">
-					<label>Container Name/ID:
-					<span>
-					<img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
-					
-					</span>
-					</label>
-					<input id="containerIdDiv" type="text" class="form-control">
-				</div>
-				<div class="col-lg-12 col-md-12 margintop15 containerClass  containerPortClass containerUpgradeDeploy" style="display: none;">
-					<label>Container Port:<span class="redSpan">*</span>
-					<span>
-					<img class="containerIdspinner" src="img/select2-spinner.gif" style="display:none">
-					
-					</span>
-					</label>
-					<input id="containerPort" type="text" class="form-control" name="">
-				</div>
-				<input id="upgradeValue" type="hidden" value="">
-				<div class="col-lg-6 col-md-6 margintop15 artifactClass" style="display: none;">
-					<label for="">Artifacts:<span class="redSpan">*</span>
-					<span>
-					<img class="artifactsspinner" src="img/select2-spinner.gif" style="display:none">
-					
-					</span>
-					</label>
-					<div class="input-groups">
-						<select id="chooseArtifacts" name="" class="required width-100 form-control"><option value="">Choose Artifacts</option></select>
-					</div>
-				</div>
-				<div class="col-lg-6 col-md-6 margintop15 versionClass" style="display: none;">
-					<label for="">Versions:<span class="redSpan">*</span>
-					<span>
-					<img class="versionspinner" src="img/select2-spinner.gif" style="display:none">
-					
-					</span>
-					</label>
-					<div class="input-groups">
-						<select id="chooseVersions" name="" class="required width-100 form-control"><option value="">Choose Versions</option></select>
-					</div>
-				</div>
-			</fieldset>
-			<fieldset class="fieldsetCustom" style="margin-top: 20px ! important;">
-				<legend class="legendCustom">Job Details:</legend>
-				<div class="col-lg-6 col-md-6 col-sm-6">
-					<label>Jobs:<span class="redSpan">*</span>
-					<span>
-					<img class="jobdetailsspinner" src="img/select2-spinner.gif" style="display:none">
-					
-					</span>
-					</label>
-					<div class="input-groups">
-						<select id="chooseJobType" name="" class="required width-100 form-control"><option value="">Choose Job</option></select>
-					</div>
-				</div>
-				<div class="col-lg-6 col-md-6" style="margin-top: 6px;">
-					<label>
-					<span></span>
-					</label>
-					<div class="input-groups">
-						<a class="btn btn-primary createTaskLinkUpgrade" disabled="disabled">
-						<i class="ace-icon fa fa-indent bigger-110"></i> Create New Job
-						</a>
-					</div>
-				</div>
-			</fieldset>
+			<h4 class="modal-title" >
+				<i class="fa fa-plus"></i></i>&nbsp;
+				Upgrade Application
+			</h4>
 		</div>
-	</div>
 
-	<div class="modal-footer">
-		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
-			<i class="fa fa-times"></i> Cancel
-		</button>
-			<button type="button" class="btn cat-btn-update" ng-click="ok()">
-			<i class="fa fa-location-arrow"></i> Deploy
-		</button>
-			<button type="button" class="btn cat-btn-save" ng-click="ok()">
-			<i class="fa fa-save"></i> Upgrade
-		</button>
-	</div>
+		<div class="modal-body" >
+			<div>
+				<fieldset class="repo-job-details-wrapper">
+					<legend class="repo-job-details-wrapper-inner">Repository Details:</legend>
+					<div class="col-lg-6 col-md-6">
+						<label for="">Repository Server:<span class="red">*</span>
+						</label>
+						<div class="input-groups">
+							<loading size="small" name="isLoadingServer" type="inline"></loading>
+							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						</div>
+					</div>
+					<div ng-if="depNewApp.newEnt.serverType==='docker'">
+						<div class="col-lg-6 col-md-6">
+							<label >Repository:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label>Tags:<span class="red">*</span>
+								<loading size="small" name="isLoadingDocTag" type="inline"></loading>
+							</label>
+							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label>Container Port:<span class="red">*</span>
+								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+							</label>
+							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						</div>
+						<div class="col-lg-12 col-md-12 margintop15" >
+							<label ng-click="showHideLoader()">Container Name/ID:</label>
+							<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						</div>
+
+					</div>
+					<div  ng-if="depNewApp.newEnt.serverType==='nexus'">
+						<div class="col-lg-6 col-md-6">
+							<label >Repository:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6" >
+							<label>Group ID:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label>Artifacts:<span class="red">*</span>
+								<loading size="small" name="isLoadingArtifacts" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6" >
+							<label for="">Versions:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select class="form-control" ng-model="depNewApp.newEnt.version" required>
+									<option value="">Choose Versions</option>
+									<option ng-repeat="(key , values) in depNewApp.versionsOptions" value="{{values}}">{{values}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-12 col-md-12">
+							<label>Repository URL:<span class="red">*</span>
+								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+							</label>
+							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						</div>
+					</div>
+				</fieldset>
+				<fieldset class="repo-job-details-wrapper margintop20">
+					<legend class="repo-job-details-wrapper-inner">Job Details:</legend>
+					<div class="col-lg-6 col-md-6 col-sm-6">
+						<label>Jobs:<span class="red">*</span>
+							<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+						</label>
+						<div class="input-groups">
+							<loading size="small" name="isLoadingJob" type="inline"></loading>
+							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+						</div>
+					</div>
+					<div class="col-lg-6 col-md-6">
+						<label>
+							<span></span>
+						</label>
+					</div>
+				</fieldset>
+			</div>
+
+		<div class="modal-footer">
+			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+				<i class="fa fa-times black"></i> Cancel
+			</button>
+
+			<button type="button" class="btn cat-btn-update " ng-disabled="upgradeForm.$invalid"  ng-click="depNewApp.submitAppUpgrade()">
+				<i class="fa fa-save white"></i> Upgrade
+			</button>
+		</div>
+			</div>
+	</form>
 </div>

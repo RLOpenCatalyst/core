@@ -59,7 +59,7 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getApplicationHistoryForEnv: function (envName, projId,pagiOpti) {
-                    var pageiReq='pageNumber='+pagiOpti.page+',pageSize='+pagiOpti.pageSize+',field='+pagiOpti.sortBy+',direction='+pagiOpti.sortOrder;
+                    var pageiReq='page='+pagiOpti.page+',pageSize='+pagiOpti.pageSize+',field='+pagiOpti.sortBy+',direction='+pagiOpti.sortOrder;
                     var url = '/app/deploy/project/' + projId + '/env/'+ envName +'/appDeployHistoryList?'+pageiReq;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
@@ -425,9 +425,19 @@
                         '/projects/' + p.proj + '/environments/' + p.env + '/tasks';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
+                getChefJob: function () {
+                    var p = workzoneEnvironment.getEnvParams();
+                    var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +'/projects/' + p.proj + '/environments/' + p.env + '/chefTasks';
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
                 getNexusRepository:function(nexusId){
                     var p = workzoneEnvironment.getEnvParams(),
                         url = '/app/deploy/nexus/'+nexusId+'/project/' + p.proj + '/nexusRepositoryList';
+                    return $http.get(fullUrl(url));
+                },
+                getDockerRepository :function(){
+                    var p = workzoneEnvironment.getEnvParams(),
+                    url = '/d4dMasters/project/'+p.proj;
                     return $http.get(fullUrl(url));
                 },
                 getNexusArtifacts:function(requestData){
@@ -449,8 +459,28 @@
                     var url = '/app/deploy/project/'+requestEnv.proj+'/appDeployList?'+pageiReq;
                     return $http.get(fullUrl(url));
                 },
-                getCardDetails :function(envDetails){
-                    var url= '/app/deploy/project/' + envDetails.params.proj + '/env/' + envDetails.env + '/appDeployHistoryList?page=1&pageSize=300';
+                getCardPermission :function(cardDetails){
+                    var url= '/deploy/permission/project/'+ cardDetails.params.proj +'/env/' + cardDetails.paramNames.env + '/application/' + cardDetails.appName.name + '/permissionList';
+                    return $http.get(fullUrl(url));
+                },
+                getCardHistoryList :function(envDetails){
+                    var url= '/app/deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appName/'+envDetails.appName.name+'/version/'+envDetails.appName.version+'/appDeployHistoryList';
+                    return $http.get(fullUrl(url));
+                },
+                postAppDeploy:function(RequestObject){
+                    var url='/app/deploy/new'
+                    return $http.post(fullUrl(url),RequestObject);
+                },
+                getDockerImageTags :function(requestObject) {
+                    var url='/d4dMasters/docker/'+requestObject.dockerId+'/repository/'+requestObject.repository+'/image/'+requestObject.image+'/tags';
+                    return $http.get(fullUrl(url));
+                },
+                postAppPromote:function(RequestObject){
+                    var url='/app/deploy/promote'
+                    return $http.post(fullUrl(url),RequestObject);
+                },
+                getAppUpgrade:function(requestOject){
+                    var url ='/app/data/project/' + requestOject.params.proj + '/env/' + requestOject.envName + '?application='+requestOject.appName.name+'&version='+requestOject.appName.version;
                     return $http.get(fullUrl(url));
                 }
             };

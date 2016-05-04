@@ -8,16 +8,14 @@
 (function(){
 "use strict";
 angular.module('workzone.application')
-	.controller('upgradeAppCtrl', ['items','$scope', '$modalInstance','workzoneServices', function(items,$scope, $modalInstance,wrkSer) {
+	.controller('approveAppCtrl', ['items','$scope', '$modalInstance','workzoneServices', function(items,$scope, $modalInstance,wrkSer) {
 
 		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
 			},
 			init :function(){
-				wrkSer.getAppUpgrade(items).then(function (FrzData){
-					
-				});
+			
 			}
 		});
 		$scope.init();
