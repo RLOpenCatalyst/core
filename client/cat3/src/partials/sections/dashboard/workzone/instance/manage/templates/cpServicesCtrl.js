@@ -121,9 +121,11 @@
                         }
                     }
                 }).result.then(function (addedServices) {
-                    $scope.initGrids();
-                    cpInstance.serviceIds = cpInstance.serviceIds.concat(addedServices);
-                    $scope.cpServivcesListView();
+                    $timeout(function() {
+                        $scope.initGrids();
+                        cpInstance.serviceIds = cpInstance.serviceIds.concat(addedServices);
+                        $scope.cpServivcesListView();
+                    },100);
                 }, function () {
                     console.log('Modal Dismissed at ' + new Date());
                 });
@@ -151,7 +153,7 @@
             var cpInstance = dataObj.inspectInstance;
             var cacheKey = 'chefServerServices_' + cpInstance.chef.serverId;
             var services = cacheServices.getFromCache(cacheKey);
-            var tabData =dataObj.serviceObject;
+            var tabData = dataObj.serviceObject;
 
             /*if (services) {
                 $scope.serviceInfo = services;
@@ -228,21 +230,23 @@
                         //$scope.tabAddServicesData = helper.getUnMatchedServices(services, $scope.serviceIds);
                     }else {
                         workzoneServices.getChefServerDetails(cpInstance.chef.serverId).then(function (allServices) {
-                            $scope.tabAddServicesData = filterService(allServices.data, tabData);
-                            workzoneServices.getServiceCommand().then(function (response) {
-                                var servicesCmd = response.data;
-                                for (var k = 0; k < servicesCmd.length; k++) {
-                                    if (servicesCmd[k].chefserverid !== cpInstance.chef.serverId) {
-                                        $scope.tabAddServicesData.push(servicesCmd[k]);
+                            $timeout(function(){
+                                $scope.tabAddServicesData = filterService(allServices.data, tabData);
+                                workzoneServices.getServiceCommand().then(function (response) {
+                                    var servicesCmd = response.data;
+                                    for (var k = 0; k < servicesCmd.length; k++) {
+                                        if (servicesCmd[k].chefserverid !== cpInstance.chef.serverId) {
+                                            $scope.tabAddServicesData.push(servicesCmd[k]);
+                                        }
                                     }
-                                }
-                                $scope.isAddnewServicePageLoading = false;
-                                $scope.tabAddServicesData = instanceFactories.getAllServiceActionItems($scope.tabAddServicesData);
-                                //cacheServices.addToCache(cacheKey, allServices.data);
-                                cacheServices.addToCache(cacheKey, allServices.data);
-                            }, function () {
-                                alert('An error occurred while getting service commands');
-                            });
+                                    $scope.isAddnewServicePageLoading = false;
+                                    $scope.tabAddServicesData = instanceFactories.getAllServiceActionItems($scope.tabAddServicesData);
+                                    //cacheServices.addToCache(cacheKey, allServices.data);
+                                    cacheServices.addToCache(cacheKey, allServices.data);
+                                }, function () {
+                                    alert('An error occurred while getting service commands');
+                                });
+                            },100);
                         }, function () {
                             alert('An error occurred while getting service list');
                         });
@@ -255,11 +259,11 @@
                 $scope.cpAddNewServivcesListView();
             };
 
-              function filterService(allServ,preseServ){
+            function filterService(allServ,preseServ){
                 var newData=[];
                 var PreValArry=[];
                 angular.forEach(preseServ,function(PreVal){
-                       PreValArry.push(PreVal.rowid);
+                    PreValArry.push(PreVal.rowid);
                 });
                 angular.forEach(allServ,function(val){
                     if(PreValArry.indexOf(val.rowid) == -1){
