@@ -367,6 +367,7 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
 
 };
 
+// Contains all business logic to deploy or upgrade application.
 appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, isUpgrade, callback) {
     var user = req.session.user.cn;
     var hostProtocol = req.protocol + '://' + req.get('host');
@@ -385,7 +386,7 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, isUpgrade
         }
         if (docker) {
             appData['docker'] = docker;
-            appData['docker']['nodeIds'] = task.nodeIds;
+            appData['docker'][0]['nodeIds'] = task.nodeIds;
         }
         AppData.createNewOrUpdate(appData, function(err, savedData) {
             if (err) {
@@ -406,13 +407,13 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, isUpgrade
                     Tasks.updateTaskConfig(taskId, taskConfig, function(err, updateCount) {
                         if (err) {
                             logger.error(err);
-                            res.status(500).send(errorResponses.db.error);
+                            callback(err, null);
                             return;
                         }
                         logger.debug("Task updated Successfully: ", JSON.stringify(updateCount));
                         taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, function(err, historyData) {
-                            if (err === 404) {
-                                callback(404, null);
+                            if (err && err.errorCode === 404) {
+                                callback(err, null);
                                 return;
                             } else if (err) {
                                 logger.error("Failed to execute task.", err);
@@ -426,23 +427,24 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, isUpgrade
                                 "historyId": historyData.historyId
                             };
                             callback(null, taskRes);
+                            return;
                         });
                     });
                 } else {
-                    callback(null, 404);
+                    callback({ "errorCode": 404, "message": "Task Not Found." }, null);
                     return;
                 }
             });
         });
 
     } else {
-        callback(404, null);
+        callback({ "errorCode": 400, "message": "Either sourceData or appData or task missing." }, null);
         return;
     }
 
 }
 
-
+// Contains all business logic to promote application.
 appDeployService.promoteApp = function promoteApp(req, callback) {
     var user = req.session.user.cn;
     var hostProtocol = req.protocol + '://' + req.get('host');
@@ -451,6 +453,10 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
     var task = req.body.task;
     var taskId = task.taskId;
     if (appData && task) {
+        if (appData.sourceEnv === appData.targetEnv) {
+            callback({ "errorCode": 403, "message": "Source Env and Target Env can't be same." }, null);
+            return;
+        }
         AppData.getAppDataByProjectAndEnv(appData.projectId, appData.sourceEnv, appData.appName, appData.version, function(err, appDatas) {
             if (err) {
                 logger.debug("Failed to fetch app-data: ", err);
@@ -496,8 +502,8 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                             }
                             logger.debug("Task updated Successfully: ", JSON.stringify(updateCount));
                             taskService.executeTask(taskId, user, hostProtocol, choiceParam, appDatas[0], function(err, historyData) {
-                                if (err === 404) {
-                                    callback(404, null);
+                                if (err && err.errorCode === 404) {
+                                    callback(err, null);
                                     return;
                                 } else if (err) {
                                     logger.error("Failed to execute task.", err);
@@ -519,22 +525,23 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                                     logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
                                 });
                                 callback(null, promoteRes);
+                                return;
                             });
                         });
                     } else {
                         logger.debug("Task not Found.");
-                        callback(null, 404);
+                        callback({ "errorCode": 404, "message": "Task Not Found." }, null);
                         return;
                     }
                 });
             } else {
-                callback(404, null);
+                callback({ "errorCode": 404, "message": "Something wrong,app-data not found from DB." }, null);
                 return;
             }
         });
 
     } else {
-        callback(404, null);
+        callback({ "errorCode": 400, "message": "Either appData or task missing." }, null);
         return;
     }
 
