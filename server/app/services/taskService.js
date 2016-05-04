@@ -97,9 +97,11 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                 }
                 logger.debug("taskRes::::: ", JSON.stringify(taskRes));
                 callback(null, taskRes);
+                return;
             });
         } else {
-            callback(404, null);
+            callback({"errorCode": 404,"message":"Task Not Found."}, null);
+            return;
         }
     });
 };

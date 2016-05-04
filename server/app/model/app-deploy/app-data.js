@@ -140,14 +140,17 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
         if (err) {
             logger.debug("Error fetching record.", err);
             callback(err, null);
+            return;
         }
-        
-        if (aData.length) {
+
+        if (aData && aData.length) {
             var existData = checkDuplicate(aData[0], appData);
             var setData = {};
-            var keys = Object.keys(existData);
-            for (var i = 0; i < keys.length; i++) {
-                setData[keys[i]] = existData[keys[i]];
+            if (existData) {
+                var keys = Object.keys(existData);
+                for (var i = 0; i < keys.length; i++) {
+                    setData[keys[i]] = existData[keys[i]];
+                }
             }
 
             that.update({
@@ -160,8 +163,10 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
                 if (err) {
                     logger.debug("Failed to update: ", err);
                     callback(err, null);
+                    return;
                 }
                 callback(null, updatedData);
+                return;
             });
         } else {
             var appDataObj = new that(appData);
@@ -169,9 +174,11 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
                 if (err) {
                     logger.debug("Got error while creating appData: ", err);
                     callback(err, null);
+                    return;
                 }
                 logger.debug("Creating appData: ", JSON.stringify(anAppData));
                 callback(null, anAppData);
+                return;
             });
         }
     });
@@ -180,7 +187,9 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
 var checkDuplicate = function(aData, reqData) {
     var existDocker = aData.docker;
     var reqDocker = reqData.docker;
-    if (existDocker && existDocker.length && existDocker[0] != null && reqDocker && reqDocker.length && reqDocker[0] != null) {
+    var existNexus = aData.nexus;
+    var reqNexus = reqData.nexus;
+    if (existDocker && existDocker.length && existDocker[0] != null && reqDocker && reqDocker.length && reqDocker[0] != null && reqDocker[0].nodeIds) {
         for (var i = 0; i < existDocker.length; i++) {
             if (existDocker[i].image === reqDocker[0].image && existDocker[i].imageTag === reqDocker[0].imageTag &&
                 existDocker[i].containerPort === reqDocker[0].containerPort && existDocker[i].hostPort === reqDocker[0].hostPort &&
@@ -195,18 +204,18 @@ var checkDuplicate = function(aData, reqData) {
         }
         reqData.docker = existDocker;
         return reqData;
-    } else {
-        var existNexus = aData.nexus;
-        var reqNexus = reqData.nexus;
-        if(existNexus && existNexus.repoURL && reqNexus && reqNexus.repoURL){
-            if(existNexus.nodeIds.indexOf(reqNexus.nodeIds[0]) == -1){
+    } else if (existNexus && reqNexus) {
+        if (existNexus.repoURL && reqNexus.nodeIds) {
+            if (existNexus.nodeIds.indexOf(reqNexus.nodeIds[0]) == -1) {
                 existNexus.nodeIds.push(reqNexus.nodeIds[0]);
             }
-        }else{
+        } else {
             existNexus = reqNexus;
         }
         reqData.nexus.nodeIds = existNexus.nodeIds;
         return reqData;
+    } else {
+        return null;
     }
 }
 
