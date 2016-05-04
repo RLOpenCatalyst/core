@@ -57,10 +57,16 @@
 			var envParams ;
 			$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
 				envParams=requestParams;
-				var blueprint = data.blueprints;
-				$scope.blueprints = formatData.getFormattedCollection(blueprint);
-				$scope.isBlueprintPageLoading = false;
-                workzoneUIUtils.makeTabScrollable('blueprintPage');
+				workzoneServices.getBlueprints(envParams).then(function(result) {
+					var blueprint = result.data;
+					$scope.blueprints = formatData.getFormattedCollection(blueprint);
+					$scope.isBlueprintPageLoading = false;
+	                workzoneUIUtils.makeTabScrollable('blueprintPage');
+				},function(error) {
+					$scope.isBlueprintPageLoading = false;
+					console.log(error);
+					$scope.errorMessage = "No Records found";
+				});
 			});
 
 			angular.extend($scope, {

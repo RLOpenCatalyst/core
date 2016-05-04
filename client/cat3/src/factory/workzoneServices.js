@@ -109,6 +109,11 @@
                         return $http.get(fullUrl(url), Auth.getHeaderObject());
                     }
                 },
+                getBlueprints: function (envParams) {
+                    var url = ' /blueprints/organization/' + envParams.org + '/businessgroup/' + envParams.bg + 
+                    '/project/' + envParams.proj;
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
                 blueprintInfo: function (blueprintID) {
                     var url = '/blueprints/' + blueprintID + '/blueprintInfo';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
