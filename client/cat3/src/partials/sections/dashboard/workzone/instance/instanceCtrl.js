@@ -10,7 +10,6 @@
 	angular.module('workzone.instance', ['ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone','utility.array','workzonePermission', 'instanceServices', 'chefDataFormatter'])
 	.controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices','arrayUtil', 'instancePermission', 
 		'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService' , function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices,arrayUtil, instancePerms, instanceActions, instanceOperations,workzoneEnvironment, $timeout, workzoneUIUtils,uiGridOptionsService) {
-			console.log('instanceCtrl');
 		var helper = {
 			attachListOfTaskWithInstance: function(completeData) {
 				var instanceList = completeData.instances;
@@ -40,6 +39,7 @@
 		var completeData;
 		$scope.instancePageLevelLoader = true;
 		$scope.instStartStopFlag = false;
+		$scope.importByIPDisabled = false;
 
 		/*User permission set example*/
 		//defining an object for permission.
@@ -131,7 +131,6 @@
 					$timeout(function() {
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
 						$scope.tabData = $scope.instanceList = result.data.instances;
-						console.log($scope.totalCards);
 					   	if($scope.totalCards > $scope.paginationParams.pageSize) {
 					   		$scope.cardsAvailable = true;
 					   	}
@@ -333,8 +332,9 @@
 				$scope.paginationParams.sortOrder = 'desc';
 			}
 		}
-
+		
 		$scope.instanceImportByIP = function() {
+			$scope.importByIPDisabled = true;
 			var whetherConfigListAvailable = workzoneServices.getCheckIfConfigListAvailable();
 			var getOSList = workzoneServices.getOSList();
 

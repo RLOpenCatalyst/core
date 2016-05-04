@@ -275,8 +275,9 @@
 			};
 			/*method being called to set the last page view when a new task is created*/
 			$scope.setLastPageView = function(){
-				var totalItems = $scope.orcheGridOptions.totalItems + 1;
-				var lastPage = (Math.ceil((totalItems)/$scope.paginationParams.pageSize));
+				/*$scope.orcheGridOptions.totalItems needs to be updated when a new entry is created.*/
+				$scope.orcheGridOptions.totalItems = $scope.orcheGridOptions.totalItems + 1;
+				var lastPage = (Math.ceil(($scope.orcheGridOptions.totalItems)/$scope.paginationParams.pageSize));
 				//Set sortBy and sortField to controller defaults;
 				helper.setPaginationDefaults();
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = lastPage;				
