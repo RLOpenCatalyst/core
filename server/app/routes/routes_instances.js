@@ -49,6 +49,7 @@ var Puppet = require('_pr/lib/puppet.js');
 var masterUtil = require('_pr/lib/utils/masterUtil');
 var containerService = require('_pr/services/containerService');
 var fs = require('fs');
+var containerDao = require('_pr/model/container');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -350,14 +351,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
+            containerDao.deleteContainerByInstanceId(req.params.instanceId,function(err,container){
                 if (err) {
-                    logger.error("Instance deletion Failed >> ", err);
+                    logger.error("Container deletion Failed >> ", err);
                     res.status(500).send(errorResponses.db.error);
                     return;
+                }else{
+                    instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
+                        if (err) {
+                            logger.error("Instance deletion Failed >> ", err);
+                            res.status(500).send(errorResponses.db.error);
+                            return;
+                        }
+                        logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
+                        res.send(200);
+                    });
                 }
-                logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
-                res.send(200);
             });
         }
     });
@@ -634,7 +643,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 res.send(500);
                 return;
             }
-            logger.debug("sendig respose");
             res.status(200).send(containerResponse);
 
         });

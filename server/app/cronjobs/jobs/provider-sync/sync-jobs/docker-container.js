@@ -8,6 +8,7 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var containerDao = require('_pr/model/container');
 var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
+var ObjectId = require('mongoose').Types.ObjectId;
 var async = require('async');
 function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
@@ -47,7 +48,12 @@ function sync() {
                                                return;
                                             };
                                             async.forEach(instances,function(aInstance,next) {
-                                                credentialCrpto.decryptCredential(aInstance.credentials, function (err, decryptedCredentials) {
+                                                containerDao.deleteContainerByInstanceId(aInstance._id,function(err,data){
+                                                    if(err){
+                                                        logger.error(err);
+                                                        return;
+                                                    };
+                                                    credentialCrpto.decryptCredential(aInstance.credentials, function (err, decryptedCredentials) {
                                                     if(err){
                                                        logger.error(err);
                                                        return;
@@ -100,6 +106,7 @@ function sync() {
                                                                     var containers = JSON.parse(so);
                                                                     async.forEach(containers,function(aContainer,next){
                                                                         var containerName=aContainer.Names.toString().replace('/','');
+                                                                        var instanceId=aInstance._id.toString();
                                                                         var containerData = {
                                                                             orgId: aOrg.rowid,
                                                                             bgId: aBusinessGroup.rowid,
@@ -107,7 +114,7 @@ function sync() {
                                                                             envId: aEnvironment.rowid,
                                                                             Id: aContainer.Id,
                                                                             instanceIP: aInstance.instanceIP,
-                                                                            instanceId: aInstance._id,
+                                                                            instanceId: instanceId,
                                                                             Names: containerName,
                                                                             Image: aContainer.Image,
                                                                             ImageID: aContainer.ImageID,
@@ -131,7 +138,8 @@ function sync() {
                                                         logger.error("Error hits to fetch docker details", stdOutErr);
                                                         return;
                                                     });
-                                                });
+                                                    });
+                                                })
                                             })
                                         })
                                     });
@@ -155,7 +163,7 @@ function sync() {
 function containerAction(aContainer){
     async.waterfall([
         function(next){
-            containerDao.getContainerByIdInstanceIP(aContainer.Id,aContainer.instanceId,next);
+            containerDao.getContainerByIdInstanceId(aContainer.Id,aContainer.instanceId,next);
         },
         function(container,next){
             if(container.length === 0){
@@ -170,7 +178,7 @@ function containerAction(aContainer){
                 return;
             }
         });
-}
+};
 
 module.exports = sync;
 
