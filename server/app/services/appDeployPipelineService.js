@@ -112,22 +112,17 @@ appDeployPipelineService.saveAndUpdatePipeLineConfiguration=function saveAndUpda
 };
 
 appDeployPipelineService.updateAppDeployPipeLineEnviornment=function updateAppDeployPipeLineEnviornment(enviornment,callback){
-    console.log(enviornment);
     AppDeployPipeline.getAppDeployPipelineByProjectId(enviornment.projectname_rowid, function(err, appDeployPipeLine) {
         if (err) {
             logger.error("Error while fetching Project via projectId in App Deploy");
             callback(err, null);
             return;
         }
-        console.log(appDeployPipeLine);
         if (appDeployPipeLine.length >0) {
             var configData=appDeployPipeLine[0];
-            var envName=enviornment.enenvironmentname;
+            var envName=enviornment.environmentname;
             var envNames=configData.envId;
             var envNameSeq=configData.envSequence;
-            console.log(envName);
-            console.log(envNames);
-            console.log(envNameSeq);
             if(envNames.indexOf(envName) === -1 && envNameSeq.indexOf(envName) === -1){
                 logger.debug("App Deploy Configuration is updated");
                 callback(null, appDeployPipeLine);
@@ -137,15 +132,12 @@ appDeployPipelineService.updateAppDeployPipeLineEnviornment=function updateAppDe
                 envNameSeq.remove(envName);
                 configData['envId'] = envNames;
                 configData['envSequence'] = envNameSeq;
-                console.log(envNames);
-                console.log(envNameSeq);
                 AppDeployPipeline.updateConfigurePipeline(enviornment.projectname_rowid, configData, function (err, appDeploy) {
                     if (err) {
                         logger.debug("Error while Updating App Deploy");
                         callback(err, null);
                         return;
                     }
-                    console.log(appDeploy);
                     logger.debug("App Deploy Record is successfully updated.");
                     callback(null, appDeploy);
                     return;
