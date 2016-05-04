@@ -35,10 +35,7 @@ appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(pr
         if (appDeployProject.length > 0) {
             callback(null,appDeployProject);
             return;
-        }
-        else
-        {
-            console.log("Durgesh");
+        } else {
             var responseProjectList=[];
             var responseProject={};
             var count = 0;
@@ -52,9 +49,7 @@ appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(pr
                     logger.debug("No project is configured in catalyst");
                     callback(null,[]);
                     return;
-                }
-                else
-                {
+                } else {
                     responseProject['_id'] = aProject[0]._id;
                     responseProject['projectId'] = aProject[0].rowid;
                     responseProject['envSequence'] = aProject[0].environmentname.split(",");
@@ -114,8 +109,55 @@ appDeployPipelineService.saveAndUpdatePipeLineConfiguration=function saveAndUpda
             });
         }
     });
-}
+};
 
+appDeployPipelineService.updateAppDeployPipeLineEnviornment=function updateAppDeployPipeLineEnviornment(enviornment,callback){
+    console.log(enviornment);
+    AppDeployPipeline.getAppDeployPipelineByProjectId(enviornment.projectname_rowid, function(err, appDeployPipeLine) {
+        if (err) {
+            logger.error("Error while fetching Project via projectId in App Deploy");
+            callback(err, null);
+            return;
+        }
+        console.log(appDeployPipeLine);
+        if (appDeployPipeLine.length >0) {
+            var configData=appDeployPipeLine[0];
+            var envName=enviornment.enenvironmentname;
+            var envNames=configData.envId;
+            var envNameSeq=configData.envSequence;
+            console.log(envName);
+            console.log(envNames);
+            console.log(envNameSeq);
+            if(envNames.indexOf(envName) === -1 && envNameSeq.indexOf(envName) === -1){
+                logger.debug("App Deploy Configuration is updated");
+                callback(null, appDeployPipeLine);
+                return;
+            } else {
+                envNames.remove(envName);
+                envNameSeq.remove(envName);
+                configData['envId'] = envNames;
+                configData['envSequence'] = envNameSeq;
+                console.log(envNames);
+                console.log(envNameSeq);
+                AppDeployPipeline.updateConfigurePipeline(enviornment.projectname_rowid, configData, function (err, appDeploy) {
+                    if (err) {
+                        logger.debug("Error while Updating App Deploy");
+                        callback(err, null);
+                        return;
+                    }
+                    console.log(appDeploy);
+                    logger.debug("App Deploy Record is successfully updated.");
+                    callback(null, appDeploy);
+                    return;
+                });
+            }
+        }else{
+            logger.debug("No Project is configure in Pipeline");
+            callback(null, null);
+            return;
+        }
+    });
+}
 
 
 
