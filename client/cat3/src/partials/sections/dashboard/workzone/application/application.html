@@ -33,7 +33,7 @@
             </span>
         </div>
 
-        <section id="pipelineView" class="scrollContent" ng-show="isAppallCardTab.html" >
+        <section id="pipelineView" class="scrollContent" ng-show="isAppallCardTab.tmp" >
             <div ng-if="pipeGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
                     <div ng-show="pipeLineActBarShow">
@@ -53,7 +53,7 @@
 
         </section>
 
-        <section id="tableView" class="scrollContent"  ng-if="isHistoryTab.html" ng-controller="applicationHistoryCtrl">
+        <section id="tableView" class="scrollContent"  ng-if="isHistoryTab.tmp" ng-controller="applicationHistoryCtrl">
             <div class="no-data-found" ng-if="!historyGridOptions.data.length > 0"> No data found !</div>
             <div ng-if="historyGridOptions.data.length > 0"  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
         </section>

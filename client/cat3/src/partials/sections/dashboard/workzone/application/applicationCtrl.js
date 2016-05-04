@@ -19,9 +19,9 @@
 				pipelineConfig:'',
 				pipeLineActBarShow:false,
 				isApplicationPageLoading :true,
-				isAppallCardTab : {icon:false,html:true},
-				isHistoryTab:{icon:true,html:false},
-				isAppActiveCardTab:{icon:true,html:false},
+				isAppallCardTab : {icon:false,tmp:true},
+				isHistoryTab:{icon:true,tmp:false},
+				isAppActiveCardTab:{icon:true,tmp:false},
 				requestParams:{},
 				currentTargetId:'',
 				pagiOptionsHistory :appData.pagination,
@@ -30,19 +30,19 @@
 					switch (param){
 						case 'allCards' :
 							getApplicationPipeLineData($scope.requestParams.params);
-							$scope.isAppallCardTab = {icon:false,html:true};
-							$scope.isAppActiveCardTab = {icon:true,html:false};
-							$scope.isHistoryTab = {icon:true,html:false};
+							$scope.isAppallCardTab = {icon:false,tmp:true};
+							$scope.isAppActiveCardTab = {icon:true,tmp:false};
+							$scope.isHistoryTab = {icon:true,tmp:false};
 						break;
 						case 'activeCards' :
-							$scope.isAppallCardTab = {icon:true,html:false};
-							$scope.isAppActiveCardTab =  {icon:false,html:true};
-							$scope.isHistoryTab = {icon:true,html:false};
+							$scope.isAppallCardTab = {icon:true,tmp:false};
+							$scope.isAppActiveCardTab =  {icon:false,tmp:true};
+							$scope.isHistoryTab = {icon:true,tmp:false};
 						break;
 						case 'history' :
-							$scope.isAppallCardTab = {icon:true,html:false};
-							$scope.isAppActiveCardTab = {icon:true,html:false};
-							$scope.isHistoryTab = {icon:false,html:true};
+							$scope.isAppallCardTab = {icon:true,tmp:false};
+							$scope.isAppActiveCardTab = {icon:true,tmp:false};
+							$scope.isHistoryTab = {icon:false,tmp:true};
 						break;
 					}
 				},
