@@ -63,9 +63,19 @@ $imagePath : "../../../../../../images";
 	}
 
 	#cpServicesPage {
+		position: relative;
+		
 		.special-service-section {
 		    width: 254px;
 		}
+
+		.inactive-grid{
+	        width: 100%;
+	        height: 100%;
+	        position: absolute;
+	        z-index: 99999;
+	        opacity: 0.6;
+	    }
 
 		.workstationBtn {
 		    margin: 0px;

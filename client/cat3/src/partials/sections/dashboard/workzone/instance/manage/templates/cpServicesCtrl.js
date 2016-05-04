@@ -10,24 +10,28 @@
     angular.module('workzone.instance')
         .controller('cpServicesCtrl', ['$scope', '$rootScope', 'workzoneServices', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'instanceFactories', function ($scope, $rootScope, workzoneServices, $modal, $timeout, uiGridOptionsClient, uiGridConstants, instanceFactories) {
             var cpInstance = $scope.$parent.cpInstance;
-            console.log("cpInstance",cpInstance);
             var helper = {
                 doServiceAction: function (inst, service, actionType) {
+                    $scope.inactiveGrid = true;
                     workzoneServices.getDoServiceActionOnInstance(inst._id, service.rowid, actionType).then(function () {
+                        $scope.inactiveGrid = false;
                         helper.showActionHistory();
                     }, function () {
+                        $scope.inactiveGrid = false;
                         helper.showActionHistory();
                     });
                 },
                 doServiceDelete: function (inst, service, idx) {
-                    console.log('delete clcked outside service');
                     $scope.inactiveGrid = true;
                     workzoneServices.deleteServiceOnInstance(inst._id, service.rowid).then(
                         function () {
                             $scope.inactiveGrid = false;
                             cpInstance.serviceIds.splice(idx, 1);
                             $scope.tabData.splice(idx, 1);  
-                            console.log('delete clcked outside service');  
+                        },
+                        function () {
+                            $scope.inactiveGrid = false;
+                            alert("Unable to delete service");
                         }
                     );
                 },
@@ -36,38 +40,7 @@
                 }
             };
 
-            /*$scope.serviceInfo = [];
-            $scope.setSerivceInfo = function () {
-                if (cpInstance.serviceIds && cpInstance.serviceIds.length) {
-                    workzoneServices.postRetrieveServiceDetails(cpInstance.serviceIds).then(function (response) {
-                        $scope.serviceInfo = response.data;
-                        $scope.serviceInfo = instanceFactories.getAllServiceActionItems($scope.serviceInfo);
-                    }, function () {
-                        alert('An error occurred while getting service list');
-                    });
-                } else {
-                    $scope.serviceInfo = [];
-                }
-            };
-            $scope.setSerivceInfo();*/
-
-
-            /*$scope.paginationParams = {
-                pages: {
-                    page: 1,
-                    pageSize: 10
-                }
-            };*/
             $scope.tabData = [];
-
-            /*$scope.cpServicesGridOptions = {
-                paginationPageSizes: [10, 25, 50],
-                paginationPageSize: 10,
-                enableColumnMenus: false,
-                enableScrollbars: true,
-                enableHorizontalScrollbar: 0,
-                enableVerticalScrollbar: 1
-            };*/
 
             var gridOptions = uiGridOptionsClient.options().gridOption;
             $scope.cpServicesGridOptions = gridOptions;
@@ -155,61 +128,24 @@
             var services = cacheServices.getFromCache(cacheKey);
             var tabData = dataObj.serviceObject;
 
-            /*if (services) {
-                $scope.serviceInfo = services;
-            } else {
-                workzoneServices.getChefServerDetails(cpInstance.chef.serverId).then(function (response) {
-                    $scope.serviceInfo = response.data;
-
-                    workzoneServices.getServiceCommand().then(function (response) {
-                        var servicesCmd = response.data;
-                        for (var k = 0; k < servicesCmd.length; k++) {
-                            if (servicesCmd[k].chefserverid !== cpInstance.chef.serverId) {
-                                $scope.serviceInfo.push(servicesCmd[k]);
-                            }
-                        }
-                        $scope.serviceInfo = instanceFactories.getAllServiceActionItems($scope.serviceInfo);
-
-                        cacheServices.addToCache(cacheKey, $scope.serviceInfo);
-                    }, function () {
-                        alert('An error occurred while getting service list');
-                    });
-                }, function () {
-                    alert('An error occurred while getting service list');
-                });
-            }*/
-
-
             $scope.tabAddServicesData = [];
-
-            /*$scope.cpAddNewServicesGridOptions = {
-                paginationPageSizes: [10, 25, 50],
-                paginationPageSize: 10,
-                enableColumnMenus: false,
-                enableScrollbars: true,
-                enableHorizontalScrollbar: 0,
-                enableVerticalScrollbar: 1
-            };*/
-
             var gridOptions = uiGridOptionsClient.options().gridOption;
             $scope.cpAddNewServicesGridOptions = gridOptions;
-            var helper = {
-                getUnMatchedServices: function(totalAllServices, instanceServiceIds) {
-                    //debugger;
-                    //console.log(JSON.stringify(totalAllServices)+"===Hello==="+instanceServiceIds);
-                    var removedServicesList = [];
-                    for(var i = 0; i < totalAllServices.length; i++){
-                        //console.log(totalAllServices[i].rowid);
-                        if(instanceServiceIds.indexOf(totalAllServices[i].rowid) == -1){
-                            removedServicesList.push(totalAllServices[i]);
+            var helperAddService = {
+                filterService: function(allServ,preseServ){
+                    var newData=[];
+                    var PreValArry=[];
+                    angular.forEach(preseServ,function(PreVal){
+                        PreValArry.push(PreVal.rowid);
+                    });
+                    angular.forEach(allServ,function(val){
+                        if(PreValArry.indexOf(val.rowid) == -1){
+                            newData.push(val);
                         }
-                    }
-                    console.log("getUnMatchedServices::",removedServicesList);
-                    return removedServicesList;
+                    });
+                    return newData;
                 }
             };
-            
-
 
             $scope.initAddServicesGrids = function(){
                 $scope.cpAddNewServicesGridOptions.data='tabAddServicesData';
@@ -226,12 +162,11 @@
                     $scope.isAddnewServicePageLoading = true;
                     if (services) {
                         $scope.isAddnewServicePageLoading = false;
-                        $scope.tabAddServicesData = filterService(services, tabData);
-                        //$scope.tabAddServicesData = helper.getUnMatchedServices(services, $scope.serviceIds);
+                        $scope.tabAddServicesData = helperAddService.filterService(services, tabData);
                     }else {
                         workzoneServices.getChefServerDetails(cpInstance.chef.serverId).then(function (allServices) {
                             $timeout(function(){
-                                $scope.tabAddServicesData = filterService(allServices.data, tabData);
+                                $scope.tabAddServicesData = helperAddService.filterService(allServices.data, tabData);
                                 workzoneServices.getServiceCommand().then(function (response) {
                                     var servicesCmd = response.data;
                                     for (var k = 0; k < servicesCmd.length; k++) {
@@ -241,7 +176,6 @@
                                     }
                                     $scope.isAddnewServicePageLoading = false;
                                     $scope.tabAddServicesData = instanceFactories.getAllServiceActionItems($scope.tabAddServicesData);
-                                    //cacheServices.addToCache(cacheKey, allServices.data);
                                     cacheServices.addToCache(cacheKey, allServices.data);
                                 }, function () {
                                     alert('An error occurred while getting service commands');
@@ -258,23 +192,6 @@
                 $scope.initAddServicesGrids();
                 $scope.cpAddNewServivcesListView();
             };
-
-            function filterService(allServ,preseServ){
-                var newData=[];
-                var PreValArry=[];
-                angular.forEach(preseServ,function(PreVal){
-                    PreValArry.push(PreVal.rowid);
-                });
-                angular.forEach(allServ,function(val){
-                    if(PreValArry.indexOf(val.rowid) == -1){
-                        newData.push(val);
-                    }
-                });
-                return newData;
-            }
-
-
-
 
             $scope.selection = [];
             // toggle selection for a given Service by name
