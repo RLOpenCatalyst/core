@@ -22,7 +22,8 @@ const errorType = 'taskService';
 var taskService = module.exports = {};
 
 taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgProjectAndEnvId(jsonData, callback) {
-    jsonData["taskType"] = { $in: ["chef", "composite"] };
+    //jsonData["taskType"] = { $in: ["chef", "composite"] };
+    jsonData["taskType"] = "chef";
     taskDao.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
         if (err) {
             logger.debug("Failed to fetch  Chef Tasks");
@@ -34,7 +35,7 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
             callback(null, []);
             return;
         } else {
-            var chefTaskList = [];
+            /*var chefTaskList = [];
             var count = 0;
             var compositeObj = {};
             for (var i = 0; i < chefTasks.length; i++) {
@@ -67,7 +68,8 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
                         return;
                     }
                 })(chefTasks[i]);
-            }
+            }*/
+            callback(null,chefTasks);
         }
     })
 };

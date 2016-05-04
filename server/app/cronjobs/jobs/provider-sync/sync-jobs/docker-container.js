@@ -106,6 +106,7 @@ function sync() {
                                                                     var containers = JSON.parse(so);
                                                                     async.forEach(containers,function(aContainer,next){
                                                                         var containerName=aContainer.Names.toString().replace('/','');
+                                                                        var instanceId=aInstance._id.toString();
                                                                         var containerData = {
                                                                             orgId: aOrg.rowid,
                                                                             bgId: aBusinessGroup.rowid,
@@ -113,7 +114,7 @@ function sync() {
                                                                             envId: aEnvironment.rowid,
                                                                             Id: aContainer.Id,
                                                                             instanceIP: aInstance.instanceIP,
-                                                                            instanceId: new ObjectId(aInstance._id),
+                                                                            instanceId: instanceId,
                                                                             Names: containerName,
                                                                             Image: aContainer.Image,
                                                                             ImageID: aContainer.ImageID,
@@ -162,7 +163,14 @@ function sync() {
 function containerAction(aContainer){
     async.waterfall([
         function(next){
+            containerDao.getContainerByIdInstanceId(aContainer.Id,aContainer.instanceId,next);
+        },
+        function(container,next){
+            if(container.length === 0){
                 containerDao.createContainer(aContainer,next);
+            }else{
+                containerDao.updateContainer(aContainer.Id,aContainer.Status,next);
+            }
         }],
         function (err, results) {
             if(err){
@@ -170,7 +178,7 @@ function containerAction(aContainer){
                 return;
             }
         });
-}
+};
 
 module.exports = sync;
 
