@@ -39,15 +39,15 @@
             </span>
          </li>
          <li ng-click="instStartStopFlag || grid.appScope.operationSet.changeInstanceStatus(row.entity)" ng-show="grid.appScope.perms.start 
-            && row.entity.instanceState !== 'running' && row.entity.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
+            && row.entity.instanceState === 'stopped' && row.entity.providerId" ng-disabled="instStartStopFlag" ng-class="{'hideStartStopCur': instStartStopFlag}">
             <span>
-            <i class="fa fa-pause dropdown-icon"></i>
+            <i class="fa fa-play dropdown-icon"></i>
             Start Instance
             </span>
          </li>
-         <li ng-click="instStartStopFlag || grid.appScope.operationSet.changeInstanceStatus(row.entity)" ng-show="grid.appScope.perms.stop && grid.appScope.instanceState === 'running' && grid.appScope.providerId" ng-disabled="instStartStopFlag"  ng-class="{'hideStartStopCur': instStartStopFlag}">
+         <li ng-click="instStartStopFlag || grid.appScope.operationSet.changeInstanceStatus(row.entity)" ng-show="grid.appScope.perms.stop && row.entity.instanceState === 'running' && row.entity.providerId" ng-disabled="instStartStopFlag"  ng-class="{'hideStartStopCur': instStartStopFlag}">
             <span>
-            <i class="fa fa-play dropdown-icon"></i>
+            <i class="fa fa-stop dropdown-icon"></i>
             Stop Instance
             </span>
          </li>
