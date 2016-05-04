@@ -3334,26 +3334,23 @@ function devCall() {
 							if ($selectedItems.length) {
 								var projectId = $($selectedItems.get(0)).attr('data-projectId');
 								var envId = $($selectedItems.get(0)).attr('data-envId');
-                 
+
 								var blueprintId = $($selectedItems.get(0)).find('.blueprintVer').val();
-								
 								if (!blueprintId) {
 									blueprintId = $($selectedItems.get(0)).attr('data-blueprintId');
 								}
-							
-
+								
 								var version = $($selectedItems.get(0)).find('.blueprintVersionDropDown').val();
 
 								var blueprintType = $($selectedItems.get(0)).attr('data-blueprintType');
 								// alert('launching -> ' +'../blueprints/' + blueprintId + '/launch?version=' + version);
 
-								function launchBP(blueprintId,stackName) {
+								function launchBP(blueprintId, stackName) {
 									//   alert(JSON.stringify(stackName));
 									var $launchResultContainer = $('#launchResultContainer');
 									$launchResultContainer.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
 									$launchResultContainer.find('.modal-title').html('Launching Blueprint');
 									$launchResultContainer.modal('show');
-									alert('after ==> '+blueprintId);
 									$.get('/blueprints/' + blueprintId + '/launch?version=' + version + '&envId=' + urlParams['envid'] + '&stackName=' + stackName, function(data) {
 
 
@@ -3510,6 +3507,7 @@ function devCall() {
 
 										validator.resetForm();
 									});
+									
 									if (!eventAdded) {
 										$("#cftForm").submit(function(e) {
 											var stackName = $('#cftInput').val();
@@ -3518,7 +3516,10 @@ function devCall() {
 												e.preventDefault();
 												return false;
 											} else {
-
+												var blueprintId = $($selectedItems.get(0)).find('.blueprintVer').val();
+												if (!blueprintId) {
+													blueprintId = $($selectedItems.get(0)).attr('data-blueprintId');
+												}
 												launchBP(blueprintId,stackName);
 												$('#cftContainer').modal('hide');
 												e.preventDefault();
