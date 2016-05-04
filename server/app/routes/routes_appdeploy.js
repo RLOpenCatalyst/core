@@ -370,11 +370,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.post('/app/deploy/new', function(req, res) {
         var isUpgrade = false;
         appDeployService.appDeployOrUpgrade(req, isUpgrade, function(err, resData) {
-            if (err) {
-                res.status(500).send("Failed to deploy app.");
+            logger.debug(JSON.stringify(err));
+            logger.debug(JSON.stringify(resData));
+            if (err && err.errorCode == 404) {
+                res.status(err.errorCode).send(err.message);
+                return;
+            } else if (err && err.errorCode == 400) {
+                res.status(err.errorCode).send(err.message);
+                return;
+            } else if (err) {
+                res.status(500).send("Something went wrong while deploying App.");
+                return;
+            } else {
+                res.send(resData);
                 return;
             }
-            res.send(resData);
         });
     });
 
@@ -382,22 +392,41 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.put('/app/deploy/upgrade', function(req, res) {
         var isUpgrade = true;
         appDeployService.appDeployOrUpgrade(req, isUpgrade, function(err, resData) {
-            if (err) {
-                res.status(500).send("Failed to upgrade app.");
+            if (err && err.errorCode == 404) {
+                res.status(err.errorCode).send(err.message);
+                return;
+            } else if (err && err.errorCode == 400) {
+                res.status(err.errorCode).send(err.message);
+                return;
+            } else if (err) {
+                res.status(500).send("Something went wrong while upgrading App.");
+                return;
+            } else {
+                res.send(resData);
                 return;
             }
-            res.send(resData);
         });
     });
 
     //Promote Application
     app.put('/app/deploy/promote', function(req, res) {
         appDeployService.promoteApp(req, function(err, resData) {
-            if (err) {
-                res.status(500).send("Failed to promote app.");
+            if (err && err.errorCode == 404) {
+                res.status(err.errorCode).send(err.message);
+                return;
+            } else if (err && err.errorCode == 400) {
+                res.status(err.errorCode).send(err.message);
+                return;
+            } else if (err && err.errorCode == 403) {
+                res.status(err.errorCode).send(err.message);
+                return;
+            } else if (err) {
+                res.status(500).send("Something went wrong while promoting App.");
+                return;
+            } else {
+                res.send(resData);
                 return;
             }
-            res.send(resData);
         });
     });
 }

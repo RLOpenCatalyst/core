@@ -41,14 +41,15 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         },
         function (permission,next){
             if(permission){
-                 containerDao.getContainerByIdInstanceIP(jsonData.containerId,jsonData.instanceId,next);
+                 containerDao.getContainerByIdInstanceId(jsonData.containerId,jsonData.instanceId,next);
             }else{
                  callBackReturn(permission,next)
             }
         },
         function (aContainer,next){
             if(aContainer.length > 0){
-                 containerDao.getContainerByIdInstanceIP(jsonData.containerId,jsonData.instanceId,next);
+                 status=aContainer[0].Status;
+                 containerDao.updateContainer(jsonData.containerId,jsonData.status,next);
             }else{
                  callBackReturn(aContainer,next);
             }

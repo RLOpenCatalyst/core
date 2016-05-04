@@ -14,13 +14,13 @@
 			};
 		}])
 		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', '$timeout','uiGridOptionsService', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, $timeout,uiGridOptionsService) {
-			
 			var cftPaginationDefault = uiGridOptionsService.options();
 			$scope.paginationParams = cftPaginationDefault.pagination;
 			$scope.currentCardPage = cftPaginationDefault.pagination.page;
 			$scope.cardsPerPage = cftPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
+			$scope.isCloudFormationPaginationShow = false;
 
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isCloudFormationPageLoading = true;
@@ -39,6 +39,9 @@
 					// service to get the list of containers.
 					workzoneServices.getPaginatedCFT($scope.envParams, $scope.paginationParams).then(function(result) {
 						$scope.totalCards = result.data.metaData.totalRecords;
+						if($scope.totalCards < $scope.paginationParams.pageSize) {
+							$scope.isCloudFormationPaginationShow = false;
+						}
 						$scope.isCloudFormationPageLoading = false;
 						$scope.stacks = result.data.cftList;
 						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pageSize);

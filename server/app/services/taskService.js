@@ -22,7 +22,8 @@ const errorType = 'taskService';
 var taskService = module.exports = {};
 
 taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgProjectAndEnvId(jsonData, callback) {
-    jsonData["taskType"] = { $in: ["chef", "composite"] };
+    //jsonData["taskType"] = { $in: ["chef", "composite"] };
+    jsonData["taskType"] = "chef";
     taskDao.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
         if (err) {
             logger.debug("Failed to fetch  Chef Tasks");
@@ -34,7 +35,7 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
             callback(null, []);
             return;
         } else {
-            var chefTaskList = [];
+            /*var chefTaskList = [];
             var count = 0;
             var compositeObj = {};
             for (var i = 0; i < chefTasks.length; i++) {
@@ -43,7 +44,12 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
                         count++;
                         chefTaskList.push(aTask);
                     } else {
-                        taskDao.getDistinctTaskTypeByIds(aTask.taskConfig.assignTasks, function(err, distinctTaskType) {
+                        taskDao.getDistinctTaskTypeByIds(aTask.taskConfig.assignTasks,function(err,distinctTaskType){
+                            if(err){
+                               logger.debug("Failed to fetch  Distinct Tasks");
+                               callback(err,null);
+                               return;
+                            }
                             count++;
                             if (distinctTaskType.length === 0)
                                 logger.debug("There is no composite Tasks Configured");
@@ -62,7 +68,8 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
                         return;
                     }
                 })(chefTasks[i]);
-            }
+            }*/
+            callback(null,chefTasks);
         }
     })
 };
@@ -90,9 +97,11 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                 }
                 logger.debug("taskRes::::: ", JSON.stringify(taskRes));
                 callback(null, taskRes);
+                return;
             });
         } else {
-            callback(404, null);
+            callback({"errorCode": 404,"message":"Task Not Found."}, null);
+            return;
         }
     });
 };
