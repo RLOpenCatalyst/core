@@ -1,14 +1,16 @@
+
 apidoc
 server/node_modules/
 .idea/
 server/app/logs
 node_modules/
 server/app/config/catalyst-config.json
+server/catdata/catalyst/
 server/.idea/
 tempfiles/
 seed/copychefidtoinstance.js
-server/catdata/
-server/vspheretest.js
+server/app/catdata/
+server/app/vspheretest.js
 *.pem
 *.key
 *.cert
@@ -22,3 +24,5 @@ server/vspheretest.js
 *.npmrc
 *.lock
 *.svn
+server/config
+server/logs

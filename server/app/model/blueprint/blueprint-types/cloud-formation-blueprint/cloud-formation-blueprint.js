@@ -658,6 +658,8 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
 																});
 															});
 														});
+													} else {
+														logger.error('keypair with name : ' + keyPairName + ' not found');
 													}
 												});
 
