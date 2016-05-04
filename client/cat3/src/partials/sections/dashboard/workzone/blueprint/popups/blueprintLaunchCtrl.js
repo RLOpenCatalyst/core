@@ -97,6 +97,7 @@
 					}
 					//event to update current selected environment data in all tabs
 					$rootScope.$emit('WZ_REFRESH_ENV');
+					$rootScope.$emit('WZ_ENV_CHANGE_START', envParams, launchingInstance);
 				},
 				function(bpLaunchError) {
 					$scope.isBPLogsLoading = false;
