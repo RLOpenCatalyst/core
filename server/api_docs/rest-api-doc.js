@@ -1135,6 +1135,36 @@
  */
 
 
+//  List image tags w.r.t. docker repo and image
+/**
+     * @api {get} /d4dMasters/docker/:dockerId/repository/:repository/image/:image/tags Request Docker Image Tag information
+     * @apiName GetDockerImageTags
+     * @apiGroup Docker Image Tags
+     *
+     * @apiParam {string} rowid Docker unique ID.
+     * @apiParam {string} repository Docker Repo.
+     * @apiParam {string} image Docker Image.
+     *
+     * @apiSuccess {string} layer some unique ID of docker image.
+     * @apiSuccess {string} name  version of the docker image.
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     [
+             {
+                "layer": "b961ba15",
+                "name": "latest"
+             }
+            ]
+     *
+     * @apiError DockerImageNotFound.
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "error": "Docker Image not found."
+     *     }
+     */
 
 /**
  * @api {get}/app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList
@@ -1304,6 +1334,216 @@
  *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'VersionList'}
  *     };
  */
+
+
+//  Deploy New Application
+/**
+     * @api {post} /app/deploy/new Deploy New App
+     * @apiName DeployNewApp
+     * @apiGroup Deploy New App
+     *
+     * @apiParam {String} [repoURL]  Mandatory repoURL for nexus.
+     * @apiParam {String} [version]  Mandatory version for nexus.
+     * @apiParam {String} [artifactId]  Mandatory artifactId for nexus.
+     * @apiParam {String} [groupId]  Mandatory groupId for nexus.
+     * @apiParam {String} [repository]  Mandatory repository for nexus.
+
+ 	 * @apiParam {String} [dockerImage]  Mandatory dockerImage for docker.
+ 	 * @apiParam {String} [containerName]  Optional containerName for docker.
+ 	 * @apiParam {String} [containerPort]  Mandatory containerPort for docker.
+ 	 * @apiParam {String} [hostPort]  Mandatory hostPort for docker.
+ 	 * @apiParam {String} [dockerUser]  Optional dockerUser for docker.
+ 	 * @apiParam {String} [dockerPassword]  Optional dockerPassword for docker.
+ 	 * @apiParam {String} [dockerEmailId]  Optional dockerEmailId for docker.
+ 	 * @apiParam {String} [imageTag]  Mandatory imageTag for docker.
+
+ 	 * @apiParam {String} [projectId]  Mandatory projectId for App Data.
+ 	 * @apiParam {String} [envName]  Mandatory envName for App Data.
+ 	 * @apiParam {String} [appName]  Mandatory appName for App Data.
+ 	 * @apiParam {String} [version]  Mandatory version for App Data.
+
+ 	 * @apiParam {String} [taskId]  Mandatory taskId for Task.
+ 	 * @apiParam {[String]} [nodeIds]  Mandatory nodeIds for Task.
+     *
+     * @apiParamExample {json} Request-Example:
+	 *{
+		"sourceData": {
+			"nexus": {
+				"repoURL": "nexusRepoUrl", // nexusArtifact.resourceURI (from nexus artifact call)
+				"version": "version",
+				"artifactId": "artifactId",
+				"groupId": "groupId",
+				"repository": "repository"
+			},
+			"docker": {
+				"image": "dockerImage",
+				"containerName": "containerName",
+				"containerPort": "containerPort",
+				"hostPort": "hostPort",
+				"dockerUser": "dockerUser",
+				"dockerPassword": "dockerPassword",
+				"dockerEmailId": "dockerEmailId",
+				"imageTag": "imageTag"
+			}
+		},
+		"appData": {
+			"projectId": "projectId",
+			"envName": "envName",
+			"appName": "appName", // for nexus(nexus.artifactId) and for docker(docker.image)
+			"version": "version" // for nexus(nexus.version) and for docker(docker.imageTag)
+		},
+		"task": {
+			"taskId": "56fb64a19ee332570c311cef",
+			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"] // Send which are checked
+		}
+	  }
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *      {
+			  "taskId": "889749848044442",
+			  "taskType": "chef",
+			  "historyId": "5714843ce4f0ba611a0f1ba5"
+			}
+     *
+     * @apiError TaskNotFound.
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "error": "Task not found."
+     *     }
+     */
+
+
+
+
+//  Upgrade Application
+/**
+     * @api {put} /app/deploy/upgrade  Upgrade App
+     * @apiName UpgradeApp
+     * @apiGroup Upgrade App
+     *
+     * @apiParam {String} [repoURL]  Mandatory repoURL for nexus.
+     * @apiParam {String} [version]  Mandatory version for nexus.
+     * @apiParam {String} [artifactId]  Mandatory artifactId for nexus.
+     * @apiParam {String} [groupId]  Mandatory groupId for nexus.
+     * @apiParam {String} [repository]  Mandatory repository for nexus.
+
+ 	 * @apiParam {String} [dockerImage]  Mandatory dockerImage for docker.
+ 	 * @apiParam {String} [containerName]  Optional containerName for docker.
+ 	 * @apiParam {String} [containerPort]  Mandatory containerPort for docker.
+ 	 * @apiParam {String} [hostPort]  Mandatory hostPort for docker.
+ 	 * @apiParam {String} [dockerUser]  Optional dockerUser for docker.
+ 	 * @apiParam {String} [dockerPassword]  Optional dockerPassword for docker.
+ 	 * @apiParam {String} [dockerEmailId]  Optional dockerEmailId for docker.
+ 	 * @apiParam {String} [imageTag]  Mandatory imageTag for docker.
+
+ 	 * @apiParam {String} [projectId]  Mandatory projectId for App Data.
+ 	 * @apiParam {String} [envName]  Mandatory envName for App Data.
+ 	 * @apiParam {String} [appName]  Mandatory appName for App Data.
+ 	 * @apiParam {String} [version]  Mandatory version for App Data.
+
+ 	 * @apiParam {String} [taskId]  Mandatory taskId for Task.
+ 	 * @apiParam {[String]} [nodeIds]  Mandatory nodeIds for Task.
+     *
+     * @apiParamExample {json} Request-Example:
+	 *{
+		"sourceData": {
+			"nexus": {
+				"repoURL": "nexusRepoUrl", // nexusArtifact.resourceURI (from nexus artifact call)
+				"version": "version",
+				"artifactId": "artifactId",
+				"groupId": "groupId",
+				"repository": "repository"
+			},
+			"docker": {
+				"image": "dockerImage",
+				"containerName": "containerName",
+				"containerPort": "containerPort",
+				"hostPort": "hostPort",
+				"dockerUser": "dockerUser",
+				"dockerPassword": "dockerPassword",
+				"dockerEmailId": "dockerEmailId",
+				"imageTag": "imageTag"
+			}
+		},
+		"appData": {
+			"projectId": "projectId",
+			"envName": "envName",
+			"appName": "appName", // for nexus(nexus.artifactId) and for docker(docker.image)
+			"version": "version" // for nexus(nexus.version) and for docker(docker.imageTag)
+		},
+		"task": {
+			"taskId": "56fb64a19ee332570c311cef",
+			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"] // Send which are checked
+		}
+	  }
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *      {
+			  "taskId": "889749848044442",
+			  "taskType": "chef",
+			  "historyId": "5714843ce4f0ba611a0f1ba5"
+			}
+     *
+     * @apiError TaskNotFound.
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "error": "Task not found."
+     *     }
+     */
+
+
+//  Promote Application
+/**
+     * @api {put} /app/deploy/promote  Promote App
+     * @apiName PromoteApp
+     * @apiGroup Promote App
+     *
+ 	 * @apiParam {String} [projectId]  Mandatory projectId for App Data.
+ 	 * @apiParam {String} [sourceEnv]  Mandatory sourceEnv for App Data.
+ 	 * @apiParam {String} [targetEnv]  Mandatory targetEnv for App Data.
+ 	 * @apiParam {String} [appName]  Mandatory appName for App Data.
+ 	 * @apiParam {String} [version]  Mandatory version for App Data.
+
+ 	 * @apiParam {String} [taskId]  Mandatory taskId for Task.
+ 	 * @apiParam {[String]} [nodeIds]  Mandatory nodeIds for Task.
+     *
+     * @apiParamExample {json} Request-Example:
+	 *{
+		"appData": {
+			"projectId": "projectId",
+			"sourceEnv": "sourceEnv",
+	 		"targetEnv": "targetEnv",
+			"appName": "appName", // for nexus(nexus.artifactId) and for docker(docker.image)
+			"version": "version" // for nexus(nexus.version) and for docker(docker.imageTag)
+		},
+		"task": {
+			"taskId": "56fb64a19ee332570c311cef",
+			"nodeIds": ["57039230bfa14af3165a2845", "4535554543433455353", "767564535355532432"] // Send which are checked
+		}
+	}
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *      {
+			  "taskId": "889749848044442",
+			  "taskType": "chef",
+			  "historyId": "5714843ce4f0ba611a0f1ba5"
+			}
+     *
+     * @apiError TaskNotFound.
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "error": "Task not found."
+     *     }
+     */
 
 /**
  * @api {get}/app/deploy/pipeline/project/:projectId

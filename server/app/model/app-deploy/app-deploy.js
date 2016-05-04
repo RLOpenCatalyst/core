@@ -49,10 +49,9 @@ var AppDeploySchema = new Schema({
         trim: true
     },
     applicationLastDeploy:  {
-        type: Date,
+        type: String,
         required: true,
-        trim: true,
-        default:Date.now
+        trim: true
     },
     applicationStatus:  {
         type: String,

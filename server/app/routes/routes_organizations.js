@@ -42,14 +42,13 @@ var Task = require('../model/classes/tasks/tasks.js');
 var masterUtil = require('../lib/utils/masterUtil.js');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
-
 var async = require('async');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var Docker = require('_pr/model/docker.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
 var	taskService = require('_pr/services/taskService');
 var Docker = require('_pr/model/docker.js');
-
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -2081,5 +2080,4 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			return;
 		});
 	});
-
 }

@@ -1769,7 +1769,8 @@ var MasterUtil = function() {
     this.getEnvironmentName = function(envId, callback) {
         logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({
-            rowid: envId
+            rowid: envId,
+            "id": 3
         }, function(err, envs) {
             if (err) {
                 callback(err, null);

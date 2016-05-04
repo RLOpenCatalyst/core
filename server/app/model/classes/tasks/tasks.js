@@ -104,7 +104,7 @@ taskSchema.plugin(mongoosePaginate);
 
 
 // Executes a task
-taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, callback, onComplete) {
+taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, callback, onComplete) {
 	logger.debug('Executing');
 	var task;
 	var self = this;
@@ -148,7 +148,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
 	}
 	var timestamp = new Date().getTime();
 	var taskHistory = null;
-	task.execute(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
+	task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
 		if (err) {
 			callback(err, null);
 			return;
@@ -678,6 +678,26 @@ taskSchema.statics.NormalizedTasks=function(jsonData,fieldName,callback){
 				})(tasks[i]);
 			}
 		})
+};
+
+taskSchema.statics.updateTaskConfig = function(taskId, taskConfig, callback) {
+	Tasks.update({
+		"_id": new ObjectId(taskId)
+	}, {
+		$set: {
+			taskConfig: taskConfig
+		}
+	}, {
+		upsert: false
+	}, function(err, updateCount) {
+		if (err) {
+			callback(err, null);
+			return;
+		}
+		logger.debug('Updated task:' + updateCount);
+		callback(null, updateCount);
+
+	});
 };
 
 var Tasks = mongoose.model('Tasks', taskSchema);
