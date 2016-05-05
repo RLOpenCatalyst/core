@@ -75,6 +75,10 @@ var containerSchema = new Schema({
         required: true,
         trim: true,
     },
+    status: {
+            type: String,
+            enum: ["START", "STOP" , "PAUSE","UNPAUSE","RESTART"]
+    },
     HostConfig:Schema.Types.Mixed
 
 });

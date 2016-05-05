@@ -107,6 +107,7 @@ function sync() {
                                                                     async.forEach(containers,function(container,next){
                                                                         var containerName=container.Names.toString().replace('/','');
                                                                         var instanceId=instance._id.toString();
+                                                                        var containerStatus=dockerContainerStatus(container.Status.toString());
                                                                         var containerData = {
                                                                             orgId: organization.rowid,
                                                                             bgId: businessGroup.rowid,
@@ -123,6 +124,7 @@ function sync() {
                                                                             Ports: container.Ports,
                                                                             Labels: toPairs(container.Labels),
                                                                             Status: container.Status,
+                                                                            status: containerStatus,
                                                                             HostConfig: container.HostConfig
                                                                         };
                                                                         containerAction(containerData);
@@ -179,6 +181,20 @@ function containerAction(container){
             }
         });
 };
+
+function dockerContainerStatus(status){
+    if(status.indexOf('Exited') >= 0){
+        return "STOP";
+    }else if(status.indexOf('Paused')>= 0){
+        return "PAUSE";
+    }else if(status.indexOf('Seconds')>= 0){
+        return "RESTART";
+    }else if(status.indexOf('Hours')>= 0 || status.indexOf('Minutes')>= 0){
+        return "UNPAUSE";
+    }else{
+        return "START";
+    }
+}
 
 
 module.exports = sync;
