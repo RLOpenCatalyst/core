@@ -1,9 +1,13 @@
 <div id='newTaskPage'>
 	<div class="modal-header">
 		<span class="close" ng-click="cancel()">×</span>
-		<h4 class="modal-title">
+		<h4 class="modal-title" ng-if="!isEditMode">
 			<i class="fa fa-plus"></i>&nbsp;
-			Create New Job
+			Create {{taskType}} Job
+		</h4>
+		<h4 class="modal-title" ng-if="isEditMode">
+			<i class="fa fa-edit"></i>&nbsp;
+			Edit {{taskType}} Job - {{name}}
 		</h4>
 	</div>
 

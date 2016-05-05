@@ -201,7 +201,6 @@
 					});
 				},
 				viewNodes: function(orchestrationObj) {
-					var getInstance = workzoneServices.postRetrieveDetailsForInstanceNames(orchestrationObj.taskConfig.nodeIds);
 					$modal.open({
 						animation: true,
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/viewNodes.html',
@@ -210,7 +209,7 @@
 						keyboard: false,
 						resolve: {
 							items: function() {
-								return getInstance;
+								return orchestrationObj;
 							}
 						}
 					}).result.then(function(selectedItem) {
@@ -250,12 +249,13 @@
 								return type;
 							}
 						}
-					}).result.then(function(taskName) {
+					}).result.then(function(taskData) {
+						console.log(taskData);
 						if (type === 'new') {
-							$rootScope.globalSuccessMessage = 'New Job ' + taskName + ' created successfully';
+							$rootScope.globalSuccessMessage = 'New Job ' + taskData.name + ' created successfully';
 							$scope.setLastPageView();
 						} else {
-							$rootScope.globalSuccessMessage = taskName + ' has been updated successfully';
+							$rootScope.globalSuccessMessage = taskData.name + ' has been updated successfully';
 							$scope.taskListGridView();
 						}
 						$('#globalSuccessMessage').animate({

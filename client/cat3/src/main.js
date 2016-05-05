@@ -99,6 +99,9 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
         });
         $scope.showLogoutConfirmationSection = false;
     };
+    $rootScope.$on('USER_LOGOUT', function() {
+        $scope.doLogout();
+    });
 }])
 .controller('dashboardCtrl', ['$rootScope', '$scope', '$http', 'uac', '$location', '$state', function ($rootScope, $scope, $http, uac, $location, $state) {
         'use strict';
