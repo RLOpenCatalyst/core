@@ -67,8 +67,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             if(retCode === 0){
                 if(stdOut.trim().length === jsonData.containerId.length){
                     containerDao.updateContainer(jsonData.containerId,jsonData.processStatus,next);
-                }
-                else{
+                }else{
                     containerDao.deleteContainerById(jsonData.containerId, next);
                 }
             }else {
