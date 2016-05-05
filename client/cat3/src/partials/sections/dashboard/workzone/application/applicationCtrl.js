@@ -12,7 +12,7 @@
 			var pipeLineConfig = {
 			};
 		}])
-		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'appDeployResponseFormatter','uiGridOptionsServices', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, appDeployResponseFormatter,uiGridOptiSer) {
+		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'appDeployResponseFormatter','uiGridOptionsService', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, appDeployResponseFormatter,uiGridOptiSer) {
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
 			angular.extend($scope, {
@@ -162,7 +162,7 @@
 
 					});
 				},
-				PromoteApp: function(cardDetails) {
+				promoteApp: function(cardDetails) {
 					$modal.open({
 						animate: true,
 						templateUrl: "src/partials/sections/dashboard/workzone/application/popups/applicationPromote.html",
@@ -192,6 +192,7 @@
 
 			function getApplicationPipeLineData(envParams) {
 				workzoneServices.getPipelineConfig(envParams).then(function(configResult){
+					//Api response is in array but it is only one object.
 					$scope.pipelineConfig=configResult.data[0];
 					$scope.pipeGridOptions=angular.extend(gridOpt.gridOption,{enableSorting: false},{
 						onRegisterApi: function(gridApi) {
@@ -203,6 +204,7 @@
 						}
 					});
 					$scope.pipeGridOptions.columnDefs=[{ name:'appName',field:'appName',displayName:'App Name',cellTemplate:'<div pipeline-card card-details="row.entity.appName"></div>',cellTooltip: true}];
+					//Api response is in array but it is only one object.
 					angular.forEach(configResult.data[0].envSequence,function(val){
 						if(configResult.data[0].envId.indexOf(val) !== -1) {
 							var optionObject = {

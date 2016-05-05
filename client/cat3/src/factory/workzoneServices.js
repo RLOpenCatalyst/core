@@ -59,8 +59,8 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getApplicationHistoryForEnv: function (envName, projId,pagiOpti) {
-                    var pageiReq='page='+pagiOpti.page+',pageSize='+pagiOpti.pageSize+',field='+pagiOpti.sortBy+',direction='+pagiOpti.sortOrder;
-                    var url = '/app/deploy/project/' + projId + '/env/'+ envName +'/appDeployHistoryList?'+pageiReq;
+                    var pageiReq=paginationUtil.pageObjectToString(pagiOpti);
+                    var url = '/app/deploy/project/' + projId + '/env/'+ envName +'/appDeployHistoryList'+pageiReq;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getApplicationHistoryLogs: function(appId) {
@@ -455,8 +455,8 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getPipelineView :function(requestEnv,pgOptions){
-                    var pageiReq='page='+pgOptions.page+'&pageSize='+pgOptions.pageSize+'&sortBy='+pgOptions.sortBy+'&sortOrder='+pgOptions.sortOrder;
-                    var url = '/app/deploy/project/'+requestEnv.proj+'/appDeployList?'+pageiReq;
+                    var pageiReq=paginationUtil.pageObjectToString(pgOptions);
+                    var url = '/app/deploy/project/'+requestEnv.proj+'/appDeployList'+pageiReq;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getCardPermission :function(cardDetails){
