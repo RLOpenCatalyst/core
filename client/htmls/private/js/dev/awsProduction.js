@@ -53,6 +53,9 @@ $('#saveRunlist').click(function(e) {
 	console.log($ccrs);
 	console.log($ccrs.getSelectedRunlist());
 	var runlist = $ccrs.getSelectedRunlist();
+	if(!runlist.length) {
+		$('#attributesViewListTable').find('tbody').empty();
+	}
 	createRunlistTable($ccrs.getRunlistNames());
 	$('#chefRunlistModal').modal('hide');
 	return false;
@@ -1301,7 +1304,7 @@ var formInitializer = function(editing, blueprintData, callback) {
 			$('.cookbookShow').parent().show();
 			$('.divconfigureparameterrunlist').show();
 			$('.divchefrunlist').show();
-			if ($('.productdiva2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
+			if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
 				//Auto adding the selected template by default
 				var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
 				$('.dockerimagesrow').detach();
@@ -1368,7 +1371,6 @@ var formInitializer = function(editing, blueprintData, callback) {
 				$('.notForDocker').hide();
 
 			} else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation" || $('.productdiv2.role-Selected').first().attr('templatetype') == "cft") {
-
 				$('.notforCFT').hide();
 				$('.forCFT').show();
 				$('.divconfigureparameterrunlist').hide();
@@ -2049,6 +2051,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
 						getImage = data[z]['templatesicon_filename'];
 						getTemplateType = data[z]['templatetypename'];
 						console.log(getTemplateType);
+						console.log(selectedText.trim());
 						if (selectedText.trim() != getTemplateType.trim()) continue;
 						gettemplatescookbooks = data[z]['templatescookbooks'].replace(/"/g, "");
 						dockercontainerpathstitle = data[z]['dockercontainerpathstitle'];
@@ -3018,10 +3021,13 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 				$newformBPEdit.find('#instanceCount').find('option[value="' + blueprintdata.blueprintConfig.cloudProviderData.instanceCount + '"]').attr('selected', 'selected');
 			}
 
-			if(blueprintdata && blueprintdata.appUrls && blueprintdata.appUrls.length) {
-				for(var i=0;i<blueprintdata.appUrls.length;i++) {
-					addAppUrlToTable(blueprintdata.appUrls[i].name,blueprintdata.appUrls[i].url);
+			if (blueprintdata && blueprintdata.appUrls && blueprintdata.appUrls.length) {
+				for (var i = 0; i < blueprintdata.appUrls.length; i++) {
+					addAppUrlToTable(blueprintdata.appUrls[i].name, blueprintdata.appUrls[i].url);
 				}
+			}
+			if(blueprintdata && blueprintdata.appUrls && blueprintdata.appUrls.length === 2) {
+				$newformBPEdit.find('#newAppSeries').addClass('hidden');
 			}
 
 		} else {
