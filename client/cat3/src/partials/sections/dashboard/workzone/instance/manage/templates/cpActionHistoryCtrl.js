@@ -8,40 +8,46 @@
 (function(){
    "use strict";
 	angular.module('workzone.instance')
-		.controller('cpActionHistoryCtrl', ['$scope', '$modal', 'workzoneServices', function($scope, $modal , workzoneServices) {
+		.controller('cpActionHistoryCtrl', ['$scope', '$rootScope', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', function($scope, $rootScope, $modal, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices) {
 			var cpInstance = $scope.$parent.cpInstance;
 			$scope.instInfo = cpInstance;
-			var cpActCtrl={
-				gridOptions:{}
-			};
-			cpActCtrl.gridSettings= function(){
-				var gridOption={
-					paginationPageSizes: [10,20, 50, 75],
-					paginationPageSize: 10,
-					enableColumnMenus:false,
-					enableScrollbars :true,
-					enableHorizontalScrollbar: 0,
-					enableVerticalScrollbar: 1
-				};
-				gridOption.data=[];
-				gridOption.columnDefs = [
-					{ name:'Type',field:'name',cellTooltip: true},
+			$scope.tabData = [];
+
+			var gridOptions = uiGridOptionsClient.options().gridOption;
+			$scope.cpActionHistoryGridOptions = gridOptions;
+			$scope.isActionHistoryPageLoading = true;
+
+			$scope.initGrids = function(){
+				$scope.cpActionHistoryGridOptions.data='tabData';
+				$scope.cpActionHistoryGridOptions.columnDefs = [
+					{ name:'Type',field:'name',cellTooltip: true, sort: { direction: 'uiGridConstants.ASC' }},
 					{ name:'Status',field:'success',cellTooltip: true},
 					{ name:'Data',
 					  cellTemplate:'<ul><li title="{{actionKey}} : {{actionValue.join() || actionValue}}" ng-repeat="(actionKey, actionValue) in row.entity.actionData">{{actionKey}} : {{actionValue.join() || actionValue}}</li></ul>'},
-					{ name:'Timestamp',
+					{ name:'Timestamp', field: 'timeStarted', 
 					  cellTemplate:'<span title="{{row.entity.timeStarted  | timestampToLocaleTime}}">{{row.entity.timeStarted  | timestampToLocaleTime}}</span>'},
 					{ name:'Users',field:'user',cellTooltip: true},
 					{ name:'More Info',
 					  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.moreInfo(row.entity)"></i></div>'}
 				];
-				if (cpInstance._id) {
-					workzoneServices.getInstanceActionLogs(cpInstance._id).then(function(response){
-						gridOption.data = response.data;
-					});
-				}
-				cpActCtrl.gridOptions= gridOption;
 			};
+			angular.extend($scope, {
+				cpActionHistoryListView: function() {
+					// service to get the list of action history
+					if (cpInstance._id) {
+						workzoneServices.getInstanceActionLogs(cpInstance._id).then(function(result){
+							$scope.tabData = [];
+							
+							$timeout(function() {
+								$scope.tabData = result.data;
+								$scope.isActionHistoryPageLoading = false;
+							},100);
+						}, function(error){
+							$scope.errorMessage = "No Records found";
+						});
+					}
+				},
+			});
 
 			$scope.moreInfo = function(actionHistoryData){
 				var modalInstance = $modal.open({
@@ -65,7 +71,23 @@
 					console.log('Modal Dismissed at ' + new Date());
 				});
 			};
-			return cpActCtrl;
+			$scope.init = function(){
+				$scope.initGrids();
+				$scope.cpActionHistoryListView();
+			};
+			
+			/*$rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
+				if(tabName === 'Action History'){
+					$scope.isActionHistoryPageLoading = true;
+					var tableData = $scope.tabData;
+					$scope.tabData = [];
+					$timeout(function(){
+						$scope.tabData = tableData;
+						$scope.isActionHistoryPageLoading = false;
+					}, 100);
+				}
+			});*/
+			$scope.init();
 		}]).controller('cpActionHistoryLogCtrl',['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval',function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval){
 			var _instance = items.cpInstance;
 			var _actionItem = items.actionHistoryData;
@@ -104,7 +126,6 @@
 			workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id).then(function(response) {
 				helper.lastTimeStamp = helper.getlastTimeStamp(response.data);
 				$scope.logList = response.data;
-				console.log("check",response);
 				helper.logsPolling();
 			});
 

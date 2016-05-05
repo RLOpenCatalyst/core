@@ -1,7 +1,8 @@
 <link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
 
 <div id="cpLogs" ng-controller="cpLogsCtrl">
-	<div class="logsArea">
+	<loading size="large" name="isCpLogsLoading" align="center" type="block"></loading>
+	<div class="logsArea" ng-show="!isCpLogsLoading">
 		<table>
 			<tbody>
 				<tr class="row rowSpacing" ng-repeat="log in logList">

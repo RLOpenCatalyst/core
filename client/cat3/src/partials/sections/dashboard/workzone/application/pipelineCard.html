@@ -18,9 +18,9 @@
 
     <div ng-if="!cardDetails.name" class="env-card-wrapper text-center">
         <div class="cardView">
-            <div class="card {{selectedCardClass}}" title="{{cardDetails.applicationInstanceName}}"  ng-click="pipeCtrl.selectedCard($event,cardDetails,envName)">
+            <div class="card {{pipeCtrl.selectedCardClass}}" title="{{cardDetails.applicationNodeIP}}"  ng-click="pipeCtrl.selectedCard(cardDetails,appName,envName)">
                 <div class="card-title">
-                    <div  class="card-title-name"> <strong>{{cardDetails.applicationInstanceName}}</strong>
+                    <div  class="card-title-name"> <strong>{{cardDetails.applicationNodeIP}}</strong>
                     </div>
                     <hr/>
                 </div>

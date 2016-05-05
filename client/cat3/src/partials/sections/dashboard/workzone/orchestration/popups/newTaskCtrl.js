@@ -12,6 +12,7 @@
             function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
                 //default values for new task
                 angular.extend($scope, {
+                    parentItems:items,
                     updateCookbook: function () {
                         if ($scope.chefInstanceList.length) {
                             $modal.open({
@@ -210,8 +211,10 @@
                                 $modalInstance.close(items);
                             });
                         }
+                        $rootScope.createChefJob=false;
                     },
                     cancel: function () {
+                        $rootScope.createChefJob=false;
                         $modalInstance.dismiss('cancel');
                     }
                 });

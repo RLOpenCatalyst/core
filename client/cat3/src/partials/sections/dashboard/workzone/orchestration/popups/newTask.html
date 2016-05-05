@@ -21,9 +21,9 @@
 							<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
 								<select class="form-control" ng-model="taskType" ng-disabled="isEditMode">
 								   <option selected="selected" value="chef">Chef</option>
-								   <option value="jenkins">Jenkins</option>
-								   <option value="composite">Composite</option>
-								   <option value="puppet">Puppet</option>
+								   <option ng-show="!createChefJob" value="jenkins">Jenkins</option>
+								   <option ng-show="!createChefJob" value="composite">Composite</option>
+								   <option ng-show="!createChefJob" value="puppet">Puppet</option>
 								</select>
 							</span>
 						</div>
