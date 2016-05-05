@@ -31,10 +31,11 @@ function getUserOrgs(user, callback) {
                 err.status = 500;
                 callback(err);
             } else {
-                var orgIds = orgs.reduce(function(a, b) {
-                    return a.concat(b.rowid);
-                }, []);
-                callback(null, orgIds);
+                var orgsResult = orgs.reduce(function(a, b) {
+                    a[b.orgname] = b;
+                    return a;
+                }, {});
+                callback(null, orgsResult);
             }
         });
     } else {
@@ -44,10 +45,11 @@ function getUserOrgs(user, callback) {
                 err.status = 500;
                 callback(err);
             } else {
-                var orgIds = orgs.reduce(function(a, b) {
-                    return a.concat(b.rowid);
-                }, []);
-                callback(null, orgIds);
+                var orgsResult = orgs.reduce(function(a, b) {
+                    a[b.orgname] = b;
+                    return a;
+                }, {});
+                callback(null, orgsResult);
             }
         });
     }

@@ -28,6 +28,7 @@ var	providerService = require('_pr/services/providerService');
 var instanceService = require('_pr/services/instanceService');
 var userService = require('_pr/services/userService');
 var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/tracked-instances/*", sessionVerificationFunc);
@@ -35,32 +36,45 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     /**
      * @api {get} /tracked-instances 	        Get tracked instances
      * @apiName getTrackedInstances
-     * @apiGroup tags
+     * @apiGroup tracked-instances
      *
-     * @apiParam {Number} providerId 			Provider ID
-     *
-     * @apiSuccess {Object[]} tags				List of tags
-     * @apiSuccess {String} tags.name			Tag name
-     * @apiSuccess {String} tags.description 	Tag description
-     * @apiSuccess {Number} count				Number of tags in the result set
-     * @apiSuccess {pageSize} pageSize			Page size
-     * @apiSuccess {pageIndex} pageIndex		Page index
+     * @apiSuccess {Object[]} trackedInstances                      List of tracked instances
+     * @apiSuccess {String} trackedInstances.id		                Instance id
+     * @apiSuccess {String} trackedInstances.category 	            Instance category (managed/unmanaged)
+     * @apiSuccess {String} trackedInstances.instancePlatformId		Id of the instance on the platform
+     * @apiSuccess {String} trackedInstances.projectName			Project name
+     * @apiSuccess {String} trackedInstances.providerId			    Provider id
+     * @apiSuccess {String} trackedInstances.providerType			Provider (AWS/Azure...)
+     * @apiSuccess {String} trackedInstances.environmentName		Environment name
+     * @apiSuccess {String} trackedInstances.cpuUtilization		    CPU Utilization in %
      *
      * @apiSuccessExample {json} Success-Response:
      * 		HTTP/1.1 200 OK
      * 		{
 	 *
-	 * 			"tracked-instances": [
+	 * 			"trackedInstances": [
 	 * 				{
-	 * 					"name":	"env",
-	 * 					"description": "Deployment environment"
-	 * 				},
+     *                  "id": "<MongoID>",
+     *                  "category": "unmanaged",
+     *                  "instancePlatformId": "<InstanceID>",
+     *                  "projectName": "AppName1",
+     *                  "providerId": "<MongoID>",
+     *                  "environmentName": "Development",
+     *                  "providerType": "AWS",
+     *                  "cpuUtilization": "0%"
+     *              },
 	 *				{
-	 * 					"name":	"application",
-	 * 					"description": "Project name"
-	 * 				}
+     *                  "id": "MongoID",
+     *                  "category": "unmanaged",
+     *                  "instancePlatformId": "<InstanceID>",
+     *                  "projectName": "AppName2",
+     *                  "providerId": "<MongoID>",
+     *                  "environmentName": "Development",
+     *                  "providerType": "AWS",
+     *                  "cpuUtilization": "3%"
+     *              }
 	 * 			],
-	 *			"count": 2,
+	 *			"count": 5,
 	 *			"pageSize": 10,
 	 *			"pageIndex": 1
 	 * 		}
@@ -72,11 +86,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         async.waterfall(
             [
                 function(next) {
-                    // @TODO changes  to be made when token is used
-                    userService.getUserOrgs(req.session.user, next);
+                    apiUtil.paginationRequest(req.query,'trackedInstances', next);
                 },
-                function(orgIds, next) {
-                    instanceService.getTrackedInstancesForOrgs(orgIds, next);
+                function(paginationRequest, next) {
+                    // @TODO changes to be made when token is used
+                    // userService.getTrackedInstancesQuery(req.session.user, paginationRequest, next);
+                    apiUtil.databaseUtil(paginationRequest, next);
+                },
+                function(filterQuery, next) {
+                    // instanceService.validateListInstancesQuery(req.session.user, filterQuery, next);
+                    userService.getUserOrgs(req.session.user, function(err, orgs) {
+                        if(err) {
+                            next(err);
+                        } else {
+                            instanceService.validateListInstancesQuery(orgs, filterQuery, next);
+                        }
+                    });
+                },
+                function(filterQuery, next) {
+                    instanceService.getTrackedInstances(filterQuery.queryObj, next);
                 },
                 function(instances, next) {
                     instanceService.createTrackedInstancesResponse(instances, next);

@@ -36,8 +36,9 @@ instanceService.createUnassignedInstancesList = createUnassignedInstancesList;
 instanceService.bulkUpdateInstanceProviderTags = bulkUpdateInstanceProviderTags;
 instanceService.bulkUpdateUnassignedInstanceTags = bulkUpdateUnassignedInstanceTags;
 instanceService.getTrackedInstancesForProvider = getTrackedInstancesForProvider;
-instanceService.getTrackedInstancesForOrgs = getTrackedInstancesForOrgs;
+instanceService.getTrackedInstances = getTrackedInstances;
 instanceService.createTrackedInstancesResponse = createTrackedInstancesResponse;
+instanceService.validateListInstancesQuery = validateListInstancesQuery;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -58,6 +59,50 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
                 return callback(null, instance);
             }
     });
+}
+
+function validateListInstancesQuery(orgs, filterQuery, callback) {
+    var orgIds = [];
+    var queryObjectAndCondition = filterQuery.queryObj['$and'][0];
+
+    if(('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
+        var validOrgs = queryObjectAndCondition['orgName']['$in'].filter(function(orgName) {
+            return (orgName in orgs);
+        });
+
+        if(validOrgs.length < queryObjectAndCondition['orgName']['$in']) {
+            var err = new Error('Forbidden');
+            err.status = 403;
+            return callback(err);
+        } else {
+            orgIds = validOrgs.reduce(function(a, b) {
+                return a.concat(orgs[b].rowid);
+            }, orgIds);
+        }
+    } else if('orgName' in queryObjectAndCondition) {
+        if(queryObjectAndCondition['orgName'] in orgs) {
+            orgIds.push(orgs[queryObjectAndCondition['orgName']].rowid);
+        } else {
+            var err = new Error('Forbidden');
+            err.status = 403;
+            return callback(err);
+        }
+    } else {
+        orgIds = Object.keys(orgs).reduce(function(a, b) {
+            return a.concat(orgs[b].rowid);
+        }, orgIds);
+    }
+
+    if('orgName' in queryObjectAndCondition)
+        delete filterQuery.queryObj['$and'][0].orgName;
+
+    if(orgIds.length > 0) {
+        filterQuery.queryObj['$and'][0].orgId = {
+            '$in' : orgIds
+        }
+    }
+
+    return callback(null, filterQuery);
 }
 
 function getUnassignedInstancesByProvider(provider, callback) {
@@ -351,13 +396,13 @@ function getTrackedInstancesForProvider(provider, next) {
     );
 }
 
-function getTrackedInstancesForOrgs(orgIds, next) {
+function getTrackedInstances(query, next) {
     async.parallel([
             function (callback) {
-                instancesModel.getByOrgIds(orgIds, callback);
+                instancesModel.getAll(query, callback);
             },
             function(callback) {
-                unManagedInstancesModel.getByOrgIds(orgIds, callback);
+                unManagedInstancesModel.getAll(query, callback);
             }
         ],
         function(err, results) {
@@ -434,7 +479,8 @@ function createTrackedInstancesResponse(instances, callback) {
         var instanceObj = {};
         instanceObj.id = instance._id;
         instanceObj.category = ('chefNodeName' in instance)?'managed':'unmanaged';
-        instanceObj.instanceId = instance.platformId;
+        instanceObj.instancePlatformId = instance.platformId;
+        instanceObj.orgId = instance.orgId;
         instanceObj.orgName = instance.orgName;
         instanceObj.projectName = instance.projectName;
         instanceObj.providerName = instance.providerName;
