@@ -2,22 +2,22 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * Written by Relevance UI Team,
- * Aug 2015
+ * April 2016
  */
 
 (function (angular) {
     "use strict";
     angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices', function ($scope, $rootScope, workzoneServices,uiGridOptiSer) {
-        var appData=uiGridOptiSer.options();
+        var gridOpt=uiGridOptiSer.options();
             angular.extend($scope, {
-                pagiOptionsHistory :appData.pagination,
+                pagiOptionsHistory :gridOpt.pagination,
                 requestParams :$scope.$parent.requestParams,
                 viewAppCardLogs: function (logs) {
                     $rootScope.$emit('VIEW-APP-LOGS',logs);
                 },
                 getHistoryData :function(envParams, envNames) {
                 $scope.isBusyShow=true;
-                $scope.historyGridOptions=angular.extend(appData.gridOption,{
+                $scope.historyGridOptions=angular.extend(gridOpt.gridOption,{
                     columnDefs:[
                         { name:'appName',field:'applicationName',displayName:'App Name'},
                         { name:'App-Instance',field:'applicationInstanceName',displayName:'App-Instance'},

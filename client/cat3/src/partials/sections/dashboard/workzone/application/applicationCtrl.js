@@ -13,36 +13,36 @@
 			};
 		}])
 		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'appDeployResponseFormatter','uiGridOptionsServices', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, appDeployResponseFormatter,uiGridOptiSer) {
-			var appData=uiGridOptiSer.options();
+			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
 			angular.extend($scope, {
 				pipelineConfig:'',
 				pipeLineActBarShow:false,
 				isApplicationPageLoading :true,
-				isAppallCardTab : {icon:false,tmp:true},
-				isHistoryTab:{icon:true,tmp:false},
-				isAppActiveCardTab:{icon:true,tmp:false},
+				isAppallCardTab : {icon:false,template:true},
+				isHistoryTab:{icon:true,template:false},
+				isAppActiveCardTab:{icon:true,template:false},
 				requestParams:{},
 				currentTargetId:'',
-				pagiOptionsHistory :appData.pagination,
-				pagiOptionsCard : appData.pagination,
+				pagiOptionsHistory :gridOpt.pagination,
+				pagiOptionsCard : gridOpt.pagination,
 				applicationPipelineTab : function(param) {
 					switch (param){
 						case 'allCards' :
 							getApplicationPipeLineData($scope.requestParams.params);
-							$scope.isAppallCardTab = {icon:false,tmp:true};
-							$scope.isAppActiveCardTab = {icon:true,tmp:false};
-							$scope.isHistoryTab = {icon:true,tmp:false};
+							$scope.isAppallCardTab = {icon:false,template:true};
+							$scope.isAppActiveCardTab = {icon:true,template:false};
+							$scope.isHistoryTab = {icon:true,template:false};
 						break;
 						case 'activeCards' :
-							$scope.isAppallCardTab = {icon:true,tmp:false};
-							$scope.isAppActiveCardTab =  {icon:false,tmp:true};
-							$scope.isHistoryTab = {icon:true,tmp:false};
+							$scope.isAppallCardTab = {icon:true,template:false};
+							$scope.isAppActiveCardTab =  {icon:false,template:true};
+							$scope.isHistoryTab = {icon:true,template:false};
 						break;
 						case 'history' :
-							$scope.isAppallCardTab = {icon:true,tmp:false};
-							$scope.isAppActiveCardTab = {icon:true,tmp:false};
-							$scope.isHistoryTab = {icon:false,tmp:true};
+							$scope.isAppallCardTab = {icon:true,template:false};
+							$scope.isAppActiveCardTab = {icon:true,template:false};
+							$scope.isHistoryTab = {icon:false,template:true};
 						break;
 					}
 				},
@@ -146,8 +146,8 @@
 				appApprove: function(cardDetails) {
 					$modal.open({
 						animate: true,
-						templateUrl: "src/partials/sections/dashboard/workzone/application/popups/approveApp.html",
-						controller: "approveAppCtrl as approveApp",
+						templateUrl: "src/partials/sections/dashboard/workzone/application/popups/applicationApprove.html",
+						controller: "applicationApproveCtrl as approveApp",
 						backdrop : 'static',
 						keyboard: false,
 						resolve: {
@@ -165,8 +165,8 @@
 				PromoteApp: function(cardDetails) {
 					$modal.open({
 						animate: true,
-						templateUrl: "src/partials/sections/dashboard/workzone/application/popups/promoteApp.html",
-						controller: "promoteAppCtrl as promApp",
+						templateUrl: "src/partials/sections/dashboard/workzone/application/popups/applicationPromote.html",
+						controller: "applicationPromoteCtrl as promApp",
 						backdrop : 'static',
 						keyboard: false,
 						resolve: {
@@ -193,7 +193,7 @@
 			function getApplicationPipeLineData(envParams) {
 				workzoneServices.getPipelineConfig(envParams).then(function(configResult){
 					$scope.pipelineConfig=configResult.data[0];
-					$scope.pipeGridOptions=angular.extend(appData.gridOption,{enableSorting: false},{
+					$scope.pipeGridOptions=angular.extend(gridOpt.gridOption,{enableSorting: false},{
 						onRegisterApi: function(gridApi) {
 							gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
 								$scope.pagiOptionsCard.page=newPage;
