@@ -1958,20 +1958,21 @@ var MasterUtil = function() {
     // Get all appDeploy informations for project.
     // Note: This method logic has to change with stored procedure for better performance.
     // For now due to time constraints implementing with for loop.(Gobinda) 
-    this.getAppDeployListForProject = function(projectId, callback) {
+    this.getAppDeployListForProject = function getAppDeployListForProject(projectId, callback) {
         logger.debug("projectId: ", projectId);
         d4dModelNew.d4dModelMastersProjects.find({
-            rowid: projectId
+            rowid: projectId,
+            id: '4'
         }, function(err, project) {
             if (err) {
                 logger.error("Failed to get project. ", err);
-                callback(err, null);
+                return callback(err, null);
             }
             if (project.length) {
                 AppDeploy.getAppDeployByProjectId(projectId, function(err, appData) {
                     if (err) {
                         logger.debug("App deploy fetch error.", err);
-                        callback(err, null);
+                        return callback(err, null);
                     }
                     if (appData.length) {
                         var filterArray = [];
@@ -1992,7 +1993,7 @@ var MasterUtil = function() {
                                 var arrayValue = filterArray[k].split("@");
                                 logger.debug("name: ", arrayValue[0]);
                                 logger.debug("Version: ", arrayValue[1]);
-                                AppDeploy.getAppDeployByAppNameAndVersion(arrayValue[0], arrayValue[1], function(err, filteredData) {
+                                AppDeploy.getAppDeployByAppNameAndVersion(projectId,arrayValue[0], arrayValue[1], function(err, filteredData) {
                                     count++;
                                     if (err) {
                                         logger.error("Failed to get filteredData: ", err);
@@ -2037,7 +2038,7 @@ var MasterUtil = function() {
                                         finalJson.push(tempJson);
                                         if (filterArray.length === count) {
                                             logger.debug("Send finalJson: ", JSON.stringify(finalJson));
-                                            callback(null, finalJson);
+                                            return callback(null, finalJson);
                                         }
                                     } else {
                                         return;
@@ -2047,14 +2048,11 @@ var MasterUtil = function() {
                         }
 
                     } else {
-                        callback(null, []);
+                        return callback(null, []);
                     }
                 });
-                /*} else {
-                	callback(null, null);
-                }*/
             } else {
-                callback(null, null);
+               return callback(null, null);
             }
         });
     };

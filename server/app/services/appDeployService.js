@@ -131,7 +131,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
             callback(null, []);
             return;
         } else {
-            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function (err, distinctAppDeployApplicationNames) {
+            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function(err, distinctAppDeployApplicationNames) {
                 if (err) {
                     logger.debug("Failed to fetch App Deploy Versions");
                     callback(err, null);
@@ -142,10 +142,10 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                 var environments = aProject[0].environmentname.split(",");
                 var applicationNames = distinctAppDeployApplicationNames.applicationNames;
                 if (applicationNames.length > 0) {
-                    for(var i = 0; i < applicationNames.length;i++){
-                        (function(AppName){
-                            jsonData['appName']=AppName._id;
-                            appDeploy.getDistinctAppDeployVersionByProjectId(jsonData, function (err, appDeployVersions) {
+                    for (var i = 0; i < applicationNames.length; i++) {
+                        (function(AppName) {
+                            jsonData['appName'] = AppName._id;
+                            appDeploy.getDistinctAppDeployVersionByProjectId(jsonData, function(err, appDeployVersions) {
                                 if (err) {
                                     logger.debug("Failed to fetch App Deploy Versions");
                                     callback(err, null);
@@ -156,9 +156,9 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                     callback(null, []);
                                     return;
                                 } else {
-                                    for (var  j = 0; j < appDeployVersions.length; j++) {
-                                        (function (aVersion) {
-                                            appDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId,AppName._id, aVersion._id, function (err, appDeploys) {
+                                    for (var j = 0; j < appDeployVersions.length; j++) {
+                                        (function(aVersion) {
+                                            appDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId, AppName._id, aVersion._id, function(err, appDeploys) {
 
                                                 if (err) {
                                                     logger.debug("Failed to fetch App Deploy");
@@ -235,9 +235,9 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
 
 };
 
-appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion=function getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId,envName,appName,version,callback){
-    appDeploy.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId,envName,appName,version,function(err,appDeployHistoryList){
-        if(err){
+appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion = function getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId, envName, appName, version, callback) {
+    appDeploy.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(projectId, envName, appName, version, function(err, appDeployHistoryList) {
+        if (err) {
             logger.debug("Error while fetching App Deploy History via projectId,envName,appName and appDeployVersion");
             callback(err, null);
             return;
@@ -276,13 +276,13 @@ appDeployService.getAppDeployHistoryListByProjectId = function getAppDeployHisto
             err.status = 500;
             return callback(err);
 
-        }else {
-            appDeploy.getAppDeployHistoryListByProjectId(databaseCall.queryObj, databaseCall.options, function (err, appDeployHistoryData) {
+        } else {
+            appDeploy.getAppDeployHistoryListByProjectId(databaseCall.queryObj, databaseCall.options, function(err, appDeployHistoryData) {
                 if (err) {
                     var err = new Error('Internal server error');
                     err.status = 500;
                     return callback(err);
-                }else {
+                } else {
                     return callback(null, appDeployHistoryData);
                 }
             });
@@ -301,8 +301,8 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
             logger.debug("There is no Project configured.");
             callback(null, []);
             return;
-        }else {
-            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function (err, distinctAppDeployApplicationNames) {
+        } else {
+            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function(err, distinctAppDeployApplicationNames) {
 
                 if (err) {
                     logger.debug("Failed to fetch App Deploy Versions");
@@ -312,11 +312,11 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                 var pipeLineViewList = [];
                 var aPipeLineViewObj = {};
                 var environments = aProject[0].environmentname.split(",");
-                var applicationNames=distinctAppDeployApplicationNames.applicationNames;
+                var applicationNames = distinctAppDeployApplicationNames.applicationNames;
                 if (applicationNames.length > 0) {
-                    for(var i = 0; i < applicationNames.length;i++){
-                        (function(AppName){
-                            appDeploy.getPipeLineViewListByProjectIdAppName(jsonData.projectId,AppName._id,function (err, appDeploys) {
+                    for (var i = 0; i < applicationNames.length; i++) {
+                        (function(AppName) {
+                            appDeploy.getPipeLineViewListByProjectIdAppName(jsonData.projectId, AppName._id, function(err, appDeploys) {
                                 if (err) {
                                     logger.debug("Failed to fetch App Deploy");
                                     callback(err, null);
@@ -364,7 +364,7 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                             });
                         })(applicationNames[i]);
                     }
-                }else {
+                } else {
                     var response = {};
                     response['pipeLineView'] = [];
                     response['metaData'] = {
@@ -386,13 +386,10 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
 };
 
 // Contains all business logic to deploy or upgrade application.
-appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, isUpgrade, callback) {
-    var user = req.session.user.cn;
-    var hostProtocol = req.protocol + '://' + req.get('host');
-    var choiceParam = req.body.choiceParam;
-    var appData = req.body.appData;
-    var sourceData = req.body.sourceData;
-    var task = req.body.task;
+appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(reqBody, isUpgrade, callback) {
+    var appData = reqBody.appData;
+    var sourceData = reqBody.sourceData;
+    var task = reqBody.task;
     var taskId = task.taskId;
     if (sourceData && appData && task) {
         var nexus = sourceData.nexus;
@@ -408,78 +405,39 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(req, isUpgrade
         }
         AppData.createNewOrUpdate(appData, function(err, savedData) {
             if (err) {
+                var err = new Error('Failed to save app-data');
+                err.status = 500;
                 logger.debug("Failed to save app-data: ", err);
-                callback(err, null);
-                return;
+                return callback(err, null);
             }
             logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
-            Tasks.getTaskById(taskId, function(err, data) {
-                if (err) {
-                    logger.error(err);
-                    callback(err, null);
-                    return;
-                }
-                if (data) {
-                    var taskConfig = data.taskConfig;
-                    taskConfig['nodeIds'] = task.nodeIds;
-                    Tasks.updateTaskConfig(taskId, taskConfig, function(err, updateCount) {
-                        if (err) {
-                            logger.error(err);
-                            callback(err, null);
-                            return;
-                        }
-                        logger.debug("Task updated Successfully: ", JSON.stringify(updateCount));
-                        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, function(err, historyData) {
-                            if (err && err.errorCode === 404) {
-                                callback(err, null);
-                                return;
-                            } else if (err) {
-                                logger.error("Failed to execute task.", err);
-                                callback(err, null);
-                                return;
-                            }
-                            logger.debug("Returned historyData: ", JSON.stringify(historyData));
-                            var taskRes = {
-                                "taskId": taskId,
-                                "taskType": historyData.taskType,
-                                "historyId": historyData.historyId
-                            };
-                            callback(null, taskRes);
-                            return;
-                        });
-                    });
-                } else {
-                    callback({ "errorCode": 404, "message": "Task Not Found." }, null);
-                    return;
-                }
-            });
+            return callback(null, appData);
         });
 
     } else {
-        callback({ "errorCode": 400, "message": "Either sourceData or appData or task missing." }, null);
-        return;
+        var err = new Error('Either sourceData or appData or task missing.');
+        err.status = 400;
+        return callback(err, null);
     }
 
 }
 
 // Contains all business logic to promote application.
-appDeployService.promoteApp = function promoteApp(req, callback) {
-    var user = req.session.user.cn;
-    var hostProtocol = req.protocol + '://' + req.get('host');
-    var choiceParam = req.body.choiceParam;
-    var appData = req.body.appData;
-    var task = req.body.task;
+appDeployService.promoteApp = function promoteApp(reqBody, callback) {
+    var appData = reqBody.appData;
+    var task = reqBody.task;
     var taskId = task.taskId;
     if (appData && task) {
         if (appData.sourceEnv === appData.targetEnv) {
-            callback({ "errorCode": 403, "message": "Source Env and Target Env can't be same." }, null);
-            return;
+            var err = new Error("Source Env and Target Env can't be same.");
+            err.status = 403;
+            return callback(err, null);
         }
         AppData.getAppDataByProjectAndEnv(appData.projectId, appData.sourceEnv, appData.appName, appData.version, function(err, appDatas) {
             if (err) {
-                logger.debug("Failed to fetch app-data: ", err);
-                callback(err, null);
-                return;
+                var err = new Error("Failed to fetch app-data.");
+                err.status = 500;
+                return callback(err, null);
             }
             if (appDatas && appDatas.length) {
                 var nexus = appDatas[0].nexus;
@@ -503,64 +461,27 @@ appDeployService.promoteApp = function promoteApp(req, callback) {
                 };
 
                 logger.debug("applicationData: ", JSON.stringify(applicationData));
-                Tasks.getTaskById(taskId, function(err, data) {
+                AppData.createNewOrUpdate(applicationData, function(err, savedData) {
                     if (err) {
-                        logger.error(err);
-                        callback(err, null);
-                        return;
+                        var err = new Error("Failed to save app-data.");
+                        err.status = 500;
+                        return callback(err, null);
                     }
-                    if (data) {
-                        var taskConfig = data.taskConfig;
-                        taskConfig['nodeIds'] = task.nodeIds;
-                        Tasks.updateTaskConfig(taskId, taskConfig, function(err, updateCount) {
-                            if (err) {
-                                logger.error(err);
-                                res.status(500).send(errorResponses.db.error);
-                                return;
-                            }
-                            logger.debug("Task updated Successfully: ", JSON.stringify(updateCount));
-                            taskService.executeTask(taskId, user, hostProtocol, choiceParam, appDatas[0], function(err, historyData) {
-                                if (err && err.errorCode === 404) {
-                                    callback(err, null);
-                                    return;
-                                } else if (err) {
-                                    logger.error("Failed to execute task.", err);
-                                    callback(err, null);
-                                    return;
-                                }
-                                logger.debug("Returned historyData: ", JSON.stringify(historyData));
-                                var promoteRes = {
-                                    "taskId": taskId,
-                                    "taskType": historyData.taskType,
-                                    "historyId": historyData.historyId
-                                };
-                                AppData.createNewOrUpdate(applicationData, function(err, savedData) {
-                                    if (err) {
-                                        logger.debug("Failed to save app-data: ", err);
-                                        callback(err, null);
-                                        return;
-                                    }
-                                    logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
-                                });
-                                callback(null, promoteRes);
-                                return;
-                            });
-                        });
-                    } else {
-                        logger.debug("Task not Found.");
-                        callback({ "errorCode": 404, "message": "Task Not Found." }, null);
-                        return;
-                    }
+                    logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
+                    return callback(null, appDatas[0]);
                 });
+
             } else {
-                callback({ "errorCode": 404, "message": "Something wrong,app-data not found from DB." }, null);
-                return;
+                var err = new Error("Something wrong,app-data not found from DB.");
+                err.status = 404;
+                return callback(err, null);
             }
         });
 
     } else {
-        callback({ "errorCode": 400, "message": "Either appData or task missing." }, null);
-        return;
+        var err = new Error("Either appData or task missing.");
+        err.status = 400;
+        return callback(err, null);
     }
 
 }
