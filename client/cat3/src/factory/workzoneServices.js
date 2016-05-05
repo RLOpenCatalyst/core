@@ -392,8 +392,8 @@
                 },
                 getOrgTasks: function () {
                     var p = workzoneEnvironment.getEnvParams();
-                    var url = '/tasks?orgId=' + p.org + '&bgId=' + p.bg +
-                            '&projectId=' + p.proj + '&envId=' + p.env;
+                    var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +
+                            '/projects/' + p.proj + '/environments/' + p.env + '/tasks';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 addInstanceTask: function (instanceID, data) {
