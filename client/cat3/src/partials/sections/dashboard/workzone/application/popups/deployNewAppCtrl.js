@@ -2,22 +2,23 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * Written by Relevance UI Team,
- * Aug 2015
+ * April 2016
  */
 
 (function(){
 "use strict";
-angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$rootScope,$modal, $modalInstance,workSvs,workEnvt) {
+angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$rootScope,$modal,$modalInstance,workSvs,workEnvt) {
 		/*$scope.isSelectedEnable = true;
 		$scope.serverType='';
 		console.log($scope.serverType);
 		if($scope.serverType==='nexusServer' || $scope.serverType==='rldocker') {
 			$scope.isSelectedEnable = false;
 		}*/
-		angular.extend($scope,{appDepOrUpgrade:items.appDepOrUpgrade}, {
+		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
-			}
+			},
+			sucessMessage:false,
 		});
 		var depNewApp={
 			newEnt:[],
@@ -26,7 +27,9 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			jobOptions:[],
 			repositoryOptions:[],
 			artifactsOptions:[],
-			versionsOptions:[]
+			versionsOptions:[],
+			tagOptions:[],
+			deployResult:[]
 			
 		};
 		depNewApp.init =function(){
@@ -36,11 +39,11 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				$scope.isLoadingServer=false;
 				depNewApp.serverOptions = serverResult.data.server;
 			});
-			depNewApp.getAllJobs();
+			depNewApp.getAllChefJobs();
 		};
-		depNewApp.getAllJobs =function () {
+		depNewApp.getAllChefJobs =function () {
 			// call job API
-			workSvs.getJobTask().then(function (jobResult) {
+			workSvs.getChefJob().then(function (jobResult) {
 				$scope.isLoadingJob=false;
 				depNewApp.jobOptions = jobResult.data;
 			});
@@ -48,25 +51,50 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 		depNewApp.getRepository= function(){
 			if (depNewApp.newEnt.serverTypeInd){
 				depNewApp.newEnt.serverType = depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].configType;
-				// create group select box options
-				angular.forEach(depNewApp.serverOptions,function(val,key){
-					if(val.configType === depNewApp.newEnt.serverType){
-						depNewApp.groupOptions = depNewApp.groupOptions.concat(val.groupid);
-					}
-				});
 			} else {
 				depNewApp.newEnt.serverType = '';
 			}
 			$scope.isLoadingNexus = true;
-			workSvs.getNexusRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
-				depNewApp.repositoryOptions = repositoryResult.data;
-				$scope.isLoadingNexus = false;
-			});
+			if(depNewApp.newEnt.serverType === 'nexus'){
+				// create group select box options
+				angular.forEach(depNewApp.serverOptions,function(val){
+					if(val.configType === depNewApp.newEnt.serverType){
+						depNewApp.groupOptions = depNewApp.groupOptions.concat(val.groupid);
+					}
+				});
+				workSvs.getNexusRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
+					depNewApp.repositoryOptions = repositoryResult.data;
+					$scope.isLoadingNexus = false;
+				});
+			} else {
+				workSvs.getDockerRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
+					$scope.isLoadingNexus = false;
+					depNewApp.repositoryOptions = repositoryResult.data[0].repositories.docker;
+
+				});
+			}
+			
 			depNewApp.clearChildField('serverType');
 		};
 		depNewApp.changeRepository = function(){
-			depNewApp.newEnt.repository = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].id;
-			depNewApp.newEnt.repositoryURL = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].resourceURI;
+			if(depNewApp.newEnt.serverType === 'docker') {
+				var repository=depNewApp.newEnt.repositoryIMG.split('/');
+				depNewApp.newEnt.repository=repository[0];
+				depNewApp.newEnt.image=repository[1];
+				$scope.isLoadingDocTag=true;
+				var requestObject={
+					dockerId:depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid,
+					repository:depNewApp.newEnt.repository,
+					image:depNewApp.newEnt.image
+				}
+				workSvs.getDockerImageTags(requestObject).then(function(tagResult){
+					depNewApp.tagOptions = tagResult.data;
+					$scope.isLoadingDocTag=false;
+				});
+			} else {
+				depNewApp.newEnt.repository = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].id;
+				depNewApp.newEnt.repositoryURL = depNewApp.repositoryOptions[depNewApp.newEnt.repositoryInd].resourceURI;
+			}
 			depNewApp.clearChildField('repository');
 		};
 		depNewApp.getArtifacts= function(){
@@ -94,6 +122,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 		};
 		depNewApp.createNewJob = function (){
 			$rootScope.$emit("CREATE_NEW_JOB");
+			$rootScope.createChefJob=true;
 		};
 		depNewApp.clearChildField = function (field) {
 			switch (field){
@@ -106,6 +135,11 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					depNewApp.newEnt.version ='';
 					depNewApp.artifactsOptions=[];
 					depNewApp.versionsOptions=[];
+					depNewApp.tagOptions=[];
+					depNewApp.newEnt.ContNameId='';
+					depNewApp.newEnt.contPort='';
+					depNewApp.newEnt.tag='';
+					depNewApp.newEnt.repositoryIMG='';
 					break;
 				case 'repository' :
 					depNewApp.newEnt.groupId='';
@@ -114,6 +148,8 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					depNewApp.newEnt.version ='';
 					depNewApp.artifactsOptions=[];
 					depNewApp.versionsOptions=[];
+					depNewApp.tagOptions=[];
+					depNewApp.newEnt.tag='';
 					break;
 				case 'groupId' :
 					depNewApp.newEnt.artifactInd = '';
@@ -126,24 +162,77 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					break;
 			}
 		};
-		depNewApp.submitDemoDeploy = function (){
-			depNewApp.deploymentData = {
-				appData :{
-					projectId:workEnvt.getEnvParams().proj,
-					envId:workEnvt.getEnvParams().env,
-					nexus: {
-						taskId:depNewApp.newEnt.job,
-						appName:depNewApp.newEnt.repository,
-						version:depNewApp.newEnt.version,
-						repoURL:depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].resourceURI,
-						}
-				}
+		depNewApp.submitAppDeploy = function (){
+			if(depNewApp.newEnt.serverType === 'nexus'){
+				var nexus={
+					"repoURL":depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].resourceURI,
+					"version": depNewApp.newEnt.version,
+					"artifactId":depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].artifactId,
+					"groupId": depNewApp.newEnt.groupId,
+					"repository":depNewApp.newEnt.repository
+				};
+			} else{
+				var docker={
+					"image": depNewApp.newEnt.image,
+					"containerName": depNewApp.newEnt.ContNameId,
+					"containerPort": depNewApp.newEnt.contPort,
+					"imageTag": depNewApp.newEnt.tag
+				};
 			}
-			console.log(depNewApp.deploymentData);
+
+			depNewApp.deploymentData ={
+				"sourceData": {
+				},
+				"appData": {
+					"projectId":workEnvt.getEnvParams().proj,
+					"envName": workEnvt.getEnvParams().env,
+					"appName": depNewApp.newEnt.repository,
+					"version":depNewApp.newEnt.version
+				},
+				"task": {
+					"taskId": depNewApp.jobOptions[depNewApp.newEnt.jobInd]._id,
+					"nodeIds": depNewApp.jobOptions[depNewApp.newEnt.jobInd].taskConfig.nodeIds
+				}
+
+			}
+			if(depNewApp.newEnt.serverType === 'nexus'){
+				depNewApp.deploymentData.sourceData.nexus=nexus;
+			}else{
+				depNewApp.deploymentData.sourceData.nexus=docker;
+			}
+			$scope.isLoadingNewApp=true;
+			workSvs.postAppDeploy(depNewApp.deploymentData).then(function(deployResult){
+				$scope.isLoadingNewApp=false;
+				$scope.sucessMessage=true;
+				depNewApp.deployResult=deployResult.data;
+			});
+			//
+		};
+		depNewApp.ok=function(){
+			$modalInstance.close();
+			workSvs.runTask(depNewApp.deployResult.taskId).then(function(response) {
+				$modal.open({
+					animation: true,
+					templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
+					controller: 'orchestrationLogCtrl as orchLogCtrl',
+					backdrop: 'static',
+					keyboard: false,
+					resolve: {
+						items: function() {
+							return {
+								taskId: depNewApp.deployResult.taskId,
+								historyId: depNewApp.deployResult.historyId,
+								taskType: depNewApp.deployResult.taskType
+							};
+						}
+					}
+				});
+			});
 		};
 		// call job api after creating new job .
 		$rootScope.$on("GET_ALL_TASK", function(){
-			depNewApp.getAllJobs();
+			depNewApp.getAllChefJobs();
+			$rootScope.createChefJob = false;
 		});
 		depNewApp.init();
 		return depNewApp;
