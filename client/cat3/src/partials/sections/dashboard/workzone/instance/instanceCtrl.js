@@ -324,6 +324,11 @@
 			}
 		});
 
+		//root scope method for refreshing the list view at the time of blueprint launch.
+		$rootScope.$on('INSTANCE_LIST_CARD_VIEW', function(){
+			$scope.instancesListCardView();
+		});
+
 		var helper = {
 			setPaginationDefaults: function() {
 				$scope.paginationParams.page = '';

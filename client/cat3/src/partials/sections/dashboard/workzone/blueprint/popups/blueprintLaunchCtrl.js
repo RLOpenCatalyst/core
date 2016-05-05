@@ -95,9 +95,8 @@
 							helper.logsPolling();
 						});
 					}
-					//event to update current selected environment data in all tabs
-					$rootScope.$emit('WZ_REFRESH_ENV');
-					$rootScope.$emit('WZ_ENV_CHANGE_START', envParams, launchingInstance);
+					//event to update the instance tab when blueprint is launched.
+					$rootScope.$emit('INSTANCE_LIST_CARD_VIEW');
 				},
 				function(bpLaunchError) {
 					$scope.isBPLogsLoading = false;

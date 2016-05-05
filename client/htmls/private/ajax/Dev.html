@@ -2447,12 +2447,14 @@
    </article>
 </div>
 <script>
-   /* fix for navigation to Jquery Workzone when user enters #ajax/Dev.html*/
-   var basePath = 'ajax/Dev.html/';
-   if (basePath) {
-      console.log(basePath);
-      loadTreeFuncNew();
-      selectEnv();
+   /* fix for navigation to Jquery Workzone when user enters #ajax/Dev.html and angular Integration is set to true */
+   if (isAngularIntegration) {
+      var basePath = 'ajax/Dev.html/';
+      if (basePath) {
+         console.log(basePath);
+         loadTreeFuncNew();
+         selectEnv();
+      }
    }
    devCall();
    

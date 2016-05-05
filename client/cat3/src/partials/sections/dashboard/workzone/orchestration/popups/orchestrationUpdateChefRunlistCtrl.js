@@ -108,7 +108,7 @@
 							if ($scope.editRunListAttributes) {
 								for (var j = 0; j < data.length; j++) {
                                     for(var attrItem in data[j].attributes){
-                                        if ($scope.allCBAttributes !=null && $scope.allCBAttributes[attrItem]) {
+                                        if ($scope.allCBAttributes  && $scope.allCBAttributes[attrItem]) {
                                             data[j].attributes[attrItem].default = $scope.allCBAttributes[attrItem];
                                         }
                                     }
