@@ -3023,6 +3023,9 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 					addAppUrlToTable(blueprintdata.appUrls[i].name, blueprintdata.appUrls[i].url);
 				}
 			}
+			if(blueprintdata && blueprintdata.appUrls && blueprintdata.appUrls.length === 2) {
+				$newformBPEdit.find('#newAppSeries').addClass('hidden');
+			}
 
 		} else {
 
