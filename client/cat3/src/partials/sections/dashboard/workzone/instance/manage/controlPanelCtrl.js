@@ -48,9 +48,9 @@
                     //The cpInstance from this scope is used in the controllers of child tabs.
                     $scope.cpInstance = instance;
                     $scope.instInfo = $scope.cpInstance;
-                    $scope.$watch('tabs.activeTab', function () {
+                    /*$scope.$watch('tabs.activeTab', function () {
                         $rootScope.$emit('WZ_CONTROLPANEL_TAB_VISIT', $scope.tabs.activeTab);
-                    });
+                    });*/
                 }
             ]);
 })(angular);

@@ -1,6 +1,3 @@
-<style type="text/css">
-    
-</style>
 <div id="cpServicesPage" ng-controller="cpServicesCtrl">
     <loading size="large" name="isServicePageLoading" type="block"></loading>
     <div class="inactive-grid" ng-show="inactiveGrid"></div>
@@ -8,7 +5,7 @@
         <div ng-if="tabData.length == 0" align="center">No Data Found !!!</div>
         <div id="grid4" ng-if="tabData.length >0"  ui-grid="cpServicesGridOptions" ui-grid-pagination class="grid"></div>
     </div>
-    <button type="button" class="btn cat-btn-update add-new-service-btn" ng-click="addNewService()">
+    <button type="button" class="btn cat-btn-update add-new-service-btn" ng-click="addService()">
         Add New Service
     </button>
 </div>

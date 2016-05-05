@@ -10,6 +10,7 @@
     angular.module('workzone.instance')
         .controller('cpServicesCtrl', ['$scope', '$rootScope', 'workzoneServices', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'instanceFactories', function ($scope, $rootScope, workzoneServices, $modal, $timeout, uiGridOptionsClient, uiGridConstants, instanceFactories) {
             var cpInstance = $scope.$parent.cpInstance;
+            $scope.isServicePageLoading = true;
             var helper = {
                 doServiceAction: function (inst, service, actionType) {
                     $scope.inactiveGrid = true;
@@ -57,12 +58,13 @@
                 ];
             };
             angular.extend($scope, {
-                cpServivcesListView: function() {
+                cpServivceListView: function() {
                     // service to get the list of action history
                     if (cpInstance.serviceIds && cpInstance.serviceIds.length) {
                         workzoneServices.postRetrieveServiceDetails(cpInstance.serviceIds).then(function (response) {
                             $timeout(function() {
                                 $scope.tabData = instanceFactories.getAllServiceActionItems(response.data);
+                                $scope.isServicePageLoading = false;
                             },100);
                         }, function () {
                             alert('An error occurred while getting service list');
@@ -77,37 +79,35 @@
             $scope.deleteService = function (service, index) {
                 helper.doServiceDelete(cpInstance, service, index);
             };
-            $scope.addNewService = function () {
+            $scope.addService = function () {
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/instance/manage/popups/addNewService.html',
-                    controller: 'addNewServiceCtrl',
+                    controller: 'addServiceCtrl',
                     backdrop: 'static',
                     keyboard: false,
                     resolve: {
-                        dataObj: function () {
+                        serviceTabItems: function () {
                             return {
                                 serviceIds: cpInstance.serviceIds,
                                 inspectInstance: cpInstance,
-                                serviceObject:$scope.tabData
+                                servicedataList: $scope.tabData
                             };
                         }
                     }
                 }).result.then(function (addedServices) {
-                    $timeout(function() {
-                        $scope.initGrids();
-                        cpInstance.serviceIds = cpInstance.serviceIds.concat(addedServices);
-                        $scope.cpServivcesListView();
-                    },100);
+                    $scope.initGrids();
+                    cpInstance.serviceIds = cpInstance.serviceIds.concat(addedServices);
+                    $scope.cpServivceListView();
                 }, function () {
                     console.log('Modal Dismissed at ' + new Date());
                 });
             };
             $scope.init = function(){
                 $scope.initGrids();
-                $scope.cpServivcesListView();
+                $scope.cpServivceListView();
             };
-            $rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
+            /*$rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
                 if(tabName === 'Services'){
                     $scope.isServicePageLoading = true;
                     var tableData = $scope.tabData;
@@ -115,41 +115,41 @@
                     $timeout(function(){
                         $scope.tabData = tableData;
                         $scope.isServicePageLoading = false;
-                    }, 100);
+                    });
                 }
-            });
+            });*/
 
             $scope.init();
-        }]).controller('addNewServiceCtrl', ['$scope', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', 'dataObj', 'cacheServices', 'instanceFactories', function ($scope, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, dataObj, cacheServices, instanceFactories) {
+        }]).controller('addServiceCtrl', ['$scope', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', 'serviceTabItems', 'cacheServices', 'instanceFactories', function ($scope, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, serviceTabItems, cacheServices, instanceFactories) {
         
-            $scope.serviceIds = dataObj.serviceIds;
-            var cpInstance = dataObj.inspectInstance;
+            $scope.serviceIds = serviceTabItems.serviceIds;
+            var cpInstance = serviceTabItems.inspectInstance;
             var cacheKey = 'chefServerServices_' + cpInstance.chef.serverId;
             var services = cacheServices.getFromCache(cacheKey);
-            var tabData = dataObj.serviceObject;
+            var tabData = serviceTabItems.servicedataList;
 
             $scope.tabAddServicesData = [];
             var gridOptions = uiGridOptionsClient.options().gridOption;
-            $scope.cpAddNewServicesGridOptions = gridOptions;
+            $scope.cpAddServicesGridOptions = gridOptions;
             var helperAddService = {
                 filterService: function(allServ,preseServ){
-                    var newData=[];
-                    var PreValArry=[];
-                    angular.forEach(preseServ,function(PreVal){
-                        PreValArry.push(PreVal.rowid);
+                    var filteredServiceData=[];
+                    var prevalList=[];
+                    angular.forEach(preseServ,function(preVal){
+                        prevalList.push(preVal.rowid);
                     });
                     angular.forEach(allServ,function(val){
-                        if(PreValArry.indexOf(val.rowid) == -1){
-                            newData.push(val);
+                        if(prevalList.indexOf(val.rowid) == -1){
+                            filteredServiceData.push(val);
                         }
                     });
-                    return newData;
+                    return filteredServiceData;
                 }
             };
 
             $scope.initAddServicesGrids = function(){
-                $scope.cpAddNewServicesGridOptions.data='tabAddServicesData';
-                $scope.cpAddNewServicesGridOptions.columnDefs = [
+                $scope.cpAddServicesGridOptions.data='tabAddServicesData';
+                $scope.cpAddServicesGridOptions.columnDefs = [
                     { name:'Select',cellTemplate:'<input type="checkbox" ng-click="grid.appScope.toggleSelection(row.entity.rowid)" />',cellTooltip: true},
                     { name:'Name',field:'servicename',cellTooltip: true},
                     { name:'Actions',cellTemplate:'<span ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon {{actionItem.bg}}">'+
@@ -157,30 +157,32 @@
                 ];
             };
             angular.extend($scope, {
-                cpAddNewServivcesListView: function() {
+                cpAddServivcesListView: function() {
+                    var addServiceGridData = [];
                     // service to get the list of action history
-                    $scope.isAddnewServicePageLoading = true;
+                    $scope.isAddServicePageLoading = true;
                     if (services) {
-                        $scope.isAddnewServicePageLoading = false;
-                        $scope.tabAddServicesData = helperAddService.filterService(services, tabData);
+                        $scope.isAddServicePageLoading = false;
+                        addServiceGridData = helperAddService.filterService(services, tabData);
+                        $scope.tabAddServicesData = addServiceGridData;
                     }else {
                         workzoneServices.getChefServerDetails(cpInstance.chef.serverId).then(function (allServices) {
-                            $timeout(function(){
-                                $scope.tabAddServicesData = helperAddService.filterService(allServices.data, tabData);
-                                workzoneServices.getServiceCommand().then(function (response) {
-                                    var servicesCmd = response.data;
-                                    for (var k = 0; k < servicesCmd.length; k++) {
-                                        if (servicesCmd[k].chefserverid !== cpInstance.chef.serverId) {
-                                            $scope.tabAddServicesData.push(servicesCmd[k]);
-                                        }
+                            addServiceGridData = helperAddService.filterService(allServices.data, tabData);
+                            workzoneServices.getServiceCommand().then(function (response) {
+                                var servicesCmd = response.data;
+                                for (var k = 0; k < servicesCmd.length; k++) {
+                                    if (servicesCmd[k].chefserverid !== cpInstance.chef.serverId) {
+                                        addServiceGridData.push(servicesCmd[k]);
                                     }
-                                    $scope.isAddnewServicePageLoading = false;
-                                    $scope.tabAddServicesData = instanceFactories.getAllServiceActionItems($scope.tabAddServicesData);
-                                    cacheServices.addToCache(cacheKey, allServices.data);
-                                }, function () {
-                                    alert('An error occurred while getting service commands');
-                                });
-                            },100);
+                                }
+                                $scope.isAddServicePageLoading = false;
+                                addServiceGridData = instanceFactories.getAllServiceActionItems(addServiceGridData);
+                                cacheServices.addToCache(cacheKey, allServices.data);
+                                $scope.tabAddServicesData = addServiceGridData;
+                            }, function () {
+                                $scope.tabAddServicesData = addServiceGridData;
+                                alert('An error occurred while getting service commands');
+                            });
                         }, function () {
                             alert('An error occurred while getting service list');
                         });
@@ -190,7 +192,7 @@
 
             $scope.initAddServices = function(){
                 $scope.initAddServicesGrids();
-                $scope.cpAddNewServivcesListView();
+                $scope.cpAddServivcesListView();
             };
 
             $scope.selection = [];

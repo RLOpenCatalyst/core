@@ -15,6 +15,7 @@
 
 			var gridOptions = uiGridOptionsClient.options().gridOption;
 			$scope.cpActionHistoryGridOptions = gridOptions;
+			$scope.isActionHistoryPageLoading = true;
 
 			$scope.initGrids = function(){
 				$scope.cpActionHistoryGridOptions.data='tabData';
@@ -39,6 +40,7 @@
 							
 							$timeout(function() {
 								$scope.tabData = result.data;
+								$scope.isActionHistoryPageLoading = false;
 							},100);
 						}, function(error){
 							$scope.errorMessage = "No Records found";
@@ -74,7 +76,7 @@
 				$scope.cpActionHistoryListView();
 			};
 			
-			$rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
+			/*$rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
 				if(tabName === 'Action History'){
 					$scope.isActionHistoryPageLoading = true;
 					var tableData = $scope.tabData;
@@ -84,7 +86,7 @@
 						$scope.isActionHistoryPageLoading = false;
 					}, 100);
 				}
-			});
+			});*/
 			$scope.init();
 		}]).controller('cpActionHistoryLogCtrl',['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval',function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval){
 			var _instance = items.cpInstance;
