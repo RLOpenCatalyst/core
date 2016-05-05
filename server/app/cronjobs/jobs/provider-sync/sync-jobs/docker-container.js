@@ -194,7 +194,7 @@ function dockerContainerStatus(status){
     }else{
         return "START";
     }
-}
+};
 
 
 module.exports = sync;
