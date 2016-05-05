@@ -9,6 +9,7 @@
 	"use strict";
 	 angular.module('workzone.instance')
 	.controller('instanceLogsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval', 'instanceLogs', function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval, instanceLogs) {
+		$scope.instanceName = items.name;
 		$scope.isInstanceLogsLoading = true;
 		angular.extend($scope, {
 			logList: []				

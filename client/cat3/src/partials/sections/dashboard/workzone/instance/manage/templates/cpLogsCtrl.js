@@ -9,6 +9,7 @@
    "use strict";
 	angular.module('workzone.instance')
 		.controller('cpLogsCtrl', ['$scope', 'workzoneServices', 'instanceSetting', '$interval', 'instanceLogs', function($scope, workzoneServices, instanceSetting, $interval, instanceLogs) {
+			$scope.iscpLogsLoading = true;
 			var cpInstance = $scope.$parent.cpInstance;
 			angular.extend($scope, {
 				logList: []		
@@ -20,9 +21,11 @@
 				console.log(rejectMessage);
 			},function(notifyMessage) {
 				if(notifyMessage.fullLogs) {
+					$scope.isCpLogsLoading = false;
 					$scope.logList = notifyMessage.logs;
+					$scope.iscpLogsLoading = false;
 				} else {
-					$scope.logList.push(notifyMessage.logs);
+					$scope.logList.push.apply($scope.logList, notifyMessage.logs);
 				}
 			});
 		}

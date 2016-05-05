@@ -134,6 +134,8 @@ angular.module('dashboard.workzone', ['angularTreeview', 'ngAnimate', 'mgcrea.ng
 			$scope.isLoading = false;
 			$scope.roleList = response.data;
 			$timeout(treeDefaultSelection, 0);
+		}, function() {
+			$rootScope.$emit("USER_LOGOUT");
 		});
 
 		$scope.relevancelab = {};

@@ -16,7 +16,7 @@
 			$scope.cardsPerPage = armPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
-
+			$scope.isAzureARMPaginationShow = true;
 
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isAzureARMPageLoading = true;
@@ -36,6 +36,9 @@
 					// service to get the list of azureArm
 					workzoneServices.getPaginatedARM($scope.envParams, $scope.paginationParams).then(function(result) {
 						$scope.totalCards = result.data.metaData.totalRecords;
+						if($scope.totalCards < $scope.paginationParams.pageSize) {
+							$scope.isAzureARMPaginationShow = false;
+						}
 						$scope.isAzureARMPageLoading = false;
 						$scope.arms = result.data.azureArms;
 						$scope.numofCardPages = Math.ceil($scope.totalCards / $scope.paginationParams.pageSize);

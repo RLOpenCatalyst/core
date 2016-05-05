@@ -7,34 +7,9 @@
     </div>
 
     <div class="modal-body body-padding">
-        <table datatable="" class="table-bordered text-center">
-            <thead>
-                <tr class="rowCustomStyle" role="row">
-                    <td class="sorting_disabled" rowspan="1" colspan="1">
-                        Select
-                    </td>
-                    <td class="sorting_disabled" rowspan="1" colspan="1">
-                        Name
-                    </td>
-                    <td class="sorting_disabled" rowspan="1" colspan="1">
-                        Actions
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="service in serviceInfo" ng-show="serviceIds.indexOf(service.rowid) == -1">
-                    <td>
-                        <input type="checkbox" ng-click="toggleSelection(service.rowid)" />
-                    </td>
-                    <td>{{service.servicename}}</td>
-                    <td class="sorting_1">
-                        <span ng-repeat="actionItem in service.actionData" class="cp-service-icon {{actionItem.bg}}">
-                            <i class="fa {{actionItem.icon}} white"></i>
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <loading size="large" name="isAddServicePageLoading" type="block"></loading>
+        <div ng-if="tabAddServicesData.length == 0" align="center">No Data Found !!!</div>
+        <div id="grid5" ng-if="tabAddServicesData.length >0"  ui-grid="cpAddServicesGridOptions" ui-grid-pagination class="grid" ng-show="!isAddServicePageLoading"></div>
     </div>
 
     <div class="modal-footer">

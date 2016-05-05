@@ -10,7 +10,8 @@
 	</div>
 
 	<div class="modal-body">
-		<table>
+		<loading name="isViewNodesLoading" size="large" type="block" align="center"></loading>
+		<table ng-if="!isViewNodesLoading">
 			<thead>
 				<tr class="header-lineheight">
 					<th class="name-width" scope="col"><u class="header-font">Name</u>
@@ -20,7 +21,7 @@
 				</tr>
 			</thead>
 			<tbody class="taskNodeListContainer">
-				<tr class="header-lineheight" ng-repeat="instance in instanceList">
+				<tr class="header-lineheight" ng-repeat="instance in taskInstanceList">
 					<td class="name-width">{{instance.name}}</td>
 					<td class="name-width">{{instance.instanceIP}}</td>
 					<td class="name-width">{{instance.instanceState}}</td>
