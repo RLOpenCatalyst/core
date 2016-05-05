@@ -61,6 +61,7 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     });
 }
 
+// @TODO Try to move this to a common place for validation
 function validateListInstancesQuery(orgs, filterQuery, callback) {
     var orgIds = [];
     var queryObjectAndCondition = filterQuery.queryObj['$and'][0];
@@ -215,7 +216,6 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
     }
 }
 
-
 function bulkUpdateUnassignedInstanceTags(instances, callback) {
     var catalystEntityTypes = appConfig.catalystEntityTypes;
 
@@ -242,7 +242,6 @@ function bulkUpdateUnassignedInstanceTags(instances, callback) {
         })(i);
     }
 }
-
 
 function updateUnassignedInstanceProviderTags(provider, instanceId, tags, callback) {
     var providerTypes = appConfig.providerTypes;
@@ -488,7 +487,7 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
         instanceObj.bgId = ('bgId' in instance)?instance.bgId:null;
-        instanceObj.cost = ('cost' in instance)?instance.cost:0;
+        instanceObj.cost = (('cost' in instance) && instance.cost)?instance.cost:0;
 
         if('os' in instance)
             instanceObj.os = instance.os;
@@ -505,7 +504,12 @@ function createTrackedInstancesResponse(instances, callback) {
             instanceObj.ip = null;
 
         if('usage' in instance)
-            instanceObj.cpuUtilization = Math.round(instance.usage.CPUUtilization.average * 100) + '%';
+            instanceObj.usage = instance.usage;
+
+        if(('usage' in instance) && ('CPUUtilization' in instance))
+            instanceObj.averageCpuUtilization = Math.round(instance.usage.CPUUtilization.average * 100) + '%';
+        else
+            instanceObj.averageCpuUtilization = '0%';
 
         return instanceObj;
     });

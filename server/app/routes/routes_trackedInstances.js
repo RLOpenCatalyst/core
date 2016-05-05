@@ -73,15 +73,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *                  "providerType": "AWS",
      *                  "cpuUtilization": "3%"
      *              }
-	 * 			],
-	 *			"count": 5,
-	 *			"pageSize": 10,
-	 *			"pageIndex": 1
+	 * 			]
 	 * 		}
      *
      */
     app.get('/tracked-instances', getTrackedInstances);
 
+    /**
+     * Lists all tracked(managed+unmanaged) instances.
+     * Pagination not supported. Only search and filterBy supported.
+     *
+     * @param req
+     * @param res
+     * @param next
+     */
     function getTrackedInstances(req, res, next) {
         async.waterfall(
             [
@@ -89,10 +94,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     apiUtil.paginationRequest(req.query,'trackedInstances', next);
                 },
                 function(paginationRequest, next) {
-                    // @TODO changes to be made when token is used
+                    // @TODO Relook at pagination to allow validation of query parameters
+                    // @TODO Whether databaseUtil should be renamed
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
                 function(filterQuery, next) {
+                    // @TODO Modify to work without sessions as well
                     userService.getUserOrgs(req.session.user, function(err, orgs) {
                         if(err) {
                             next(err);
