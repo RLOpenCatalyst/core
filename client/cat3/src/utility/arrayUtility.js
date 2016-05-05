@@ -67,6 +67,9 @@
                             return array2.filter(function (obj) {
                                 return array1.indexOf(obj) === -1;
                             });
+                        },
+                        isEmptyObject: function(obj) { //validates if an object is empty like {}
+                            return Object.keys(obj).length === 0 && JSON.stringify(obj) === JSON.stringify({});    
                         }
                     };
                 }]);
