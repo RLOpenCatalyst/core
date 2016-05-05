@@ -357,6 +357,23 @@
   font-size: 12px !important;
   text-align: center !important;
 }
+.allProviderTrackedInstanceListTableCSS{
+  font-size: 12px !important;
+  text-align: center !important;
+}
+.specProviderTrackedInstanceListTableCSS{
+  font-size: 12px !important;
+  text-align: center !important;
+}
+.width25padding4marginleft10 {
+  width: 25px;
+  box-shadow: none;
+  padding: 4px !important;
+  margin-left: 10px;
+}
+.usagesArea{
+  min-height:300px;
+}
 table.dataTable thead th, table.dataTable thead td{
   border-bottom: 1px solid #ddd !important;
 }

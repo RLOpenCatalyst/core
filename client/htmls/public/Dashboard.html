@@ -55,8 +55,8 @@
               <div class="icon">
                 <i class="fa fa-th"></i>
               </div>
-              <span class="small-box-footer providerSpecificMoreInfo footer-box-css">
-                <!-- More info <i class="fa fa-arrow-circle-right"></i> -->
+              <span class="small-box-footer providerSpecificMoreInfo managedUnmanagedCSS">
+                More info <i class="fa fa-arrow-circle-right"></i>
               </span>
             </div>
           </div>
@@ -118,8 +118,8 @@
                       <div class="icon">
                         <i class="fa fa-th"></i>
                       </div>
-                      <span id="providerMoreInfo" class="small-box-footer footer-box-css">
-                        <!-- More info <i class="fa fa-arrow-circle-right"></i> -->
+                      <span id="providerMoreInfo" class="small-box-footer managedUnmanagedCSS">
+                        More info <i class="fa fa-arrow-circle-right"></i>
                       </span>
                     </div>
                   </div>
@@ -215,6 +215,142 @@
          </table>
       </div>
     </div>
+    <div id="trackedInstancesAllProviderTableContainer" style="display:none">
+      <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+          <h4 class="panel-title padding2">
+            <span class="panelh4spanCSS">Tracked Instances Details for all Provider &nbsp;</span>
+            <!-- <span id="allprovidersTrackedInstId" class="panelh4spanCSS"></span> -->
+          </h4>
+          <a id="backfrmallprovidertrackedInstance" class="btn btn-primary panelh4aCSS">
+            <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+          </a>                                 
+        </div>     
+      </div>
+      <div  class="table-responsive table-responsiveCSS">
+         <table id="allProviderTrackedInstanceListTable" class="table table-hover table-bordered allProviderTrackedInstanceListTableCSS" cellspacing="0" width="100%">
+            <thead>
+               <tr>
+                  <th style="text-align: center">InstanceId</th>
+                  <th style="text-align: center">Org</th>
+                  <th style="text-align: center">BU</th>
+                  <th style="text-align: center">Project</th>
+                  <th style="text-align: center">Env</th>
+                  <th style="text-align: center">OS</th>
+                  <th style="text-align: center">IP Address</th>
+                  <th style="text-align: center">Provider</th>
+                  <th style="text-align: center">Cost</th>
+                  <th style="text-align: center">Avg. Cpu Usage</th>
+               </tr>
+            </thead>
+            <tbody class="allProviderTrackedInstance">
+            </tbody>
+         </table>
+      </div>
+    </div>
+
+    <div id="trackedInstancesSpecProviderTableContainer" style="display:none">
+      <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+          <h4 class="panel-title padding2">
+            <span class="panelh4spanCSS">Tracked Instances Details for specific Provider &nbsp;</span>
+            <!-- <span id="specprovidersTrackedInstId" class="panelh4spanCSS"></span> -->
+          </h4>
+          <a id="backfrmspecprovidertrackedInstance" class="btn btn-primary panelh4aCSS">
+            <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+          </a>                                 
+        </div>     
+      </div>
+      <div  class="table-responsive table-responsiveCSS">
+         <table id="specProviderTrackedInstanceListTable" class="table table-hover table-bordered specProviderTrackedInstanceListTableCSS" cellspacing="0" width="100%">
+            <thead>
+               <tr>
+                  <th style="text-align: center">InstanceId</th>
+                  <th style="text-align: center">Org</th>
+                  <th style="text-align: center">BU</th>
+                  <th style="text-align: center">Project</th>
+                  <th style="text-align: center">Env</th>
+                  <th style="text-align: center">OS</th>
+                  <th style="text-align: center">IP Address</th>
+                  <th style="text-align: center">Provider</th>
+                  <th style="text-align: center">Cost</th>
+                  <th style="text-align: center">Avg. Cpu Usage</th>
+               </tr>
+            </thead>
+            <tbody class="specProviderTrackedInstance">
+            </tbody>
+         </table>
+      </div>
+    </div>
+
+    <div class="modal fade" id="usageModalContainer" aria-labelledby="myModalLabel" data-backdrop="static">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+           <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <h4 class="modal-title" id="myModalLabel">
+                 <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Usages Calculation
+              </h4>
+           </div>
+           <div class="modal-body">
+              <div class="usagesArea">
+                <table id="" class="table table-hover table-bordered" cellspacing="0" width="100%">
+                  <thead>
+                     <tr>
+                        <th style="text-align: center">&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        <th style="text-align: center">Average</th>
+                        <th style="text-align: center">Minimum</th>
+                        <th style="text-align: center">Maximum</th>
+                     </tr>
+                  </thead>
+                  <tbody class="">
+                    <tr>
+                      <td>CPUUtilization</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    
+                    <tr>
+                      <td>DiskReadBytes</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr> 
+
+                    <tr>
+                      <td>DiskWriteBytes</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr> 
+
+                    <tr>
+                      <td>NetworkOut</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr> 
+
+                    <tr>
+                      <td>NetworkIn</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+
+                  </tbody>
+                </table>
+
+              </div>
+           </div>
+           <div class="modal-footer">
+              <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+           </div>
+        </div>
+      </div>
+    </div>
+
     <script src="js/dashboard.js"></script>
   </body>
 </html>
