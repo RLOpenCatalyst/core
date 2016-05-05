@@ -49,21 +49,29 @@
 			/*Initialising First Accordian-group open on load*/
 			$scope.isFirstOpen = true;
 
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(){
-				$scope.isBlueprintPageLoading = true;
-				$scope.blueprints = [];
-			});
-
 			var envParams ;
-			$rootScope.$on('WZ_ENV_CHANGE_END', function(event, requestParams, data) {
-				envParams=requestParams;
-				var blueprint = data.blueprints;
-				$scope.blueprints = formatData.getFormattedCollection(blueprint);
-				$scope.isBlueprintPageLoading = false;
-                workzoneUIUtils.makeTabScrollable('blueprintPage');
+			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, data) {
+				$scope.isBlueprintPageLoading = true;
+				$scope.envParams=requestParams;
+				$scope.blueprintListCards();
 			});
 
 			angular.extend($scope, {
+				blueprintListCards: function() {
+					$scope.isBlueprintPageLoading = true;
+					$scope.blueprints = [];
+					// service to get the list of blueprints
+					workzoneServices.getBlueprints($scope.envParams).then(function(result) {
+						var blueprint = result.data;
+						$scope.blueprints = formatData.getFormattedCollection(blueprint);
+						$scope.isBlueprintPageLoading = false;
+		                workzoneUIUtils.makeTabScrollable('blueprintPage');
+					},function(error) {
+						$scope.isBlueprintPageLoading = false;
+						console.log(error);
+						$scope.errorMessage = "No Records found";
+					});
+				},
 				launchInstance: function(blueprintObj) {
 				   $modal.open({
 						animate: true,
