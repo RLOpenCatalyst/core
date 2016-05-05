@@ -69,7 +69,7 @@ var containerSchema = new Schema({
         trim: true
     },
     Ports: [Schema.Types.Mixed],
-    Labels:Schema.Types.Mixed,
+    Labels:[Schema.Types.Mixed],
     Status: {
         type: String,
         required: true,
