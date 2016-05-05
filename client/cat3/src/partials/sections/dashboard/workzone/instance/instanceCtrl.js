@@ -325,7 +325,9 @@
 		});
 
 		//root scope method for refreshing the list view at the time of blueprint launch.
-		$rootScope.$on('INSTANCE_LIST_CARD_VIEW', function(){
+		$rootScope.$on('WZ_INSTANCES_SHOW_LATEST', function(){
+			$scope.setFirstPageView();
+			helper.setPaginationDefaults();
 			$scope.instancesListCardView();
 		});
 
@@ -360,9 +362,7 @@
 				}
 			});
 			modalInstance.result.then(function(newinstId) {
-				$scope.setFirstPageView();
-				helper.setPaginationDefaults();
-				$scope.instancesListCardView();
+				$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
 				$scope.operationSet.viewLogs(newinstId);
 			}, function() {
 				console.log('Modal dismissed at: ' + new Date());
