@@ -53,6 +53,9 @@ $('#saveRunlist').click(function(e) {
 	console.log($ccrs);
 	console.log($ccrs.getSelectedRunlist());
 	var runlist = $ccrs.getSelectedRunlist();
+	if(!runlist.length) {
+		$('#attributesViewListTable').find('tbody').empty();
+	}
 	createRunlistTable($ccrs.getRunlistNames());
 	$('#chefRunlistModal').modal('hide');
 	return false;
