@@ -90,11 +90,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationRequest, next) {
                     // @TODO changes to be made when token is used
-                    // userService.getTrackedInstancesQuery(req.session.user, paginationRequest, next);
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
                 function(filterQuery, next) {
-                    // instanceService.validateListInstancesQuery(req.session.user, filterQuery, next);
                     userService.getUserOrgs(req.session.user, function(err, orgs) {
                         if(err) {
                             next(err);

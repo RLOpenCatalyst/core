@@ -487,10 +487,25 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.providerId = instance.providerId;
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
+        instanceObj.bgId = ('bgId' in instance)?instance.bgId:null;
         instanceObj.cost = ('cost' in instance)?instance.cost:0;
-        if('usage' in instance) {
+
+        if('os' in instance)
+            instanceObj.os = instance.os;
+        else if(('hardware' in instances) && ('os' in instance.hardware))
+            instanceObj.os = instance.hardware.os;
+        else
+            instanceObj.os = null;
+
+        if('ip' in instance)
+            instanceObj.ip = instance.ip;
+        else if('instanceIP' in instance)
+            instanceObj.ip = instance.instanceIP;
+        else
+            instanceObj.ip = null;
+
+        if('usage' in instance)
             instanceObj.cpuUtilization = Math.round(instance.usage.CPUUtilization.average * 100) + '%';
-        }
 
         return instanceObj;
     });
