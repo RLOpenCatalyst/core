@@ -1,9 +1,13 @@
 <div id='newTaskPage'>
 	<div class="modal-header">
 		<span class="close" ng-click="cancel()">×</span>
-		<h4 class="modal-title">
+		<h4 class="modal-title" ng-if="!isEditMode">
 			<i class="fa fa-plus"></i>&nbsp;
-			Create New Job
+			Create {{taskType}} Job
+		</h4>
+		<h4 class="modal-title" ng-if="isEditMode">
+			<i class="fa fa-edit"></i>&nbsp;
+			Edit {{taskType}} Job - {{name}}
 		</h4>
 	</div>
 
@@ -21,9 +25,9 @@
 							<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
 								<select class="form-control" ng-model="taskType" ng-disabled="isEditMode">
 								   <option selected="selected" value="chef">Chef</option>
-								   <option value="jenkins">Jenkins</option>
-								   <option value="composite">Composite</option>
-								   <option value="puppet">Puppet</option>
+								   <option ng-show="!createChefJob" value="jenkins">Jenkins</option>
+								   <option ng-show="!createChefJob" value="composite">Composite</option>
+								   <option ng-show="!createChefJob" value="puppet">Puppet</option>
 								</select>
 							</span>
 						</div>

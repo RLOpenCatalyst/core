@@ -1,0 +1,60 @@
+/* Copyright (C) Relevance Lab Private Limited- All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Relevance UI Team,
+ * April 2016
+ */
+
+(function (angular) {
+    "use strict";
+    angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices', function ($scope, $rootScope, workzoneServices,uiGridOptiSer) {
+        var gridOpt=uiGridOptiSer.options();
+            angular.extend($scope, {
+                pagiOptionsHistory :gridOpt.pagination,
+                requestParams :$scope.$parent.requestParams,
+                viewAppCardLogs: function (logs) {
+                    $rootScope.$emit('VIEW-APP-LOGS',logs);
+                },
+                getHistoryData :function(envParams, envNames) {
+                $scope.isBusyShow=true;
+                $scope.historyGridOptions=angular.extend(gridOpt.gridOption,{
+                    columnDefs:[
+                        { name:'appName',field:'applicationName',displayName:'App Name'},
+                        { name:'App-Instance',field:'applicationInstanceName',displayName:'App-Instance'},
+                        { name:'Version',field:'applicationVersion',displayName:'Version'},
+                        { name:'Host-Name',field:'hostName',displayName:'Host Name'},
+                        { name:'applicationNodeIP',field:'applicationNodeIP',displayName:'Node IP'},
+                        { name:'Last Deploy',displayName:'Last Deploy',cellTemplate:'<span ng-bind-html="row.entity.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines"></span>'},
+                        { name:'Container Name',displayName:'Container Name',cellTemplate:'<span>{{row.entity.containerId || "NA"}}</span>'},
+                        { name:'applicationType',field:'applicationType',displayName:'App Type'},
+                        { name:'Action',width:70,enableSorting: false,displayName:'Logs',cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.viewAppCardLogs(row.entity)"></i>'},
+                    ],
+                    onRegisterApi: function(gridApi) {
+                        gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+                            if( sortColumns[0] &&  sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction){
+                                $scope.pagiOptionsHistory.sortBy = sortColumns[0].field;
+                                $scope.pagiOptionsHistory.sortOrder = sortColumns[0].sort.direction;
+                                getApplicationHistoryService(envParams, envNames ,$scope.pagiOptionsHistory);
+                            }
+
+                        });
+                        gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
+                            $scope.pagiOptionsHistory.page=newPage;
+                            $scope.pagiOptionsHistory.pageSize=pageSize;
+                            getApplicationHistoryService(envParams, envNames,$scope.pagiOptionsHistory);
+
+                        });
+                    }
+                });
+                getApplicationHistoryService(envParams, envNames,$scope.pagiOptionsHistory);
+            }});
+
+            function getApplicationHistoryService(envParams, envNames,pagiOptionsHistory){
+                workzoneServices.getApplicationHistoryForEnv(envNames.env, envParams.proj,pagiOptionsHistory).then(function (response) {
+                    $scope.historyGridOptions.data= response.data.appDeploy;
+                    $scope.historyGridOptions.totalItems = response.data.metaData.totalRecords;
+                });
+            }
+            $scope.getHistoryData($scope.requestParams.params, $scope.requestParams.paramNames);
+    }]);
+})(angular);
