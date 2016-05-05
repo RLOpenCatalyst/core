@@ -199,13 +199,13 @@
                         //checking whether its a update or a new task creation
                         if ($scope.isEditMode) {
                             workzoneServices.updateTask(reqBody, $scope.id).then(function () {
-                                items = reqBody.taskData.name;
+                                items = reqBody.taskData;
                                 $rootScope.$emit('WZ_REFRESH_ENV');
                                 $modalInstance.close(items);
                             });
                         } else {
                             workzoneServices.postNewTask(reqBody).then(function () {
-                                items = reqBody.taskData.name;
+                                items = reqBody.taskData;
                                 $rootScope.$emit('WZ_REFRESH_ENV');
                                 $rootScope.$emit("GET_ALL_TASK");
                                 $modalInstance.close(items);
