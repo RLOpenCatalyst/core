@@ -26,7 +26,7 @@
 			};
 
 			this.setHeaderNavigation = function(d){
-				if(!d || arrayUtil.isEmptyObject(d)){
+				if(!d){
 					return; //when specific route accessed directly and user info not available
 				}
 		
@@ -63,7 +63,7 @@
 				return this.getToken() && {'headers': {"x-catalyst-auth": this.getToken()}};
 			};
 			//temporary handling of {}, can be removed later. 
-			if(arrayUtil.isEmptyObject(this._user)){
+			if(this._user && arrayUtil.isEmptyObject(this._user)){
 				this.setUser(null);	
 			}		
 			this.setHeaderNavigation(this._user);
