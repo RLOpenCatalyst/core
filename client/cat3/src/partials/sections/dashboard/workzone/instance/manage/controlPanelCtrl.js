@@ -52,5 +52,5 @@
                         $rootScope.$emit('WZ_CONTROLPANEL_TAB_VISIT', $scope.tabs.activeTab);
                     });*/
                 }
-            ]);
+    ]);
 })(angular);
