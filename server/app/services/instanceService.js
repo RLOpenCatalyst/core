@@ -36,7 +36,9 @@ instanceService.createUnassignedInstancesList = createUnassignedInstancesList;
 instanceService.bulkUpdateInstanceProviderTags = bulkUpdateInstanceProviderTags;
 instanceService.bulkUpdateUnassignedInstanceTags = bulkUpdateUnassignedInstanceTags;
 instanceService.getTrackedInstancesForProvider = getTrackedInstancesForProvider;
-instanceService.getTrackedInstancesForOrgs = getTrackedInstancesForOrgs;
+instanceService.getTrackedInstances = getTrackedInstances;
+instanceService.createTrackedInstancesResponse = createTrackedInstancesResponse;
+instanceService.validateListInstancesQuery = validateListInstancesQuery;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -57,6 +59,50 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
                 return callback(null, instance);
             }
     });
+}
+
+function validateListInstancesQuery(orgs, filterQuery, callback) {
+    var orgIds = [];
+    var queryObjectAndCondition = filterQuery.queryObj['$and'][0];
+
+    if(('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
+        var validOrgs = queryObjectAndCondition['orgName']['$in'].filter(function(orgName) {
+            return (orgName in orgs);
+        });
+
+        if(validOrgs.length < queryObjectAndCondition['orgName']['$in']) {
+            var err = new Error('Forbidden');
+            err.status = 403;
+            return callback(err);
+        } else {
+            orgIds = validOrgs.reduce(function(a, b) {
+                return a.concat(orgs[b].rowid);
+            }, orgIds);
+        }
+    } else if('orgName' in queryObjectAndCondition) {
+        if(queryObjectAndCondition['orgName'] in orgs) {
+            orgIds.push(orgs[queryObjectAndCondition['orgName']].rowid);
+        } else {
+            var err = new Error('Forbidden');
+            err.status = 403;
+            return callback(err);
+        }
+    } else {
+        orgIds = Object.keys(orgs).reduce(function(a, b) {
+            return a.concat(orgs[b].rowid);
+        }, orgIds);
+    }
+
+    if('orgName' in queryObjectAndCondition)
+        delete filterQuery.queryObj['$and'][0].orgName;
+
+    if(orgIds.length > 0) {
+        filterQuery.queryObj['$and'][0].orgId = {
+            '$in' : orgIds
+        }
+    }
+
+    return callback(null, filterQuery);
 }
 
 function getUnassignedInstancesByProvider(provider, callback) {
@@ -337,6 +383,8 @@ function getTrackedInstancesForProvider(provider, next) {
         },
         function(err, results) {
             if(err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
                 next(err)
             } else {
                 /*var instances = results.reduce(function(a, b) {
@@ -348,20 +396,26 @@ function getTrackedInstancesForProvider(provider, next) {
     );
 }
 
-function getTrackedInstancesForOrgs(orgIds, next) {
-    async.parallel({
-            managed: function (callback) {
-                instancesModel.getByOrgIds(orgIds, callback);
+function getTrackedInstances(query, next) {
+    async.parallel([
+            function (callback) {
+                instancesModel.getAll(query, callback);
             },
-            unmanaged: function(callback) {
-                unManagedInstancesModel.getByOrgIds(orgIds, callback);
+            function(callback) {
+                unManagedInstancesModel.getAll(query, callback);
             }
-        },
+        ],
         function(err, results) {
             if(err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
                 next(err)
             } else {
-                next(null, results);
+                var instances = results.reduce(function(a, b) {
+                    return a.concat(b);
+                }, []);
+
+                next(null, instances);
             }
         }
     );
@@ -415,4 +469,46 @@ function createUnassignedInstancesList(instances, callback) {
     instancesListObject.instances = instancesList;
 
     return callback(null, instancesListObject);
+}
+
+function createTrackedInstancesResponse(instances, callback) {
+    var instancesListObject = {};
+    var instancesList = [];
+
+    instancesListObject.trackedInstances = instances.map(function(instance) {
+        var instanceObj = {};
+        instanceObj.id = instance._id;
+        instanceObj.category = ('chefNodeName' in instance)?'managed':'unmanaged';
+        instanceObj.instancePlatformId = instance.platformId;
+        instanceObj.orgId = instance.orgId;
+        instanceObj.orgName = instance.orgName;
+        instanceObj.projectName = instance.projectName;
+        instanceObj.providerName = instance.providerName;
+        instanceObj.providerId = instance.providerId;
+        instanceObj.environmentName = instance.environmentName;
+        instanceObj.providerType = instance.providerType;
+        instanceObj.bgId = ('bgId' in instance)?instance.bgId:null;
+        instanceObj.cost = ('cost' in instance)?instance.cost:0;
+
+        if('os' in instance)
+            instanceObj.os = instance.os;
+        else if(('hardware' in instances) && ('os' in instance.hardware))
+            instanceObj.os = instance.hardware.os;
+        else
+            instanceObj.os = null;
+
+        if('ip' in instance)
+            instanceObj.ip = instance.ip;
+        else if('instanceIP' in instance)
+            instanceObj.ip = instance.instanceIP;
+        else
+            instanceObj.ip = null;
+
+        if('usage' in instance)
+            instanceObj.cpuUtilization = Math.round(instance.usage.CPUUtilization.average * 100) + '%';
+
+        return instanceObj;
+    });
+
+    callback(null, instancesListObject);
 }

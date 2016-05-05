@@ -558,8 +558,8 @@ var InstancesDao = function() {
 
     };
 
-    this.getByOrgIds = function getByOrgIds(orgIds, callback) {
-        Instances.find({orgId: {$in: orgIds}},
+    this.getAll = function getAll(query, callback) {
+        Instances.find(query,
             function(err, instances) {
                 if (err) {
                     return callback(err);
