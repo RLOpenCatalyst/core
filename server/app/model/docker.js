@@ -20,7 +20,6 @@ var fileIo = require('./../lib/utils/fileio');
 var SSH = require('./../lib/utils/sshexec');
 var instancesDao = require('./classes/instance/instance.js');
 var credentialCrpto = require('./../lib/credentialcryptography.js');
-var configmgmtDao = require('../model/d4dmasters/configmgmt');
 var logger = require('_pr/logger')(module);
 
 var Docker = function() {
