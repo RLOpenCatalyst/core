@@ -64,9 +64,12 @@
 			}
 
 			#userInfo {
-				width: 130px;
 				height: 100%;
-				float: left;
+			    float: left;
+			    max-width: 200px;
+			    overflow: hidden;
+			    text-overflow: ellipsis;
+			    white-space: nowrap;
 			}
 
 			#settings {
