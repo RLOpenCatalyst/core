@@ -25,18 +25,18 @@
 				return this;
 			};
 
-			this.setHeaderNavigation = function(d){
-				if(!d){
+			this.setHeaderNavigation = function(user){
+				if(!user){
 					return; //when specific route accessed directly and user info not available
 				}
-		
-				$rootScope.appDetails = d;
-				var headNavigArr = $rootScope.appDetails.authorizedfiles.split(',');
+				$rootScope.appDetails = user;
+				$rootScope.$emit('SET_HEADER', user);
+				/*var headNavigArr = $rootScope.appDetails.authorizedfiles.split(',');
 
 				$rootScope.workZoneBool = (headNavigArr.indexOf('Workspace') !== -1) ? true : false;
-				$rootScope.bluePrintBool = (headNavigArr.indexOf('blueprints') !== -1) ? true : false;
+				$rootScope.designBool = (headNavigArr.indexOf('blueprints') !== -1) ? true : false;
 				$rootScope.trackBool = (headNavigArr.indexOf('Track') !== -1) ? true : false;
-				$rootScope.settingsBool = (headNavigArr.indexOf('Settings') !== -1) ? true : false;
+				$rootScope.settingsBool = (headNavigArr.indexOf('Settings') !== -1) ? true : false;*/
 			};
 
 			this.getToken = function(){

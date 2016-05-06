@@ -73,7 +73,7 @@
 				    var envList = {
 						"appDeployPipelineData": {
 							"loggedInUser": "",
-							"projectId": "projectID",
+							"projectId": projectID,
 							"envId": newEnv,
 							"envSequence": newEnv
 						}

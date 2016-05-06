@@ -22,7 +22,6 @@
 				$scope.isAzureARMPageLoading = true;
 				$scope.envParams=requestParams;
 				$scope.azureListCardView();
-
 			});
 			$scope.cardPaginationArmChange = function() {
 				$scope.paginationParams.page = $scope.currentCardPage,
@@ -71,17 +70,16 @@
 				getStackStateColor: function(stackState) {
 					var colorRepresentationClass = '';
 					switch (stackState) {
-						case "CREATE_IN_PROGRESS":
-							colorRepresentationClass = '';
-							break;
-						case "CREATE_FAILED":
+						case "Failed":
+						case "Canceled":
+						case "Deleted":
 							colorRepresentationClass = 'red';
 							break;
-						case "CREATE_COMPLETE":
+						case "Succeeded":
 							colorRepresentationClass = 'green';
 							break;
 						default:
-							colorRepresentationClass = 'orange';
+							colorRepresentationClass = 'red';
 					}
 					return colorRepresentationClass;
 				}

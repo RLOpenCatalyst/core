@@ -10,7 +10,8 @@
 	</div>
 
 	<div class="modal-body">
-		<div class="cftEventTbl-wrapper">
+		<loading size="large" name="isStackInfoLoading" type="block" align="center"></loading>
+		<div class="cftEventTbl-wrapper" ng-show="!isStackInfoLoading">
 			<div class="cftEventTbl">
 				<div class="cftTblHead">
 					<div class="time-stamp-header"> Timestamp </div>
@@ -20,7 +21,7 @@
 				</div>
 				<div class="cftTblBody" ng-repeat="cftEve in cftEvents">
 					<div class="cftTblRow">
-						<div class="time-stamp"> {{cftEve.Timestamp}} </div>
+						<div class="time-stamp"> {{cftEve.Timestamp | timestampToLocaleTime}} </div>
 						<div class="resource-name"> {{cftEve.LogicalResourceId}} </div>
 						<div class="resource-type"> {{cftEve.ResourceType}} </div>
 						<div class="resource-status"> {{cftEve.ResourceStatus}} </div>
