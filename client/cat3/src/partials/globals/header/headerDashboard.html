@@ -36,7 +36,7 @@
 			<li class="header-right">
 				<div id="header-menu">
 					<div id="userInfo" class="headNavigItem">
-						<i class="fa fa-user white"></i> [{{appDetails.cn}}]
+						<i class="fa fa-user white"></i> {{appDetails.cn | uppercase}}
 					</div>
 					<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
 						<a href="../../../../#ajax/Settings/Dashboard.html">
