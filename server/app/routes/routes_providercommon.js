@@ -164,7 +164,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				if (unmanagedInstances.length > 0)
 					res.status(200).send(unmanagedInstances);
 				else
-					res.status(200).send({});
+					res.status(200).send([]);
 
 			});
 		});
