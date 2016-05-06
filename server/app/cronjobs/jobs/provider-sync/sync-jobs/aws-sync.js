@@ -183,9 +183,9 @@ function sync() {
 																			}
 
 																			if (assignmentFound) {
-																				instances[n].projectId = catalystProjectId;
+																				/*instances[n].projectId = catalystProjectId;
 																				instances[n].projectName = catalystProjectName;
-																				instances[n].envId = catalystEnvironmentId;
+																				instances[n].envId = catalystEnvironmentId;*/
 																				instances[n].environmentName = catalystEnvironmentName;
 																			}
 
@@ -212,7 +212,7 @@ function sync() {
 																					unManagedInstances[n].remove();
 																				} else {
 																					if (unManagedInstances[n].state === 'running') {
-																						unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+																						unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
 																					}
 																					unManagedInstances[n].projectId = catalystProjectId;
 																					unManagedInstances[n].projectName = catalystProjectName;
