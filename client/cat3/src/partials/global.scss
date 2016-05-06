@@ -15,6 +15,10 @@ $imagePath : "../../../../../../cat3/images";
 	color: $color-red;
 }
 
+.orange {
+	color: $color-orange;
+}
+
 .active-color, .selectedView {
 	color: $selected-color !important;
 }
