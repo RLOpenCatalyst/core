@@ -156,7 +156,7 @@ DeployPermissionSchema.statics.updateDeployPermission=function(aDeployPermission
 
 };
 DeployPermissionSchema.statics.saveDeployPermission=function(aDeployPermission,callback){
-    var appPermission = new that(aDeployPermission);
+    var appPermission = new this(aDeployPermission);
     appPermission.save(function(err, aPermission) {
         if (err) {
             logger.debug("Got error while creating a Permission: ", err);

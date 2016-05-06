@@ -129,7 +129,7 @@ var AppDataSchema = new Schema({
 
 
 // Save or update appData informations.
-AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
+AppDataSchema.statics.createNewOrUpdate = function createNewOrUpdate(appData, callback) {
     var that = this;
     this.find({
         projectId: appData.projectId,
@@ -184,7 +184,7 @@ AppDataSchema.statics.createNewOrUpdate = function(appData, callback) {
     });
 };
 
-var checkDuplicate = function(aData, reqData) {
+var checkDuplicate = function checkDuplicate(aData, reqData) {
     var existDocker = aData.docker;
     var reqDocker = reqData.docker;
     var existNexus = aData.nexus;
@@ -220,7 +220,7 @@ var checkDuplicate = function(aData, reqData) {
 }
 
 // Get AppData by project,env,appName,version.
-AppDataSchema.statics.getAppDataByProjectAndEnv = function(projectId, envName, appName, version, callback) {
+AppDataSchema.statics.getAppDataByProjectAndEnv = function getAppDataByProjectAndEnv(projectId, envName, appName, version, callback) {
     this.find({
         projectId: projectId,
         envName: envName,
