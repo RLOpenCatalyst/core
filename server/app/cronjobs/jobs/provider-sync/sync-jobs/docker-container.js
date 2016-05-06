@@ -8,7 +8,7 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var containerDao = require('_pr/model/container');
 var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
-var ObjectId = require('mongoose').Types.ObjectId;
+var toPairs = require('lodash.topairs');
 var async = require('async');
 function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
@@ -17,49 +17,49 @@ function sync() {
             MasterUtils.getAllActiveOrg(next);
         },
         function(orgs,next){
-            async.forEach(orgs,function(aOrg,next){
-                MasterUtils.getBusinessGroupsByOrgId(aOrg.rowid,function(err,businessGroups){
+            async.forEach(orgs,function(organization,next){
+                MasterUtils.getBusinessGroupsByOrgId(organization.rowid,function(err,businessGroups){
                     if(err){
                         logger.error(err);
                         return;
                     };
-                    async.forEach(businessGroups,function(aBusinessGroup,next) {
-                        MasterUtils.getProjectsBybgId(aBusinessGroup.rowid, function(err, projects){
+                    async.forEach(businessGroups,function(businessGroup,next) {
+                        MasterUtils.getProjectsBybgId(businessGroup.rowid, function(err, projects){
                             if(err){
                                 logger.error(err);
                                 return;
                             };
-                            async.forEach(projects,function(aProject,next) {
-                                MasterUtils.getEnvironmentsByprojectId(aProject.rowid,function(err,environments){
+                            async.forEach(projects,function(project,next) {
+                                MasterUtils.getEnvironmentsByprojectId(project.rowid,function(err,environments){
                                     if(err){
                                         logger.error(err);
                                         return;
                                     };
-                                    async.forEach(environments,function(aEnvironment,next) {
+                                    async.forEach(environments,function(environment,next) {
                                         var jsonData={
-                                            orgId:aOrg.rowid,
-                                            bgId :aBusinessGroup.rowid,
-                                            projectId:aProject.rowid,
-                                            envId:aEnvironment.rowid
+                                            orgId:organization.rowid,
+                                            bgId :businessGroup.rowid,
+                                            projectId:project.rowid,
+                                            envId:environment.rowid
                                         };
                                         instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData,function(err,instances){
                                             if(err){
                                                logger.error(err);
                                                return;
                                             };
-                                            async.forEach(instances,function(aInstance,next) {
-                                                containerDao.deleteContainerByInstanceId(aInstance._id,function(err,data){
+                                            async.forEach(instances,function(instance,next) {
+                                                containerDao.deleteContainerByInstanceId(instance._id,function(err,data){
                                                     if(err){
                                                         logger.error(err);
                                                         return;
                                                     };
-                                                    credentialCrpto.decryptCredential(aInstance.credentials, function (err, decryptedCredentials) {
+                                                    credentialCrpto.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
                                                     if(err){
                                                        logger.error(err);
                                                        return;
                                                     };
                                                     var options = {
-                                                        host: aInstance.instanceIP,
+                                                        host: instance.instanceIP,
                                                         port: '22',
                                                         username: decryptedCredentials.username,
                                                         privateKey: decryptedCredentials.pemFileLocation,
@@ -104,26 +104,28 @@ function sync() {
                                                             if (v >= _stdout.length - 1) {
                                                                 if(so.indexOf("Names")>0){
                                                                     var containers = JSON.parse(so);
-                                                                    async.forEach(containers,function(aContainer,next){
-                                                                        var containerName=aContainer.Names.toString().replace('/','');
-                                                                        var instanceId=aInstance._id.toString();
+                                                                    async.forEach(containers,function(container,next){
+                                                                        var containerName=container.Names.toString().replace('/','');
+                                                                        var instanceId=instance._id.toString();
+                                                                        var containerStatus=dockerContainerStatus(container.Status.toString());
                                                                         var containerData = {
-                                                                            orgId: aOrg.rowid,
-                                                                            bgId: aBusinessGroup.rowid,
-                                                                            projectId: aProject.rowid,
-                                                                            envId: aEnvironment.rowid,
-                                                                            Id: aContainer.Id,
-                                                                            instanceIP: aInstance.instanceIP,
+                                                                            orgId: organization.rowid,
+                                                                            bgId: businessGroup.rowid,
+                                                                            projectId: project.rowid,
+                                                                            envId: environment.rowid,
+                                                                            Id: container.Id,
+                                                                            instanceIP: instance.instanceIP,
                                                                             instanceId: instanceId,
                                                                             Names: containerName,
-                                                                            Image: aContainer.Image,
-                                                                            ImageID: aContainer.ImageID,
-                                                                            Command: aContainer.Command,
-                                                                            Created: aContainer.Created,
-                                                                            Ports: aContainer.Ports,
-                                                                            Labels: aContainer.Labels,
-                                                                            Status: aContainer.Status,
-                                                                            HostConfig: aContainer.HostConfig
+                                                                            Image: container.Image,
+                                                                            ImageID: container.ImageID,
+                                                                            Command: container.Command,
+                                                                            Created: container.Created,
+                                                                            Ports: container.Ports,
+                                                                            Labels: toPairs(container.Labels),
+                                                                            Status: container.Status,
+                                                                            status: containerStatus,
+                                                                            HostConfig: container.HostConfig
                                                                         };
                                                                         containerAction(containerData);
                                                                         containerData={};
@@ -160,16 +162,16 @@ function sync() {
 
         });
 };
-function containerAction(aContainer){
+function containerAction(container){
     async.waterfall([
         function(next){
-            containerDao.getContainerByIdInstanceId(aContainer.Id,aContainer.instanceId,next);
+            containerDao.getContainerByIdInstanceId(container.Id,container.instanceId,next);
         },
-        function(container,next){
-            if(container.length === 0){
-                containerDao.createContainer(aContainer,next);
+        function(containerData,next){
+            if(containerData.length === 0){
+                containerDao.createContainer(container,next);
             }else{
-                containerDao.updateContainer(aContainer.Id,aContainer.Status,next);
+                containerDao.updateContainer(container.Id,container.Status,next);
             }
         }],
         function (err, results) {
@@ -179,6 +181,21 @@ function containerAction(aContainer){
             }
         });
 };
+
+function dockerContainerStatus(status){
+    if(status.indexOf('Exited') >= 0){
+        return "STOP";
+    }else if(status.indexOf('Paused')>= 0){
+        return "PAUSE";
+    }else if(status.indexOf('Seconds')>= 0){
+        return "RESTART";
+    }else if(status.indexOf('Hours')>= 0 || status.indexOf('Minutes')>= 0){
+        return "UNPAUSE";
+    }else{
+        return "START";
+    }
+};
+
 
 module.exports = sync;
 
