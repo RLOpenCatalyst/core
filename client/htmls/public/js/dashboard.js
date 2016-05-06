@@ -43,6 +43,7 @@ $(document).ready(function() {
         $('#mainPanelId').hide();
         $('#trackedInstancesAllProviderTableContainer').show();
         $.get('../tracked-instances', function(data) {
+          console.log("Dataaaa",data);
           loadtrackedallProviderInstances(data);
         }).fail(function() {
             //TO DO
@@ -108,7 +109,7 @@ $(document).ready(function() {
             });
           });
 
-          $childProviderTemplate.find('.providerSpecificMoreInfo').click(function() {
+          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
             $('#mainPanelId').hide();
             $('#trackedInstancesSpecProviderTableContainer').show();
 
@@ -451,7 +452,7 @@ $(document).ready(function() {
       $tr.append($tdcost);
 
       $tdavgCpuUtilization = '<span>'+allProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
-      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages" title="Usage Details" data-usage='+JSON.stringify(allProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
+      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(allProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
       var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
       $tr.append($tdusage);
 
@@ -542,7 +543,7 @@ $(document).ready(function() {
       $tr.append($tdcost);
 
       $tdavgCpuUtilization = '<span>'+specProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
-      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages" title="Usage Details" data-usage='+JSON.stringify(specProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
+      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(specProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
       var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
       $tr.append($tdusage);
 
