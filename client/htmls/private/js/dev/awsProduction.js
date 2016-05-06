@@ -53,7 +53,7 @@ $('#saveRunlist').click(function(e) {
 	console.log($ccrs);
 	console.log($ccrs.getSelectedRunlist());
 	var runlist = $ccrs.getSelectedRunlist();
-	if(!runlist.length) {
+	if (!runlist.length) {
 		$('#attributesViewListTable').find('tbody').empty();
 	}
 	createRunlistTable($ccrs.getRunlistNames());
@@ -718,32 +718,14 @@ function getProviderList(cloudProviderId) {
 			if (cloudProviderId) {
 				$('#providerId').find('option[value="' + cloudProviderId + '"]').attr('selected', 'selected');
 				$('#providerId').trigger('change');
+			} else {
+				if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
+					var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
+					$('#providerId').val(vmimage.providerId).trigger('change');
+					$('#providerId').attr('disabled', 'disabled');
+				}
 			}
-			//getting openstack provider list
-			// $.ajax({
-			// 	type: "GET",
-			// 	url: "/openstack/providers",
-			// 	success: function(data) {
-			// 		data = typeof data == "string" ? JSON.parse(data) : data;
-			// 		console.log(data);
-			// 		len = data.length;
-			// 		str += helperConstructOption(data, ['username', 'password', 'providerType'], 'providerName', '_id');
-			// 		$('#providerId').html(str);
 
-			// 		if ($('#providerId').attr('savedval')) {
-			// 			helpersetselectvalue($('#providerId'), 'value', $('#providerId').attr('savedval'));
-			// 		}
-			// 		if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
-			// 			var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
-			// 			$('#providerId').val(vmimage.providerId).trigger('change');
-			// 			$('#providerId').attr('disabled', 'disabled');
-			// 		}
-			// 	},
-			// 	failure: function(data) {
-			// 		alert(data.toString());
-			// 	}
-			// });
-			// end of openstack 
 		},
 		failure: function(data) {
 			alert(data.toString());
@@ -752,6 +734,7 @@ function getProviderList(cloudProviderId) {
 }
 
 function getImagesWithOSFilter(imgId) {
+	$('#imageId').attr('disabled', false);
 	function getFilteredList(data, value) {
 		console.log('in ... list filterd');
 		if (!value) {
@@ -1169,6 +1152,7 @@ function dataLoader(blueprintData) {
 		if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
 			var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
 			$('#instanceOS').val(vmimage.osName);
+
 			$('#instanceOS').attr('disabled', 'disabled');
 		}
 		$instanceOS.trigger('change');
@@ -3026,7 +3010,7 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 					addAppUrlToTable(blueprintdata.appUrls[i].name, blueprintdata.appUrls[i].url);
 				}
 			}
-			if(blueprintdata && blueprintdata.appUrls && blueprintdata.appUrls.length === 2) {
+			if (blueprintdata && blueprintdata.appUrls && blueprintdata.appUrls.length === 2) {
 				$newformBPEdit.find('#newAppSeries').addClass('hidden');
 			}
 
