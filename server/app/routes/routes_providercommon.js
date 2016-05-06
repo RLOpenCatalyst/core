@@ -164,9 +164,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				if (unmanagedInstances.length > 0)
 					res.status(200).send(unmanagedInstances);
 				else
-					res.status(404).send({
-						message: "No Data Found"
-					});
+					res.status(200).send({});
 
 			});
 		});
