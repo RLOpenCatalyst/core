@@ -25,6 +25,7 @@ $(document).ready(function() {
     var hpplubliccloudproviderscount = totalProviders.hpPlublicCloudProviders.length;
     var azureproviderscount = totalProviders.azureProviders.length;
 
+
     totalcountproviders = awsproviderscount + openstackproviderscount + vmwareproviderscount + hpplubliccloudproviderscount + azureproviderscount;
     $('#totalProviders').empty();
     $('#awsProviderView').empty();
@@ -37,6 +38,18 @@ $(document).ready(function() {
       var $presentProviderView = $('.infrastructureClass');
       $presentProviderView.show();
       $('#totalProviders').append(totalcountproviders);
+
+      $('#providerMoreInfo').on('click',function(){
+        $('#mainPanelId').hide();
+        $('#trackedInstancesAllProviderTableContainer').show();
+        $.get('../tracked-instances', function(data) {
+          loadtrackedallProviderInstances(data);
+        }).fail(function() {
+            //TO DO
+            alert("Tracked Instances not properly Loaded");
+        }); 
+      });
+
       var awstotalinstancecount = 0;
 
       for (var i = 0; i < awsproviderscount; i++) {
@@ -94,6 +107,22 @@ $(document).ready(function() {
               $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
             });
           });
+
+          $childProviderTemplate.find('.providerSpecificMoreInfo').click(function() {
+            $('#mainPanelId').hide();
+            $('#trackedInstancesSpecProviderTableContainer').show();
+
+            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
+              console.log("Hit specific");
+              loadtrackedspecProviderInstances(data);
+            }).fail(function() {
+                //TO DO
+                alert("Tracked Instances for specific provider not properly Loaded");
+            }); 
+
+          });
+          
+          
 
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
@@ -351,6 +380,7 @@ $(document).ready(function() {
       $instanceManagedDatatable.row.add($tr).draw();
     }
   }
+  
   if (!$.fn.dataTable.isDataTable('#managedinstanceListTable')) {
     var $instanceManagedDatatable = $('#managedinstanceListTable').DataTable({
       "pagingType": "full_numbers",
@@ -379,4 +409,213 @@ $(document).ready(function() {
   }
   $('#managedinstanceListTable_info').addClass('font-size12');
   $('#managedinstanceListTable_paginate').addClass('font-size12');
+
+
+  //For all provider tracked instances.
+  $('#backfrmallprovidertrackedInstance').click(function() {
+    $('#mainPanelId').show();
+    $('#trackedInstancesAllProviderTableContainer').hide();
+  });
+
+  function loadtrackedallProviderInstances(allProviderData) {
+    $allProviderTrackedInstanceDatatable.clear().draw();
+    var $tbody = $('#allProviderTrackedInstance tbody').empty();
+    for (var i = 0; i < allProviderData.trackedInstances.length; i++) {
+      var $tr = $('<tr class="allproviderTrackedInstance"></tr>').attr('data-id', allProviderData.trackedInstances[i].id);
+      
+      var $tdinstancePlatformId = $('<td></td>').append(allProviderData.trackedInstances[i].instancePlatformId);
+      $tr.append($tdinstancePlatformId);
+
+      var $tdorgId = $('<td></td>').append(allProviderData.trackedInstances[i].orgName);
+      $tr.append($tdorgId);
+
+      var $tdbgId = $('<td></td>').append(allProviderData.trackedInstances[i].bgName);
+      $tr.append($tdbgId);
+
+      var $tdprojectName = $('<td></td>').append(allProviderData.trackedInstances[i].projectName);
+      $tr.append($tdprojectName);
+
+      var $tdenvironmentName = $('<td></td>').append(allProviderData.trackedInstances[i].environmentName);
+      $tr.append($tdenvironmentName);
+
+      var $tdos = $('<td></td>').append(allProviderData.trackedInstances[i].os);
+      $tr.append($tdos);
+
+      var $tdip = $('<td></td>').append(allProviderData.trackedInstances[i].ip);
+      $tr.append($tdip);
+
+      var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
+      $tr.append($tdproviderType);
+
+      var $tdcost = $('<td></td>').append(allProviderData.trackedInstances[i].cost);
+      $tr.append($tdcost);
+
+      $tdavgCpuUtilization = '<span>'+allProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
+      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages" title="Usage Details" data-usage='+JSON.stringify(allProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
+      var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
+      $tr.append($tdusage);
+
+      $tbody.append($tr);
+      $allProviderTrackedInstanceDatatable.row.add($tr).draw();
+      $allProviderTrackedInstanceDatatable.on('click', '.specProviderUsages', specProviderUsagesClickHandler);
+    }
+  }
+
+  if (!$.fn.dataTable.isDataTable('#allProviderTrackedInstanceListTable')) {
+    var $allProviderTrackedInstanceDatatable = $('#allProviderTrackedInstanceListTable').DataTable({
+      "pagingType": "full_numbers",
+      "bInfo": true,
+      "bLengthChange": true,
+      "paging": true,
+      "bFilter": true,
+      "aaSorting": [
+        [4, "asc"]
+      ],
+      "aoColumns": [{
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      },{
+        "bSortable": false
+      },{
+        "bSortable": false
+      },{
+        "bSortable": false
+      },{
+        "bSortable": false
+      },{
+        "bSortable": false
+      }]
+
+    });
+  }
+  $('#allProviderTrackedInstanceListTable_info').addClass('font-size12');
+  $('#allProviderTrackedInstanceListTable_paginate').addClass('font-size12');
+
+
+
+  //For Specific Provider details
+
+  $('#backfrmspecprovidertrackedInstance').click(function() {
+    $('#mainPanelId').show();
+    $('#trackedInstancesSpecProviderTableContainer').hide();
+    specprovidersTrackedInstId
+  });
+
+  function loadtrackedspecProviderInstances(specProviderData) {
+    $specProviderTrackedInstanceDatatable.clear().draw();
+    var $tbody = $('#specProviderTrackedInstance tbody').empty();
+    for (var i = 0; i < specProviderData.trackedInstances.length; i++) {
+      var $tr = $('<tr class="specproviderTrackedInstance"></tr>').attr('data-id', specProviderData.trackedInstances[i].id);
+      
+      var $tdinstancePlatformId = $('<td></td>').append(specProviderData.trackedInstances[i].instancePlatformId);
+      $tr.append($tdinstancePlatformId);
+
+      var $tdorgId = $('<td></td>').append(specProviderData.trackedInstances[i].orgName);
+      $tr.append($tdorgId);
+
+      var $tdbgId = $('<td></td>').append(specProviderData.trackedInstances[i].bgName);
+      $tr.append($tdbgId);
+
+      var $tdprojectName = $('<td></td>').append(specProviderData.trackedInstances[i].projectName);
+      $tr.append($tdprojectName);
+
+      var $tdenvironmentName = $('<td></td>').append(specProviderData.trackedInstances[i].environmentName);
+      $tr.append($tdenvironmentName);
+
+      var $tdos = $('<td></td>').append(specProviderData.trackedInstances[i].os);
+      $tr.append($tdos);
+
+      var $tdip = $('<td></td>').append(specProviderData.trackedInstances[i].ip);
+      $tr.append($tdip);
+
+      var $tdproviderType = $('<td></td>').append(specProviderData.trackedInstances[i].providerType);
+      $tr.append($tdproviderType);
+
+      var $tdcost = $('<td></td>').append(specProviderData.trackedInstances[i].cost);
+      $tr.append($tdcost);
+
+      $tdavgCpuUtilization = '<span>'+specProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
+      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages" title="Usage Details" data-usage='+JSON.stringify(specProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
+      var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
+      $tr.append($tdusage);
+
+      $tbody.append($tr);
+      $specProviderTrackedInstanceDatatable.row.add($tr).draw();
+      $specProviderTrackedInstanceDatatable.on('click', '.specProviderUsages', specProviderUsagesClickHandler);
+    }
+  }
+
+  if (!$.fn.dataTable.isDataTable('#specProviderTrackedInstanceListTable')) {
+    var $specProviderTrackedInstanceDatatable = $('#specProviderTrackedInstanceListTable').DataTable({
+      "pagingType": "full_numbers",
+      "bInfo": true,
+      "bLengthChange": true,
+      "paging": true,
+      "bFilter": true,
+      "aaSorting": [
+        [4, "asc"]
+      ],
+      "aoColumns": [{
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      }, {
+        "bSortable": false
+      },{
+        "bSortable": false
+      },{
+        "bSortable": false
+      },{
+        "bSortable": false
+      },{
+        "bSortable": false
+      },{
+        "bSortable": false
+      }]
+
+    });
+  }
+  $('#specProviderTrackedInstanceListTable_info').addClass('font-size12');
+  $('#specProviderTrackedInstanceListTable_paginate').addClass('font-size12');
+
+
+  //Function to get the specific provider usages.
+  function specProviderUsagesClickHandler(){
+    var $specUsageModalContainer = $('#specUsageModalContainer');
+    var dataStr = $(this).attr("data-usage");
+    var $data = JSON.parse(dataStr);
+
+    $specUsageModalContainer.find('#specCpuUtilAvg').html($data.CPUUtilization.average);
+    $specUsageModalContainer.find('#specCpuUtilMin').html($data.CPUUtilization.minimum);
+    $specUsageModalContainer.find('#specCpuUtilMax').html($data.CPUUtilization.maximum);
+
+    $specUsageModalContainer.find('#specDiskReadAvg').html($data.DiskReadBytes.average);
+    $specUsageModalContainer.find('#specDiskReadMin').html($data.DiskReadBytes.minimum);
+    $specUsageModalContainer.find('#specDiskReadMax').html($data.DiskReadBytes.maximum);
+
+    $specUsageModalContainer.find('#specDiskWriteAvg').html($data.DiskWriteBytes.average);
+    $specUsageModalContainer.find('#specDiskWriteMin').html($data.DiskWriteBytes.minimum);
+    $specUsageModalContainer.find('#specDiskWriteMax').html($data.DiskWriteBytes.maximum);
+
+    $specUsageModalContainer.find('#specNetworkOutAvg').html($data.NetworkOut.average);
+    $specUsageModalContainer.find('#specNetworkOutMin').html($data.NetworkOut.minimum);
+    $specUsageModalContainer.find('#specNetworkOutMax').html($data.NetworkOut.maximum);
+
+    $specUsageModalContainer.find('#specNetworkInAvg').html($data.NetworkIn.average);
+    $specUsageModalContainer.find('#specNetworkInMin').html($data.NetworkIn.minimum);
+    $specUsageModalContainer.find('#specNetworkInMax').html($data.NetworkIn.maximum);
+
+    $specUsageModalContainer.modal('show');
+  }
 });
