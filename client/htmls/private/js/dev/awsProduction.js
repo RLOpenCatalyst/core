@@ -735,6 +735,7 @@ function getProviderList(cloudProviderId) {
 
 function getImagesWithOSFilter(imgId) {
 	$('#imageId').attr('disabled', false);
+
 	function getFilteredList(data, value) {
 		console.log('in ... list filterd');
 		if (!value) {
@@ -767,8 +768,14 @@ function getImagesWithOSFilter(imgId) {
 					helpersetselectvalue($('#imageId'), '_id', $('#imageId').attr('savedval'));
 				//setting image value for ami type and disabling it- vn
 				if ($('.productdiv2.role-Selected').first().attr('templatetype') == 'ami') {
+					try {
 					var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
 					$('#imageId').val(vmimage.imageIdentifier).attr('disabled', 'disabled');
+					$('#instanceOS').val(vmimage.osName);
+					$('#instanceOS').attr('disabled', 'disabled');
+				   } catch (err){
+
+				   }
 					//alert($('#instanceOS option').length);
 				}
 				//setting the selection
@@ -1149,12 +1156,12 @@ function dataLoader(blueprintData) {
 				}
 			}
 		});
-		if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
-			var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
-			$('#instanceOS').val(vmimage.osName);
+		// if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
+		// 	var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
+		// 	$('#instanceOS').val(vmimage.osName);
 
-			$('#instanceOS').attr('disabled', 'disabled');
-		}
+		// 	$('#instanceOS').attr('disabled', 'disabled');
+		// }
 		$instanceOS.trigger('change');
 	});
 }
