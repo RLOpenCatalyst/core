@@ -35,7 +35,7 @@ function aggregateAWSUsage() {
         if(err) {
             logger.error(err);
         } else {
-            aggregateUsageForProvidersOfOrg(...orgs);
+            aggregateUsageForProvidersOfOrg.apply(aggregateUsageForProvidersOfOrg, orgs);
         }
     });
 }
@@ -49,7 +49,7 @@ function aggregateUsageForProvidersOfOrg(org) {
         if(err) {
             logger.error(err);
         } else {
-            aggregateEC2UsageForProvider(...providers);
+            aggregateEC2UsageForProvider.apply(aggregateEC2UsageForProvider, providers);
         }
     });
 }
