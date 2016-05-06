@@ -444,6 +444,8 @@ var InstancesDao = function() {
                            return callback(err);
                        } else {
                            var tasks = require('_pr/model/classes/tasks/tasks.js');
+                        // @TODO Workaround to avoid circular dependency to be addressed
+                        var tasks = require('_pr/model/classes/tasks/tasks.js');
                            var instanceList=instances.docs;
                            var count=0;
                            for(var i = 0; i < instanceList.length ;i++){
@@ -484,6 +486,7 @@ var InstancesDao = function() {
                                    }
                                })(instanceList[i]);
                            }
+                       
                        }
                    });
                }

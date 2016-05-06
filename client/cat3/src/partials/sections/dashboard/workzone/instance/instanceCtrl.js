@@ -10,6 +10,7 @@
 	angular.module('workzone.instance', ['ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone','utility.array','workzonePermission', 'instanceServices', 'chefDataFormatter', 'utility.pagination'])
 	.controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices','arrayUtil', 'instancePermission', 
 		'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService' , function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices,arrayUtil, instancePerms, instanceActions, instanceOperations,workzoneEnvironment, $timeout, workzoneUIUtils,uiGridOptionsService) {
+		console.log('instanceCtrl');
 		var helper = {
 			attachListOfTaskWithInstance: function(completeData) {
 				var instanceList = completeData.instances;
@@ -64,7 +65,6 @@
 	   	$scope.cardsPerPage = instanceUIGridDefaults.pagination.pageSize;
 	   	$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
 	   	$scope.totalCards = 0;
-	   	$scope.cardsAvailable = false;
 
 		$scope.tabData = [];
 		/*grid method to define the columns that need to be present*/
@@ -133,6 +133,8 @@
 						$scope.tabData = $scope.instanceList = result.data.instances;
 					   	if($scope.totalCards > $scope.paginationParams.pageSize) {
 					   		$scope.cardsAvailable = true;
+					   	} else {
+					   		$scope.cardsAvailable = false;
 					   	}
 						$scope.isInstancePageLoading = false;
 						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pageSize);
