@@ -487,6 +487,10 @@
                 getAppUpgrade:function(requestOject){
                     var url ='/app/data/project/' + requestOject.params.proj + '/env/' + requestOject.envName + '?application='+requestOject.appName.name+'&version='+requestOject.appName.version;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
+                },
+                postAppApprove :function(RequestObject){
+                    var url='/deploy/permission/data/save/configure'
+                    return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
                 }
             };
             return serviceInterface;
