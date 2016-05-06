@@ -25,8 +25,8 @@
 						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" title="Pause" ng-show="grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-pause"></i></span>'+
 						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" title="Play" ng-show="grid.appScope.checkEdited(row.entity) && grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
 						'<span class="marginleft5 containerIcon crimsonBg white" ng-click="grid.appScope.containerAction(row.entity,6)"  id="sign-out" title="Terminate" ng-show="grid.appScope.checkProgress(row.entity)"><i class="white fa fa-sign-out"></i></span>', cellTooltip: true},
-						{ name:'State',field:'Status',cellTooltip: true},
-						{ name:'Created',cellTemplate:'<span>{{row.entity.Created  | timestampToCurrentTime}}</span>',cellTooltip: true},
+						{ name:'State',field:'containerStatus',cellTooltip: true},
+						{ name:'Created',cellTemplate:'<span>{{row.entity.Created*1000  | timestampToCurrentTime}}</span>',cellTooltip: true},
 						{ name:'Name',cellTemplate:'<span ng-bind-html="row.entity.Names"></span>', enableSorting: false, cellTooltip: true},
 						{ name:'Instance IP',field:'instanceIP','displayName':'Instance IP',cellTooltip: true},
 						{ name:'Container ID',enableSorting: false ,'displayName':'Container ID', cellTemplate:'<div class=""><span title="{{row.entity.Id}}">{{grid.appScope.getImageId(row.entity.Id)}}</span></div>', cellTooltip:true},
@@ -85,10 +85,10 @@
 
 			
 			$scope.checkEdited = function(_app){
-				    return (_app.Status.indexOf('Exited') >= 0 ) ? false : true;
+				    return (_app.containerStatus === 'STOP' ) ? false : true;
 			};
 			$scope.checkProgress=function(_app){
-				if(_app.Status.indexOf('Successfully') >=0 || _app.Status.indexOf('Progress') >=0)
+				if(_app.containerStatus.indexOf('Progress') >=0)
 					return false;
 				else
 					return true;
@@ -98,7 +98,7 @@
 			};
 
 			$scope.checkPausePlay = function(_app){
-				return (_app.Status.indexOf('Paused') >=0 ) ? true : false;
+				return (_app.containerStatus==='PAUSED') ? true : false;
 			};
 			$scope.showcAdvisor = function(app){
 				var cAdvisorInstance = $modal.open({
