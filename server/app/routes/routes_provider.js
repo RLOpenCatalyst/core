@@ -163,7 +163,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var vmwarehost = req.body.vmwarehost;
 		var vmwaredc = req.body.vmwaredc;
 		var providerName = req.body.providerName;
-		var providerType = req.body.providerType;
+		var providerType = req.body.providerType.toLowerCase();
+        var pemFileName = null;
+        if(req.files && req.files.azurepem)
+		   pemFileName = req.files.azurepem.originalFilename;
+        var keyFileName = null;
+        if(req.files && req.files.azurekey)
+		  keyFileName = req.files.azurekey.originalFilename;
 		var orgId = req.body.orgId;
 
 		if (typeof vmwareusername === 'undefined' || vmwareusername.length === 0) {
@@ -1109,16 +1115,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 		var providerName = req.body.providerName;
 		var providerType = req.body.providerType.toLowerCase();
-
-		// var pemFileName = req.files.azurepem.originalFilename;
-		// var keyFileName = req.files.azurekey.originalFilename;
-
 		var pemFileName = null;
     	if(req.files && req.files.azurepem)
  		   pemFileName = req.files.azurepem.originalFilename;
         var keyFileName = null;
         if(req.files && req.files.azurekey)
- 		  keyFileName = req.files.azurekey.originalFilename;
+		  keyFileName = req.files.azurekey.originalFilename;
 		var orgId = req.body.orgId;
 
 		if (typeof azureSubscriptionId === 'undefined' || azureSubscriptionId.length === 0) {
