@@ -393,7 +393,7 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(reqBody, isUpg
             appData['nexus'] = nexus;
             appData['nexus']['nodeIds'] = task.nodeIds;
         }
-        if (docker) {
+        if (docker && docker.length && docker[0] != null) {
             appData['docker'] = docker;
             appData['docker'][0]['nodeIds'] = task.nodeIds;
         }

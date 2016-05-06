@@ -23,7 +23,9 @@ var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var textSearch = require('mongoose-text-search');
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
-var tasks = require('_pr/model/classes/tasks/tasks.js');
+
+
+//var tasks = require('_pr/model/classes/tasks/tasks.js');
 
 
 
@@ -444,7 +446,10 @@ var InstancesDao = function() {
                            var err = new Error('Instances are not found');
                            err.status = 404;
                            return callback(err);
-                       } else {
+                       } 
+                       else {
+                        // @TODO Workaround to avoid circular dependency to be addressed
+                        var tasks = require('_pr/model/classes/tasks/tasks.js');
                            var instanceList=instances.docs;
                            var count=0;
                            for(var i = 0; i < instanceList.length ;i++){
@@ -485,6 +490,7 @@ var InstancesDao = function() {
                                    }
                                })(instanceList[i]);
                            }
+                       
                        }
                    });
                }
