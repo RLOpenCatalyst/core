@@ -295,6 +295,9 @@
 .font-size12{
   font-size: 12px !important;
 }
+.font-size15{
+  font-size: 15px !important;
+}
 .totalProviderLegendCSS{
   background: #40baf1 none repeat scroll 0% 0%; 
   font-size: 12px;
@@ -372,7 +375,10 @@
   margin-left: 10px;
 }
 .usagesArea{
-  min-height:300px;
+  min-height:250px;
+}
+.text-left{
+  text-align:left !important;
 }
 table.dataTable thead th, table.dataTable thead td{
   border-bottom: 1px solid #ddd !important;
