@@ -66,9 +66,9 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             logger.debug("stdOut     "+stdOut);
             if(retCode === 0){
                 if(stdOut.trim().length === jsonData.containerId.length){
-                    containerDao.updateContainer(jsonData.containerId,jsonData.processStatus,next);
-                }
-                else{
+
+                    containerDao.updateContainer(jsonData.containerId,dockerContainerStatus(jsonData.action),next);
+                }else{
                     containerDao.deleteContainerById(jsonData.containerId, next);
                 }
             }else {
@@ -86,6 +86,20 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
 
 function callBackReturn(data,callback){
     callback(null,data);
+};
+
+function dockerContainerStatus(status){
+    if(status === 'stop') {
+        return "STOP";
+    }else if(status === 'pause'){
+        return "PAUSE";
+    }else if(status === 'restart'){
+        return "RESTART";
+    }else if(status === 'unpause'){
+        return "UNPAUSE";
+    }else{
+        return "START";
+    }
 };
 
 

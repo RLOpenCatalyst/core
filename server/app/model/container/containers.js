@@ -4,7 +4,6 @@ var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var schemaValidator = require('_pr/model/dao/schema-validator.js');
-var ObjectId = require('mongoose').Types.ObjectId;
 
 var containerSchema = new Schema({
     orgId: {
@@ -70,11 +69,15 @@ var containerSchema = new Schema({
         trim: true
     },
     Ports: [Schema.Types.Mixed],
-    Labels:Schema.Types.Mixed,
+    Labels:[Schema.Types.Mixed],
     Status: {
         type: String,
         required: true,
         trim: true,
+    },
+    status: {
+            type: String,
+            enum: ["START", "STOP" , "PAUSE","UNPAUSE","RESTART"]
     },
     HostConfig:Schema.Types.Mixed
 
@@ -193,7 +196,7 @@ containerSchema.statics.deleteContainerById=function(containerId,callback){
 containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback){
     logger.debug("Enter deleteContainerByInstanceId (%s)", instanceId);
     container.remove({
-        instanceId: new ObjectId(instanceId)
+        instanceId: instanceId
     }, function(err, data) {
         if (err) {
             logger.error("Failed to deleteContainerByInstanceId (%s)", instanceId, err);

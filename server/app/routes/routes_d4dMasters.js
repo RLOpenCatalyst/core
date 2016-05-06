@@ -43,6 +43,7 @@ var parser = require('xml2json');
 var util = require('util');
 var Task = require('../model/classes/tasks/tasks.js');
 var async = require('async');
+var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -415,20 +416,53 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (dbtype) {
                                             var item = '\"' + req.params.fieldname + '\"';
                                             logger.debug("About to delete Master Type: %s : % : %", dbtype, item, req.params.fieldvalue);
-                                            eval('d4dModelNew.' + dbtype).remove({
-                                                rowid: req.params.fieldvalue
-                                            }, function(err) {
-                                                if (err) {
-                                                    logger.debug("Hit an errror on delete : %s", err);
-                                                    res.send(500);
-                                                    return;
-                                                } else {
-                                                    logger.debug("Document deleted : %s", req.params.fieldvalue);
-                                                    res.send(200);
-                                                    logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
-                                                    return;
-                                                }
-                                            }); //end findOne
+                                            if(fieldname.indexOf('environmentname') === -1) {
+                                                eval('d4dModelNew.' + dbtype).remove({
+                                                    rowid: req.params.fieldvalue
+                                                }, function (err) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror on delete : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
+                                                        res.send(200);
+                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                        return;
+                                                    }
+                                                }); //end findOne
+                                            }else{
+                                                masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, aEnvironment) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror to get Environment Name : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        eval('d4dModelNew.' + dbtype).remove({
+                                                            rowid: req.params.fieldvalue
+                                                        }, function (err) {
+                                                            if (err) {
+                                                                    logger.debug("Hit an errror on delete : %s", err);
+                                                                    res.send(500);
+                                                                    return;
+                                                            }else {
+                                                                    appDeployPipelineService.updateAppDeployPipeLineEnviornment(aEnvironment,function(err,data){
+                                                                        if (err) {
+                                                                            logger.debug("Hit an errror on updating the PipeLine Configuration : %s", err);
+                                                                            res.send(500);
+                                                                            return;
+                                                                        }
+                                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
+                                                                        res.send(200);
+                                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                                        return;
+
+                                                                    })
+                                                                }
+                                                            }); //end findOne
+                                                        }
+                                                    })
+                                            }
                                         }
                                     }); //end configmgmtDao
                                 } else {

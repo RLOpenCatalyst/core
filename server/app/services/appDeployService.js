@@ -131,7 +131,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
             callback(null, []);
             return;
         } else {
-            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function(err, distinctAppDeployApplicationNames) {
+            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function (err, distinctAppDeployApplicationNames) {
                 if (err) {
                     logger.debug("Failed to fetch App Deploy Versions");
                     callback(err, null);
@@ -197,10 +197,10 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                     var response = {};
                                                     response[jsonData.id] = appDeployList;
                                                     response['metaData'] = {
-                                                        totalRecords: distinctAppDeployApplicationNames.totalRecords,
+                                                        totalRecords: distinctAppDeployApplicationNames.pageSize,
                                                         pageSize: jsonData.pageSize,
                                                         page: jsonData.page,
-                                                        totalPages: Math.ceil(distinctAppDeployApplicationNames.totalRecords / jsonData.pageSize),
+                                                        totalPages: Math.ceil(distinctAppDeployApplicationNames.pageSize / jsonData.pageSize),
                                                         sortBy: Object.keys(jsonData.sortBy)[0],
                                                         sortOrder: jsonData.sortBy ? (jsonData[Object.keys(jsonData.sortBy)] == 1 ? 'asc' : "desc") : '',
                                                     };
@@ -240,11 +240,6 @@ appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion = funct
         if (err) {
             logger.debug("Error while fetching App Deploy History via projectId,envName,appName and appDeployVersion");
             callback(err, null);
-            return;
-        }
-        if (appDeployHistoryList.length === 0) {
-            logger.debug("There is no App Deploy History via projectId,envName,appName and appDeployVersion configured.");
-            callback(null, []);
             return;
         }
         callback(null, appDeployHistoryList);
@@ -301,9 +296,8 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
             logger.debug("There is no Project configured.");
             callback(null, []);
             return;
-        } else {
-            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function(err, distinctAppDeployApplicationNames) {
-
+        }else {
+            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function (err, distinctAppDeployApplicationNames) {
                 if (err) {
                     logger.debug("Failed to fetch App Deploy Versions");
                     callback(err, null);
