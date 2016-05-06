@@ -10,6 +10,7 @@
 	angular.module('workzone.cloudFormation')
 	.controller('stackInfoCtrl', ['$scope', '$modalInstance', 'items', 'CftSetting', 'workzoneServices', '$interval',
 		function($scope, $modalInstance, items, CftSetting, workzoneServices, $interval) {
+			$scope.isStackInfoLoading = true;
 			angular.extend($scope, {
 				cftEvents: [],
 				timerObject: '',
@@ -41,13 +42,16 @@
 			 workzoneServices.getCftEventsInfo(items).then(function(response) {
 				if (response.data) {
 					$scope.cftEvents = response.data;
+					$scope.isStackInfoLoading = false;
 				} else {
 					$scope.cftEvents = response;
+					$scope.isStackInfoLoading = false;
 				}
 				helper.eventsPolling();
 
 				}, function(error) {
-				$scope.cftEvents = error.responseText;
+					$scope.cftEvents = error.responseText;
+					$scope.isStackInfoLoading = false;
 			});
 
 			$scope.$on('$destroy', function() {

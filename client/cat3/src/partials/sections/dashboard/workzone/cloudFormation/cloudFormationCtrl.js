@@ -55,7 +55,7 @@
 					var colorRepresentationClass = '';
 					switch (stackState) {
 						case "CREATE_IN_PROGRESS":
-							colorRepresentationClass = '';
+							colorRepresentationClass = 'orange';
 							break;
 						case "CREATE_FAILED":
 							colorRepresentationClass = 'red';
