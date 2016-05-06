@@ -69,7 +69,7 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
                     }
                 })(chefTasks[i]);
             }*/
-            callback(null,chefTasks);
+            callback(null, chefTasks);
         }
     })
 };
@@ -77,9 +77,9 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, callback) {
     taskDao.getTaskById(taskId, function(err, task) {
         if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
+            var err = new Error('Failed to fetch Task.');
+            err.status = 500;
+            return callback(err, null);
         }
         if (task) {
             var blueprintIds = [];
@@ -88,9 +88,9 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             }
             task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
                 if (err) {
-                    logger.error(err);
-                    callback(err, null);
-                    return;
+                    var err = new Error('Failed to execute task.');
+                    err.status = 500;
+                    return callback(err, null);
                 }
                 if (historyData) {
                     taskRes.historyId = historyData.id;
@@ -100,8 +100,9 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                 return;
             });
         } else {
-            callback({"errorCode": 404,"message":"Task Not Found."}, null);
-            return;
+            var err = new Error('Task Not Found.');
+            err.status = 404;
+            return callback(err, null);
         }
     });
 };

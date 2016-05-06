@@ -117,7 +117,7 @@ $(document).ready(function() {
 function loadPipeline() {
     // fething application
     var projectId = urlParams['projid'];
-    $.get('/app/deploy/project/' + projectId + '/list', function(deployData) {
+    $.get('/app-deploy/project/' + projectId + '/list', function(deployData) {
         var sorteddeployData = deployData;
         cmp = function(x, y) {
             return x > y ? 1 : x < y ? -1 : 0;
@@ -637,7 +637,7 @@ $('#chooseJobs').change(function() {
     $ul.empty();
     $.get('/tasks/' + taskId, function(tasks) {
         if (tasks && tasks.taskConfig.nodeIds.length) {
-            /*$.get('/app/deploy/project/' + projectId + '/env/' + envName + '/application/' + rowDataSetappName + '?version=' + rowDataSetappVersion, function(data) {
+            /*$.get('/app-deploy/project/' + projectId + '/env/' + envName + '/application/' + rowDataSetappName + '?version=' + rowDataSetappVersion, function(data) {
              if (data.length) {
              var $ul = $('#promoteNodesId');
              for (var i = 0; i < data.length; i++) {
@@ -818,7 +818,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                     });
                 }
 
-                $.get('/app/data/project/' + projectId + '/env/' + sourceEnv + '?application=' + appName + '&version=' + version, function(data) {
+                $.get('/app-data/project/' + projectId + '/env/' + sourceEnv + '?application=' + appName + '&version=' + version, function(data) {
                     if (data && data.length) {
                         var nexus = {};
                         var docker = {};
@@ -863,7 +863,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             }
                         };
                         $.ajax({
-                            url: '/app/data',
+                            url: '/app-data',
                             data: JSON.stringify(appData),
                             type: 'POST',
                             contentType: "application/json",
@@ -1744,7 +1744,7 @@ function deployNewForDocker() {
                                 }
                             };
                             $.ajax({
-                                url: '/app/data',
+                                url: '/app-data',
                                 data: JSON.stringify(appData),
                                 type: 'POST',
                                 contentType: "application/json",
@@ -1864,7 +1864,7 @@ function upgradeOrDeploy() {
                                 }
                             };
                             $.ajax({
-                                url: '/app/data',
+                                url: '/app-data',
                                 data: JSON.stringify(appData),
                                 type: 'POST',
                                 contentType: "application/json",
@@ -2010,7 +2010,7 @@ function managePipelineConfiguration() {
 function getAllApplicationData() {
     var projectId = urlParams.projid;
     getenvName(function(envName) {
-        $.get('/app/deploy/env/' + envName + '/project/' + projectId + '/list', function(data) {
+        $.get('/app-deploy/env/' + envName + '/project/' + projectId + '/list', function(data) {
             constructUI(data);
         }).fail(function() {});
     });
@@ -2060,7 +2060,7 @@ function constructUI(data) {
             var $logContainer = $modal.find('.logsForAppDeploy').show();
             $logContainer.empty().append('<img class="center-block loaderImg" src="img/loading.gif" />');
             $.ajax({
-                url: '/app/deploy/' + this.id + '/logs',
+                url: '/app-deploy/' + this.id + '/logs',
                 type: 'GET',
                 contentType: "application/json",
                 success: function(data) {

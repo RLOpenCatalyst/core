@@ -680,7 +680,7 @@ taskSchema.statics.NormalizedTasks=function(jsonData,fieldName,callback){
 		})
 };
 
-taskSchema.statics.updateTaskConfig = function(taskId, taskConfig, callback) {
+taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConfig, callback) {
 	Tasks.update({
 		"_id": new ObjectId(taskId)
 	}, {
@@ -691,11 +691,10 @@ taskSchema.statics.updateTaskConfig = function(taskId, taskConfig, callback) {
 		upsert: false
 	}, function(err, updateCount) {
 		if (err) {
-			callback(err, null);
-			return;
+			return callback(err, null);
 		}
 		logger.debug('Updated task:' + updateCount);
-		callback(null, updateCount);
+		return callback(null, updateCount);
 
 	});
 };
