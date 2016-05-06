@@ -769,13 +769,13 @@ function getImagesWithOSFilter(imgId) {
 				//setting image value for ami type and disabling it- vn
 				if ($('.productdiv2.role-Selected').first().attr('templatetype') == 'ami') {
 					try {
-					var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
-					$('#imageId').val(vmimage.imageIdentifier).attr('disabled', 'disabled');
-					$('#instanceOS').val(vmimage.osName);
-					$('#instanceOS').attr('disabled', 'disabled');
-				   } catch (err){
+						var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
+						$('#imageId').val(vmimage.imageIdentifier).attr('disabled', 'disabled');
+						$('#instanceOS').val(vmimage.osName);
+						$('#instanceOS').attr('disabled', 'disabled');
+					} catch (err) {
 
-				   }
+					}
 					//alert($('#instanceOS option').length);
 				}
 				//setting the selection
@@ -3187,6 +3187,20 @@ function initializeBlueprintAreaNew(data) {
 						}
 					});
 
+					function getOrgProjDetails(id) {
+						var orgName = $("#orgnameSelectExisting option:selected").text();
+						var bgName = $('#bgListInputExisting option:selected').text();
+						var projName = $('#projectListInputExisting option:selected').text();
+						var $blueprintReadContainer = $(id);
+						$blueprintReadContainer.find('.modal-body #blueprintORG').val(orgName);
+						$blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName);
+						$blueprintReadContainer.find('.modal-body #blueprintProject').val(projName);
+						var $blueprintReadContainerCFT = $(id);
+						$blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(orgName);
+						$blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(bgName);
+						$blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(projName);
+					}
+
 					//Versions sections End
 
 
@@ -3215,19 +3229,7 @@ function initializeBlueprintAreaNew(data) {
 						$selectVer.hide();
 						$selectVerEdit.hide();
 						//for software stack and os image
-						function getOrgProjDetails(id) {
-							var orgName = $("#orgnameSelectExisting option:selected").text();
-							var bgName = $('#bgListInputExisting option:selected').text();
-							var projName = $('#projectListInputExisting option:selected').text();
-							var $blueprintReadContainer = $(id);
-							$blueprintReadContainer.find('.modal-body #blueprintORG').val(orgName);
-							$blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName);
-							$blueprintReadContainer.find('.modal-body #blueprintProject').val(projName);
-							var $blueprintReadContainerCFT = $(id);
-							$blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(orgName);
-							$blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(bgName);
-							$blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(projName);
-						}
+
 						(function(blueprint) {
 							$liRead.click(function(e) {
 								var $blueprintReadContainerCFT = $('#modalForReadCFT');
@@ -3240,6 +3242,7 @@ function initializeBlueprintAreaNew(data) {
 							});
 						})(data[i]);
 					} else {
+
 						$selectVer = $('<select style="padding:1px;padding-left:5px;"></select>').addClass('blueprintVersionDropDown').attr('data-blueprintId', data[i]._id);
 						if (data[i].templateType === 'chef' || data[i].templateType === 'ami') {
 							$selectVerEdit.hide();
