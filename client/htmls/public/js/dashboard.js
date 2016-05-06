@@ -426,10 +426,10 @@ $(document).ready(function() {
       var $tdinstancePlatformId = $('<td></td>').append(allProviderData.trackedInstances[i].instancePlatformId);
       $tr.append($tdinstancePlatformId);
 
-      var $tdorgId = $('<td></td>').append(allProviderData.trackedInstances[i].orgId);
+      var $tdorgId = $('<td></td>').append(allProviderData.trackedInstances[i].orgName);
       $tr.append($tdorgId);
 
-      var $tdbgId = $('<td></td>').append(allProviderData.trackedInstances[i].bgId);
+      var $tdbgId = $('<td></td>').append(allProviderData.trackedInstances[i].bgName);
       $tr.append($tdbgId);
 
       var $tdprojectName = $('<td></td>').append(allProviderData.trackedInstances[i].projectName);
@@ -447,36 +447,17 @@ $(document).ready(function() {
       var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
       $tr.append($tdproviderType);
 
-      var $tdcost = $('<td></td>').append(allProviderData.trackedInstances[i].averageCpuUtilization);
+      var $tdcost = $('<td></td>').append(allProviderData.trackedInstances[i].cost);
       $tr.append($tdcost);
 
-      /*var $tdusage = $('<td></td>').append(allProviderData.trackedInstances[i].usage.CPUUtilization.average);
-      $tr.append($tdusage);*/
-
-      $tdavgCpuUtilization = '<span>'+allProviderData.trackedInstances[i].usage.CPUUtilization.average+'</span><a class="btn btn-primary btn-sm width25padding4marginleft10"><i class="fa fa-list"></i></a>';
-
+      $tdavgCpuUtilization = '<span>'+allProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
+      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages" title="Usage Details" data-usage='+JSON.stringify(allProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
       var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
       $tr.append($tdusage);
-      /*var $tdOs = $('<td></td>').append(managnedData[i].hardware.os);
-      $tr.append($tdOs);
-
-      var $tdIpAddress = $('<td></td>').append(managnedData[i].instanceIP);
-      $tr.append($tdIpAddress);
-
-      var region = '';
-      if (managnedData[i].providerData && managnedData[i].providerData.region) {
-        region = managnedData[i].providerData.region;
-      }
-      var $tdRegion = $('<td></td>').append(region);
-      $tr.append($tdRegion);
-      var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
-      $tr.append($tdStatus);
-
-      var $tdProjectName = $('<td></td>').append(managnedData[i].projectName);
-      $tr.append($tdProjectName);*/
 
       $tbody.append($tr);
       $allProviderTrackedInstanceDatatable.row.add($tr).draw();
+      $allProviderTrackedInstanceDatatable.on('click', '.specProviderUsages', specProviderUsagesClickHandler);
     }
   }
 
@@ -524,6 +505,7 @@ $(document).ready(function() {
   $('#backfrmspecprovidertrackedInstance').click(function() {
     $('#mainPanelId').show();
     $('#trackedInstancesSpecProviderTableContainer').hide();
+    specprovidersTrackedInstId
   });
 
   function loadtrackedspecProviderInstances(specProviderData) {
@@ -535,10 +517,10 @@ $(document).ready(function() {
       var $tdinstancePlatformId = $('<td></td>').append(specProviderData.trackedInstances[i].instancePlatformId);
       $tr.append($tdinstancePlatformId);
 
-      var $tdorgId = $('<td></td>').append(specProviderData.trackedInstances[i].orgId);
+      var $tdorgId = $('<td></td>').append(specProviderData.trackedInstances[i].orgName);
       $tr.append($tdorgId);
 
-      var $tdbgId = $('<td></td>').append(specProviderData.trackedInstances[i].bgId);
+      var $tdbgId = $('<td></td>').append(specProviderData.trackedInstances[i].bgName);
       $tr.append($tdbgId);
 
       var $tdprojectName = $('<td></td>').append(specProviderData.trackedInstances[i].projectName);
@@ -556,14 +538,11 @@ $(document).ready(function() {
       var $tdproviderType = $('<td></td>').append(specProviderData.trackedInstances[i].providerType);
       $tr.append($tdproviderType);
 
-      var $tdcost = $('<td></td>').append(specProviderData.trackedInstances[i].averageCpuUtilization);
+      var $tdcost = $('<td></td>').append(specProviderData.trackedInstances[i].cost);
       $tr.append($tdcost);
 
-      /*var $tdusage = $('<td></td>').append(specProviderData.trackedInstances[i].usage.CPUUtilization.average);
-      $tr.append($tdusage);*/
-
-      $tdavgCpuUtilization = '<span>'+specProviderData.trackedInstances[i].usage.CPUUtilization.average+'</span><a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages"><i class="fa fa-list"></i></a>';
-
+      $tdavgCpuUtilization = '<span>'+specProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
+      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages" title="Usage Details" data-usage='+JSON.stringify(specProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
       var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
       $tr.append($tdusage);
 
@@ -571,11 +550,6 @@ $(document).ready(function() {
       $specProviderTrackedInstanceDatatable.row.add($tr).draw();
       $specProviderTrackedInstanceDatatable.on('click', '.specProviderUsages', specProviderUsagesClickHandler);
     }
-  }
-
-  function specProviderUsagesClickHandler(){
-    var $usageModalContainer = $('#usageModalContainer');
-    $usageModalContainer.modal('show');
   }
 
   if (!$.fn.dataTable.isDataTable('#specProviderTrackedInstanceListTable')) {
@@ -614,4 +588,34 @@ $(document).ready(function() {
   }
   $('#specProviderTrackedInstanceListTable_info').addClass('font-size12');
   $('#specProviderTrackedInstanceListTable_paginate').addClass('font-size12');
+
+
+  //Function to get the specific provider usages.
+  function specProviderUsagesClickHandler(){
+    var $specUsageModalContainer = $('#specUsageModalContainer');
+    var dataStr = $(this).attr("data-usage");
+    var $data = JSON.parse(dataStr);
+
+    $specUsageModalContainer.find('#specCpuUtilAvg').html($data.CPUUtilization.average);
+    $specUsageModalContainer.find('#specCpuUtilMin').html($data.CPUUtilization.minimum);
+    $specUsageModalContainer.find('#specCpuUtilMax').html($data.CPUUtilization.maximum);
+
+    $specUsageModalContainer.find('#specDiskReadAvg').html($data.DiskReadBytes.average);
+    $specUsageModalContainer.find('#specDiskReadMin').html($data.DiskReadBytes.minimum);
+    $specUsageModalContainer.find('#specDiskReadMax').html($data.DiskReadBytes.maximum);
+
+    $specUsageModalContainer.find('#specDiskWriteAvg').html($data.DiskWriteBytes.average);
+    $specUsageModalContainer.find('#specDiskWriteMin').html($data.DiskWriteBytes.minimum);
+    $specUsageModalContainer.find('#specDiskWriteMax').html($data.DiskWriteBytes.maximum);
+
+    $specUsageModalContainer.find('#specNetworkOutAvg').html($data.NetworkOut.average);
+    $specUsageModalContainer.find('#specNetworkOutMin').html($data.NetworkOut.minimum);
+    $specUsageModalContainer.find('#specNetworkOutMax').html($data.NetworkOut.maximum);
+
+    $specUsageModalContainer.find('#specNetworkInAvg').html($data.NetworkIn.average);
+    $specUsageModalContainer.find('#specNetworkInMin').html($data.NetworkIn.minimum);
+    $specUsageModalContainer.find('#specNetworkInMax').html($data.NetworkIn.maximum);
+
+    $specUsageModalContainer.modal('show');
+  }
 });

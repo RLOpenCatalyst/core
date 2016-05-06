@@ -202,12 +202,12 @@
          <table id="managedinstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
             <thead>
                <tr>
-                  <th style="text-align: center">InstanceId</th>
-                  <th style="text-align: center">OS</th>
-                  <th style="text-align: center">IP Address</th>
-                  <th style="text-align: center">Region</th>
-                  <th style="text-align: center">Status</th>
-                  <th style="text-align: center">Project Name</th>
+                  <th class="text-center">InstanceId</th>
+                  <th class="text-center">OS</th>
+                  <th class="text-center">IP Address</th>
+                  <th class="text-center">Region</th>
+                  <th class="text-center">Status</th>
+                  <th class="text-center">Project Name</th>
                </tr>
             </thead>
             <tbody class="managedInstance">
@@ -219,7 +219,7 @@
       <div class="panel panel-default panel-default-CSS">
         <div class="panel-heading panel-heading-CSS">
           <h4 class="panel-title padding2">
-            <span class="panelh4spanCSS">Tracked Instances Details for all Provider &nbsp;</span>
+            <span class="panelh4spanCSS">Tracked Instances &nbsp;</span>
             <!-- <span id="allprovidersTrackedInstId" class="panelh4spanCSS"></span> -->
           </h4>
           <a id="backfrmallprovidertrackedInstance" class="btn btn-primary panelh4aCSS">
@@ -231,16 +231,16 @@
          <table id="allProviderTrackedInstanceListTable" class="table table-hover table-bordered allProviderTrackedInstanceListTableCSS" cellspacing="0" width="100%">
             <thead>
                <tr>
-                  <th style="text-align: center">InstanceId</th>
-                  <th style="text-align: center">Org</th>
-                  <th style="text-align: center">BU</th>
-                  <th style="text-align: center">Project</th>
-                  <th style="text-align: center">Env</th>
-                  <th style="text-align: center">OS</th>
-                  <th style="text-align: center">IP Address</th>
-                  <th style="text-align: center">Provider</th>
-                  <th style="text-align: center">Cost</th>
-                  <th style="text-align: center">Avg. Cpu Usage</th>
+                  <th class="text-center">InstanceId</th>
+                  <th class="text-center">Org</th>
+                  <th class="text-center">BU</th>
+                  <th class="text-center">Project</th>
+                  <th class="text-center">Env</th>
+                  <th class="text-center">OS</th>
+                  <th class="text-center">IP Address</th>
+                  <th class="text-center">Provider</th>
+                  <th class="text-center">Cost</th>
+                  <th class="text-center">Avg. Cpu Usage</th>
                </tr>
             </thead>
             <tbody class="allProviderTrackedInstance">
@@ -253,7 +253,7 @@
       <div class="panel panel-default panel-default-CSS">
         <div class="panel-heading panel-heading-CSS">
           <h4 class="panel-title padding2">
-            <span class="panelh4spanCSS">Tracked Instances Details for specific Provider &nbsp;</span>
+            <span class="panelh4spanCSS">Tracked Instances &nbsp;</span>
             <!-- <span id="specprovidersTrackedInstId" class="panelh4spanCSS"></span> -->
           </h4>
           <a id="backfrmspecprovidertrackedInstance" class="btn btn-primary panelh4aCSS">
@@ -265,16 +265,16 @@
          <table id="specProviderTrackedInstanceListTable" class="table table-hover table-bordered specProviderTrackedInstanceListTableCSS" cellspacing="0" width="100%">
             <thead>
                <tr>
-                  <th style="text-align: center">InstanceId</th>
-                  <th style="text-align: center">Org</th>
-                  <th style="text-align: center">BU</th>
-                  <th style="text-align: center">Project</th>
-                  <th style="text-align: center">Env</th>
-                  <th style="text-align: center">OS</th>
-                  <th style="text-align: center">IP Address</th>
-                  <th style="text-align: center">Provider</th>
-                  <th style="text-align: center">Cost</th>
-                  <th style="text-align: center">Avg. Cpu Usage</th>
+                  <th class="text-center">InstanceId</th>
+                  <th class="text-center">Org</th>
+                  <th class="text-center">BU</th>
+                  <th class="text-center">Project</th>
+                  <th class="text-center">Env</th>
+                  <th class="text-center">OS</th>
+                  <th class="text-center">IP Address</th>
+                  <th class="text-center">Provider</th>
+                  <th class="text-center">Cost</th>
+                  <th class="text-center">Avg. Cpu Usage</th>
                </tr>
             </thead>
             <tbody class="specProviderTrackedInstance">
@@ -283,60 +283,60 @@
       </div>
     </div>
 
-    <div class="modal fade" id="usageModalContainer" aria-labelledby="myModalLabel" data-backdrop="static">
-      <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="specUsageModalContainer" aria-labelledby="specUsageModalLabel" data-backdrop="static">
+      <div class="modal-dialog">
         <div class="modal-content">
            <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-              <h4 class="modal-title" id="myModalLabel">
-                 <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Usages Calculation
+              <h4 class="modal-title font-size15" id="specUsageModalLabel">
+                 <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Usage Details
               </h4>
            </div>
            <div class="modal-body">
               <div class="usagesArea">
-                <table id="" class="table table-hover table-bordered" cellspacing="0" width="100%">
+                <table class="table table-hover table-bordered font-size12" cellspacing="0" width="100%">
                   <thead>
                      <tr>
-                        <th style="text-align: center">&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                        <th style="text-align: center">Average</th>
-                        <th style="text-align: center">Minimum</th>
-                        <th style="text-align: center">Maximum</th>
+                        <th class="text-left">Resource Metrics</th>
+                        <th class="text-center">Average</th>
+                        <th class="text-center">Minimum</th>
+                        <th class="text-center">Maximum</th>
                      </tr>
                   </thead>
-                  <tbody class="">
+                  <tbody class="usagesTbody text-center">
                     <tr>
-                      <td>CPUUtilization</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td class="text-left">CPUUtilization&nbsp;<span id="cpuUtilizationPer"></span></td>
+                      <td id="specCpuUtilAvg"></td>
+                      <td id="specCpuUtilMin"></td>
+                      <td id="specCpuUtilMax"></td>
                     </tr>
                     
                     <tr>
-                      <td>DiskReadBytes</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td class="text-left">DiskReadBytes</td>
+                      <td id="specDiskReadAvg"></td>
+                      <td id="specDiskReadMin"></td>
+                      <td id="specDiskReadMax"></td>
                     </tr> 
 
                     <tr>
-                      <td>DiskWriteBytes</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td class="text-left">DiskWriteBytes</td>
+                      <td id="specDiskWriteAvg"></td>
+                      <td id="specDiskWriteMin"></td>
+                      <td id="specDiskWriteMax"></td>
                     </tr> 
 
                     <tr>
-                      <td>NetworkOut</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td class="text-left">NetworkOut</td>
+                      <td id="specNetworkOutAvg"></td>
+                      <td id="specNetworkOutMin"></td>
+                      <td id="specNetworkOutMax"></td>
                     </tr> 
 
                     <tr>
-                      <td>NetworkIn</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td class="text-left">NetworkIn</td>
+                      <td id="specNetworkInAvg"></td>
+                      <td id="specNetworkInMin"></td>
+                      <td id="specNetworkInMax"></td>
                     </tr>
 
                   </tbody>
