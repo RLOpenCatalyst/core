@@ -433,10 +433,16 @@ $imagePath : "/cat3/images";
 		padding: 2px 7px;
 		margin: 5px 0px 0px 53px;
 	}
+}
 
-	.orange {
-		color: orange;
-		font-size: 9px;
+#cloudFormationPage {
+	.orange, .red, .green {
+		margin-left: -12px;
+	}
+}
+
+#azureARMPage {
+	.stack-details {
 		margin-left: -12px;
 	}
 }
