@@ -106,7 +106,7 @@ function sync() {
                                                                     var containers = JSON.parse(so);
                                                                     async.forEach(containers,function(container,next){
                                                                         var containerName=container.Names.toString().replace('/','');
-                                                                        var instanceId=instance._id.toString();
+                                                                       // var instanceId=instance._id.toString();
                                                                         var status=dockerContainerStatus(container.Status.toString(),container.Created);
                                                                         var containerData = {
                                                                             orgId: organization.rowid,
@@ -115,7 +115,7 @@ function sync() {
                                                                             envId: environment.rowid,
                                                                             Id: container.Id,
                                                                             instanceIP: instance.instanceIP,
-                                                                            instanceId: instanceId,
+                                                                            instanceId: instance._id,
                                                                             Names: containerName,
                                                                             Image: container.Image,
                                                                             ImageID: container.ImageID,

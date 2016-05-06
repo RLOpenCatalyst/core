@@ -98,7 +98,7 @@
 			};
 
 			$scope.checkPausePlay = function(_app){
-				return (_app.containerStatus==='PAUSED') ? true : false;
+				return (_app.containerStatus==='PAUSE') ? true : false;
 			};
 			$scope.showcAdvisor = function(app){
 				var cAdvisorInstance = $modal.open({

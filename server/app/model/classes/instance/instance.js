@@ -23,9 +23,6 @@ var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var textSearch = require('mongoose-text-search');
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
-var tasks = require('_pr/model/classes/tasks/tasks.js');
-
-
 
 var Schema = mongoose.Schema;
 
@@ -300,6 +297,7 @@ var InstancesDao = function() {
         });
     };
     this.getInstanceById = function(instanceId, callback) {
+        console.log("******");
         Instances.find({
             "_id": new ObjectId(instanceId)
         }, {
@@ -445,6 +443,7 @@ var InstancesDao = function() {
                            err.status = 404;
                            return callback(err);
                        } else {
+                           var tasks = require('_pr/model/classes/tasks/tasks.js');
                            var instanceList=instances.docs;
                            var count=0;
                            for(var i = 0; i < instanceList.length ;i++){
@@ -511,27 +510,6 @@ var InstancesDao = function() {
            });
        }
     };
-
-   /* this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
-        var queryObj = {
-            orgId: jsonData.orgId,
-            bgId: jsonData.bgId,
-            projectId: jsonData.projectId,
-            envId: jsonData.envId
-        }
-        if (jsonData.instanceType) {
-            queryObj['blueprintData.templateType'] = jsonData.instanceType;
-        }
-        Instances.find(queryObj, {
-            'actionLogs': false
-        }, function(err, data) {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            callback(null, data);
-        });
-    };*/
 
     this.getInstancesByOrgEnvIdAndChefNodeName = function(orgId, envId, nodeName, callback) {
         logger.debug("Enter getInstancesByOrgEnvIdAndChefNodeName (%s, %s, %s)", orgId, envId, nodeName);

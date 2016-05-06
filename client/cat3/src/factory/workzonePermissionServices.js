@@ -15,7 +15,7 @@
 			return uac.hasPermission('puppetserver','modify');
 		};
 		this.logInfo = function() {
-			return uac.hasPermission('instanceinfo','read');
+			return uac.hasPermission('logs','read');
 		};
 		this.ssh = function(){
 			return uac.hasPermission('instanceconnect', 'execute');
