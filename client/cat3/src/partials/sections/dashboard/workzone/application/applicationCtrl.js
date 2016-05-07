@@ -16,6 +16,7 @@
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
 			angular.extend($scope, {
+				selectedGridRow:[],
 				pipelineConfig:'',
 				pipeLineActBarShow:false,
 				isApplicationPageLoading :true,
@@ -156,8 +157,9 @@
 							}
 						}
 					}).
-					result.then(function() {
-
+					result.then(function(selectedItem) {
+						$scope.pipeGridOptions.data[selectedItem.envName]=selectedItem;
+						$scope.pipeGridOptions.data = angular.extend($scope.pipeGridOptions.data,$scope.pipeGridOptions.data[selectedItem.envName]);
 					}, function() {
 
 					});
@@ -203,6 +205,7 @@
 							});
 						}
 					});
+					$scope.pipeGridOptions.rowTemplate= "<div ng-click=\"grid.appScope.selectRow(row)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>"
 					$scope.pipeGridOptions.columnDefs=[{ name:'appName',field:'appName',displayName:'App Name',cellTemplate:'<div pipeline-card card-details="row.entity.appName"></div>',cellTooltip: true}];
 					//Api response is in array but it is only one object.
 					angular.forEach(configResult.data[0].envSequence,function(val){
@@ -230,6 +233,10 @@
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 				});
 			}
+			$scope.selectRow = function (row) {
+				$scope.selectedGridRow=[];
+				$scope.selectedGridRow=row;
+			};
 
 			$scope.$on('SELECTED-CARD' ,function ($event,cardDetails,appName,envName){
 				$scope.pipeLineActBarData ='';

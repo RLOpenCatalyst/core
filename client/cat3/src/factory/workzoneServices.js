@@ -60,11 +60,11 @@
                 },
                 getApplicationHistoryForEnv: function (envName, projId,pagiOpti) {
                     var pageiReq=paginationUtil.pageObjectToString(pagiOpti);
-                    var url = '/app/deploy/project/' + projId + '/env/'+ envName +'/appDeployHistoryList'+pageiReq;
+                    var url = '/app-deploy/project/' + projId + '/env/'+ envName +'/appDeployHistoryList'+pageiReq;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getApplicationHistoryLogs: function(appId) {
-                    var url = '/app/deploy/' + appId + '/logs';
+                    var url = '/app-deploy/' + appId + '/logs';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getEnvConfig: function(projId) {
@@ -437,7 +437,7 @@
                 },
                 getNexusRepository:function(nexusId){
                     var p = workzoneEnvironment.getEnvParams(),
-                        url = '/app/deploy/nexus/'+nexusId+'/project/' + p.proj + '/nexusRepositoryList';
+                        url = '/app-deploy/nexus/'+nexusId+'/project/' + p.proj + '/nexusRepositoryList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getDockerRepository :function(){
@@ -446,13 +446,11 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getNexusArtifacts:function(requestData){
-                    var p = workzoneEnvironment.getEnvParams(),
-                        url = '/app/deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifactList';
+                       var url = '/app-deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifactList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getNexusVersions:function(requestData){
-                    var p = workzoneEnvironment.getEnvParams(),
-                        url = '/app/deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact/'+requestData.artifactId+'/versionList';
+                    var url = '/app-deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact/'+requestData.artifactId+'/versionList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getPipelineConfig:function(requestEnv){
@@ -461,7 +459,7 @@
                 },
                 getPipelineView :function(requestEnv,pgOptions){
                     var pageiReq=paginationUtil.pageObjectToString(pgOptions);
-                    var url = '/app/deploy/project/'+requestEnv.proj+'/appDeployList'+pageiReq;
+                    var url = '/app-deploy/project/'+requestEnv.proj+'/appDeployList'+pageiReq;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getCardPermission :function(cardDetails){
@@ -469,27 +467,27 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getCardHistoryList :function(envDetails){
-                    var url= '/app/deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appName/'+envDetails.appName.name+'/version/'+envDetails.appName.version+'/appDeployHistoryList';
+                    var url= '/app-deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appName/'+envDetails.appName.name+'/version/'+envDetails.appName.version+'/appDeployHistoryList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 postAppDeploy:function(RequestObject){
-                    var url='/app/deploy/new'
+                    var url='/app-deploy/new';
                     return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
                 },
                 getDockerImageTags :function(requestObject) {
                     var url='/d4dMasters/docker/'+requestObject.dockerId+'/repository/'+requestObject.repository+'/image/'+requestObject.image+'/tags';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
-                postAppPromote:function(RequestObject){
-                    var url='/app/deploy/promote'
-                    return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
+                putAppPromote:function(RequestObject){
+                    var url='/app-deploy/promote';
+                    return $http.put(fullUrl(url),RequestObject,Auth.getHeaderObject());
                 },
                 getAppUpgrade:function(requestOject){
-                    var url ='/app/data/project/' + requestOject.params.proj + '/env/' + requestOject.envName + '?application='+requestOject.appName.name+'&version='+requestOject.appName.version;
+                    var url ='/app-data/project/' + requestOject.params.proj + '/env/' + requestOject.envName + '?application='+requestOject.appName.name+'&version='+requestOject.appName.version;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 postAppApprove :function(RequestObject){
-                    var url='/deploy/permission/data/save/configure'
+                    var url='/deploy/permission/data/save/configure';
                     return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
                 }
             };
