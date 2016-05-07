@@ -24,11 +24,13 @@ angular.module('workzone.application')
 					version:items.appName.version,
 					comments:$scope.approveAppCommt,
 					isApproved:true
-				}
+				};
 				wzService.postAppApprove(requestObject).success(function(Saveresult){
 					$scope.msgText='approved';
 					$scope.resultMsg='success';
-				}).error(function(data, status, headers, config) {
+					items.isApproved=true;
+					$modalInstance.close(items);
+				}).error(function(data) {
 					$scope.msgText=data.message;
 					$scope.resultMsg='error';
 				});
@@ -41,10 +43,12 @@ angular.module('workzone.application')
 					version:items.appName.version,
 					comments:$scope.approveAppCommt,
 					isApproved:false
-				}
+				};
 				wzService.postAppApprove(requestObject).success(function(Saveresult){
 					$scope.msgText='revoked';
 					$scope.resultMsg='success';
+					//added is approve status
+					$modalInstance.close(items);
 				}).error(function(data, status, headers, config) {
 					$scope.msgText=data.message;
 					$scope.resultMsg='error';

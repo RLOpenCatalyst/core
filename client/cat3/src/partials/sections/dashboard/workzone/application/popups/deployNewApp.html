@@ -165,15 +165,18 @@
 	<div ng-switch-when="true">
 		<div class="modal-body">
 			<div>
-				New application successful deployment .<hr /><span class="red">Are you want to execute to this job ?</span>
+				<div class="alert alert-success fade in">
+					Application has been deployed successfully.
+				</div>
+				<hr /><span class="red">Are you want to execute to this job ?</span>
 			</div>
 		</div>
 		<div class="modal-footer">
 			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
-				<i class="fa fa-times black"></i> Cancel
+				<i class="fa fa-times black"></i> No
 			</button>
 			<button type="button" class="btn cat-btn-update"  ng-click="depNewApp.ok();">
-				<i class="ace-icon fa fa-check bigger-110 white"></i> Ok
+				<i class="ace-icon fa fa-check bigger-110 white"></i> Yes
 			</button>
 
 		</div>
