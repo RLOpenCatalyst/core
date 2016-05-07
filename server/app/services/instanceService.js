@@ -370,13 +370,11 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 function getTrackedInstancesForProvider(provider, next) {
     async.parallel({
             managed: function (callback) {
-                instancesModel.getInstanceByProviderId(
-                    {providerId: provider._id}, {}, callback
-                );
+                instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             unmanaged: function(callback) {
                 unManagedInstancesModel.getByProviderId(
-                    {providerId: provider._id}, {}, callback
+                    {providerId: provider._id}, callback
                 );
             }
         },

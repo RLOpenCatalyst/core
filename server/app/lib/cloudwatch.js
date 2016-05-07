@@ -144,7 +144,8 @@ var CW = function(awsSettings) {
         });
     };
 
-    this.getUsageMetricsFor24Hours = function getUsageMetrics(metric, instanceId, startTime, endTime, callback) {
+    // @TODO Try to reduce number of parameters
+    this.getUsageMetrics = function getUsageMetrics(metric, unit, instanceId, startTime, endTime, callback) {
         var params = {
             EndTime: endTime,
             MetricName: metric,
@@ -152,7 +153,8 @@ var CW = function(awsSettings) {
             Period: 86400,
             StartTime: startTime,
             Statistics: ['Average', 'Minimum', 'Maximum'],
-            Dimensions: [{Name:'InstanceId',Value:instanceId}]
+            Dimensions: [{Name:'InstanceId',Value:instanceId}],
+            Unit: unit
         };
 
         cloudwatch.getMetricStatistics(params,function(err, data) {

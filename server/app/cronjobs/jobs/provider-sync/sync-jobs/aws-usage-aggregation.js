@@ -14,6 +14,7 @@
  limitations under the License.
  */
 var logger = require('_pr/logger')(module);
+var appConfig = require('_pr/config');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
@@ -22,6 +23,7 @@ var CW = require('_pr/lib/cloudwatch.js');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var resourceMetricsModel = require('_pr/model/resource-metrics');
+var instanceService = require('_pr/services/instanceService');
 var async = require('async');
 
 module.exports = aggregateAWSUsage;
@@ -62,7 +64,7 @@ function aggregateEC2UsageForProvider(provider) {
     async.waterfall([
         function (next) {
             logger.debug('EC2 usage aggregation for provider: ' + provider._id + ' started');
-            getManagedAndUnmanagedInstances(provider, next);
+            instanceService.getTrackedInstancesForProvider(provider, next);
         },
         function (provider, instances, next) {
             async.parallel({
@@ -108,38 +110,6 @@ function aggregateEC2UsageForProvider(provider) {
 /**
  *
  * @param provider
- * @param next
- */
-function getManagedAndUnmanagedInstances(provider, next) {
-    async.parallel({
-            managed: function (callback) {
-                instancesModel.getInstanceByProviderId(
-                    provider._id,
-                    callback);
-            },
-            unmanaged: function(callback) {
-                unManagedInstancesModel.getByProviderId({
-                        providerId: provider._id,
-                    },
-                    callback);
-            }
-        },
-        function(err, results) {
-            if(err) {
-                next(err)
-            } else {
-                /*var instances = results.reduce(function(a, b) {
-                    return a.concat(b);
-                }, []);*/
-                next(null, provider, results);
-            }
-        }
-    );
-}
-
-/**
- *
- * @param provider
  * @param instances
  * @param callback
  */
@@ -167,6 +137,7 @@ function generateEC2UsageMetricsForProvider(provider, instances, callback) {
  * @param next
  */
 function getEC2InstanceUsageMetrics(provider, instances, next) {
+    var metricsUnits = appConfig.aws.cwMetricsUnits;
     var instanceUsageMetrics = [];
 
     if(instances.length == 0)
@@ -206,24 +177,24 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
 
             async.parallel({
                 CPUUtilization: function (callback) {
-                    cw.getUsageMetricsFor24Hours('CPUUtilization', instances[j].platformId,
-                        startTime, endTime, callback);
+                    cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,
+                        instances[j].platformId, startTime, endTime, callback);
                 },
                 NetworkOut: function (callback) {
-                    cw.getUsageMetricsFor24Hours('NetworkOut', instances[j].platformId,
-                        startTime, endTime, callback);
+                    cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,
+                        instances[j].platformId, startTime, endTime, callback);
                 },
                 NetworkIn: function (callback) {
-                    cw.getUsageMetricsFor24Hours('NetworkIn', instances[j].platformId,
-                        startTime, endTime, callback);
+                    cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,
+                        instances[j].platformId, startTime, endTime, callback);
                 },
                 DiskReadBytes: function (callback) {
-                    cw.getUsageMetricsFor24Hours('DiskReadBytes', instances[j].platformId,
-                        startTime, endTime, callback);
+                    cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,
+                        instances[j].platformId, startTime, endTime, callback);
                 },
                 DiskWriteBytes: function (callback) {
-                    cw.getUsageMetricsFor24Hours('DiskWriteBytes', instances[j].platformId,
-                        startTime, endTime, callback);
+                    cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,
+                        instances[j].platformId, startTime, endTime, callback);
                 }
             },
             function (err, results) {
@@ -243,11 +214,10 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
                         endTime: endTime,
                         metrics: results
                     });
-
-                    if(instanceUsageMetrics.length == instances.length) {
-                        next(null, instanceUsageMetrics);
-                    }
                 }
+
+                if(instanceUsageMetrics.length == instances.length)
+                    next(null, instanceUsageMetrics);
             });
         })(i);
     }
@@ -268,14 +238,13 @@ function saveResourceUsageMetrics (resourceMetrics, next) {
         (function(j) {
             resourceMetricsModel.createNew(resourceMetrics[j],
                 function(err, resourceMetricsObj) {
-                    if(err) {
+                    if(err)
                         next(err);
-                    } else {
+                    else
                         results.push(resourceMetricsObj);
 
-                        if(results.length == resourceMetrics.length)
-                            next(null, results);
-                    }
+                    if(results.length == resourceMetrics.length)
+                        next(null, results);
                 }
             );
         })(i);
@@ -293,18 +262,25 @@ function updateManagedInstanceUsage(instanceUsageMetrics, next) {
     if(instanceUsageMetrics.length == 0)
         return next(null, results);
 
+    // @TODO get rid of nesting
     for(var i = 0; i < instanceUsageMetrics.length; i++) {
         (function (j) {
-            instancesModel.updateInstanceUsage(instanceUsageMetrics[j].instanceId,
-                instanceUsageMetrics[j].metrics, function(err, result) {
-                    if(err) {
-                        next(err);
-                    } else {
-                        results.push(result);
+            formatUsageData(instanceUsageMetrics[j], function(err, formattedUsageMetrics) {
+                if (err) {
+                    next(err);
+                } else {
+                    instancesModel.updateInstanceUsage(formattedUsageMetrics.instanceId,
+                        formattedUsageMetrics.metrics, function (err, result) {
+                            if (err)
+                                next(err);
+                            else
+                                results.push(result);
 
-                        if(results.length == instanceUsageMetrics.length)
-                            next(null, results);
-                    }
+                            if (results.length == instanceUsageMetrics.length)
+                                next(null, results);
+                        }
+                    );
+                }
             });
         })(i);
     };
@@ -321,19 +297,46 @@ function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
     if(instanceUsageMetrics.length == 0)
         return next(null, results);
 
+    // @TODO get rid of nesting
     for(var i = 0; i < instanceUsageMetrics.length; i++) {
         (function (j) {
-            unManagedInstancesModel.updateUsage(instanceUsageMetrics[j].instanceId,
-                instanceUsageMetrics[j].metrics, function(err, result) {
-                    if(err) {
-                        next(err);
-                    } else {
-                        results.push(result);
+            formatUsageData(instanceUsageMetrics[j], function(err, formattedUsageMetrics) {
+                if(err) {
+                    next(err);
+                } else {
+                    unManagedInstancesModel.updateUsage(formattedUsageMetrics.instanceId,
+                        formattedUsageMetrics.metrics, function(err, result) {
+                            if(err)
+                                next(err);
+                            else
+                                results.push(result);
 
-                        if(results.length == instanceUsageMetrics.length)
-                            next(null, results);
-                    }
-                });
+                            if(results.length == instanceUsageMetrics.length)
+                                next(null, results);
+                        }
+                    );
+                }
+            });
         })(i);
     };
+}
+
+function formatUsageData(instanceUsageMetrics, next) {
+    var metricsDisplayUnits = appConfig.aws.cwMetricsDisplayUnits;
+
+    instanceUsageMetrics.metrics.CPUUtilization.unit = metricsDisplayUnits.CPUUtilization;
+    instanceUsageMetrics.metrics.DiskReadBytes.unit = metricsDisplayUnits.DiskReadBytes;
+    instanceUsageMetrics.metrics.DiskWriteBytes.unit = metricsDisplayUnits.DiskWriteBytes;
+    instanceUsageMetrics.metrics.NetworkIn.unit = metricsDisplayUnits.NetworkIn;
+    instanceUsageMetrics.metrics.NetworkOut.unit = metricsDisplayUnits.NetworkOut;
+
+    instanceUsageMetrics.metrics.CPUUtilization.average
+        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.average);
+    instanceUsageMetrics.metrics.CPUUtilization.minimum
+        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.minimum);
+    instanceUsageMetrics.metrics.CPUUtilization.maximum
+        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.maximum);
+
+
+    next(null, instanceUsageMetrics);
 }
