@@ -65,6 +65,17 @@
 						var blueprint = result.data;
 						$scope.blueprints = formatData.getFormattedCollection(blueprint);
 						$scope.isBlueprintPageLoading = false;
+						if(blueprint.iconpath) {
+							//$scope.blueprints.software_stack[i].iconpath = blueprint.;
+						}
+						else {
+							for(var i=0;i<blueprint.length;i++) {
+								$scope.blueprints.software_stack[i].iconpath = 'images/templateicons/imgo.jpg';
+								$scope.blueprints.os_image[i].iconpath = 'images/templateicons/imgo.jpg';
+								$scope.blueprints.cloudFormation[i].iconpath = 'images/templateicons/imgo.jpg';
+								$scope.blueprints.azureARM[i].iconpath = 'images/templateicons/imgo.jpg';
+							}
+						}
 		                workzoneUIUtils.makeTabScrollable('blueprintPage');
 					},function(error) {
 						$scope.isBlueprintPageLoading = false;
