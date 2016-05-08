@@ -25,7 +25,11 @@
 	<div class="modal-body">
 		<section>
 			<!--This table will get use when job type will be chef -->
-			 <table datatable="" class="table-bordered text-center" ng-if="task.taskType=='chef'">
+			<loading size="large" name="ischefTaskHistoryPageLoading" type="block"></loading>
+			<div ng-show="!ischefTaskHistoryPageLoading">
+				<div id="grid5" ng-if="taskHistoryChefData.length >0 && task.taskType=='chef'" ui-grid="taskHistoryChefGridOptions" ui-grid-pagination class="grid"></div>
+			</div>
+			 <!-- <table datatable="" class="table-bordered text-center" ng-if="task.taskType=='chef'">
 				<thead>
 					<tr class="rowCustomStyle" role="row">
 						<td>Start Time</td>
@@ -48,7 +52,7 @@
 						</td>
 					</tr>
 				</tbody>
-			</table>
+			</table> -->
 			<!--This table will get use when job type will be puppet -->
 			<table datatable="" class="table-bordered text-center" ng-if="task.taskType=='puppet'">
 				<thead>
