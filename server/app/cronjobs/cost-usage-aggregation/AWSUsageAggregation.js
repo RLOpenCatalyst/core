@@ -14,6 +14,7 @@
  limitations under the License.
  */
 var logger = require('_pr/logger')(module);
+var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var appConfig = require('_pr/config');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
@@ -26,9 +27,12 @@ var resourceMetricsModel = require('_pr/model/resource-metrics');
 var instanceService = require('_pr/services/instanceService');
 var async = require('async');
 
-module.exports = aggregateAWSUsage;
+var AggregateAWSUsage = Object.create(CatalystCronJob);
+AggregateAWSUsage.interval = '*/1 * * * *';
+AggregateAWSUsage.execute = aggregateAWSUsage;
 
-// @TODO Reusable functions to be moved to services
+module.exports = AggregateAWSUsage;
+
 /**
  *
  */
@@ -336,7 +340,6 @@ function formatUsageData(instanceUsageMetrics, next) {
         = Math.round(instanceUsageMetrics.metrics.CPUUtilization.minimum);
     instanceUsageMetrics.metrics.CPUUtilization.maximum
         = Math.round(instanceUsageMetrics.metrics.CPUUtilization.maximum);
-
 
     next(null, instanceUsageMetrics);
 }
