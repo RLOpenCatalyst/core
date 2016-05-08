@@ -17,7 +17,7 @@
 
 var logger = require('_pr/logger')(module);
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
-var AppDeployPipeline = require('_pr/model/app-deploy/appdeploy-pipeline');
+var appDeployPipeline = require('_pr/model/app-deploy/appdeploy-pipeline');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
@@ -26,97 +26,119 @@ const errorType = 'appDeployPipeline';
 var appDeployPipelineService = module.exports = {};
 
 appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(projectId,callback){
-    AppDeployPipeline.getAppDeployPipelineByProjectId(projectId, function(err, appDeployProject) {
+    async.waterfall([
+        function(next){
+            appDeployPipeline.getAppDeployPipelineByProjectId(projectId, next);
+        },
+        function(appDeployPipelineConfig,next){
+            if(appDeployPipelineConfig.length > 0) {
+                callBackReturn(appDeployPipelineConfig,next);
+            }else{
+                getProjectFromMaster(projectId,next);
+            }
+        }
+    ],function(err,results){
         if (err) {
-            logger.error("Error while fetching Project via projectId in App Deploy");
+            logger.error("Error while fetching App Deploy Pipeline Configuration  "+err);
             callback(err,null);
             return;
-        }
-        if (appDeployProject.length > 0) {
-            callback(null,appDeployProject);
+        }else{
+            callback(null,results);
             return;
-        }
-        else
-        {
-            console.log("Durgesh");
-            var responseProjectList=[];
-            var responseProject={};
-            var count = 0;
-            masterUtil.getParticularProject(projectId,function(err,aProject){
-                if (err) {
-                    logger.error("Error while fetching Project via projectId in Master Util");
-                    callback(err,null);
-                    return;
-                }
-                if(aProject.length === 0)   {
-                    logger.debug("No project is configured in catalyst");
-                    callback(null,[]);
-                    return;
-                }
-                else
-                {
-                    responseProject['_id'] = aProject[0]._id;
-                    responseProject['projectId'] = aProject[0].rowid;
-                    responseProject['envSequence'] = aProject[0].environmentname.split(",");
-                    responseProject['envId'] = aProject[0].environmentname.split(",");
-                    responseProjectList.push(responseProject);
-                    callback(null, responseProjectList);
-                    return;
-                }
-            });
         }
     });
 }
 
 appDeployPipelineService.saveAndUpdatePipeLineConfiguration=function saveAndUpdatePipeLineConfiguration(configurationData,callback){
-    AppDeployPipeline.getAppDeployPipelineByProjectId(configurationData.projectId, function(err, appDeploys) {
+    async.waterfall([
+        function(next){
+            appDeployPipeline.getAppDeployPipelineByProjectId(configurationData.projectId,next);
+        },
+        function(appDeployPipelineConfig,next){
+            if(appDeployPipelineConfig.length > 0){
+                appDeployPipeline.updateConfigurePipeline(configurationData.projectId,configurationData,next);
+            }else{
+                appDeployPipeline.createNew(configurationData, next);
+            }
+        }
+    ],function(err,results){
+            if (err) {
+                logger.error("Error while Creating App Deploy Pipeline Configuration  "+err);
+                callback(err,null);
+                return;
+            }else{
+                callback(null,results);
+                return;
+            }
+
+    })
+};
+
+appDeployPipelineService.updateAppDeployPipeLineEnviornment=function updateAppDeployPipeLineEnviornment(enviornment,callback){
+    async.waterfall([
+        function(next){
+            appDeployPipeline.getAppDeployPipelineByProjectId(enviornment.projectname_rowid,next);
+        },
+        function(appDeployPipelineConfig,next){
+            if(appDeployPipelineConfig.length > 0){
+                updateAppConfigEnv(appDeployPipelineConfig[0],enviornment.environmentname,next);
+            }else{
+                callBackReturn(appDeployPipelineConfig,next);
+            }
+        }
+    ],function(err,results){
         if (err) {
-            logger.debug("Error while fetching App Deploy via projectId");
+            logger.error("Error while updating Environments in App Deploy Pipeline Configuration  "+err);
             callback(err,null);
             return;
+        }else{
+            callback(null,results);
+            return;
         }
-        if (appDeploys.length > 0) {
-            AppDeployPipeline.updateConfigurePipeline(configurationData.projectId,configurationData,function(err,appDeploy){
-                if (err) {
-                    logger.debug("Error while Updating App Deploy");
-                    callback(err,null);
-                    return;
-                }
-                else if(appDeploy.length === 0){
-                    logger.debug("App Deploy Record is not successfully updated.");
-                    callback(null, appDeploy);
-                    return;
-                }
-                else {
-                    logger.debug("App Deploy Record is successfully updated.");
-                    callback(null, appDeploy);
-                    return;
-                }
-            });
-        }
-        else {
-            AppDeployPipeline.createNew(configurationData, function(err, appDeploy) {
-                if (err) {
-                    logger.debug("Error while Creating App Deploy");
-                    callback(err,null);
-                    return;
-                }
-                else if(appDeploy.length === 0){
-                    logger.debug("App Deploy Record is not successfully saved.");
-                    callback(null, appDeploy);
-                    return;
-                }
-                else {
-                    logger.debug("App Deploy Record is successfully saved.");
-                    callback(null, appDeploy);
-                    return;
-                }
-            });
-        }
+
+    })
+};
+
+
+function callBackReturn(data,callback){
+    callback(null,data);
+};
+
+function getProjectFromMaster(projectId,callback){
+    var responseProjectList=[];
+    var responseProject={};
+    masterUtil.getParticularProject(projectId,function(err,aProject){
+        responseProject['_id'] = aProject[0]._id;
+        responseProject['projectId'] = aProject[0].rowid;
+        responseProject['envSequence'] = aProject[0].environmentname.split(",");
+        responseProject['envId'] = aProject[0].environmentname.split(",");
+        responseProjectList.push(responseProject);
+        callback(null, responseProjectList);
     });
-}
+};
 
-
+function updateAppConfigEnv(configData,envName,callback){
+    var envNames=configData.envId;
+    var envNameSeq=configData.envSequence;
+    if(envNames.indexOf(envName) === -1 && envNameSeq.indexOf(envName) === -1){
+        logger.debug("App Deploy Configuration is updated");
+        callback(null, configData);
+        return;
+    } else {
+        envNames.remove(envName);
+        envNameSeq.remove(envName);
+        configData['envId'] = envNames;
+        configData['envSequence'] = envNameSeq;
+        appDeployPipeline.updateConfigurePipeline(configData.projectId, configData, function (err, appDeployPipeLineConfig) {
+            if (err) {
+                logger.debug("Error while Updating App Deploy");
+                callback(err, null);
+            }
+            logger.debug("App Deploy Record is successfully updated.");
+            callback(null, appDeployPipeLineConfig);
+        });
+    }
+};
 
 
 

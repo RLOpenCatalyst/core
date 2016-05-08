@@ -13,21 +13,21 @@
 	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 		<ul class="nav navbar-nav header-content">
 			<li>
-				<div id="workzone" class="headNavigItem" ng-show="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
+				<div id="workzone" class="headNavigItem" ng-if="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
                     <!--<a href="../../../../#ajax/Dev.html">-->
                     	<i class="fa fa-credit-card"></i> WORKZONE
                     <!--</a>-->
 				</div>
 			</li>
 			<li>
-				<div id="design" class="headNavigItem" ui-sref-active='activeSection'>
+				<div id="design" class="headNavigItem" ng-if="designBool" ui-sref-active='activeSection'>
 					<a href="../../../../#ajax/Aws-Production.html">
 						<i class="fa fa-puzzle-piece white"></i> DESIGN
 					</a>
 				</div>
 			</li>
 			<li>
-				<div id="track" class="headNavigItem" ui-sref-active='activeSection'>
+				<div id="track" class="headNavigItem" ng-if="trackBool" ui-sref-active='activeSection'>
 					<a href="../../../../#ajax/trackSettings.html">
 						<i class="fa fa-anchor white"></i> TRACK
 					</a>
@@ -36,9 +36,9 @@
 			<li class="header-right">
 				<div id="header-menu">
 					<div id="userInfo" class="headNavigItem">
-						<i class="fa fa-user white"></i> [{{appDetails.cn}}]
+						<i class="fa fa-user white"></i> {{appDetails.cn | uppercase}}
 					</div>
-					<div id="settings" class="headNavigItem" ng-show='settingsBool' ui-sref-active='activeSection'>
+					<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
 						<a href="../../../../#ajax/Settings/Dashboard.html">
                         	<i class="fa fa-cog white"></i> SETTINGS
                         </a>

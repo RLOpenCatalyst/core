@@ -48,7 +48,7 @@
 						{ name:'Execute', enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
 						{ name:'History', enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
 						{ name:'Last Run', cellTemplate:'<span>{{row.entity.lastRunTimestamp  | timestampToCurrentTime}}</span>', cellTooltip: true},
-						{ name:'Action', enableSorting: false , cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white marginleft30" ng-click="grid.appScope.createNewTask(row.entity)"></span>'+
+						{ name:'Action', enableSorting: false , cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white marginleft30" ng-click="grid.appScope.createNewTask(row.entity)" ng-show="grid.appScope.perms.editTask;"></span>'+
 						'<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10" ng-click="grid.appScope.deleteTask(row.entity)" ng-show="grid.appScope.perms.deleteTask;"></span>', cellTooltip: true}
 					],
 				});
@@ -201,7 +201,6 @@
 					});
 				},
 				viewNodes: function(orchestrationObj) {
-					var getInstance = workzoneServices.postRetrieveDetailsForInstanceNames(orchestrationObj.taskConfig.nodeIds);
 					$modal.open({
 						animation: true,
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/viewNodes.html',
@@ -210,7 +209,7 @@
 						keyboard: false,
 						resolve: {
 							items: function() {
-								return getInstance;
+								return orchestrationObj;
 							}
 						}
 					}).result.then(function(selectedItem) {
@@ -250,12 +249,13 @@
 								return type;
 							}
 						}
-					}).result.then(function(taskName) {
+					}).result.then(function(taskData) {
+						console.log(taskData);
 						if (type === 'new') {
-							$rootScope.globalSuccessMessage = 'New Job ' + taskName + ' created successfully';
+							$rootScope.globalSuccessMessage = 'New Job ' + taskData.name + ' created successfully';
 							$scope.setLastPageView();
 						} else {
-							$rootScope.globalSuccessMessage = taskName + ' has been updated successfully';
+							$rootScope.globalSuccessMessage = taskData.name + ' has been updated successfully';
 							$scope.taskListGridView();
 						}
 						$('#globalSuccessMessage').animate({
@@ -275,8 +275,9 @@
 			};
 			/*method being called to set the last page view when a new task is created*/
 			$scope.setLastPageView = function(){
-				var totalItems = $scope.orcheGridOptions.totalItems + 1;
-				var lastPage = (Math.ceil((totalItems)/$scope.paginationParams.pageSize));
+				/*$scope.orcheGridOptions.totalItems needs to be updated when a new entry is created.*/
+				$scope.orcheGridOptions.totalItems = $scope.orcheGridOptions.totalItems + 1;
+				var lastPage = (Math.ceil(($scope.orcheGridOptions.totalItems)/$scope.paginationParams.pageSize));
 				//Set sortBy and sortField to controller defaults;
 				helper.setPaginationDefaults();
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = lastPage;				

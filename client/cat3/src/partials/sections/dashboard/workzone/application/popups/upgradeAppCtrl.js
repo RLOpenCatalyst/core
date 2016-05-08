@@ -2,19 +2,24 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * Written by Relevance UI Team,
- * Aug 2015
+ * May 2016
  */
 
 (function(){
 "use strict";
 angular.module('workzone.application')
-	.controller('upgradeAppCtrl', ['$scope', '$modalInstance', function($scope, $modalInstance) {
-		
+	.controller('upgradeAppCtrl', ['items','$scope', '$modalInstance','workzoneServices', function(items,$scope, $modalInstance,wzService) {
 
 		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
+			},
+			init :function(){
+				wzService.getAppUpgrade(items).then(function (FrzData){
+					
+				});
 			}
 		});
+		$scope.init();
 	}]);
 })();

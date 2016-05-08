@@ -8,12 +8,12 @@
 (function () {
 	'use strict';
 	angular.module('authentication')
-		.factory('session', ['localStorage', '$rootScope', function (localStorage, $rootScope) {
+		.factory('session', ['localStorage', '$rootScope', 'arrayUtil', function (localStorage, $rootScope, arrayUtil) {
 			var _strToken = localStorage.getItem('session.accessToken');
 
 			this._accessToken = _strToken ==='null' ? null : _strToken; 
 			this._user = JSON.parse(localStorage.getItem('session.user'));
-
+			
 			this.getUser = function(){
 				return this._user;
 			};
@@ -25,19 +25,18 @@
 				return this;
 			};
 
-			this.setHeaderNavigation = function(d){
-				if(!d){
+			this.setHeaderNavigation = function(user){
+				if(!user){
 					return; //when specific route accessed directly and user info not available
 				}
-		
-				$rootScope.appDetails = d;
-
-				var headNavigArr = $rootScope.appDetails.authorizedfiles.split(',');
+				$rootScope.appDetails = user;
+				$rootScope.$emit('SET_HEADER', user);
+				/*var headNavigArr = $rootScope.appDetails.authorizedfiles.split(',');
 
 				$rootScope.workZoneBool = (headNavigArr.indexOf('Workspace') !== -1) ? true : false;
-				$rootScope.bluePrintBool = (headNavigArr.indexOf('blueprints') !== -1) ? true : false;
+				$rootScope.designBool = (headNavigArr.indexOf('blueprints') !== -1) ? true : false;
 				$rootScope.trackBool = (headNavigArr.indexOf('Track') !== -1) ? true : false;
-				$rootScope.settingsBool = (headNavigArr.indexOf('Settings') !== -1) ? true : false;
+				$rootScope.settingsBool = (headNavigArr.indexOf('Settings') !== -1) ? true : false;*/
 			};
 
 			this.getToken = function(){
@@ -63,10 +62,12 @@
 			this.getHeaderObject = function getHeaderObject(){
 				return this.getToken() && {'headers': {"x-catalyst-auth": this.getToken()}};
 			};
-			
+			//temporary handling of {}, can be removed later. 
+			if(this._user && arrayUtil.isEmptyObject(this._user)){
+				this.setUser(null);	
+			}		
 			this.setHeaderNavigation(this._user);
 			return this;
 		}
-
 	]);
 })();

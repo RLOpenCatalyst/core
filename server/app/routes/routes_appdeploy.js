@@ -22,14 +22,13 @@ var appDeployService = require('_pr/services/appDeployService');
 var appDeployValidator = require('_pr/validators/appDeployValidator');
 var validate = require('express-validation');
 var Task = require('../model/classes/tasks/tasks.js');
-var async = require('async');
-
+var taskService = require('_pr/services/taskService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/app/deploy/*', sessionVerificationFunc);
+    app.all('/app-deploy/*', sessionVerificationFunc);
 
     // Get all AppDeploy
-    app.get('/app/deploy', function(req, res) {
+    app.get('/app-deploy', function(req, res) {
         AppDeploy.getAppDeploy(function(err, appDeployes) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -43,7 +42,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     // Create AppDeploy
-    app.post('/app/deploy', function(req, res) {
+    app.post('/app-deploy', function(req, res) {
         logger.debug("Got appDeploy data: ", JSON.stringify(req.body.appDeployData));
         var appDeployData = req.body.appDeployData;
         var instanceIp = appDeployData.applicationNodeIP.trim().split(" ")[0];
@@ -90,8 +89,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     // Get AppDeploy w.r.t. appName and env
-    app.get('/app/deploy/env/:envId/project/:projectId/list', function(req, res) {
-        logger.debug("/app/deploy/env/:envId/list called...");
+    app.get('/app-deploy/env/:envId/project/:projectId/list', function(req, res) {
+        logger.debug("/app-deploy/env/:envId/list called...");
         masterUtil.getAppDataWithDeployList(req.params.envId, req.params.projectId, function(err, appDeploy) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -108,7 +107,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     // Create or update AppData
-    app.post('/app/deploy/data/create', function(req, res) {
+    app.post('/app-deploy/data/create', function(req, res) {
         AppData.createNewOrUpdate(req.body.appData, function(err, appData) {
             if (err) {
                 res.status(500).send("Failed to get appData.");
@@ -122,7 +121,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     // Get all AppData by name
-    app.get('/app/deploy/data/node/:nodeIp/project/:projectId/env/:envName', function(req, res) {
+    app.get('/app-deploy/data/node/:nodeIp/project/:projectId/env/:envName', function(req, res) {
         AppData.getAppDataByIpAndProjectAndEnv(req.params.nodeIp, req.params.projectId, req.params.envName, function(err, appDatas) {
             if (err) {
                 res.status(500).send("Please add app name.");
@@ -137,7 +136,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     // Get respective Logs
-    app.get('/app/deploy/:appId/logs', function(req, res) {
+    app.get('/app-deploy/:appId/logs', function(req, res) {
         logger.debug("Logs api called...");
         AppDeploy.getAppDeployById(req.params.appId, function(err, appDeploy) {
             if (err) {
@@ -165,7 +164,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     // Get AppDeploy w.r.t. env
-    app.get('/app/deploy/env/:envId', function(req, res) {
+    app.get('/app-deploy/env/:envId', function(req, res) {
         logger.debug("Filtered by env called..");
         AppDeploy.getAppDeployByEnvId(req.params.envId, function(err, appDeploy) {
             if (err) {
@@ -183,7 +182,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     // Get AppDeploy w.r.t. projectId
-    app.get('/app/deploy/project/:projectId/list', function(req, res) {
+    app.get('/app-deploy/project/:projectId/list', function(req, res) {
         logger.debug("Filtered by projectId called..");
         masterUtil.getAppDeployListForProject(req.params.projectId, function(err, appDeploy) {
             if (err) {
@@ -201,7 +200,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 
-    app.get('/app/deploy/project/:projectId/appDeployList', validate(appDeployValidator.get), getAppDeployList);
+    app.get('/app-deploy/project/:projectId/appDeployList', validate(appDeployValidator.get), getAppDeployList);
 
     function getAppDeployList(req, res, next) {
         async.waterfall(
@@ -223,7 +222,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     };
 
-    app.get('/app/deploy/project/:projectId/pipeLineViewList', validate(appDeployValidator.get), getPipeLineViewList);
+    app.get('/app-deploy/project/:projectId/pipeLineViewList', validate(appDeployValidator.get), getPipeLineViewList);
 
     function getPipeLineViewList(req, res, next) {
         async.waterfall(
@@ -245,7 +244,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     };
 
-    app.get('/app/deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
+    app.get('/app-deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
 
     function getAppDeployHistoryForPipeLineList(req, res, next) {
         async.waterfall(
@@ -266,7 +265,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     }
 
 
-    app.get('/app/deploy/project/:projectId/env/:envName/appDeployHistoryList', validate(appDeployValidator.get), getAppDeployHistoryList);
+    app.get('/app-deploy/project/:projectId/env/:envName/appDeployHistoryList', validate(appDeployValidator.get), getAppDeployHistoryList);
 
     function getAppDeployHistoryList(req, res, next) {
         var reqData = {};
@@ -295,7 +294,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     }
 
-    app.get('/app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList', validate(appDeployValidator.serverList), getNexusRepositoryList);
+    app.get('/app-deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList', validate(appDeployValidator.serverList), getNexusRepositoryList);
 
     function getNexusRepositoryList(req, res, next) {
         async.waterfall(
@@ -314,7 +313,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    app.get('/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList', validate(appDeployValidator.artifactList), getArtifactList);
+    app.get('/app-deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList', validate(appDeployValidator.artifactList), getArtifactList);
 
     function getArtifactList(req, res, next) {
         async.waterfall(
@@ -333,7 +332,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    app.get('/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList', validate(appDeployValidator.artifactList), getVersionList);
+    app.get('/app-deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList', validate(appDeployValidator.artifactList), getVersionList);
 
     function getVersionList(req, res, next) {
         async.waterfall(
@@ -354,7 +353,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     // Get  appData by Project and Env
-    app.get('/app/deploy/project/:projectId/env/:envId/application/:appName', function(req, res) {
+    app.get('/app-deploy/project/:projectId/env/:envId/application/:appName', function(req, res) {
         logger.debug("version= ", req.query.version);
         AppDeploy.getAppDeployByProjectAndEnv(req.params.projectId, req.params.envId, req.params.appName, req.query.version, function(err, appData) {
             if (err) {
@@ -367,66 +366,103 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     //New App Deploy
-    app.post('/app/deploy/new', function(req, res) {
+    app.post('/app-deploy/new', function(req, res, next) {
         var isUpgrade = false;
-        appDeployService.appDeployOrUpgrade(req, isUpgrade, function(err, resData) {
-            logger.debug(JSON.stringify(err));
-            logger.debug(JSON.stringify(resData));
-            if (err && err.errorCode == 404) {
-                res.status(err.errorCode).send(err.message);
-                return;
-            } else if (err && err.errorCode == 400) {
-                res.status(err.errorCode).send(err.message);
-                return;
-            } else if (err) {
-                res.status(500).send("Something went wrong while deploying App.");
-                return;
-            } else {
-                res.send(resData);
-                return;
+        var user = req.session.user.cn;
+        var hostProtocol = req.protocol + '://' + req.get('host');
+        var taskId = req.body.task.taskId;
+        var choiceParam = req.body.choiceParam;
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.appDeployOrUpgrade(req.body, isUpgrade, next);
+                },
+                function(appData, next) {
+                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, next);
+                },
+                function(historyData, next) {
+                    var taskRes = {
+                        "taskId": taskId,
+                        "taskType": historyData.taskType,
+                        "historyId": historyData.historyId
+                    };
+                    next(null, taskRes);
+                }
+            ],
+            function(err, resData) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.send(resData);
+                }
             }
-        });
+        );
     });
 
     //Upgrade App Deploy
-    app.put('/app/deploy/upgrade', function(req, res) {
+    app.put('/app-deploy/upgrade', function(req, res, next) {
         var isUpgrade = true;
-        appDeployService.appDeployOrUpgrade(req, isUpgrade, function(err, resData) {
-            if (err && err.errorCode == 404) {
-                res.status(err.errorCode).send(err.message);
-                return;
-            } else if (err && err.errorCode == 400) {
-                res.status(err.errorCode).send(err.message);
-                return;
-            } else if (err) {
-                res.status(500).send("Something went wrong while upgrading App.");
-                return;
-            } else {
-                res.send(resData);
-                return;
+        var user = req.session.user.cn;
+        var hostProtocol = req.protocol + '://' + req.get('host');
+        var taskId = req.body.task.taskId;
+        var choiceParam = req.body.choiceParam;
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.appDeployOrUpgrade(req.body, isUpgrade, next);
+                },
+                function(appData, next) {
+                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, next);
+                },
+                function(historyData, next) {
+                    var taskRes = {
+                        "taskId": taskId,
+                        "taskType": historyData.taskType,
+                        "historyId": historyData.historyId
+                    };
+                    next(null, taskRes);
+                }
+            ],
+            function(err, resData) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.send(resData);
+                }
             }
-        });
+        );
     });
 
     //Promote Application
-    app.put('/app/deploy/promote', function(req, res) {
-        appDeployService.promoteApp(req, function(err, resData) {
-            if (err && err.errorCode == 404) {
-                res.status(err.errorCode).send(err.message);
-                return;
-            } else if (err && err.errorCode == 400) {
-                res.status(err.errorCode).send(err.message);
-                return;
-            } else if (err && err.errorCode == 403) {
-                res.status(err.errorCode).send(err.message);
-                return;
-            } else if (err) {
-                res.status(500).send("Something went wrong while promoting App.");
-                return;
-            } else {
-                res.send(resData);
-                return;
+    app.put('/app-deploy/promote', function(req, res, next) {
+        var user = req.session.user.cn;
+        var hostProtocol = req.protocol + '://' + req.get('host');
+        var taskId = req.body.task.taskId;
+        var choiceParam = req.body.choiceParam;
+        async.waterfall(
+            [
+                function(next) {
+                    appDeployService.promoteApp(req.body, next);
+                },
+                function(appData, next) {
+                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, next);
+                },
+                function(historyData, next) {
+                    var taskRes = {
+                        "taskId": taskId,
+                        "taskType": historyData.taskType,
+                        "historyId": historyData.historyId
+                    };
+                    next(null, taskRes);
+                }
+            ],
+            function(err, resData) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.send(resData);
+                }
             }
-        });
+        );
     });
 }

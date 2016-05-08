@@ -17,6 +17,7 @@ var angularApp = angular.module('catapp', ['ui.router',
     'global.breadcrumb',
     'authentication',
     'factory.appPermission',
+    'appPermission',
     'dashboard.workzone',
     'dashboard.help',
     'dashboard.track',
@@ -50,7 +51,7 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',
     }
 ]);
 
-angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$log', '$location', '$window', 'auth', '$state', function ($scope, $rootScope, $http, $log, $location, $window, auth, $state) {
+angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, $http, $log, $location, $window, auth, $state, modulePerms) {
     'use strict';
 
     //global Scope Constant Defined;
@@ -58,6 +59,20 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
     $rootScope.app.isDashboard = false;
     $rootScope.appDetails = $rootScope.appDetails || {};
 
+    $rootScope.$on('SET_HEADER', function(event, user){
+        //permission set is included to show/hide modules.
+        var _permSet = {
+            workzone: modulePerms.workzoneAccess(),
+            design: modulePerms.designAccess(),
+            settings: modulePerms.settingsAccess(),
+            track: modulePerms.trackAccess()
+        };
+        $rootScope.workZoneBool = _permSet.workzone;
+        $rootScope.designBool = _permSet.design;
+        $rootScope.settingsBool = _permSet.settings;
+        $rootScope.trackBool = _permSet.track;
+    });
+    $rootScope.$emit('SET_HEADER', $rootScope.appDetails);
     $rootScope.locate = function (txt) {
         /*var result = document.getElementsByClassName("headNavigItem");
         var wrappedResult = angular.element(result);
@@ -99,6 +114,9 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
         });
         $scope.showLogoutConfirmationSection = false;
     };
+    $rootScope.$on('USER_LOGOUT', function() {
+        $scope.doLogout();
+    });
 }])
 .controller('dashboardCtrl', ['$rootScope', '$scope', '$http', 'uac', '$location', '$state', function ($rootScope, $scope, $http, uac, $location, $state) {
         'use strict';
@@ -110,7 +128,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
         if($state.current.name === 'dashboard') {
             if($rootScope.workZoneBool){
                 $state.go('dashboard.workzone');
-            }else if($rootScope.bluePrintBool){
+            }else if($rootScope.designBool){
                 $state.go('dashboard.design');
             }else if($rootScope.trackBool){
                 $state.go('dashboard.track');

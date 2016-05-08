@@ -10,7 +10,7 @@
 	angular.module('workzone.instance', ['ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone','utility.array','workzonePermission', 'instanceServices', 'chefDataFormatter', 'utility.pagination'])
 	.controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices','arrayUtil', 'instancePermission', 
 		'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService' , function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices,arrayUtil, instancePerms, instanceActions, instanceOperations,workzoneEnvironment, $timeout, workzoneUIUtils,uiGridOptionsService) {
-			console.log('instanceCtrl');
+		console.log('instanceCtrl');
 		var helper = {
 			attachListOfTaskWithInstance: function(completeData) {
 				var instanceList = completeData.instances;
@@ -40,6 +40,7 @@
 		var completeData;
 		$scope.instancePageLevelLoader = true;
 		$scope.instStartStopFlag = false;
+		$scope.importByIPDisabled = false;
 
 		/*User permission set example*/
 		//defining an object for permission.
@@ -64,7 +65,6 @@
 	   	$scope.cardsPerPage = instanceUIGridDefaults.pagination.pageSize;
 	   	$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
 	   	$scope.totalCards = 0;
-	   	$scope.cardsAvailable = false;
 
 		$scope.tabData = [];
 		/*grid method to define the columns that need to be present*/
@@ -131,9 +131,10 @@
 					$timeout(function() {
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
 						$scope.tabData = $scope.instanceList = result.data.instances;
-						console.log($scope.totalCards);
 					   	if($scope.totalCards > $scope.paginationParams.pageSize) {
 					   		$scope.cardsAvailable = true;
+					   	} else {
+					   		$scope.cardsAvailable = false;
 					   	}
 						$scope.isInstancePageLoading = false;
 						$scope.numofCardPages = Math.ceil($scope.instancesGridOptions.totalItems / $scope.paginationParams.pageSize);
@@ -325,6 +326,13 @@
 			}
 		});
 
+		//root scope method for refreshing the list view at the time of blueprint launch.
+		$rootScope.$on('WZ_INSTANCES_SHOW_LATEST', function(){
+			$scope.setFirstPageView();
+			helper.setPaginationDefaults();
+			$scope.instancesListCardView();
+		});
+
 		var helper = {
 			setPaginationDefaults: function() {
 				$scope.paginationParams.page = '';
@@ -333,8 +341,9 @@
 				$scope.paginationParams.sortOrder = 'desc';
 			}
 		}
-
+		
 		$scope.instanceImportByIP = function() {
+			$scope.importByIPDisabled = true;
 			var whetherConfigListAvailable = workzoneServices.getCheckIfConfigListAvailable();
 			var getOSList = workzoneServices.getOSList();
 
@@ -355,9 +364,7 @@
 				}
 			});
 			modalInstance.result.then(function(newinstId) {
-				$scope.setFirstPageView();
-				helper.setPaginationDefaults();
-				$scope.instancesListCardView();
+				$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
 				$scope.operationSet.viewLogs(newinstId);
 			}, function() {
 				console.log('Modal dismissed at: ' + new Date());

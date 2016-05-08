@@ -22,10 +22,10 @@ var errorResponses = require('./error_responses');
 var AppData = require('_pr/model/app-deploy/app-data');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/app/data/*', sessionVerificationFunc);
+    app.all('/app-data/*', sessionVerificationFunc);
 
     // Get  AppData by Project and Env
-    app.get('/app/data/project/:projectId/env/:envName', function(req, res) {
+    app.get('/app-data/project/:projectId/env/:envName', function(req, res) {
         AppData.getAppDataByProjectAndEnv(req.params.projectId, req.params.envName,req.query.application, req.query.version, function(err, appDatas) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -37,7 +37,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     // Create if not exist else update
-    app.post('/app/data', function(req, res) {
+    app.post('/app-data', function(req, res) {
         logger.debug("appData: ",JSON.stringify(req.body.appData));
         AppData.createNewOrUpdate(req.body.appData, function(err, appData) {
             if (err) {

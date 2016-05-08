@@ -10,8 +10,10 @@
     angular.module('workzone.orchestration')
         .controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q',
             function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
+                $scope.isNewTaskPageLoading = true;
                 //default values for new task
                 angular.extend($scope, {
+                    parentItems:items,
                     updateCookbook: function () {
                         if ($scope.chefInstanceList.length) {
                             $modal.open({
@@ -138,6 +140,7 @@
                             for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
                                 if ($scope.chefInstanceList[ci]._isNodeSelected) {
                                     taskJSON.nodeIds.push($scope.chefInstanceList[ci]._id);
+                                    $scope.isNewTaskPageLoading = false;
                                 }
                             }
                             for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
@@ -198,20 +201,22 @@
                         //checking whether its a update or a new task creation
                         if ($scope.isEditMode) {
                             workzoneServices.updateTask(reqBody, $scope.id).then(function () {
-                                items = reqBody.taskData.name;
+                                items = reqBody.taskData;
                                 $rootScope.$emit('WZ_REFRESH_ENV');
                                 $modalInstance.close(items);
                             });
                         } else {
                             workzoneServices.postNewTask(reqBody).then(function () {
-                                items = reqBody.taskData.name;
+                                items = reqBody.taskData;
                                 $rootScope.$emit('WZ_REFRESH_ENV');
                                 $rootScope.$emit("GET_ALL_TASK");
                                 $modalInstance.close(items);
                             });
                         }
+                        $rootScope.createChefJob=false;
                     },
                     cancel: function () {
+                        $rootScope.createChefJob=false;
                         $modalInstance.dismiss('cancel');
                     }
                 });
@@ -283,6 +288,7 @@
                         if($scope.isEditMode){
                             $scope.editRunListAttributes = true;
                             $scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(data), items.taskConfig.nodeIds);
+                            $scope.isNewTaskPageLoading = false;
                             $scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
                             $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
                             $scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
@@ -294,6 +300,7 @@
                             }
                         }else{
                             $scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(data), []);
+                            $scope.isNewTaskPageLoading = false;
                             $scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), []);
                         }
                     }
