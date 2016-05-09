@@ -137,7 +137,6 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                     callback(err, null);
                     return;
                 }
-                console.log(distinctAppDeployApplicationNames);
                 var appDeployList = [];
                 var aAppDeployObj = {};
                 var environments = project[0].environmentname.split(",");
@@ -178,14 +177,15 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                 for (var k = 0; k < appDeploys.length; k++) {
                                                     (function(appDeploy) {
                                                         aAppDeployObj[appDeploy.envName] = {
+                                                            "id": appDeploy.id,
                                                             "applicationInstanceName": appDeploy.applicationInstanceName,
                                                             "applicationNodeIP": appDeploy.applicationNodeIP,
                                                             "applicationLastDeploy": appDeploy.lastAppDeployDate,
                                                             "applicationStatus": appDeploy.applicationStatus,
                                                             "applicationType": appDeploy.applicationType,
                                                             "containerId": appDeploy.containerId,
-                                                            "hostName": appDeploy.hostName//,
-                                                            //"isApproved": appDeploy.isApproved
+                                                            "hostName": appDeploy.hostName,
+                                                            "isApproved": appDeploy.isApproved
                                                         }
                                                     })(appDeploys[k]);
                                                 }
@@ -327,13 +327,14 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                                 for (var k = 0; k < appDeploys.length; k++) {
                                     (function(appDeploy) {
                                         aPipeLineViewObj[appDeploy.envName] = {
+                                            "id": appDeploy.id,
                                             "version": appDeploy.applicationVersion,
                                             "instanceName": appDeploy.applicationInstanceName,
                                             "applicationLastDeploy": appDeploy.lastAppDeployDate,
                                             "applicationStatus": appDeploy.applicationStatus,
                                             "applicationType": appDeploy.applicationType,
-                                            "containerId": appDeploy.containerId//,
-                                            //"isApproved": appDeploy.isApproved
+                                            "containerId": appDeploy.containerId,
+                                            "isApproved": appDeploy.isApproved
                                         }
                                     })(appDeploys[k]);
                                 }

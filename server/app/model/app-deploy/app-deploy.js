@@ -239,6 +239,7 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId = func
         }, {
             $group: {
                 _id: "$envId",
+                id:  { $last: "$_id" },
                 applicationName: { $last: "$applicationName" },
                 applicationInstanceName: { $last: "$applicationInstanceName" },
                 applicationVersion: { $last: "$applicationVersion" },
@@ -306,6 +307,7 @@ AppDeploySchema.statics.getPipeLineViewListByProjectIdAppName = function getPipe
         }, {
             $group: {
                 _id: "$envId",
+                id:  { $last: "$_id" },
                 applicationName: { $last: "$applicationName" },
                 applicationInstanceName: { $last: "$applicationInstanceName" },
                 applicationVersion: { $last: "$applicationVersion" },

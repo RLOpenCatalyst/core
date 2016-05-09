@@ -115,36 +115,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
         });
     };
-
-    app.get('/app-deploy-pipeline/project/:projectId/projectList',validate(appDeployValidator.get), getAppDeployPipelineList);
-
-     function getAppDeployPipelineList(req, res, next) {
-         var reqData={};
-         async.waterfall(
-           [
-                function(next) {
-                    apiUtil.paginationRequest(req.query,'appDeploy',next);
-                },
-                function(paginationReq,next){
-                    paginationReq['projectId']=req.params.projectId;
-                    reqData=paginationReq;
-                    AppDeployPipeline.getAppDeployPipelineList(paginationReq,next);
-                },
-                function(appDeployData,next){
-                    if(appDeployData.docs.length)
-                        apiUtil.paginationResponse(appDeployData,reqData,next);
-                    else
-                        masterUtil.getParticularProject(req.params.projectId,next);
-                }
-
-           ], function(err, results) {
-                if(err)
-                        next(err);
-                 else
-                    return res.status(200).send(results);
-           });
-     }
-
+    
 
 
 

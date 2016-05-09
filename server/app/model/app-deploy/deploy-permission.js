@@ -115,7 +115,6 @@ DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(pro
             logger.debug("Got error while fetching permission: ", err);
             callback(err, null);
         }
-        logger.debug("Got permission: ");
         callback(null, permission);
     });
 };
@@ -131,7 +130,6 @@ DeployPermissionSchema.statics.getDeployPermissionByProjectIdEnvNameAppNameVersi
             logger.debug("Got error while fetching permission: ", err);
             callback(err, null);
         }
-        logger.debug("Got permission: ");
         callback(null, aPermission);
     });
 };
