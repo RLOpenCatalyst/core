@@ -1,6 +1,6 @@
 (function (angular) {
     "use strict";
-    angular.module('workzone.application').directive("pipelineCard",[function ($rootScope) {
+    angular.module('workzone.application').directive("pipelineCard",[function () {
         return {
             restrict: 'A',
             templateUrl: 'src/partials/sections/dashboard/workzone/application/pipelineCard.html',

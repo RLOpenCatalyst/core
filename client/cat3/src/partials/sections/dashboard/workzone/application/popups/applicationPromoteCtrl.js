@@ -52,9 +52,9 @@
                     "taskId": promApp.jobOptions[promApp.newEnt.jobInd]._id,
                     "nodeIds": promApp.jobOptions[promApp.newEnt.jobInd].taskConfig.nodeIds
                 }
-            }
-            workSvs.postAppPromote(promApp.submitData).then(function(){
-
+            };
+            workSvs.putAppPromote(promApp.submitData).then(function(){
+                
             });
         };
         // call job api after creating new job .
@@ -62,7 +62,6 @@
             promApp.getAllChefJobs();
             $rootScope.createChefJob=false;
         });
-        promApp.init();
         return promApp;
     }]);
 })();

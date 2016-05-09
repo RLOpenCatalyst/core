@@ -86,7 +86,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					dockerId:depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid,
 					repository:depNewApp.newEnt.repository,
 					image:depNewApp.newEnt.image
-				}
+				};
 				workSvs.getDockerImageTags(requestObject).then(function(tagResult){
 					depNewApp.tagOptions = tagResult.data;
 					$scope.isLoadingDocTag=false;
@@ -103,7 +103,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					nexus:depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid,
 					repositories:depNewApp.newEnt.repository,
 					group:depNewApp.newEnt.groupId
-				}
+				};
 			workSvs.getNexusArtifacts(depNewApp.requestData).then(function (artifactsResult) {
 				depNewApp.artifactsOptions = artifactsResult.data;
 				$scope.isLoadingArtifacts = false;
@@ -160,7 +160,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				case 'artifact' :
 					depNewApp.newEnt.version ='';
 					break;
-			}
+			};
 		};
 		depNewApp.submitAppDeploy = function (){
 			if(depNewApp.newEnt.serverType === 'nexus'){
@@ -194,7 +194,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					"nodeIds": depNewApp.jobOptions[depNewApp.newEnt.jobInd].taskConfig.nodeIds
 				}
 
-			}
+			};
 			if(depNewApp.newEnt.serverType === 'nexus'){
 				depNewApp.deploymentData.sourceData.nexus=nexus;
 			}else{
