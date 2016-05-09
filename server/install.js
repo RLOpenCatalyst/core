@@ -151,7 +151,35 @@ function getDefaultsConfig() {
 
                 os_name: "Ubuntu",
                 osType: "linux"
-            }]
+            }],
+
+            cwMetricsUnits: {
+                CPUCreditUsage: 'Count',
+                CPUCreditBalance: 'Count',
+                CPUUtilization: 'Percent',
+                DiskReadOps: 'Count',
+                DiskWriteOps: 'Count',
+                DiskReadBytes: 'Megabytes',
+                DiskWriteBytes: 'Megabytes',
+                NetworkIn: 'Megabytes',
+                NetworkOut: 'Megabytes',
+                NetworkPacketsIn: 'Count',
+                NetworkPacketsOut: 'Count',
+                StatusCheckFailed: 'Count',
+                StatusCheckFailed_Instance: 'Count',
+                StatusCheckFailed_System: 'Count'
+            },
+
+            cwMetricsDisplayUnits: {
+                CPUUtilization: 'Percent',
+                DiskReadOps: 'Count',
+                DiskWriteOps: 'Count',
+                DiskReadBytes: 'MB',
+                DiskWriteBytes: 'MB',
+                NetworkIn: 'MB',
+                NetworkOut: 'MB'
+            }
+
         },
         vmware: {
             serviceHost: "http://localhost:3000"

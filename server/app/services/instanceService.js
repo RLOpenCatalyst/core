@@ -370,13 +370,11 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 function getTrackedInstancesForProvider(provider, next) {
     async.parallel({
             managed: function (callback) {
-                instancesModel.getInstanceByProviderId(
-                    {providerId: provider._id}, {}, callback
-                );
+                instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             unmanaged: function(callback) {
                 unManagedInstancesModel.getByProviderId(
-                    {providerId: provider._id}, {}, callback
+                    {providerId: provider._id}, callback
                 );
             }
         },
@@ -479,7 +477,6 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.id = instance._id;
         instanceObj.category = ('chefNodeName' in instance)?'managed':'unmanaged';
         instanceObj.instancePlatformId = instance.platformId;
-        instanceObj.orgId = instance.orgId;
         instanceObj.orgName = instance.orgName;
         instanceObj.projectName = instance.projectName;
         instanceObj.providerName = instance.providerName;
@@ -489,10 +486,10 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.bgId = ('bgId' in instance)?instance.bgId:null;
         instanceObj.cost = (('cost' in instance) && instance.cost)?instance.cost:0;
 
-        if('os' in instance)
-            instanceObj.os = instance.os;
-        else if(('hardware' in instances) && ('os' in instance.hardware))
+        if(('hardware' in instance) && ('os' in instance.hardware))
             instanceObj.os = instance.hardware.os;
+        else if('os' in instance)
+            instanceObj.os = instance.os;
         else
             instanceObj.os = null;
 
@@ -503,13 +500,8 @@ function createTrackedInstancesResponse(instances, callback) {
         else
             instanceObj.ip = null;
 
-        if('usage' in instance)
-            instanceObj.usage = instance.usage;
-
-        if(('usage' in instance) && ('CPUUtilization' in instance))
-            instanceObj.averageCpuUtilization = Math.round(instance.usage.CPUUtilization.average * 100) + '%';
-        else
-            instanceObj.averageCpuUtilization = '0%';
+        instanceObj.usage = ('usage' in instance)?instance.usage:null;
+        instanceObj.cost = ('cost' in instance)?instance.cost:null;
 
         return instanceObj;
     });

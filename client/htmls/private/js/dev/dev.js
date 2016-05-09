@@ -1027,22 +1027,22 @@ function devCall() {
 							/*
 
 
-							$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
+														$.get('/instances/' + instanceId + '/actionLogs', function(actionLogs) {
 
-								var lastActionLog = actionLogs[actionLogs.length - 1];
+															var lastActionLog = actionLogs[actionLogs.length - 1];
 
-								var actionLogTimestamp = lastActionLog.timeStarted;
-								if (lastActionLog.completed) {
-									actionLogTimestamp = lastActionLog.timeEnded;
-								}
-								var actionLogTimeString = new Date().setTime(actionLogTimestamp);
-								var actionLogDate = new Date(actionLogTimeString).toLocaleString();
+															var actionLogTimestamp = lastActionLog.timeStarted;
+															if (lastActionLog.completed) {
+																actionLogTimestamp = lastActionLog.timeEnded;
+															}
+															var actionLogTimeString = new Date().setTime(actionLogTimestamp);
+															var actionLogDate = new Date(actionLogTimeString).toLocaleString();
 
-								$parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
+															$parent.find('.instance-state').removeClass().addClass('instance-state').html(actionLogDate);
 
 
-							});
-*/
+														});
+							*/
 
 						}
 
@@ -2343,10 +2343,20 @@ function devCall() {
 
 		}
 
+		function sortResults(versions, prop, asc) {
+			versions = versions.sort(function(a, b) {
+				a[prop] = parseInt(a[prop]);
+				b[prop] = parseInt(b[prop]);
+				if (asc) return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
+				else return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
+			});
+			return (versions);
+		}
+
+
 		//Initializing the blueprint area according to the Template-Type and showing
 		//the differnt template types whenever a blueprint is added
 		function initializeBlueprintArea(data) {
-
 			var $AppFactpanelBody = $('.appFactoryPanel').find('.panel-body');
 			$AppFactpanelBody.empty();
 
@@ -2482,9 +2492,11 @@ function devCall() {
 					}
 					//To fix template id and template type
 					//alert('in' + data.length);
+					console.log('blueprint data ==>', data);
 					for (var i = 0; i < data.length; i++) {
 						//alert(JSON.stringify(data[i]));
 						//Find a panel-body with the template type class
+
 						var $currRolePanel = $('#accordion-2').find('.' + data[i].templateType);
 						// alert(data[i].templateType);
 						if ($currRolePanel.length > 0) {
@@ -2504,27 +2516,112 @@ function devCall() {
 							//provider logo added - currently included open stack
 							var $imgprovider = '';
 							if (data[i].blueprintType == 'openstack_launch')
-								$imgprovider = $('<li><img src="img/openstack-card.png" style="margin-left: -94px;margin-right: 7px;margin-top: 48px;" title="Openstack"></li>');
+								$imgprovider = $('<li><img src="img/openstack-card.png" style="margin-left: -94px;margin-right: 7px;margin-top: 28px;" title="Openstack"></li>');
 							if (data[i].blueprintType == 'hppubliccloud_launch')
-								$imgprovider = $('<li><img src="img/hpcloud-card.png" style="margin-left: -94px;margin-right: 7px;margin-top: 48px;" title="HP Helion"></li>');
+								$imgprovider = $('<li><img src="img/hpcloud-card.png" style="margin-left: -94px;margin-right: 7px;margin-top: 28px;" title="HP Helion"></li>');
 							if (data[i].blueprintType == 'azure_launch')
-								$imgprovider = $('<li><img src="img/azure-card.png" style="margin-left: -94px;margin-right: 7px;margin-top: 48px;" title="Windows Azure"></li>');
+								$imgprovider = $('<li><img src="img/azure-card.png" style="margin-left: -94px;margin-right: 7px;margin-top: 28px;" title="Windows Azure"></li>');
 							if (data[i].blueprintType == 'vmware_launch')
-								$imgprovider = $('<li><img src="img/vmware-card.png" style="margin-left: -94px;margin-right: 7px;margin-top: 48px;" title="Vmware"></li>');
+								$imgprovider = $('<li><img src="img/vmware-card.png" style="margin-left: -94px;margin-right: 7px;margin-top: 28px;" title="Vmware"></li>');
 
 							// alert(data[i].blueprintType);
 							var $liImage = $('<li></li>').append($img);
 							$ul.append($liImage);
 
 							var $liCardName = $('<li title="' + data[i].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + data[i].name + '</b></u>');
+							//checking if version is found 
+							var _versions = [];
+							var $selectVer = $('<select></select').addClass('blueprintVer');
 
-							$ul.append($liCardName).append($imgprovider);
+							if (data[i].versions) {
+
+								_versions = sortResults(data[i].versions, 'version');
+								console.log('version', _versions);
+								if (_versions[0].name) {
+									$liCardName = $('<li title="' + _versions[0].name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + _versions[0].name + '</b></u>');
+									//update blueprint ID
+									//$itemBody.attr('data-blueprintId', _versions[0].id);
+									$itemBody.attr('data-versions', JSON.stringify(_versions));
+								}
+								$selectVer = $('<select></select').addClass('blueprintVer');
+								for (var kk = 0; kk < _versions.length; kk++) {
+									var $option = $('<option></option>').val(_versions[kk].id).html(_versions[kk].version);
+									$selectVer.append($option);
+								}
+							}
+
+							var $firstVersionOption = $('<option></option>').val(data[i]._id).html("1");
+							$selectVer.append($firstVersionOption);
+
+
+							$ul.append($liCardName).append($selectVer).append($imgprovider);;
 							var $selecteditBtnContainer = $('<div style="position:absolute;padding-left:45px;bottom:11px;"></div>');
 							// if (data[i].blueprintConfig.infraManagerData && data[i].blueprintConfig.infraManagerData.versionsList) {
 
 							var $selectVerEdit = $('<a style="padding:0px 4px;margin-left:3px;border-radius:5px;visibility:hidden" class="bpEditBtn"><i class="ace-icon fa fa-pencil"></i></a>').addClass('btn btn-primary').attr('rel', 'tooltip').attr('data-placement', 'top').attr('data-original-title', 'Edit');
 							var $selectVer = null;
 							var tagLabel = '';
+
+
+							function loopTreeNodes(nodes, idToMatch) {
+								var name = "";
+								for (var i = 0; i < nodes.length; i++) {
+									console.log('name ==> ', nodes[i].text, nodes[i].rowid, idToMatch);
+									if (nodes[i].rowid === idToMatch) {
+										//alert('match');
+										name = nodes[i].text;
+										return name;
+
+									} else {
+										var childNodes = nodes[i].nodes;
+										console.log('nodes ==> ', childNodes);
+										if (childNodes && childNodes.length) {
+											name = loopTreeNodes(childNodes, idToMatch);
+											if (name) {
+												return name;
+											}
+										}
+									}
+
+								}
+								//alert(name);
+								//return name;
+							}
+
+							function getOrgProjDetails(id) {
+								$.ajax({
+									type: "get",
+									dataType: "json",
+
+									async: false,
+									url: "../organizations/getTreeForbtv",
+									success: function(data) {
+
+										var orgName = loopTreeNodes(data, urlParams.org);
+										//alert(orgName);
+										var bgName = loopTreeNodes(data, urlParams.bg);
+										var projName = loopTreeNodes(data, urlParams.projid);
+										// alert("pri name ==>"+projName)
+										console.log(urlParams.org);
+										console.log(urlParams.bg);
+										console.log(urlParams.projid);
+
+										var $blueprintReadContainerCFT = $(id);
+										$blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(orgName).show().parents('tr').show();
+										$blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(bgName).show().parents('tr').show();;
+										$blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(projName).show().parents('tr').show();
+										//  alert(JSON.stringify(data));
+
+										var $blueprintReadContainer = $(id);
+										$blueprintReadContainer.find('.modal-body #blueprintORG').val(orgName).show().parents('tr').show();
+										$blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName).show().parents('tr').show();
+										$blueprintReadContainer.find('.modal-body #blueprintProject').val(projName).show().parents('tr').show();
+									}
+								});
+							}
+
+
+
 							//Docker Check
 
 							if (data[i].templateType == "Docker" || data[i].templateType == "docker") {
@@ -2568,62 +2665,7 @@ function devCall() {
 
 
 								//for CFT and Docker..
-								function loopTreeNodes(nodes, idToMatch) {
-									var name = "";
-									for (var i = 0; i < nodes.length; i++) {
-										console.log('name ==> ', nodes[i].text, nodes[i].rowid, idToMatch);
-										if (nodes[i].rowid === idToMatch) {
-											//alert('match');
-											name = nodes[i].text;
-											return name;
 
-										} else {
-											var childNodes = nodes[i].nodes;
-											console.log('nodes ==> ', childNodes);
-											if (childNodes && childNodes.length) {
-												name = loopTreeNodes(childNodes, idToMatch);
-												if (name) {
-													return name;
-												}
-											}
-										}
-
-									}
-									//alert(name);
-									//return name;
-								}
-
-								function getOrgProjDetails(id) {
-									$.ajax({
-										type: "get",
-										dataType: "json",
-
-										async: false,
-										url: "../organizations/getTreeForbtv",
-										success: function(data) {
-
-											var orgName = loopTreeNodes(data, urlParams.org);
-											//alert(orgName);
-											var bgName = loopTreeNodes(data, urlParams.bg);
-											var projName = loopTreeNodes(data, urlParams.projid);
-											// alert("pri name ==>"+projName)
-											console.log(urlParams.org);
-											console.log(urlParams.bg);
-											console.log(urlParams.projid);
-
-											var $blueprintReadContainerCFT = $(id);
-											$blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(orgName).show().parents('tr').show();
-											$blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(bgName).show().parents('tr').show();;
-											$blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(projName).show().parents('tr').show();
-											//  alert(JSON.stringify(data));
-
-											var $blueprintReadContainer = $(id);
-											$blueprintReadContainer.find('.modal-body #blueprintORG').val(orgName).show().parents('tr').show();
-											$blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName).show().parents('tr').show();
-											$blueprintReadContainer.find('.modal-body #blueprintProject').val(projName).show().parents('tr').show();
-										}
-									});
-								}
 								//ends here..
 								//for software stack and os image
 
@@ -2650,9 +2692,13 @@ function devCall() {
 								//alert(JSON.stringify(data[i]));
 							} else if (data[i].templateType == "cft" || data[i].templateType == 'arm') {
 								$selectVerEdit.hide();
-								(function(blueprint) {
-									// alert(JSON.stringify(blueprint));
-									$liRead.click(function(e) {
+
+								// alert(JSON.stringify(blueprint));
+								$liRead.click(function(e) {
+									var $parent = $(this).parents('.productdiv1');
+									var blueprintId = $parent.find('.blueprintVer').val();
+
+									$.get('/blueprints/' + blueprintId, function(blueprint) {
 										var $blueprintReadContainerCFT = $('#modalForReadCFT');
 
 										if (blueprint.templateType == 'arm') {
@@ -2668,11 +2714,17 @@ function devCall() {
 										//for getting the blueprint name
 										$blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);
 										$blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
+										if (!blueprint.version) {
+											blueprint.version = "1";
+										}
+										$blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(blueprint.version).parents('tr').show();
+
 
 										getOrgProjDetails($blueprintReadContainerCFT);
-
 									});
-								})(data[i]);
+
+								});
+
 
 
 							} else {
@@ -2681,8 +2733,16 @@ function devCall() {
 
 									$selectVer.hide();
 									//code for info about blueprints
-									(function(blueprint) {
-										$liRead.click(function(e) {
+
+									$liRead.click(function(e) {
+
+
+										var $parent = $(this).parents('.productdiv1');
+										var blueprintId = $parent.find('.blueprintVer').val();
+
+										$.get('/blueprints/' + blueprintId, function(blueprint) {
+
+
 
 											var $blueprintReadContainer = $('#modalForRead');
 											$blueprintReadContainer.find('tbody tr').hide();
@@ -2810,17 +2870,21 @@ function devCall() {
 												$blueprintReadContainer.find('.modal-body #instanceRunlist').val(runlistName.join(' , ')).parents('tr').show();
 
 												//for getting the version
-												$blueprintReadContainer.find('.modal-body #instanceVersion').val(versionsList[versionsList.length - 1].ver).parents('tr').show();
+
 
 											}
+											if (!blueprint.version) {
+												blueprint.version = "1";
+											}
+											$blueprintReadContainer.find('.modal-body #instanceVersion').val(blueprint.version).parents('tr').show();
 											$blueprintReadContainer.find('.modal-body #blueprintTemplateType').val(blueprint.templateType).parents('tr').show();
 
 											getOrgProjDetails($blueprintReadContainer);
-
-
-
 										});
-									})(data[i]);
+
+
+									});
+
 
 								}
 								$selectVerEdit.click(function(e) {
@@ -3139,7 +3203,7 @@ function devCall() {
 										// launchparams[2] = execparam;
 										var dockerParamsList = lp[0];
 
-										if((lp[1] !== undefined) && (lp[1] != ''))
+										if ((lp[1] !== undefined) && (lp[1] != ''))
 											dockerParamsList += ' -c ' + lp[1];
 
 										if ((lp[2] !== undefined) && (lp[2] != ''))
@@ -3270,12 +3334,18 @@ function devCall() {
 							if ($selectedItems.length) {
 								var projectId = $($selectedItems.get(0)).attr('data-projectId');
 								var envId = $($selectedItems.get(0)).attr('data-envId');
-								var blueprintId = $($selectedItems.get(0)).attr('data-blueprintId');
+
+								var blueprintId = $($selectedItems.get(0)).find('.blueprintVer').val();
+								if (!blueprintId) {
+									blueprintId = $($selectedItems.get(0)).attr('data-blueprintId');
+								}
+								
 								var version = $($selectedItems.get(0)).find('.blueprintVersionDropDown').val();
+
 								var blueprintType = $($selectedItems.get(0)).attr('data-blueprintType');
 								// alert('launching -> ' +'../blueprints/' + blueprintId + '/launch?version=' + version);
 
-								function launchBP(stackName) {
+								function launchBP(blueprintId, stackName) {
 									//   alert(JSON.stringify(stackName));
 									var $launchResultContainer = $('#launchResultContainer');
 									$launchResultContainer.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
@@ -3437,6 +3507,7 @@ function devCall() {
 
 										validator.resetForm();
 									});
+									
 									if (!eventAdded) {
 										$("#cftForm").submit(function(e) {
 											var stackName = $('#cftInput').val();
@@ -3445,8 +3516,11 @@ function devCall() {
 												e.preventDefault();
 												return false;
 											} else {
-
-												launchBP(stackName);
+												var blueprintId = $($selectedItems.get(0)).find('.blueprintVer').val();
+												if (!blueprintId) {
+													blueprintId = $($selectedItems.get(0)).attr('data-blueprintId');
+												}
+												launchBP(blueprintId,stackName);
 												$('#cftContainer').modal('hide');
 												e.preventDefault();
 
@@ -3458,11 +3532,11 @@ function devCall() {
 
 								} else if (blueprintType === 'openstack_launch' || blueprintType === 'hppubliccloud_launch') {
 									//alert('attempt launch of openstack');
-									launchBP();
+									launchBP(blueprintId);
 
 
 								} else {
-									launchBP();
+									launchBP(blueprintId);
 								}
 							}
 						}

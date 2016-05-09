@@ -43,6 +43,7 @@ $(document).ready(function() {
         $('#mainPanelId').hide();
         $('#trackedInstancesAllProviderTableContainer').show();
         $.get('../tracked-instances', function(data) {
+          console.log("Dataaaa",data);
           loadtrackedallProviderInstances(data);
         }).fail(function() {
             //TO DO
@@ -108,7 +109,7 @@ $(document).ready(function() {
             });
           });
 
-          $childProviderTemplate.find('.providerSpecificMoreInfo').click(function() {
+          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
             $('#mainPanelId').hide();
             $('#trackedInstancesSpecProviderTableContainer').show();
 
@@ -447,11 +448,17 @@ $(document).ready(function() {
       var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
       $tr.append($tdproviderType);
 
-      var $tdcost = $('<td></td>').append(allProviderData.trackedInstances[i].cost);
+      if(allProviderData.trackedInstances[i].cost)
+        var $tdcost = $('<td></td>').append(allProviderData.trackedInstances[i].cost);
+      else
+        var $tdcost = $('<td></td>').append('-');
       $tr.append($tdcost);
 
-      $tdavgCpuUtilization = '<span>'+allProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
-      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages" title="Usage Details" data-usage='+JSON.stringify(allProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
+      if(allProviderData.trackedInstances[i].usage)
+        $tdavgCpuUtilization = '<span>'+allProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
+        '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(allProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
+      else
+        $tdavgCpuUtilization = '<span>&nbsp;-&nbsp;</span>';
       var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
       $tr.append($tdusage);
 
@@ -538,11 +545,17 @@ $(document).ready(function() {
       var $tdproviderType = $('<td></td>').append(specProviderData.trackedInstances[i].providerType);
       $tr.append($tdproviderType);
 
-      var $tdcost = $('<td></td>').append(specProviderData.trackedInstances[i].cost);
+      if(specProviderData.trackedInstances[i].cost)
+        var $tdcost = $('<td></td>').append(specProviderData.trackedInstances[i].cost);
+      else
+        var $tdcost = $('<td></td>').append('-');
       $tr.append($tdcost);
 
-      $tdavgCpuUtilization = '<span>'+specProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
-      '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages" title="Usage Details" data-usage='+JSON.stringify(specProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
+      if(specProviderData.trackedInstances[i].usage)
+        $tdavgCpuUtilization = '<span>'+specProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
+        '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(specProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
+      else
+        $tdavgCpuUtilization = '<span>&nbsp;-&nbsp;</span>';
       var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
       $tr.append($tdusage);
 

@@ -118,6 +118,11 @@ var InstanceSchema = new Schema({
         trim: true,
         validate: schemaValidator.orgIdValidator
     },
+    orgName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     bgId: {
         type: String,
         required: true,

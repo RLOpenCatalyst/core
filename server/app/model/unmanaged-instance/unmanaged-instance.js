@@ -14,6 +14,7 @@ var UnmanagedInstanceSchema = new Schema({
 		required: false,
 		trim: true
 	},
+	orgName: String,
 	projectId: String,
 	projectName: String,
 	environmentId: String,
