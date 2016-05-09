@@ -96,7 +96,7 @@
 						});
 					}
 					//event to update the instance tab when blueprint is launched.
-					$rootScope.$emit('INSTANCE_LIST_CARD_VIEW');
+					$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
 				},
 				function(bpLaunchError) {
 					$scope.isBPLogsLoading = false;
