@@ -48,11 +48,6 @@ function sync() {
                                                return;
                                             };
                                             async.forEach(instances,function(instance,next) {
-                                                containerDao.deleteContainerByInstanceId(instance._id,function(err,data){
-                                                    if(err){
-                                                        logger.error(err);
-                                                        return;
-                                                    };
                                                     credentialCrpto.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
                                                     if(err){
                                                        logger.error(err);
@@ -104,10 +99,11 @@ function sync() {
                                                             if (v >= _stdout.length - 1) {
                                                                 if(so.indexOf("Names")>0){
                                                                     var containers = JSON.parse(so);
+                                                                    var containerList=[];
+                                                                    var containerIds=[];
                                                                     async.forEach(containers,function(container,next){
                                                                         var containerName=container.Names.toString().replace('/','');
-                                                                       // var instanceId=instance._id.toString();
-                                                                        var status=dockerContainerStatus(container.Status.toString(),container.Created);
+                                                                        var status=dockerContainerStatus(container.Status.toString());
                                                                         var containerData = {
                                                                             orgId: organization.rowid,
                                                                             bgId: businessGroup.rowid,
@@ -127,9 +123,11 @@ function sync() {
                                                                             containerStatus: status,
                                                                             HostConfig: container.HostConfig
                                                                         };
-                                                                        containerAction(containerData);
+                                                                        containerList.push(containerData);
+                                                                        containerIds.push(container.Id);
                                                                         containerData={};
                                                                     });
+                                                                    containerAction(containerList,containerIds,instance._id);
                                                                 }
                                                             }
                                                         });
@@ -141,7 +139,6 @@ function sync() {
                                                         return;
                                                     });
                                                     });
-                                                })
                                             })
                                         })
                                     });
@@ -162,17 +159,31 @@ function sync() {
 
         });
 };
-function containerAction(container){
+function containerAction(containers,containerIds,instanceId){
     async.waterfall([
         function(next){
-            containerDao.getContainerByIdInstanceId(container.Id,container.instanceId,next);
+            containerDao.deleteContainersByContainerIds(instanceId,containerIds,next);
         },
-        function(containerData,next){
-            if(containerData.length === 0){
-                containerDao.createContainer(container,next);
-            }else{
-                containerDao.updateContainer(container.Id,container.Status,next);
-            }
+        function(deleteContainers,next){
+             async.forEach(containers,function(container,next){
+                  async.waterfall([
+                      function(next){
+                          containerDao.getContainerByIdInstanceId(container.Id,instanceId,next);
+                      },
+                      function(containerData,next){
+                          if(containerData.length === 0){
+                              containerDao.createContainer(container,next);
+                          }else{
+                              containerDao.updateContainerStatus(container.Id,container.Status,next);
+                          }
+                      }
+                  ],function (err, results) {
+                      if(err){
+                          logger.error(err);
+                          return;
+                      }
+                  });
+             });
         }],
         function (err, results) {
             if(err){
@@ -182,34 +193,16 @@ function containerAction(container){
         });
 };
 
-function dockerContainerStatus(status,created){
+function dockerContainerStatus(status){
     if(status.indexOf('Exited') >= 0){
         return "STOP";
     }else if(status.indexOf('Paused')>= 0){
         return "PAUSE";
-    }else if(status.indexOf('Up')>= 0){
-        var createdDate = new Date(created *1000);
-        var currentDate = new Date();
-        var dateDifference = currentDate.getTime() - createdDate.getTime();
-        var daysDifference=Math.round(dateDifference/(1000*60*60*24));
-        var hoursDifference=Math.round(dateDifference/(1000*60*60));
-        var minutesDifference=Math.round(dateDifference/(1000*60));
-        var times=[daysDifference,hoursDifference,minutesDifference,(minutesDifference-1),(minutesDifference+1)];
-        var numb = status.match(/\d/g);
-        if (numb != null) {
-            numb = numb.join("");
-        }
-        if(times.indexOf(parseInt(numb)) >= 0){
-            return "START";
-        }else if(daysDifference===0 && hoursDifference===0 && (minutesDifference===0 || minutesDifference===1)){
-            return "START";
-        }else{
-            return "RESTART";
-        }
     }else{
         return "START";
     }
 };
+
 
 
 module.exports = sync;
