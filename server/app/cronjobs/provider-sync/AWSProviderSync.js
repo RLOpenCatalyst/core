@@ -195,6 +195,7 @@ function sync() {
 																				instances[n].environmentName = catalystEnvironmentName;
 																			}
 
+																			instances[n].orgName = org.orgname;
 																			instances[n].tags = tagInfo;
 																			instances[n].save();
 																			found = true;
@@ -247,6 +248,7 @@ function sync() {
 
 																			unManagedInstancesDao.createNew({
 																				orgId: org.rowid,
+																				orgName: org.orgname,
 																				providerId: provider._id,
 																				projectId: catalystProjectId,
 																				projectName: catalystProjectName,

@@ -501,13 +501,8 @@ function createTrackedInstancesResponse(instances, callback) {
         else
             instanceObj.ip = null;
 
-        if('usage' in instance)
-            instanceObj.usage = instance.usage;
-
-        if(('usage' in instance) && ('CPUUtilization' in instance))
-            instanceObj.averageCpuUtilization = Math.round(instance.usage.CPUUtilization.average * 100) + '%';
-        else
-            instanceObj.averageCpuUtilization = '0%';
+        instanceObj.usage = ('usage' in instance)?instance.usage:null;
+        instanceObj.cost = ('cost' in instance)?instance.cost:null;
 
         return instanceObj;
     });
