@@ -98,10 +98,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             }
             var blueprintIds = [];
-            if(task.blueprintIds && task.blueprintIds.length){
+            if (task.blueprintIds && task.blueprintIds.length) {
                 blueprintIds = task.blueprintIds
             }
-            task.execute(req.session.user.cn, req.protocol + '://' + req.get('host'), choiceParam, nexusData,blueprintIds,task.envId, function(err, taskRes, historyData) {
+            task.execute(req.session.user.cn, req.protocol + '://' + req.get('host'), choiceParam, nexusData, blueprintIds, task.envId, function(err, taskRes, historyData) {
                 if (err) {
                     logger.error(err);
                     res.status(500).send(err);
@@ -110,7 +110,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 if (historyData) {
                     taskRes.historyId = historyData.id;
                 }
-                logger.debug("taskRes::::: ",JSON.stringify(taskRes));
+                logger.debug("taskRes::::: ", JSON.stringify(taskRes));
                 res.send(taskRes);
             });
         });
@@ -223,7 +223,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     logger.error('jenkins jobs fetch error', err);
 
                                 }
-                                if (job) {
+                                if (job && job.builds && job.builds.length) {
                                     for (var j = 0; j < job.builds.length; j++) {
                                         var actualTimeStamp = new Date(job.builds[j].timestamp).setMilliseconds(job.builds[j].duration);
                                         var jobDetails = {
@@ -236,16 +236,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     }
                                 }
                                 var count = 0;
-                                if (jobResult.length > 0) {
-
+                                if (jobResult && jobResult.length > 0) {
                                     for (var x = 0; x < jobResult.length; x++) {
                                         (function(x) {
                                             count++;
                                             var resultUrl = [];
                                             if (historyResult.indexOf(jobResult[x]) === -1) {
-                                                for (var i = 0; i < task.jobResultURLPattern.length; i++) {
-                                                    var urlPattern = task.jobResultURLPattern[i];
-                                                    resultUrl.push(urlPattern.replace("$buildNumber", jobResult[x]));
+                                                if (task && task.jobResultURLPattern && task.jobResultURLPattern.length) {
+                                                    for (var i = 0; i < task.jobResultURLPattern.length; i++) {
+                                                        var urlPattern = task.jobResultURLPattern[i];
+                                                        resultUrl.push(urlPattern.replace("$buildNumber", jobResult[x]));
+                                                    }
                                                 }
                                                 var hData = {
                                                     "taskId": req.params.taskId,
@@ -318,7 +319,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     logger.error('jenkins jobs fetch error', err);
 
                                 }
-                                if (job) {
+                                if (job && job.builds && job.builds.length) {
                                     for (var j = 0; j < job.builds.length; j++) {
                                         var actualTimeStamp = new Date(job.builds[j].timestamp).setMilliseconds(job.builds[j].duration);
                                         var jobDetails = {
@@ -331,14 +332,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     }
                                 }
                                 var count1 = 0;
-                                if (jobResult) {
-
+                                if (jobResult && jobResult.length) {
                                     for (var x = 0; x < jobResult.length; x++) {
                                         (function(x) {
                                             var resultUrl = [];
-                                            for (var i = 0; i < task.jobResultURLPattern.length; i++) {
-                                                var urlPattern = task.jobResultURLPattern[i];
-                                                resultUrl.push(urlPattern.replace("$buildNumber", jobResult[x]));
+                                            if (task && task.jobResultURLPattern && task.jobResultURLPattern.length) {
+                                                for (var i = 0; i < task.jobResultURLPattern.length; i++) {
+                                                    var urlPattern = task.jobResultURLPattern[i];
+                                                    resultUrl.push(urlPattern.replace("$buildNumber", jobResult[x]));
+                                                }
                                             }
                                             var hData = {
                                                 "taskId": req.params.taskId,

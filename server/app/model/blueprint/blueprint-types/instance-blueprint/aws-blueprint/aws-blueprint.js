@@ -52,6 +52,11 @@ var AWSInstanceBlueprintSchema = new Schema({
 		required: true,
 		trim: true
 	},
+	region: {
+		type: String,
+		required: true,
+		trim: true
+	},
 	securityGroupIds: {
 		type: [String],
 		required: true,

@@ -1,4 +1,5 @@
 var logger = require('_pr/logger')(module);
+var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
@@ -21,6 +22,11 @@ socketCloudFormationAutoScate.on('connection', function(socket) {
 	});
 
 });
+
+var AWSProviderSync = Object.create(CatalystCronJob);
+AWSProviderSync.execute = sync;
+
+module.exports = AWSProviderSync;
 
 // @TODO To be refactored (High Priority)
 function sync() {
@@ -183,12 +189,13 @@ function sync() {
 																			}
 
 																			if (assignmentFound) {
-																				instances[n].projectId = catalystProjectId;
+																				/*instances[n].projectId = catalystProjectId;
 																				instances[n].projectName = catalystProjectName;
-																				instances[n].envId = catalystEnvironmentId;
+																				instances[n].envId = catalystEnvironmentId;*/
 																				instances[n].environmentName = catalystEnvironmentName;
 																			}
 
+																			instances[n].orgName = org.orgname;
 																			instances[n].tags = tagInfo;
 																			instances[n].save();
 																			found = true;
@@ -212,7 +219,7 @@ function sync() {
 																					unManagedInstances[n].remove();
 																				} else {
 																					if (unManagedInstances[n].state === 'running') {
-																						unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+																						unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
 																					}
 																					unManagedInstances[n].projectId = catalystProjectId;
 																					unManagedInstances[n].projectName = catalystProjectName;
@@ -241,6 +248,7 @@ function sync() {
 
 																			unManagedInstancesDao.createNew({
 																				orgId: org.rowid,
+																				orgName: org.orgname,
 																				providerId: provider._id,
 																				projectId: catalystProjectId,
 																				projectName: catalystProjectName,
@@ -357,5 +365,3 @@ function sync() {
 		}
 	});
 }
-
-module.exports = sync;
