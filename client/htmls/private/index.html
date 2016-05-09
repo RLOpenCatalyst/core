@@ -1106,6 +1106,7 @@ checkandnavigatetotab = function() {
 if (!isAngularIntegration) {
   checkandnavigatetotab();
 } else{
+  //Angular Change - condition added for manual refresh error when the user is in some settings page and refreshes it.
   var tabSelected = $('#settingsNew').attr('id');
   if (tabSelected) {
       var url = window.location.href;
