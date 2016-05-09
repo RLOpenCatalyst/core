@@ -39,9 +39,8 @@
                     <div ng-show="pipeLineActBarShow">
                         <p>
                             <button type="button" class="btn btn-xs btn-info" ng-click="appCardDetail(pipeLineActBarData)">Info</button>
-                            <button type="button" class="btn btn-xs btn-default" ng-click="appInfo(pipeLineActBarData)">Log</button>
-                            <button type="button" class="btn btn-xs btn-primary" ng-click="PromoteApp(pipeLineActBarData)" ng-if="!cardPermission.isApproved && !isLastEnv">Promote</button>
-                            <button type="button" class="btn btn-xs btn-primary" ng-click="appApprove(pipeLineActBarData)" ng-if="!cardPermission.isApproved">Approve</button>
+                            <button type="button" class="btn btn-xs btn-primary" ng-click="promoteApp(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">Promote</button>
+                            <button type="button" class="btn btn-xs btn-primary" ng-click="appApprove(pipeLineActBarData)" ng-if="!pipeLineActBarData.isApproved">Approve</button>
                             <button type="button" class="btn btn-xs btn-warning" ng-if="cardPermission.isApproved">Reject</button>
                             <button type="button" class="btn btn-xs btn-success" ng-click="upgradeApp(pipeLineActBarData)">Upgrade</button>
                         </p>
