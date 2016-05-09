@@ -62,20 +62,267 @@
 					$scope.blueprints = [];
 					// service to get the list of blueprints
 					workzoneServices.getBlueprints($scope.envParams).then(function(result) {
-						var blueprint = result.data;
+						//var blueprint = result.data;
+						var blueprint = [{
+		"_id": "572c7bb83cee328b66285e74",
+		"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+		"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+		"name": "Tomcat7",
+		"templateId": "ubuntu-aws",
+		"templateType": "ami",
+		"blueprintConfig": {
+			"_id": "572c7bb83cee328b66285e73",
+			"infraManagerData": {
+				"versionsList": [{
+					"runlist": ["recipe[tomcat-all-rl]"],
+					"attributes": [{
+						"_id": "572c7bb83cee328b66285e72",
+						"jsonObj": {
+							"java": {
+								"install_flavor": "oracle"
+							}
+						},
+						"name": "Java Flavour"
+					}, {
+						"_id": "572c7bb83cee328b66285e71",
+						"jsonObj": {
+							"java": {
+								"jdk_version": "7"
+							}
+						},
+						"name": "Java JDK Version"
+					}, {
+						"_id": "572c7bb83cee328b66285e70",
+						"jsonObj": {
+							"java": {
+								"oracle": {
+									"accept_oracle_download_terms": "true"
+								}
+							}
+						},
+						"name": "Oracle Download Terms"
+					}, {
+						"_id": "572c7bb83cee328b66285e6f",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"user": "tomcat"
+							}
+						},
+						"name": "Tomcat User"
+					}, {
+						"_id": "572c7bb83cee328b66285e6e",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"group": "tomcat"
+							}
+						},
+						"name": "Tomcat Group"
+					}, {
+						"_id": "572c7bb83cee328b66285e6d",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"version": "7.0.53"
+							}
+						},
+						"name": "Tomcat Version"
+					}, {
+						"_id": "572c7bb83cee328b66285e6c",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"tomcat_home": "/opt/tomcat7"
+							}
+						},
+						"name": "Tomcat Home"
+					}, {
+						"_id": "572c7bb83cee328b66285e6b",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"set_etc_environment": "true"
+							}
+						},
+						"name": "Set Tomcat Environment"
+					}, {
+						"_id": "572c7bb83cee328b66285e6a",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"shutdown_port": "8005"
+							}
+						},
+						"name": "Tomcat Shutdown Port"
+					}, {
+						"_id": "572c7bb83cee328b66285e69",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"port": "3001"
+							}
+						},
+						"name": "Tomcat Running Port"
+					}, {
+						"_id": "572c7bb83cee328b66285e68",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"max_threads": "100"
+							}
+						},
+						"name": "Tomcat Max Threads"
+					}, {
+						"_id": "572c7bb83cee328b66285e67",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"min_spare_threads": "10"
+							}
+						},
+						"name": "Tomcat Min Spare Threads"
+					}, {
+						"_id": "572c7bb83cee328b66285e66",
+						"jsonObj": {
+							"tomcat-all-rl": {
+								"java_opts": "-d64 -server -Djava.awt.headless=true -XX:PermSize=64m -XX:MaxPermSize=256m"
+							}
+						},
+						"name": "Tomcat Java Opts"
+					}],
+					"_id": "572c7bb83cee328b66285e65",
+					"ver": "0.1"
+				}],
+				"_id": "572c7bb83cee328b66285e64",
+				"latestVersion": "0.1"
+			},
+			"infraManagerId": "80829b1d-3ffa-4a28-b45d-712fbe21b553",
+			"infraMangerType": "chef",
+			"cloudProviderData": {
+				"securityGroupIds": ["sg-eeff688b"],
+				"_id": "572c7bb83cee328b66285e63",
+				"instanceCount": "1",
+				"instanceOS": "linux",
+				"imageId": "572c7a083cee328b66285e1c",
+				"subnetId": "subnet-d7df258e",
+				"region": "us-west-1",
+				"vpcId": "vpc-bd815ad8",
+				"instanceUsername": "root",
+				"instanceAmiid": "ami-06116566",
+				"instanceType": "t2.micro",
+				"keyPairId": "572c79b13cee328b66285e1a"
+			},
+			"cloudProviderId": "572c79b13cee328b66285e19",
+			"cloudProviderType": "aws"
+		},
+		"blueprintType": "instance_launch",
+		"version": "1",
+		"__v": 0,
+		"users": [],
+		"appUrls": [{
+			"name": "Google",
+			"url": "http://www.google.com",
+			"_id": "572c7bb83cee328b66285e76"
+		}, {
+			"name": "Tomcat7",
+			"url": "http://$host:3001",
+			"_id": "572c7bb83cee328b66285e75"
+		}],
+		"versions": [{
+			"id": "572c7f123cee328b66285f51",
+			"version": "2",
+			"name": "Tomcat7"
+		}, {
+			"id": "572c82883cee328b66285f74",
+			"version": "3",
+			"name": "Tomcat7-Edited"
+		}, {
+			"id": "572c82f13cee328b66285f8a",
+			"version": "4",
+			"name": "Tomcat7-Edited"
+		}]
+	}, {
+		"_id": "572c7c043cee328b66285e7e",
+		"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+		"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+		"name": "Windows2012",
+		"templateId": "windows-aws",
+		"templateType": "ami",
+		"blueprintConfig": {
+			"_id": "572c7c043cee328b66285e7d",
+			"infraManagerData": {
+				"versionsList": [{
+					"runlist": [],
+					"_id": "572c7c043cee328b66285e7c",
+					"ver": "0.1"
+				}],
+				"_id": "572c7c043cee328b66285e7b",
+				"latestVersion": "0.1"
+			},
+			"infraManagerId": "80829b1d-3ffa-4a28-b45d-712fbe21b553",
+			"infraMangerType": "chef",
+			"cloudProviderData": {
+				"securityGroupIds": ["sg-eeff688b"],
+				"_id": "572c7c043cee328b66285e7a",
+				"instanceCount": "1",
+				"instanceOS": "windows",
+				"imageId": "572c7a403cee328b66285e4d",
+				"subnetId": "subnet-d7df258e",
+				"region": "us-west-1",
+				"vpcId": "vpc-bd815ad8",
+				"instanceUsername": "root",
+				"instanceAmiid": "ami-a3314fc3",
+				"instanceType": "t2.small",
+				"keyPairId": "572c79b13cee328b66285e1a"
+			},
+			"cloudProviderId": "572c79b13cee328b66285e19",
+			"cloudProviderType": "aws"
+		},
+		"blueprintType": "instance_launch",
+		"version": "1",
+		"__v": 0,
+		"users": [],
+		"appUrls": []
+	}, {
+		"_id": "572c81ce3cee328b66285f62",
+		"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+		"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+		"name": "Apache2-SS",
+		"templateId": "APache2",
+		"templateType": "chef",
+		"blueprintConfig": {
+			"_id": "572c81ce3cee328b66285f61",
+			"infraManagerData": {
+				"versionsList": [{
+					"runlist": ["recipe[apache2]"],
+					"_id": "572c81ce3cee328b66285f60",
+					"ver": "0.1"
+				}],
+				"_id": "572c81ce3cee328b66285f5f",
+				"latestVersion": "0.1"
+			},
+			"infraManagerId": "80829b1d-3ffa-4a28-b45d-712fbe21b553",
+			"infraMangerType": "chef",
+			"cloudProviderData": {
+				"securityGroupIds": ["sg-eeff688b"],
+				"_id": "572c81ce3cee328b66285f5e",
+				"instanceCount": "1",
+				"instanceOS": "linux",
+				"imageId": "572c7a083cee328b66285e1c",
+				"subnetId": "subnet-d7df258e",
+				"region": "us-west-1",
+				"vpcId": "vpc-bd815ad8",
+				"instanceUsername": "root",
+				"instanceAmiid": "ami-06116566",
+				"instanceType": "t2.micro",
+				"keyPairId": "572c79b13cee328b66285e1a"
+			},
+			"cloudProviderId": "572c79b13cee328b66285e19",
+			"cloudProviderType": "aws"
+		},
+		"blueprintType": "instance_launch",
+		"version": "1",
+		"__v": 0,
+		"users": [],
+		"appUrls": []
+	}];
 						$scope.blueprints = formatData.getFormattedCollection(blueprint);
 						$scope.isBlueprintPageLoading = false;
-						if(blueprint.iconpath) {
-							//$scope.blueprints.software_stack[i].iconpath = blueprint.;
-						}
-						else {
-							for(var i=0;i<blueprint.length;i++) {
-								$scope.blueprints.software_stack[i].iconpath = 'images/templateicons/imgo.jpg';
-								$scope.blueprints.os_image[i].iconpath = 'images/templateicons/imgo.jpg';
-								$scope.blueprints.cloudFormation[i].iconpath = 'images/templateicons/imgo.jpg';
-								$scope.blueprints.azureARM[i].iconpath = 'images/templateicons/imgo.jpg';
-							}
-						}
 		                workzoneUIUtils.makeTabScrollable('blueprintPage');
 					},function(error) {
 						$scope.isBlueprintPageLoading = false;

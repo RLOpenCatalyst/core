@@ -9,10 +9,14 @@
 	"use strict";
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'items', function($scope, $modalInstance, items) {
+			console.log(items);
 			var launchHelper = {
 				launch : function(){
 					$modalInstance.close({bp:items,stackName:$scope.stackName});
-				}
+				}/*,
+				versionLaunch : function(){
+					$modalInstance.close({bp:items,stackName:$scope.stackName});
+				}*/
 			};
 			$scope.stackName='';
 			$scope.cancel = function() {
