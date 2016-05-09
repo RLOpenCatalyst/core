@@ -10,6 +10,7 @@
 	angular.module('workzone.application')
 		.controller('configurePipelineViewCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'chefSelectorComponent', 'responseFormatter', 'items', '$q', '$timeout', 
 		function($scope, $modalInstance, workzoneServices, chefSelectorComponent, responseFormatter, items, $q, $timeout) {
+			$scope.isConfigurePipelineLoading = true;
 			var selectedElements = [];
 			var newEnvList = [];
 			var projectID = items;
@@ -32,6 +33,7 @@
 					}
 					list.push(obj);
 				}
+				$scope.isConfigurePipelineLoading = false;
 				newEnvList = allPromise[1].data[0].envSequence;
 				for(var i=0; i<newEnvList.length; i++) {
 					var newList = {
