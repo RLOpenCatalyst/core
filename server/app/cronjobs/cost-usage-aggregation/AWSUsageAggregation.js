@@ -28,7 +28,7 @@ var instanceService = require('_pr/services/instanceService');
 var async = require('async');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
-AggregateAWSUsage.interval = '*/1 * * * *';
+AggregateAWSUsage.interval = '0 * * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
