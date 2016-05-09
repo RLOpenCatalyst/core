@@ -351,16 +351,19 @@ $imagePath : "../../../../../../images";
 #orchestrationHistoryPage {
 	font-size: 12px;
 
+	.success, .SUCCESS, .failure, .failed{
+		color: #fff;
+		padding: 8px;
+	}
+
 	.success, .SUCCESS{
 		background: $color-green;
-		color: #fff;
 	}
 
 	.failure, .failed{
 		background: $color-red;
-		color: #fff;
 	}
-
+	
 	.modal-body {
 		padding: 15px 15px 50px 15px;
 	}
