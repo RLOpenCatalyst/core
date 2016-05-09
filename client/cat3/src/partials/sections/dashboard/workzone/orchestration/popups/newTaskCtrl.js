@@ -127,6 +127,7 @@
                             if (selectedList && selectedList.length) {
                                 for (var i = 0; i < selectedList.length; i++) {
                                     taskJSON.assignTasks.push(selectedList[i].data._id);
+                                    $scope.isNewTaskPageLoading = false;
                                 }
                             } else {
                                 alert('please select atleast one job');
@@ -256,6 +257,7 @@
                             for (var i = 0; i < data.length; i++) {    
                                 if (items.taskConfig.assignTasks[j] === data[i]._id) {
                                     selectorList.push(data[i]);
+                                    $scope.isNewTaskPageLoading = false;
                                 }
                             }
                         }
@@ -308,6 +310,7 @@
                     if ($scope.isEditMode && $scope.taskType === "puppet") {
                         if ($scope.isEditMode) {
                             $scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(data), items.taskConfig.nodeIds);
+                            $scope.isNewTaskPageLoading = false;
                         } else {
                             $scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(data), []);
                         }
@@ -325,6 +328,7 @@
 
                     if ($scope.isEditMode && items.taskType === "jenkins") {
                         $scope.jenkinsServerSelect = items.taskConfig.jenkinsServerId;
+                        $scope.isNewTaskPageLoading = false;
                     }
                     $scope.changeJobList();
                     $scope.changeJobURL();
