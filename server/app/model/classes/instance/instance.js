@@ -297,7 +297,6 @@ var InstancesDao = function() {
         });
     };
     this.getInstanceById = function(instanceId, callback) {
-        console.log("******");
         Instances.find({
             "_id": new ObjectId(instanceId)
         }, {

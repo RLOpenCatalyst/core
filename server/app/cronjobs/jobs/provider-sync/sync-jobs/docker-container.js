@@ -194,13 +194,17 @@ function dockerContainerStatus(status,created){
         var daysDifference=Math.round(dateDifference/(1000*60*60*24));
         var hoursDifference=Math.round(dateDifference/(1000*60*60));
         var minutesDifference=Math.round(dateDifference/(1000*60));
-        var times=[daysDifference,hoursDifference,minutesDifference];
+        var times=[daysDifference,hoursDifference,minutesDifference,(minutesDifference-1),(minutesDifference+1)];
         var numb = status.match(/\d/g);
-        numb = numb.join("");
+        if (numb != null) {
+            numb = numb.join("");
+        }
         if(times.indexOf(parseInt(numb)) >= 0){
             return "START";
+        }else if(daysDifference===0 && hoursDifference===0 && (minutesDifference===0 || minutesDifference===1)){
+            return "START";
         }else{
-            return "RESTART"
+            return "RESTART";
         }
     }else{
         return "START";
