@@ -435,7 +435,7 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     "instances":[{"_id":"56fa1a6d2a3efd26530203fb","name":"192.168.152.208","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","instanceIP":"192.168.152.208","instanceState":"running","bootStrapStatus":"success","__v":0,"taskIds":[],"chefClientExecutionIds":[],"actionLogs":[{"_id":"56fa1a6d2a3efd26530203fd","actionData":{"runlist":[]},"timeStarted":1459231341803,"user":"superadmin","success":true,"completed":true,"name":"Bootstrap","type":1,"timeEnded":1459231495251}],"serviceIds":[],"blueprintData":{"blueprintName":"192.168.152.208","templateId":"chef_import","iconPath":"../private/img/templateicons/chef_import.png","templateComponents":[]},"credentials":{"username":"rle0333","password":"OtKDQ4yY8+rl6z90Ll3KUA=="},"software":[],"chef":{"serverId":"ef074bc9-d61c-4d3a-8038-17878422f965","chefNodeName":"192.168.152.208"},"hardware":{"platform":"ubuntu","platformVersion":"14.04","architecture":"x86_64","os":"linux","memory":{"total":"8094692kB","free":"2871460kB"}},"users":["superadmin"],"appUrls":[{"name":"catalyst","url":"http://localhost:3001/","_id":"56fa1a6d2a3efd26530203fc"}],"attributes":[],"runlist":[]}],
+ *     "instances":[{"_id":"56fa1a6d2a3efd26530203fb","name":"192.168.152.208","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","instanceIP":"192.168.152.208","instanceState":"running","bootStrapStatus":"success","__v":0,"taskIds":[],"chefClientExecutionIds":[],"actionLogs":[{"_id":"56fa1a6d2a3efd26530203fd","actionData":{"runlist":[]},"timeStarted":1459231341803,"user":"superadmin","success":true,"completed":true,"name":"Bootstrap","type":1,"timeEnded":1459231495251}],"serviceIds":[],"blueprintData":{"blueprintName":"192.168.152.208","templateId":"chef_import","iconPath":"../private/img/templateicons/chef_import.png","templateComponents":[]},"credentials":{"username":"rle0333","password":"OtKDQ4yY8+rl6z90Ll3KUA=="},"software":[],"chef":{"serverId":"ef074bc9-d61c-4d3a-8038-17878422f965","chefNodeName":"192.168.152.208"},"hardware":{"platform":"ubuntu","platformVersion":"14.04","architecture":"x86_64","os":"linux","memory":{"total":"8094692kB","free":"2871460kB"}},"users":["superadmin"],"appUrls":[{"name":"catalyst","url":"http://localhost:3001/","_id":"56fa1a6d2a3efd26530203fc"}],"attributes":[],"runlist":[],"tasks":[]}],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"instanceState","sortOrder":"asc"}
  *     }
  *
@@ -797,12 +797,14 @@
  *			"version": "3.03.106"
  *		},
  *		"Dev": {
- *			"applicationInstanceName": "Supercatalyst",
+ *			"id": "c6633356471946542fsgg",
+ *		    "applicationInstanceName": "Supercatalyst",
  *			"applicationNodeIP": "54.183.1.26",
  *			"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
  *			"applicationStatus": "Successful",
  *			"containerId": "NA",
  *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *		    "isApproved": "ip-10-0-0-54.us-west-1.compute.internal"
  *		},
  *		"QA": {},
  *		"Prod": {}
@@ -813,12 +815,98 @@
  *		},
  *		"Dev": {},
  *		"QA": {
+ *	        "id": "c6633356471946542fsgg",
  *			"applicationInstanceName": "Supercatalyst",
  *			"applicationNodeIP": "54.183.1.26",
  *			"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
  *			"applicationStatus": "Successful",
  *			"containerId": "NA",
- *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *		 	"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *		    "isApproved": "ip-10-0-0-54.us-west-1.compute.internal"
+ *		},
+ *		"Prod": {}
+ *	}],
+ *  "metaData":{
+ *    "totalRecords":2,
+ *    "pageSize":10,
+ *    "page":1,
+ *    "totalPages":1,
+ *    "sortBy":"envId",
+ *    "sortOrder":"desc"
+ *    }
+ *  }
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy PipeLine Information'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy PipeLine Information'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy PipeLine Information'}
+ *     };
+ */
+
+/**
+ * @api {get}/app-deploy/project/:projectId/pipeLineViewList
+ * @apiName /app-deploy/project/:projectId/pipeLineViewList
+ * @apiGroup New Pipeline View with Pagination
+ *
+ *
+ * @apiParam {String} projectId     Unique Project Id
+ *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/app/deploy/project/b38ccedc-da2c-4e2c-a278-c66333564719/pipeLineViewListpipeLineView?page=1&pageSize=10
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ * {
+ *  "pipeLineView":[{
+ *		"appName": "nginx",
+ *		"Dev": {
+ *		"id": "5718ca32400f00be828a8985",
+ *		"version": "latest",
+ *		"instanceName": "nginx",
+ *		"applicationLastDeploy": "2016-04-18T13:18:17.201Z",
+ *		"applicationStatus": "Successful",
+ *		"applicationType": "Container",
+ *		"containerId": "nginx_test",
+ *		"isApproved": false
+ *		},
+ *		"QA": {},
+ *		"Prod": {}
+ *	}, {
+ *		"appName": "relevancelab/rlcatqa",
+ *		"Dev": {},
+ *		"QA": {
+ *		"id": "5718ca32400f00be828a8989",
+ *		"version": "test",
+ *		"instanceName": "rlcatqa",
+ *		"applicationLastDeploy": "2016-04-18T13:36:02.201Z",
+ *		"applicationStatus": "Successful",
+ *		"applicationType": "Container",
+ *		"containerId": "gobinda",
+ *		"isApproved": false
  *		},
  *		"Prod": {}
  *	}],

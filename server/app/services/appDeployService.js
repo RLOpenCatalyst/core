@@ -22,7 +22,6 @@ var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService = require('_pr/services/taskService.js');
 var AppData = require('_pr/model/app-deploy/app-data');
-var Tasks = require('_pr/model/classes/tasks/tasks.js');
 
 const errorType = 'appDeploy';
 
