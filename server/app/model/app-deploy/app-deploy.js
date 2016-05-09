@@ -18,11 +18,7 @@ limitations under the License.
 
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
-var ObjectId = require('mongoose').Types.ObjectId;
-var uniqueValidator = require('mongoose-unique-validator');
-var schemaValidator = require('_pr/model/utils/schema-validator');
 var mongoosePaginate = require('mongoose-paginate');
-var deployPermission = require('_pr/model/app-deploy/deploy-permission');
 
 // File which contains App Deploy DB schema and DAO methods. 
 
@@ -243,6 +239,7 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId = func
         }, {
             $group: {
                 _id: "$envId",
+                id:  { $last: "$_id" },
                 applicationName: { $last: "$applicationName" },
                 applicationInstanceName: { $last: "$applicationInstanceName" },
                 applicationVersion: { $last: "$applicationVersion" },
@@ -265,7 +262,33 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId = func
                 logger.debug("Got error while fetching AppDeploy: ", err);
                 callback(err, null);
             }
-            callback(null, appDeploys);
+            var count = 0;
+            if (appDeploys.length > 0) {
+                var deployPermission = require('_pr/model/app-deploy/deploy-permission');
+                for (var i = 0; i < appDeploys.length; i++) {
+                    (function(appDeploy) {
+                        deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(projectId, appDeploy.envName, appName, versionId, function(err, permission) {
+                            if (err) {
+                                logger.debug("Got error while fetching Deploy Permission: ", err);
+                                callback(err, null);
+                            } else {
+                                if (permission.length === 0) {
+                                    count++;
+                                    appDeploy['isApproved'] = false;
+                                } else {
+                                    count++;
+                                    appDeploy['isApproved'] = permission[0].isApproved;
+                                }
+                                if (appDeploys.length === count) {
+                                    callback(null, appDeploys);
+                                    return;
+                                }
+                            }
+
+                        })
+                    })(appDeploys[i]);
+                }
+            }
         });
 };
 
@@ -284,6 +307,7 @@ AppDeploySchema.statics.getPipeLineViewListByProjectIdAppName = function getPipe
         }, {
             $group: {
                 _id: "$envId",
+                id:  { $last: "$_id" },
                 applicationName: { $last: "$applicationName" },
                 applicationInstanceName: { $last: "$applicationInstanceName" },
                 applicationVersion: { $last: "$applicationVersion" },
@@ -303,19 +327,20 @@ AppDeploySchema.statics.getPipeLineViewListByProjectIdAppName = function getPipe
             };
             var count = 0;
             if (appDeploys.length > 0) {
+                var deployPermission = require('_pr/model/app-deploy/deploy-permission');
                 for (var i = 0; i < appDeploys.length; i++) {
-                    (function(aAppDeploy) {
-                        deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(projectId, aAppDeploy.envName, appName, aAppDeploy.applicationVersion, function(err, permision) {
+                    (function(appDeploy) {
+                        deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(projectId, appDeploy.envName, appName, appDeploy.applicationVersion, function(err, permission) {
                             if (err) {
                                 logger.debug("Got error while fetching Deploy Permission: ", err);
                                 callback(err, null);
                             } else {
-                                if (permision.length === 0) {
+                                if (permission.length === 0) {
                                     count++;
-                                    aAppDeploy['isApproved'] = false;
+                                    appDeploy['isApproved'] = false;
                                 } else {
                                     count++;
-                                    aAppDeploy['isApproved'] = permision[0].isApproved;
+                                    appDeploy['isApproved'] = permission[0].isApproved;
                                 }
                                 if (appDeploys.length === count) {
                                     callback(null, appDeploys);
@@ -577,11 +602,12 @@ AppDeploySchema.statics.getAppDeployByProjectId = function getAppDeployByProject
             logger.debug("Got error while fetching AppDeploy: ", err);
             return callback(err, null);
         }
-        if (appDeploy) {
+        if (appDeploy.lenght > 0) {
             logger.debug("Got AppDeploy: ");
             return callback(null, appDeploy);
-        } else
+        } else {
             return callback(null, []);
+        }
     });
 };
 

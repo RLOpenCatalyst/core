@@ -65,8 +65,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             logger.debug("Code     "+retCode);
             logger.debug("stdOut     "+stdOut);
             if(retCode === 0){
-                if(stdOut.trim().length === jsonData.containerId.length){
-
+                if(stdOut.trim().length === jsonData.containerId.length || stdOut.trim().length ===0){
                     containerDao.updateContainer(jsonData.containerId,dockerContainerStatus(jsonData.action),next);
                 }else{
                     containerDao.deleteContainerById(jsonData.containerId, next);

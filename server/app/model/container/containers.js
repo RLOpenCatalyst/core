@@ -75,7 +75,7 @@ var containerSchema = new Schema({
         required: true,
         trim: true,
     },
-    status: {
+    containerStatus: {
             type: String,
             enum: ["START", "STOP" , "PAUSE","UNPAUSE","RESTART"]
     },
@@ -165,7 +165,7 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
         Id: containerId
     }, {
         $set: {
-            Status: containerStatus
+            containerStatus: containerStatus
         }
     }, {
         upsert: false

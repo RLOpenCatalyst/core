@@ -176,6 +176,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					"image": depNewApp.newEnt.image,
 					"containerName": depNewApp.newEnt.ContNameId,
 					"containerPort": depNewApp.newEnt.contPort,
+					"hostPort": depNewApp.newEnt.hostPort,
 					"imageTag": depNewApp.newEnt.tag
 				};
 			}
@@ -187,7 +188,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					"projectId":workEnvt.getEnvParams().proj,
 					"envName": workEnvt.getEnvParams().env,
 					"appName": depNewApp.newEnt.repository,
-					"version":depNewApp.newEnt.version
+					"version":depNewApp.newEnt.tag
 				},
 				"task": {
 					"taskId": depNewApp.jobOptions[depNewApp.newEnt.jobInd]._id,
@@ -198,7 +199,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			if(depNewApp.newEnt.serverType === 'nexus'){
 				depNewApp.deploymentData.sourceData.nexus=nexus;
 			}else{
-				depNewApp.deploymentData.sourceData.nexus=docker;
+				depNewApp.deploymentData.sourceData.docker=docker;
 			}
 			$scope.isLoadingNewApp=true;
 			workSvs.postAppDeploy(depNewApp.deploymentData).then(function(deployResult){
