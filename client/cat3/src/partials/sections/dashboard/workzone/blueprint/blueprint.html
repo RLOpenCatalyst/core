@@ -53,6 +53,12 @@
                         <accordion-group heading="OSImage">
                             <div class="productdiv4" ng-repeat="launcher in blueprints.os_image">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
+                                    <div class="">
+                                        <select>
+                                            <option value="{{launcher.version}}">{{launcher.version}}</option>
+                                            <option ng-repeat="bpVersion in launcher.versions" value="{{launcher.version}}">{{bpVersion.version}}</option>
+                                        </select>
+                                    </div>
                                     <ul class="list-unstyled system-prop">
                                         <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
                                             <i class="fa fa-info-circle"></i>
