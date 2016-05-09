@@ -477,7 +477,6 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.id = instance._id;
         instanceObj.category = ('chefNodeName' in instance)?'managed':'unmanaged';
         instanceObj.instancePlatformId = instance.platformId;
-        instanceObj.orgId = instance.orgId;
         instanceObj.orgName = instance.orgName;
         instanceObj.projectName = instance.projectName;
         instanceObj.providerName = instance.providerName;
