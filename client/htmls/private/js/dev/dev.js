@@ -2682,7 +2682,7 @@ function devCall() {
 
 										$blueprintReadContainerCFT.modal('show');
 										//for getting the blueprint name
-										$blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);
+										$blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name).parents('tr').show();
 										$blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
 
 										getOrgProjDetails($blueprintReadContainerCFT);
@@ -2712,7 +2712,7 @@ function devCall() {
 
 										$blueprintReadContainerCFT.modal('show');
 										//for getting the blueprint name
-										$blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);
+										$blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name).parents('tr').show();
 										$blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
 										if (!blueprint.version) {
 											blueprint.version = "1";
@@ -2746,7 +2746,7 @@ function devCall() {
 
 											var $blueprintReadContainer = $('#modalForRead');
 											$blueprintReadContainer.find('tbody tr').hide();
-											$blueprintReadContainer.find('.modal-body #blueprintNameInputNew').val(blueprint.name);
+											$blueprintReadContainer.find('.modal-body #blueprintNameInputNew').val(blueprint.name).parents('tr').show();
 											if (blueprint.templateType === 'chef') {
 												$('.modal-title').html('Blueprint Information-Software Stack');
 											}
