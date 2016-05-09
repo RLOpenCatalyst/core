@@ -106,8 +106,8 @@ function sync() {
                                                                     var containers = JSON.parse(so);
                                                                     async.forEach(containers,function(container,next){
                                                                         var containerName=container.Names.toString().replace('/','');
-                                                                        var instanceId=instance._id.toString();
-                                                                        var containerStatus=dockerContainerStatus(container.Status.toString());
+                                                                       // var instanceId=instance._id.toString();
+                                                                        var status=dockerContainerStatus(container.Status.toString(),container.Created);
                                                                         var containerData = {
                                                                             orgId: organization.rowid,
                                                                             bgId: businessGroup.rowid,
@@ -115,7 +115,7 @@ function sync() {
                                                                             envId: environment.rowid,
                                                                             Id: container.Id,
                                                                             instanceIP: instance.instanceIP,
-                                                                            instanceId: instanceId,
+                                                                            instanceId: instance._id,
                                                                             Names: containerName,
                                                                             Image: container.Image,
                                                                             ImageID: container.ImageID,
@@ -124,7 +124,7 @@ function sync() {
                                                                             Ports: container.Ports,
                                                                             Labels: toPairs(container.Labels),
                                                                             Status: container.Status,
-                                                                            status: containerStatus,
+                                                                            containerStatus: status,
                                                                             HostConfig: container.HostConfig
                                                                         };
                                                                         containerAction(containerData);
@@ -182,15 +182,30 @@ function containerAction(container){
         });
 };
 
-function dockerContainerStatus(status){
+function dockerContainerStatus(status,created){
     if(status.indexOf('Exited') >= 0){
         return "STOP";
     }else if(status.indexOf('Paused')>= 0){
         return "PAUSE";
-    }else if(status.indexOf('Seconds')>= 0){
-        return "RESTART";
-    }else if(status.indexOf('Hours')>= 0 || status.indexOf('Minutes')>= 0){
-        return "UNPAUSE";
+    }else if(status.indexOf('Up')>= 0){
+        var createdDate = new Date(created *1000);
+        var currentDate = new Date();
+        var dateDifference = currentDate.getTime() - createdDate.getTime();
+        var daysDifference=Math.round(dateDifference/(1000*60*60*24));
+        var hoursDifference=Math.round(dateDifference/(1000*60*60));
+        var minutesDifference=Math.round(dateDifference/(1000*60));
+        var times=[daysDifference,hoursDifference,minutesDifference,(minutesDifference-1),(minutesDifference+1)];
+        var numb = status.match(/\d/g);
+        if (numb != null) {
+            numb = numb.join("");
+        }
+        if(times.indexOf(parseInt(numb)) >= 0){
+            return "START";
+        }else if(daysDifference===0 && hoursDifference===0 && (minutesDifference===0 || minutesDifference===1)){
+            return "START";
+        }else{
+            return "RESTART";
+        }
     }else{
         return "START";
     }

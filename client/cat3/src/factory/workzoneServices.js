@@ -51,7 +51,7 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 postPipeLineConfiguration: function () {
-                    var url = 'app/deploy/data/pipeline/configure';
+                    var url = '/app-deploy-pipeline/data/configure';
                     return $http.post(fullUrl(url), Auth.getHeaderObject());
                 },
                 getAppCardLogs: function(instanceNodeIp, projId) {
@@ -73,11 +73,11 @@
                 },
                 postEnvConfig: function(reqBody) {
                     //var url = '/data/appDeployEnvList.json';
-                    var url = '/app/deploy/data/pipeline/configure';
+                    var url = '/app-deploy-pipeline/data/configure';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },
                 getUpdatedEnvConfig: function(projId) {
-                    var url = '/app/deploy/pipeline' + '/project/' + projId;
+                    var url = '/app-deploy-pipeline' + '/project/' + projId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*azureArmCtrl*/
@@ -454,7 +454,7 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getPipelineConfig:function(requestEnv){
-                   var url = '/app/deploy/pipeline/project/'+requestEnv.proj;
+                   var url = '/app-deploy-pipeline/project/'+requestEnv.proj;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getPipelineView :function(requestEnv,pgOptions){
@@ -463,7 +463,7 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getCardPermission :function(cardDetails){
-                    var url= '/deploy/permission/project/'+ cardDetails.params.proj +'/env/' + cardDetails.paramNames.env + '/application/' + cardDetails.appName.name + '/permissionList';
+                    var url= '/deploy-permission/project/'+ cardDetails.params.proj +'/env/' + cardDetails.paramNames.env + '/application/' + cardDetails.appName.name + '/permissionList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getCardHistoryList :function(envDetails){
@@ -487,7 +487,7 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 postAppApprove :function(RequestObject){
-                    var url='/deploy/permission/data/save/configure';
+                    var url='/deploy-permission/save/permissionData';
                     return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
                 }
             };

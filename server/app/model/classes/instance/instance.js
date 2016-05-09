@@ -24,11 +24,6 @@ var logger = require('_pr/logger')(module);
 var textSearch = require('mongoose-text-search');
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
 
-
-//var tasks = require('_pr/model/classes/tasks/tasks.js');
-
-
-
 var Schema = mongoose.Schema;
 
 var ACTION_LOG_TYPES = {
@@ -446,8 +441,8 @@ var InstancesDao = function() {
                            var err = new Error('Instances are not found');
                            err.status = 404;
                            return callback(err);
-                       } 
-                       else {
+                       } else {
+                           var tasks = require('_pr/model/classes/tasks/tasks.js');
                         // @TODO Workaround to avoid circular dependency to be addressed
                         var tasks = require('_pr/model/classes/tasks/tasks.js');
                            var instanceList=instances.docs;
@@ -517,27 +512,6 @@ var InstancesDao = function() {
            });
        }
     };
-
-   /* this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
-        var queryObj = {
-            orgId: jsonData.orgId,
-            bgId: jsonData.bgId,
-            projectId: jsonData.projectId,
-            envId: jsonData.envId
-        }
-        if (jsonData.instanceType) {
-            queryObj['blueprintData.templateType'] = jsonData.instanceType;
-        }
-        Instances.find(queryObj, {
-            'actionLogs': false
-        }, function(err, data) {
-            if (err) {
-                callback(err, null);
-                return;
-            }
-            callback(null, data);
-        });
-    };*/
 
     this.getInstancesByOrgEnvIdAndChefNodeName = function(orgId, envId, nodeName, callback) {
         logger.debug("Enter getInstancesByOrgEnvIdAndChefNodeName (%s, %s, %s)", orgId, envId, nodeName);
