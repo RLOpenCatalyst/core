@@ -140,7 +140,6 @@
                             for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
                                 if ($scope.chefInstanceList[ci]._isNodeSelected) {
                                     taskJSON.nodeIds.push($scope.chefInstanceList[ci]._id);
-                                    $scope.isNewTaskPageLoading = false;
                                 }
                             }
                             for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
@@ -273,6 +272,7 @@
                         isOverrideHtmlTemplate: true,
                         isExcludeDataFromOption: true
                     });
+                    $scope.isNewTaskPageLoading = false;
                 });
                 workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
                     var data;
@@ -308,6 +308,7 @@
                     if ($scope.isEditMode && $scope.taskType === "puppet") {
                         if ($scope.isEditMode) {
                             $scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(data), items.taskConfig.nodeIds);
+                            $scope.isNewTaskPageLoading = false;
                         } else {
                             $scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(data), []);
                         }
@@ -325,6 +326,7 @@
 
                     if ($scope.isEditMode && items.taskType === "jenkins") {
                         $scope.jenkinsServerSelect = items.taskConfig.jenkinsServerId;
+                        $scope.isNewTaskPageLoading = false;
                     }
                     $scope.changeJobList();
                     $scope.changeJobURL();
@@ -342,7 +344,7 @@
                         $scope.jobUrl = items.taskConfig.jobURL;
                         $scope.autoSync.flag = items.taskConfig.autoSyncFlag === "false" ? false : true;
                         $scope.isParameterized.flag = items.taskConfig.isParameterized;
-                        $scope.jobLinkList = items.taskConfig.jobResultURL;
+                        $scope.jobLinkList = items.jobResultURLPattern;
                         $scope.jenkinsParamsList = items.taskConfig.parameterized;
                         $scope.jenkinJobSelected = items.taskConfig.jobName;
                     }

@@ -15,7 +15,7 @@
 			return uac.hasPermission('puppetserver','modify');
 		};
 		this.logInfo = function() {
-			return uac.hasPermission('instanceinfo','read');
+			return uac.hasPermission('logs','read');
 		};
 		this.ssh = function(){
 			return uac.hasPermission('instanceconnect', 'execute');
@@ -35,13 +35,16 @@
 		
 	}]).service('orchestrationPermission', ['uac', function(uac){
 		this.createTask = function() {
-			return uac.hasPermission('instancetasks','create');
+			return true;
+			//return uac.hasPermission('instancetasks','create');
 		};
 		this.editTask = function() {
-			return uac.hasPermission('instancetasks','modify');
+			return true;
+			//return uac.hasPermission('instancetasks','modify');
 		};
 		this.deleteTask = function() {
-			return uac.hasPermission('instancetasks','delete');
+			return true;
+			//return uac.hasPermission('instancetasks','delete');
 		};
 	}]).service('applicationPermission', ['uac', function(uac){
 		this.createApp = function() {
