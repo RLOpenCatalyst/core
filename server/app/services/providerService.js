@@ -247,7 +247,8 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
             return callback(err);
         }
 
-        if(tagDetails.values.indexOf(tagMapping.catalystEntityMapping[i].tagValue) < 0) {
+        if((tagMapping.catalystEntityMapping[i].tagValue)
+            && (tagDetails.values.indexOf(tagMapping.catalystEntityMapping[i].tagValue) < 0)) {
             var err = new Error('Tag value not found');
             err.status = 404;
             return callback(err);
