@@ -487,10 +487,10 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.bgId = ('bgId' in instance)?instance.bgId:null;
         instanceObj.cost = (('cost' in instance) && instance.cost)?instance.cost:0;
 
-        if('os' in instance)
-            instanceObj.os = instance.os;
-        else if(('hardware' in instances) && ('os' in instance.hardware))
+        if(('hardware' in instance) && ('os' in instance.hardware))
             instanceObj.os = instance.hardware.os;
+        else if('os' in instance)
+            instanceObj.os = instance.os;
         else
             instanceObj.os = null;
 
