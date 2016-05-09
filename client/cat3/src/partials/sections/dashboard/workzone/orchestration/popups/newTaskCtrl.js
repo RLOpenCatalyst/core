@@ -342,7 +342,7 @@
                         $scope.jobUrl = items.taskConfig.jobURL;
                         $scope.autoSync.flag = items.taskConfig.autoSyncFlag === "false" ? false : true;
                         $scope.isParameterized.flag = items.taskConfig.isParameterized;
-                        $scope.jobLinkList = items.taskConfig.jobResultURL;
+                        $scope.jobLinkList = items.jobResultURLPattern;
                         $scope.jenkinsParamsList = items.taskConfig.parameterized;
                         $scope.jenkinJobSelected = items.taskConfig.jobName;
                     }
