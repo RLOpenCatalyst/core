@@ -430,8 +430,8 @@ $(document).ready(function() {
       var $tdorgId = $('<td></td>').append(allProviderData.trackedInstances[i].orgName);
       $tr.append($tdorgId);
 
-      var $tdbgId = $('<td></td>').append(allProviderData.trackedInstances[i].bgName);
-      $tr.append($tdbgId);
+      /*var $tdbgId = $('<td></td>').append(allProviderData.trackedInstances[i].bgName);
+      $tr.append($tdbgId);*/
 
       var $tdprojectName = $('<td></td>').append(allProviderData.trackedInstances[i].projectName);
       $tr.append($tdprojectName);
@@ -496,8 +496,6 @@ $(document).ready(function() {
         "bSortable": false
       },{
         "bSortable": false
-      },{
-        "bSortable": false
       }]
 
     });
@@ -527,8 +525,8 @@ $(document).ready(function() {
       var $tdorgId = $('<td></td>').append(specProviderData.trackedInstances[i].orgName);
       $tr.append($tdorgId);
 
-      var $tdbgId = $('<td></td>').append(specProviderData.trackedInstances[i].bgName);
-      $tr.append($tdbgId);
+      /*var $tdbgId = $('<td></td>').append(specProviderData.trackedInstances[i].bgName);
+      $tr.append($tdbgId);*/
 
       var $tdprojectName = $('<td></td>').append(specProviderData.trackedInstances[i].projectName);
       $tr.append($tdprojectName);
@@ -584,8 +582,6 @@ $(document).ready(function() {
       }, {
         "bSortable": false
       }, {
-        "bSortable": false
-      },{
         "bSortable": false
       },{
         "bSortable": false
