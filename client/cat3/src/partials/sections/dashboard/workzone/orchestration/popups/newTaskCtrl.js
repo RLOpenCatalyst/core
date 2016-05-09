@@ -127,7 +127,6 @@
                             if (selectedList && selectedList.length) {
                                 for (var i = 0; i < selectedList.length; i++) {
                                     taskJSON.assignTasks.push(selectedList[i].data._id);
-                                    $scope.isNewTaskPageLoading = false;
                                 }
                             } else {
                                 alert('please select atleast one job');
@@ -141,7 +140,6 @@
                             for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
                                 if ($scope.chefInstanceList[ci]._isNodeSelected) {
                                     taskJSON.nodeIds.push($scope.chefInstanceList[ci]._id);
-                                    $scope.isNewTaskPageLoading = false;
                                 }
                             }
                             for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
@@ -257,7 +255,6 @@
                             for (var i = 0; i < data.length; i++) {    
                                 if (items.taskConfig.assignTasks[j] === data[i]._id) {
                                     selectorList.push(data[i]);
-                                    $scope.isNewTaskPageLoading = false;
                                 }
                             }
                         }
@@ -275,6 +272,7 @@
                         isOverrideHtmlTemplate: true,
                         isExcludeDataFromOption: true
                     });
+                    $scope.isNewTaskPageLoading = false;
                 });
                 workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
                     var data;

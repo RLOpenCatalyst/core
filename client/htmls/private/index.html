@@ -1103,10 +1103,8 @@ checkandnavigatetotab = function() {
     }
 };
 //Commented for angular integration
-if (!isAngularIntegration) {
-  checkandnavigatetotab();
-} else{
-  //Angular Change - condition added for manual refresh error when the user is in some settings page and refreshes it.
+if (isAngularIntegration) {
+//Angular Change - condition added for manual refresh error when the user is in some settings page and refreshes it.
   var tabSelected = $('#settingsNew').attr('id');
   if (tabSelected) {
       var url = window.location.href;
@@ -1114,6 +1112,8 @@ if (!isAngularIntegration) {
           window.location = '#ajax/Settings/Dashboard.html';
       }
   }
+} else{
+  checkandnavigatetotab();
 }
 loadSettingsTree();
 foldTreeForSetting();
