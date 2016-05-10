@@ -23,7 +23,6 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var instancesDao = require('_pr/model/classes/instance/instance');
 var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var waitForPort = require('wait-for-port');
 var uuid = require('node-uuid');
 var taskStatusModule = require('_pr/model/taskstatus');
@@ -115,38 +114,57 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     // @TODO To be refactored and API end point to be changed
     app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-        ApiUtils.paginationRequest(req.query, 'unmanagedInstances', function(err, paginationReq) {
+        logger.debug("Provider ID is >>>>>" + req.params.providerId);
+        var pageSize, page;
+        if (req.query.pageSize)
+            pageSize = parseInt(req.query.pageSize);
+        else
+            pageSize = constantData.record_limit;
+        if (req.query.page)
+            page = parseInt(req.query.page) - 1;
+        else
+            page = constantData.skip_Records;
+
+        var skip = pageSize * page;
+        var searchParameter, searchParameterValue;
+        if (req.query.status) {
+            searchParameter = "state";
+            searchParameterValue = req.query.status + "";
+        } else if (req.query.osType) {
+            searchParameter = "os";
+            searchParameterValue = req.query.osType + "";
+        }
+        var jsonData = {
+            'providerId': req.params.providerId,
+            'searchParameter': searchParameter,
+            'searchParameterValue': searchParameterValue,
+            'record_Skip': skip,
+            'record_Limit': pageSize
+        };
+        AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+
             if (err) {
                 res.status(500).send({
                     message: "Server Behaved Unexpectedly"
                 });
                 return;
             }
-            paginationReq['providerId'] = req.params.providerId;
-            paginationReq['id'] = 'unmanagedInstances';
-            AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+            if (!provider) {
+                res.status(404).send({
+                    message: "provider not found"
+                });
+                return;
+            }
+            unManagedInstancesDao.getByProviderId(jsonData, function(err, unmanagedInstances) {
                 if (err) {
                     res.status(500).send(unmanagedInstances);
                     return;
                 }
-                if (!provider) {
-                    res.status(204).send(ApiUtils.errorResponse(204, 'ProviderId'));
-                    return;
-                }
-                unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
-                    if (err) {
-                        res.status(404).send(ApiUtils.errorResponse(404, 'paginationRequest'));
-                        return;
-                    }
-                    ApiUtils.paginationResponse(unmanagedInstances, paginationReq, function(err, paginationRes) {
-                        if (err) {
-                            res.status(400).send(ApiUtils.errorResponse(400, 'paginationResponse'));
-                            return;
-                        }
-                        res.status(200).send(paginationRes);
+                if (unmanagedInstances.length > 0)
+                    res.status(200).send(unmanagedInstances);
+                else
+                    res.status(200).send([]);
 
-                    });
-                });
             });
         });
     });
@@ -742,37 +760,37 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.param('catalystEntity', providerService.catalystEntityExists);*/
 
     /**
-     * @api {get} /providers/:providerId/tags 	Get tags list
+     * @api {get} /providers/:providerId/tags   Get tags list
      * @apiName getTags
      * @apiGroup tags
      *
-     * @apiParam {Number} providerId 			Provider ID
+     * @apiParam {Number} providerId            Provider ID
      *
-     * @apiSuccess {Object[]} tags				List of tags
-     * @apiSuccess {String} tags.name			Tag name
-     * @apiSuccess {String} tags.description 	Tag description
-     * @apiSuccess {Number} count				Number of tags in the result set
-     * @apiSuccess {pageSize} pageSize			Page size
-     * @apiSuccess {pageIndex} pageIndex		Page index
+     * @apiSuccess {Object[]} tags              List of tags
+     * @apiSuccess {String} tags.name           Tag name
+     * @apiSuccess {String} tags.description    Tag description
+     * @apiSuccess {Number} count               Number of tags in the result set
+     * @apiSuccess {pageSize} pageSize          Page size
+     * @apiSuccess {pageIndex} pageIndex        Page index
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
+     *      HTTP/1.1 200 OK
+     *      {
      *
-     * 			"tags": [
-     * 				{
-     * 					"name":	"env",
-     * 					"description": "Deployment environment"
-     * 				},
-     *				{
-     * 					"name":	"application",
-     * 					"description": "Project name"
-     * 				}
-     * 			],
-     *			"count": 2,
-     *			"pageSize": 10,
-     *			"pageIndex": 1
-     * 		}
+     *          "tags": [
+     *              {
+     *                  "name": "env",
+     *                  "description": "Deployment environment"
+     *              },
+     *              {
+     *                  "name": "application",
+     *                  "description": "Project name"
+     *              }
+     *          ],
+     *          "count": 2,
+     *          "pageSize": 10,
+     *          "pageIndex": 1
+     *      }
      *
      */
     // @TODO Response should match doc
@@ -784,19 +802,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiName getTagDetails
      * @apiGroup tags
      *
-     * @apiParam {Number} providerId 			Provider ID
-     * @apiParam {String} tagName 				Tag Name
+     * @apiParam {Number} providerId            Provider ID
+     * @apiParam {String} tagName               Tag Name
      *
-     * @apiSuccess {Object} tag					Tag details
-     * @apiSuccess {String} tag.name 			Tag name
-     * @apiSuccess {String} tag.description 	Tag description
+     * @apiSuccess {Object} tag                 Tag details
+     * @apiSuccess {String} tag.name            Tag name
+     * @apiSuccess {String} tag.description     Tag description
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"name":	"environment",
-     * 			"description": "Deployment environment"
-     * 		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "name": "environment",
+     *          "description": "Deployment environment"
+     *      }
      *
      */
     app.get('/providers/:providerId/tags/:tagName', validate(tagsValidator.get), getTag);
@@ -806,27 +824,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiName addTag
      * @apiGroup tags
      *
-     * @apiParam {Number} providerId 			Provider ID
-     * @apiParam {String} tagName				Tags name
-     * @apiParam {Object} tag					Tag object in request body
-     * @apiParam {String} tag.name				Tag name
-     * @apiParam {String} tag.description		Tag description
+     * @apiParam {Number} providerId            Provider ID
+     * @apiParam {String} tagName               Tags name
+     * @apiParam {Object} tag                   Tag object in request body
+     * @apiParam {String} tag.name              Tag name
+     * @apiParam {String} tag.description       Tag description
      * @apiParamExample {json} Request-Example:
-     * 		{
-     * 			"name": "environment",
-     * 			"description": "Tag description"
-     * 		}
+     *      {
+     *          "name": "environment",
+     *          "description": "Tag description"
+     *      }
      *
-     * @apiSuccess {Object} tag					Tag details
-     * @apiSuccess {String} tags.name			Tag name
-     * @apiSuccess {String} tags.description 	Tag description
+     * @apiSuccess {Object} tag                 Tag details
+     * @apiSuccess {String} tags.name           Tag name
+     * @apiSuccess {String} tags.description    Tag description
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"name":	"environment",
-     * 			"description": "Deployment environment"
-     * 		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "name": "environment",
+     *          "description": "Deployment environment"
+     *      }
      */
     // app.post('/providers/:providerId/tags', validate(tagsValidator.create), createTags);
 
@@ -835,25 +853,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiName updateTag
      * @apiGroup tags
      *
-     * @apiParam {Number} providerId 			Provider ID
-     * @apiParam {String} tagName				Tags name
-     * @apiParam {Object[]} tag					Tag object in request body
-     * @apiParam {String} tag.description		Tag description
+     * @apiParam {Number} providerId            Provider ID
+     * @apiParam {String} tagName               Tags name
+     * @apiParam {Object[]} tag                 Tag object in request body
+     * @apiParam {String} tag.description       Tag description
      * @apiParamExample {json} Request-Example:
-     * 		{
-     * 			"description": "Tag description"
-     * 		}
+     *      {
+     *          "description": "Tag description"
+     *      }
      *
-     * @apiSuccess {Object} tag					Tag details
-     * @apiSuccess {String} tags.name			Tag name
-     * @apiSuccess {String} tags.description 	Tag description
+     * @apiSuccess {Object} tag                 Tag details
+     * @apiSuccess {String} tags.name           Tag name
+     * @apiSuccess {String} tags.description    Tag description
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"name":	"environment",
-     * 			"description": "Deployment environment"
-     * 		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "name": "environment",
+     *          "description": "Deployment environment"
+     *      }
      */
     app.put('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), updateTag);
 
@@ -862,237 +880,237 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiName deleteTag
      * @apiGroup tags
      *
-     * @apiParam {Number} providerId 	Provider ID
+     * @apiParam {Number} providerId    Provider ID
      *
-     * @apiSuccess {Object} response	Empty response object
+     * @apiSuccess {Object} response    Empty response object
      *
      */
     app.delete('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), deleteTag);
 
 
     /**
-     * @api {get} /providers/:providerId/tag-mappings			Get tag mappings
+     * @api {get} /providers/:providerId/tag-mappings           Get tag mappings
      * @apiName getTagMappingsList
      * @apiGroup tag mappings
      *
-     * @apiParam {Number} providerId	Provider ID
+     * @apiParam {Number} providerId    Provider ID
      *
-     * @apiSuccess {Object[]} tagNameMappings 					Tag name mappings
-     * @apiSuccess {String}	tagNameMappings.tagName 			Tag name
-     * @apiSuccess {String[]} tagNameMappings.tagValues			Encountered tag values
-     * @apiSuccess {String} tagNameMappings.catalystEntityType	Catalyst entity type
-     * @apiSuccess {pageIndex} pageIndex						Page index
+     * @apiSuccess {Object[]} tagNameMappings                   Tag name mappings
+     * @apiSuccess {String} tagNameMappings.tagName             Tag name
+     * @apiSuccess {String[]} tagNameMappings.tagValues         Encountered tag values
+     * @apiSuccess {String} tagNameMappings.catalystEntityType  Catalyst entity type
+     * @apiSuccess {pageIndex} pageIndex                        Page index
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"tagMappings": [
-     * 					{
-     * 						"tagName":	"application",
-     * 						"tagValues": ["proj1", "proj2"],
-     * 						"catalystEntityType": "project",
-     * 						"catalystEntityMapping": [
-     *							{
-     *		 						"catalystEntityId": "<MongoID>",
-     *			 					"tagValue": "proj1"
-     *							},
-     *							{
-     *								"catalystEntityId": "<MongoID>",
-     *			 					"tagValue": "proj2"
-     *			 				}
-     *			 			]
-     * 					},
-     *					{
-     * 						"tagName":	"environment",
-     * 						"tagValues": ["prod", "dev"],
-     * 						"catalystEntityType": "environment"
-     * 						"catalystEntityMapping": [
-     *							{
-     *		 						"catalystEntityId": "<MongoID>",
-     *			 					"tagValue": "dev"
-     *							},
-     *							{
-     *								"catalystEntityId": "<MongoID>",
-     *			 					"tagValue": "prod"
-     *			 				}
-     *			 			]
-     * 					}
-     * 			 ],
-     *			"count": 2,
-     *			"pageSize": 10,
-     *			"pageIndex": 1
-     * 		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "tagMappings": [
+     *                  {
+     *                      "tagName":  "application",
+     *                      "tagValues": ["proj1", "proj2"],
+     *                      "catalystEntityType": "project",
+     *                      "catalystEntityMapping": [
+     *                          {
+     *                              "catalystEntityId": "<MongoID>",
+     *                              "tagValue": "proj1"
+     *                          },
+     *                          {
+     *                              "catalystEntityId": "<MongoID>",
+     *                              "tagValue": "proj2"
+     *                          }
+     *                      ]
+     *                  },
+     *                  {
+     *                      "tagName":  "environment",
+     *                      "tagValues": ["prod", "dev"],
+     *                      "catalystEntityType": "environment"
+     *                      "catalystEntityMapping": [
+     *                          {
+     *                              "catalystEntityId": "<MongoID>",
+     *                              "tagValue": "dev"
+     *                          },
+     *                          {
+     *                              "catalystEntityId": "<MongoID>",
+     *                              "tagValue": "prod"
+     *                          }
+     *                      ]
+     *                  }
+     *           ],
+     *          "count": 2,
+     *          "pageSize": 10,
+     *          "pageIndex": 1
+     *      }
      */
     // @TODO Response should match doc
     // @TODO Pagination, search and sorting to be implemented
     app.get('/providers/:providerId/tag-mappings', validate(tagsValidator.list), getTagMappingsList);
 
     /**
-     * @api {get} /providers/:providerId/tag-mappings/:catalystEntityType		Get tags mapping for an entity type
+     * @api {get} /providers/:providerId/tag-mappings/:catalystEntityType       Get tags mapping for an entity type
      * @apiName getTagMapping
      * @apiGroup tag mappings
      *
-     * @apiParam {Number} providerId			Provider ID
-     * @apiParam {String} catalystEntityType  	Catalyst entity type. Currently "project" and "environment" are the
-     * 											available options
+     * @apiParam {Number} providerId            Provider ID
+     * @apiParam {String} catalystEntityType    Catalyst entity type. Currently "project" and "environment" are the
+     *                                          available options
      *
-     * @apiSuccess {Object} tagMapping 											Tag name mapping
-     * @apiSuccess {String}	tagMapping.name 									Tag name
-     * @apiSuccess {String[]} tagMapping.values									Encountered tag values
-     * @apiSuccess {Object[]} tagMapping.catalystEntityMapping 					Catalyst entity mapping
-     * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+     * @apiSuccess {Object} tagMapping                                          Tag name mapping
+     * @apiSuccess {String} tagMapping.name                                     Tag name
+     * @apiSuccess {String[]} tagMapping.values                                 Encountered tag values
+     * @apiSuccess {Object[]} tagMapping.catalystEntityMapping                  Catalyst entity mapping
+     * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId   Catalyst entity id
      * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityName Catalyst entity name
-     * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue			Tag value
+     * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue           Tag value
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"name": "application",
-     *			"values": ["proj1", "proj2"]
-     * 			"catalystEntityType": "project",
-     *			"catalystEntityMapping": [
-     *				{
-     *					"catalystEntityId": "<MongoID>",
-     *					"tagValue": "proj1"
-     *				},
-     *				{
-     *					"catalystEntityId": "<MongoID>",
-     *					"tagValue": "proj2"
-     *				}
-     *			]
-     * 		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "name": "application",
+     *          "values": ["proj1", "proj2"]
+     *          "catalystEntityType": "project",
+     *          "catalystEntityMapping": [
+     *              {
+     *                  "catalystEntityId": "<MongoID>",
+     *                  "tagValue": "proj1"
+     *              },
+     *              {
+     *                  "catalystEntityId": "<MongoID>",
+     *                  "tagValue": "proj2"
+     *              }
+     *          ]
+     *      }
      */
     app.get('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
         getTagMapping);
 
     /**
-     * @api {post} /providers/:providerId/tags-mappings								Create tag mappings
+     * @api {post} /providers/:providerId/tags-mappings                             Create tag mappings
      * @apiName createTagNameMapping
      * @apiGroup tag mappings
      *
-     * @apiParam {Number} providerId												Provider ID
-     * @apiParam {Object[]} tagMappings												Tag mappings
-     * @apiParam {String} tagMappings.tagName										Tag name
-     * @apiParam {String[]} tagMappings.tagValues									Tag values
-     * @apiSuccess {Object[]} tagMappings.catalystEntityType 						Catalyst entity type
-     * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
-     * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue			Tag value
+     * @apiParam {Number} providerId                                                Provider ID
+     * @apiParam {Object[]} tagMappings                                             Tag mappings
+     * @apiParam {String} tagMappings.tagName                                       Tag name
+     * @apiParam {String[]} tagMappings.tagValues                                   Tag values
+     * @apiSuccess {Object[]} tagMappings.catalystEntityType                        Catalyst entity type
+     * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId   Catalyst entity id
+     * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
-     * 		[
-     *	 		{
-     *	 			"tagName": "application",
-     *	 			"tagValues": [],
-     *		  		"catalystEntityType": "project",
-     *		  		"catalystEntityMapping": []
-     *		  	},
-     *		  	{
-     *		  		"tagName": "env",
-     *		  		"tagValues": [],
-     *		  		"catalystEntityType": "environment",
-     *		  		"catalystEntityMapping": []
-     *		  	}
-     *		 ]
+     *      [
+     *          {
+     *              "tagName": "application",
+     *              "tagValues": [],
+     *              "catalystEntityType": "project",
+     *              "catalystEntityMapping": []
+     *          },
+     *          {
+     *              "tagName": "env",
+     *              "tagValues": [],
+     *              "catalystEntityType": "environment",
+     *              "catalystEntityMapping": []
+     *          }
+     *       ]
      *
-     * @apiSuccess {Object[]} tags 												Tags
-     * @apiSuccess {String}	tagMappings			 								Tag mappings
-     * @apiSuccess {String}	tagMappings.name 									Tag name
-     * @apiSuccess {String[]} tagMappings.values								Encountered tag values
-     * @apiSuccess {String} tagMappings.catalystEntityType						Catalyst entity type
-     * @apiSuccess {String} tagMappings.catalystEntityMapping.catalystEntityId 	Catalyst entity id
-     * @apiSuccess {String} tagMappings.catalystEntityMapping.tagValue			Tag value
-     * @apiSuccess {pageIndex} pageIndex						Page index
+     * @apiSuccess {Object[]} tags                                              Tags
+     * @apiSuccess {String} tagMappings                                         Tag mappings
+     * @apiSuccess {String} tagMappings.name                                    Tag name
+     * @apiSuccess {String[]} tagMappings.values                                Encountered tag values
+     * @apiSuccess {String} tagMappings.catalystEntityType                      Catalyst entity type
+     * @apiSuccess {String} tagMappings.catalystEntityMapping.catalystEntityId  Catalyst entity id
+     * @apiSuccess {String} tagMappings.catalystEntityMapping.tagValue          Tag value
+     * @apiSuccess {pageIndex} pageIndex                        Page index
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 201 OK
-     * 		{
-     * 			"tagMappings": [
-     * 					{
-     * 						"name":	"application",
-     * 						"values": ["proj1", "proj2"],
-     * 						"catalystEntityType": "project",
-     * 						"catalystEntityMapping": []
-     * 					},
-     *					{
-     * 						"name":	"environment",
-     * 						"values": ["prod", "dev"],
-     * 						"catalystEntityType": "environment"
-     * 						"catalystEntityMapping": []
-     * 					}
-     * 			 ]
-     * 		}
+     *      HTTP/1.1 201 OK
+     *      {
+     *          "tagMappings": [
+     *                  {
+     *                      "name": "application",
+     *                      "values": ["proj1", "proj2"],
+     *                      "catalystEntityType": "project",
+     *                      "catalystEntityMapping": []
+     *                  },
+     *                  {
+     *                      "name": "environment",
+     *                      "values": ["prod", "dev"],
+     *                      "catalystEntityType": "environment"
+     *                      "catalystEntityMapping": []
+     *                  }
+     *           ]
+     *      }
      */
     app.post('/providers/:providerId/tag-mappings', validate(tagsValidator.list), addTagMappings);
 
     /**
-     * @api {patch} /providers/:providerId/tag-mappings/:catalystEntityType		Update tag mapping
+     * @api {patch} /providers/:providerId/tag-mappings/:catalystEntityType     Update tag mapping
      * @apiName updateTagMapping
      * @apiGroup tag mappings
      *
-     * @apiParam {Number} providerId											Provider ID
-     * @apiParam {Object} tagMapping											Tag name mapping
-     * @apiSuccess {String}	tagMapping.name 									Tag name
-     * @apiSuccess {Object[]} tagMapping.catalystEntityMapping 					Catalyst entity mapping
-     * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
+     * @apiParam {Number} providerId                                            Provider ID
+     * @apiParam {Object} tagMapping                                            Tag name mapping
+     * @apiSuccess {String} tagMapping.name                                     Tag name
+     * @apiSuccess {Object[]} tagMapping.catalystEntityMapping                  Catalyst entity mapping
+     * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId   Catalyst entity id
      * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityName Catalyst entity name
-     * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue			Tag value
+     * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
-     * 		{
-     * 			"catalystEntityMapping": [
-     *				{
-     *					"catalystEntityId": "<MongoID>",
-     *					"catalystEntityName": "project 1",
-     *					"tagValue": "proj1"
-     *				},
-     *				{
-     *					"catalystEntityId": "<MongoID>",
-     *					"catalystEntityName": "project 2",
-     *					"tagValue": "proj2"
+     *      {
+     *          "catalystEntityMapping": [
+     *              {
+     *                  "catalystEntityId": "<MongoID>",
+     *                  "catalystEntityName": "project 1",
+     *                  "tagValue": "proj1"
+     *              },
+     *              {
+     *                  "catalystEntityId": "<MongoID>",
+     *                  "catalystEntityName": "project 2",
+     *                  "tagValue": "proj2"
      *
-     *				}
-     *			]
-     * 		}
+     *              }
+     *          ]
+     *      }
      *
-     * @apiSuccess {Object} tagMapping 											Tag mapping
-     * @apiSuccess {String}	tagMapping.tagName 									Tag name
-     * @apiSuccess {String} tagMapping.catalystEntityType						Catalyst entity type
-     * @apiSuccess {String[]} tagMapping.tagValues								Encountered tag values
-     * @apiSuccess {Object[]} tagMapping.catalystEntityMapping 					Catalyst entity mapping
-     * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId 	Catalyst entity id
-     * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue			Tag value
+     * @apiSuccess {Object} tagMapping                                          Tag mapping
+     * @apiSuccess {String} tagMapping.tagName                                  Tag name
+     * @apiSuccess {String} tagMapping.catalystEntityType                       Catalyst entity type
+     * @apiSuccess {String[]} tagMapping.tagValues                              Encountered tag values
+     * @apiSuccess {Object[]} tagMapping.catalystEntityMapping                  Catalyst entity mapping
+     * @apiSuccess {String} tagMapping.catalystEntityMapping.catalystEntityId   Catalyst entity id
+     * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue           Tag value
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"tagName":	"application",
-     * 			"tagValues": ["proj1", "proj2"],
-     * 			"catalystEntityType": "project",
-     * 			"catalystEntityMapping": [
-     *				{
-     *					"catalystEntityId": "<MongoID>",
-     *					"catalystEntityName": "project 1",
-     *					"tagValue": "proj1"
-     *				},
-     *				{
-     *					"catalystEntityId": "<MongoID>",
-     *					"catalystEntityName": "project 2",
-     *					"tagValue": "proj2"
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "tagName":  "application",
+     *          "tagValues": ["proj1", "proj2"],
+     *          "catalystEntityType": "project",
+     *          "catalystEntityMapping": [
+     *              {
+     *                  "catalystEntityId": "<MongoID>",
+     *                  "catalystEntityName": "project 1",
+     *                  "tagValue": "proj1"
+     *              },
+     *              {
+     *                  "catalystEntityId": "<MongoID>",
+     *                  "catalystEntityName": "project 2",
+     *                  "tagValue": "proj2"
      *
-     *				}
-     *			]
-     * 		}
+     *              }
+     *          ]
+     *      }
      */
     app.patch('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
         updateTagMapping);
 
     /**
-     * @api {delete} /providers/:providerId/tag-mappings/:catalystEntityType	 Delete tag mapping
+     * @api {delete} /providers/:providerId/tag-mappings/:catalystEntityType     Delete tag mapping
      * @apiName deleteTagMapping
      * @apiGroup tag mappings
      *
-     * @apiParam {Number} providerID							Provider ID
-     * @apiParam {String} catalystEntityType					Catalyst entity type
+     * @apiParam {Number} providerID                            Provider ID
+     * @apiParam {String} catalystEntityType                    Catalyst entity type
      *
-     * @apiSuccess {Object} response							Empty response object
+     * @apiSuccess {Object} response                            Empty response object
      *
      */
     app.delete('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
@@ -1100,163 +1118,163 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     /**
-     * @api {get} /providers/:providerId/unassigned-instances		Get unassigned instances
+     * @api {get} /providers/:providerId/unassigned-instances       Get unassigned instances
      * @apiName getAssignedInstances
      * @apiGroup unassigned instances
      *
-     * @apiParam {Number} providerId	Provider ID
+     * @apiParam {Number} providerId    Provider ID
      *
-     * @apiSuccess {Object[]} instances	 						Unasssigned instances
-     * @apiSuccess {String}	instances.orgId 					Organization id
-     * @apiSuccess {Object} instances.provider					Provider
-     * @apiSuccess {String} instances.provider.id				Provider Id
-     * @apiSuccess {String} instances.provider.type				Provider type
-     * @apiSuccess {Object} instances.provider.data				Provider data
-     * @apiSuccess {String} instances.platformId				Platform id
-     * @apiSuccess {String} instances.ip						IP address
-     * @apiSuccess {String} instances.os						OS
-     * @apiSuccess {String} instances.state						Instance state
-     * @apiSuccess {Object} instances.tags						Instance tags
-     * @apiSuccess {pageIndex} pageIndex						Page index
+     * @apiSuccess {Object[]} instances                         Unasssigned instances
+     * @apiSuccess {String} instances.orgId                     Organization id
+     * @apiSuccess {Object} instances.provider                  Provider
+     * @apiSuccess {String} instances.provider.id               Provider Id
+     * @apiSuccess {String} instances.provider.type             Provider type
+     * @apiSuccess {Object} instances.provider.data             Provider data
+     * @apiSuccess {String} instances.platformId                Platform id
+     * @apiSuccess {String} instances.ip                        IP address
+     * @apiSuccess {String} instances.os                        OS
+     * @apiSuccess {String} instances.state                     Instance state
+     * @apiSuccess {Object} instances.tags                      Instance tags
+     * @apiSuccess {pageIndex} pageIndex                        Page index
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"instances": [
-     * 				{
-     *					"orgId": "organziationID",
-     *					"provider": {
-     *							"id": "providerID",
-     *							"type": "AWS",
-     *							"data": {
-     *							},
-     *					},
-     *					"platformId": "platorm-id",
-     *					"ip": "192.168.1.0",
-     *					"os": "Ubuntu",
-     *					"state": "running",
-     *					"tags": {
-     *						"environment": "dev",
-     *						"application": "proj1"
-     *					}
-     *				}
-     * 			 ],
-     *			"count": 2,
-     *			"pageSize": 10,
-     *			"pageIndex": 1
-     * 		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "instances": [
+     *              {
+     *                  "orgId": "organziationID",
+     *                  "provider": {
+     *                          "id": "providerID",
+     *                          "type": "AWS",
+     *                          "data": {
+     *                          },
+     *                  },
+     *                  "platformId": "platorm-id",
+     *                  "ip": "192.168.1.0",
+     *                  "os": "Ubuntu",
+     *                  "state": "running",
+     *                  "tags": {
+     *                      "environment": "dev",
+     *                      "application": "proj1"
+     *                  }
+     *              }
+     *           ],
+     *          "count": 2,
+     *          "pageSize": 10,
+     *          "pageIndex": 1
+     *      }
      */
-    // @TODO Pagination, search and sorting to be implemented
+     // @TODO Pagination, search and sorting to be implemented
     app.get('/providers/:providerId/unassigned-instances', validate(instanceValidator.get), getUnassignedInstancesList);
 
     /**
-     * @api {patch} /providers/:providerId/unassigned-instances/:instanceId		Update unassigned instance tags
+     * @api {patch} /providers/:providerId/unassigned-instances/:instanceId     Update unassigned instance tags
      * @apiName updateTags
      * @apiGroup unassigned instances
      *
-     * @apiParam {Number} providerId	Provider ID
-     * @apiParam {Number} instanceId	Instance ID
+     * @apiParam {Number} providerId    Provider ID
+     * @apiParam {Number} instanceId    Instance ID
      * @apiSuccessExample {json} Request-example:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"tags": {
-     *				"environment": "dev",
-     *				"application": "proj1"
-     * 			 }
-     * 		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "tags": {
+     *              "environment": "dev",
+     *              "application": "proj1"
+     *           }
+     *      }
      *
-     * @apiSuccess {Object[]} instance	 					Unasssigned instance
-     * @apiSuccess {String}	instance.orgId 					Organization id
-     * @apiSuccess {Object} instance.provider				Provider
-     * @apiSuccess {String} instance.provider.id			Provider Id
-     * @apiSuccess {String} instance.platformId				Platform id
-     * @apiSuccess {String} instance.ip						IP address
-     * @apiSuccess {String} instance.os						OS
-     * @apiSuccess {String} instance.state					Instance state
-     * @apiSuccess {Object} instance.tags					Instance tags
+     * @apiSuccess {Object[]} instance                      Unasssigned instance
+     * @apiSuccess {String} instance.orgId                  Organization id
+     * @apiSuccess {Object} instance.provider               Provider
+     * @apiSuccess {String} instance.provider.id            Provider Id
+     * @apiSuccess {String} instance.platformId             Platform id
+     * @apiSuccess {String} instance.ip                     IP address
+     * @apiSuccess {String} instance.os                     OS
+     * @apiSuccess {String} instance.state                  Instance state
+     * @apiSuccess {Object} instance.tags                   Instance tags
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     *			"orgId": "organziationID",
-     *			"provider": {
-     *				"id": "providerID",
-     *				"type": "AWS",
-     *				"data": {
-     *						},
-     *			},
-     *			"platformId": "platorm-id",
-     *			"ip": "192.168.1.0",
-     *			"os": "Ubuntu",
-     *			"state": "running",
-     *			"tags": {
-     *				"environment": "dev",
-     *				"application": "proj1"
-     *			}
-     *		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "orgId": "organziationID",
+     *          "provider": {
+     *              "id": "providerID",
+     *              "type": "AWS",
+     *              "data": {
+     *                      },
+     *          },
+     *          "platformId": "platorm-id",
+     *          "ip": "192.168.1.0",
+     *          "os": "Ubuntu",
+     *          "state": "running",
+     *          "tags": {
+     *              "environment": "dev",
+     *              "application": "proj1"
+     *          }
+     *      }
      */
     app.patch('/providers/:providerId/unassigned-instances/:instanceId',
         validate(instanceValidator.update), updateUnassignedInstanceTags);
 
     /**
-     * @api {patch} /providers/:providerId/unassigned-instances		Update unassigned instance
+     * @api {patch} /providers/:providerId/unassigned-instances     Update unassigned instance
      * @apiName bulkUpdateInstances
      * @apiGroup unassigned instances
      *
-     * @apiParam {Number} providerId	Provider ID
-     * @apiParam {Number} instanceId	Instance ID
+     * @apiParam {Number} providerId    Provider ID
+     * @apiParam {Number} instanceId    Instance ID
      * @apiSuccessExample {json} Request-example:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     * 			"instances": [
-     *				{
-     *					"id": "<MongoID>",
-     *					"tags": {
-     *						"environment": "dev",
-     *						"application": "proj1"
-     * 			 		}
-     *				},
-     *				{
-     *					"id": "<MongoID>",
-     *					"tags": {
-     *						"environment": "dev",
-     *						"application": "proj1"
-     * 			 		}
-     *				}
-     *			]
-     * 		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "instances": [
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "tags": {
+     *                      "environment": "dev",
+     *                      "application": "proj1"
+     *                  }
+     *              },
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "tags": {
+     *                      "environment": "dev",
+     *                      "application": "proj1"
+     *                  }
+     *              }
+     *          ]
+     *      }
      *
-     * @apiSuccess {Object[]} instance	 					Unasssigned instance
-     * @apiSuccess {String}	instance.orgId 					Organization id
-     * @apiSuccess {Object} instance.provider				Provider
-     * @apiSuccess {String} instance.provider.id			Provider Id
-     * @apiSuccess {String} instance.provider.type			Provider type
-     * @apiSuccess {Object} instance.provider.data			Provider data
-     * @apiSuccess {String} instance.platformId				Platform id
-     * @apiSuccess {String} instance.ip						IP address
-     * @apiSuccess {String} instance.os						OS
-     * @apiSuccess {String} instance.state					Instance state
-     * @apiSuccess {Object} instance.tags					Instance tags
+     * @apiSuccess {Object[]} instance                      Unasssigned instance
+     * @apiSuccess {String} instance.orgId                  Organization id
+     * @apiSuccess {Object} instance.provider               Provider
+     * @apiSuccess {String} instance.provider.id            Provider Id
+     * @apiSuccess {String} instance.provider.type          Provider type
+     * @apiSuccess {Object} instance.provider.data          Provider data
+     * @apiSuccess {String} instance.platformId             Platform id
+     * @apiSuccess {String} instance.ip                     IP address
+     * @apiSuccess {String} instance.os                     OS
+     * @apiSuccess {String} instance.state                  Instance state
+     * @apiSuccess {Object} instance.tags                   Instance tags
      *
      * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 		{
-     *			"orgId": "organziationID",
-     *			"provider": {
-     *				"id": "providerID",
-     *				"type": "AWS",
-     *				"data": {
-     *						},
-     *			},
-     *			"platformId": "platorm-id",
-     *			"ip": "192.168.1.0",
-     *			"os": "Ubuntu",
-     *			"state": "running",
-     *			"tags": {
-     *				"environment": "dev",
-     *				"application": "proj1"
-     *			}
-     *		}
+     *      HTTP/1.1 200 OK
+     *      {
+     *          "orgId": "organziationID",
+     *          "provider": {
+     *              "id": "providerID",
+     *              "type": "AWS",
+     *              "data": {
+     *                      },
+     *          },
+     *          "platformId": "platorm-id",
+     *          "ip": "192.168.1.0",
+     *          "os": "Ubuntu",
+     *          "state": "running",
+     *          "tags": {
+     *              "environment": "dev",
+     *              "application": "proj1"
+     *          }
+     *      }
      */
     app.patch('/providers/:providerId/unassigned-instances',
         validate(instanceValidator.get), bulkUpdateUnassignedInstances);
@@ -1517,7 +1535,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function updateUnassignedInstanceTags(req, res, next) {
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     providerService.checkIfProviderExists(req.params.providerId, next);
                 },
                 function(provider, next) {
@@ -1528,7 +1546,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     // @TODO Nested callback with anonymous function to be avoided.
                     providerService.getTagMappingsByProviderId(instance.providerId,
                         function(err, tagMappingsList) {
-                            if (err) {
+                            if(err) {
                                 next(err);
                             } else {
                                 instanceService.updateUnassignedInstanceTags(instance,
@@ -1539,7 +1557,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 instanceService.createUnassignedInstanceObject
             ],
-            function(err, results) {
+            function (err, results) {
                 if (err) {
                     next(err);
                 } else {
@@ -1552,11 +1570,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function bulkUpdateUnassignedInstances(req, res, next) {
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     providerService.checkIfProviderExists(req.params.providerId, next);
                 },
                 function(provider, next) {
-                    if ('instances' in req.body) {
+                    if('instances' in req.body) {
                         instanceService.bulkUpdateInstanceProviderTags(provider, req.body.instances, next);
                     } else {
                         var err = new Error("Malformed request");
@@ -1568,7 +1586,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     instanceService.bulkUpdateUnassignedInstanceTags(instances, next);
                 }
             ],
-            function(err, results) {
+            function (err, results) {
                 if (err) {
                     next(err);
                 } else {

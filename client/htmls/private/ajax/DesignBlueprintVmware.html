@@ -780,7 +780,7 @@ $(document).ready(function() {
                 reqBodyNew.bgId = $bgList.val();
                 reqBodyNew.projectId = $projectList.val();
                 reqBodyNew.envId = $envList.val();
-                $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/', function(data) {
+                $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/vmware', function(data) {
                     console.log('success---3---4');
                     //Syncing up the tree view based on url
                     initializeBlueprintAreaNew(data.blueprints);

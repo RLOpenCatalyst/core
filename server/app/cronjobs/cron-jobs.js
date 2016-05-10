@@ -19,33 +19,24 @@ var fs = require('fs')
 var crontab = require('node-crontab');
 var appConfig = require('_pr/config');
 var logger = require('_pr/logger')(module);
-
-
-// reading jobs folder
-
-logger.info('loading cron jobs');
-
-var jobDirPath = __dirname + '/jobs';
-var jobFiles = fs.readdirSync(jobDirPath);
-
-var jobs = [];
-
-for (let i = 0; i < jobFiles.length; i++) {
-	let job = require(jobDirPath + '/' + jobFiles[i]);
-	if (job) {
-		jobs.push(job);
-	}
-}
-
-//logger.info('timedelay ==> '+appConfig.cronjobTimeDelay);
-
-var timeDelay = appConfig.cronjobTimeDelay || "* * * * *";
-
-
+var costUsageAggregation = require('_pr/cronjobs/cost-usage-aggregation');
+var providerSync = require('_pr/cronjobs/provider-sync');
+var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');
+var dockerContinerSync = require('_pr/cronjobs/docker-container-sync');
 
 module.exports.start = function start() {
-	logger.info('starting cron job with delay ==> '+timeDelay);
-	for (let i = 0; i < jobs.length; i++) {
-		var jobId = crontab.scheduleJob(timeDelay, jobs[i]);
-	}
+	logger.info('Cost usage aggregation started with interval ==> '+ costUsageAggregation.getInterval());
+	var costUsageAggregationJobId
+		= crontab.scheduleJob(costUsageAggregation.getInterval(), costUsageAggregation.execute);
+
+	logger.info('Provider Sync started with interval ==> '+ providerSync.getInterval());
+	var providerSyncJobId = crontab.scheduleJob(providerSync.getInterval(), providerSync.execute);
+
+	logger.info('Tags aggregation started with interval ==> '+ providerTagsAggregation.getInterval());
+	var providerTagsAggregationJobId
+		= crontab.scheduleJob(providerTagsAggregation.getInterval(), providerTagsAggregation.execute);
+
+	logger.info('Docker container sync started with interval ==> '+ dockerContinerSync.getInterval());
+	var dockerContinerSyncJobId
+		= crontab.scheduleJob(dockerContinerSync.getInterval(), dockerContinerSync.execute);
 }
