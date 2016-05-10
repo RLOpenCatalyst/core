@@ -46,12 +46,12 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
                  callBackReturn(permission,next)
             }
         },
-        function (aContainer,next){
-            if(aContainer.length > 0){
-                 status=aContainer[0].Status;
-                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" in Progress",next);
+        function (container,next){
+            if(container.length > 0){
+                 status=container[0].Status;
+                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" in Progress",jsonData.action,next);
             }else{
-                 callBackReturn(aContainer,next);
+                 callBackReturn(container,next);
             }
         },
         function(updateContainer,next){

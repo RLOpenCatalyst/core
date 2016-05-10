@@ -83,8 +83,14 @@ function sync() {
                                                     var stdOut = '';
                                                     sshConnection.exec(cmd, function (err, code) {
                                                         if(err){
-                                                           logger.error(err);
-                                                           return;
+                                                            logger.error(err);
+                                                            containerDao.deleteContainerByInstanceId(instance._id,function(err,deleteContainer){
+                                                                if(err){
+                                                                    logger.error(err);
+                                                                    return;
+                                                                }
+                                                            });
+                                                            return;
                                                         };
                                                         if (decryptedCredentials.pemFileLocation) {
                                                             fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
@@ -142,6 +148,12 @@ function sync() {
                                                         stdOut += stdOutData.toString();
                                                     }, function (stdOutErr) {
                                                         logger.error("Error hits to fetch docker details", stdOutErr);
+                                                        containerDao.deleteContainerByInstanceId(instance._id,function(err,deleteContainer){
+                                                            if(err){
+                                                                logger.error(err);
+                                                                return;
+                                                            }
+                                                        });
                                                         return;
                                                     });
                                                     });
@@ -180,7 +192,7 @@ function containerAction(containers,containerIds,instanceId){
                           if(containerData.length === 0){
                               containerDao.createContainer(container,next);
                           }else{
-                              containerDao.updateContainerStatus(container.Id,container.Status,next);
+                              containerDao.updateContainerStatus(container.Id,container.Status,container.containerStatus,next);
                           }
                       }
                   ],function (err, results) {

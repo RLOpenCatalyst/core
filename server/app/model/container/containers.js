@@ -180,20 +180,21 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
 
 };
 
-containerSchema.statics.updateContainerStatus = function(containerId,containerStatus, callback) {
+containerSchema.statics.updateContainerStatus = function(containerId,containerStatus,status,callback) {
     logger.debug("Enter updateContainerStatus");
     container.update({
         Id: containerId
     }, {
         $set: {
-            Status: containerStatus
+            Status: containerStatus,
+            containerStatus: status
         }
     }, {
         upsert: false
     }, function(err, data) {
         if (err) {
             logger.error("Failed to updateContainerStatus (%s, %s)", err);
-            return;
+            callback(err, null);
         }
         logger.debug("Exit updateContainerStatus (%s, %s)");
         callback(null, data);
