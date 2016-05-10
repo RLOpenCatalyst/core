@@ -44,6 +44,8 @@ var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
 var async = require('async');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var Docker = require('_pr/model/docker.js');
+
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -715,10 +717,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var iconpath = req.body.blueprintData.iconpath;
 		var templateId = req.body.blueprintData.templateId;
 		var templateType = req.body.blueprintData.templateType;
-		var users = req.body.blueprintData.users;
+		var users = req.body.blueprintData.users || [];
 		var blueprintType = req.body.blueprintData.blueprintType;
         var nexus = req.body.blueprintData.nexus;
         var docker = req.body.blueprintData.docker;
+        var region = req.body.blueprintData.region;
+        var blueprintId = req.body.blueprintData.blueprintId;
 
 		// a temp fix for invalid appurl data. will be removed in next iteration
 		var tempAppUrls = [];
@@ -761,9 +765,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				templateType: templateType,
 				users: users,
 				blueprintType: blueprintType,
-                nexus: nexus,
-                docker: docker
+				nexus: nexus,
+				docker: docker
 			};
+			//adding bluerpintID if present (edit mode)
+			if(blueprintId)
+				blueprintData.id = blueprintId;
 
 			logger.debug('req blueprintData:', blueprintData);
 			var dockerData, instanceData;
@@ -782,6 +789,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 			} else if (blueprintType === 'instance_launch') {
 				logger.debug('req.body.blueprintData.blueprintType ==>', blueprintType);
+				logger.debug('req.body.blueprintData.region ==>', req.body.blueprintData.region);
 				instanceData = {
 					keyPairId: req.body.blueprintData.keyPairId,
 					securityGroupIds: req.body.blueprintData.securityGroupIds,
@@ -790,12 +798,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					instanceUsername: 'root',
 					vpcId: req.body.blueprintData.vpcId,
 					subnetId: req.body.blueprintData.subnetId,
+					region: req.body.blueprintData.region,
 					imageId: req.body.blueprintData.imageId,
 					cloudProviderType: 'aws',
 					cloudProviderId: req.body.blueprintData.providerId,
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -815,6 +825,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceImageName: req.body.blueprintData.instanceImageName
 
 				}
@@ -834,6 +845,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceImageName: req.body.blueprintData.instanceImageName
 
 				}
@@ -853,6 +865,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -867,6 +880,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					infraManagerType: 'chef',
 					infraManagerId: req.body.blueprintData.chefServerId,
 					runlist: req.body.blueprintData.runlist,
+					attributes: req.body.blueprintData.attributes,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount
 				}
@@ -905,7 +919,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				});
 				return;
 			}
-			// if (!blueprintData.users || !blueprintData.users.length) {
+  		    // if (!blueprintData.users || !blueprintData.users.length) {
 			// 	res.status(400).send({
 			// 		message: "User is empty"
 			// 	});
@@ -1050,6 +1064,80 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/applications", req.params.orgId, req.params.bgId, req.params.projectId);
 	});
 
+	//Duplicated with provider filter for BP Edit
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
+		logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
+			if (orgbuprojs.length === 0) {
+				logger.debug('User not part of team to see project.');
+				res.send(401, "User not part of team to see project.");
+				return;
+			}
+
+			if (!err) {
+				if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
+					Task.getTasksByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, tasksData) {
+						if (err) {
+							res.send(500);
+							return;
+						}
+						instancesDao.getInstancesByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, req.query.instanceType, req.session.user.cn, function(err, instancesData) {
+							if (err) {
+								res.send(500);
+								return;
+							}
+
+							Blueprints.getBlueprintsByOrgBgProjectProvider(req.params.orgId, req.params.bgId, req.params.projectId, req.query.blueprintType,req.params.provider, function(err, blueprintsData) {
+								
+								logger.debug(req.params.orgId, req.params.projectId, req.params.envId,req.params.provider);
+								if (err) {
+									res.send(500);
+									return;
+								}
+								CloudFormation.findByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, stacks) {
+									if (err) {
+										res.send(500);
+										return;
+									}
+
+									AzureArm.findByOrgBgProjectAndEnvId(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, arms) {
+
+										if (err) {
+											res.send(500);
+											return;
+										}
+
+										res.send({
+											tasks: tasksData,
+											instances: instancesData,
+											blueprints: blueprintsData,
+											stacks: stacks,
+											arms: arms
+										});
+
+									});
+
+								});
+
+								logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+							});
+
+						});
+
+					});
+				} //if(orgbuprojs.orgbuprojs.indexOf(req.params.projectId) >= 0)
+				else {
+					logger.debug('User not part of team to see project.');
+					res.send(401);
+					return;
+				}
+			} else {
+				res.send(500);
+				logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+				return;
+			}
+		}); //end getTeamsOrgBuProjForUser
+	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
 		var jsonData={};
@@ -1447,8 +1535,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 	app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/addInstance', function(req, res) {
 		logger.debug("Enter post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-		logger.debug("Body::::"+req.body);
-		logger.debug("JSON Body::::"+JSON.stringify(req.body));
+		logger.debug("Body::::" + req.body);
+		logger.debug("JSON Body::::" + JSON.stringify(req.body));
 		if (!(req.body.fqdn && req.body.os)) {
 			res.send(400);
 			return;
@@ -1869,6 +1957,23 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																	}
 																});
 															}
+
+															var _docker = new Docker();
+															_docker.checkDockerStatus(instance.id, function(err, retCode) {
+																if (err) {
+																	logger.error("Failed _docker.checkDockerStatus", err);
+																	return;
+																	//res.end('200');
+
+																}
+																logger.debug('Docker Check Returned:' + retCode);
+																if (retCode == '0') {
+																	instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
+																		logger.debug('Instance Docker Status set to Success');
+																	});
+
+																}
+															});
 
 														} else {
 															instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {

@@ -61,6 +61,7 @@ var arm = require('./routes_arm');
 var dashboardProvider = require('./routes_dashboard');
 var appData = require('./routes_appdata');
 var deployPermission = require('./routes_deploypermission');
+var trackedInstances = require('./routes_trackedInstances');
 
 module.exports.setRoutes = function(app) {
 
@@ -145,6 +146,8 @@ module.exports.setRoutes = function(app) {
 
 	deployPermission.setRoutes(app, sessionVerificationFunc);
 
+	trackedInstances.setRoutes(app, sessionVerificationFunc);
+
 	app.get('/', function(req, res) {
 		res.redirect('/private/index.html');
 	});
@@ -207,7 +210,20 @@ module.exports.setRoutes = function(app) {
 	function errorHandler(err, req, res, next) {
 		if(err) {
 			logger.error(err);
-			return res.status(err.status).send(err);
+
+			var errorResponse = {
+				'status': err.status,
+				'message': err.message,
+				'errors': []
+			};
+			if ('errors' in err) {
+				for(var i = 0; i < err.errors.length; i++) {
+					if('message' in err.errors[i])
+						errorResponse.errors.push(err.errors[i].messages);
+				}
+			}
+
+			return res.status(err.status).send(errorResponse);
 		}
 	}
 }

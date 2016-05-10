@@ -410,10 +410,6 @@ var d4dMastersProjects = new mongoose.Schema({
         trim: true,
         default: true
     },
-    appdeploy: [{
-        applicationname: String,
-        appdescription: String
-    }],
     repositories: {
         nexus: [String],
         docker: [String]
@@ -1316,7 +1312,7 @@ var d4dMastersNexusServer = new mongoose.Schema({
     },
     groupid: {
         type: [String],
-        required: true,
+        required: false,
         trim: true
     },
     active: {

@@ -26,7 +26,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     // Get  AppData by Project and Env
     app.get('/app/data/project/:projectId/env/:envId', function(req, res) {
-        AppData.getAppDataByProjectAndEnv(req.params.projectId, req.params.envId, req.query.version, function(err, appDatas) {
+        AppData.getAppDataByProjectAndEnv(req.params.projectId, req.params.envId,req.query.application, req.query.version, function(err, appDatas) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
@@ -38,11 +38,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     // Create if not exist else update
     app.post('/app/data', function(req, res) {
+        logger.debug("appData: ",JSON.stringify(req.body.appData));
         AppData.createNewOrUpdate(req.body.appData, function(err, appData) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
             }
+            logger.debug("AppData created: ",JSON.stringify(appData));
             res.status(200).send(appData);
             return;
         });

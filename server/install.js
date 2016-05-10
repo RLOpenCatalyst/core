@@ -63,6 +63,27 @@ function getDefaultsConfig() {
         },
         constantData:  {
             common_field:['envId','providerId','orgId','bgId','projectId'],
+            sort_field:['name','description'],
+            filterReferanceData : {
+                "unmanagedInstances" : [{"state" : "running"},{"os" : "linux"}],
+                "managedInstances" : [{"instanceState" : "running"}]
+            },
+            sort_order : "desc",
+            sortReferanceData : {
+                "unmanagedInstances" : "state",
+                "managedInstances" : "instanceState",
+                "instances" : "instanceCreatedOn",
+                "tasks" : "taskCreatedOn",
+                "applications" : "name",
+                "azureArms" : "status",
+                "containerList" : "Status",
+                "cftList" : "status",
+                "appDeploy" : "envId",
+                "trackedInstances": "providerType"
+            },
+            skip_Records : 1,
+            max_record_limit : 200,
+            record_limit : 10,
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
@@ -130,7 +151,35 @@ function getDefaultsConfig() {
 
                 os_name: "Ubuntu",
                 osType: "linux"
-            }]
+            }],
+
+            cwMetricsUnits: {
+                CPUCreditUsage: 'Count',
+                CPUCreditBalance: 'Count',
+                CPUUtilization: 'Percent',
+                DiskReadOps: 'Count',
+                DiskWriteOps: 'Count',
+                DiskReadBytes: 'Megabytes',
+                DiskWriteBytes: 'Megabytes',
+                NetworkIn: 'Megabytes',
+                NetworkOut: 'Megabytes',
+                NetworkPacketsIn: 'Count',
+                NetworkPacketsOut: 'Count',
+                StatusCheckFailed: 'Count',
+                StatusCheckFailed_Instance: 'Count',
+                StatusCheckFailed_System: 'Count'
+            },
+
+            cwMetricsDisplayUnits: {
+                CPUUtilization: 'Percent',
+                DiskReadOps: 'Count',
+                DiskWriteOps: 'Count',
+                DiskReadBytes: 'MB',
+                DiskWriteBytes: 'MB',
+                NetworkIn: 'MB',
+                NetworkOut: 'MB'
+            }
+
         },
         vmware: {
             serviceHost: "http://localhost:3000"

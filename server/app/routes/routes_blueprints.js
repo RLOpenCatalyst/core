@@ -91,8 +91,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				templateId: req.body.blueprintData.templateId,
 				templateType: req.body.blueprintData.templateType,
 				users: req.body.blueprintData.users,
-				blueprintType: blueprintType
-
+				blueprintType: blueprintType,
+				id:req.body.blueprintData.id
 			};
 
 			var dockerData, instanceData, cloudFormationData;
@@ -118,6 +118,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					instanceAmiid: req.body.blueprintData.instanceAmiid,
 					instanceUsername: 'root',
 					vpcId: req.body.blueprintData.vpcId,
+					region: req.body.blueprintData.region,
 					subnetId: req.body.blueprintData.subnetId,
 					imageId: req.body.blueprintData.imageId,
 					cloudProviderType: 'aws',
@@ -243,6 +244,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	});
 
+	app.get('/blueprints/:blueprintId', function(req, res) {
+		logger.debug("Enter /blueprints/%s/versions/%s", req.params.blueprintId, req.params.version);
+
+		Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
+			if (err) {
+				logger.error("Failed to get blueprint versions ", err);
+				res.send(500, errorResponses.db.error);
+				return;
+			}
+			logger.debug(blueprint);
+		
+			res.send(200, blueprint);
+
+		});
+
+	});
+
 	app.delete('/blueprints/:blueprintId', function(req, res) {
 		logger.debug("Enter /blueprints/delete/%s", req.params.blueprintId);
 		Blueprints.removeById(req.params.blueprintId, function(err, data) {
@@ -255,6 +273,40 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				message: "deleted"
 			});
 		});
+	});
+
+	app.delete('/blueprints', function(req, res) {
+		var blueprintIds = req.body.blueprints;
+		logger.debug("Enter /blueprints/delete/%s", req.body.blueprints);
+		if(blueprintIds.length > 0)
+		Blueprints.removeByIds(blueprintIds, function(err, data) {
+			if (err) {
+				logger.error("Failed to delete blueprint ", err);
+				res.send(500, errorResponses.db.error);
+				return;
+			}
+			res.send(200, {
+				message: "deleted"
+			});
+		});
+	});
+
+	app.post('/blueprints/copy',function(req,res){
+		var orgid = req.body.orgid;
+		var buid = req.body.buid;
+		var projid = req.body.projid;
+		var bluepirntIds = req.body.blueprints;
+		if(!orgid || !buid || !projid || !bluepirntIds){
+			logger.error("Could not copy blueprint. Required data missing.");
+			res.send(500, 'Would require a ORG, BU and Project to copy');
+			return;
+		}else{
+			Blueprints.copyByIds(bluepirntIds,orgid,buid,projid,function(err,data){
+				res.status('200').send('Copied Sucessfully');
+				return;
+			});
+
+		}
 	});
 
 	//for testing

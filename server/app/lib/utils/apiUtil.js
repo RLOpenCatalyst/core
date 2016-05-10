@@ -7,7 +7,7 @@ var appConfig = require('_pr/config');
 var commons=appConfig.constantData;
 var Cryptography = require('_pr/lib/utils/cryptography.js');
 var cryptoConfig = appConfig.cryptoSettings;
-var d4dModelNew = require('../../model/d4dmasters/d4dmastersmodelnew.js');
+var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
 
 
 var ApiUtil = function() {
@@ -37,17 +37,17 @@ var ApiUtil = function() {
     }
     this.paginationResponse=function(data,req, callback) {
         var response={};
+        var sortField=req.sortBy;
         response[req.id]=data.docs;
         response['metaData']={
             totalRecords:data.total,
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
-            sortBy:Object.keys(req.sortBy)[0],
-            sortOrder:req.sortBy ? (req[Object.keys(req.sortBy)]==1 ?'desc' :"asc") : '',
+            sortBy:Object.keys(sortField)[0],
+            sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
         };
-
         callback(null, response);
         return;
     };
@@ -63,6 +63,30 @@ var ApiUtil = function() {
             if(jsonData[keyField])
                 objAnd[keyField] = jsonData[keyField];
         }
+        var columns=commons.common_field;
+        var fields=commons.sort_field;
+        var sortField=jsonData.mirrorSort;
+        var key=Object.keys(sortField)[0];
+
+        if(fields.indexOf(key) !== -1){
+            if(jsonData.id === 'tasks'){
+                normalizedUtil.normalizedSort(jsonData,key);
+                var sortBy={};
+                sortBy['normalized'] = sortField[key];
+                if(sortField[key] === -1){
+                    sortBy['taskCreatedOn'] = 1;
+                };
+                if(sortField[key] === 1){
+                    sortBy['taskCreatedOn'] = -1;
+                }
+                jsonData.sortBy=sortBy;
+            }
+        }
+        for(var i = 0; i < columns.length; i++){
+            var keyField=columns[i];
+            if(jsonData[keyField])
+                objAnd[keyField] = jsonData[keyField];
+        };
         if(jsonData.search) {
             queryArr.push(objAnd);
             for(var i = 0; i < jsonData.searchColumns.length; i++){
@@ -81,75 +105,67 @@ var ApiUtil = function() {
         var options = {
             sort: jsonData.sortBy,
             lean: false,
-            skip: jsonData.record_Skip >0 ? jsonData.record_Skip :1,
-            limit: jsonData.record_Limit
+            page: jsonData.page > 0 ? jsonData.page : 1 ,
+            limit: jsonData.pageSize
         };
         databaseCall['queryObj']=queryObj;
         databaseCall['options']=options;
         callback(null, databaseCall);
         return;
-
     };
-
     this.paginationRequest=function(data,key, callback) {
-        d4dModelNew.d4dModelReferanceData.find({id:101},function(err, referanceData){
-            if(err){
-                logger.error("In Fetching Reference Data Error");
-                return;
-            }
-
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
-            if (pageSize > referanceData[0].max_record_limit)
-                pageSize = referanceData[0].max_record_limit;
+            if (pageSize > commons.max_record_limit)
+                pageSize = commons.max_record_limit;
         }
         else
-            pageSize = referanceData[0].record_limit;
+            pageSize = commons.record_limit;
         if(data.page)
-            page = parseInt(data.page)-1;
+            page = parseInt(data.page);
         else
-            page = referanceData[0].skip_Records;
+            page = commons.skip_Records;
 
-        var skip = pageSize * page;
         var sortBy={};
         if(data.sortBy)
-            sortBy[data.sortBy]=data.sort_order=='desc' ? -1 : 1;
+            sortBy[data.sortBy]=data.sortOrder=='desc' ? -1 : 1;
         else
-            sortBy[referanceData[0].sortReferanceData[key]] = referanceData[0].sort_order == 'desc' ? -1 :1;
-
+            sortBy[commons.sortReferanceData[key]] = commons.sort_order == 'desc' ? -1 :1;
         var request={
             'sortBy':sortBy,
-            'record_Skip':skip,
-            'record_Limit':pageSize
+            'mirrorSort' :sortBy,
+            'page':page,
+            'pageSize':pageSize,
+            'id':key
         };
         var filterBy={};
-        if(data.filterBy){
-            var a=data.filterBy.split(" ");
-            for(var i = 0;i < a.length; i++){
-                var b=a[i].split(":");
-                if(b[0]=='region'){
-                    var c=b[1].split(",");
-                    if(c.length > 1)
-                        filterBy['providerData.region'] =  {'$in':c};
-                    else
-                        filterBy['providerData.region']=b[1];
-                }
+        if(data.filterBy) {
+            var a = data.filterBy.split(" ");
+            for (var i = 0; i < a.length; i++) {
+                var b = a[i].split(":");
+                /*if(b[0]=='region'){
+                 var c=b[1].split(",");
+                 if(c.length > 1)
+                 filterBy['providerData.region'] =  {'$in':c};
+                 else
+                 filterBy['providerData.region']=b[1];
+                 }
 
-                else {
-                    var c=b[1].split(",");
-                    if(c.length > 1)
-                        filterBy[b[0]] =  {'$in':c};
-                    else
-                        filterBy[b[0]] = b[1];
-                }
+                 else {*/
+                var c = b[1].split(",");
+                if (c.length > 1)
+                    filterBy[b[0]] = {'$in': c};
+                else
+                    filterBy[b[0]] = b[1];
+                //}
             }
+            request['filterBy'] = filterBy;
+        }
+        if (data.instanceType) {
+            filterBy['blueprintData.templateType'] = data.instanceType;
             request['filterBy']=filterBy;
-           }
-            if (data.instanceType) {
-                filterBy['blueprintData.templateType'] = data.instanceType;
-                request['filterBy']=filterBy;
-            }
+        }
         if(data.search){
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
             var encrpt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);
@@ -159,10 +175,7 @@ var ApiUtil = function() {
         if (typeof callback === 'function') {
             callback(null, request);
         }
-    });
     }
-
-
 }
 
 module.exports = new ApiUtil();

@@ -468,23 +468,42 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         logger.debug('cmd received: ', cmd);
         var stdOut = '';
         _docker.runDockerCommands(cmd, instanceid, function(err, retCode) {
-            var _stdout = stdOut.split('\r\n');
-            console.log(instanceid);
-            logger.debug('Docker containers : %s', _stdout.length);
-            var start = false;
-            var so = '';
-            _stdout.forEach(function(k, v) {
-                logger.debug(_stdout[v] + ':' + _stdout[v].length);
-                if (start == true) {
-                    so += _stdout[v];
-                    logger.debug(v + ':' + _stdout[v].length);
-                }
-                if (_stdout[v].length == 1)
-                    start = true;
-                if (v >= _stdout.length - 1)
-                    res.end(so);
-            });
+            if (err) {
+                logger.error(err);
+                res.status(500).send({
+                    message: "unbale to run cmd",
+                    retCode: retCode
+                });
+            }
 
+            if (retCode === 0) {
+                var _stdout = stdOut.split('\r\n');
+                logger.debug('Docker containers : %s', _stdout.length);
+                var start = false;
+                var so = '';
+                _stdout.forEach(function(k, v) {
+                    logger.debug(_stdout[v] + ':' + _stdout[v].length);
+                    if (start == true) {
+                        so += _stdout[v];
+                        logger.debug(v + ':' + _stdout[v].length);
+                    }
+                    if (_stdout[v].length == 1)
+                        start = true;
+                    if (v >= _stdout.length - 1) {
+                        if (so) {
+                            res.end(so);
+                        } else {
+                            res.end([]);
+                        }
+
+                    }
+                });
+            } else {
+                res.status(500).send({
+                    message: "unbale to run cmd",
+                    retCode: retCode
+                });
+            }
         }, function(stdOutData) {
             stdOut += stdOutData;
         }, function(stdOutErr) {
@@ -597,7 +616,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 break;
         }
 
-        var cmd = 'curl -XPOST http://localhost:4243/containers/' + req.params.containerid + '/' + action;
+       var cmd = 'sudo docker ' + action + ' ' + req.params.containerid;
         if (action == 'delete') {
             cmd = 'sudo docker stop ' + req.params.containerid + ' &&  sudo docker rm ' + req.params.containerid;
         }
@@ -889,7 +908,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         logger.debug("Enter get() for /instances/dockercompositeimagepull");
         var instanceid = req.params.instanceid;
 
-      //  var dockercompose = decodeURIComponent(req.params.dockercomposejson); //req.body.compositedockerimage
+        //  var dockercompose = decodeURIComponent(req.params.dockercomposejson); //req.body.compositedockerimage
         var dockercompose = decodeURIComponent(req.body.compositedockerimage); //
         var dockercomposejson = JSON.parse(dockercompose);
         logger.debug('DockerCompose Json rcvd: ', JSON.stringify(dockercomposejson));
@@ -913,12 +932,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
 
                 //Finding out a catalyst docker entry in compose json 
-                 for(var cic =0; cic < dockercomposejson.length;cic++){
-                    if(dockercomposejson[cic].dockerreponame){
+                for (var cic = 0; cic < dockercomposejson.length; cic++) {
+                    if (dockercomposejson[cic].dockerreponame) {
                         req.params.dockerreponame = dockercomposejson[cic].dockerreponame;
                     }
 
-                 }
+                }
 
 
                 configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function(err, data) {
@@ -942,10 +961,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 cmd = "sudo docker login -e " + dock.dockeremailid + ' -u ' + dock.dockeruserid + ' -p ' + dock.dockerpassword + ' && ';
                             //removing docker userID
                             //Fix for nginx not parsing private repo
-                            imagename = imagename.replace(/!!/g,"/");
-                            runparams = runparams.replace(/!!/g,"/");
-                            startparams = startparams.replace(/!!/g,"/");
-                            execcommand = execcommand.replace(/!!/g,"/");
+                            imagename = imagename.replace(/!!/g, "/");
+                            runparams = runparams.replace(/!!/g, "/");
+                            startparams = startparams.replace(/!!/g, "/");
+                            execcommand = execcommand.replace(/!!/g, "/");
 
                             cmd += 'sudo docker pull ' + decodeURIComponent(imagename);
                             logger.debug('Intermediate cmd: ', cmd);
@@ -1762,7 +1781,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         }
 
                                         var ec2;
-                                        if(aProvider.isDefault) {
+                                        if (aProvider.isDefault) {
                                             ec2 = new EC2({
                                                 "isDefault": true,
                                                 "region": region
@@ -1784,7 +1803,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             });
                                         }
 
-                                        ec2.stopInstance([data[0].platformId], function (err, stoppingInstances) {
+                                        ec2.stopInstance([data[0].platformId], function(err, stoppingInstances) {
                                             if (err) {
                                                 var timestampEnded = new Date().getTime();
                                                 logsDao.insertLog({
@@ -1805,7 +1824,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 actionLogId: actionLog._id
                                             });
 
-                                            instancesDao.updateInstanceState(req.params.instanceId, stoppingInstances[0].CurrentState.Name, function (err, updateCount) {
+                                            instancesDao.updateInstanceState(req.params.instanceId, stoppingInstances[0].CurrentState.Name, function(err, updateCount) {
                                                 if (err) {
                                                     logger.error("update instance state err ==>", err);
                                                     return;
@@ -1813,12 +1832,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 logger.debug('instance state upadated');
                                             });
 
-                                        }, function (err, state) {
+                                        }, function(err, state) {
                                             if (err) {
                                                 return;
                                             }
 
-                                            instancesDao.updateInstanceState(req.params.instanceId, state, function (err, updateCount) {
+                                            instancesDao.updateInstanceState(req.params.instanceId, state, function(err, updateCount) {
                                                 if (err) {
                                                     logger.error("update instance state err ==>", err);
                                                     return;
@@ -2154,7 +2173,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         });
 
                                         var ec2;
-                                        if(aProvider.isDefault) {
+                                        if (aProvider.isDefault) {
                                             ec2 = new EC2({
                                                 "isDefault": true,
                                                 "region": region
@@ -2176,7 +2195,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             });
                                         }
 
-                                        ec2.startInstance([data[0].platformId], function (err, startingInstances) {
+                                        ec2.startInstance([data[0].platformId], function(err, startingInstances) {
                                             if (err) {
                                                 var timestampEnded = new Date().getTime();
                                                 logsDao.insertLog({
@@ -2197,7 +2216,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 actionLogId: actionLog._id
                                             });
 
-                                            instancesDao.updateInstanceState(req.params.instanceId, startingInstances[0].CurrentState.Name, function (err, updateCount) {
+                                            instancesDao.updateInstanceState(req.params.instanceId, startingInstances[0].CurrentState.Name, function(err, updateCount) {
                                                 if (err) {
                                                     logger.error("update instance state err ==>", err);
                                                     return;
@@ -2205,11 +2224,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 logger.debug('instance state upadated');
                                             });
 
-                                        }, function (err, state) {
+                                        }, function(err, state) {
                                             if (err) {
                                                 return;
                                             }
-                                            instancesDao.updateInstanceState(req.params.instanceId, state, function (err, updateCount) {
+                                            instancesDao.updateInstanceState(req.params.instanceId, state, function(err, updateCount) {
                                                 if (err) {
                                                     logger.error("update instance state err ==>", err);
                                                     return;
@@ -2226,14 +2245,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
 
 
-                                            ec2.describeInstances([data[0].platformId], function (err, data) {
+                                            ec2.describeInstances([data[0].platformId], function(err, data) {
                                                 if (err) {
                                                     logger.error("Hit some error: ", err);
                                                     return;
                                                 }
                                                 if (data.Reservations.length && data.Reservations[0].Instances.length) {
                                                     logger.debug("ip =>", data.Reservations[0].Instances[0].PublicIpAddress);
-                                                    instancesDao.updateInstanceIp(req.params.instanceId, data.Reservations[0].Instances[0].PublicIpAddress, function (err, updateCount) {
+                                                    instancesDao.updateInstanceIp(req.params.instanceId, data.Reservations[0].Instances[0].PublicIpAddress, function(err, updateCount) {
                                                         if (err) {
                                                             logger.error("update instance ip err ==>", err);
                                                             return;
@@ -2972,85 +2991,85 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     // Now for some reason moving this end point to out of authentication: Gobinda
 
     /*app.post('/instances/:instanceId/remediation', function(req, res) {
-    	logger.debug("Enter get() for /instances/%s/redemption", req.params.instanceId);
-    	instancesDao.getInstanceById(req.params.instanceId, function(err, instances) {
-    		if (err) {
-    			logger.error("Failed to fetch ActionLogs: ", err);
-    			res.status(500).send({
-    				message: "DB error"
-    			});
-    			return;
-    		}
-    		if (!instances.length) {
-    			res.send(404, {
-    				message: "Instance not found"
-    			});
-    			return;
-    		}
-    		var instance = instances[0];
-    		credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
-    			if (err) {
-    				res.status(500).send({
-    					message: "error occured while decrypting credentials"
-    				});
-    				return;
-    			}
-    			var sshParamObj = {
-    				host: instance.instanceIP,
-    				port: 22,
-    				username: instance.credentials.username,
-    			};
-    			var sudoCmd;
-    			if (decryptedCredentials.pemFileLocation) {
-    				sshParamObj.privateKey = decryptedCredentials.pemFileLocation;
-    			} else {
-    				sshParamObj.password = decryptedCredentials.password;
-    			}
+        logger.debug("Enter get() for /instances/%s/redemption", req.params.instanceId);
+        instancesDao.getInstanceById(req.params.instanceId, function(err, instances) {
+            if (err) {
+                logger.error("Failed to fetch ActionLogs: ", err);
+                res.status(500).send({
+                    message: "DB error"
+                });
+                return;
+            }
+            if (!instances.length) {
+                res.send(404, {
+                    message: "Instance not found"
+                });
+                return;
+            }
+            var instance = instances[0];
+            credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
+                if (err) {
+                    res.status(500).send({
+                        message: "error occured while decrypting credentials"
+                    });
+                    return;
+                }
+                var sshParamObj = {
+                    host: instance.instanceIP,
+                    port: 22,
+                    username: instance.credentials.username,
+                };
+                var sudoCmd;
+                if (decryptedCredentials.pemFileLocation) {
+                    sshParamObj.privateKey = decryptedCredentials.pemFileLocation;
+                } else {
+                    sshParamObj.password = decryptedCredentials.password;
+                }
 
-    			var serviceCmd = "service " + req.body.service + " " + req.body.action;
-    			var sudoCmd = "sudo";
-    			if (sshParamObj.password) {
-    				sudoCmd = 'echo \"' + sshParamObj.password + '\" | sudo -S';
-    			}
-    			serviceCmd = sudoCmd + " " + serviceCmd;
+                var serviceCmd = "service " + req.body.service + " " + req.body.action;
+                var sudoCmd = "sudo";
+                if (sshParamObj.password) {
+                    sudoCmd = 'echo \"' + sshParamObj.password + '\" | sudo -S';
+                }
+                serviceCmd = sudoCmd + " " + serviceCmd;
 
 
-    			var sshConnection = new SSH(sshParamObj);
+                var sshConnection = new SSH(sshParamObj);
 
-    			sshConnection.exec(serviceCmd, function(err, ret) {
-    				if (decryptedCredentials.pemFileLocation) {
-    					fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
-    						if (err) {
-    							logger.error("Unable to delete temp pem file =>", err);
-    						} else {
-    							logger.error("temp pem file deleted =>", err);
-    						}
-    					});
-    				}
-    				if (err) {
-    					res.status(500).send({
-    						message: "Unable to run service cmd on instance"
-    					});
-    					return;
-    				}
-    				if (ret === 0) {
-    					res.send(200, {
-    						message: "cmd ran successfully"
-    					});
-    				} else {
-    					res.status(500).send({
-    						message: "cmd failed. code : " + ret
-    					});
-    				}
+                sshConnection.exec(serviceCmd, function(err, ret) {
+                    if (decryptedCredentials.pemFileLocation) {
+                        fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
+                            if (err) {
+                                logger.error("Unable to delete temp pem file =>", err);
+                            } else {
+                                logger.error("temp pem file deleted =>", err);
+                            }
+                        });
+                    }
+                    if (err) {
+                        res.status(500).send({
+                            message: "Unable to run service cmd on instance"
+                        });
+                        return;
+                    }
+                    if (ret === 0) {
+                        res.send(200, {
+                            message: "cmd ran successfully"
+                        });
+                    } else {
+                        res.status(500).send({
+                            message: "cmd failed. code : " + ret
+                        });
+                    }
 
-    			}, function(stdout) {
-    				logger.debug(stdout.toString());
-    			}, function(stderr) {
-    				logger.debug(stderr.toString());
-    			});
+                }, function(stdout) {
+                    logger.debug(stdout.toString());
+                }, function(stderr) {
+                    logger.debug(stderr.toString());
+                });
 
-    		});
-    	});
+            });
+        });
     });*/
 
     app.get('/instances/org/:orgId/bu/:buId/project/:projectId/env/:envId/docker/containers', function(req, res) {
@@ -3146,9 +3165,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     }
 
                 });
-            }else{
-            	res.send("No logs available.");
+            } else {
+                res.send("No logs available.");
             }
         });
+    });
+
+    // This is post call even though no data insertion bcoz request has to send array of ipaddress.
+    app.post('/instances/ipAddress/list', function(req, res) {
+        logger.debug("Enter get() for /instances/%s/ipaddress", req.body.ipAddress);
+        instancesDao.getInstanceIdsByIPs(req.body.ipAddress, function(err, instanceIds) {
+            if (err) {
+                logger.error("Failed to fetch ActionLogs: ", err);
+                res.send(500);
+                return;
+            }
+            res.send(instanceIds);
+        });
+
     });
 };

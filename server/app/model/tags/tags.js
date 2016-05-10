@@ -46,11 +46,17 @@ var TagSchema = new Schema({
     },
     catalystEntityType: {
         type: String,
+        enum: ['project', 'environment'],
         trim: true,
         required: false
     },
     catalystEntityMapping: [{
         catalystEntityId: {
+            type: String,
+            trim: true,
+            required: false
+        },
+        catalystEntityName: {
             type: String,
             trim: true,
             required: false
@@ -65,8 +71,10 @@ var TagSchema = new Schema({
         type: Boolean,
         required: true,
         default: false
-    }
+    },
 });
+TagSchema.index({name: 1, providerId: 1}, {unique: true});
+
 var hiddenFields = {'_id': 0, 'isDeleted': 0 };
 
 TagSchema.statics.createNew = function createNew(data, callback) {
@@ -75,27 +83,15 @@ TagSchema.statics.createNew = function createNew(data, callback) {
     tags.save(function (err, data) {
         if (err) {
             logger.error(err);
-            return callback(err, null);
-        } else {
-            return callback(null, tags);
-        }
-    });
-}
-
-TagSchema.statics.getTagsByOrgIdAndProviderId = function getTagsByOrgIdAndProviderId(params, callback) {
-    // @TODO filters to be used
-    this.find(
-        {'orgId': params.orgId, 'providerId': params.providerId, 'isDeleted': false },
-        hiddenFields,
-        function(err, tag) {
-            if (err) {
-                logger.error(err);
+            if(typeof callback == 'function') {
                 return callback(err, null);
-            } else {
-                return callback(null, tag);
+            }
+        } else {
+            if(typeof callback == 'function') {
+                return callback(null, tags);
             }
         }
-    );
+    });
 };
 
 TagSchema.statics.getTagsByProviderId = function getTagsByProviderId(providerId, callback) {
@@ -132,9 +128,11 @@ TagSchema.statics.getTag = function getTag(params, callback) {
     );
 };
 
-TagSchema.statics.getTagsByNames = function getTagsByNames(tagNames, callback) {
+TagSchema.statics.getTagsByProviderIdAndNames
+    = function getTagsByProviderIdAndNames(providerId, tagNames, callback) {
     var params = {
             "isDeleted": false,
+            "providerId": providerId,
             "name": {$in : tagNames }
     }
     this.find(
@@ -153,6 +151,29 @@ TagSchema.statics.getTagsByNames = function getTagsByNames(tagNames, callback) {
     );
 };
 
+TagSchema.statics.getTagsWithMappingByProviderId
+    = function getTagsWithMappingByProviderId(providerId, callback) {
+    var params = {
+        isDeleted: false,
+        providerId: providerId,
+        catalystEntityType: {$exists : true}
+    }
+    this.find(
+        params,
+        hiddenFields,
+        function(err, tags) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if(tags.length > 0) {
+                return callback(null, tags);
+            } else {
+                return callback(null, []);
+            }
+        }
+    )
+};
+
 TagSchema.statics.updateTag = function updateTag(params, fields, callback) {
     this.update(
         params,
@@ -160,10 +181,12 @@ TagSchema.statics.updateTag = function updateTag(params, fields, callback) {
         function(err, result) {
             if (err) {
                 logger.error(err);
-                return callback(err, null);
-            } else if(result.ok == 1 && result.n == 1) {
+                if(typeof callback == 'function') {
+                    return callback(err, null);
+                }
+            } else if((result.ok == 1 && result.n == 1) && (typeof callback == 'function'))  {
                 return callback(null, true);
-            } else {
+            } else if(typeof callback == 'function') {
                return callback(null, null);
             }
         }
@@ -184,6 +207,25 @@ TagSchema.statics.deleteTag = function deleteTag(params, callback) {
        }
    )
 };
+
+TagSchema.statics.updateTagValues = function updateTagValues(params, values, callback) {
+    this.update(
+        params,
+        {$push: {values: values}},
+        function(err, tags) {
+            if(err) {
+                logger.error(err);
+                if(typeof callback == 'function') {
+                    return callback(err, null);
+                }
+            } else {
+                if(typeof callback == 'function') {
+                    return callback(null, true);
+                }
+            }
+        }
+    )
+}
 
 var Tags = mongoose.model('Tags',TagSchema);
 module.exports = Tags;

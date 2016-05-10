@@ -52,6 +52,11 @@ var AWSInstanceBlueprintSchema = new Schema({
 		required: true,
 		trim: true
 	},
+	region: {
+		type: String,
+		required: true,
+		trim: true
+	},
 	securityGroupIds: {
 		type: [String],
 		required: true,
@@ -178,9 +183,12 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 					self.instanceCount = "1";
 				}
 				var paramRunList = [];
+				var paramAttributes = [];
 				if (launchParams && launchParams.version) {
 					paramRunList = launchParams.version.runlist;
+					paramAttributes = launchParams.version.attributes;
 				}
+
 				ec2.launchInstance(anImage.imageIdentifier, self.instanceType, securityGroupIds, self.subnetId, 'D4D-' + launchParams.blueprintName, aKeyPair.keyPairName, self.instanceCount, function (err, instanceDataAll) {
 					if (err) {
 						logger.error("launchInstance Failed >> ", err);
@@ -206,6 +214,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 							keyPairId: self.keyPairId,
 							chefNodeName: instanceData.InstanceId,
 							runlist: paramRunList,
+							attributes: paramAttributes,
 							platformId: instanceData.InstanceId,
 							appUrls: launchParams.appUrls,
 							instanceIP: instanceData.PublicIpAddress || instanceData.PrivateIpAddress,
@@ -362,8 +371,8 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 										}
 
 
-										launchParams.blueprintData.getCookBookAttributes(instance.instanceIP, repoData, function (err, jsonAttributes) {
-											//logger.debug("jsonAttributes: ",JSON.stringify(jsonAttributes));
+										launchParams.blueprintData.getCookBookAttributes(instance, repoData, function(err, jsonAttributes) {
+											logger.debug("jsonAttributes::::: ",JSON.stringify(jsonAttributes));
 											var runlist = instance.runlist;
 											//logger.debug("launchParams.blueprintData.extraRunlist: ", JSON.stringify(launchParams.blueprintData.extraRunlist));
 											if (launchParams.blueprintData.extraRunlist) {
