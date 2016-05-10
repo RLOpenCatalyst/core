@@ -40,9 +40,10 @@
             $rootScope.createChefJob=true;
         };
         promApp.submitAppPromote = function(){
+            $scope.isLoadingPromApp=true;
             promApp.submitData= {
                 "appData": {
-                    "version": promApp.newEnt.version,
+                    "version": $scope.currentCardDetails.appName.version,
                     "sourceEnv": promApp.newEnt.currentEnv,
                     "targetEnv":promApp.newEnt.targetEnv,
                     "appName":$scope.currentCardDetails.appName.name, // for nexus(nexus.artifactId) and for docker(docker.image)
@@ -53,8 +54,31 @@
                     "nodeIds": promApp.jobOptions[promApp.newEnt.jobInd].taskConfig.nodeIds
                 }
             };
-            workSvs.putAppPromote(promApp.submitData).then(function(){
-                
+            workSvs.putAppPromote(promApp.submitData).then(function(promAppResult){
+                promApp.taskLog(promAppResult.data);
+                $modalInstance.close(angular.extend(promApp.newEnt, $scope.currentCardDetails));
+                $scope.isLoadingPromApp=false;
+            });
+
+        };
+        promApp.taskLog=function(promAppResult){
+            workSvs.runTask(promAppResult.taskId).then(function(response) {
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
+                    controller: 'orchestrationLogCtrl as orchLogCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return {
+                                taskId:promAppResult.taskId,
+                                historyId: promAppResult.historyId,
+                                taskType: promAppResult.taskType
+                            };
+                        }
+                    }
+                });
             });
         };
         // call job api after creating new job .
@@ -62,6 +86,7 @@
             promApp.getAllChefJobs();
             $rootScope.createChefJob=false;
         });
+        promApp.init();
         return promApp;
     }]);
 })();
