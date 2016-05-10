@@ -28,7 +28,7 @@ var instanceService = require('_pr/services/instanceService');
 var async = require('async');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
-AggregateAWSUsage.interval = '0 * * * *';
+AggregateAWSUsage.interval = '*/30 * * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
@@ -176,7 +176,7 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
     var startTime = new Date(endTime.getTime() - 1000*60*60*24);
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
-            if('providerData' in instances[j]) {
+            if(('providerData' in instances[j]) && ('region' in instances[j].providerData)) {
                 amazonConfig.region = instances[j].providerData.region;
                 cw = new CW(amazonConfig);
 
