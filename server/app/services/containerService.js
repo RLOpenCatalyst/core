@@ -49,7 +49,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         function (aContainer,next){
             if(aContainer.length > 0){
                  status=aContainer[0].Status;
-                 containerDao.updateContainer(jsonData.containerId,jsonData.status,next);
+                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" in Progress",next);
             }else{
                  callBackReturn(aContainer,next);
             }
