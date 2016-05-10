@@ -165,7 +165,8 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
         Id: containerId
     }, {
         $set: {
-            containerStatus: containerStatus
+            containerStatus: containerStatus,
+            Status: containerStatus
         }
     }, {
         upsert: false
@@ -211,6 +212,21 @@ containerSchema.statics.deleteContainerById=function(containerId,callback){
             return;
         }
         logger.debug("Exit deleteContainerById (%s)", containerId);
+        callback(null, data);
+    });
+};
+
+containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback){
+    logger.debug("Enter deleteContainerByInstanceId (%s)", instanceId);
+    container.remove({
+        instanceId: instanceId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to deleteContainerByInstanceId (%s)", instanceId, err);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit deleteContainerByInstanceId (%s)", instanceId);
         callback(null, data);
     });
 };

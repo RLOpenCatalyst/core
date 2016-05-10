@@ -1391,7 +1391,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', validate(orgValidator.get), getContainerList);
 
     function getContainerList(req, res, next) {
-        console.log("***************");
         var reqData = {};
         async.waterfall(
             [

@@ -76,10 +76,12 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         }
 
     ],function (err, results) {
-        if (err)
-            callback(err,null);
-        else
-            callback(null,results);
+        if (err) {
+            callback(err, null);
+        } else {
+            results['success']='ok';
+            callback(null, results);
+        }
     });
 };
 
