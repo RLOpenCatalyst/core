@@ -2,6 +2,7 @@
 
 
 var logger = require('_pr/logger')(module);
+var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var credentialCrpto = require('_pr/lib/credentialcryptography.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
@@ -10,6 +11,13 @@ var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
 var toPairs = require('lodash.topairs');
 var async = require('async');
+
+var DockerContainerSync = Object.create(CatalystCronJob);
+DockerContainerSync.interval = '* * * * *';
+DockerContainerSync.execute = sync;
+
+module.exports = DockerContainerSync;
+
 function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
     async.waterfall([
@@ -210,11 +218,3 @@ function dockerContainerStatus(status,created){
         return "START";
     }
 };
-
-
-module.exports = sync;
-
-
-
-
-
