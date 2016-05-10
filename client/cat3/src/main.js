@@ -46,8 +46,8 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',
             }
         });
         
-        $rootScope.$state = $state;
-        $rootScope.$stateParams = $stateParams;
+        $rootScope.state = $state;
+        $rootScope.stateParams = $stateParams;
     }
 ]);
 
