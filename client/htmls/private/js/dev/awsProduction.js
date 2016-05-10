@@ -1542,7 +1542,7 @@ var formInitializer = function(editing, blueprintData, callback) {
 
 var saveEditedBlueprint = function() {
     var $form = $('#blueprintEditForm');
-    var templatetype =  $form.attr('templateType')
+    var templatetype = $form.attr('templateType')
     var isValid = $form.valid();
     // alert(isValid);
     // if (templatetype !== "docker" && templatetype !== 'cft' && !isValid) {
@@ -1550,10 +1550,10 @@ var saveEditedBlueprint = function() {
     // } else {
     //     saveblueprint(tempType);
     // }
-    if(isValid) {
-     saveblueprint();	
+    if (isValid) {
+        saveblueprint();
     }
-    
+
 }
 
 var saveblueprint = function(tempType) {
@@ -3249,18 +3249,29 @@ function initializeBlueprintAreaNew(data) {
                         $linkVersions.attr('versions', '[]');
                     }
 
+                    var $selectVer = $('<select></select').addClass('blueprintVer');
+                    var $liVersion = $('<li></li>').append($selectVer);
 
-                    $ul.append($liCardName);
+                    if (data[i].versions) {
+
+                        _versions = sortResults(data[i].versions, 'version');
+
+                        for (var kk = 0; kk < _versions.length; kk++) {
+                            var $option = $('<option></option>').val(_versions[kk].id).html(_versions[kk].version);
+                            $selectVer.append($option);
+                        }
+                    }
+                    var $firstVersionOption = $('<option></option>').val(data[i]._id).html("1");
+                    $selectVer.append($firstVersionOption);
+
+
+                    $ul.append($liCardName).append($liVersion);
 
                     $linkVersions.click(function(e) {
                         //Get the lastest version
-                        var lastversion = $(this).attr('blueprintId'); //default version
+                        var lastversion = $(this).parents('.cardimage').find('.blueprintVer').val(); //default version
 
-                        if (JSON.parse($(this).attr('versions')).length >= 1) {
-                            var vjson = JSON.parse($(this).attr('versions'));
-                            lastversion = vjson[0].id; //its sorted to have latest on top.
-                        }
-                        //alert(lastversion); //56d6aba3e220755c5519cf33
+
                         //load the edit screen. Currently loaded from popup. Call that funcction.
                         if (lastversion) {
                             loadblueprintedit(lastversion, $(this).attr('blueprintId')); //base version required for UI
@@ -3317,13 +3328,21 @@ function initializeBlueprintAreaNew(data) {
 
                         (function(blueprint) {
                             $liRead.click(function(e) {
-                                var $blueprintReadContainerCFT = $('#modalForReadCFT');
-                                $('.modal-title').html('Blueprint Information-Docker');
-                                $blueprintReadContainerCFT.modal('show');
-                                //for getting the blueprint name
-                                $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);
-                                $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
-                                getOrgProjDetails($blueprintReadContainerCFT);
+                                var blueprintId = $(this).parents('.cardimage').find('.blueprintVer').val();
+                                $.get('/blueprints/' + blueprintId, function(blueprint) {
+                                    var $blueprintReadContainerCFT = $('#modalForReadCFT');
+                                    $('.modal-title').html('Blueprint Information-Docker');
+                                    $blueprintReadContainerCFT.modal('show');
+                                    //for getting the blueprint name
+                                    $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);
+                                    $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
+                                    if (!blueprint.version) {
+                                        blueprint.version = "1";
+                                    }
+                                    $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(blueprint.version);
+                                    getOrgProjDetails($blueprintReadContainerCFT);
+                                });
+
                             });
                         })(data[i]);
                     } else {
@@ -3333,8 +3352,10 @@ function initializeBlueprintAreaNew(data) {
                             $selectVerEdit.hide();
                             $selectVer.hide();
                             //code for info about blueprints
-                            (function(blueprint) {
-                                $liRead.click(function(e) {
+
+                            $liRead.click(function(e) {
+                                var blueprintId = $(this).parents('.cardimage').find('.blueprintVer').val();
+                                $.get('/blueprints/' + blueprintId, function(blueprint) {
                                     var $blueprintReadContainer = $('#modalForRead');
                                     $blueprintReadContainer.find('.modal-body #blueprintNameInputNew').val(blueprint.name);
                                     if (blueprint.templateType === 'chef') {
@@ -3386,18 +3407,22 @@ function initializeBlueprintAreaNew(data) {
                                     // loop for getting runlist
                                     for (var j = 0; j < blueprint.blueprintConfig.infraManagerData.versionsList.length; j++) {
                                         $blueprintReadContainer.find('.modal-body #instanceRunlist').val(blueprint.blueprintConfig.infraManagerData.versionsList[j].runlist);
-                                        //for getting the version
-                                        $blueprintReadContainer.find('.modal-body #instanceVersion').val(blueprint.blueprintConfig.infraManagerData.versionsList[j].ver);
                                     }
+                                    if (!blueprint.version) {
+                                        blueprint.version = "1";
+                                    }
+                                    $blueprintReadContainer.find('.modal-body #instanceVersion').val(blueprint.version);
                                     $blueprintReadContainer.find('.modal-body #blueprintTemplateType').val(blueprint.templateType);
                                     getOrgProjDetails($blueprintReadContainer);
                                 });
-                            })(data[i]);
+                            });
                         } else if (data[i].templateType === 'cft' || data[i].templateType === 'arm') {
                             $selectVerEdit.hide();
                             $selectVer.hide();
-                            (function(blueprint) {
-                                $liRead.click(function(e) {
+
+                            $liRead.click(function(e) {
+                                var blueprintId = $(this).parents('.cardimage').find('.blueprintVer').val();
+                                $.get('/blueprints/' + blueprintId, function(blueprint) {
                                     var $blueprintReadContainerCFT = $('#modalForReadCFT');
                                     if (blueprint.templateType == 'arm') {
                                         $blueprintReadContainerCFT.find('.modal-title').html('Blueprint Information-ARM');
@@ -3408,6 +3433,10 @@ function initializeBlueprintAreaNew(data) {
                                     //for getting the blueprint name
                                     $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);
                                     $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
+                                    if (!blueprint.version) {
+                                        blueprint.version = "1";
+                                    }
+                                    $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(blueprint.version);
                                     $.ajax({
                                         type: "get",
                                         dataType: "json",
@@ -3434,27 +3463,9 @@ function initializeBlueprintAreaNew(data) {
                                         }
                                     });
                                 });
-                            })(data[i]);
-                        }
-                        $selectVerEdit.click(function(e) {
-                            var $parent = $(this).parents('.cardimage');
-                            var $blueprintEditResultContainer = $('#blueprintEditResultContainer');
-                            $blueprintEditResultContainer.modal('show');
-                            var projectId = $parent.attr('data-projectId');
-                            var envId = $parent.attr('data-envId');
-                            var blueprintId = $parent.attr('data-blueprintId');
-                            var chefServerId = $parent.attr('data-chefServerId');
-                            var version = $parent.find('.blueprintVersionDropDown').val();
-                            $.get('../blueprints/' + blueprintId + '/versions/' + version, function(versionData) {
-                                console.log('blueprint data', versionData);
-                                var $ccrs = $chefCookbookRoleSelector(reqBodyNew.orgId, function(data) {}, versionData.runlist);
-                                $ccrs.find('#cookbooksrecipesselectedList').attr('data-blueprintId', blueprintId);
-                                $blueprintEditResultContainer.find('.modal-body').empty().append($ccrs).data('$ccrs', $ccrs);
-                            }).error(function() {
-                                $blueprintEditResultContainer.find('.modal-body').empty();
-                                $blueprintEditResultContainer.find('.modal-body').append('<span>Oops! Something went wrong. Please try again later</span>');
                             });
-                        });
+                        }
+
                     }
                     if (localStorage.getItem('userRole') !== '[Consumer]') {
                         var $li = $('<li></li>').css({
