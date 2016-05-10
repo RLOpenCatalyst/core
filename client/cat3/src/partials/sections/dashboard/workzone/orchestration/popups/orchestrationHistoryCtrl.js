@@ -8,20 +8,20 @@
 (function(){
 	"use strict";
 	angular.module('workzone.orchestration')
-		.controller('orchestrationHistoryCtrl',["items", '$scope', '$modalInstance', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices',
-			function(items, $scope, $modalInstance, $modal, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices){
+		.controller('orchestrationHistoryCtrl',["items", '$scope', '$modalInstance', '$modal', '$timeout', 'uiGridOptionsClient', 'workzoneServices',
+			function(items, $scope, $modalInstance, $modal, $timeout, uiGridOptionsClient, workzoneServices){
 
 				//UI Grid for chef Task starts
 				$scope.taskHistoryChefData = [];
-				var gridOptions = uiGridOptionsClient.options().gridOption;
-				$scope.taskHistoryChefGridOptions = gridOptions;
+				var gridOptionsChef = uiGridOptionsClient.options().gridOption;
+				$scope.taskHistoryChefGridOptions = gridOptionsChef;
 
 				$scope.initChefGrids = function(){
 					$scope.taskHistoryChefGridOptions.data='taskHistoryChefData';
 					$scope.taskHistoryChefGridOptions.columnDefs = [
-					{ name:'Start Time',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true, sort: { direction: 'uiGridConstants.ASC' }},
-					{ name:'End Time',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>',sort: { direction: 'uiGridConstants.ASC' }},
+					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
+					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
+					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', sort:{ direction: 'desc'}, cellTooltip: true},
 					{ name:'Message', field: 'message', 
 					  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
 					{ name:'User',field:'user',cellTooltip: true},
@@ -44,6 +44,7 @@
 							},100);
 						}, function(error){
 							$scope.errorMessage = "No Chef History Records found";
+							$scope.ischefTaskHistoryPageLoading = false;
 						});
 					},
 				});
@@ -55,17 +56,17 @@
 
 				//UI Grid for jenkins Task starts
 				$scope.taskHistoryJenkinsData = [];
-				var gridOptions = uiGridOptionsClient.options().gridOption;
-				$scope.taskHistoryJenkinsGridOptions = gridOptions;
+				var gridOptionsJenkins = uiGridOptionsClient.options().gridOption;
+				$scope.taskHistoryJenkinsGridOptions = gridOptionsJenkins;
 
 				$scope.initJenkinsGrids = function(){
 					$scope.taskHistoryJenkinsGridOptions.data='taskHistoryJenkinsData';
 					$scope.taskHistoryJenkinsGridOptions.columnDefs = [
-					{ name:'Job Number',cellTemplate:'<a target="_blank" title="Jenkins" ng-href="{{grid.appScope.task.taskConfig.jobURL}}/{{row.entity.buildNumber}}">{{row.entity.buildNumber}}</a>',cellTooltip: true},
+					{ name:'Job Number',field:'buildNumber',cellTemplate:'<a target="_blank" title="Jenkins" ng-href="{{grid.appScope.task.taskConfig.jobURL}}/{{row.entity.buildNumber}}">{{row.entity.buildNumber}}</a>', sort:{ direction: 'desc'}, cellTooltip: true},
 					{ name:'Job Output',cellTemplate:'<span title="Jenkins Log" class="fa fa-list bigger-120 btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.historyLogs(row.entity);"></span>',cellTooltip: true},
 					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>'},
-					{ name:'Start Time',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'End Time',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true}
+					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
+					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true}
 					];
 				};
 				angular.extend($scope, {
@@ -83,6 +84,7 @@
 							},100);
 						}, function(error){
 							$scope.errorMessage = "No Jenkins History Records found";
+							$scope.isjenkinsTaskHistoryPageLoading = false;
 						});
 					},
 				});
@@ -95,15 +97,15 @@
 
 				//UI Grid for composite Task starts
 				$scope.taskHistoryCompositeData = [];
-				var gridOptions = uiGridOptionsClient.options().gridOption;
-				$scope.taskHistoryCompositeGridOptions = gridOptions;
+				var gridOptionsComposite = uiGridOptionsClient.options().gridOption;
+				$scope.taskHistoryCompositeGridOptions = gridOptionsComposite;
 
 				$scope.initCompositeGrids = function(){
 					$scope.taskHistoryCompositeGridOptions.data='taskHistoryCompositeData';
 					$scope.taskHistoryCompositeGridOptions.columnDefs = [
-					{ name:'Start Time',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true, sort: { direction: 'uiGridConstants.ASC' }},
-					{ name:'End Time',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>',sort: { direction: 'uiGridConstants.ASC' }},
+					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>'},
+					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
+					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', sort:{ direction: 'desc'}, cellTooltip: true},
 					{ name:'Message', field: 'message', 
 					  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
 					{ name:'User',field:'user',cellTooltip: true},
@@ -126,6 +128,7 @@
 							},100);
 						}, function(error){
 							$scope.errorMessage = "No Composite History Records found";
+							$scope.iscompositeTaskHistoryPageLoading = false;
 						});
 					},
 				});
@@ -138,15 +141,15 @@
 
 				//UI Grid for puppet Task starts
 				$scope.taskHistoryPuppetData = [];
-				var gridOptions = uiGridOptionsClient.options().gridOption;
-				$scope.taskHistoryPuppetGridOptions = gridOptions;
+				var gridOptionsPuppet = uiGridOptionsClient.options().gridOption;
+				$scope.taskHistoryPuppetGridOptions = gridOptionsPuppet;
 
 				$scope.initPuppetGrids = function(){
 					$scope.taskHistoryPuppetGridOptions.data='taskHistoryPuppetData';
 					$scope.taskHistoryPuppetGridOptions.columnDefs = [
-					{ name:'Start Time',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true, sort: { direction: 'uiGridConstants.ASC' }},
-					{ name:'End Time',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>',sort: { direction: 'uiGridConstants.ASC' }},
+					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
+					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
+					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', sort:{ direction: 'desc'}, cellTooltip: true},
 					{ name:'Message', field: 'message', 
 					  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
 					{ name:'User',field:'user',cellTooltip: true},
@@ -169,6 +172,7 @@
 							},100);
 						}, function(error){
 							$scope.errorMessage = "No Puppet History Records found";
+							$scope.ispuppetTaskHistoryPageLoading = false;
 						});
 					},
 				});
