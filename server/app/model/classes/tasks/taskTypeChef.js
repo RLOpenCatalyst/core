@@ -372,8 +372,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             nexus['repository'] = appData.nexus.repository;
                             nexus['groupId'] = appData.nexus.groupId;
                             nexus['taskId'] = this.id;
-                            appName = appData.nexus.artifactId;
-                            appVersion = appData.nexus.version;
+                            appName = appData.appName;
+                            appVersion = appData.version;
                         }
                         if (appData.docker) {
                             docker['image'] = appData.docker.image;
@@ -386,7 +386,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             docker['nodeIds'] = appData.docker.nodeIds;
                             docker['hostPort'] = appData.docker.hostPort;
                             docker['taskId'] = this.id;
-                            appName = appData.docker.image;
+                            appName = appData.appName;
                             appVersion = appData.docker.imageTag;
                         }
                         nodeIds.push(instance.instanceIP);
