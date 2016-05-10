@@ -98,15 +98,15 @@ containerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonDa
                     if (err) {
                         var err = new Error('Internal server error');
                         err.status = 500;
-                        return callback(err);
+                        callback(err);
                     }
                     else if (containerList.length === 0) {
                         var err = new Error('Container List is not found');
                         err.status = 404;
-                        return callback(err);
+                        callback(err);
                     }
                     else {
-                        return callback(null, containerList);
+                        callback(null, containerList);
                     }
                 });
             }
@@ -179,6 +179,27 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
     });
 
 };
+
+containerSchema.statics.updateContainerStatus = function(containerId,containerStatus, callback) {
+    logger.debug("Enter updateContainerStatus");
+    container.update({
+        Id: containerId
+    }, {
+        $set: {
+            Status: containerStatus
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to updateContainerStatus (%s, %s)", err);
+            return;
+        }
+        logger.debug("Exit updateContainerStatus (%s, %s)");
+        callback(null, data);
+    });
+
+};
 containerSchema.statics.deleteContainerById=function(containerId,callback){
     logger.debug("Enter deleteContainerById (%s)", containerId);
     container.remove({
@@ -193,17 +214,18 @@ containerSchema.statics.deleteContainerById=function(containerId,callback){
         callback(null, data);
     });
 };
-containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback){
-    logger.debug("Enter deleteContainerByInstanceId (%s)", instanceId);
+containerSchema.statics.deleteContainersByContainerIds=function(instanceId,containerIds,callback){
+    logger.debug("Enter deleteContainersByContainerIds (%s)", instanceId);
     container.remove({
-        instanceId: instanceId
+        instanceId: instanceId,
+        Id:{ $nin: containerIds }
     }, function(err, data) {
         if (err) {
-            logger.error("Failed to deleteContainerByInstanceId (%s)", instanceId, err);
+            logger.error("Failed to deleteContainersByContainerIds (%s)", instanceId, err);
             callback(err, null);
             return;
         }
-        logger.debug("Exit deleteContainerByInstanceId (%s)", instanceId);
+        logger.debug("Exit deleteContainersByContainerIds (%s)", instanceId);
         callback(null, data);
     });
 };
