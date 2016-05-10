@@ -15,55 +15,20 @@
       <div next-text="Next" previous-text="Previous" submit-text="Submit" submit-action="testSubmit">
          <form>
             <div ng-show="steps[0].isDisplayed">
-               <div title="Docker Images">
-                  <table datatable="" class="table-bordered text-center">
-                     <thead>
-                        <tr class="rowCustomStyle" role="row">
-                           <td>Name</td>
-                           <td>Image Path</td>
-                           <td>Tag</td>
-                           <td>Launch Params</td>
-                           <td>Re-Order</td>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        <tr ng-repeat="docker in dockerDetails">
-                           <td>{{docker.dockercontainerpathstitle}}</td>
-                           <td>{{docker.dockercontainerpaths}}</td>
-                           <td>{{docker.dockerrepotags}}</td>
-                           <td><input type="text" ng-model="docker.dockerlaunchparameters"><i class="btn icon-append fa fa-list-alt fa-lg" title="Launch Parameters" ng-click="launchParam(docker, $index)"></i></td>
-                           <td><i class="fa fa-chevron-circle-up fa-lg" ng-click="moveUpChoice(dockerDetails,this.$index)"></i><i class="fa fa-chevron-circle-down fa-lg marginleft5" ng-click="moveDownChoice(dockerDetails,this.$index)"></i></td>
-                        </tr>
-                     </tbody>
-                  </table>
+               <loading size="large" name="isdockerImagesPageLoading" type="block"></loading>
+               <div ng-show="!isdockerImagesPageLoading">
+                  <div id="grid9" ng-if="dockerDetails.length >0" ui-grid="dockerImagesGridOptions" ui-grid-pagination class="grid"></div>
                </div>
             </div>
             <div ng-show="steps[1].isDisplayed">
-               <div title="">
-                  <div class="control-group">
-                     <table datatable="" class="table-bordered text-center">
-                        <thead>
-                           <tr class="rowCustomStyle" role="row">
-                              <td>Select Instance</td>
-                              <td>Instance Name</td>
-                              <td>IP Address</td>
-                              <td>Log</td>
-                           </tr>
-                        </thead>
-                        <tbody>
-                           <tr ng-repeat="instance in instanceData" ng-show="instance.instanceState ==='running'">
-                              <td><input type="checkbox" ng-model="instance.checked" ng-click="selectValue(instance)"  value="{{instance._id}}"  ng-disabled="checked==limit && !instance.checked"/></td>
-                              <td>{{instance.name}}</td>
-                              <td>{{instance.instanceIP}}</td>
-                              <td>
-                                 <i class="fa fa-info-circle cursor" title="More Info" ng-click="viewLogs(instance)"></i>
-                              </td>
-                           </tr>
-                        </tbody>
-                     </table>
-                     <div class="errorMsg" align="center" ng-show="showNoDockerAvailable">
-                        <span>There was no docker found on {{instanceSelected.name}}</span>
-                     </div>
+               <div class="control-group">
+                  <loading size="large" name="isDockerInstancesLoading" type="block"></loading>
+                  <div ng-show="!isDockerInstancesLoading">
+                     <div id="grid10" ng-if="dockerinstancesData.length >0"  ui-grid="dockerinstancesGridOptions" ui-grid-pagination class="grid"></div>
+                  </div>
+
+                  <div class="errorMsg" align="center" ng-show="showNoDockerAvailable">
+                     <span>There was no docker found on {{instanceSelected.name}}</span>
                   </div>
                </div>
             </div>

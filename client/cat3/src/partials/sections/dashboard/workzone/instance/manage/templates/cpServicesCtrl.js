@@ -67,8 +67,12 @@
                                 $scope.isServicePageLoading = false;
                             },100);
                         }, function () {
+                            $scope.isServicePageLoading = false;
                             alert('An error occurred while getting service list');
                         });
+                    }else{
+                        $scope.isServicePageLoading = false;
+                        $scope.tabData.length = 0;
                     }
                 },
             });
