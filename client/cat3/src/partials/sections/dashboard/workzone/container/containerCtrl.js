@@ -77,12 +77,12 @@
 			};
 			
 			$scope.dockerPopUpPages= {
-				1:{ page:'dockerstart', ctrl:'dockerControllers' },
-				2:{ page:'dockerstopplay', ctrl:'dockerControllers' },
-				3:{ page:'dockerreload', ctrl:'dockerControllers' },
-				4:{ page:'dockerplaypause', ctrl:'dockerControllers' },
-				5:{ page:'dockerplaypause', ctrl:'dockerControllers' },
-				6:{ page:'dockerterminate', ctrl:'dockerControllers' }
+				1:{ page:'dockerstart', ctrl:'dockerControllers',action:'START'},
+				2:{ page:'dockerstopplay', ctrl:'dockerControllers', action:'STOP'},
+				3:{ page:'dockerreload', ctrl:'dockerControllers', action:'RESTART'},
+				4:{ page:'dockerplaypause', ctrl:'dockerControllers', action:'PAUSE'},
+				5:{ page:'dockerplaypause', ctrl:'dockerControllers', action:'UNPAUSE'},
+				6:{ page:'dockerterminate', ctrl:'dockerControllers', action:'TERMINATE'}
 			};
 
 			
@@ -139,20 +139,11 @@
 					}
 				});
 				modalInstance.result.then(function() {
+						app.Status=$scope.dockerPopUpPages[action].action+" In Progress";
 						workzoneServices.checkDockerActions(app.instanceId, app.Id, action)
 							.then(function(response) {
 								if (response.data.success === "ok") {
-									workzoneServices.getDockerContainers($scope.envParams, $scope.paginationParams).then(function(result) {
-										$timeout(function() {
-											$scope.containerGridOptions.totalItems = result.data.metaData.totalRecords;
-											$scope.tabData = result.data.containerList;
-											$scope.isContainerPageLoading = false;
-										}, 100);
-									}, function(error) {
-										$scope.isContainerPageLoading = false;
-										console.log(error);
-										$scope.errorMessage = "No Records found";
-									});
+									$scope.getContainerList();
 								}
 							});
 					},
