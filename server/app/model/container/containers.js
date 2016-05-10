@@ -98,15 +98,15 @@ containerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonDa
                     if (err) {
                         var err = new Error('Internal server error');
                         err.status = 500;
-                        return callback(err);
+                        callback(err);
                     }
                     else if (containerList.length === 0) {
                         var err = new Error('Container List is not found');
                         err.status = 404;
-                        return callback(err);
+                        callback(err);
                     }
                     else {
-                        return callback(null, containerList);
+                        callback(null, containerList);
                     }
                 });
             }

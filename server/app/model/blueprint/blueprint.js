@@ -914,8 +914,9 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
 
         //function will cleanup the blueprint array and inject version object.
         var blueprints1 = consolidateVersionOnBlueprint(blueprints);
+        console.log(blueprints1);
 
-        logger.debug("Exit getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType, provider);
+        logger.debug("Exit getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType, provider);
         callback(null, blueprints1);
 
     });

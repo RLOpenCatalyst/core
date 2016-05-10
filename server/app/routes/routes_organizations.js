@@ -43,12 +43,11 @@ var masterUtil = require('../lib/utils/masterUtil.js');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
 var async = require('async');
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
 var taskService = require('_pr/services/taskService');
-var Docker = require('_pr/model/docker.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -1004,7 +1003,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             [
 
                 function(next) {
-                    ApiUtils.paginationRequest(req.query, 'instances', next);
+                    apiUtil.paginationRequest(req.query, 'instances', next);
                 },
                 function(paginationReq, next) {
                     paginationReq['orgId'] = req.params.orgId;
@@ -1017,7 +1016,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, next);
                 },
                 function(instances, next) {
-                    ApiUtils.paginationResponse(instances, reqData, next);
+                    apiUtil.paginationResponse(instances, reqData, next);
                 }
 
             ], function(err, results) {
@@ -1037,7 +1036,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             [
 
                 function(next) {
-                    ApiUtils.paginationRequest(req.query, 'tasks', next);
+                    apiUtil.paginationRequest(req.query, 'tasks', next);
                 },
                 function(paginationReq, next) {
                     paginationReq['orgId'] = req.params.orgId;
@@ -1048,7 +1047,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     Task.getTasksByOrgBgProjectAndEnvId(paginationReq, next);
                 },
                 function(tasks, next) {
-                    ApiUtils.paginationResponse(tasks, reqData, next);
+                    apiUtil.paginationResponse(tasks, reqData, next);
                 }
 
             ], function(err, results) {
@@ -1085,7 +1084,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             [
 
                 function(next) {
-                    ApiUtils.paginationRequest(req.query, 'applications', next);
+                    apiUtil.paginationRequest(req.query, 'applications', next);
                 },
                 function(paginationReq, next) {
                     paginationReq['orgId'] = req.params.orgId;
@@ -1095,7 +1094,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     Application.getAppCardsByOrgBgAndProjectId(paginationReq, next);
                 },
                 function(applications, next) {
-                    ApiUtils.paginationResponse(applications, reqData, next);
+                    apiUtil.paginationResponse(applications, reqData, next);
                 }
 
             ], function(err, results) {
@@ -1150,7 +1149,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/applications", req.params.orgId, req.params.bgId, req.params.projectId);
     });
 
-    //Duplicated with provider filter for BP Edit
+    /*//Duplicated with provider filter for BP Edit
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
         logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
         configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
@@ -1248,7 +1247,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             }
         }); //end getTeamsOrgBuProjForUser
-    });
+    });*/
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
         var jsonData = {};
@@ -1337,7 +1336,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             [
 
                 function(next) {
-                    ApiUtils.paginationRequest(req.query, 'cftList', next);
+                    apiUtil.paginationRequest(req.query, 'cftList', next);
                 },
                 function(paginationReq, next) {
                     paginationReq['orgId'] = req.params.orgId;
@@ -1348,7 +1347,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     CloudFormation.findByOrgBgProjectAndEnvId(paginationReq, next);
                 },
                 function(cftData, next) {
-                    ApiUtils.paginationResponse(cftData, reqData, next);
+                    apiUtil.paginationResponse(cftData, reqData, next);
                 }
 
             ], function(err, results) {
@@ -1367,7 +1366,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             [
 
                 function(next) {
-                    ApiUtils.paginationRequest(req.query, 'azureArms', next);
+                    apiUtil.paginationRequest(req.query, 'azureArms', next);
                 },
                 function(paginationReq, next) {
                     paginationReq['orgId'] = req.params.orgId;
@@ -1378,7 +1377,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     AzureArm.findByOrgBgProjectAndEnvId(paginationReq, next);
                 },
                 function(armsData, next) {
-                    ApiUtils.paginationResponse(armsData, reqData, next);
+                    apiUtil.paginationResponse(armsData, reqData, next);
                 }
 
             ], function(err, results) {
@@ -1392,12 +1391,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', validate(orgValidator.get), getContainerList);
 
     function getContainerList(req, res, next) {
+        console.log("***************");
         var reqData = {};
         async.waterfall(
             [
 
                 function(next) {
-                    ApiUtils.paginationRequest(req.query, 'containerList', next);
+                    apiUtil.paginationRequest(req.query, 'containerList', next);
                 },
                 function(paginationReq, next) {
                     paginationReq['orgId'] = req.params.orgId;
@@ -1408,7 +1408,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq, next);
                 },
                 function(containerData, next) {
-                    ApiUtils.paginationResponse(containerData, reqData, next);
+                    apiUtil.paginationResponse(containerData, reqData, next);
                 }
 
             ], function(err, results) {
@@ -1417,7 +1417,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 else
                     return res.status(200).send(results);
             });
-    }
+    };
 
 
 
