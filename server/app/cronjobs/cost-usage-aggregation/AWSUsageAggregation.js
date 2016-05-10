@@ -140,9 +140,11 @@ function generateEC2UsageMetricsForProvider(provider, instances, callback) {
  * @param instances
  * @param next
  */
+// @TODO Avoid code repetition
 function getEC2InstanceUsageMetrics(provider, instances, next) {
     var metricsUnits = appConfig.aws.cwMetricsUnits;
     var instanceUsageMetrics = [];
+    var instnacesWithMetrics = instances.length;
 
     if(instances.length == 0)
         next(null, instanceUsageMetrics);
@@ -176,7 +178,8 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
     var startTime = new Date(endTime.getTime() - 1000*60*60*24);
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
-            if(('providerData' in instances[j]) && ('region' in instances[j].providerData)) {
+            if(('providerData' in instances[j]) && (typeof instances[j].providerData !== undefined)
+            && instances[j].providerData) {
                 amazonConfig.region = instances[j].providerData.region;
                 cw = new CW(amazonConfig);
 
@@ -221,9 +224,14 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
                         });
                     }
 
-                    if(instanceUsageMetrics.length == instances.length)
+                    if(instanceUsageMetrics.length == instnacesWithMetrics)
                         next(null, instanceUsageMetrics);
                 });
+            } else {
+                instnacesWithMetrics -= 1;
+
+                if(instanceUsageMetrics.length == instnacesWithMetrics)
+                    next(null, instanceUsageMetrics);
             }
         })(i);
     }
