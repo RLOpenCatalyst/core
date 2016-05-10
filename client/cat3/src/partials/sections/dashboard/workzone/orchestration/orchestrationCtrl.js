@@ -283,6 +283,9 @@
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = lastPage;				
 				$scope.taskListGridView();
 			};
+			$rootScope.$on("CREATE_NEW_JOB", function(){
+				$scope.createNewTask('new');
+			});
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
 				$scope.isOrchestrationPageLoading = true;
 				$scope.envParams=requestParams;

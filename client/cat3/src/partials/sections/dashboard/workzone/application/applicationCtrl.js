@@ -75,9 +75,7 @@
 							backdrop : 'static',
 							keyboard: false,
 							resolve: {
-								items: function() {
-
-								}
+								items: $scope.requestParams
 							}
 						})
 						.result.then(function() {
