@@ -38,7 +38,9 @@ function Cryptography(algorithm, password) {
     var decrypt = function(text, decryptionEncoding, encryptionEncoding) {
         var decryptedText;
         var decipher = crypto.createDecipher(algorithm, password);
+        logger.debug('Decripted Text:', text, decryptionEncoding, encryptionEncoding);
         decryptedText = decipher.update(text, decryptionEncoding, encryptionEncoding);
+
         decryptedText += decipher.final(encryptionEncoding);
         return decryptedText;
     }
@@ -80,6 +82,7 @@ function Cryptography(algorithm, password) {
     };
 
     this.decryptText = function(text, decryptionEncoding, encryptionEncoding) {
+
         return decrypt(text, decryptionEncoding, encryptionEncoding);
 
     };

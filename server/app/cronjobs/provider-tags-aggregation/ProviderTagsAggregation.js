@@ -1,10 +1,16 @@
 var logger = require('_pr/logger')(module);
+var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
 var tagsModel = require('_pr/model/tags');
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
+
+var ProviderTagsAggregation = Object.create(CatalystCronJob);
+ProviderTagsAggregation.execute = aggregation;
+
+module.exports = ProviderTagsAggregation;
 
 //  @TODO To be refactored (High priority)
 function aggregation() {
@@ -91,4 +97,3 @@ function aggregation() {
         }
     });
 }
-module.exports = aggregation;
