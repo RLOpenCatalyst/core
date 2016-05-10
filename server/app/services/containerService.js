@@ -98,6 +98,8 @@ function dockerContainerStatus(status){
         return "RESTART";
     }else if(status === 'unpause'){
         return "UNPAUSE";
+    }else if(status === 'delete'){
+        return "TERMINATE";
     }else{
         return "START";
     }
