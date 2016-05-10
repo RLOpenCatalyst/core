@@ -153,7 +153,6 @@ providerService.updateTag = function updateTag(provider, tagDetails, callback) {
 // @TODO Handle asynchronous updates to guarantee correctness
 // @TODO Update conflict based on tag names should be handled
 // @TODO Nested callbacks to be handled
-// @TODO Remove synchronous loops
 providerService.addMultipleTagMappings = function addMultipleTagMappings(providerId, tagMappings, callback) {
     if(tagMappings.length < 1) {
         return callback(null, []);
@@ -248,7 +247,8 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
             return callback(err);
         }
 
-        if(tagDetails.values.indexOf(tagMapping.catalystEntityMapping[i].tagValue) < 0) {
+        if((tagMapping.catalystEntityMapping[i].tagValue)
+            && (tagDetails.values.indexOf(tagMapping.catalystEntityMapping[i].tagValue) < 0)) {
             var err = new Error('Tag value not found');
             err.status = 404;
             return callback(err);
