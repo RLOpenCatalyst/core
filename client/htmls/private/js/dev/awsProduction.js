@@ -304,8 +304,15 @@ $(document).ready(function() {
     $('.versionClass').hide();
     $('#selectOrgName').trigger('change');
     var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
-    if (window.url.indexOf('addnew') > 0) $addal.attr('href', '#ajax/Aws-Production.html?addanother');
-    else $addal.attr('href', '#ajax/Aws-Production.html?addnew');
+    if (window.url.indexOf('addnew') > 0) {
+        $addal.attr('href', '#ajax/Aws-Production.html?addanother');
+    } else {
+        $addal.attr('href', '#ajax/Aws-Production.html?addnew');
+    }
+    if (window.url.indexOf('addnew') > 0 || window.url.indexOf('addanother') > 0) {
+        $('#tabheader').trigger('click');
+    }
+
     $.ajax({
         type: "get",
         dataType: "json",
@@ -3922,16 +3929,16 @@ function copySelectedBlueprint() {
         projid: projid,
         blueprints: blueprintId
     }
-    $.post('/blueprints/copy', copyobj, function(data,msg) {
+    $.post('/blueprints/copy', copyobj, function(data, msg) {
         if (data && data.length) {
             var orgid = $('#orgnameSelectExisting').val();
             var buid = $('#bgListInputExisting').val();
             var projid = $('#projectListInputExisting').val();
-           
+
             for (var i = 0; i < data.length; i++) {
                 if (data[i].orgId === orgid && data[i].bgId === buid && data[i].projectId === projid) {
                     addBlueprintToDom(data[i]);
-                } 
+                }
             }
         }
         $('#copyBlueprintModal').modal('hide');
