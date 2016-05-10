@@ -22,7 +22,6 @@ var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService = require('_pr/services/taskService.js');
 var AppData = require('_pr/model/app-deploy/app-data');
-var Tasks = require('_pr/model/classes/tasks/tasks.js');
 
 const errorType = 'appDeploy';
 
@@ -120,13 +119,13 @@ function compareObject(a, b) {
     }
 };
 appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjectId(jsonData, callback) {
-    masterUtil.getParticularProject(jsonData.projectId, function(err, aProject) {
+    masterUtil.getParticularProject(jsonData.projectId, function(err, project) {
         if (err) {
             logger.debug("Failed to fetch  Project");
             callback(err, null);
             return;
         }
-        if (aProject.length === 0) {
+        if (project.length === 0) {
             logger.debug("There is no Project configured.");
             callback(null, []);
             return;
@@ -139,12 +138,12 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                 }
                 var appDeployList = [];
                 var aAppDeployObj = {};
-                var environments = aProject[0].environmentname.split(",");
+                var environments = project[0].environmentname.split(",");
                 var applicationNames = distinctAppDeployApplicationNames.applicationNames;
                 if (applicationNames.length > 0) {
                     for (var i = 0; i < applicationNames.length; i++) {
-                        (function(AppName) {
-                            jsonData['appName'] = AppName._id;
+                        (function(appName) {
+                            jsonData['appName'] = appName._id;
                             appDeploy.getDistinctAppDeployVersionByProjectId(jsonData, function(err, appDeployVersions) {
                                 if (err) {
                                     logger.debug("Failed to fetch App Deploy Versions");
@@ -157,8 +156,8 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                     return;
                                 } else {
                                     for (var j = 0; j < appDeployVersions.length; j++) {
-                                        (function(aVersion) {
-                                            appDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId, AppName._id, aVersion._id, function(err, appDeploys) {
+                                        (function(version) {
+                                            appDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId, appName._id, version._id, function(err, appDeploys) {
 
                                                 if (err) {
                                                     logger.debug("Failed to fetch App Deploy");
@@ -175,15 +174,17 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                     "version": appDeploys[0].applicationVersion
                                                 };
                                                 for (var k = 0; k < appDeploys.length; k++) {
-                                                    (function(aAppDeploy) {
-                                                        aAppDeployObj[aAppDeploy.envName] = {
-                                                            "applicationInstanceName": aAppDeploy.applicationInstanceName,
-                                                            "applicationNodeIP": aAppDeploy.applicationNodeIP,
-                                                            "applicationLastDeploy": aAppDeploy.lastAppDeployDate,
-                                                            "applicationStatus": aAppDeploy.applicationStatus,
-                                                            "applicationType": aAppDeploy.applicationType,
-                                                            "containerId": aAppDeploy.containerId,
-                                                            "hostName": aAppDeploy.hostName
+                                                    (function(appDeploy) {
+                                                        aAppDeployObj[appDeploy.envName] = {
+                                                            "id": appDeploy.id,
+                                                            "applicationInstanceName": appDeploy.applicationInstanceName,
+                                                            "applicationNodeIP": appDeploy.applicationNodeIP,
+                                                            "applicationLastDeploy": appDeploy.lastAppDeployDate,
+                                                            "applicationStatus": appDeploy.applicationStatus,
+                                                            "applicationType": appDeploy.applicationType,
+                                                            "containerId": appDeploy.containerId,
+                                                            "hostName": appDeploy.hostName,
+                                                            "isApproved": appDeploy.isApproved
                                                         }
                                                     })(appDeploys[k]);
                                                 }
@@ -286,13 +287,13 @@ appDeployService.getAppDeployHistoryListByProjectId = function getAppDeployHisto
 };
 
 appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListByProjectId(jsonData, callback) {
-    masterUtil.getParticularProject(jsonData.projectId, function(err, aProject) {
+    masterUtil.getParticularProject(jsonData.projectId, function(err, project) {
         if (err) {
             logger.debug("Failed to fetch  Project");
             callback(err, null);
             return;
         }
-        if (aProject.length === 0) {
+        if (project.length === 0) {
             logger.debug("There is no Project configured.");
             callback(null, []);
             return;
@@ -305,12 +306,12 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                 }
                 var pipeLineViewList = [];
                 var aPipeLineViewObj = {};
-                var environments = aProject[0].environmentname.split(",");
+                var environments = project[0].environmentname.split(",");
                 var applicationNames = distinctAppDeployApplicationNames.applicationNames;
                 if (applicationNames.length > 0) {
                     for (var i = 0; i < applicationNames.length; i++) {
-                        (function(AppName) {
-                            appDeploy.getPipeLineViewListByProjectIdAppName(jsonData.projectId, AppName._id, function(err, appDeploys) {
+                        (function(appName) {
+                            appDeploy.getPipeLineViewListByProjectIdAppName(jsonData.projectId, appName._id, function(err, appDeploys) {
                                 if (err) {
                                     logger.debug("Failed to fetch App Deploy");
                                     callback(err, null);
@@ -323,15 +324,16 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                                 }
                                 aPipeLineViewObj['appName'] = appDeploys[0].applicationName;
                                 for (var k = 0; k < appDeploys.length; k++) {
-                                    (function(aAppDeploy) {
-                                        aPipeLineViewObj[aAppDeploy.envName] = {
-                                            "version": aAppDeploy.applicationVersion,
-                                            "instanceName": aAppDeploy.applicationInstanceName,
-                                            "applicationLastDeploy": aAppDeploy.lastAppDeployDate,
-                                            "applicationStatus": aAppDeploy.applicationStatus,
-                                            "applicationType": aAppDeploy.applicationType,
-                                            "containerId": aAppDeploy.containerId,
-                                            "isApproved": aAppDeploy.isApproved
+                                    (function(appDeploy) {
+                                        aPipeLineViewObj[appDeploy.envName] = {
+                                            "id": appDeploy.id,
+                                            "version": appDeploy.applicationVersion,
+                                            "instanceName": appDeploy.applicationInstanceName,
+                                            "applicationLastDeploy": appDeploy.lastAppDeployDate,
+                                            "applicationStatus": appDeploy.applicationStatus,
+                                            "applicationType": appDeploy.applicationType,
+                                            "containerId": appDeploy.containerId,
+                                            "isApproved": appDeploy.isApproved
                                         }
                                     })(appDeploys[k]);
                                 }

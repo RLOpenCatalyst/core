@@ -52,7 +52,7 @@
             }, {
                 "category": "instancetasks",
                 "type": "action",
-                "access": ["read", "execute"]
+                "access": ["read", "execute" ]
             }, {
                 "category": "dockercontainerstart",
                 "type": "action",

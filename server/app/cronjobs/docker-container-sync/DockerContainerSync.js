@@ -1,7 +1,6 @@
 
-
-
 var logger = require('_pr/logger')(module);
+var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var credentialCrpto = require('_pr/lib/credentialcryptography.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
@@ -10,6 +9,13 @@ var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
 var toPairs = require('lodash.topairs');
 var async = require('async');
+
+var DockerContainerSync = Object.create(CatalystCronJob);
+DockerContainerSync.interval = '* * * * *';
+DockerContainerSync.execute = sync;
+
+module.exports = DockerContainerSync;
+
 function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
     async.waterfall([
@@ -48,11 +54,6 @@ function sync() {
                                                return;
                                             };
                                             async.forEach(instances,function(instance,next) {
-                                                containerDao.deleteContainerByInstanceId(instance._id,function(err,data){
-                                                    if(err){
-                                                        logger.error(err);
-                                                        return;
-                                                    };
                                                     credentialCrpto.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
                                                     if(err){
                                                        logger.error(err);
@@ -104,10 +105,11 @@ function sync() {
                                                             if (v >= _stdout.length - 1) {
                                                                 if(so.indexOf("Names")>0){
                                                                     var containers = JSON.parse(so);
+                                                                    var containerList=[];
+                                                                    var containerIds=[];
                                                                     async.forEach(containers,function(container,next){
                                                                         var containerName=container.Names.toString().replace('/','');
-                                                                        var instanceId=instance._id.toString();
-                                                                        var containerStatus=dockerContainerStatus(container.Status.toString());
+                                                                        var status=dockerContainerStatus(container.Status.toString());
                                                                         var containerData = {
                                                                             orgId: organization.rowid,
                                                                             bgId: businessGroup.rowid,
@@ -115,7 +117,7 @@ function sync() {
                                                                             envId: environment.rowid,
                                                                             Id: container.Id,
                                                                             instanceIP: instance.instanceIP,
-                                                                            instanceId: instanceId,
+                                                                            instanceId: instance._id,
                                                                             Names: containerName,
                                                                             Image: container.Image,
                                                                             ImageID: container.ImageID,
@@ -124,12 +126,14 @@ function sync() {
                                                                             Ports: container.Ports,
                                                                             Labels: toPairs(container.Labels),
                                                                             Status: container.Status,
-                                                                            status: containerStatus,
+                                                                            containerStatus: status,
                                                                             HostConfig: container.HostConfig
                                                                         };
-                                                                        containerAction(containerData);
+                                                                        containerList.push(containerData);
+                                                                        containerIds.push(container.Id);
                                                                         containerData={};
                                                                     });
+                                                                    containerAction(containerList,containerIds,instance._id);
                                                                 }
                                                             }
                                                         });
@@ -141,7 +145,6 @@ function sync() {
                                                         return;
                                                     });
                                                     });
-                                                })
                                             })
                                         })
                                     });
@@ -162,17 +165,31 @@ function sync() {
 
         });
 };
-function containerAction(container){
+function containerAction(containers,containerIds,instanceId){
     async.waterfall([
         function(next){
-            containerDao.getContainerByIdInstanceId(container.Id,container.instanceId,next);
+            containerDao.deleteContainersByContainerIds(instanceId,containerIds,next);
         },
-        function(containerData,next){
-            if(containerData.length === 0){
-                containerDao.createContainer(container,next);
-            }else{
-                containerDao.updateContainer(container.Id,container.Status,next);
-            }
+        function(deleteContainers,next){
+             async.forEach(containers,function(container,next){
+                  async.waterfall([
+                      function(next){
+                          containerDao.getContainerByIdInstanceId(container.Id,instanceId,next);
+                      },
+                      function(containerData,next){
+                          if(containerData.length === 0){
+                              containerDao.createContainer(container,next);
+                          }else{
+                              containerDao.updateContainerStatus(container.Id,container.Status,next);
+                          }
+                      }
+                  ],function (err, results) {
+                      if(err){
+                          logger.error(err);
+                          return;
+                      }
+                  });
+             });
         }],
         function (err, results) {
             if(err){
@@ -187,19 +204,8 @@ function dockerContainerStatus(status){
         return "STOP";
     }else if(status.indexOf('Paused')>= 0){
         return "PAUSE";
-    }else if(status.indexOf('Seconds')>= 0){
-        return "RESTART";
-    }else if(status.indexOf('Hours')>= 0 || status.indexOf('Minutes')>= 0){
-        return "UNPAUSE";
     }else{
         return "START";
     }
 };
-
-
-module.exports = sync;
-
-
-
-
 

@@ -91,8 +91,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 templateId: req.body.blueprintData.templateId,
                 templateType: req.body.blueprintData.templateType,
                 users: req.body.blueprintData.users,
-                blueprintType: blueprintType
-
+                blueprintType: blueprintType,
+                id: req.body.blueprintData.id
             };
 
             var dockerData, instanceData, cloudFormationData;
@@ -118,6 +118,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     instanceAmiid: req.body.blueprintData.instanceAmiid,
                     instanceUsername: 'root',
                     vpcId: req.body.blueprintData.vpcId,
+                    region: req.body.blueprintData.region,
                     subnetId: req.body.blueprintData.subnetId,
                     imageId: req.body.blueprintData.imageId,
                     cloudProviderType: 'aws',
@@ -169,19 +170,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
     app.get('/blueprints/:blueprintId', function(req, res) {
+
         Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
             if (err) {
                 res.status(500).send({
-                    code: 500,
-                    errMessage: "Blueprint fetch failed"
+                    message: "Blueprint fetch failed"
                 });
                 return;
             }
+
             res.status(200).send(blueprint);
         });
 
     });
-
     app.get('/blueprints/:blueprintId/blueprintInfo', function(req, res) {
         Blueprints.getBlueprintInfoById(req.params.blueprintId, function(err, blueprintInfo) {
             if (err) {
@@ -257,6 +258,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
 
+    app.get('/blueprints/:blueprintId', function(req, res) {
+        logger.debug("Enter /blueprints/%s/versions/%s", req.params.blueprintId, req.params.version);
+
+        Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
+            if (err) {
+                logger.error("Failed to get blueprint versions ", err);
+                res.send(500, errorResponses.db.error);
+                return;
+            }
+            logger.debug(blueprint);
+
+            res.send(200, blueprint);
+
+        });
+
+    });
+
     app.delete('/blueprints/:blueprintId', function(req, res) {
         logger.debug("Enter /blueprints/delete/%s", req.params.blueprintId);
         Blueprints.removeById(req.params.blueprintId, function(err, data) {
@@ -269,6 +287,40 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 message: "deleted"
             });
         });
+    });
+
+    app.delete('/blueprints', function(req, res) {
+        var blueprintIds = req.body.blueprints;
+        logger.debug("Enter /blueprints/delete/%s", req.body.blueprints);
+        if (blueprintIds.length > 0)
+            Blueprints.removeByIds(blueprintIds, function(err, data) {
+                if (err) {
+                    logger.error("Failed to delete blueprint ", err);
+                    res.send(500, errorResponses.db.error);
+                    return;
+                }
+                res.send(200, {
+                    message: "deleted"
+                });
+            });
+    });
+
+    app.post('/blueprints/copy', function(req, res) {
+        var orgid = req.body.orgid;
+        var buid = req.body.buid;
+        var projid = req.body.projid;
+        var bluepirntIds = req.body.blueprints;
+        if (!orgid || !buid || !projid || !bluepirntIds) {
+            logger.error("Could not copy blueprint. Required data missing.");
+            res.send(500, 'Would require a ORG, BU and Project to copy');
+            return;
+        } else {
+            Blueprints.copyByIds(bluepirntIds, orgid, buid, projid, function(err, data) {
+                res.status('200').send('Copied Sucessfully');
+                return;
+            });
+
+        }
     });
 
     //for testing
@@ -370,85 +422,84 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
         }); // end haspermission
     });
-
     //  List blueprints w.r.t. org,bg and project
     /**
-         * @api {get} /blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId Request List of Blueprints
-         * @apiName GetBlueprints
-         * @apiGroup Blueprints
-         *
-         * @apiParam {string} orgId Organization unique ID.
-         * @apiParam {string} bgId BusinessGroup unique ID.
-         * @apiParam {string} projectId Project unique ID.
-         *
-         *
-         * @apiSuccessExample Success-Response:
-         *     HTTP/1.1 200 OK
-         *     [
-                 	{
-				        "_id": "56fca48a350326691735057b",
-				        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-				        "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-				        "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-				        "name": "Gobinda_WRL",
-				        "templateId": "ubuntu_new",
-				        "templateType": "ami",
-				        "blueprintConfig": {
-				            "_id": "56fca48a350326691735057a",
-				            "infraManagerData": {
-				                "versionsList": [
-				                    {
-				                        "runlist": [],
-				                        "_id": "56fca48a3503266917350579",
-				                        "ver": "0.1"
-				                    }
-				                ],
-				                "_id": "56fca48a3503266917350578",
-				                "latestVersion": "0.1"
-				            },
-				            "infraManagerId": "965cdb20-0b8e-413b-bda6-3877a503549a",
-				            "infraMangerType": "chef",
-				            "cloudProviderData": {
-				                "securityGroupIds": [
-				                    "sg-eeff688b"
-				                ],
-				                "_id": "56fca48a3503266917350577",
-				                "instanceCount": "1",
-				                "instanceOS": "linux",
-				                "imageId": "56fb5a7f9ee332570c311b63",
-				                "subnetId": "subnet-d7df258e",
-				                "vpcId": "vpc-bd815ad8",
-				                "instanceUsername": "root",
-				                "instanceAmiid": "ami-06116566",
-				                "instanceType": "t2.micro",
-				                "keyPairId": "56fb59bd9ee332570c311b31"
-				            },
-				            "cloudProviderId": "56fb59bd9ee332570c311b30",
-				            "cloudProviderType": "aws"
-				        },
-				        "blueprintType": "instance_launch",
-				        "__v": 0,
-				        "users": [
-				            "superadmin"
-				        ],
-				        "appUrls": []
-				    }
-                ]
-         *
-         * @apiError Either orgId or bgId or projectId missing.
-         * @apiError Blueprint fetch failed.
-         *
-         * @apiErrorExample Error-Response:
-         *     HTTP/1.1 400 Bad Request
-         *     {
+     * @api {get} /blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId Request List of Blueprints
+     * @apiName GetBlueprints
+     * @apiGroup Blueprints
+     *
+     * @apiParam {string} orgId Organization unique ID.
+     * @apiParam {string} bgId BusinessGroup unique ID.
+     * @apiParam {string} projectId Project unique ID.
+     *
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     [
+     {
+        "_id": "56fca48a350326691735057b",
+        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+        "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+        "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+        "name": "Gobinda_WRL",
+        "templateId": "ubuntu_new",
+        "templateType": "ami",
+        "blueprintConfig": {
+            "_id": "56fca48a350326691735057a",
+            "infraManagerData": {
+                "versionsList": [
+                    {
+                        "runlist": [],
+                        "_id": "56fca48a3503266917350579",
+                        "ver": "0.1"
+                    }
+                ],
+                "_id": "56fca48a3503266917350578",
+                "latestVersion": "0.1"
+            },
+            "infraManagerId": "965cdb20-0b8e-413b-bda6-3877a503549a",
+            "infraMangerType": "chef",
+            "cloudProviderData": {
+                "securityGroupIds": [
+                    "sg-eeff688b"
+                ],
+                "_id": "56fca48a3503266917350577",
+                "instanceCount": "1",
+                "instanceOS": "linux",
+                "imageId": "56fb5a7f9ee332570c311b63",
+                "subnetId": "subnet-d7df258e",
+                "vpcId": "vpc-bd815ad8",
+                "instanceUsername": "root",
+                "instanceAmiid": "ami-06116566",
+                "instanceType": "t2.micro",
+                "keyPairId": "56fb59bd9ee332570c311b31"
+            },
+            "cloudProviderId": "56fb59bd9ee332570c311b30",
+            "cloudProviderType": "aws"
+        },
+        "blueprintType": "instance_launch",
+        "__v": 0,
+        "users": [
+            "superadmin"
+        ],
+        "appUrls": []
+    }
+     ]
+     *
+     * @apiError Either orgId or bgId or projectId missing.
+     * @apiError Blueprint fetch failed.
+     *
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     *     {
          *       "error": "Either orgId or bgId or projectId missing."
          *     }
-         * @apiErrorExample Error-Response:
-         *     HTTP/1.1 500 Internal Server Error
-         *     {
+     * @apiErrorExample Error-Response:
+     *     HTTP/1.1 500 Internal Server Error
+     *     {
          *       "error": "Blueprint fetch failed."
          *     }
-    **/
+     **/
 
 
     app.get('/blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId', function(req, res) {

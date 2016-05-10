@@ -15,10 +15,9 @@ limitations under the License.
 */
 
 
-var Process = require("./../lib/utils/process");
 var fileIo = require('./../lib/utils/fileio');
 var SSH = require('./../lib/utils/sshexec');
-var instancesDao = require('./classes/instance/instance.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
 var credentialCrpto = require('./../lib/credentialcryptography.js');
 var logger = require('_pr/logger')(module);
 
@@ -67,9 +66,7 @@ var Docker = function() {
                             });
 
                         }
-
                         callback(err, code);
-
                     }, callbackOnStdOut, callbackOnStdErr);
 
                 });
