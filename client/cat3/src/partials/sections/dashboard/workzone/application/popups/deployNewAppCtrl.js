@@ -186,9 +186,9 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				},
 				"appData": {
 					"projectId":workEnvt.getEnvParams().proj,
-					"envName": workEnvt.getEnvParams().env,
+					"envName": items.paramNames.env,
 					"appName": depNewApp.newEnt.repository,
-					"version":depNewApp.newEnt.tag
+					"version":(depNewApp.newEnt.serverType === 'nexus')?depNewApp.newEnt.version :depNewApp.newEnt.tag
 				},
 				"task": {
 					"taskId": depNewApp.jobOptions[depNewApp.newEnt.jobInd]._id,
