@@ -158,6 +158,7 @@ InstanceBlueprintSchema.statics.createNew = function(data) {
 			instanceAmiid: data.instanceAmiid,
 			instanceUsername: data.instanceUsername,
 			vpcId: data.vpcId,
+			region: data.region,
 			subnetId: data.subnetId,
 			imageId: data.imageId,
 			instanceOS: data.instanceOS,

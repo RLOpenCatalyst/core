@@ -191,7 +191,7 @@
                         <thead>
                         <tr>
                             <th class="text-center">Catalyst Project</th>
-                            <th class="text-center">Project Tag Name</th>
+                            <th class="text-center">Project Tag Value</th>
                         </tr>
                         </thead>
                         <tbody class="mappingprojecttblTbody">
@@ -214,7 +214,7 @@
                         <thead>
                         <tr>
                             <th class="text-center">Catalyst Environment</th>
-                            <th class="text-center">Environment Tag Name</th>
+                            <th class="text-center">Environment Tag Value</th>
                         </tr>
                         </thead>
                         <tbody class="mappingenvtblTbody">
@@ -755,6 +755,7 @@
 
                                 var $mappingprojectSelectList= $('<select class="mappingprojectSelectId"></select>');
                                 $mappingprojectSelectList.empty();
+                                $mappingprojectSelectList.append($('<option></option>').val('').html('-- None --'));
                                 for(var k=0; k< tagValues.length; k++){
                                     if(tagValues[k] !=''){
                                        $mappingprojectSelectList.append($('<option></option>').val(tagValues[k]).html(tagValues[k])); 
@@ -928,6 +929,7 @@
 
                         var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
                         $mappingenvSelectList.empty();
+                        $mappingenvSelectList.append($('<option></option>').val('').html('-- None --'));
                         for(var j=0; j< data.tagValues.length; j++){
                             if(data.tagValues[j] != ''){
                                 $mappingenvSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
@@ -984,7 +986,16 @@
                             $('#spanprojectMappingSaveId').delay(2000).fadeOut();
                         },
                         error: function(jqxhr) {
-                            
+                            /*var msg = " ";
+                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                msg = jxhr.responseJSON.message;
+                            } else if (jxhr.responseText) {
+                                msg = jxhr.responseText;
+                            }
+                            //bootbox.alert(msg);
+                            $('#spanprojectMappingSaveId').fadeIn();
+                            $('#spanprojectMappingSaveId').html(msg);
+                            $('#spanprojectMappingSaveId').delay(2000).fadeOut();*/
                         }
                     });
                 }                
@@ -1023,7 +1034,16 @@
                             $('#spanenvMappingSaveId').delay(2000).fadeOut();
                         },
                         error: function(jqxhr) {
-                            
+                            var msg = " ";
+                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                msg = jxhr.responseJSON.message;
+                            } else if (jxhr.responseText) {
+                                msg = jxhr.responseText;
+                            }
+                            //bootbox.alert(msg);
+                            $('#spanenvMappingSaveId').fadeIn();
+                            $('#spanenvMappingSaveId').html(msg);
+                            $('#spanenvMappingSaveId').delay(2000).fadeOut();
                         }
                     });
                 }                
@@ -1408,7 +1428,7 @@
                     loadUnmanagedInstances(unmanagnedInstances);
                 }
             }).fail(function(jxhr) {
-                var msg = "Provider Sync Behaved Unexpectedly.";
+                var msg = "Provider Sync unmanaged instances Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
                     msg = jxhr.responseJSON.message;
                 } else if (jxhr.responseText) {
