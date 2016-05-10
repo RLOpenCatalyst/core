@@ -108,7 +108,7 @@ function sync() {
                                                                     var containerList=[];
                                                                     var containerIds=[];
                                                                     async.forEach(containers,function(container,next){
-                                                                        var containerName=container.Names.toString().replace('/','');
+                                                                        var containerName=container.Names[0].replace(/^\//, "");
                                                                         var status=dockerContainerStatus(container.Status.toString());
                                                                         var containerData = {
                                                                             orgId: organization.rowid,

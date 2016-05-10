@@ -72,7 +72,6 @@ var containerSchema = new Schema({
     Labels:[Schema.Types.Mixed],
     Status: {
         type: String,
-        required: true,
         trim: true,
     },
     containerStatus: {
