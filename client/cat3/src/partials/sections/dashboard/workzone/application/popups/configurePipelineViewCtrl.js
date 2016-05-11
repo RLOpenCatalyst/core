@@ -10,39 +10,56 @@
 	angular.module('workzone.application')
 		.controller('configurePipelineViewCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'chefSelectorComponent', 'responseFormatter', 'items', '$q', '$timeout', 
 		function($scope, $modalInstance, workzoneServices, chefSelectorComponent, responseFormatter, items, $q, $timeout) {
-			var selectedElements = [];
-			var newEnvList = [];
-			var projectID = items;
-			var list, selectedElements, factory, compositeSelector;
-			var c = workzoneServices.getEnvConfig(items);
-			var d = workzoneServices.getUpdatedEnvConfig(items);
-			$q.all([c, d]).then(function(allPromise) {
-				console.log(allPromise);
-				var allEnvNames = allPromise[0].data[0].environmentname;
-				var data = allEnvNames.split(',');
-				var list = [];
-				for(var i=0; i<data.length; i++){
-					var obj = {
-					    "className": "environment",
-					    "value": data[i],
-					    "data": {
-					    	"key": data[i].environmentname,
-					    	"value": data[i].environmentname
-					    }
+			$scope.isConfigurePipelineLoading = true;
+			var helper = {
+				getLeftRightEnvs: function(response){
+					var envIds = response.envId;
+					var envSequence = response.envSequence;
+					var leftEnvList = [];
+					var rightEnvList = [];
+					for(var i=0;i<envSequence.length;i++) {
+						if(envIds.indexOf(envSequence[i])!=-1) {
+							rightEnvList.push(envSequence[i]);
+						} else {
+							leftEnvList.push(envSequence[i]);
+						}
 					}
-					list.push(obj);
+					return {
+						left: leftEnvList, 
+						right: rightEnvList
+					};	
 				}
-				newEnvList = allPromise[1].data[0].envSequence;
-				for(var i=0; i<newEnvList.length; i++) {
-					var newList = {
+			}
+			var projectID = items;
+			var factory, compositeSelector;
+			var d = workzoneServices.getUpdatedEnvConfig(items);
+			$q.all([d]).then(function(allPromise) {
+				$scope.isConfigurePipelineLoading = false;
+				var allEnvListLeftRight = [], allEnvListLeft = [], activeEnvList = [], list = [], selectedElements = [];
+				allEnvListLeftRight = helper.getLeftRightEnvs(allPromise[0].data[0]);
+				allEnvListLeft = allEnvListLeftRight.left;
+				for(var i=0; i<allEnvListLeft.length; i++) {
+					var item = {
 						"className": "environment",
-					    "value": newEnvList[i],
+					    "value": allEnvListLeft[i],
 					    "data": {
-					    	"key": newEnvList[i],
-					    	"value": newEnvList[i]
+					    	"key": allEnvListLeft[i],
+					    	"value": allEnvListLeft[i]
 					    }
-					}
-					selectedElements.push(newList);
+					};
+					list.push(item);
+				}
+				activeEnvList = allEnvListLeftRight.right;
+				for(var i=0; i<activeEnvList.length; i++) {
+					var item = {
+						"className": "environment",
+					    "value": activeEnvList[i],
+					    "data": {
+					    	"key": activeEnvList[i],
+					    	"value": activeEnvList[i]
+					    }
+					};
+					selectedElements.push(item);
 				}
 				var factory = chefSelectorComponent.getComponent;
 				compositeSelector = new factory({
@@ -53,39 +70,38 @@
 					isSearchBoxEnable: false,
 					isOverrideHtmlTemplate: true,
 					isPriorityEnable: true,
-					isExcludeDataFromOption: true,
+					isExcludeDataFromOption: false,
 				});
-				console.log(list);
-				console.log(selectedElements);
-				registerUpdateEvent(compositeSelector);
 			});
-			function registerUpdateEvent(obj) {
-				obj.addListUpdateListener('updateList');
-				console.log(updateList);
-			}
+
 			angular.extend($scope, {
 			    ok:function(){
 			    	var newEnv=[];
+			    	var envListLeft=[];
+			    	var envSequence=[];
+			    	//To get the right side list
 			    	angular.forEach(compositeSelector.getSelectorList(),function(val){
 				    	newEnv.push(val.value);
 				    });
-				    console.log(newEnv);
+				    //To get the left side list
+				    angular.forEach(compositeSelector.getOptionList(),function(val){
+				    	envListLeft.push(val.value);
+				    });
+				    var envSequence = envListLeft.concat(newEnv);
 				    var envList = {
 						"appDeployPipelineData": {
 							"loggedInUser": "",
 							"projectId": projectID,
 							"envId": newEnv,
-							"envSequence": newEnv
+							"envSequence": envSequence
 						}
 					};
 			    	workzoneServices.postEnvConfig(envList).then(function () {
 						$modalInstance.close();
-					}, function(error){
-						if(error.responseText){
-							$scope.errorMessage = error.responseText;
-						}
+					},function(error){
+						console.log(error);
 					});
-					$modalInstance.close({envList: envList.appDeployPipelineData.envSequence});
+					$modalInstance.close({envList: envList.appDeployPipelineData.envId});
 			    },
 				cancel: function() {
 					$modalInstance.dismiss('cancel');
