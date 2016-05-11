@@ -515,6 +515,8 @@ BlueprintSchema.statics.removeByIds = function(ids, callback) {
 
 
 BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback) {
+
+    var copiedBlueprints = [];
     var objids = [];
     ids.forEach(function(v) {
         objids.push(ObjectId(v));
@@ -615,11 +617,12 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
                         callback(err, null);
                         return;
                     } else {
+                        copiedBlueprints.push(docs);
                         logger.debug('Count:', count, 'Data len', data.length);
                         if (count >= data.length) {
                             logger.debug('Count:', count, 'Data len', data.length);
                             logger.debug('Inserted all documents');
-                            callback(null, docs);
+                            callback(null, copiedBlueprints);
                         }
                     }
                 });
