@@ -46,12 +46,12 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
                  callBackReturn(permission,next)
             }
         },
-        function (aContainer,next){
-            if(aContainer.length > 0){
-                 status=aContainer[0].Status;
-                 containerDao.updateContainer(jsonData.containerId,jsonData.status,next);
+        function (container,next){
+            if(container.length > 0){
+                 status=container[0].Status;
+                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" in Progress",jsonData.action,next);
             }else{
-                 callBackReturn(aContainer,next);
+                 callBackReturn(container,next);
             }
         },
         function(updateContainer,next){
@@ -76,10 +76,12 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         }
 
     ],function (err, results) {
-        if (err)
-            callback(err,null);
-        else
-            callback(null,results);
+        if (err) {
+            callback(err, null);
+        } else {
+            results['success']='ok';
+            callback(null, results);
+        }
     });
 };
 
@@ -96,6 +98,8 @@ function dockerContainerStatus(status){
         return "RESTART";
     }else if(status === 'unpause'){
         return "UNPAUSE";
+    }else if(status === 'delete'){
+        return "TERMINATE";
     }else{
         return "START";
     }

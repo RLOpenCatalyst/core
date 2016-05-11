@@ -12,7 +12,7 @@
 				<span class="import-button">
 					<span>
 						<i class="fa fa-laptop cursor" title="Import By IP" 
-						ng-click="instanceImportByIP()" ng-show="perms.launch" ng-disabled="importByIPDisabled"></i>
+						ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch"></i>
 					</span>
 				</span>
 			<span ng-click="instanceCardView()"> <i class="fa fa-th cursor " ng-class="instanceCardViewSelection" title="Card View"></i></span>&nbsp;
@@ -53,8 +53,7 @@
 						<strong>{{inst.instanceIP}}</strong>
 					</div>
 					<div class="instance-state">
-						status : 
-						<span class="{{getAWSStatus(inst.instanceState,'text')}}">{{inst.instanceState}}</span>
+						{{getPlatformId(inst.providerType,inst.platformId)}}
 					</div>
 					<div class="card-btns" ng-hide="hoverEdit">
 						<div ng-show="actionSet.isChefEnabled(inst) &amp;&amp; perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="operationSet.updateCookbook(inst);">

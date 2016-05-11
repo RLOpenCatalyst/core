@@ -289,60 +289,60 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             });
                         }
                         if (appData.docker) {
-                            if (appData.docker.containerName) {
+                            if (appData.docker[0].containerName) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "containerId": appData.docker.containerName
+                                        "containerId": appData.docker[0].containerName
                                     }
                                 });
                             }
-                            if (appData.docker.containerPort) {
+                            if (appData.docker[0].containerPort) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "containerPort": appData.docker.containerPort
+                                        "containerPort": appData.docker[0].containerPort
                                     }
                                 });
                             }
-                            if (appData.docker.image) {
+                            if (appData.docker[0].image) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerImage": appData.docker.image
+                                        "dockerImage": appData.docker[0].image
                                     }
                                 });
                             }
 
-                            if (appData.docker.hostPort) {
+                            if (appData.docker[0].hostPort) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "hostPort": appData.docker.hostPort
+                                        "hostPort": appData.docker[0].hostPort
                                     }
                                 });
                             }
-                            if (appData.docker.dockerUser) {
+                            if (appData.docker[0].dockerUser) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerUser": appData.docker.dockerUser
+                                        "dockerUser": appData.docker[0].dockerUser
                                     }
                                 });
                             }
-                            if (appData.docker.dockerPassword) {
+                            if (appData.docker[0].dockerPassword) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerPassword": appData.docker.dockerPassword
+                                        "dockerPassword": appData.docker[0].dockerPassword
                                     }
                                 });
                             }
-                            if (appData.docker.dockerEmailId) {
+                            if (appData.docker[0].dockerEmailId) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerEmailId": appData.docker.dockerEmailId
+                                        "dockerEmailId": appData.docker[0].dockerEmailId
                                     }
                                 });
                             }
-                            if (appData.docker.imageTag) {
+                            if (appData.docker[0].imageTag) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "imageTag": appData.docker.imageTag
+                                        "imageTag": appData.docker[0].imageTag
                                     }
                                 });
                             }
@@ -371,23 +371,23 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             nexus['artifactId'] = appData.nexus.artifactId;
                             nexus['repository'] = appData.nexus.repository;
                             nexus['groupId'] = appData.nexus.groupId;
-                            nexus['taskId'] = this.id;
+                            nexus['taskId'] = appData.taskId;
                             appName = appData.appName;
                             appVersion = appData.version;
                         }
-                        if (appData.docker) {
-                            docker['image'] = appData.docker.image;
-                            docker['containerName'] = appData.docker.containerName;
-                            docker['containerPort'] = appData.docker.containerPort;
-                            docker['dockerUser'] = appData.docker.dockerUser;
-                            docker['dockerPassword'] = appData.docker.dockerPassword;
-                            docker['dockerEmailId'] = appData.docker.dockerEmailId;
-                            docker['imageTag'] = appData.docker.imageTag;
-                            docker['nodeIds'] = appData.docker.nodeIds;
-                            docker['hostPort'] = appData.docker.hostPort;
-                            docker['taskId'] = this.id;
+                        if (appData.docker && appData.docker.length) {
+                            docker['image'] = appData.docker[0].image;
+                            docker['containerName'] = appData.docker[0].containerName;
+                            docker['containerPort'] = appData.docker[0].containerPort;
+                            docker['dockerUser'] = appData.docker[0].dockerUser;
+                            docker['dockerPassword'] = appData.docker[0].dockerPassword;
+                            docker['dockerEmailId'] = appData.docker[0].dockerEmailId;
+                            docker['imageTag'] = appData.docker[0].imageTag;
+                            docker['nodeIds'] = appData.docker[0].nodeIds;
+                            docker['hostPort'] = appData.docker[0].hostPort;
+                            docker['taskId'] = appData.taskId;
                             appName = appData.appName;
-                            appVersion = appData.docker.imageTag;
+                            appVersion = appData.docker[0].imageTag;
                         }
                         nodeIds.push(instance.instanceIP);
                         masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
@@ -397,7 +397,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 "appName": appName,
                                 "version": appVersion,
                                 "nexus": nexus,
-                                "docker": docker
+                                "docker": [docker]
                             };
                             AppData.createNewOrUpdate(appData, function(err, data) {
                                 if (err) {
@@ -409,7 +409,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             });
                         });
 
-                        logger.debug("AppDeploy attributes: ", JSON.stringify(objectArray));
+                        //logger.debug("AppDeploy attributes: ", JSON.stringify(objectArray));
                         var attributeObj = utils.mergeObjects(objectArray);
                         configmgmtDao.getChefServerDetails(instance.chef.serverId, function(err, chefDetails) {
                             if (err) {
@@ -513,7 +513,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         if (decryptedCredentials.pemFileLocation) {
                                             fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
                                                 if (err) {
-                                                    logger.error("Unable to delete temp pem file =>", err);
+                                                    //logger.error("Unable to delete temp pem file =>", err);
                                                 } else {
                                                     logger.debug("temp pem file deleted");
                                                 }
@@ -569,7 +569,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                         //res.end('200');
 
                                                     }
-                                                    logger.debug('Docker Check Returned:' + retCode);
+                                                    //logger.debug('Docker Check Returned:' + retCode);
                                                     if (retCode == '0') {
                                                         instancesDao.updateInstanceDockerStatus(instance._id, "success", '', function(data) {
                                                             logger.debug('Instance Docker Status set to Success');

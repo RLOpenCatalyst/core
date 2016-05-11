@@ -20,12 +20,13 @@
 				$scope.containerGridOptions=angular.extend(containerUIGridDefaults.gridOption,{
 				data : 'tabData',
 					columnDefs : [
-						{ name:'Actions',enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)" title="Stop"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
-						'<span class="marginleft5 containerIcon yellowBg white" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  title="Restart" ng-show="grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-undo"></i></span>'+
-						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" title="Pause" ng-show="grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-pause"></i></span>'+
-						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" title="Play" ng-show="grid.appScope.checkEdited(row.entity) && grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
+						{ name:'Actions',enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="!grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)" title="Stop"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
+						'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,1)" id="start"  title="Start" ng-show="grid.appScope.checkEdited(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="fa fa-play white"></i></span>'+
+						'<span class="marginleft5 containerIcon yellowBg white" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  title="Restart" ng-show="!grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-undo"></i></span>'+
+						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" title="Pause" ng-show="!grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-pause"></i></span>'+
+						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" title="Play" ng-show="!grid.appScope.checkEdited(row.entity) && grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
 						'<span class="marginleft5 containerIcon crimsonBg white" ng-click="grid.appScope.containerAction(row.entity,6)"  id="sign-out" title="Terminate" ng-show="grid.appScope.checkProgress(row.entity) && !grid.appScope.checkPausePlay(row.entity)"><i class="white fa fa-sign-out"></i></span>', cellTooltip: true},
-						{ name:'State',field:'containerStatus',cellTooltip: true},
+						{ name:'State',field:'Status',cellTooltip: true},
 						{ name:'Created',cellTemplate:'<span>{{row.entity.Created*1000  | timestampToCurrentTime}}</span>',cellTooltip: true},
 						{ name:'Name',cellTemplate:'<span ng-bind-html="row.entity.Names"></span>', enableSorting: false, cellTooltip: true},
 						{ name:'Instance IP',field:'instanceIP','displayName':'Instance IP',cellTooltip: true},
@@ -76,19 +77,20 @@
 			};
 			
 			$scope.dockerPopUpPages= {
-				2:{ page:'dockerstopplay', ctrl:'dockerControllers' },
-				3:{ page:'dockerreload', ctrl:'dockerControllers' },
-				4:{ page:'dockerplaypause', ctrl:'dockerControllers' },
-				5:{ page:'dockerplaypause', ctrl:'dockerControllers' },
-				6:{ page:'dockerterminate', ctrl:'dockerControllers' }
+				1:{ page:'dockerstart', ctrl:'dockerControllers',action:'START'},
+				2:{ page:'dockerstopplay', ctrl:'dockerControllers', action:'STOP'},
+				3:{ page:'dockerreload', ctrl:'dockerControllers', action:'RESTART'},
+				4:{ page:'dockerplaypause', ctrl:'dockerControllers', action:'PAUSE'},
+				5:{ page:'dockerplaypause', ctrl:'dockerControllers', action:'UNPAUSE'},
+				6:{ page:'dockerterminate', ctrl:'dockerControllers', action:'TERMINATE'}
 			};
 
 			
 			$scope.checkEdited = function(_app){
-				    return (_app.containerStatus === 'STOP' ) ? false : true;
+				    return (_app.containerStatus === 'STOP' ) ? true : false;
 			};
 			$scope.checkProgress=function(_app){
-				if(_app.containerStatus.indexOf('Progress') >=0)
+				if(_app.Status.indexOf('Progress') >=0)
 					return false;
 				else
 					return true;
@@ -137,23 +139,11 @@
 					}
 				});
 				modalInstance.result.then(function() {
+						app.Status=$scope.dockerPopUpPages[action].action+" In Progress";
 						workzoneServices.checkDockerActions(app.instanceId, app.Id, action)
 							.then(function(response) {
-								if (response.data.data === "ok") {
-									if (action === "2") { //STOP AND PLAY CONTAINER
-										$scope.tabData[itemIdx].isStop = !$scope.tabData[itemIdx].isStop;
-									} else if (action === "3") { //RELOAD CONTAINERS
-										workzoneServices.getDockerContainers()
-											.then(function(response) {
-												$scope.tabData[itemIdx] = response.data[itemIdx];
-											});
-									} else if (action === "4") { // PAUSE CONTAINER
-										$scope.tabData[itemIdx].isPause = !$scope.tabData[itemIdx].isPause;
-									} else if (action === "5") { // PLAY CONTAINER
-										$scope.tabData[itemIdx].isPause = !$scope.tabData[itemIdx].isPause;
-									} else if (action === "6") { // DELETE CONTAINER
-										$scope.tabData.splice(itemIdx, 1);
-									}
+								if (response.data.success === "ok") {
+									$scope.getContainerList();
 								}
 							});
 					},

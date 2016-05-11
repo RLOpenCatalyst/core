@@ -130,6 +130,7 @@ var AppDataSchema = new Schema({
 
 // Save or update appData informations.
 AppDataSchema.statics.createNewOrUpdate = function createNewOrUpdate(appData, callback) {
+    logger.debug("AppData in createNewOrUpdate: ", JSON.stringify(appData));
     var that = this;
     this.find({
         projectId: appData.projectId,
@@ -199,7 +200,7 @@ var checkDuplicate = function checkDuplicate(aData, reqData) {
                     existDocker[i].nodeIds.push(reqDocker[0].nodeIds[0]);
                 }
             } else {
-                existDocker[i].push(reqDocker[0].docker[0]);
+                existDocker.push(reqDocker[0]);
             }
         }
         reqData.docker = existDocker;
