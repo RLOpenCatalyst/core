@@ -359,10 +359,10 @@
 		});
 
 		//root scope method for refreshing the list view at the time of docker cookbook run.
-		$rootScope.$on('WZ_INSTANCES_SHOW_DOCKER', function(){
+		/*$rootScope.$on('WZ_INSTANCES_REFRESH_CURRENT', function(){
 			helper.setPaginationDefaults();
 			$scope.instancesListCardView();
-		});
+		});*/
 
 		var helper = {
 			setPaginationDefaults: function() {

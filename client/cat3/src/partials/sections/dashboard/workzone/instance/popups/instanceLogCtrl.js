@@ -17,9 +17,9 @@
 		var promise = instanceLogs.showInstanceLogs(items._id);
 		promise .then(function(resolveMessage) {
 			//event to update the instance tab when docker cookbook is run and logs are closed.
-			if(items.docker.dockerEngineStatus == "success"){
-				$rootScope.$emit('WZ_INSTANCES_SHOW_DOCKER');
-			}
+			/*if(items.docker){
+				$rootScope.$emit('WZ_INSTANCES_REFRESH_CURRENT');
+			}*/
 			console.log(resolveMessage);
 			$modalInstance.dismiss('cancel');
 		},function(rejectMessage) {
