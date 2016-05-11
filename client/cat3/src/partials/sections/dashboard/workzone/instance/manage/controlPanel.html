@@ -17,10 +17,53 @@
 	<div class="modal-body">
 		<div class="cp-container">
 			<div class="row">
-				<div bs-active-pane="tabs.activeTab" bs-tabs>
-					<div ng-repeat="tab in tabs" title="{{ tab.title }}" name="{{ tab.title }}" bs-pane >
-						<div ng-include="tab.template"></div>
-					</div>
+				<ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+					<li ng-class="{active:tab.isSet('Actionhistory')}">
+						<a ng-click="tab.setTab('Actionhistory');removeActive()">
+							<i class="fa fa-sun-o black"></i>&nbsp;
+							Action History
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Information')}">
+						<a ng-click="tab.setTab('Information');removeActive()">
+							<i class="fa fa-fw fa-exclamation-circle black"></i>&nbsp;
+							Information
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Services')}" ng-show="showServicesTab">
+						<a ng-click="tab.setTab('Services');removeActive()">
+							<i class="fa fa-share-square-o black"></i>&nbsp;
+							Services
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Logs')}">
+						<a ng-click="tab.setTab('Logs');removeActive()">
+							<i class="fa fa-clock-o black"></i>&nbsp;
+							Logs
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Instanceactions')}">
+						<a ng-click="tab.setTab('Instanceactions');removeActive()">
+							<i class="fa fa-list-ol black"></i>&nbsp;
+							Instance Actions
+						</a>
+					</li>
+				</ul>
+				
+				<div ng-show="tab.isSet('Actionhistory')">
+					<div ng-include="tab.templates.actionhistory.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Information')">
+					<div ng-include="tab.templates.information.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Services')">
+					<div ng-include="tab.templates.services.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Logs')">
+					<div ng-include="tab.templates.logs.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Instanceactions')">
+					<div ng-include="tab.templates.instanceactions.url"></div>
 				</div>
 			</div>
 		</div>

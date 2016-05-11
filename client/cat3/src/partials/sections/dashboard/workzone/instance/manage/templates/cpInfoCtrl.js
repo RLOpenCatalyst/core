@@ -19,13 +19,12 @@
             $scope.isSixthOpen = true;
 
             var cpInstance = $scope.$parent.cpInstance;
-            console.log(cpInstance);
             if(cpInstance.blueprintData.blueprintId) {
                 workzoneServices.blueprintInfo(cpInstance.blueprintData.blueprintId).then(function(response) {
                     $scope.blueprintInfo = response.data;
                 },
                 function(error) {
-                    $scope.BPInfoerrorMessage = error.fields.errorMessage;
+                    console.log(error.data.errMessage);
                 });
             }
             var hardwareInfo = {},
