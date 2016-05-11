@@ -9,7 +9,10 @@
             return tokenDetail;
         },
         removeToken: function () {
-            window.localStorage.removeItem('session.accessToken');
+            window.localStorage.setItem('session.accessToken', null);
+        },
+        removeUser: function () {
+            window.localStorage.setItem('session.user', null);
         },
         redirectToLogin: function () {
             window.location = "/cat3/"
@@ -32,6 +35,7 @@
             url: "/auth/signout",
             success: function () {
                 Auth.removeToken();
+                Auth.removeUser();
                 Auth.redirectToLogin();
             },
             error: function () {

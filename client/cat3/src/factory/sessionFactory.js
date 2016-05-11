@@ -12,7 +12,12 @@
 			var _strToken = localStorage.getItem('session.accessToken');
 
 			this._accessToken = _strToken ==='null' ? null : _strToken; 
-			this._user = JSON.parse(localStorage.getItem('session.user'));
+			try{
+				this._user = JSON.parse(localStorage.getItem('session.user'));
+			}catch(e){
+				this._user = null;
+			}
+			
 			
 			this.getUser = function(){
 				return this._user;
@@ -62,10 +67,7 @@
 			this.getHeaderObject = function getHeaderObject(){
 				return this.getToken() && {'headers': {"x-catalyst-auth": this.getToken()}};
 			};
-			//temporary handling of {}, can be removed later. 
-			if(this._user && arrayUtil.isEmptyObject(this._user)){
-				this.setUser(null);	
-			}		
+					
 			this.setHeaderNavigation(this._user);
 			return this;
 		}

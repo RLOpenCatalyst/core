@@ -77,6 +77,9 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider) {
                 url: "/organizations/edit/:id",
                 templateUrl: "src/partials/sections/dashboard/setting/organization/organizationNew.html",
                 controller: "organizationNewCtrl"
+            }).state('reset', {
+                url: "/reset",
+                controller: "resetCtrl"
             });
 }
 
