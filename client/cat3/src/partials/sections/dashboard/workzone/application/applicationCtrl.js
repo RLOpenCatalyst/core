@@ -12,7 +12,7 @@
 			var pipeLineConfig = {
 			};
 		}])
-		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'appDeployResponseFormatter','uiGridOptionsService', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, appDeployResponseFormatter,uiGridOptiSer) {
+		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'appDeployResponseFormatter','uiGridOptionsService','$timeout', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, appDeployResponseFormatter,uiGridOptiSer,$timeout) {
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
 			angular.extend($scope, {
@@ -75,9 +75,7 @@
 							backdrop : 'static',
 							keyboard: false,
 							resolve: {
-								items: function() {
-
-								}
+								items: $scope.requestParams
 							}
 						})
 						.result.then(function() {
@@ -158,8 +156,7 @@
 						}
 					}).
 					result.then(function(selectedItem) {
-						$scope.pipeGridOptions.data[selectedItem.envName]=selectedItem;
-						$scope.pipeGridOptions.data = angular.extend($scope.pipeGridOptions.data,$scope.pipeGridOptions.data[selectedItem.envName]);
+						$scope.pipeGridOptions.data[$scope.rowIndex][selectedItem.envName]=selectedItem;
 					}, function() {
 
 					});
@@ -177,8 +174,8 @@
 							}
 						}
 					}).
-					result.then(function() {
-
+					result.then(function(returnData) {
+						$scope.pipeGridOptions.data[$scope.rowIndex][returnData.targetEnv]=returnData;
 					}, function() {
 
 					});
@@ -194,48 +191,67 @@
 
 			function getApplicationPipeLineData(envParams) {
 				workzoneServices.getPipelineConfig(envParams).then(function(configResult){
-					//Api response is in array but it is only one object.
-					$scope.pipelineConfig=configResult.data[0];
-					$scope.pipeGridOptions=angular.extend(gridOpt.gridOption,{enableSorting: false},{
-						onRegisterApi: function(gridApi) {
-							gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
-								$scope.pagiOptionsCard.page=newPage;
-								$scope.pagiOptionsCard.pageSize=pageSize;
-								getApplicationCardService(envParams,$scope.pagiOptionsCard);
-							});
-						}
-					});
-					$scope.pipeGridOptions.rowTemplate= "<div ng-click=\"grid.appScope.selectRow(row)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>"
-					$scope.pipeGridOptions.columnDefs=[{ name:'appName',field:'appName',displayName:'App Name',cellTemplate:'<div pipeline-card card-details="row.entity.appName"></div>',cellTooltip: true}];
-					//Api response is in array but it is only one object.
-					angular.forEach(configResult.data[0].envSequence,function(val){
-						if(configResult.data[0].envId.indexOf(val) !== -1) {
-							var optionObject = {
-								name: val,
-								field: val,
-								displayName: val,
-								cellTooltip: true,
-								cellTemplate: '<div pipeline-card env-name="'+val+'" app-name="row.entity.appName" card-details="row.entity[col.field]"></div>'
-							};
-							$scope.pipeGridOptions.columnDefs.push(optionObject);
-						}
-					});
-					getApplicationCardService(envParams,$scope.pagiOptionsCard);
+						//Api response is in array but it is only one object.
+						$scope.pipelineConfig = configResult.data[0];
+						$scope.pipeGridOptions = angular.extend(gridOpt.gridOption, {enableSorting: false}, {
+							onRegisterApi: function (gridApi) {
+								$scope.gridApi=gridApi;
+								gridApi.pagination.on.paginationChanged($scope, function (newPage, pageSize) {
+									$scope.pagiOptionsCard.page = newPage;
+									$scope.pagiOptionsCard.pageSize = pageSize;
+									getApplicationCardService(envParams, $scope.pagiOptionsCard);
+								});
+							}
+						});
+						$scope.pipeGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>"
+						$scope.pipeGridOptions.columnDefs = [{
+							name: 'appName',
+							field: 'appName',
+							displayName: 'App Name',
+							cellTemplate: '<div pipeline-card card-details="row.entity.appName"></div>',
+							cellTooltip: true
+						}];
+						//Api response is in array but it is only one object.
+					if(configResult.data.length >0) {
+						angular.forEach(configResult.data[0].envSequence, function (val) {
+							if (configResult.data[0].envId.indexOf(val) !== -1) {
+								var optionObject = {
+									name: val,
+									field: val,
+									displayName: val,
+									cellTooltip: true,
+									cellTemplate: '<div pipeline-card env-name="' + val + '" app-name="row.entity.appName" card-details="row.entity[col.field]"></div>'
+								};
+								$scope.pipeGridOptions.columnDefs.push(optionObject);
+							}
+						});
+					}
+					getApplicationCardService(envParams, $scope.pagiOptionsCard);
 				});
 			}
 			function getApplicationCardService(envParams,pagiOptionsCard){
 				workzoneServices.getPipelineView(envParams,pagiOptionsCard).then(function(cardResult){
-					$scope.pipeGridOptions.data= cardResult.data.appDeploy;
+					$timeout(function () {$scope.pipeGridOptions.data= cardResult.data.appDeploy;},100);
 					$scope.isApplicationPageLoading=false;
 					$scope.pipeLineActBarShow=false;
 					$rootScope.selectedCardClass='';
 					angular.element('#pipelineView .card').removeClass('selected-card');
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
+
 				});
 			}
 			$scope.selectRow = function (row) {
 				$scope.selectedGridRow=[];
 				$scope.selectedGridRow=row;
+				$scope.rowIndex = -1;
+				var hash = row.entity.$$hashKey;
+				var data = $scope.pipeGridOptions.data;     // original rows of data
+				for (var ndx = 0; ndx < data.length; ndx++) {
+					if (data[ndx].$$hashKey == hash) {
+						$scope.rowIndex = ndx;
+						break;
+					}
+				}
 			};
 
 			$scope.$on('SELECTED-CARD' ,function ($event,cardDetails,appName,envName){
@@ -269,6 +285,7 @@
 			});
 			$rootScope.$on('VIEW-APP-LOGS',function($event,los){
 				$scope.appInfo(los);
+				$event.stopPropagation();
 			});
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, requestParamNames) {
 				$scope.isApplicationPageLoading = true; //Application data fetch from 2 apis is about to start

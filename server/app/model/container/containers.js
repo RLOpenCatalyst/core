@@ -72,10 +72,9 @@ var containerSchema = new Schema({
     Labels:[Schema.Types.Mixed],
     Status: {
         type: String,
-        required: true,
         trim: true,
     },
-    status: {
+    containerStatus: {
             type: String,
             enum: ["START", "STOP" , "PAUSE","UNPAUSE","RESTART"]
     },
@@ -98,15 +97,15 @@ containerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonDa
                     if (err) {
                         var err = new Error('Internal server error');
                         err.status = 500;
-                        return callback(err);
+                        callback(err);
                     }
                     else if (containerList.length === 0) {
                         var err = new Error('Container List is not found');
                         err.status = 404;
-                        return callback(err);
+                        callback(err);
                     }
                     else {
-                        return callback(null, containerList);
+                        callback(null, containerList);
                     }
                 });
             }
@@ -165,6 +164,7 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
         Id: containerId
     }, {
         $set: {
+            containerStatus: containerStatus,
             Status: containerStatus
         }
     }, {
@@ -175,6 +175,28 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
             return;
         }
         logger.debug("Exit updateContainer (%s, %s)");
+        callback(null, data);
+    });
+
+};
+
+containerSchema.statics.updateContainerStatus = function(containerId,containerStatus,status,callback) {
+    logger.debug("Enter updateContainerStatus");
+    container.update({
+        Id: containerId
+    }, {
+        $set: {
+            Status: containerStatus,
+            containerStatus: status
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to updateContainerStatus (%s, %s)", err);
+            callback(err, null);
+        }
+        logger.debug("Exit updateContainerStatus (%s, %s)");
         callback(null, data);
     });
 
@@ -193,6 +215,7 @@ containerSchema.statics.deleteContainerById=function(containerId,callback){
         callback(null, data);
     });
 };
+
 containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback){
     logger.debug("Enter deleteContainerByInstanceId (%s)", instanceId);
     container.remove({
@@ -204,6 +227,21 @@ containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback
             return;
         }
         logger.debug("Exit deleteContainerByInstanceId (%s)", instanceId);
+        callback(null, data);
+    });
+};
+containerSchema.statics.deleteContainersByContainerIds=function(instanceId,containerIds,callback){
+    logger.debug("Enter deleteContainersByContainerIds (%s)", instanceId);
+    container.remove({
+        instanceId: instanceId,
+        Id:{ $nin: containerIds }
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to deleteContainersByContainerIds (%s)", instanceId, err);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit deleteContainersByContainerIds (%s)", instanceId);
         callback(null, data);
     });
 };

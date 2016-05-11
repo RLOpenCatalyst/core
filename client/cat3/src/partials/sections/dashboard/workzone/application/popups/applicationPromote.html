@@ -1,4 +1,5 @@
 <div id='deployNewAppPage'>
+<div class="save-loading" ng-show="isLoadingPromApp" ><loading size="large" name="isLoadingPromApp" type="inline"></loading></div>
     <form name="promoteAppForm" novalidate>
         <div class="modal-header">
             <div class="imp-note red" ng-show="promoteAppForm.$invalid"><span class="red">*</span> are mandatory fields</div>
@@ -63,7 +64,3 @@
             <button type="button" class="btn cat-btn-update" ng-disabled="promoteAppForm.$invalid" ng-click="promApp.submitAppPromote();">
                 <i class="ace-icon fa fa-check bigger-110 white"></i> Promote
             </button>
-
-        </div>
-    </form>
-</div>

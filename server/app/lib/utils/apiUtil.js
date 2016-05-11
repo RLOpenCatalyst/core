@@ -25,6 +25,7 @@ var ApiUtil = function() {
             errObj['message']='Not Found';
             errObj['fields']={errorMessage:'The requested resource could not be found but may be available in the future',attribute:field};
         } else if(code==403){
+
             errObj['code']=code;
             errObj['message']='Forbidden';
             errObj['fields']={errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:field};
@@ -40,6 +41,7 @@ var ApiUtil = function() {
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
+
             sortBy:Object.keys(sortField)[0],
             sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
@@ -58,6 +60,7 @@ var ApiUtil = function() {
         var fields=commons.sort_field;
         var sortField=jsonData.mirrorSort;
         var key=Object.keys(sortField)[0];
+
         if(fields.indexOf(key) !== -1){
             if(jsonData.id === 'tasks'){
                 normalizedUtil.normalizedSort(jsonData,key);
@@ -77,6 +80,7 @@ var ApiUtil = function() {
             if(jsonData[keyField]) {
                 objAnd[keyField] = jsonData[keyField];
             }
+
         };
         if(jsonData.search) {
             queryArr.push(objAnd);
@@ -91,6 +95,7 @@ var ApiUtil = function() {
             if(jsonData.filterBy) {
                 objAnd = jsonData.filterBy;
             }
+
             queryArr.push(objAnd);
         }
         queryObj['$and']=queryArr;
@@ -104,7 +109,7 @@ var ApiUtil = function() {
         databaseCall['options']=options;
         callback(null, databaseCall);
         return;
-        
+
 
     };
 
@@ -112,6 +117,7 @@ var ApiUtil = function() {
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
+
             if (pageSize > commons.max_record_limit) {
                 pageSize = commons.max_record_limit;
             }
@@ -130,6 +136,7 @@ var ApiUtil = function() {
         } else {
             sortBy[commons.sortReferanceData[key]] = commons.sort_order == 'desc' ? -1 : 1;
         }
+
         var request={
             'sortBy':sortBy,
             'mirrorSort' :sortBy,
@@ -163,6 +170,7 @@ var ApiUtil = function() {
         if (data.instanceType) {
                 filterBy['blueprintData.templateType'] = data.instanceType;
                 request['filterBy']=filterBy;
+
         }
         if(data.search){
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);

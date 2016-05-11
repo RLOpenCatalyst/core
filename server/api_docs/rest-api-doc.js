@@ -435,7 +435,7 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     "instances":[{"_id":"56fa1a6d2a3efd26530203fb","name":"192.168.152.208","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","instanceIP":"192.168.152.208","instanceState":"running","bootStrapStatus":"success","__v":0,"taskIds":[],"chefClientExecutionIds":[],"actionLogs":[{"_id":"56fa1a6d2a3efd26530203fd","actionData":{"runlist":[]},"timeStarted":1459231341803,"user":"superadmin","success":true,"completed":true,"name":"Bootstrap","type":1,"timeEnded":1459231495251}],"serviceIds":[],"blueprintData":{"blueprintName":"192.168.152.208","templateId":"chef_import","iconPath":"../private/img/templateicons/chef_import.png","templateComponents":[]},"credentials":{"username":"rle0333","password":"OtKDQ4yY8+rl6z90Ll3KUA=="},"software":[],"chef":{"serverId":"ef074bc9-d61c-4d3a-8038-17878422f965","chefNodeName":"192.168.152.208"},"hardware":{"platform":"ubuntu","platformVersion":"14.04","architecture":"x86_64","os":"linux","memory":{"total":"8094692kB","free":"2871460kB"}},"users":["superadmin"],"appUrls":[{"name":"catalyst","url":"http://localhost:3001/","_id":"56fa1a6d2a3efd26530203fc"}],"attributes":[],"runlist":[]}],
+ *     "instances":[{"_id":"56fa1a6d2a3efd26530203fb","name":"192.168.152.208","orgId":"46d1da9a-d927-41dc-8e9e-7e926d927537","bgId":"7e3500f1-58f9-43e2-b9eb-347b2e4d129d","projectId":"b38ccedc-da2c-4e2c-a278-c66333564719","envId":"df87280c-ef3d-4e45-ac23-fcb77c845409","instanceIP":"192.168.152.208","instanceState":"running","bootStrapStatus":"success","__v":0,"taskIds":[],"chefClientExecutionIds":[],"actionLogs":[{"_id":"56fa1a6d2a3efd26530203fd","actionData":{"runlist":[]},"timeStarted":1459231341803,"user":"superadmin","success":true,"completed":true,"name":"Bootstrap","type":1,"timeEnded":1459231495251}],"serviceIds":[],"blueprintData":{"blueprintName":"192.168.152.208","templateId":"chef_import","iconPath":"../private/img/templateicons/chef_import.png","templateComponents":[]},"credentials":{"username":"rle0333","password":"OtKDQ4yY8+rl6z90Ll3KUA=="},"software":[],"chef":{"serverId":"ef074bc9-d61c-4d3a-8038-17878422f965","chefNodeName":"192.168.152.208"},"hardware":{"platform":"ubuntu","platformVersion":"14.04","architecture":"x86_64","os":"linux","memory":{"total":"8094692kB","free":"2871460kB"}},"users":["superadmin"],"appUrls":[{"name":"catalyst","url":"http://localhost:3001/","_id":"56fa1a6d2a3efd26530203fc"}],"attributes":[],"runlist":[],"tasks":[]}],
  *     "metaData":{"totalRecords":1,"pageSize":10,"page":1,"totalPages":1,"sortBy":"instanceState","sortOrder":"asc"}
  *     }
  *
@@ -775,8 +775,8 @@
 
 
 /**
- * @api {get}/app/deploy/project/:projectId/appDeployList
- * @apiName /app/deploy/project/:projectId/appDeployList
+ * @api {get}/app-deploy/project/:projectId/appDeployList
+ * @apiName /app-deploy/project/:projectId/appDeployList
  * @apiGroup Pipeline View with Pagination
  *
  *
@@ -797,12 +797,14 @@
  *			"version": "3.03.106"
  *		},
  *		"Dev": {
- *			"applicationInstanceName": "Supercatalyst",
+ *			"id": "c6633356471946542fsgg",
+ *		    "applicationInstanceName": "Supercatalyst",
  *			"applicationNodeIP": "54.183.1.26",
  *			"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
  *			"applicationStatus": "Successful",
  *			"containerId": "NA",
  *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *		    "isApproved": "ip-10-0-0-54.us-west-1.compute.internal"
  *		},
  *		"QA": {},
  *		"Prod": {}
@@ -813,12 +815,98 @@
  *		},
  *		"Dev": {},
  *		"QA": {
+ *	        "id": "c6633356471946542fsgg",
  *			"applicationInstanceName": "Supercatalyst",
  *			"applicationNodeIP": "54.183.1.26",
  *			"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
  *			"applicationStatus": "Successful",
  *			"containerId": "NA",
- *			"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *		 	"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *		    "isApproved": "ip-10-0-0-54.us-west-1.compute.internal"
+ *		},
+ *		"Prod": {}
+ *	}],
+ *  "metaData":{
+ *    "totalRecords":2,
+ *    "pageSize":10,
+ *    "page":1,
+ *    "totalPages":1,
+ *    "sortBy":"envId",
+ *    "sortOrder":"desc"
+ *    }
+ *  }
+ *
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy PipeLine Information'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy PipeLine Information'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy PipeLine Information'}
+ *     };
+ */
+
+/**
+ * @api {get}/app-deploy/project/:projectId/pipeLineViewList
+ * @apiName /app-deploy/project/:projectId/pipeLineViewList
+ * @apiGroup New Pipeline View with Pagination
+ *
+ *
+ * @apiParam {String} projectId     Unique Project Id
+ *
+ * @apiParamExample {url} Request-Example:
+ * http://localhost:3001/app/deploy/project/b38ccedc-da2c-4e2c-a278-c66333564719/pipeLineViewListpipeLineView?page=1&pageSize=10
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ * {
+ *  "pipeLineView":[{
+ *		"appName": "nginx",
+ *		"Dev": {
+ *		"id": "5718ca32400f00be828a8985",
+ *		"version": "latest",
+ *		"instanceName": "nginx",
+ *		"applicationLastDeploy": "2016-04-18T13:18:17.201Z",
+ *		"applicationStatus": "Successful",
+ *		"applicationType": "Container",
+ *		"containerId": "nginx_test",
+ *		"isApproved": false
+ *		},
+ *		"QA": {},
+ *		"Prod": {}
+ *	}, {
+ *		"appName": "relevancelab/rlcatqa",
+ *		"Dev": {},
+ *		"QA": {
+ *		"id": "5718ca32400f00be828a8989",
+ *		"version": "test",
+ *		"instanceName": "rlcatqa",
+ *		"applicationLastDeploy": "2016-04-18T13:36:02.201Z",
+ *		"applicationStatus": "Successful",
+ *		"applicationType": "Container",
+ *		"containerId": "gobinda",
+ *		"isApproved": false
  *		},
  *		"Prod": {}
  *	}],
@@ -862,8 +950,8 @@
 
 
 /**
- * @api {get}/app/deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList
- * @apiName /app/deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList
+ * @api {get}/app-deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList
+ * @apiName /app-deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList
  * @apiGroup App Deploy Pipeline View History for Particular Environment, AppName and Version
  *
  *
@@ -920,8 +1008,8 @@
  */
 
 /**
- * @api {get}/app/deploy/project/:projectId/env/:envName/appDeployHistoryList
- * @apiName /app/deploy/project/:projectId/env/:envName/appDeployHistoryList
+ * @api {get}/app-deploy/project/:projectId/env/:envName/appDeployHistoryList
+ * @apiName /app-deploy/project/:projectId/env/:envName/appDeployHistoryList
  * @apiGroup App Deploy Pipeline History List By Project and Environment with Pagination,Search,Filter and Sort
  *
  *
@@ -1167,8 +1255,8 @@
      */
 
 /**
- * @api {get}/app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList
- * @apiName /app/deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList
+ * @api {get}/app-deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList
+ * @apiName /app-deploy/nexus/:nexusId/project/:projectId/nexusRepositoryList
  * @apiGroup Nexus Repository List
  *
  *
@@ -1225,8 +1313,8 @@
 
 
 /**
- * @api {get}/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList
- * @apiName /app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList
+ * @api {get}/app-deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList
+ * @apiName /app-deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifactList
  * @apiGroup Nexus Repository Artifact List
  *
  *
@@ -1286,8 +1374,8 @@
 
 
 /**
- * @api {get}/app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList
- * @apiName /app/deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList
+ * @api {get}/app-deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList
+ * @apiName /app-deploy/nexus/:nexusId/repositories/:repoName/group/:groupId/artifact/:artifactId/versionList
  * @apiGroup Nexus Repository Artifact Version List
  *
  *
@@ -1338,7 +1426,7 @@
 
 //  Deploy New Application
 /**
-     * @api {post} /app/deploy/new Deploy New App
+     * @api {post} /app-deploy/new Deploy New App
      * @apiName DeployNewApp
      * @apiGroup Deploy New App
      *
@@ -1420,7 +1508,7 @@
 
 //  Upgrade Application
 /**
-     * @api {put} /app/deploy/upgrade  Upgrade App
+     * @api {put} /app-deploy/upgrade  Upgrade App
      * @apiName UpgradeApp
      * @apiGroup Upgrade App
      *
@@ -1500,7 +1588,7 @@
 
 //  Promote Application
 /**
-     * @api {put} /app/deploy/promote  Promote App
+     * @api {put} /app-deploy/promote  Promote App
      * @apiName PromoteApp
      * @apiGroup Promote App
      *
@@ -1546,8 +1634,8 @@
      */
 
 /**
- * @api {get}/app/deploy/pipeline/project/:projectId
- * @apiName /app/deploy/pipeline/project/:projectId
+ * @api {get}/app-deploy-pipeline/project/:projectId
+ * @apiName /app-deploy-pipeline/project/:projectId
  * @apiGroup Pipeline View Information
  *
  *
@@ -1602,8 +1690,8 @@
 
 
 /**
- * @api {post}/app/deploy/data/pipeline/save/configure
- * @apiName /app/deploy/data/pipeline/save/configure
+ * @api {post}/app-deploy-pipeline/save/appConfigPipeLineData
+ * @apiName /app-deploy-pipeline/save/appConfigPipeLineData
  * @apiGroup Save App Deploy Pipeline Configuration
  *
  *
@@ -1665,8 +1753,8 @@
  */
 
 /**
- * @api {put}/app/deploy/data/pipeline/update/configure
- * @apiName /app/deploy/data/pipeline/update/configure
+ * @api {put}/app-deploy-pipeline/update/appConfigPipeLineData
+ * @apiName /app-deploy-pipeline/update/appConfigPipeLineData
  * @apiGroup Update App Deploy Pipeline Configuration
  *
  *
@@ -1843,385 +1931,10 @@
  */
 
 
-/**
- * @api {post}/aws/providers
- * @apiName /aws/providers
- * @apiGroup Add a new AWS Provider Account
- *
- *
- * @apiParam {String} accessKey     Unique Provider Access Key
- * @apiParam {String} secretKey     Unique Provider Secret Key
- * @apiParam {String} providerName  Unique Provider Name
- * @apiParam {String} providerType  Unique Provider Type
- * @apiParam {String} orgId         Unique Organization Id
- * @apiParam {String} fileName      Unique File Name
- * @apiParam {String} region        Unique Provider Region
- * @apiParam {String} keyPairName   Unique Key Pair Name
- * @apiParam {Boolean} [isDefault]   Set Default Provider
- *
- * @apiParamExample {json} Request-Example:
- *  {
- *    "providerName" : "AWSProvider",
- *    "providerType" : "AWS",
- *    "accessKey" : "0bYiGYDzoomLGPuSW/dtmJ16Wwiua01b3l8Aeui0UsU=",
- *    "secretKey" : "0mjJkixEIP87EXgmHu54Pxoqt1qiDgUygMwPCCLy3m1MN0RAK6CgJiWgWb68m87D",
- *    "orgId" : "54edde9c21b4d7e50f29435f",
- *    "isDefault" : false,
- *    "fileName" : "cat-cal.pem",
- *    "region" : "us-west-1",
- *    "keyPairName:"cat-cal"
- * }
- *
- *
- * @apiSuccess [JSONObject]
- *
- * @apiSuccessExample Success-Response:
- *  HTTP/1.1 200 OK
- *
- *  {
- *		"_id": "56f1459ec9f075275f4ea9be",
- *		"id": 9,
- *		"providerName": "AWSProvider",
- *		"providerType": "AWS",
- *		"accessKey": "0bYiGYDzoomLGPuSW/dtmJ16Wwiua01b3l8Aeui0UsU=",
- *		"secretKey": "0mjJkixEIP87EXgmHu54Pxoqt1qiDgUygMwPCCLy3m1MN0RAK6CgJiWgWb68m87D",
- *		"orgId": "54edde9c21b4d7e50f29435f",
- *		"orgName": "PhoenixOrg",
- *		"keyPairs": {
- *			"_id": "56f1459ec9f075275f4ea9bf",
- *			"keyPairName": "cat-cal",
- *			"region": "us-west-1",
- *			"fileName": "cat-cal.pem",
- *			"providerId": "56f1459ec9f075275f4ea9be",
- *			"id": 99,
- *			"__v": 0
- *		},
- *		"__v": 0
- *	}
- *
- *
- *
- * @apiError 400 Bad Request.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:400,
- *      message:'Bad Request',
- *      fields:{errorMessage:'Bad Request',attribute:'Provider Creation'}
- *     };
- * @apiError 403 Forbidden.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:403,
- *      message:'Forbidden',
- *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Provider Creation'}
- *     };
- * @apiError 500 InternalServerError.
- *
- * @apiErrorExample Error-Response:
- *     {
- *      code:500,
- *      message:'Internal Server Error',
- *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Provider Creation'}
- *     };
- */
-
 
 /**
- * @api {post}/blueprints
- * @apiName /blueprints
- * @apiGroup Create a new AWS Blueprint(Software Stack)
- *
- *
- * @apiParam {String} orgId  Unique Organization ID
- * @apiParam {String} bgId   Unique Business Group ID
- * @apiParam {String} projectId Unique Project ID
- * @apiParam {String} name  Unique Blueprint Name
- * @apiParam {String} templateId  Unique Template ID
- * @apiParam {String} templateType  Unique Template Type
- * @apiParam {String} blueprintType  Unique Blueprint Type
- * @apiParam {JSONArray} users  List of Users
- * @apiParam {JSONArray} [appUrls]  List of Application URLs
- * @apiParam {String} [iconpath]  Unique Icon Path
- * @apiParam {String} providerId  Unique Provider ID
- * @apiParam {String} keyPairId  Unique Key Pair ID
- * @apiParam {String} instanceType  Unique Instance Type
- * @apiParam {String} vpcId  Unique VPC ID
- * @apiParam {String} imageId Unique Image ID
- * @apiParam {JSONArray} securityGroupIds  List of Security Group ID
- * @apiParam {String} infraManagerId Unique Infra Manager ID
- * @apiParam {JSONArray} [runlist] List of Chef Run-List
- *
- * @apiParamExample {json} Request-Example:
- *  {
- *	"blueprintData": {
- *		"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
- *		"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
- *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
- *		"name": "TestBlueprint",
- *		"templateId": "TestTemplate",
- *		"templateType": "chef",
- *		"blueprintType": "instance_launch",
- *		"users": ["superadmin"],
- *		"appUrls": [],
- *		"iconpath": "",
- *		"providerId": "56f1459ec9f075275f4ea9be",
- *		"keyPairId": "56f1459ec9f075275f4ea9bf",
- *		"instanceType": "t2.micro",
- *		"instanceAmiid": "ami-06116566",
- *		"vpcId": "vpc-52110130",
- *		"subnetId": "subnet-12b4ea54",
- *		"imageId": "56fa21c02a3efd265302040e",
- *		"securityGroupIds": ["sg-99a3bcfb"],
- *		"infraManagerId": "ef074bc9-d61c-4d3a-8038-17878422f965",
- *		"runlist": ["recipe[lamp-stack]", "recipe[tomcat]"]
- *	}
- * }
- *
- *
- * @apiSuccess [JSONObject]
- *
- * @apiSuccessExample Success-Response:
- *  HTTP/1.1 200 OK
- *
- *  {
- *   "_id" : ObjectId("56fa223d2a3efd2653020413"),
- *   "orgId" : "46d1da9a-d927-41dc-8e9e-7e926d927537",
- *   "bgId" : "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
- *   "projectId" : "b38ccedc-da2c-4e2c-a278-c66333564719",
- *   "name" : "TestBlueprint",
- *   "templateId" : "TestTemplate",
- *   "templateType" : "chef",
- *   "blueprintConfig" : {
- *       "cloudProviderType" : "aws",
- *       "cloudProviderId" : "56f1459ec9f075275f4ea9be",
- *       "cloudProviderData" : {
- *           "keyPairId" : "56f1459ec9f075275f4ea9bf",
- *           "instanceType" : "t2.micro",
- *           "instanceAmiid" : "ami-06116566",
- *           "instanceUsername" : "root",
- *           "vpcId" : "vpc-52110130",
- *           "subnetId" : "subnet-12b4ea54",
- *           "imageId" : "56fa21c02a3efd265302040e",
- *            "instanceOS" : "linux",
- *           "instanceCount" : "1",
- *           "_id" : ObjectId("56fa223d2a3efd265302040f"),
- *           "securityGroupIds" : [
- *               "sg-99a3bcfb"
- *           ]
- *       },
- *       "infraMangerType" : "chef",
- *       "infraManagerId" : "ef074bc9-d61c-4d3a-8038-17878422f965",
- *       "infraManagerData" : {
- *           "latestVersion" : "0.1",
- *           "_id" : ObjectId("56fa223d2a3efd2653020410"),
- *           "versionsList" : [
- *              {
- *                   "ver" : "0.1",
- *                   "_id" : ObjectId("56fa223d2a3efd2653020411"),
- *                   "runlist" : [
- *                       "recipe[lamp-stack]",
- *                       "recipe[tomcat]"
- *                   ]
- *               }
- *           ]
- *       },
- *       "_id" : ObjectId("56fa223d2a3efd2653020412")
- *   },
- *   "blueprintType" : "instance_launch",
- *   "users" : [
- *       "superadmin"
- *   ],
- *   "appUrls" : [],
- *   "__v" : 0
- *	}
- *
- *
- *
- * @apiError 400 Bad Request.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:400,
- *      message:'Bad Request',
- *      fields:{errorMessage:'Bad Request',attribute:'Blueprint Creation'}
- *     };
- * @apiError 403 Forbidden.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:403,
- *      message:'Forbidden',
- *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Blueprint Creation'}
- *     };
- * @apiError 500 InternalServerError.
- *
- * @apiErrorExample Error-Response:
- *     {
- *      code:500,
- *      message:'Internal Server Error',
- *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Blueprint Creation'}
- *     };
- */
-
-/**
- * @api {get}/blueprints/:blueprintId/launch
- * @apiName /blueprints/:blueprintId/launch
- * @apiGroup Launch a Blueprint
- *
- *
- * @apiParam {String} blueprintId    Unique Blueprint ID
- * @apiParam {String} envId          Unique Environment ID
- * @apiParam {String} version        Unique Blueprint Version
- * @apiParam {String} stackName      Unique Stack Name
- *
- * @apiParamExample {url} Request-Example:
- *  {
- *	params:{
- *	      "blueprintId":"56fa223d2a3efd2653020413"
- *         },
- *  query: {
- *        "envId":"24fa223d2a3efd2653020413",
- *        "version":"0.1",
- *        "stackName":"Jagadish"
- *    }
- * }
- *
- *
- * @apiSuccess [JSONObject]
- *
- * @apiSuccessExample Success-Response:
- *  HTTP/1.1 200 OK
- *  {
- *  InstanceLogs:[]
- *	}
- *
- *
- *
- * @apiError 400 Bad Request.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:400,
- *      message:'Bad Request',
- *      fields:{errorMessage:'Bad Request',attribute:'Launch a Blueprint'}
- *     };
- * @apiError 403 Forbidden.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:403,
- *      message:'Forbidden',
- *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Launch a Blueprint'}
- *     };
- * @apiError 500 InternalServerError.
- *
- * @apiErrorExample Error-Response:
- *     {
- *      code:500,
- *      message:'Internal Server Error',
- *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Launch a Blueprint'}
- *     };
- */
-
-/**
- * @api {post}/app/deploy
- * @apiName /app/deploy
- * @apiGroup Launch / Deploy apps on an Instance
- *
- *
- * @apiParam {String} applicationName  Unique Application Name
- * @apiParam {String} applicationInstanceName   Unique Application Instance Name
- * @apiParam {String} applicationVersion Unique Application Version
- * @apiParam {String} applicationNodeIP  Unique Application Node IP Address
- * @apiParam {String} applicationLastDeploy  Unique Application Last Deploy Date
- * @apiParam {String} applicationStatus  Unique Application Status
- * @apiParam {String} [orgId]  Unique Organization ID
- * @apiParam {String} [bgId]  Unique Business Group ID
- * @apiParam {String} projectId  Unique Project ID
- * @apiParam {String} envId  Unique Environment Name
- * @apiParam {String} [description]  Application Description
- * @apiParam {String} applicationType  Unique Application Type
- * @apiParam {String} [containerId]  Unique Container ID
- * @apiParam {String} hostName Unique Host Name
- * @apiParam {String} [appLogs]  App Logs
- *
- *
- * @apiParamExample {json} Request-Example:
- *  {
- *	"appDeployData": {
- *		 "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
- *		 "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
- *		 "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
- *		 "applicationLastDeploy" : "2016-03-30 05:04:05 +0000",
- *       "appLogs" : "NA",
- *       "applicationName" : "D4D",
- *       "applicationVersion" : "3.03.106",
- *       "applicationInstanceName" : "Supercatalyst",
- *       "applicationNodeIP" : "54.183.1.26",
- *       "envId" : "Dev",
- *       "hostName" : "ip-10-0-0-54.us-west-1.compute.internal",
- *       "containerId" : "NA",
- *       "applicationType" : "Package",
- *       "applicationStatus" : "Successful"
- *	}
- * }
- *
- *
- * @apiSuccess [JSONObject]
- *
- * @apiSuccessExample Success-Response:
- *  HTTP/1.1 200 OK
- *
- *  {
- *    "_id" : ObjectId("570b48fcf1f0f28388f4b071"),
- *    "applicationLastDeploy" : "2016-03-30 05:04:05 +0000",
- *    "appLogs" : "NA",
- *    "applicationName" : "D4D",
- *    "applicationVersion" : "3.03.106",
- *    "applicationInstanceName" : "Supercatalyst",
- *    "applicationNodeIP" : "54.183.1.26",
- *    "envId" : "Dev",
- *    "hostName" : "ip-10-0-0-54.us-west-1.compute.internal",
- *    "containerId" : "NA",
- *    "applicationType" : "Package",
- *    "applicationStatus" : "Successful",
- *    "projectId" : "b38ccedc-da2c-4e2c-a278-c66333564719",
-  *   "__v" : 0
- *	 }
- *
- *
- *
- * @apiError 400 Bad Request.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:400,
- *      message:'Bad Request',
- *      fields:{errorMessage:'Bad Request',attribute:'Launch / Deploy apps on an Instance'}
- *     };
- * @apiError 403 Forbidden.
- *
- * @apiErrorExample Error-Response:
- *    {
- *      code:403,
- *      message:'Forbidden',
- *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'Launch / Deploy apps on an Instance'}
- *     };
- * @apiError 500 InternalServerError.
- *
- * @apiErrorExample Error-Response:
- *     {
- *      code:500,
- *      message:'Internal Server Error',
- *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Launch / Deploy apps on an Instance'}
- *     };
- */
-
-/**
- * @api {post}/deploy/permission/data/save/configure
- * @apiName /deploy/permission/data/save/configure
+ * @api {post}/deploy-permission/save/permissionData
+ * @apiName /deploy-permission/save/permissionData
  * @apiGroup Save Deploy Permission
  *
  *
@@ -2287,8 +2000,8 @@
  */
 
 /**
- * @api {put}/deploy/permission/data/update/configure
- * @apiName /deploy/permission/data/update/configure
+ * @api {put}/deploy-permission/update/permissionData
+ * @apiName /deploy-permission/update/permissionData
  * @apiGroup Update Deploy Permission
  *
  *
@@ -2347,8 +2060,8 @@
  */
 
 /**
- * @api {get}/deploy/permission/project/:projectId/env/:envName/application/:appName/permissionList
- * @apiName /deploy/permission/project/:projectId/env/:envName/application/:appName/permissionList
+ * @api {get}/deploy-permission/project/:projectId/env/:envName/application/:appName/permissionList
+ * @apiName /deploy-permission/project/:projectId/env/:envName/application/:appName/permissionList
  * @apiGroup Get Deploy Permission Via Project ID
  *
  *

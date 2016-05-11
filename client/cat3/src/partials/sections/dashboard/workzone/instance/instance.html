@@ -53,8 +53,7 @@
 						<strong>{{inst.instanceIP}}</strong>
 					</div>
 					<div class="instance-state">
-						status : 
-						<span class="{{getAWSStatus(inst.instanceState,'text')}}">{{inst.instanceState}}</span>
+						{{getPlatformId(inst.providerType,inst.platformId)}}
 					</div>
 					<div class="card-btns" ng-hide="hoverEdit">
 						<div ng-show="actionSet.isChefEnabled(inst) &amp;&amp; perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="operationSet.updateCookbook(inst);">

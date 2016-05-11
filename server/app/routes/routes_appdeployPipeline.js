@@ -29,11 +29,11 @@ var validate = require('express-validation');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/app/deploy/*', sessionVerificationFunc);
+    app.all('/app-deploy-pipeline/*', sessionVerificationFunc);
 
 
 
-    app.post('/app/deploy/data/pipeline/configure', function(req, res) {
+    app.post('/app-deploy-pipeline/data/configure', function(req, res) {
         var loggedInUser = req.session.user.cn;
         req.body.appDeployPipelineData.loggedInUser = loggedInUser;
         AppDeployPipeline.getAppDeployPipelineByProjectId(req.body.appDeployPipelineData.projectId, function(err, appDeployes) {
@@ -73,7 +73,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 
-    app.get('/app/deploy/pipeline/project/:projectId',validate(appDeployValidator.get),getProject);
+    app.get('/app-deploy-pipeline/project/:projectId',validate(appDeployValidator.get),getProject);
 
     function getProject(req, res, next) {
         async.waterfall(
@@ -92,9 +92,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    app.post('/app/deploy/data/pipeline/save/configure',validate(appDeployValidator.post),saveAndUpdatePipeLineConfiguration);
+    app.post('/app-deploy-pipeline/save/appConfigPipeLineData',validate(appDeployValidator.post),saveAndUpdatePipeLineConfiguration);
 
-    app.put('/app/deploy/data/pipeline/update/configure',validate(appDeployValidator.post), saveAndUpdatePipeLineConfiguration);
+    app.put('/app-deploy-pipeline/update/appConfigPipeLineData',validate(appDeployValidator.post), saveAndUpdatePipeLineConfiguration);
 
     function saveAndUpdatePipeLineConfiguration(req, res, next) {
         var loggedInUser = req.session.user.cn;
@@ -115,40 +115,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
         });
     };
-
-    app.get('/app/deploy/pipeline/project/:projectId/projectList',validate(appDeployValidator.get), getAppDeployPipelineList);
-
-     function getAppDeployPipelineList(req, res, next) {
-         var reqData={};
-         async.waterfall(
-           [
-                function(next) {
-                    apiUtil.paginationRequest(req.query,'appDeploy',next);
-                },
-                function(paginationReq,next){
-                    paginationReq['projectId']=req.params.projectId;
-                    reqData=paginationReq;
-                    AppDeployPipeline.getAppDeployPipelineList(paginationReq,next);
-                },
-                function(appDeployData,next){
-                    if(appDeployData.docs.length)
-                        apiUtil.paginationResponse(appDeployData,reqData,next);
-                    else
-                        masterUtil.getParticularProject(req.params.projectId,next);
-                }
-
-           ], function(err, results) {
-                if(err)
-                        next(err);
-                 else
-                    return res.status(200).send(results);
-           });
-     }
+    
 
 
 
-
-    app.post('/app/deploy/data/pipeline/update/configure/project/:projectId', function(req, res) {
+    app.post('/app-deploy-pipeline/update/configureData/project/:projectId', function(req, res) {
         AppDeployPipeline.updateConfigurePipeline(req.params.projectId, req.body.appDeployPipelineUpdateData, function(err, appDeployes) {
             if (err) {
                 res.send(403, "Pipeline Data Already Exist.");
