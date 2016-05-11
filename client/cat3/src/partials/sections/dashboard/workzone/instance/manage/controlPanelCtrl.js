@@ -18,8 +18,7 @@
             //To activate the tab
             tab : "Actionhistory",
             setTab : function (tabId) {
-                _tab.tab = tabId;
-                $rootScope.$emit('WZ_TAB_VISIT', $scope.tab.tab);       
+                _tab.tab = tabId;     
             },
             isSet : function (tabId) {
                 return _tab.tab === tabId;
@@ -43,13 +42,6 @@
             }
         };
         $scope.tab = _tab;
-        $scope.removeActive = function () {
-            $('.InfrastructureLocalStorage').removeClass('active');
-        };
-
-        $scope.addActive = function () {
-            $('.InfrastructureLocalStorage').addClass('active');
-        };
 
         if (instance.puppet) {
             //Dont show Services tab for puppet instance
