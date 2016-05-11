@@ -9,17 +9,17 @@
                 <span ng-show="!isPipelineViewActive">{{selectedEnv}}</span>
             </span>
             <span class="pull-right">
-                <button type="button" class="btn btn-xs btn-info"
+                <button type="button" class="btn btn-xs cat-btn-update"
                 ng-click="deployNewApp()">
                     <i class="fa fa-plus white"></i>
                      App Deploy
                 </button>
-                <button type="button" class="btn btn-xs btn-info"
+                <button type="button" class="btn btn-xs cat-btn-update"
                 ng-click="applicationPipelineTab('activeCards')"  ng-show="isAppActiveCardTab.icon">
                     <i class="fa fa-th-list white"></i>
                     Active Cards
                 </button>
-                <button type="button" class="btn btn-xs btn-info"
+                <button type="button" class="btn btn-xs cat-btn-update"
                 ng-click="applicationPipelineTab('allCards')" ng-show="isAppallCardTab.icon">
                     <i class="fa fa-th-list white"></i>
                     All cards
@@ -51,7 +51,10 @@
                 </div>
                 <div ui-grid="pipeGridOptions"  ui-grid-pagination class="grid"></div>
             </div>
-            <div class="no-data-found" ng-if="!pipeGridOptions.data.length > 0"> No data found !</div>
+            <div class="no-data-found" ng-if="!pipeGridOptions.data.length > 0"> No data found !
+                <button type="button" class="btn btn-xs btn-info  pull-right" ng-click="appCardRefresh(pipeLineActBarData)">
+                    <i class="fa fa-refresh white"></i> Refresh</button>
+            </div>
 
         </section>
 

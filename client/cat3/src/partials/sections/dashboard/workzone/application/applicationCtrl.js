@@ -181,7 +181,7 @@
 					});
 				},
 				appCardRefresh :function () {
-					getApplicationCardService($scope.requestParams.params,gridOpt.pagination);
+					getApplicationPipeLineData($scope.requestParams.params);
 				}
 			});
 			var count = 0;
