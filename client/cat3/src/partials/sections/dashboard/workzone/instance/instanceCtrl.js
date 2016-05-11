@@ -179,6 +179,31 @@
 				} else {
 					return instanceStateImagePrefix + colorSuffix;
 				}
+			},
+			getPlatformId: function(providerType, platformID) {
+				/*$scope.platformId1 = 'unknown';
+				$scope.providerIdText = 'Instance Id : ';*/
+				/*if ($scope.instanceList.platformId) {*/
+				/*platformId = $scope.instanceList.platformId;*/
+				var providerIdPrefix;
+				switch (providerType) {
+					case 'aws':
+						providerIdPrefix = 'AWS Id : ';
+						break;
+					case 'azure':
+						providerIdPrefix = 'Azure Id : ';
+						break;
+					case 'vmware':
+						providerIdPrefix = 'VMware Id : ';
+						break;
+					case 'openstack':
+						providerIdPrefix = 'openstack Id : ';
+						break;
+					default:
+						providerIdPrefix = 'Instance Id : ';
+						platformID = 'unknown';
+				}
+				return providerIdPrefix + platformID;
 			}, 
 			actionSet: instanceActions
 		});

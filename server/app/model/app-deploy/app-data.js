@@ -199,7 +199,7 @@ var checkDuplicate = function checkDuplicate(aData, reqData) {
                     existDocker[i].nodeIds.push(reqDocker[0].nodeIds[0]);
                 }
             } else {
-                existDocker[i].push(reqDocker[0].docker[0]);
+                existDocker.push(reqDocker[0]);
             }
         }
         reqData.docker = existDocker;
