@@ -89,8 +89,8 @@ function sync() {
                                                                     logger.error(err);
                                                                     return;
                                                                 }
+                                                                return;
                                                             });
-                                                            return;
                                                         };
                                                         if (decryptedCredentials.pemFileLocation) {
                                                             fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
@@ -98,51 +98,61 @@ function sync() {
                                                             });
 
                                                         };
-                                                        var _stdout = stdOut.split('\r\n');
-                                                        var start = false;
-                                                        var so = '';
-                                                        _stdout.forEach(function(k, v) {
-                                                            if (start == true) {
-                                                                so += _stdout[v];
-                                                                logger.debug(v + ':' + _stdout[v].length);
-                                                            }
-                                                            if (_stdout[v].length == 1)
-                                                                start = true;
-                                                            if (v >= _stdout.length - 1) {
-                                                                if(so.indexOf("Names")>0){
-                                                                    var containers = JSON.parse(so);
-                                                                    var containerList=[];
-                                                                    var containerIds=[];
-                                                                    async.forEach(containers,function(container,next){
-                                                                        var containerName=container.Names[0].replace(/^\//, "");
-                                                                        var status=dockerContainerStatus(container.Status.toString());
-                                                                        var containerData = {
-                                                                            orgId: organization.rowid,
-                                                                            bgId: businessGroup.rowid,
-                                                                            projectId: project.rowid,
-                                                                            envId: environment.rowid,
-                                                                            Id: container.Id,
-                                                                            instanceIP: instance.instanceIP,
-                                                                            instanceId: instance._id,
-                                                                            Names: containerName,
-                                                                            Image: container.Image,
-                                                                            ImageID: container.ImageID,
-                                                                            Command: container.Command,
-                                                                            Created: container.Created,
-                                                                            Ports: container.Ports,
-                                                                            Labels: toPairs(container.Labels),
-                                                                            Status: container.Status,
-                                                                            containerStatus: status,
-                                                                            HostConfig: container.HostConfig
-                                                                        };
-                                                                        containerList.push(containerData);
-                                                                        containerIds.push(container.Id);
-                                                                        containerData={};
-                                                                    });
-                                                                    containerAction(containerList,containerIds,instance._id);
+                                                        if(code === -5000){
+                                                            containerDao.deleteContainerByInstanceId(instance._id,function(err,deleteContainer){
+                                                                if(err){
+                                                                    logger.error(err);
+                                                                    return;
                                                                 }
-                                                            }
-                                                        });
+                                                                return;
+                                                            });
+                                                        }else {
+                                                            var _stdout = stdOut.split('\r\n');
+                                                            var start = false;
+                                                            var so = '';
+                                                            _stdout.forEach(function (k, v) {
+                                                                if (start == true) {
+                                                                    so += _stdout[v];
+                                                                    logger.debug(v + ':' + _stdout[v].length);
+                                                                }
+                                                                if (_stdout[v].length == 1)
+                                                                    start = true;
+                                                                if (v >= _stdout.length - 1) {
+                                                                    if (so.indexOf("Names") > 0) {
+                                                                        var containers = JSON.parse(so);
+                                                                        var containerList = [];
+                                                                        var containerIds = [];
+                                                                        async.forEach(containers, function (container, next) {
+                                                                            var containerName = container.Names[0].replace(/^\//, "");
+                                                                            var status = dockerContainerStatus(container.Status.toString());
+                                                                            var containerData = {
+                                                                                orgId: organization.rowid,
+                                                                                bgId: businessGroup.rowid,
+                                                                                projectId: project.rowid,
+                                                                                envId: environment.rowid,
+                                                                                Id: container.Id,
+                                                                                instanceIP: instance.instanceIP,
+                                                                                instanceId: instance._id,
+                                                                                Names: containerName,
+                                                                                Image: container.Image,
+                                                                                ImageID: container.ImageID,
+                                                                                Command: container.Command,
+                                                                                Created: container.Created,
+                                                                                Ports: container.Ports,
+                                                                                Labels: toPairs(container.Labels),
+                                                                                Status: container.Status,
+                                                                                containerStatus: status,
+                                                                                HostConfig: container.HostConfig
+                                                                            };
+                                                                            containerList.push(containerData);
+                                                                            containerIds.push(container.Id);
+                                                                            containerData = {};
+                                                                        });
+                                                                        containerAction(containerList, containerIds, instance._id);
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
 
                                                     }, function (stdOutData) {
                                                         stdOut += stdOutData.toString();
@@ -153,8 +163,8 @@ function sync() {
                                                                 logger.error(err);
                                                                 return;
                                                             }
+                                                            return;
                                                         });
-                                                        return;
                                                     });
                                                     });
                                             })

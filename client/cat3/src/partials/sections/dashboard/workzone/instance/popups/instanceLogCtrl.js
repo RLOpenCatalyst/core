@@ -8,7 +8,7 @@
 (function (angular) {
 	"use strict";
 	 angular.module('workzone.instance')
-	.controller('instanceLogsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval', 'instanceLogs', function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval, instanceLogs) {
+	.controller('instanceLogsCtrl', ['$scope', '$rootScope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval', 'instanceLogs', function($scope, $rootScope , $modalInstance, items, workzoneServices, instanceSetting, $interval, instanceLogs) {
 		$scope.instanceName = items.name;
 		$scope.isInstanceLogsLoading = true;
 		angular.extend($scope, {
@@ -16,6 +16,10 @@
 		});
 		var promise = instanceLogs.showInstanceLogs(items._id);
 		promise .then(function(resolveMessage) {
+			//event to update the instance tab when docker cookbook is run and logs are closed.
+			/*if(items.docker){
+				$rootScope.$emit('WZ_INSTANCES_REFRESH_CURRENT');
+			}*/
 			console.log(resolveMessage);
 			$modalInstance.dismiss('cancel');
 		},function(rejectMessage) {

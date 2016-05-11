@@ -9,8 +9,8 @@
 	"use strict";
 	angular.module('workzone.orchestration').
 	controller('orchestrationUpdateChefRunlistCtrl', ['$scope', '$q', '$modalInstance',
-	'responseFormatter', 'chefSelectorComponent', '$timeout', '$http', 'workzoneServices',
-	function ($scope, $q, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices) {
+	'responseFormatter', 'cookbookRunlistAttr','chefSelectorComponent', '$timeout', '$http', 'workzoneServices',
+	function ($scope, $q, $modalInstance, responseFormatter, cookbookRunlistAttr, chefSelectorComponent, $timeout, $http, workzoneServices) {
 		/*Open only One Accordian-Group at a time*/
 		$scope.oneAtATime = true;
 		/*Initialising First Accordian-group open on load*/
@@ -24,9 +24,9 @@
         //promise contains template list
         var t = workzoneServices.getSoftwareTemplatesForOrg();
         //promise contains selected runlist for edit.
-        var s = $scope.chefrunlist;
+        var s = cookbookRunlistAttr.chefrunlist;
         //promise contains edited cookbook attributes list
-        var a = $scope.cookbookAttributes;
+        var a = cookbookRunlistAttr.attributes;
         var e = $scope.editRunListAttributes;
         //var allPromise = $q.all([c, t, s, a, e]);
         $q.all([c, t, s, a, e]).then(function(allPromise) {
