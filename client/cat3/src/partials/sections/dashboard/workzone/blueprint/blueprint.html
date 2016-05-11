@@ -16,14 +16,6 @@
                         <accordion-group is-open="isFirstOpen" heading="Software Stack">
                             <div class="productdiv4" ng-repeat="launcher in blueprints.software_stack">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
-                                    <div class="">
-                                        <!-- <select ng-model="launcher.selectedVersion" ng-change="changeCardVersion(123);">
-                                            <option value="{{launcher.version}}">{{launcher.version}}</option>
-                                            <option ng-repeat="bpVersion in launcher.cardVersions" value="{{bpVersion.id}}">{{bpVersion.version}}</option>
-                                        </select> -->
-                                        <select ng-model="launcher.selectedVersion" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersion = launcher.cardVersions[0].id">
-                                        </select>
-                                    </div>
                                     <ul class="list-unstyled system-prop">
                                         <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
                                             <i class="fa fa-info-circle"></i>
@@ -37,10 +29,7 @@
                                     </ul>
                                     <div class="blueprint-buttons">
                                         <div class="btnicons">
-                                            <!-- <span ng-show="!launcher.versions" class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
-                                                <i class="fa fa-location-arrow white"></i>
-                                            </span> -->
-                                            <span ng-show="launcher.versions" class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(bpVersion);">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
                                                 <i class="fa fa-location-arrow white"></i>
                                             </span>
                                         </div>
@@ -64,12 +53,6 @@
                         <accordion-group heading="OSImage">
                             <div class="productdiv4" ng-repeat="launcher in blueprints.os_image">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
-                                    <div class="">
-                                        <select>
-                                            <option value="{{launcher.version}}">{{launcher.version}}</option>
-                                            <option ng-repeat="bpVersion in launcher.versions" value="{{launcher.version}}">{{bpVersion.version}}</option>
-                                        </select>
-                                    </div>
                                     <ul class="list-unstyled system-prop">
                                         <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
                                             <i class="fa fa-info-circle"></i>
