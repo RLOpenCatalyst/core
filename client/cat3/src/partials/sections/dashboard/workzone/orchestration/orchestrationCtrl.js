@@ -7,7 +7,7 @@
 
 (function(angular) {
 	'use strict';
-	angular.module('workzone.orchestration', ['rl.ui.component.library', 'datatables', 'filter.currentTime', 'ngAnimate', 'ui.bootstrap', 'apis.workzone', 'ModalService', 'utility.array', 'workzonePermission', 'chefDataFormatter', 'utility.pagination'])
+	angular.module('workzone.orchestration', ['rl.ui.component.library', 'filter.currentTime', 'ui.bootstrap', 'apis.workzone', 'ModalService', 'utility.array', 'workzonePermission', 'chefDataFormatter', 'utility.pagination'])
 		.controller('orchestrationCtrl', ['$scope', '$rootScope', '$modal', 'workzoneServices', 'confirmbox', 'arrayUtil', 'orchestrationPermission', 'workzoneUIUtils', 'paginationUtil', '$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, workzoneServices, confirmbox, arrayUtil, orchestrationPerms, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
 			var _permSet = {
 				createTask: orchestrationPerms.createTask(),

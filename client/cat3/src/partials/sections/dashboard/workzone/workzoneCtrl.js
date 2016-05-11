@@ -82,7 +82,7 @@ function workzoneFunct($scope, $rootScope) {
 		}
 	}
 }
-angular.module('dashboard.workzone', ['angularTreeview', 'ngAnimate', 'mgcrea.ngStrap', 'workzone.instance', 'workzone.blueprint', 'workzone.orchestration', 'workzone.container', 'workzone.cloudFormation', 'workzone.azureARM', 'workzone.application', 'apis.workzone', 'workzone.factories'])
+angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'workzone.instance', 'workzone.blueprint', 'workzone.orchestration', 'workzone.container', 'workzone.cloudFormation', 'workzone.azureARM', 'workzone.application', 'apis.workzone', 'workzone.factories'])
 	.controller('workzoneCtrl', ['$scope', '$rootScope', workzoneFunct])
 	.controller('workzoneTreeCtrl', ['$rootScope', '$scope', 'workzoneServices', 'workzoneEnvironment', '$timeout', function ($rootScope, $scope, workzoneServices, workzoneEnvironment, $timeout) {
 		'use strict';

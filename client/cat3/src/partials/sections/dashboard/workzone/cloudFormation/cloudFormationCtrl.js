@@ -7,7 +7,7 @@
 
 (function(angular) {
 	'use strict';
-	angular.module('workzone.cloudFormation', ['apis.workzone', 'ngAnimate', 'ui.bootstrap','utility.array'])
+	angular.module('workzone.cloudFormation', ['apis.workzone', 'ui.bootstrap','utility.array'])
 		.service('CftSetting', [function() {
 			return {
 				stackEventsPollerTime: 200

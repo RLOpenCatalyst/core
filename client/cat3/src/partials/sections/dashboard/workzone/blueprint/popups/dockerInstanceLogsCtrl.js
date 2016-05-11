@@ -8,14 +8,14 @@
 (function (angular) {
 	"use strict";
 	 angular.module('workzone.blueprint')
-	.controller('dockerInstanceLogsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval', 'instanceLogs', function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval, instanceLogs) {
+	.controller('dockerInstanceLogsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', 'instanceLogs', function($scope, $modalInstance, items, workzoneServices, instanceSetting, instanceLogs) {
 		$scope.instanceName = items.name;
 		$scope.isInstanceLogsLoading = true;
 		angular.extend($scope, {
 			logList: []				
 		});
 		var promise = instanceLogs.showInstanceLogs(items._id);
-		promise .then(function(resolveMessage) {
+		promise.then(function(resolveMessage) {
 			console.log(resolveMessage);
 			$modalInstance.dismiss('cancel');
 		},function(rejectMessage) {
