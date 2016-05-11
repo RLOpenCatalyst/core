@@ -1128,15 +1128,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
-		var jsonData={};
-		jsonData['orgId']=req.params.orgId;
-		jsonData['bgId']=req.params.bgId;
-		jsonData['projectId']=req.params.projectId;
-		jsonData['envId']=req.params.envId;
-		jsonData['instanceType']=req.params.instanceType;
-		jsonData['userName']=req.session.user.cn;
-		jsonData['blueprintType']=req.query.blueprintType
-        configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
+		var jsonData = {};
+		jsonData['orgId'] = req.params.orgId;
+		jsonData['bgId'] = req.params.bgId;
+		jsonData['projectId'] = req.params.projectId;
+		jsonData['envId'] = req.params.envId;
+		jsonData['instanceType'] = req.params.instanceType;
+		jsonData['userName'] = req.session.user.cn;
+		jsonData['blueprintType'] = req.query.blueprintType
+		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function (err, orgbuprojs) {
 			if (orgbuprojs.length === 0) {
 				res.send(401, "User not part of team to see project.");
 				return;
@@ -1171,7 +1171,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
 						}
 					)
 				}
-		}
+				;
+			}
+		});
 	});
 
 	app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
