@@ -1530,10 +1530,13 @@
             reqBody.orgId = $orgListInput.val();
             reqBody.bgId = $bgList.val();
             reqBody.projectId = $projectList.val();
-            //Added By Durgesh For Project Name
-            reqBody.projectName = $projectList.find('option:selected').text();
-            //End By Durgesh
             reqBody.envId = $envList.val();
+            //Added By Durgesh
+            reqBody.orgName = $orgListInput.find('option:selected').text();
+            reqBody.bgName = $bgList.find('option:selected').text();
+            reqBody.projectName = $projectList.find('option:selected').text();
+            reqBody.environmentName = $envList.find('option:selected').text();
+            //End By Durgesh
             reqBody.configManagmentId = $infraManagerList.val();
 
 
