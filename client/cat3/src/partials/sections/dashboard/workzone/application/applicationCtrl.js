@@ -175,10 +175,13 @@
 						}
 					}).
 					result.then(function(returnData) {
-						$scope.pipeGridOptions.data[$scope.rowIndex][returnData.targetEnv]=returnData;
+						
 					}, function() {
 
 					});
+				},
+				appCardRefresh :function () {
+					getApplicationCardService($scope.requestParams.params,gridOpt.pagination);
 				}
 			});
 			var count = 0;
@@ -211,6 +214,7 @@
 							cellTemplate: '<div pipeline-card card-details="row.entity.appName"></div>',
 							cellTooltip: true
 						}];
+
 						//Api response is in array but it is only one object.
 					if(configResult.data.length >0) {
 						angular.forEach(configResult.data[0].envSequence, function (val) {
