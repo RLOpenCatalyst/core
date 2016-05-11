@@ -55,6 +55,7 @@
 				$scope.envParams=requestParams;
 				$scope.blueprintListCards();
 			});
+			
 			angular.extend($scope, {
 				blueprintListCards: function() {
 					$scope.isBlueprintPageLoading = true;
