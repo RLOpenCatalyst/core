@@ -11,6 +11,8 @@
         .controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q',
             function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
                 $scope.isNewTaskPageLoading = true;
+                $scope.chefrunlist = [];
+                $scope.cookbookAttributes = [];
                 //default values for new task
                 angular.extend($scope, {
                     parentItems:items,
@@ -20,7 +22,15 @@
                                 templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
                                 controller: 'orchestrationUpdateChefRunlistCtrl',
                                 backdrop: 'static',
-                                keyboard: false
+                                keyboard: false,
+                                resolve : {
+                                    cookbookRunlistAttr: function(){
+                                        return {
+                                            chefrunlist:$scope.chefrunlist,
+                                            attributes:$scope.cookbookAttributes
+                                        }
+                                    }
+                                }
                             }).result.then(function (selectedCookBooks) {
                                 $scope.editRunListAttributes = false;
                                 $scope.chefrunlist = selectedCookBooks.list;
