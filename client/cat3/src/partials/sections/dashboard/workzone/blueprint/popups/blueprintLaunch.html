@@ -16,6 +16,7 @@
 			<div ng-show="!launchMessage.isSuccess">
 				<h4 class="alert alert-danger">{{launchMessage.message}}</h4>
 			</div>
+			<div ng-show="logsErrorMessage" class="errorMsg">{{logsErrorMessage}}</div>
 			<div class="logsArea" ng-hide="showCFTInputs || showARMInputs">
 				<table>
 					<tbody>
