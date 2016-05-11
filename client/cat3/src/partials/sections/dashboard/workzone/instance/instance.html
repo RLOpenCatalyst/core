@@ -12,7 +12,7 @@
 				<span class="import-button">
 					<span>
 						<i class="fa fa-laptop cursor" title="Import By IP" 
-						ng-click="instanceImportByIP()" ng-show="perms.launch" ng-disabled="importByIPDisabled"></i>
+						ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch"></i>
 					</span>
 				</span>
 			<span ng-click="instanceCardView()"> <i class="fa fa-th cursor " ng-class="instanceCardViewSelection" title="Card View"></i></span>&nbsp;

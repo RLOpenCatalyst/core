@@ -40,7 +40,7 @@
 		var completeData;
 		$scope.instancePageLevelLoader = true;
 		$scope.instStartStopFlag = false;
-		$scope.importByIPDisabled = false;
+		$scope.isImportClickEnabled = true;
 
 		/*User permission set example*/
 		//defining an object for permission.
@@ -333,6 +333,12 @@
 			$scope.instancesListCardView();
 		});
 
+		//root scope method for refreshing the list view at the time of docker cookbook run.
+		$rootScope.$on('WZ_INSTANCES_SHOW_DOCKER', function(){
+			helper.setPaginationDefaults();
+			$scope.instancesListCardView();
+		});
+
 		var helper = {
 			setPaginationDefaults: function() {
 				$scope.paginationParams.page = '';
@@ -343,7 +349,7 @@
 		}
 		
 		$scope.instanceImportByIP = function() {
-			$scope.importByIPDisabled = true;
+			$scope.isImportClickEnabled = false;
 			var whetherConfigListAvailable = workzoneServices.getCheckIfConfigListAvailable();
 			var getOSList = workzoneServices.getOSList();
 
@@ -364,9 +370,11 @@
 				}
 			});
 			modalInstance.result.then(function(newinstId) {
+				$scope.isImportClickEnabled = true;
 				$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
 				$scope.operationSet.viewLogs(newinstId);
 			}, function() {
+				$scope.isImportClickEnabled = true;
 				console.log('Modal dismissed at: ' + new Date());
 			});
 		};
