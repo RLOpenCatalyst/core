@@ -1627,10 +1627,13 @@ function validateApplicationDeployData() {
             }
             return true;
         }
+    } else {
+        return true;
     }
 }
 
 var saveblueprint = function(tempType) {
+   
     if (validateApplicationDeployData()) {
         bootbox.confirm({
             message: "Are you sure want to submit this Blueprint Data? Press Ok to Continue",
