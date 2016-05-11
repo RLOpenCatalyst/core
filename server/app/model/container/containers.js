@@ -72,7 +72,6 @@ var containerSchema = new Schema({
     Labels:[Schema.Types.Mixed],
     Status: {
         type: String,
-        required: true,
         trim: true,
     },
     containerStatus: {
@@ -165,7 +164,8 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
         Id: containerId
     }, {
         $set: {
-            containerStatus: containerStatus
+            containerStatus: containerStatus,
+            Status: containerStatus
         }
     }, {
         upsert: false
@@ -180,20 +180,21 @@ containerSchema.statics.updateContainer = function(containerId,containerStatus, 
 
 };
 
-containerSchema.statics.updateContainerStatus = function(containerId,containerStatus, callback) {
+containerSchema.statics.updateContainerStatus = function(containerId,containerStatus,status,callback) {
     logger.debug("Enter updateContainerStatus");
     container.update({
         Id: containerId
     }, {
         $set: {
-            Status: containerStatus
+            Status: containerStatus,
+            containerStatus: status
         }
     }, {
         upsert: false
     }, function(err, data) {
         if (err) {
             logger.error("Failed to updateContainerStatus (%s, %s)", err);
-            return;
+            callback(err, null);
         }
         logger.debug("Exit updateContainerStatus (%s, %s)");
         callback(null, data);
@@ -211,6 +212,21 @@ containerSchema.statics.deleteContainerById=function(containerId,callback){
             return;
         }
         logger.debug("Exit deleteContainerById (%s)", containerId);
+        callback(null, data);
+    });
+};
+
+containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback){
+    logger.debug("Enter deleteContainerByInstanceId (%s)", instanceId);
+    container.remove({
+        instanceId: instanceId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to deleteContainerByInstanceId (%s)", instanceId, err);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit deleteContainerByInstanceId (%s)", instanceId);
         callback(null, data);
     });
 };

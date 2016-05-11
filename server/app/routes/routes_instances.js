@@ -634,8 +634,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             action1: action1,
             user: req.session.user,
             permissionSet: req.session.user.permissionset,
-            status: action + ' in Progress',
-            processStatus: action + ' Successfully'
         };
         containerService.executeActionOnContainer(jsonData, function(err, containerResponse) {
             if (err) {

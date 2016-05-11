@@ -25,107 +25,26 @@
 	<div class="modal-body">
 		<section>
 			<!--This table will get use when job type will be chef -->
-			 <table datatable="" class="table-bordered text-center" ng-if="task.taskType=='chef'">
-				<thead>
-					<tr class="rowCustomStyle" role="row">
-						<td>Start Time</td>
-						<td>End Time</td>
-						<td>Status</td>
-						<td>Message</td>
-						<td>User</td>
-						<td>Logs</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="hist in history">
-						<td>{{hist.timestampStarted | timestampToLocaleTime}}</td>
-						<td>{{hist.timestampEnded | timestampToLocaleTime}}</td>
-						<td class="{{hist.status}}">{{hist.status}}</td>
-						<td>{{hist.message}}</td>
-						<td>{{hist.user}}</td>
-						<td>
-							<i class="fa fa-info-circle cursor" title="More Info" ng-click="historyLogs(hist)"></i>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<loading size="large" name="ischefTaskHistoryPageLoading" type="block"></loading>
+			<div ng-show="!ischefTaskHistoryPageLoading">
+				<div id="grid5" ng-if="taskHistoryChefData.length >0 && task.taskType=='chef'" ui-grid="taskHistoryChefGridOptions" ui-grid-pagination class="grid"></div>
+			</div>
 			<!--This table will get use when job type will be puppet -->
-			<table datatable="" class="table-bordered text-center" ng-if="task.taskType=='puppet'">
-				<thead>
-					<tr>
-						<td>Start Time</td>
-						<td>End Time</td>
-						<td>Status</td>
-						<td>Message</td>
-						<td>User</td>
-						<td>Logs</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="hist in history">
-						<td>{{hist.timestampStarted | timestampToLocaleTime}}</td>
-						<td>{{hist.timestampEnded | timestampToLocaleTime}}</td>
-						<td class="{{hist.status}}">{{hist.status}}</td>
-						<td>{{hist.message}}</td>
-						<td>{{hist.user}}</td>
-						<td>
-							<i class="fa fa-info-circle cursor" title="More Info" ng-click="historyLogs(hist)"></i>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<loading size="large" name="ispuppetTaskHistoryPageLoading" type="block"></loading>
+			<div ng-show="!ispuppetTaskHistoryPageLoading">
+				<div id="grid6" ng-if="taskHistoryPuppetData.length >0 && task.taskType=='puppet'" ui-grid="taskHistoryPuppetGridOptions" ui-grid-pagination class="grid"></div>
+			</div>
 			<!--This table will get use when job type will be jenkins -->
-			<table datatable="" class="table-bordered text-center" ng-if="task.taskType=='jenkins'">
-				<thead>
-					<tr>
-						<td>Job Number</td>
-						<td>Job Output</td>
-						<td>Status</td>
-						<td>Start Time</td>
-						<td>End Time</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="hist in history">
-						<td>
-							<a target="_blank" title="Jenkins" ng-href="http://{{task.taskConfig.jobURL+'/'+hist.buildNumber}}">{{hist.buildNumber}}</a>
-						</td>
-						<td>
-							<span title="Jenkins Log" class="fa fa-list bigger-120 btn cat-btn-update btn-sg tableactionbutton" ng-click="historyLogs(hist);">
-							</span>
-						</td>
-						<td class="{{hist.status}}">{{hist.status}}</td>
-						<td>{{hist.timestampStarted | timestampToLocaleTime}}</td>
-						<td>{{hist.timestampEnded | timestampToLocaleTime}}</td>
-					</tr>
-				</tbody>
-			</table>
-
+			<loading size="large" name="isjenkinsTaskHistoryPageLoading" type="block"></loading>
+			<div ng-show="!isjenkinsTaskHistoryPageLoading">
+				<div id="grid7" ng-if="taskHistoryJenkinsData.length >0 && task.taskType=='jenkins'" ui-grid="taskHistoryJenkinsGridOptions" ui-grid-pagination class="grid"></div>
+			</div>
 			<!--This table will get use when job type will be composite -->
-			<table datatable="" class="table-bordered text-center" ng-if="task.taskType=='composite'">
-				<thead>
-					<tr>
-						<td>Start Time</td>
-						<td>End Time</td>
-						<td>Status</td>
-						<td>Message</td>
-						<td>User</td>
-						<td>Logs</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="hist in history">
-						<td>{{hist.timestampStarted | timestampToLocaleTime}}</td>
-						<td>{{hist.timestampEnded | timestampToLocaleTime}}</td>
-						<td class="{{hist.status}}">{{hist.status}}</td>
-						<td>{{hist.message}}</td>
-						<td>{{hist.user}}</td>
-						<td>
-							<i class="fa fa-info-circle cursor" title="More Info" ng-click="historyLogs(hist)"></i>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<loading size="large" name="iscompositeTaskHistoryPageLoading" type="block"></loading>
+			<div ng-show="!iscompositeTaskHistoryPageLoading">
+				<div id="grid8" ng-if="taskHistoryCompositeData.length >0 && task.taskType=='composite'" ui-grid="taskHistoryCompositeGridOptions" ui-grid-pagination class="grid"></div>
+			</div>
+			<div ng-show="!ischefTaskHistoryPageLoading && !ispuppetTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !iscompositeTaskHistoryPageLoading" ng-if="taskHistoryChefData.length == 0 && taskHistoryPuppetData.length == 0 && taskHistoryJenkinsData.length == 0 && taskHistoryCompositeData.length == 0" align="center">No Data Found !!!</div>
 		</section>
 	</div>
 

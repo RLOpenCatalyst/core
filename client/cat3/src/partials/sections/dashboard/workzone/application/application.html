@@ -38,11 +38,14 @@
                 <div class="action-bar panel-heading">
                     <div ng-show="pipeLineActBarShow">
                         <p>
-                            <button type="button" class="btn btn-xs btn-info" ng-click="appCardDetail(pipeLineActBarData)">Info</button>
-                            <button type="button" class="btn btn-xs btn-primary" ng-click="promoteApp(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">Promote</button>
-                            <button type="button" class="btn btn-xs btn-primary" ng-click="appApprove(pipeLineActBarData)" ng-if="!pipeLineActBarData.isApproved">Approve</button>
-                            <button type="button" class="btn btn-xs btn-warning" ng-if="cardPermission.isApproved">Reject</button>
-                            <button type="button" class="btn btn-xs btn-success" ng-click="upgradeApp(pipeLineActBarData)">Upgrade</button>
+                            <button type="button" class="btn btn-xs btn-info" ng-click="appCardDetail(pipeLineActBarData)">
+                                <i class="fa fa-tasks white"></i> Info </button>
+                            <button type="button" class="btn btn-xs btn-primary" ng-click="promoteApp(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
+                                <i class="fa fa-clone white"></i> Promote</button>
+                            <button type="button" class="btn btn-xs btn-primary" ng-click="appApprove(pipeLineActBarData)" ng-if="!pipeLineActBarData.isApproved">
+                                <i class="fa fa-eye white"></i> Approve</button>
+                            <button type="button" class="btn btn-xs btn-success" ng-click="upgradeApp(pipeLineActBarData)">
+                                <i class="fa fa-edit white"></i> Upgrade</button>
                         </p>
                     </div>
                 </div>

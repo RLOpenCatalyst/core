@@ -17,8 +17,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
-			},
-			sucessMessage:false,
+			}
 		});
 		var depNewApp={
 			newEnt:[],
@@ -204,13 +203,13 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			$scope.isLoadingNewApp=true;
 			workSvs.postAppDeploy(depNewApp.deploymentData).then(function(deployResult){
 				$scope.isLoadingNewApp=false;
-				$scope.sucessMessage=true;
 				depNewApp.deployResult=deployResult.data;
+				$modalInstance.close();
+				depNewApp.taskLog();
 			});
 			//
 		};
-		depNewApp.ok=function(){
-			$modalInstance.close();
+		depNewApp.taskLog=function(){
 			workSvs.runTask(depNewApp.deployResult.taskId).then(function(response) {
 				$modal.open({
 					animation: true,

@@ -7,14 +7,14 @@
 (function(angular) {
     "use strict";
     angular.module('workzone.blueprint')
-        .controller('dockerLaunchParamsCtrl', ['$scope', '$modal', '$modalInstance', 'workzoneServices', '$q', 'items', function($scope, $modal, $modalInstance, workzoneServices, $q, items) {
+        .controller('dockerLaunchParamsCtrl', ['$scope', '$modal', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', '$q', 'items', function($scope, $modal, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, $q, items) {
             angular.extend($scope, {
                 cancel: function() {
                     $modalInstance.dismiss('cancel');
-                },
+                }
             });
             //wizard data setting for step 1 and step 2.
-            var index = 0, // points to the current step in the steps array
+            var stepIndex = 0, // points to the current step in the steps array
                 steps = $scope.steps = [{
                     'isDisplayed': true,
                     'name': 'dockerimages',
@@ -28,19 +28,20 @@
             $scope.nextEnabled = true;
             $scope.previousEnabled = false;
             $scope.submitEnabled = false;
-
+            $scope.repaintStep = steps[stepIndex].name;
             $scope.next = function() {
                 if (steps.length === 0) {
                     console.debug('No steps provided.');
                     return;
                 }
                 // If we're at the last step, then stay there.
-                if (index === steps.length - 1) {
+                if (stepIndex === steps.length - 1) {
                     return;
                 }
 
-                steps[index++].isDisplayed = false;
-                steps[index].isDisplayed = true;
+                steps[stepIndex++].isDisplayed = false;
+                steps[stepIndex].isDisplayed = true;
+                $scope.repaintStep = steps[stepIndex].name;
                 $scope.setButtons();
             };
 
@@ -50,23 +51,24 @@
                     console.debug('No steps provided.');
                     return;
                 }
-                if (index === 0) {
+                if (stepIndex === 0) {
                     console.debug('At first step');
                     return;
                 }
-                steps[index--].isDisplayed = false;
-                steps[index].isDisplayed = true;
+                steps[stepIndex--].isDisplayed = false;
+                steps[stepIndex].isDisplayed = true;
+                $scope.repaintStep = steps[stepIndex].name;
                 $scope.setButtons();
             }; // $scope.previous
 
 
             /* Sets the correct buttons to be enabled or disabled.*/
             $scope.setButtons = function() {
-                if (index === steps.length - 1) {
+                if (stepIndex === steps.length - 1) {
                     $scope.nextEnabled = false;
                     $scope.previousEnabled = true;
                     $scope.submitEnabled = true;
-                } else if (index === 0) {
+                } else if (stepIndex === 0) {
                     $scope.previousEnabled = false;
                     $scope.nextEnabled = true;
                     $scope.submitEnabled = false;
@@ -93,18 +95,117 @@
                     arr.splice(newPosition, 0, arr.splice(currItem, 1)[0]);
                 }
             };
-            $scope.dockerDetails = [];
+            
+            /*Step 1 - Docker Images*/
+            
             //items gives the details of the selected blueprint.
             var dockerParams = items.blueprintConfig.dockerCompose;
 
-            //gives the dockerParams details to show up the image in the first step of wizard.
-            dockerParams.forEach(function(k, v) {
-                $scope.dockerDetails.push(dockerParams[v]);
-            });
+            var dockerImagesOptions = uiGridOptionsClient.options().gridOption;
+            $scope.dockerImagesGridOptions = dockerImagesOptions;
+            $scope.dockerDetails = [];
 
-            //call made to get the instance details.(instance name,instanceIP)
-            workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
-                $scope.instanceData = response.data.instances;
+            $scope.initDockerImagesGrids = function(){
+                $scope.dockerImagesGridOptions.data='dockerDetails';
+                $scope.dockerImagesGridOptions.columnDefs = [
+                {name:"Name",cellTemplate:'<div>{{row.entity.dockercontainerpathstitle}}</div>',cellTooltip: true},
+                {name:"Image Path",cellTemplate:'<div>{{row.entity.dockercontainerpaths}}</div>',cellTooltip: true},
+                {name:"Tag",cellTemplate:'<div>{{row.entity.dockerrepotags}}</div>',cellTooltip: true},
+                {name:"Launch Params",cellTemplate:'<input type="text" ng-model="row.entity.dockerlaunchparameters"><i class="btn icon-append fa fa-list-alt fa-lg" title="Launch Parameters" ng-click="grid.appScope.launchParam(row.entity, rowRenderIndex)"></i>',cellTooltip: true},
+                {name:"Re-Order",cellTemplate:'<i class="fa fa-chevron-circle-up fa-lg" ng-click="grid.appScope.moveUpChoice(grid.appScope.dockerDetails, this.rowRenderIndex)"></i><i class="fa fa-chevron-circle-down fa-lg marginleft5" ng-click="grid.appScope.moveDownChoice(grid.appScope.dockerDetails, this.rowRenderIndex)"></i>',cellTooltip: true}
+                ];
+            };
+            angular.extend($scope, {
+                dockerImagesListView: function() {
+                    var _dockerImages = [];
+                    //gives the dockerParams details to show up the image in the first step of wizard.
+                    dockerParams.forEach(function(k, v) {
+                        _dockerImages.push(dockerParams[v]);
+                    });
+                    $scope.dockerDetails = _dockerImages; 
+                },
+                rePaintDockerImagesListView: function() {
+                    $scope.isdockerImagesPageLoading = true;
+                    var tableData = $scope.dockerDetails;
+                    $scope.dockerDetails = [];
+                    $timeout(function() {
+                        $scope.isdockerImagesPageLoading = false;
+                        $scope.dockerDetails = tableData;
+                    },100);   
+                },
+            });
+            $scope.initdockerimages = function(){
+                $scope.initDockerImagesGrids();
+                $scope.dockerImagesListView();
+            };
+            $scope.initdockerimages();
+            /*Step 1 - Docker Images Ends*/
+
+            /*Step 2 - Instances to run Docker images starts*/
+            var helper = {
+                filterRunningInstances: function (totalInstances) {
+                    var runningInstances = [];
+                    for(var i=0; i<totalInstances.length; i++){
+                        if(totalInstances[i].instanceState ==='running'){
+                            runningInstances.push(totalInstances[i]);
+                        }
+                    }
+                    return runningInstances;
+                }
+            };
+            
+            var dockerInstancesGridOptions = uiGridOptionsClient.options().gridOption;
+            $scope.dockerinstancesGridOptions = dockerInstancesGridOptions;
+            $scope.dockerinstancesData = [];
+
+            $scope.initdockerinstancesGrids = function(){
+                $scope.dockerinstancesGridOptions.data='dockerinstancesData';
+                $scope.dockerinstancesGridOptions.columnDefs = [
+                    { name:'Select Instance', cellTemplate:'<input type="checkbox" ng-model="row.entity.checked" ng-click="grid.appScope.selectValue(row.entity)"  value="{{row.entity._id}}"  ng-disabled="grid.appScope.checked==grid.appScope.limit && !row.entity.checked"/>',cellTooltip: true},
+                    { name: 'Instance Name', field:'name', cellTooltip: true},
+                    { name: 'IP Address', cellTemplate:'<div>{{row.entity.instanceIP}}</div>', cellTooltip: true},
+                    { name: 'Log', cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.viewLogs(row.entity)"></i>', cellTooltip: true}
+                ];
+            };
+            angular.extend($scope, {
+                dockerinstancesListView: function() {
+                    $scope.isDockerInstancesLoading = true;
+                    $scope.dockerinstancesData = [];
+                    //call made to get the instance details.(instance name,instanceIP)
+                    workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
+                        $scope.isDockerInstancesLoading = false;
+                        $scope.dockerinstancesData = helper.filterRunningInstances(response.data.instances);
+                    }, function(error){
+                        $scope.errorMessage = "No Docker Instances Records found";
+                    });
+                },
+                rePaintDockerinstancesListView: function() {
+                    $scope.isDockerInstancesLoading = true;
+                    var tableData = $scope.dockerinstancesData;
+                    $scope.dockerinstancesData = [];
+                    $timeout(function() {
+                        $scope.isDockerInstancesLoading = false;
+                        $scope.dockerinstancesData = tableData;
+                    },100);
+                }
+            });
+            $scope.initdockerinstances = function(){
+                $scope.initdockerinstancesGrids();
+                $scope.dockerinstancesListView();
+            };
+            $scope.initdockerinstances();
+            /*Step 2 - Instances to run Docker images ends*/
+
+            //Repainting the UI Grid for Docker Images.
+            $scope.$watch('repaintStep', function () {
+                switch($scope.repaintStep){
+                    case 'dockerimages' :
+                        $scope.rePaintDockerImagesListView();
+                    break;
+                    case 'instances' :
+                       $scope.rePaintDockerinstancesListView();
+                    break;
+                }
             });
 
             //modal to show the Docker Parameters Popup
