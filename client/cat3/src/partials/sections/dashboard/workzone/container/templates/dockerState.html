@@ -22,7 +22,7 @@
 			</tr>
 			<tr>
 				<td>Started At :</td>
-				<td>{{ dockerInfoResponse.State.StartedAt }}</td>
+				<td>{{ dockerInfoResponse.State.StartedAt | timestampToLocaleTime }}</td>
 			</tr>
 			<tr>
 				<td>Finished At :</td>

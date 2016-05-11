@@ -21,7 +21,8 @@
 			return uac.hasPermission('instanceconnect', 'execute');
 		};
 		this.rdp = function(){
-			return uac.hasPermission('instancerdp','execute');
+			return true;
+			//return uac.hasPermission('instancerdp','execute');
 		};
 		this.instanceStart = function(){
 			return uac.hasPermission('instancestart','execute');
