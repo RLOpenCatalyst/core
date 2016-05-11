@@ -302,7 +302,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			return;
 		}else{
 			Blueprints.copyByIds(bluepirntIds,orgid,buid,projid,function(err,data){
-				res.status('200').send('Copied Sucessfully');
+				res.status('200').send(data);
 				return;
 			});
 

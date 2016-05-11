@@ -28,7 +28,7 @@ var instanceService = require('_pr/services/instanceService');
 var async = require('async');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
-AggregateAWSUsage.interval = '0 * * * *';
+AggregateAWSUsage.interval = '*/30 * * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
@@ -140,9 +140,11 @@ function generateEC2UsageMetricsForProvider(provider, instances, callback) {
  * @param instances
  * @param next
  */
+// @TODO Avoid code repetition
 function getEC2InstanceUsageMetrics(provider, instances, next) {
     var metricsUnits = appConfig.aws.cwMetricsUnits;
     var instanceUsageMetrics = [];
+    var instnacesWithMetrics = instances.length;
 
     if(instances.length == 0)
         next(null, instanceUsageMetrics);
@@ -176,53 +178,61 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
     var startTime = new Date(endTime.getTime() - 1000*60*60*24);
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
-            amazonConfig.region = instances[j].providerData.region;
-            cw = new CW(amazonConfig);
+            if(('providerData' in instances[j]) && (typeof instances[j].providerData !== undefined)
+            && instances[j].providerData) {
+                amazonConfig.region = instances[j].providerData.region;
+                cw = new CW(amazonConfig);
 
-            async.parallel({
-                CPUUtilization: function (callback) {
-                    cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,
-                        instances[j].platformId, startTime, endTime, callback);
+                async.parallel({
+                    CPUUtilization: function (callback) {
+                        cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,
+                            instances[j].platformId, startTime, endTime, callback);
+                    },
+                    NetworkOut: function (callback) {
+                        cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,
+                            instances[j].platformId, startTime, endTime, callback);
+                    },
+                    NetworkIn: function (callback) {
+                        cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,
+                            instances[j].platformId, startTime, endTime, callback);
+                    },
+                    DiskReadBytes: function (callback) {
+                        cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,
+                            instances[j].platformId, startTime, endTime, callback);
+                    },
+                    DiskWriteBytes: function (callback) {
+                        cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,
+                            instances[j].platformId, startTime, endTime, callback);
+                    }
                 },
-                NetworkOut: function (callback) {
-                    cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,
-                        instances[j].platformId, startTime, endTime, callback);
-                },
-                NetworkIn: function (callback) {
-                    cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,
-                        instances[j].platformId, startTime, endTime, callback);
-                },
-                DiskReadBytes: function (callback) {
-                    cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,
-                        instances[j].platformId, startTime, endTime, callback);
-                },
-                DiskWriteBytes: function (callback) {
-                    cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,
-                        instances[j].platformId, startTime, endTime, callback);
-                }
-            },
-            function (err, results) {
-                if(err) {
-                    logger.error(err)
-                } else {
-                    instanceUsageMetrics.push({
-                        providerId: provider._id,
-                        providerType: provider.providerType,
-                        orgId: provider.orgId[0],
-                        projectId: instances[j].projectId,
-                        instanceId: instances[j]._id,
-                        platform: 'AWS',
-                        platformId: instances[j].platformId,
-                        resourceType: 'EC2',
-                        startTime: startTime,
-                        endTime: endTime,
-                        metrics: results
-                    });
-                }
+                function (err, results) {
+                    if(err) {
+                        logger.error(err)
+                    } else {
+                        instanceUsageMetrics.push({
+                            providerId: provider._id,
+                            providerType: provider.providerType,
+                            orgId: provider.orgId[0],
+                            projectId: instances[j].projectId,
+                            instanceId: instances[j]._id,
+                            platform: 'AWS',
+                            platformId: instances[j].platformId,
+                            resourceType: 'EC2',
+                            startTime: startTime,
+                            endTime: endTime,
+                            metrics: results
+                        });
+                    }
 
-                if(instanceUsageMetrics.length == instances.length)
+                    if(instanceUsageMetrics.length == instnacesWithMetrics)
+                        next(null, instanceUsageMetrics);
+                });
+            } else {
+                instnacesWithMetrics -= 1;
+
+                if(instanceUsageMetrics.length == instnacesWithMetrics)
                     next(null, instanceUsageMetrics);
-            });
+            }
         })(i);
     }
 }

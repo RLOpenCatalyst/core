@@ -361,6 +361,7 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
+<<<<<<< HEAD
  *     containerDetail:[{
  *            "_id": "56fa223d2a3efd2653020413","state":"running","created":1459231494210,"names":["ubuntu","windows"],"instanceIP":"128.12.134.54","containerID":24,"image":"Test Image","info":"container info"},
  *            {"_id": "56fa223d2a3efd2653020413","state":"running","created":1459231494210,"names":["ubuntu","windows"],"instanceIP":"128.12.134.54","containerID":24,"image":"Test Image","info":"container info"},
@@ -373,6 +374,53 @@
  *        sortBy:state,
  *        sortOrder:desc
  *        filterBy:{state:['running']}
+ *     containerList:[{
+ *  "_id": "570b2d348ac77619618c37e4",
+ *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"envId": "df87280c-ef3d-4e45-ac23-fcb77c845409",
+ * 	"Id": "bf32c85dc30acb6822b919c221a58e27002b369a4d1ea2621d49c3d57b0de629",
+ *	"instanceIP": "192.168.152.208",
+ *	"Image": "mysql",
+ *	"ImageID": "2e4e46c28df23ed2251767154db96356ab8cb4ff5010eca385be143332505dc9",
+ *	"Command": "docker-entrypoint.sh /bin/bash",
+ * 	"Created": 1460027731,
+ *	"Status": "Exited (0) 45 hours ago",
+ *	"HostConfig": {
+ *		"NetworkMode": "default"
+ *	},
+ *	"Ports": [],
+ *	"Names": [
+ *		"/gigantic_mahavira"
+ *	]},{
+ *	"_id": "570b2d348ac77619618c37e5",
+ *	"orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+ *	"bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"envId": "df87280c-ef3d-4e45-ac23-fcb77c845409",
+ *	"Id": "41d7cf87ff28e66bfb7f97c5df2a0d4d0407e9fccf1e4e109a72e32605a3ef47",
+ *	"instanceIP": "192.168.152.208",
+ *	"Image": "ubuntu",
+ *	"ImageID": "c9ea60d0b9055c27be18c0f1f97a6d73544ecc4d12b06cab063b9b743c09ff43",
+ *	"Command": "/bin/bash",
+ *	"Created": 1460018250,
+ *	"Status": "Exited (130) 3 days ago",
+ *	"HostConfig": {
+ *		"NetworkMode": "default"
+ *	},
+ *	"Ports": [],
+ *	"Names": [
+ *		"/condescending_allen"
+ *	]
+ *   }],
+ *     metaData:{
+ *        totalRecords:2,
+ *        pageSize:5,
+ *        page:1,
+ *        totalPages:1,
+ *        sortBy:Status,
+ *        sortOrder:desc
  *     }
  *     }
  *
@@ -761,5 +809,333 @@
  *      code:500,
  *      message:'Internal Server Error',
  *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'Environment Id'}
+ *     };
+
+/**
+ * @api {get}/app/deploy/pipeline/project/:projectId/projectList
+ * @apiName /app/deploy/pipeline/project/:projectId/projectList
+ * @apiGroup App Deploy Projects
+ *
+ *
+ *
+ * @apiParam {String} projectId      Unique Project Id
+ * @apiParam {Number} [page]         Current Page default is 1.
+ * @apiParam {Number} [pageSize]     Records per page default is 10.
+ * @apiParam {String} [search]       User is able to search for specific attribute. User can enter envSequence for specific search.
+ * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by loggedInUser.
+ * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
+ * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=envSequence:Dev.
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *	"appProjects": [{
+ *		"_id": "570b46a35bff54236e49ef6b",
+ *		"loggedInUser": "superadmin",
+ *		"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *		"__v": 0,
+ *		"envSequence": ["Dev", "Prod"],
+ *		"envId": ["Dev", "Prod"]
+ *	}],
+ *	"metaData": {
+ *		"totalRecords": 1,
+ *		"pageSize": 10,
+ *		"page": 1,
+ *		"totalPages": 1
+ *	}
+ * }
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'App Deploy'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'App Deploy'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'App Deploy'}
+ *     };
+ */
+
+/**
+ * @api {get}/app/deploy/project/:projectId/appDeploylist
+ * @apiName /app/deploy/project/:projectId/appDeploylist
+ * @apiGroup All AppDeploy Information by Project
+ *
+ *
+ *
+ * @apiParam {String} projectId      Unique Project Id
+ * @apiParam {Number} [page]         Current Page default is 1.
+ * @apiParam {Number} [pageSize]     Records per page default is 10.
+ * @apiParam {String} [search]       User is able to search for specific attribute. User can enter applicationType or applicationName for specific search.
+ * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by applicationStatus.
+ * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
+ * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=applicationName:D4D.
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *	"appDeploy": [{
+ *	"applicationName": "D4D",
+ *	"applicationVersion": "3.03.106",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"applicationInstanceName": ["Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst"],
+ *	"applicationNodeIP": ["54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114", "54.183.1.26", "54.183.227.76", "54.193.72.114"],
+ * 	"applicationLastDeploy": ["2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000", "2016-03-30 05:04:05 +0000", "2016-03-30 05:28:34 +0000", "2016-03-31 05:17:25 +0000"],
+ *	"applicationStatus": ["Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful"],
+ *	"containerId": ["NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"],
+ *	"hostName": ["ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-54.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal"],
+ *	"envId": ["Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd", "Dev", "QA", "PreProd"],
+ *	"appLogs": ["NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"]
+ * }, {
+ *	"applicationName": "D4D",
+ *	"applicationVersion": "3.02.100",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"applicationInstanceName": ["Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst", "Supercatalyst"],
+ *	"applicationNodeIP": ["54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76", "54.183.227.76"],
+ *	"applicationLastDeploy": ["2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000", "2016-03-30 05:43:17 +0000", "2015-03-31 11:17:25 +0000", "2014-09-22 05:17:25 +0000"],
+ *	"applicationStatus": ["Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful", "Successful"],
+ *	"containerId": ["NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"],
+ *	"hostName": ["ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-99.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal", "ip-10-0-0-25.us-west-1.compute.internal"],
+ *	"envId": ["QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev", "QA", "QA", "Dev"],
+ *	"appLogs": ["NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"]
+ * }],
+ *	"metaData": {
+ *		"totalRecords": 2,
+ *		"pageSize": 10,
+ *		"page": 1,
+ *		"totalPages": 1.
+ *	    "sortBy":"applicationStatus",
+ *	    "sortOrder":desc
+ *	}
+ * }
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy Information by Project'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy Information by Project'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy Information by Project'}
+ *     };
+ */
+
+/**
+ * @api {get}/app/deploy/env/:envName/project/:projectId/appDeploylist
+ * @apiName /app/deploy/env/:envName/project/:projectId/appDeploylist
+ * @apiGroup AppDeploy Information by Project ID and  Environment Name
+ *
+ *
+ * @apiParam {String} envName        Unique Environment Name
+ * @apiParam {String} projectId      Unique Project Id
+ * @apiParam {Number} [page]         Current Page default is 1.
+ * @apiParam {Number} [pageSize]     Records per page default is 10.
+ * @apiParam {String} [search]       User is able to search for specific attribute. User can enter applicationType or applicationName for specific search.
+ * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by applicationStatus.
+ * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
+ * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=applicationName:D4D.
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *	"appDeploy": [{
+ *	"_id": "570b48fcf1f0f28388f4b071",
+ *	"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
+ *	"appLogs": "NA",
+ *	"applicationName": "D4D",
+ *	"applicationVersion": "3.03.106",
+ *	"applicationInstanceName": "Supercatalyst",
+ *	"applicationNodeIP": "54.183.1.26",
+ *	"envId": "Dev",
+ *	"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *	"containerId": "NA",
+ *	"applicationType": "Package",
+ *	"applicationStatus": "Successful",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"__v": 0
+ *}, {
+ *	"_id": "570b48fdf1f0f28388f4b076",
+ *	"applicationLastDeploy": "2014-09-22 05:17:25 +0000",
+ *	"appLogs": "NA",
+ *	"applicationName": "D4D",
+ *	"applicationVersion": "3.02.100",
+ *	"applicationInstanceName": "Supercatalyst",
+ *	"applicationNodeIP": "54.183.227.76",
+ *	"envId": "Dev",
+ *	"hostName": "ip-10-0-0-25.us-west-1.compute.internal",
+ *	"containerId": "NA",
+ *	"applicationType": "Package",
+ *	"applicationStatus": "Successful",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"__v": 0
+ *}],
+ *	"metaData": {
+ *		"totalRecords": 2,
+ *		"pageSize": 10,
+ *		"page": 1,
+ *		"totalPages": 1.
+ *	    "sortBy":"applicationStatus",
+ *	    "sortOrder":desc
+ *	}
+ * }
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy Information by Environment Name'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy Information by  Environment Name'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy Information by Environment Name'}
+ *     };
+ */
+
+
+/**
+ * @api {get}/app/deploy/env/:envName/appDeploylist
+ * @apiName /app/deploy/env/:envName/appDeploylist
+ * @apiGroup AppDeploy Information by  Environment Name
+ *
+ *
+ * @apiParam {String} envName        Unique Environment Name
+ * @apiParam {Number} [page]         Current Page default is 1.
+ * @apiParam {Number} [pageSize]     Records per page default is 10.
+ * @apiParam {String} [search]       User is able to search for specific attribute. User can enter applicationType or applicationName for specific search.
+ * @apiParam {String} [sortBy]       User can sort the records for any field. Default: results are sorted by applicationStatus.
+ * @apiParam {String} [sortOrder]    The sort order if sort parameter is provided. One of asc or desc. Default: desc
+ * @apiParam {String} [filterBy]     User is able to filter the records for a set of attributes.Ex.filterBy=applicationName:D4D.
+ *
+ *
+ *
+ * @apiSuccess [JSONObject]
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *	"appDeploy": [{
+ *	"_id": "570b48fcf1f0f28388f4b071",
+ *	"applicationLastDeploy": "2016-03-30 05:04:05 +0000",
+ *	"appLogs": "NA",
+ *	"applicationName": "D4D",
+ *	"applicationVersion": "3.03.106",
+ *	"applicationInstanceName": "Supercatalyst",
+ *	"applicationNodeIP": "54.183.1.26",
+ *	"envId": "Dev",
+ *	"hostName": "ip-10-0-0-54.us-west-1.compute.internal",
+ *	"containerId": "NA",
+ *	"applicationType": "Package",
+ *	"applicationStatus": "Successful",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"__v": 0
+ *}, {
+ *	"_id": "570b48fdf1f0f28388f4b076",
+ *	"applicationLastDeploy": "2014-09-22 05:17:25 +0000",
+ *	"appLogs": "NA",
+ *	"applicationName": "D4D",
+ *	"applicationVersion": "3.02.100",
+ *	"applicationInstanceName": "Supercatalyst",
+ *	"applicationNodeIP": "54.183.227.76",
+ *	"envId": "Dev",
+ *	"hostName": "ip-10-0-0-25.us-west-1.compute.internal",
+ *	"containerId": "NA",
+ *	"applicationType": "Package",
+ *	"applicationStatus": "Successful",
+ *	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+ *	"__v": 0
+ *}],
+ *	"metaData": {
+ *		"totalRecords": 2,
+ *		"pageSize": 10,
+ *		"page": 1,
+ *		"totalPages": 1.
+ *	    "sortBy":"applicationStatus",
+ *	    "sortOrder":desc
+ *	}
+ * }
+ *
+ *
+ * @apiError 400 Bad Request.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:400,
+ *      message:'Bad Request',
+ *      fields:{errorMessage:'Bad Request',attribute:'AppDeploy Information by Environment Name'}
+ *     };
+ * @apiError 403 Forbidden.
+ *
+ * @apiErrorExample Error-Response:
+ *    {
+ *      code:403,
+ *      message:'Forbidden',
+ *      fields:{errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:'AppDeploy Information by  Environment Name'}
+ *     };
+ * @apiError 500 InternalServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *      code:500,
+ *      message:'Internal Server Error',
+ *      fields:{errorMessage:'Server Behaved Unexpectedly',attribute:'AppDeploy Information by Environment Name'}
  *     };
  */

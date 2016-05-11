@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 // This file act as a Controller which contains organization related all end points.
 
@@ -972,29 +972,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'tasks',function(err, paginationReq){
+		var jsonData={};
+		jsonData['orgId']=req.params.orgId;
+		jsonData['bgId']=req.params.bgId;
+		jsonData['projectId']=req.params.projectId;
+		jsonData['envId']=req.params.envId;
+		Task.getTasksByOrgBgProjectAndEnvId(jsonData, function(err, tasks) {
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
 			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='tasks';
-			Task.getTasksByOrgBgProjectAndEnvId(paginationReq, function(err, tasks) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'tasks'));
-					return;
-				}
-				ApiUtils.paginationResponse(tasks,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'tasks'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
-			});
+			res.status(200).send(tasks);
 		});
 	});
 
@@ -1148,8 +1136,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		jsonData['instanceType']=req.params.instanceType;
 		jsonData['userName']=req.session.user.cn;
 		jsonData['blueprintType']=req.query.blueprintType
-
-		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
+        configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
 			if (orgbuprojs.length === 0) {
 				res.send(401, "User not part of team to see project.");
 				return;
@@ -1157,42 +1144,34 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			if (!err) {
 				if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
 					async.parallel({
-							tasks:function(callback) {
+							tasks: function (callback) {
 								Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback)
 							},
-							instances:function(callback) {
+							instances: function (callback) {
 								instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback)
 							},
-					        blueprints:function(callback) {
+							blueprints: function (callback) {
 								Blueprints.getBlueprintsByOrgBgProject(jsonData, callback)
 							},
-							stacks:function(callback) {
+							stacks: function (callback) {
 								CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback)
 							},
-							arms:	function(callback) {
+							arms: function (callback) {
 								AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback)
+
 							}
 						},
-						function(err, results){
-							if(err)
+						function (err, results) {
+							if (err)
 								res.status(500).send("Internal Server Error");
-							else if(!results)
+							else if (!results)
 								res.status(400).send("Data Not Found");
 							else
-							    res.status(200).send(results);
+								res.status(200).send(results);
 						}
-					);
-
+					)
 				}
-				else {
-					res.status(401).send("User not part of team to see project");
-					return;
-				}
-			} else {
-				res.status(500).send("Internal Server Error");
-				return;
-			}
-		});
+		}
 	});
 
 	app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
