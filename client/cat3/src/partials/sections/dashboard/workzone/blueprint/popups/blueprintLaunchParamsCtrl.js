@@ -13,10 +13,7 @@
 			var launchHelper = {
 				launch : function(){
 					$modalInstance.close({bp:items,stackName:$scope.stackName});
-				}/*,
-				versionLaunch : function(){
-					$modalInstance.close({bp:items,stackName:$scope.stackName});
-				}*/
+				}
 			};
 			$scope.stackName='';
 			$scope.cancel = function() {
