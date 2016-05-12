@@ -13,14 +13,16 @@
 		angular.extend($scope,{
 			ok: function () {
 				var reqBody = items.taskJSON;
+				//if no cookbooks are selected it will throw an alert.
+				if(!reqBody.runlist.length){
+					alert('Please select atleast one cookbook');
+					return false;
+				}
 				workzoneServices.updateChefRunlist(instance_id, reqBody).then(function () {
 					$modalInstance.close();
 				}, function(error){
 					if(error.responseText){
-						//asking the user the atleast select one cookbook.
-						alert('Please select atleast one cookbook');
-						$modalInstance.dismiss('cancel');
-						//$scope.errorMessage = error.responseText;
+						$scope.errorMessage = error.responseText;
 					}
 				});
 			},
