@@ -140,7 +140,7 @@
 			}
 		};
 		return serviceInterface;
-	}]).service('instanceOperations', ['$modal', '$q', 'workzoneServices', function($modal, $q, workzoneServices) {
+	}]).service('instanceOperations', ['$modal', '$q', function($modal, $q) {
 		var serviceInterface = {};
 		/*This is for open modal calls*/
 		serviceInterface.deleteInstance = function(instanceObj) {
@@ -260,11 +260,6 @@
 		serviceInterface.updateCookbook = function(instance) {
 			console.log("instance service");
 			var _viewChefRunList = function() {
-				/*//promise contain list of cookbooks and roles list
-				var c = workzoneServices.getCookBookListForOrg();
-				//promise contains template list
-				var t = workzoneServices.getSoftwareTemplatesForOrg();
-				var allPromise = $q.all([c, t]);*/
 				var modalInstance = $modal.open({
 					templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceUpdateChefRunlist.html',
 					controller: 'instanceUpdateChefRunlistCtrl',
@@ -280,7 +275,6 @@
 					}
 				});
 				modalInstance.result.then(function() {   
-				 //selectedCookBooks
 				 //returning viewLogs to show Logs after success
 				 return serviceInterface.viewLogs(instance);
 				}, function() {

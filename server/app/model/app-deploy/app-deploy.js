@@ -239,7 +239,7 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId = func
         }, {
             $group: {
                 _id: "$envId",
-                id:  { $last: "$_id" },
+                id: { $last: "$_id" },
                 applicationName: { $last: "$applicationName" },
                 applicationInstanceName: { $last: "$applicationInstanceName" },
                 applicationVersion: { $last: "$applicationVersion" },
@@ -307,7 +307,7 @@ AppDeploySchema.statics.getPipeLineViewListByProjectIdAppName = function getPipe
         }, {
             $group: {
                 _id: "$envId",
-                id:  { $last: "$_id" },
+                id: { $last: "$_id" },
                 applicationName: { $last: "$applicationName" },
                 applicationInstanceName: { $last: "$applicationInstanceName" },
                 applicationVersion: { $last: "$applicationVersion" },
@@ -602,12 +602,8 @@ AppDeploySchema.statics.getAppDeployByProjectId = function getAppDeployByProject
             logger.debug("Got error while fetching AppDeploy: ", err);
             return callback(err, null);
         }
-        if (appDeploy.lenght > 0) {
-            logger.debug("Got AppDeploy: ");
-            return callback(null, appDeploy);
-        } else {
-            return callback(null, []);
-        }
+        logger.debug("Got AppDeploy: ");
+        return callback(null, appDeploy);
     });
 };
 

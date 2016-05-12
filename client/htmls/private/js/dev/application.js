@@ -131,7 +131,7 @@ function loadPipeline() {
             );
         });
 
-        $.get('/app/deploy/pipeline/project/' + projectId, function(dataPipeline) {
+        $.get('/app-deploy-pipeline/project/' + projectId, function(dataPipeline) {
             $('.loadingPipelineView').hide();
             if (dataPipeline.length) {
 
@@ -270,7 +270,7 @@ function loadPipeline() {
         var appNamePresent = appDeployDataObj.appNamePresent;
         var appVersionPresent = appDeployDataObj.appVersionPresent;
         $.ajax({
-            url: '/deploy/permission/project/' + projectId + '/env/' + envnamePresent + '?application=' + appNamePresent + '&version=' + appVersionPresent,
+            url: '/deploy-permission/project/' + projectId + '/env/' + envnamePresent + '?application=' + appNamePresent + '&version=' + appVersionPresent,
             type: 'GET',
             contentType: "application/json",
             async: true,
@@ -469,7 +469,7 @@ function btnApproveDetailsPipelineViewClickHandler(e) {
     var appName = $(this).closest('tr').find('.applicationMainIP').html();
     var version = $(this).closest('tr').find('.versionMain').html();
     $.ajax({
-        url: '/deploy/permission/project/' + projectId + '/env/' + envName + '?application=' + appName + '&version=' + version,
+        url: '/deploy-permission/project/' + projectId + '/env/' + envName + '?application=' + appName + '&version=' + version,
         type: 'GET',
         contentType: "application/json",
         success: function(data) {
@@ -507,7 +507,7 @@ function btnApproveDetailsPipelineViewClickHandler(e) {
                         }
                     };
                     $.ajax({
-                        url: '/deploy/permission',
+                        url: '/deploy-permission',
                         data: JSON.stringify(dataApprove),
                         type: 'POST',
                         contentType: "application/json",
@@ -544,7 +544,7 @@ function btnApproveDetailsPipelineViewClickHandler(e) {
                         }
                     };
                     $.ajax({
-                        url: '/deploy/permission',
+                        url: '/deploy-permission',
                         data: JSON.stringify(dataRevoke),
                         type: 'POST',
                         contentType: "application/json",
@@ -709,7 +709,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
             var aProject = project[0];
             var envNames = aProject.environmentname.split(",");
             var envIds = aProject.environmentname_rowid.split(",");
-            $.get('/app/deploy/pipeline/project/' + projectId, function(config) {
+            $.get('/app-deploy-pipeline/project/' + projectId, function(config) {
                 if (envNames.length && config.length) {
                     var configEnv = config[0].envId;
                     if (!configEnv.length) {
@@ -1001,7 +1001,7 @@ $('.createAppConfigure').click(function() {
     var $tbody = $tableconfigureapplication.find('tbody').empty();
     var projectId = urlParams.projid;
     $.get('/d4dMasters/project/' + projectId, function(dataforenvName) {
-        $.get('/app/deploy/pipeline/project/' + projectId, function(dataPipeline) {
+        $.get('/app-deploy-pipeline/project/' + projectId, function(dataPipeline) {
             if (dataPipeline.length) {
                 for (var i = 0; i < dataPipeline[0].envId.length; i++) {
                     selectedEnvironments.push(dataPipeline[0].envId[i]);
@@ -1998,7 +1998,7 @@ function getprojectName(callback) {
 
 function managePipelineConfiguration() {
     var projectId = urlParams.projid;
-    $.get('/app/deploy/pipeline/project/' + projectId, function(dataPipeline) {
+    $.get('/app-deploy-pipeline/project/' + projectId, function(dataPipeline) {
         if (!dataPipeline.length) {
             configurePipeLine();
             var envs = getTableHeaderData(dataPipeline[0].envId);

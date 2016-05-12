@@ -8,7 +8,7 @@
 (function () {
 	'use strict';
 	angular.module('authentication')
-		.factory('session', ['localStorage', '$rootScope', 'arrayUtil', function (localStorage, $rootScope, arrayUtil) {
+		.factory('session', ['localStorage', '$rootScope', function (localStorage, $rootScope) {
 			var _strToken = localStorage.getItem('session.accessToken');
 
 			this._accessToken = _strToken ==='null' ? null : _strToken; 
