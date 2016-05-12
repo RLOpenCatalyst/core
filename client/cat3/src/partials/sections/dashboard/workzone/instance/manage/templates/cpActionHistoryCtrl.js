@@ -90,6 +90,7 @@
 			$scope.init();
 		}]).controller('cpActionHistoryLogCtrl',['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval',function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval){
 			var _instance = items.cpInstance;
+			$scope.instanceName = _instance.name;
 			var _actionItem = items.actionHistoryData;
 			var helper = {
 				lastTimeStamp: '',

@@ -11,6 +11,9 @@
 			<span class="instance-state">{{instInfo.instanceState}}</span>
 			<span> | </span>
 			<span class="instance-ip">{{instInfo.instanceIP}}</span>
+			<span ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'"> | </span>
+			<img class="cp-docker-image" alt="Docker"
+			src="images/global/docker.png" ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'" />
 		</div>
 	</div>
 

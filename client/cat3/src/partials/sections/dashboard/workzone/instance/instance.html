@@ -46,7 +46,7 @@
 						<div class="status-state {{getAWSStatus(inst.instanceState,'image')}}">
 							<i class="fa fa-info-circle card-circle-info cursor" title="More Info" ng-click="operationSet.viewLogs(inst)" ng-show="perms.logInfo"></i>
 							<img class="docker-image dockerenabledinstacne" alt="Docker"
-							src="images/global/docker.png" ng-show="inst.docker && inst.docker.dockerEngineStatus === 'success'" />
+							src="images/global/docker.png" ng-show="inst.docker && inst.docker.dockerEngineStatus === 'success'" ng-click="openContainersTab()"/>
 						</div>
 					</div>
 					<div class="instance-ip">

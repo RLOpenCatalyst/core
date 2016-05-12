@@ -19,7 +19,7 @@
             $scope.isSixthOpen = true;
 
             var cpInstance = $scope.$parent.cpInstance;
-            if(cpInstance.blueprintData.blueprintId) {
+            if(cpInstance.blueprintData && cpInstance.blueprintData.blueprintId) {
                 workzoneServices.blueprintInfo(cpInstance.blueprintData.blueprintId).then(function(response) {
                     $scope.blueprintInfo = response.data;
                 },
