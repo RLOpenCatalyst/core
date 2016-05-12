@@ -152,10 +152,22 @@ var io = socketIo.getInstance(server, {
     }
 });
 
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+
+    next();
+});
+
 
 logger.debug('Setting up application routes');
-var routes = require('./routes/routes.js');
-routes.setRoutes(app);
+var routes = require('./routes/v1.0/routes.js');
+var routerV1 = express.Router();
+routes.setRoutes(routerV1);
+
+app.use(routerV1);
+app.use('/api/v1.0', routerV1);
+
 
 logger.debug('setting up version 2 routes');
 var routerV2 = require('./routes/v2.0');
@@ -173,7 +185,7 @@ app.use(function(req, res, next) {
     }
 });
 
-var socketIORoutes = require('./routes/socket.io/routes.js');
+var socketIORoutes = require('./routes/v1.0/socket.io/routes.js');
 socketIORoutes.setRoutes(io);
 io.set('log level', 1);
 io.sockets.on('connection', function(socket) {

@@ -18,18 +18,18 @@ limitations under the License.
 // This file act as a Controller which contains service related all end points.
 
 
-var CMDBConfig = require('../lib/servicenow');
+var CMDBConfig = require('_pr/lib/servicenow');
 var logger = require('_pr/logger')(module);
-var instancesDao = require('../model/classes/instance/instance');
-var logsDao = require('../model/dao/logsdao.js');
-var credentialCryptography = require('../lib/credentialcryptography');
-var environmentsDao = require('../model/d4dmasters/environments.js');
-var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var credentialCryptography = require('_pr/lib/credentialcryptography');
+var environmentsDao = require('_pr/model/d4dmasters/environments.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
-var configmgmtDao = require('../model/d4dmasters/configmgmt.js');
-var Chef = require('../lib/chef.js');
-var taskStatusModule = require('../model/taskstatus');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
+var Chef = require('_pr/lib/chef.js');
+var taskStatusModule = require('_pr/model/taskstatus');
 var waitForPort = require('wait-for-port');
 
 module.exports.setRoutes = function(app, verificationFunc) {

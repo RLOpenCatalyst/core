@@ -18,23 +18,23 @@ limitations under the License.
 // This file act as a Controller which contains blueprint related all end points.
 var Blueprints = require('_pr/model/blueprint');
 
-var instancesDao = require('../model/classes/instance/instance');
-var EC2 = require('../lib/ec2.js');
-var Chef = require('../lib/chef.js');
-var logsDao = require('../model/dao/logsdao.js');
-var Docker = require('../model/docker.js');
-var configmgmtDao = require('../model/d4dmasters/configmgmt');
-var usersDao = require('../model/users.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
+var EC2 = require('_pr/lib/ec2.js');
+var Chef = require('_pr/lib/chef.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var Docker = require('_pr/model/docker.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
+var usersDao = require('_pr/model/users.js');
 var appConfig = require('_pr/config');
-var Cryptography = require('../lib/utils/cryptography');
-var fileIo = require('../lib/utils/fileio');
+var Cryptography = require('_pr/lib/utils/cryptography');
+var fileIo = require('_pr/lib/utils/fileio');
 var uuid = require('node-uuid');
 var logger = require('_pr/logger')(module);
-var AWSProvider = require('../model/classes/masters/cloudprovider/awsCloudProvider.js');
-var VMImage = require('../model/classes/masters/vmImage.js');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var currentDirectory = __dirname;
-var AWSKeyPair = require('../model/classes/masters/cloudprovider/keyPair.js');
-var credentialcryptography = require('../lib/credentialcryptography');
+var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
+var credentialcryptography = require('_pr/lib/credentialcryptography');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AWSCloudFormation = require('_pr/lib/awsCloudFormation.js');
 var errorResponses = require('./error_responses');

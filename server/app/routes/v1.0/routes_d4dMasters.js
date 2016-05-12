@@ -17,24 +17,24 @@ limitations under the License.
 
 // This file act as a Controller which contains Settings related all end points.
 
-var d4dModel = require('../model/d4dmasters/d4dmastersmodel.js');
-var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
-var usersDao = require('../model/users.js');
-var fileIo = require('../lib/utils/fileio');
+var d4dModel = require('_pr/model/d4dmasters/d4dmastersmodel.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var usersDao = require('_pr/model/users.js');
+var fileIo = require('_pr/lib/utils/fileio');
 var uuid = require('node-uuid');
-var configmgmtDao = require('../model/d4dmasters/configmgmt.js');
-var Chef = require('../lib/chef');
-var Curl = require('../lib/utils/curl.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
+var Chef = require('_pr/lib/chef');
+var Curl = require('_pr/lib/utils/curl.js');
 var appConfig = require('_pr/config');
 var logger = require('_pr/logger')(module);
 var childProcess = require('child_process');
 var exec = childProcess.exec;
-var masterUtil = require('../lib/utils/masterUtil.js');
-var blueprintsDao = require('../model/dao/blueprints');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var blueprintsDao = require('_pr/model/dao/blueprints');
 var errorResponses = require('./error_responses.js');
 var bcrypt = require('bcryptjs');
-var authUtil = require('../lib/utils/authUtil.js');
-var Cryptography = require('../lib/utils/cryptography');
+var authUtil = require('_pr/lib/utils/authUtil.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
 var Client = require('node-rest-client').Client;
 var cryptoConfig = appConfig.cryptoSettings;
 var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);

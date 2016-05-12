@@ -18,22 +18,22 @@ limitations under the License.
 // This file act as a Controller which contains chef server related all end points.
 
 
-var Chef = require('../lib/chef');
-var EC2 = require('../lib/ec2');
-var instancesDao = require('../model/classes/instance/instance');
-var environmentsDao = require('../model/d4dmasters/environments.js');
-var logsDao = require('../model/dao/logsdao.js');
-var configmgmtDao = require('../model/d4dmasters/configmgmt');
-var fileIo = require('../lib/utils/fileio');
+var Chef = require('_pr/lib/chef');
+var EC2 = require('_pr/lib/ec2');
+var instancesDao = require('_pr/model/classes/instance/instance');
+var environmentsDao = require('_pr/model/d4dmasters/environments.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
+var fileIo = require('_pr/lib/utils/fileio');
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
-var taskStatusModule = require('../model/taskstatus');
-var credentialCryptography = require('../lib/credentialcryptography');
-var Curl = require('../lib/utils/curl.js');
+var taskStatusModule = require('_pr/model/taskstatus');
+var credentialCryptography = require('_pr/lib/credentialcryptography');
+var Curl = require('_pr/lib/utils/curl.js');
 var errorResponses = require('./error_responses');
 var waitForPort = require('wait-for-port');
 var logger = require('_pr/logger')(module);
-var masterUtil = require('../lib/utils/masterUtil.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var Docker = require('_pr/model/docker.js');
 
 module.exports.setRoutes = function(app, verificationFunc) {

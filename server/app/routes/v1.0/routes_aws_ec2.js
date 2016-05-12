@@ -16,7 +16,7 @@ limitations under the License.
 
 // This file act as a Controller which contains aws related end points.
 
-var EC2 = require('../lib/ec2.js');
+var EC2 = require('_pr/lib/ec2.js');
 var appConfig = require('_pr/config');
 var logger = require('_pr/logger')(module);
 

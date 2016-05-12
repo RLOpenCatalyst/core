@@ -17,18 +17,18 @@ limitations under the License.
 // This file act as a Controller which contains Authentication logics.
 
 
-var LdapClient = require('../lib/ldap-client');
-var usersDao = require('../model/users.js');
-var usersGroups = require('../model/user-groups.js');
-var usersRoles = require('../model/user-roles.js');
-var cusers = require('../model/d4dmasters/users.js');
-var configmgmtDao = require('../model/d4dmasters/configmgmt');
+var LdapClient = require('_pr/lib/ldap-client');
+var usersDao = require('_pr/model/users.js');
+var usersGroups = require('_pr/model/user-groups.js');
+var usersRoles = require('_pr/model/user-roles.js');
+var cusers = require('_pr/model/d4dmasters/users.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var ldapSettings = appConfig.ldap;
 var passport = require('passport');
 var bcrypt = require('bcryptjs');
-var authUtil = require('../lib/utils/authUtil.js');
+var authUtil = require('_pr/lib/utils/authUtil.js');
 var GlobalSettings = require('_pr/model/global-settings/global-settings');
 var AuthToken = require('_pr/model/auth-token');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');

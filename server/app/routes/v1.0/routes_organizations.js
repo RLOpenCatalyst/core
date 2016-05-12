@@ -17,28 +17,28 @@ limitations under the License.
 // This file act as a Controller which contains organization related all end points.
 
 
-var masterjsonDao = require('../model/d4dmasters/masterjson.js');
-var configmgmtDao = require('../model/d4dmasters/configmgmt.js');
+var masterjsonDao = require('_pr/model/d4dmasters/masterjson.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
-var blueprintsDao = require('../model/dao/blueprints');
+var blueprintsDao = require('_pr/model/dao/blueprints');
 var Blueprints = require('_pr/model/blueprint');
-var usersDao = require('../model/users.js');
-var instancesDao = require('../model/classes/instance/instance');
+var usersDao = require('_pr/model/users.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
 var appConfig = require('_pr/config');
 var logger = require('_pr/logger')(module);
 var uuid = require('node-uuid');
-var fileIo = require('../lib/utils/fileio');
-var logsDao = require('../model/dao/logsdao.js');
+var fileIo = require('_pr/lib/utils/fileio');
+var logsDao = require('_pr/model/dao/logsdao.js');
 var errorResponses = require('./error_responses');
-var credentialCryptography = require('../lib/credentialcryptography');
-var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
-var Curl = require('../lib/utils/curl.js');
+var credentialCryptography = require('_pr/lib/credentialcryptography');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var Curl = require('_pr/lib/utils/curl.js');
 var waitForPort = require('wait-for-port');
-var appCardsDao = require('../model/dao/appcarddao');
-var Application = require('../model/classes/application/application');
-var Task = require('../model/classes/tasks/tasks.js');
-var masterUtil = require('../lib/utils/masterUtil.js');
+var appCardsDao = require('_pr/model/dao/appcarddao');
+var Application = require('_pr/model/classes/application/application');
+var Task = require('_pr/model/classes/tasks/tasks.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
 var Docker = require('_pr/model/docker.js');

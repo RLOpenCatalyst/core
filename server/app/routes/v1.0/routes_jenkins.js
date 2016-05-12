@@ -17,8 +17,8 @@ limitations under the License.
 
 // This file act as a Controller which contains Jenkins related all end points.
 
-var Jenkins = require('../lib/jenkins');
-var configmgmtDao = require('../model/d4dmasters/configmgmt');
+var Jenkins = require('_pr/lib/jenkins');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var errorResponses = require('./error_responses');
 var logger = require('_pr/logger')(module);
 var url = require('url');

@@ -18,28 +18,28 @@ limitations under the License.
 
 // This file act as a Controller which contains dashboard related all end points.
 var logger = require('_pr/logger')(module);
-var EC2 = require('../lib/ec2.js');
-var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
-var AWSProvider = require('../model/classes/masters/cloudprovider/awsCloudProvider.js');
-var openstackProvider = require('../model/classes/masters/cloudprovider/openstackCloudProvider.js');
-var hppubliccloudProvider = require('../model/classes/masters/cloudprovider/hppublicCloudProvider.js');
-var azurecloudProvider = require('../model/classes/masters/cloudprovider/azureCloudProvider.js');
-var vmwareProvider = require('../model/classes/masters/cloudprovider/vmwareCloudProvider.js');
-var VMImage = require('../model/classes/masters/vmImage.js');
-var AWSKeyPair = require('../model/classes/masters/cloudprovider/keyPair.js');
-var blueprints = require('../model/dao/blueprints');
-var instances = require('../model/classes/instance/instance');
-var masterUtil = require('../lib/utils/masterUtil.js');
-var usersDao = require('../model/users.js');
-var configmgmtDao = require('../model/d4dmasters/configmgmt.js');
-var Cryptography = require('../lib/utils/cryptography');
+var EC2 = require('_pr/lib/ec2.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
+var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
+var azurecloudProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var VMImage = require('_pr/model/classes/masters/vmImage.js');
+var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
+var blueprints = require('_pr/model/dao/blueprints');
+var instances = require('_pr/model/classes/instance/instance');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var usersDao = require('_pr/model/users.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 
-var dashboardData = require('../lib/utils/dashboardUtil.js');
+var dashboardData = require('_pr/lib/utils/dashboardUtil.js');
 
-var providersdashboard = require('../model/dashboard/dashboardinstances.js');
+var providersdashboard = require('_pr/model/dashboard/dashboardinstances.js');
 //var dashboardmanagedInstances = require('../model/dashboard/dashboardmanagedinstances.js');
-var dashboardcosts = require('../model/dashboard/dashboardcosts.js');
+var dashboardcosts = require('_pr/model/dashboard/dashboardcosts.js');
 
 
 /*var dashboardusages = require('../model/dashboard/dashboardusages.js');
@@ -61,13 +61,13 @@ var dashboardopenstackinstances = require('../model/dashboard/dashboardopenstack
 var dashboarddailytrends = require('../model/dashboard/dashboarddailytrends.js');
 var dashboardalerts = require('../model/dashboard/dashboardalerts.js');*/
 
-var dashboardlandings = require('../model/dashboard/dashboardlandings.js');
+var dashboardlandings = require('_pr/model/dashboard/dashboardlandings.js');
 
 
 
-var instancesDao = require('../model/classes/instance/instance');
+var instancesDao = require('_pr/model/classes/instance/instance');
 var crontab = require('node-crontab');
-var CW = require('../lib/cloudwatch.js');
+var CW = require('_pr/lib/cloudwatch.js');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/dashboard/providers/*", sessionVerificationFunc);
 

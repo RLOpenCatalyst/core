@@ -15,35 +15,31 @@ limitations under the License.
 */
 
 
-// This file act as a Controller which contains user related all end points.
+// This file act as a Controller which contains task status related all end points.
 
-
-var logger = require('_pr/logger')(module);
-var congigMgmntDao = require('../model/d4dmasters/configmgmt.js');
+var taskStatusModule = require('_pr/model/taskstatus');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-    app.get('/users/*', sessionVerificationFunc);
-
-    app.get('/users', function(req, res) {
-
-        congigMgmntDao.getListNew('7', 'loginname', function(err, usersList) {
+    app.get('/taskstatus/:taskId/status', sessionVerificationFunc, function(req, res) {
+        taskStatusModule.getTaskStatus(req.params.taskId, function(err, taskStatus) {
             if (err) {
-                res.status(500).send("Failed to fetch User.");
+                res.send(500);
                 return;
             }
-            logger.debug('userlist ', usersList);
-            if (usersList) {
-                res.send(usersList);
-                return;
-            } else {
-                res.send(404);
-                return;
-            }
+            taskStatus.getStatusByTimestamp(req.query.timestamp, function(err, data) {
+                if (err) {
+                    res.send(500);
+                    return;
+                }
+                if (!data) {
+                    res.send(404);
+                    return;
+                }
+                res.send(data);
+            });
         });
-
     });
-
 
 };
