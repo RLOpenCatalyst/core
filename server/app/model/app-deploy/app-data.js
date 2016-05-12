@@ -130,6 +130,7 @@ var AppDataSchema = new Schema({
 
 // Save or update appData informations.
 AppDataSchema.statics.createNewOrUpdate = function createNewOrUpdate(appData, callback) {
+    logger.debug("AppData in createNewOrUpdate: ", JSON.stringify(appData));
     var that = this;
     this.find({
         projectId: appData.projectId,

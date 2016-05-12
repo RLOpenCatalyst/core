@@ -163,7 +163,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
 			taskHistoryData = taskHistoryEntry;
 		}
 
-		logger.debug("Task last run timestamp updated", JSON.stringify(taskExecuteData));
+		//logger.debug("Task last run timestamp updated", JSON.stringify(taskExecuteData));
 		self.lastRunTimestamp = timestamp;
 		self.lastTaskStatus = TASK_STATUS.RUNNING;
 		self.save(function(err, data) {
@@ -252,12 +252,12 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
 		if (taskHistory) {
 			taskHistory.timestampEnded = self.timestampEnded;
 			taskHistory.status = self.lastTaskStatus;
-			logger.debug("resultData: ", JSON.stringify(resultData));
+			//logger.debug("resultData: ", JSON.stringify(resultData));
 			if (resultData) {
 				if (resultData.instancesResults && resultData.instancesResults.length) {
 					taskHistory.executionResults = resultData.instancesResults;
 				} else if (resultData.blueprintResults && resultData.blueprintResults.length) {
-					logger.debug("resultData blueprint ==>  ", JSON.stringify(resultData.blueprintResults));
+					//logger.debug("resultData blueprint ==>  ", JSON.stringify(resultData.blueprintResults));
 
 					taskHistory.blueprintExecutionResults = resultData.blueprintResults;
 				}

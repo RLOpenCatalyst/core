@@ -7,7 +7,7 @@
 
 (function(angular) {
 	'use strict';
-	angular.module('workzone.azureARM', ['apis.workzone', 'ngAnimate', 'ui.bootstrap','utility.array'])
+	angular.module('workzone.azureARM', ['apis.workzone', 'ui.bootstrap','utility.array'])
 		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', '$timeout', 'uiGridOptionsService', function($scope, workzoneServices, $modal, $rootScope, $timeout, uiGridOptionsService) {
 			$scope.isAzureARMPageLoading = true;
 			var armPaginationDefault = uiGridOptionsService.options();
