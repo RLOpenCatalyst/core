@@ -17,9 +17,6 @@
 		});
 		var promise = instanceLogs.showInstanceLogs(items._id);
 		promise .then(function(resolveMessage) {
-			/*event to update the instance tab when the logs window is closed,
-			Maybe after any action say chefClientRun.*/
-			$rootScope.$emit('WZ_INSTANCES_REFRESH_CURRENT');
 			console.log(resolveMessage);
 		},function(rejectMessage) {
 			console.log(rejectMessage);
