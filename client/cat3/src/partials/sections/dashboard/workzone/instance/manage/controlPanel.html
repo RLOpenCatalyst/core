@@ -30,7 +30,7 @@
 							Information
 						</a>
 					</li>
-					<li ng-class="{active:tab.isSet('Services')}" ng-show="showServicesTab">
+					<li ng-class="{active:tab.isSet('Services')}" ng-if="showServicesTab">
 						<a ng-click="tab.setTab('Services');removeActive()">
 							<i class="fa fa-share-square-o black"></i>&nbsp;
 							Services
