@@ -13,82 +13,92 @@
 		<div class="modal-body">
 			<fieldset>
 				<div class="row">
-					<div class="col-lg-6 col-md-6">
-						<label for="instanceFQDN">Enter IP Address
-						<span class="control-label red">&nbsp;*</span>
-						</label>
-						<div class="input-groups">
-							<input type="text" name="instanceFQDN" class="form-control" id="instanceFQDN" autofocus="" ng-model="ipAddress" required>
-	                       {{addInstanceForm.instanceFQDN}}
-						</div>
-					</div>
-					<div class="col-lg-6 col-md-6">
-						<label for="importinstanceOS">Choose Operating System<span class="red">&nbsp;*</span></label>
-						<div class="input-groups">
-							<select id="importinstanceOS" name="importinstanceOS" class="width-100 form-control" ng-model="os">
-								<option value="">Select OS</option>
-								<option ng-repeat="os in osList" value="{{os.osType}}">{{os.os_name}}</option>
-							</select>
-						</div>
-					</div>
-					<div class="col-lg-6 col-md-6 control-margin">
-						<label>Username<span class="control-label red">&nbsp;*</span></label>
-						<div class="input-groups">
-							<input type="text" class="form-control" ng-model="username">
-						</div>
-					</div>
-					<div class="col-lg-6 col-md-6 control-margin">
-						<label for="configManagementDropdown">Config Management<span class="control-label red">&nbsp;*</span></label>
-						<select id="configManagementDropdown" class="width-100 form-control" ng-model="selectedConfig">
-							<option ng-repeat="config in configList" value="{{config.rowid}}">
-								{{config.configname}}
-							</option>
-						</select>
-					</div>
-					<div class="col-lg-6 col-md-6 control-margin">
-						<label for="pemFileDropdown">Choose Authentication Type<span class="control-label red">&nbsp;*</span></label>
-						<select id="pemFileDropdown" class="authenticationType width-100 form-control" aria-invalid="false" ng-model="isPemActive">
-							<option value="password">Password</option>
-							<option value="pemFile">Pem File</option>
-						</select>
-					</div>
-					<div class="col-lg-6 col-md-6 authPassword control-margin" ng-show="(isPemActive=='password')">
-						<label>Password<span class="control-label red">&nbsp;*</span></label>
-						<div class="input-groups">
-							<input type="password" class="form-control" ng-model="password">
-						</div>
-					</div>
-					<div class="col-lg-6 col-md-6 authPemFile control-margin" ng-show="(isPemActive=='pemFile')">
-						<label for="importPemfileInput">Pem File<span class="control-label red">&nbsp;*</span><span id="requiredPemFile" class="hidden red">&nbsp;Required</span></label>
-						<div class="input-groups">
-							<input id="importPemfileInput" class="required form-control form-controls" multiple="" extension="pem" name="importPemfileInput" type="file" aria-required="true" ng-model="pemfile" onchange="angular.element(this).scope().pemFileSelection(this);">
-						</div>
-					</div>
-					<div class="applicationURLContainer" id="appSeries12">
-						<div class="col-lg-6 col-md-6 control-margin">
-							<label for="appName">Application Name</label>
-
-							<input id="appName" placeholder="AppName" maxlength="8" type="text" name="appNameInput" class="form-control appName" ng-model="app[0].name">
-						</div>
-						<div class="col-lg-6 col-md-6 control-margin">
-							<label for="appNameURL">Application URL<span id="validURL" class="hidden red">&nbsp;Please Enter a Valid URL</span></label>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="col-lg-6 col-md-6">
+							<label for="instanceFQDN">Enter IP Address
+							<span class="control-label red">&nbsp;*</span>
+							</label>
 							<div class="input-groups">
-								<input type="text" id="appNameURL" name="appNameURL" class="form-control appURL" placeholder="http://$host[:port]/appname" ng-model="app[0].url">
+								<input type="text" name="instanceFQDN" class="form-control" id="instanceFQDN" autofocus="" ng-model="ipAddress" required>
+		                       {{addInstanceForm.instanceFQDN}}
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label for="importinstanceOS">Choose Operating System<span class="red">&nbsp;*</span></label>
+							<div class="input-groups">
+								<select id="importinstanceOS" name="importinstanceOS" class="width-100 form-control" ng-model="os">
+									<option value="">Select OS</option>
+									<option ng-repeat="os in osList" value="{{os.osType}}">{{os.os_name}}</option>
+								</select>
 							</div>
 						</div>
 					</div>
-					<div class="applicationURLContainer" ng-show="appLinkSecondOption">
+					<div class="col-lg-12 col-md-12 no-padding">
 						<div class="col-lg-6 col-md-6 control-margin">
-
-							<label for="appName">Application Name</label>
-
-							<input id="appName" placeholder="AppName" maxlength="8" type="text" name="appNameInput" class="form-control appName" ng-model="app[1].name">
+							<label>Username<span class="control-label red">&nbsp;*</span></label>
+							<div class="input-groups">
+								<input type="text" class="form-control" ng-model="username">
+							</div>
 						</div>
 						<div class="col-lg-6 col-md-6 control-margin">
-
-							<label for="appNameURL">Application URL<span id="validURL" class="hidden red">&nbsp;Please Enter a Valid URL</span></label>
+							<label for="configManagementDropdown">Config Management<span class="control-label red">&nbsp;*</span></label>
+							<select id="configManagementDropdown" class="width-100 form-control" ng-model="selectedConfig">
+								<option ng-repeat="config in configList" value="{{config.rowid}}">
+									{{config.configname}}
+								</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="col-lg-6 col-md-6 control-margin">
+							<label for="pemFileDropdown">Choose Authentication Type<span class="control-label red">&nbsp;*</span></label>
+							<select id="pemFileDropdown" class="authenticationType width-100 form-control" aria-invalid="false" ng-model="isPemActive">
+								<option value="password">Password</option>
+								<option value="pemFile">Pem File</option>
+							</select>
+						</div>
+						<div class="col-lg-6 col-md-6 authPassword control-margin" ng-show="(isPemActive=='password')">
+							<label>Password<span class="control-label red">&nbsp;*</span></label>
 							<div class="input-groups">
-								<input type="text" id="appNameURL" name="appNameURL" class="form-control appURL" placeholder="http://$host[:port]/appname" ng-model="app[1].url">
+								<input type="password" class="form-control" ng-model="password">
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="col-lg-6 col-md-6 authPemFile control-margin" ng-show="(isPemActive=='pemFile')">
+							<label for="importPemfileInput">Pem File<span class="control-label red">&nbsp;*</span><span id="requiredPemFile" class="hidden red">&nbsp;Required</span></label>
+							<div class="input-groups">
+								<input id="importPemfileInput" class="required form-control form-controls" multiple="" extension="pem" name="importPemfileInput" type="file" aria-required="true" ng-model="pemfile" onchange="angular.element(this).scope().pemFileSelection(this);">
+							</div>
+						</div>
+						<div class="applicationURLContainer" id="appSeries12">
+							<div class="col-lg-6 col-md-6 control-margin">
+								<label for="appName">Application Name</label>
+
+								<input id="appName" placeholder="AppName" maxlength="8" type="text" name="appNameInput" class="form-control appName" ng-model="app[0].name">
+							</div>
+							<div class="col-lg-6 col-md-6 control-margin">
+								<label for="appNameURL">Application URL<span id="validURL" class="hidden red">&nbsp;Please Enter a Valid URL</span></label>
+								<div class="input-groups">
+									<input type="text" id="appNameURL" name="appNameURL" class="form-control appURL" placeholder="http://$host[:port]/appname" ng-model="app[0].url">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="applicationURLContainer" ng-show="appLinkSecondOption">
+							<div class="col-lg-6 col-md-6 control-margin">
+
+								<label for="appName">Application Name</label>
+
+								<input id="appName" placeholder="AppName" maxlength="8" type="text" name="appNameInput" class="form-control appName" ng-model="app[1].name">
+							</div>
+							<div class="col-lg-6 col-md-6 control-margin">
+
+								<label for="appNameURL">Application URL<span id="validURL" class="hidden red">&nbsp;Please Enter a Valid URL</span></label>
+								<div class="input-groups">
+									<input type="text" id="appNameURL" name="appNameURL" class="form-control appURL" placeholder="http://$host[:port]/appname" ng-model="app[1].url">
+								</div>
 							</div>
 						</div>
 					</div>
