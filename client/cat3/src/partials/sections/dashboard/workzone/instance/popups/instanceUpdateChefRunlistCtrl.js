@@ -43,24 +43,28 @@
 			var selectedCookBooks = compositeSelector.getSelectorList();
 			taskJSON.runlist = responseFormatter.formatSelectedChefRunList(selectedCookBooks);
 			taskJSON.jsonAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.allCBAttributes);
-			var modalInstance = $modal.open({
-				animation: true,
-				templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/updateChefRunlistConfirmation.html',
-				controller: 'updateChefRunlistConfirmationCtrl',
-				backdrop: 'static',
-				keyboard: false,
-				resolve: {
-					items: function() {
-						return {
-							instanceId : instanceId,
-							taskJSON : taskJSON
-						};
+			if(taskJSON.runlist.length) {
+				var modalInstance = $modal.open({
+					animation: true,
+					templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/updateChefRunlistConfirmation.html',
+					controller: 'updateChefRunlistConfirmationCtrl',
+					backdrop: 'static',
+					keyboard: false,
+					resolve: {
+						items: function() {
+							return {
+								instanceId : instanceId,
+								taskJSON : taskJSON
+							};
+						}
 					}
-				}
-			});
-			modalInstance.result.then(function() {
-				$modalInstance.close();
-			});
+				});
+				modalInstance.result.then(function() {
+					$modalInstance.close();
+				});
+			} else {
+				alert("Runlist is empty.");
+			}
 		};
 
 		$scope.init = function() {

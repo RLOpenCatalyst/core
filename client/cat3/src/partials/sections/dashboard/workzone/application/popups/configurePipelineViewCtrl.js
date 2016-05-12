@@ -8,8 +8,8 @@
 (function(){
    "use strict";
 	angular.module('workzone.application')
-		.controller('configurePipelineViewCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'chefSelectorComponent', 'responseFormatter', 'items', '$q', '$timeout', 
-		function($scope, $modalInstance, workzoneServices, chefSelectorComponent, responseFormatter, items, $q, $timeout) {
+		.controller('configurePipelineViewCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'chefSelectorComponent', 'responseFormatter', 'items', '$q', 
+		function($scope, $modalInstance, workzoneServices, chefSelectorComponent, responseFormatter, items, $q) {
 			$scope.isConfigurePipelineLoading = true;
 			var helper = {
 				getLeftRightEnvs: function(response){
@@ -18,7 +18,7 @@
 					var leftEnvList = [];
 					var rightEnvList = [];
 					for(var i=0;i<envSequence.length;i++) {
-						if(envIds.indexOf(envSequence[i])!=-1) {
+						if(envIds.indexOf(envSequence[i])!==-1) {
 							rightEnvList.push(envSequence[i]);
 						} else {
 							leftEnvList.push(envSequence[i]);
@@ -29,9 +29,9 @@
 						right: rightEnvList
 					};	
 				}
-			}
+			};
 			var projectID = items;
-			var factory, compositeSelector;
+			var compositeSelector;
 			var d = workzoneServices.getUpdatedEnvConfig(items);
 			$q.all([d]).then(function(allPromise) {
 				$scope.isConfigurePipelineLoading = false;
@@ -50,16 +50,16 @@
 					list.push(item);
 				}
 				activeEnvList = allEnvListLeftRight.right;
-				for(var i=0; i<activeEnvList.length; i++) {
-					var item = {
+				for(var j=0; j<activeEnvList.length; j++) {
+					var items = {
 						"className": "environment",
-					    "value": activeEnvList[i],
+					    "value": activeEnvList[j],
 					    "data": {
-					    	"key": activeEnvList[i],
-					    	"value": activeEnvList[i]
+					    	"key": activeEnvList[j],
+					    	"value": activeEnvList[j]
 					    }
 					};
-					selectedElements.push(item);
+					selectedElements.push(items);
 				}
 				var factory = chefSelectorComponent.getComponent;
 				compositeSelector = new factory({
@@ -87,7 +87,7 @@
 				    angular.forEach(compositeSelector.getOptionList(),function(val){
 				    	envListLeft.push(val.value);
 				    });
-				    var envSequence = envListLeft.concat(newEnv);
+				    envSequence = envListLeft.concat(newEnv);
 				    var envList = {
 						"appDeployPipelineData": {
 							"loggedInUser": "",

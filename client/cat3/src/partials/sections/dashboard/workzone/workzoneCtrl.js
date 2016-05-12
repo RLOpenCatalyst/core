@@ -79,8 +79,8 @@ function workzoneFunct($scope, $rootScope) {
 		$scope.config = {
 			message : message,
 			type : type
-		}
-	}
+		};
+	};
 }
 angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'workzone.instance', 'workzone.blueprint', 'workzone.orchestration', 'workzone.container', 'workzone.cloudFormation', 'workzone.azureARM', 'workzone.application', 'apis.workzone', 'workzone.factories'])
 	.controller('workzoneCtrl', ['$scope', '$rootScope', workzoneFunct])
