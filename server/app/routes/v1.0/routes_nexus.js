@@ -17,7 +17,7 @@ limitations under the License.
 
 // This file act as a controller for nexus.
 
-var nexus = require('../lib/nexus.js');
+var nexus = require('_pr/lib/nexus.js');
 var logger = require('_pr/logger')(module);
 
 module.exports.setRoutes = function(app, verificationFunc) {

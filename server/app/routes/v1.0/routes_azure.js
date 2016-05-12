@@ -23,7 +23,7 @@ var xml2json = require('xml2json');
 var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var fs = require('fs');
 var appConfig = require('_pr/config');
-var Cryptography = require('../lib/utils/cryptography');
+var Cryptography = require('_pr/lib/utils/cryptography');
 var uuid = require('node-uuid');
 
 module.exports.setRoutes = function(app, verificationFunc) {

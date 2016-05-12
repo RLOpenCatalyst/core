@@ -18,17 +18,17 @@ limitations under the License.
 // This file act as a Controller which contains VMImage related all end points.
 
 var logger = require('_pr/logger')(module);
-var EC2 = require('../lib/ec2.js');
-var VMImage = require('../model/classes/masters/vmImage.js');
-var AWSProvider = require('../model/classes/masters/cloudprovider/awsCloudProvider.js');
-var openstackProvider = require('../model/classes/masters/cloudprovider/openstackCloudProvider.js');
+var EC2 = require('_pr/lib/ec2.js');
+var VMImage = require('_pr/model/classes/masters/vmImage.js');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
 var appConfig = require('_pr/config');
-var blueprintsDao = require('../model/dao/blueprints');
-var AWSKeyPair = require('../model/classes/masters/cloudprovider/keyPair.js');
-var masterUtil = require('../lib/utils/masterUtil.js');
-var usersDao = require('../model/users.js');
-var configmgmtDao = require('../model/d4dmasters/configmgmt.js');
-var Cryptography = require('../lib/utils/cryptography');
+var blueprintsDao = require('_pr/model/dao/blueprints');
+var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var usersDao = require('_pr/model/users.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {

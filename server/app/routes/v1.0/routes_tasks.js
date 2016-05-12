@@ -15,13 +15,13 @@ limitations under the License.
 */
 
 
-var configmgmtDao = require('../model/d4dmasters/configmgmt.js');
-var Jenkins = require('../lib/jenkins');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
+var Jenkins = require('_pr/lib/jenkins');
 var errorResponses = require('./error_responses.js');
-var Tasks = require('../model/classes/tasks/tasks.js');
-var Application = require('../model/classes/application/application');
-var instancesDao = require('../model/classes/instance/instance');
-var TaskHistory = require('../model/classes/tasks/taskHistory');
+var Tasks = require('_pr/model/classes/tasks/tasks.js');
+var Application = require('_pr/model/classes/application/application');
+var instancesDao = require('_pr/model/classes/instance/instance');
+var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var logger = require('_pr/logger')(module);
 
 module.exports.setRoutes = function(app, sessionVerification) {

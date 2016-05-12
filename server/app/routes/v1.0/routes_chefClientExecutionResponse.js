@@ -18,7 +18,7 @@ limitations under the License.
 // This file act as a Controller which contains chef-client execution related all end points.
 
 
-var ChefClientExecution = require('../model/classes/instance/chefClientExecution/chefClientExecution.js');
+var ChefClientExecution = require('_pr/model/classes/instance/chefClientExecution/chefClientExecution.js');
 var errorResponses = require('./error_responses');
 
 

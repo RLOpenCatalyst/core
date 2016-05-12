@@ -19,7 +19,7 @@ limitations under the License.
 // This file act as a Controller which contains aplication related all end points.
 
 
-var Application = require('../model/classes/application/application');
+var Application = require('_pr/model/classes/application/application');
 var logger = require('_pr/logger')(module);
 var fs = require('fs');
 var currentDirectory = __dirname;

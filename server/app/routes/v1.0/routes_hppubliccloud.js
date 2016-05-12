@@ -20,7 +20,7 @@ limitations under the License.
 var Hppubliccloud = require('_pr/lib/hppubliccloud');
 var logger = require('_pr/logger')(module);
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
-var VMImage = require('../model/classes/masters/vmImage.js');
+var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var uuid = require('node-uuid');
 
 module.exports.setRoutes = function(app, verificationFunc) {

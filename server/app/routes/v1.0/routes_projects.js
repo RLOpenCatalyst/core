@@ -18,9 +18,9 @@ limitations under the License.
 // This file act as a Controller which contains project related all end points.
 
 
-var blueprintsDao = require('../model/dao/blueprints');
+var blueprintsDao = require('_pr/model/dao/blueprints');
 
-var instancesDao = require('../model/classes/instance/instance');
+var instancesDao = require('_pr/model/classes/instance/instance');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 

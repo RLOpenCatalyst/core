@@ -20,7 +20,7 @@ limitations under the License.
 var Openstack = require('_pr/lib/openstack');
 var logger = require('_pr/logger')(module);
 var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
-var VMImage = require('../model/classes/masters/vmImage.js');
+var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var uuid = require('node-uuid');
 
 module.exports.setRoutes = function(app, verificationFunc) {

@@ -27,7 +27,7 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
-var Chef = require('../lib/chef.js');
+var Chef = require('_pr/lib/chef.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 

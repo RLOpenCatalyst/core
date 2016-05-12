@@ -18,7 +18,7 @@ limitations under the License.
 // This file act as a Controller which contains Jira related all end points.
 
 var logger = require('_pr/logger')(module);
-var Jira = require('../lib/jira');
+var Jira = require('_pr/lib/jira');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/jira/*', sessionVerificationFunc);
 
