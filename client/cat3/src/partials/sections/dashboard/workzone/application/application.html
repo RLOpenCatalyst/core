@@ -9,17 +9,17 @@
                 <span ng-show="!isPipelineViewActive">{{selectedEnv}}</span>
             </span>
             <span class="pull-right">
-                <button type="button" class="btn btn-xs btn-info"
+                <button type="button" class="btn btn-xs cat-btn-update"
                 ng-click="deployNewApp()">
                     <i class="fa fa-plus white"></i>
                      App Deploy
                 </button>
-                <button type="button" class="btn btn-xs btn-info"
+                <button type="button" class="btn btn-xs cat-btn-update"
                 ng-click="applicationPipelineTab('activeCards')"  ng-show="isAppActiveCardTab.icon">
                     <i class="fa fa-th-list white"></i>
                     Active Cards
                 </button>
-                <button type="button" class="btn btn-xs btn-info"
+                <button type="button" class="btn btn-xs cat-btn-update"
                 ng-click="applicationPipelineTab('allCards')" ng-show="isAppallCardTab.icon">
                     <i class="fa fa-th-list white"></i>
                     All cards
@@ -36,8 +36,7 @@
         <section id="pipelineView" class="scrollContent" ng-show="isAppallCardTab.template" >
             <div ng-if="pipeGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
-                    <div ng-show="pipeLineActBarShow">
-                        <p>
+                        <span ng-show="pipeLineActBarShow">
                             <button type="button" class="btn btn-xs btn-info" ng-click="appCardDetail(pipeLineActBarData)">
                                 <i class="fa fa-tasks white"></i> Info </button>
                             <button type="button" class="btn btn-xs btn-primary" ng-click="promoteApp(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
@@ -46,12 +45,16 @@
                                 <i class="fa fa-eye white"></i> Approve</button>
                             <button type="button" class="btn btn-xs btn-success" ng-click="upgradeApp(pipeLineActBarData)">
                                 <i class="fa fa-edit white"></i> Upgrade</button>
-                        </p>
-                    </div>
+                        </span>
+                        <button type="button" class="btn btn-xs btn-info  pull-right" ng-click="appCardRefresh(pipeLineActBarData)">
+                            <i class="fa fa-refresh white"></i> Refresh</button>
                 </div>
                 <div ui-grid="pipeGridOptions"  ui-grid-pagination class="grid"></div>
             </div>
-            <div class="no-data-found" ng-if="!pipeGridOptions.data.length > 0"> No data found !</div>
+            <div class="no-data-found" ng-if="!pipeGridOptions.data.length > 0"> No data found !
+                <button type="button" class="btn btn-xs btn-info  pull-right" ng-click="appCardRefresh(pipeLineActBarData)">
+                    <i class="fa fa-refresh white"></i> Refresh</button>
+            </div>
 
         </section>
 
