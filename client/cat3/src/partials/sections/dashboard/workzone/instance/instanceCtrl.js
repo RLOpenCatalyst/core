@@ -37,7 +37,6 @@
 				return completeData;
 			}
 		};
-		var completeData;
 		$scope.instancePageLevelLoader = true;
 		$scope.instStartStopFlag = false;
 		$scope.importByIPDisabled = false;
@@ -365,7 +364,7 @@
 				$scope.paginationParams.sortBy = 'instanceCreatedOn';
 				$scope.paginationParams.sortOrder = 'desc';
 			}
-		}
+		};
 		
 		$scope.instanceImportByIP = function() {
 			$scope.importByIPDisabled = true;

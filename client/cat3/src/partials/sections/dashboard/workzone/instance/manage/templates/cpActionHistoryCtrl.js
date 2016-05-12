@@ -42,7 +42,7 @@
 								$scope.tabData = result.data;
 								$scope.isActionHistoryPageLoading = false;
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Records found";
 						});
 					}

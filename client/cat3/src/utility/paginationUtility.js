@@ -32,7 +32,7 @@
                     }
                 };
             }
-        }
+        };
     }]).service('uiGridOptionsClient', [function(){
         return {
             options: function() {
@@ -47,7 +47,7 @@
                     }
                 };
             }
-        }
+        };
     }]).service('paginationUtil', [function () {
            
             var paginationInterface = {};
