@@ -16,7 +16,6 @@
 				$scope.isSubmitLoading = true;
 				workzoneServices.updateChefRunlist(instance_id, reqBody).then(function () {
 					$scope.isSubmitLoading = false;
-					$rootScope.$emit('WZ_REFRESH_ENV');
 					$modalInstance.close();
 				}, function(error){
 					$scope.isSubmitLoading = false;

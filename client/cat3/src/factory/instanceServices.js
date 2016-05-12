@@ -266,8 +266,11 @@
 					backdrop: 'static',
 					keyboard: false,
 					resolve: {
-						instanceId: function() {
-							return instance._id;
+						instanceChefAttribute: function() {
+							return{
+								instanceId:instance._id,
+								chefrunlist:instance.runlist
+							} 
 						}
 					}
 				});
