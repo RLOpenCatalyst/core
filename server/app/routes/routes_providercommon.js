@@ -39,6 +39,7 @@ var providerService = require('_pr/services/providerService');
 var instanceService = require('_pr/services/instanceService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 
 
@@ -87,86 +88,66 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     // @TODO To be refactored and API end point to be changed
     app.get('/providers/:providerId/managedInstances', function(req, res) {
-        AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-            if (err) {
-                res.status(500).send({
-                    message: "Server Behaved Unexpectedly"
-                });
-                return;
-            }
-            if (!provider) {
-                res.status(404).send({
-                    message: "provider not found"
-                });
-                return;
-            }
-
-            instancesDao.getByProviderId(provider._id, function(err, managedInstances) {
-                if (err) {
-                    res.status(500).send(managedInstances);
-                    return;
+        var reqData = {};
+        async.waterfall(
+            [
+                function(next) {
+                    AWSProvider.getAWSProviderById(req.params.providerId,next);
+                },
+                function(provider,next) {
+                    if(provider) {
+                        apiUtil.paginationRequest(req.query, 'managedInstances', next);
+                    }else{
+                        callBackReturn(provider,next);
+                    }
+                },
+                function(paginationReq, next) {
+                    paginationReq['providerId'] = req.params.providerId;
+                    reqData = paginationReq;
+                    instancesDao.getByProviderId(paginationReq, next);
+                },
+                function(instances, next) {
+                    apiUtil.paginationResponse(instances, reqData, next);
                 }
-                res.status(200).send(managedInstances);
-            });
-        });
 
+            ], function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
     });
 
     // @TODO To be refactored and API end point to be changed
     app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-        logger.debug("Provider ID is >>>>>" + req.params.providerId);
-        var pageSize, page;
-        if (req.query.pageSize)
-            pageSize = parseInt(req.query.pageSize);
-        else
-            pageSize = constantData.record_limit;
-        if (req.query.page)
-            page = parseInt(req.query.page) - 1;
-        else
-            page = constantData.skip_Records;
-
-        var skip = pageSize * page;
-        var searchParameter, searchParameterValue;
-        if (req.query.status) {
-            searchParameter = "state";
-            searchParameterValue = req.query.status + "";
-        } else if (req.query.osType) {
-            searchParameter = "os";
-            searchParameterValue = req.query.osType + "";
-        }
-        var jsonData = {
-            'providerId': req.params.providerId,
-            'searchParameter': searchParameter,
-            'searchParameterValue': searchParameterValue,
-            'record_Skip': skip,
-            'record_Limit': pageSize
-        };
-        AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-
-            if (err) {
-                res.status(500).send({
-                    message: "Server Behaved Unexpectedly"
-                });
-                return;
-            }
-            if (!provider) {
-                res.status(404).send({
-                    message: "provider not found"
-                });
-                return;
-            }
-            unManagedInstancesDao.getByProviderId(jsonData, function(err, unmanagedInstances) {
-                if (err) {
-                    res.status(500).send(unmanagedInstances);
-                    return;
+        var reqData = {};
+        async.waterfall(
+            [
+                function(next) {
+                    AWSProvider.getAWSProviderById(req.params.providerId,next);
+                },
+                function(provider,next) {
+                    if(provider) {
+                        apiUtil.paginationRequest(req.query, 'unmanagedInstances', next);
+                    }else{
+                        callBackReturn(provider,next);
+                    }
+                },
+                function(paginationReq, next) {
+                    paginationReq['providerId'] = req.params.providerId;
+                    reqData = paginationReq;
+                    unManagedInstancesDao.getByProviderId(paginationReq, next);
+                },
+                function(instances, next) {
+                    apiUtil.paginationResponse(instances, reqData, next);
                 }
-                if (unmanagedInstances.length > 0)
-                    res.status(200).send(unmanagedInstances);
-                else
-                    res.status(200).send([]);
 
+            ], function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
             });
-        });
     });
 
     // @TODO To be refactored and API end point to be changed
@@ -1595,5 +1576,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         );
     }
+    function callBackReturn(data,callback){
+        callback(null,data);
+    };
 
 };
