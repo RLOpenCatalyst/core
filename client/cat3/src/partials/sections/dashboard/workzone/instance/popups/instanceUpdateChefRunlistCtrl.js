@@ -8,9 +8,9 @@
 (function(angular) {
 	"use strict";
 	angular.module('workzone.instance').
-	controller('instanceUpdateChefRunlistCtrl', ['$scope', '$q', 'instanceId', '$modalInstance',
+	controller('instanceUpdateChefRunlistCtrl', ['$scope', '$q', 'instanceChefAttribute', '$modalInstance',
 	'responseFormatter', 'chefSelectorComponent', '$timeout', '$http', 'workzoneServices', '$modal',
-	function($scope, $q, instanceId, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices, $modal) {
+	function($scope, $q, instanceChefAttribute, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices, $modal) {
 		/*Open only One Accordian-Group at a time*/
 		$scope.oneAtATime = true;
 		/*Initialising First Accordian-group open on load*/
@@ -23,7 +23,9 @@
 		var c = workzoneServices.getCookBookListForOrg();
 		//promise contains template list
 		var t = workzoneServices.getSoftwareTemplatesForOrg();
-		$q.all([c, t]).then(function(allPromise) {
+		var chefRunlist = responseFormatter.findDataForEditValue(instanceChefAttribute.chefrunlist);
+		var s = responseFormatter.chefRunlistFormatter(chefRunlist);
+		$q.all([c, t , s ]).then(function(allPromise) {
 			$scope.chefServerID = allPromise[0].data.serverId;
 			var list = responseFormatter.formatDataForChefClientRun(allPromise[0].data);
 			var template = responseFormatter.formatTemplateDataForChefClient(allPromise[1].data);
@@ -52,7 +54,7 @@
 				resolve: {
 					items: function() {
 						return {
-							instanceId : instanceId,
+							instanceId : instanceChefAttribute.instanceId,
 							taskJSON : taskJSON
 						};
 					}

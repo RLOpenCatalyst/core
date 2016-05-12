@@ -14,11 +14,13 @@
 			ok: function () {
 				var reqBody = items.taskJSON;
 				workzoneServices.updateChefRunlist(instance_id, reqBody).then(function () {
-					$rootScope.$emit('WZ_REFRESH_ENV');
 					$modalInstance.close();
 				}, function(error){
 					if(error.responseText){
-						$scope.errorMessage = error.responseText;
+						//asking the user the atleast select one cookbook.
+						alert('Please select atleast one cookbook');
+						$modalInstance.dismiss('cancel');
+						//$scope.errorMessage = error.responseText;
 					}
 				});
 			},
