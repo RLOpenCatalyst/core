@@ -568,3 +568,7 @@ option.puppet {
 	bottom:0px;
 	float:left;	
 }
+
+.btn:focus,.btn:active {
+	outline: none !important;
+}

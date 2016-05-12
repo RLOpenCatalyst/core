@@ -143,7 +143,7 @@
                         prevalList.push(preVal.rowid);
                     });
                     angular.forEach(allServ,function(val){
-                        if(prevalList.indexOf(val.rowid) == -1){
+                        if(prevalList.indexOf(val.rowid) === -1){
                             filteredServiceData.push(val);
                         }
                     });

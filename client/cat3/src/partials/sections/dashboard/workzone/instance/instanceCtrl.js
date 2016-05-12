@@ -37,7 +37,6 @@
 				return completeData;
 			}
 		};
-		var completeData;
 		$scope.instancePageLevelLoader = true;
 		$scope.instStartStopFlag = false;
 		$scope.isImportClickEnabled = true;
@@ -359,10 +358,10 @@
 		});
 
 		//root scope method for refreshing the list view at the time of docker cookbook run.
-		/*$rootScope.$on('WZ_INSTANCES_REFRESH_CURRENT', function(){
+		$rootScope.$on('WZ_INSTANCES_REFRESH_CURRENT', function(){
 			helper.setPaginationDefaults();
 			$scope.instancesListCardView();
-		});*/
+		});
 
 		var helper = {
 			setPaginationDefaults: function() {
@@ -371,7 +370,7 @@
 				$scope.paginationParams.sortBy = 'instanceCreatedOn';
 				$scope.paginationParams.sortOrder = 'desc';
 			}
-		}
+		};
 		
 		$scope.instanceImportByIP = function() {
 			$scope.isImportClickEnabled = false;

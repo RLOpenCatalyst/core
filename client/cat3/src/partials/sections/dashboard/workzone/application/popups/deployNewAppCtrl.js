@@ -7,7 +7,7 @@
 
 (function(){
 "use strict";
-angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$rootScope,$modal,$modalInstance,workSvs,workEnvt) {
+angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment','$timeout', function(items,$scope,$rootScope,$modal,$modalInstance,workSvs,workEnvt,$timeout) {
 		/*$scope.isSelectedEnable = true;
 		$scope.serverType='';
 		console.log($scope.serverType);
@@ -204,13 +204,12 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			workSvs.postAppDeploy(depNewApp.deploymentData).then(function(deployResult){
 				$scope.isLoadingNewApp=false;
 				depNewApp.deployResult=deployResult.data;
-				$modalInstance.close();
 				depNewApp.taskLog();
+				$timeout(function () {$modalInstance.close();},400);
 			});
 			//
 		};
 		depNewApp.taskLog=function(){
-			workSvs.runTask(depNewApp.deployResult.taskId).then(function(response) {
 				$modal.open({
 					animation: true,
 					templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
@@ -227,7 +226,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 						}
 					}
 				});
-			});
 		};
 		// call job api after creating new job .
 		$rootScope.$on("GET_ALL_TASK", function(){
