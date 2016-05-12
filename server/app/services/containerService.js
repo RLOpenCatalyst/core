@@ -35,6 +35,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
     var stdOut = '';
     var _docker = new Docker();
     var status='';
+    var enumStatus='';
     async.waterfall([
         function (next) {
             userDao.haspermission(jsonData.user.cn, category, permissionTo, null, jsonData.permissionSet,next);
@@ -49,7 +50,8 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         function (container,next){
             if(container.length > 0){
                  status=container[0].Status;
-                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" in Progress",jsonData.action,next);
+                 enumStatus = container[0].containerStatus;
+                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" in Progress",dockerContainerStatus(jsonData.action)+" in Progress",next);
             }else{
                  callBackReturn(container,next);
             }
@@ -66,12 +68,12 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             logger.debug("stdOut     "+stdOut);
             if(retCode === 0){
                 if(stdOut.trim().length === jsonData.containerId.length || stdOut.trim().length ===0){
-                    containerDao.updateContainer(jsonData.containerId,dockerContainerStatus(jsonData.action),next);
+                    containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action),dockerContainerStatus(jsonData.action),next);
                 }else{
                     containerDao.deleteContainerById(jsonData.containerId, next);
                 }
             }else {
-                 containerDao.updateContainer(jsonData.containerId, status, next);
+                 containerDao.updateContainerStatus(jsonData.containerId, status,enumStatus, next);
             }
         }
 

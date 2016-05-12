@@ -444,9 +444,7 @@ var InstancesDao = function() {
                             err.status = 500;
                             return callback(err);
                         } else if (instances.docs.length === 0) {
-                            var err = new Error('Instances are not found');
-                            err.status = 404;
-                            return callback(err);
+                            return callback(null,instances);
                         } else {
                             var tasks = require('_pr/model/classes/tasks/tasks.js');
                             // @TODO Workaround to avoid circular dependency to be addressed

@@ -158,27 +158,6 @@ containerSchema.statics.getContainerByIdInstanceId = function(containerId,instan
         callback(null, aContainer);
     });
 };
-containerSchema.statics.updateContainer = function(containerId,containerStatus, callback) {
-    logger.debug("Enter updateContainer");
-    container.update({
-        Id: containerId
-    }, {
-        $set: {
-            containerStatus: containerStatus,
-            Status: containerStatus
-        }
-    }, {
-        upsert: false
-    }, function(err, data) {
-        if (err) {
-            logger.error("Failed to updateContainer (%s, %s)", err);
-            return;
-        }
-        logger.debug("Exit updateContainer (%s, %s)");
-        callback(null, data);
-    });
-
-};
 
 containerSchema.statics.updateContainerStatus = function(containerId,containerStatus,status,callback) {
     logger.debug("Enter updateContainerStatus");
