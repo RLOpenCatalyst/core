@@ -1149,7 +1149,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/applications", req.params.orgId, req.params.bgId, req.params.projectId);
     });
 
-    /*//Duplicated with provider filter for BP Edit
+    //Duplicated with provider filter for BP Edit
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
         logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
         configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
@@ -1247,7 +1247,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             }
         }); //end getTeamsOrgBuProjForUser
-    });*/
+    });
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
         var jsonData = {};
