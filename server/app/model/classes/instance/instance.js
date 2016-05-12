@@ -118,6 +118,11 @@ var InstanceSchema = new Schema({
         trim: true,
         validate: schemaValidator.orgIdValidator
     },
+    orgName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     bgId: {
         type: String,
         required: true,
@@ -254,8 +259,9 @@ var InstanceSchema = new Schema({
     taskIds: [String],
     tempActionLogId: String,
     cloudFormationId: String,
-    armId: String
-
+    armId: String,
+    usage: Schema.Types.Mixed,
+    cost: Schema.Types.Mixed
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -555,6 +561,18 @@ var InstancesDao = function() {
             callback(null, data);
         });
 
+    };
+
+    this.getAll = function getAll(query, callback) {
+        Instances.find(query,
+            function(err, instances) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    return callback(null, instances);
+                }
+            }
+        );
     };
 
     this.findByProviderId = function(providerId, callback) {
@@ -1628,6 +1646,21 @@ var InstancesDao = function() {
         }
     };
 
+    this.updateInstanceUsage = function(instanceId, usage, callback) {
+        Instances.update({
+            _id: new ObjectId(instanceId)
+        }, {
+            $set: {usage: usage}
+        }, {
+            upsert: false
+        }, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
 };
 
 module.exports = new InstancesDao();

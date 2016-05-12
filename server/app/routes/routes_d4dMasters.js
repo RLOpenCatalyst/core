@@ -451,6 +451,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var chefRepoPath = settings.chefReposLocation;
         logger.debug(chefRepoPath);
         var file = chefRepoPath + 'catalyst_files/' + req.params.imagename;
+        logger.debug(file);
         fs.exists(file, function(exists) {
             if (exists) {
                 fs.readFile(chefRepoPath + 'catalyst_files/' + req.params.imagename, function(err, data) {
@@ -3463,6 +3464,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     // List image tags w.r.t. docker repo and image
     app.get('/d4dMasters/docker/:repository/:image/tags', function(req, res) {
+        logger.debug("Called docker image tags.");
         var options_auth = {};
         client = new Client(options_auth);
         var dockerUrl = "https://registry.hub.docker.com/v1/repositories/" + req.params.repository + "/" + req.params.image + "/tags";

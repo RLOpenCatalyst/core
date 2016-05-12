@@ -24,83 +24,88 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var Schema = mongoose.Schema;
 
 var InstanceChefInfraManagerSchema = new Schema({
-	versionsList: [{
-		ver: {
-			type: String,
-			required: true
-		},
-		runlist: [{
-			type: String,
-			required: true
-		}]
-	}],
-	latestVersion: {
-		type: String,
-		trim: true
-	}
+    versionsList: [{
+        ver: {
+            type: String,
+            required: true
+        },
+        runlist: [{
+            type: String,
+            required: true
+        }],
+        attributes: [{
+            name: String,
+            jsonObj: {}
+        }]
+    }],
+    latestVersion: {
+        type: String,
+        trim: true
+    }
 });
 
 
 function generateBlueprintVersionNumber(prevVersion) {
-	logger.debug("Enter generateBlueprintVersionNumber()", prevVersion);
-	if (!prevVersion) {
-		logger.warn("No prevVersion provided. Returning 0.1");
-		return "0.1";
-	}
+    logger.debug("Enter generateBlueprintVersionNumber()", prevVersion);
+    if (!prevVersion) {
+        logger.warn("No prevVersion provided. Returning 0.1");
+        return "0.1";
+    }
 
-	var parts = prevVersion.split('.');
-	var major = parseInt(parts[0]);
-	var minor = parseInt(parts[1]);
-	minor++;
+    var parts = prevVersion.split('.');
+    var major = parseInt(parts[0]);
+    var minor = parseInt(parts[1]);
+    minor++;
 
-	if (minor === 10) {
-		major++;
-		minor = 0;
-	}
-	logger.debug("Exit generateBlueprintVersionNumber(%s) = %s.%s", prevVersion, major, minor);
-	return major + '.' + minor;
+    if (minor === 10) {
+        major++;
+        minor = 0;
+    }
+    logger.debug("Exit generateBlueprintVersionNumber(%s) = %s.%s", prevVersion, major, minor);
+    return major + '.' + minor;
 }
 // instance method 
 
 InstanceChefInfraManagerSchema.methods.update = function(updateData) {
-	var ver = generateBlueprintVersionNumber(this.latestVersion);
-	this.versionsList.push({
-		ver: ver,
-		runlist: updateData.runlist
-	});
-	this.latestVersion = ver;
+    var ver = generateBlueprintVersionNumber(this.latestVersion);
+    this.versionsList.push({
+        ver: ver,
+        runlist: updateData.runlist,
+        attributes: updateData.attributes
+    });
+    this.latestVersion = ver;
 };
 
 InstanceChefInfraManagerSchema.methods.getVersionData = function(ver) {
-	if (ver) {
-		for (var i = 0; i < this.versionsList.length; i++) {
-			if (this.versionsList[i].ver === ver) {
-				return this.versionsList[i];
-			}
-		}
-	} else {
+    if (ver) {
+        for (var i = 0; i < this.versionsList.length; i++) {
+            if (this.versionsList[i].ver === ver) {
+                return this.versionsList[i];
+            }
+        }
+    } else {
         return this.getLatestVersion();
     }
 };
 
 InstanceChefInfraManagerSchema.methods.getLatestVersion = function() {
-	if (!this.versionsList.length) {
-		return null;
-	}
-	return this.versionsList[this.versionsList.length - 1];
+    if (!this.versionsList.length) {
+        return null;
+    }
+    return this.versionsList[this.versionsList.length - 1];
 };
 
 InstanceChefInfraManagerSchema.statics.createNew = function(chefData) {
-	var self = this;
-
-	var chefInfraManager = new self({
-		versionsList: [{
-			ver: generateBlueprintVersionNumber(null),
-			runlist: chefData.runlist
-		}],
-		latestVersion: generateBlueprintVersionNumber(null)
-	});
-	return chefInfraManager;
+    var self = this;
+    var chefInfraManager = new self({
+        versionsList: [{
+            ver: generateBlueprintVersionNumber(null),
+            runlist: chefData.runlist,
+            attributes: chefData.attributes
+        }],
+        latestVersion: generateBlueprintVersionNumber(null)
+    });
+    return chefInfraManager;
 };
 
 var InstanceChefInfraManager = mongoose.model('instanceChefInfraManager', InstanceChefInfraManagerSchema);

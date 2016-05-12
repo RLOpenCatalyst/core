@@ -1,4 +1,5 @@
 var logger = require('_pr/logger')(module);
+var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
@@ -21,6 +22,11 @@ socketCloudFormationAutoScate.on('connection', function(socket) {
 	});
 
 });
+
+var AWSProviderSync = Object.create(CatalystCronJob);
+AWSProviderSync.execute = sync;
+
+module.exports = AWSProviderSync;
 
 // @TODO To be refactored (High Priority)
 function sync() {
@@ -134,6 +140,10 @@ function sync() {
 																for (var m = 0; m < awsInstances.length; m++) {
 
 																	var found = false;
+																	var foundInUnManaged = false;
+																	var addedToUnmanaged = false;
+																	var foundInUnassigned = false;
+
 																	var tags = awsInstances[m].Tags;
 																	var tagInfo = {};
 																	for (var i = 0; i < tags.length; i++) {
@@ -179,12 +189,13 @@ function sync() {
 																			}
 
 																			if (assignmentFound) {
-																				instances[n].projectId = catalystProjectId;
+																				/*instances[n].projectId = catalystProjectId;
 																				instances[n].projectName = catalystProjectName;
-																				instances[n].envId = catalystEnvironmentId;
+																				instances[n].envId = catalystEnvironmentId;*/
 																				instances[n].environmentName = catalystEnvironmentName;
 																			}
 
+																			instances[n].orgName = org.orgname;
 																			instances[n].tags = tagInfo;
 																			instances[n].save();
 																			found = true;
@@ -196,16 +207,19 @@ function sync() {
 																			break;
 																		}
 																	}
+
 																	if (!found) {
-																		var foundInUnManaged = false;
 																		for (var n = 0; n < unManagedInstances.length; n++) {
-																			if (unManagedInstances[n].platformId === awsInstances[m].InstanceId) {
+																			if ((unManagedInstances[n].platformId === awsInstances[m].InstanceId)
+																				&& !assignmentFound) {
+																				unManagedInstances[n].remove();
+																			} else if (unManagedInstances[n].platformId === awsInstances[m].InstanceId) {
 																				unManagedInstances[n].state = awsInstances[m].State.Name;
 																				if (unManagedInstances[n].state === 'terminated') {
 																					unManagedInstances[n].remove();
 																				} else {
 																					if (unManagedInstances[n].state === 'running') {
-																						unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+																						unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
 																					}
 																					unManagedInstances[n].projectId = catalystProjectId;
 																					unManagedInstances[n].projectName = catalystProjectName;
@@ -221,94 +235,28 @@ function sync() {
 																				break;
 																			}
 																		}
-																		if (!foundInUnManaged) { //making entry in unmanaged database
-																			var addedToUnmanaged = false;
-																			var os = 'linux';
+																	}
 
-																			if (awsInstances[m].State.Name !== 'terminated' && assignmentFound) {
+																	if (!found && !foundInUnManaged) { //making entry in unmanaged database
+																		var os = 'linux';
 
-																				if (awsInstances[m].Platform && awsInstances[m].Platform === 'windows') {
-																					os = 'windows';
-																				}
+																		if (awsInstances[m].State.Name !== 'terminated' && assignmentFound) {
 
-																				unManagedInstancesDao.createNew({
-																					orgId: org.rowid,
-																					providerId: provider._id,
-																					projectId: catalystProjectId,
-																					projectName: catalystProjectName,
-																					environmentId: catalystEnvironmentId,
-																					environmentName: catalystEnvironmentName,
-																					providerType: 'aws',
-																					providerData: {
-																						region: region
-																					},
-																					platformId: awsInstances[m].InstanceId,
-																					ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
-																					os: os,
-																					state: awsInstances[m].State.Name,
-																					tags: tagInfo
-																				});
-
-																				addedToUnmanaged = true;
-																			}
-
-																		}
-
-																		if (!addedToUnmanaged) {
-																			var foundInUnassigned = false;
-																			for (var n = 0; n < unassignedInstances.length; n++) {
-																				if (unassignedInstances[n].platformId === awsInstances[m].InstanceId) {
-																					unassignedInstances[n].state = awsInstances[m].State.Name;
-																					if (unassignedInstances[n].state === 'terminated') {
-																						unassignedInstances[n].remove();
-																					} else {
-																						if (unassignedInstances[n].state === 'running') {
-																							unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
-																						}
-																						unassignedInstances[n].project = {
-																							id: catalystProjectId,
-																							name: catalystProjectName
-																						};
-																						unassignedInstances[n].environment = {
-																							id: catalystEnvironmentId,
-																							name: catalystEnvironmentName
-																						};
-
-																						unassignedInstances[n].tags = tagInfo;
-																						unassignedInstances[n].save();
-																					}
-
-																					foundInUnassigned = true;
-																					unassignedInstances.splice(n, 1);
-																					break;
-																				}
-																			}
-
-																		} else if (addedToUnmanaged) {
-																			unassignedInstancesModel.deleteByPlatformAndProviderId(provider._id,
-																				awsInstances[m].InstanceId);
-																		}
-
-																		if (!foundInUnassigned) {
-																			var os = 'linux';
 																			if (awsInstances[m].Platform && awsInstances[m].Platform === 'windows') {
 																				os = 'windows';
 																			}
 
-																			unassignedInstancesModel.createNew({
+																			unManagedInstancesDao.createNew({
 																				orgId: org.rowid,
+																				orgName: org.orgname,
 																				providerId: provider._id,
+																				projectId: catalystProjectId,
+																				projectName: catalystProjectName,
+																				environmentId: catalystEnvironmentId,
+																				environmentName: catalystEnvironmentName,
 																				providerType: 'aws',
 																				providerData: {
 																					region: region
-																				},
-																				project: {
-																					id: catalystProjectId,
-																					name: catalystProjectName
-																				},
-																				environment: {
-																					id: catalystEnvironmentId,
-																					name: catalystEnvironmentName
 																				},
 																				platformId: awsInstances[m].InstanceId,
 																				ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
@@ -316,11 +264,73 @@ function sync() {
 																				state: awsInstances[m].State.Name,
 																				tags: tagInfo
 																			});
+
+																			addedToUnmanaged = true;
 																		}
 
 																	}
-																}
 
+																	if (!found && !foundInUnManaged && !addedToUnmanaged) {
+																		for (var n = 0; n < unassignedInstances.length; n++) {
+																			if (unassignedInstances[n].platformId === awsInstances[m].InstanceId) {
+																				unassignedInstances[n].state = awsInstances[m].State.Name;
+																				if (unassignedInstances[n].state === 'terminated') {
+																					unassignedInstances[n].remove();
+																				} else {
+																					if (unassignedInstances[n].state === 'running') {
+																						unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+																					}
+
+																					if (projectTag && (projectTag.name in tagInfo))
+																						unassignedInstances[n].projectTag = tagInfo[projectTag.name];
+
+																					if (environmentTag && (environmentTag.name in tagInfo))
+																						unassignedInstances[n].environmentTag = tagInfo[environmentTag.name];
+
+																					unassignedInstances[n].tags = tagInfo;
+																					unassignedInstances[n].save();
+																				}
+
+																				foundInUnassigned = true;
+																				unassignedInstances.splice(n, 1);
+																				break;
+																			}
+																		}
+
+																	} else if (addedToUnmanaged) {
+																		unassignedInstancesModel.deleteByPlatformAndProviderId(provider._id,
+																			awsInstances[m].InstanceId);
+																	}
+
+																	if (!found && !foundInUnManaged && !addedToUnmanaged && !foundInUnassigned) {
+																		var os = 'linux';
+																		if (awsInstances[m].Platform && awsInstances[m].Platform === 'windows') {
+																			os = 'windows';
+																		}
+
+																		var newUnassignedInstance = {
+																			orgId: org.rowid,
+																			providerId: provider._id,
+																			providerType: 'aws',
+																			providerData: {
+																				region: region
+																			},
+																			platformId: awsInstances[m].InstanceId,
+																			ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
+																			os: os,
+																			state: awsInstances[m].State.Name,
+																			tags: tagInfo
+																		};
+
+																		if (projectTag && (projectTag.name in tagInfo))
+																			newUnassignedInstance.projectTag = tagInfo[projectTag.name];
+
+																		if (environmentTag && (environmentTag.name in tagInfo))
+																			newUnassignedInstance.environmentTag = tagInfo[environmentTag.name];
+
+																		unassignedInstancesModel.createNew(newUnassignedInstance);
+																	}
+																}
 															}
 															// logger.debug('loop complete l==>',l ,' res==> ', reservations.length,' region==> ',region);
 														}
@@ -355,5 +365,3 @@ function sync() {
 		}
 	});
 }
-
-module.exports = sync;

@@ -761,4 +761,12 @@
     opacity: 0.5;
     pointer-events: none;
 }
+.applicationCardHeadingTextoverflow {
+    display: inline-block;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100px;
+}
 /*Application.html's CSS ends here*/

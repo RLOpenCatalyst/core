@@ -58,6 +58,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 						AWSKeyPair.getAWSKeyPairByProviderId(providers[i]._id, function(err, keyPair) {
 							count++;
+
 							if (keyPair) {
 								var dommyProvider = {
 									_id: providers[i]._id,
@@ -67,8 +68,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									orgId: providers[i].orgId,
 									__v: providers[i].__v,
 									keyPairs: keyPair,
-									isDefault: aProvider.isDefault
+									isDefault: providers[i].isDefault
 								};
+
+								var cryptoConfig = appConfig.cryptoSettings;
+								var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+
+								if (!providers[i].isDefault) {
+									var cryptoConfig = appConfig.cryptoSettings;
+									var cryptography = new Cryptography(cryptoConfig.algorithm,
+										cryptoConfig.password);
+
+									dommyProvider.accessKey = cryptography.decryptText(providers[i].accessKey,
+										cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+									dommyProvider.secretKey = cryptography.decryptText(providers[i].secretKey,
+										cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+								}
+
 								providerList.push(dommyProvider);
 								logger.debug("count: ", count);
 								if (count === providers.length) {
@@ -147,7 +163,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var vmwarehost = req.body.vmwarehost;
 		var vmwaredc = req.body.vmwaredc;
 		var providerName = req.body.providerName;
-		var providerType = req.body.providerType;
+		var providerType = req.body.providerType.toLowerCase();
+        var pemFileName = null;
+        if(req.files && req.files.azurepem)
+		   pemFileName = req.files.azurepem.originalFilename;
+        var keyFileName = null;
+        if(req.files && req.files.azurekey)
+		  keyFileName = req.files.azurekey.originalFilename;
 		var orgId = req.body.orgId;
 
 		if (typeof vmwareusername === 'undefined' || vmwareusername.length === 0) {
@@ -1093,16 +1115,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 		var providerName = req.body.providerName;
 		var providerType = req.body.providerType.toLowerCase();
-
-		// var pemFileName = req.files.azurepem.originalFilename;
-		// var keyFileName = req.files.azurekey.originalFilename;
-
 		var pemFileName = null;
     	if(req.files && req.files.azurepem)
  		   pemFileName = req.files.azurepem.originalFilename;
         var keyFileName = null;
         if(req.files && req.files.azurekey)
- 		  keyFileName = req.files.azurekey.originalFilename;
+		  keyFileName = req.files.azurekey.originalFilename;
 		var orgId = req.body.orgId;
 
 		if (typeof azureSubscriptionId === 'undefined' || azureSubscriptionId.length === 0) {

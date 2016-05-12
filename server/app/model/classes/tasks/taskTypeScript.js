@@ -150,6 +150,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
 					} else {
 						sshOptions.password = decryptedCredentials.password;
 					}
+					logger.debug('uploading script file');
 					var scp = new SCP(sshOptions);
 					scp.upload(appConfig.scriptDir + self.scriptFileName, '/tmp', function(err) {
 						if (err) {
