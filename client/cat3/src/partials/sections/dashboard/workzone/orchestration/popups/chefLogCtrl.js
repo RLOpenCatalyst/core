@@ -8,14 +8,13 @@
 (function() {
 	"use strict";
 	angular.module('workzone.orchestration')
-		.controller('chefLogCtrl', ['$q', '$scope', 'workzoneServices', '$interval', 'orchestrationSetting', function($q, $scope, workzoneServices, $interval, orchestrationSetting) {
+		.controller('chefLogCtrl', ['$q', '$scope', 'workzoneServices', '$timeout', 'orchestrationSetting', function($q, $scope, workzoneServices, $timeout, orchestrationSetting) {
 			/*This controller can be invoked from either of two flows - Chef Log History Item Logs OR Chef Task Execute
 			items object will contain only taskId and historyId. */
 
 			var items=$scope.parentItemDetail;
 			$scope.isInstanceListLoading = true;
 			angular.extend($scope, {
-				logList: [],
 				cancel: function() {
 					helper.stopPolling();
 				}
@@ -24,9 +23,10 @@
 			var chefLogData = {
 				chefHistoryItem: {},
 				nodeIdsWithActionLog: {},
-				logData: []				
+				logListInitial: [],
+				logListDelta: []			
 			};
-			var timerObject, logList = true;
+			var timerObject;
 			
 			var helper = {
 				lastTimeStamp: '',
@@ -37,12 +37,12 @@
 					}
 				},
 				logsPolling: function() {
-					timerObject = $interval(function() {
+					timerObject = $timeout(function() {
 						workzoneServices.getChefJobLogs($scope.selectedInstance.nodeId, $scope.selectedInstance.actionLogId, helper.lastTimeStamp)
 							.then(function(resp) {
 								if (resp.data.length) {
 									helper.lastTimeStamp = helper.getlastTimeStamp(resp.data);
-									chefLogData.logData.logs.push.apply(chefLogData.logData.logs, resp.data);
+									chefLogData.logListDelta.logs.push.apply(chefLogData.logListDelta.logs, resp.data);
 								}
 							});
 
@@ -50,7 +50,7 @@
 				},
 
 				stopPolling: function() {
-					$interval.cancel(timerObject);
+					$timeout.cancel(timerObject);
 				}
 			};
 			var selectFirstInstance = function(firstInstance){
@@ -100,12 +100,11 @@
 				if(chefLogData.chefHistoryItem.timestampStarted && chefLogData.chefHistoryItem.timestampEnded){
 					workzoneServices.getChefJobLogs($scope.selectedInstance.nodeId, $scope.selectedInstance.actionLogId, chefLogData.chefHistoryItem.timestampStarted, chefLogData.chefHistoryItem.timestampEnded).then(function(response){
 						$scope.isLogsLoading = false;
-						logList = response.data;
 						var logData = {
-							logs: logList,
+							logs: response.data,
 							fullLogs: true
 						};
-						chefLogData.logData = logData;
+						chefLogData.logListInitial = logData;
 					}, function(error){
 						$scope.isLogsLoading = false;
 						console.log(error);
@@ -121,13 +120,12 @@
 					workzoneServices.getChefJobLogs($scope.selectedInstance.nodeId, $scope.selectedInstance.actionLogId, chefLogData.chefHistoryItem.timestampStarted).then(function(response){
 						$scope.isLogsLoading = false;
 						helper.lastTimeStamp = helper.getlastTimeStamp(response.data) || chefLogData.chefHistoryItem.timestampStarted;
-						logList = response.data;
 						helper.logsPolling();
 						var logData = {
-							logs: logList,
-							fullLogs: false
+							logs: response.data,
+							fullLogs: true
 						};
-						chefLogData.logData = logData;
+						chefLogData.logListInitial = logData;
 					}, function(error){
 						$scope.isLogsLoading = false;
 						console.log(error);

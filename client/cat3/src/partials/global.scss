@@ -487,9 +487,13 @@ option.puppet {
 	    color: $color-red;
 	}
 
-	.rowSpacing td {
-	    padding-top: 7px;
-	}
+	.rowSpacing {
+     padding-top: 7px;
+	 }
+
+	 .logInfo {
+	     margin-left: 10px;
+	 }
 }
 
 /*Can be used globally*/
