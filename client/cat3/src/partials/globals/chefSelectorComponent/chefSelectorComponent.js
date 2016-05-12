@@ -482,6 +482,19 @@
 			return t;
 		};
 
+		//get list of elements which is available left side
+		this.getOptionList = function() {
+			var t = [];
+			$optionSelector.find('option:visible').each(function() {
+				t.push({
+					value: this.value,
+					className: this.classList.toString(),
+					data: $(this).data('json')
+				});
+			});
+			return t;
+		};
+
 		//filter the left list through class
 		this.applyFilterThroughClass = function(className) {
 			this.resetFilters();
