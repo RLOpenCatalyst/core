@@ -135,6 +135,9 @@
 					resolve: {
 						items: function() {
 							return app.Id.substring(0, $scope.truncateImageIDLimit);
+						},
+						itemsName: function(){
+							return app.Names;
 						}
 					}
 				});
@@ -230,9 +233,9 @@
 			});
 		}])
 
-		.controller('dockerControllers',  ['$scope', '$modalInstance', function ($scope, $modalInstance) {
-
+		.controller('dockerControllers',  ['itemsName', '$scope', '$modalInstance', function (itemsName, $scope, $modalInstance) {
 			angular.extend($scope,{
+				itemNames: itemsName,
 				cancel:function(){
 					$modalInstance.dismiss('cancel');
 				},
