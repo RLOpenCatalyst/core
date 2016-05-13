@@ -258,7 +258,6 @@
 					}
 				}
 			};
-
 			$scope.$on('SELECTED-CARD' ,function ($event,cardDetails,appName,envName){
 				$scope.pipeLineActBarData ='';
 				if(!cardDetails || !cardDetails.applicationInstanceName){

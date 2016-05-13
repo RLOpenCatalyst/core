@@ -73,7 +73,6 @@
 					isExcludeDataFromOption: false,
 				});
 			});
-
 			angular.extend($scope, {
 			    ok:function(){
 			    	var newEnv=[];

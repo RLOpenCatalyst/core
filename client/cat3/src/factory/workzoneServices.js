@@ -95,7 +95,6 @@
                 getInstanceBlueprintOrchestration: function (orgId, bgId,
                         projId, envId) {
                     if (!orgId) {
-
                         return $http.get(fullUrl('/cat3/data/json_for_divakar.json'), {
                             cache: true
                         });

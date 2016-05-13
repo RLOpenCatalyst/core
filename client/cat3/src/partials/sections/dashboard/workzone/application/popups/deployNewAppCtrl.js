@@ -4,7 +4,6 @@
  * Written by Relevance UI Team,
  * April 2016
  */
-
 (function(){
 "use strict";
 angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment','$timeout', function(items,$scope,$rootScope,$modal,$modalInstance,workSvs,workEnvt,$timeout) {
@@ -24,7 +23,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			tagOptions:[],
 			deployResult:[],
 			artifactsVersion:[]
-			
 		};
 		depNewApp.init =function(){
 			$scope.isLoadingServer=true;
