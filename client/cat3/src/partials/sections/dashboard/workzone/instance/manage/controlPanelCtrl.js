@@ -40,18 +40,22 @@
                     "url": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpActions.html"
                 }
             }
-        };
-        $scope.tab = _tab;
+            };
+            $scope.tab = _tab;
 
-        if (instance.puppet) {
-            //Dont show Services tab for puppet instance
-            $scope.showServicesTab = false;
-        } else {
-            $scope.showServicesTab = true;
-        }
-        //The cpInstance from this scope is used in the controllers of child tabs.
-        $scope.cpInstance = instance;
-        $scope.instInfo = $scope.cpInstance;
+            if (instance.puppet) {
+                //Dont show Services tab for puppet instance
+                $scope.showServicesTab = false;
+            } else {
+                $scope.showServicesTab = true;
+            }
+            //The cpInstance from this scope is used in the controllers of child tabs.
+            $scope.cpInstance = instance;
+            $scope.instInfo = $scope.cpInstance;
+            //To activate the tab
+            $scope.activateTab = function (tabName) {
+                $scope.tab.setTab(tabName);
+            };
         }
     ]);
 })(angular);

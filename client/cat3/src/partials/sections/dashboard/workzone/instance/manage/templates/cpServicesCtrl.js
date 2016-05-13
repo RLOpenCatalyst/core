@@ -37,7 +37,7 @@
                     );
                 },
                 showActionHistory: function () {
-                    $scope.$parent.activateTab('Logs');
+                    $scope.$parent.$parent.activateTab('Logs');
                 }
             };
 

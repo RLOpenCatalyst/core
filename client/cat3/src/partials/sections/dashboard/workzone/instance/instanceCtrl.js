@@ -41,6 +41,10 @@
 		$scope.instStartStopFlag = false;
 		$scope.isImportClickEnabled = true;
 
+		$scope.openContainersTab = function() {
+			$scope.$parent.$parent.activateTab('Containers');
+		}
+
 		/*User permission set example*/
 		//defining an object for permission.
 		var _permSet = {
@@ -73,7 +77,7 @@
 				columnDefs : [
 					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'+
 					'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>'+
-					'<img class="docker-image dockerenabledinstacne" alt="Docker" src="images/global/docker.png" ng-show="row.entity.docker"/>', cellTooltip: true},
+					'<img class="docker-image dockerenabledinstacne" alt="Docker" src="images/global/docker.png" ng-show="row.entity.docker" ng-click="grid.appScope.openContainersTab()"/>', cellTooltip: true},
 					{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
 					'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
 					'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+

@@ -65,6 +65,10 @@ function workzoneFunct($scope, $rootScope) {
 	});
 	$rootScope.$emit('HEADER_NAV_CHANGE', 'WORKZONE');
 
+	$scope.activateTab = function (tabName) {
+        $scope.tab.setTab(tabName);
+    };
+
 	$scope.setWorkZoneMessage = function(type, msg) {
 		var message;
 		/*If type comes, find a configured message for that type*/
