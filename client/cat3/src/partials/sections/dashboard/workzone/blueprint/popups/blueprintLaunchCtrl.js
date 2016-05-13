@@ -22,13 +22,12 @@
 						console.log(rejectMessage);
 						$scope.logsErrorMessage = rejectMessage;
 					},function(notifyMessage) {
+						console.log("Blueprint notifyMessage::",notifyMessage);
 						if(notifyMessage.fullLogs) {
 							$scope.logListInitial = notifyMessage.logs;
 							$scope.isInstanceLogsLoading = false;
 						} else {
-							if(notifyMessage.logs.length){
-								$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
-							}
+							$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
 						}
 					});
 				}

@@ -235,7 +235,7 @@
 
 		.controller('dockerControllers',  ['itemsName', '$scope', '$modalInstance', function (itemsName, $scope, $modalInstance) {
 			angular.extend($scope,{
-				itemNames: itemsName,
+				itemsNameList: itemsName,
 				cancel:function(){
 					$modalInstance.dismiss('cancel');
 				},
