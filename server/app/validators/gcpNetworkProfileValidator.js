@@ -13,14 +13,34 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 */
+var Joi = require('joi');
 
-var router = require('express').Router();
+var gcpNetworkProfileValidator = module.exports = {};
+
+gcpNetworkProfileValidator.get = {
+    params: {
+        
+    }
+};
+gcpNetworkProfileValidator.list = {
+    params: {
+        
+    }
+};
+gcpNetworkProfileValidator.update = {
+    params: {
+        
+    }
+};
+gcpNetworkProfileValidator.save = {
+    params: {
+        providerId: Joi.string().max(40).required(),
+        name: Joi.string().max(40).required(),
+        network: Joi.string().max(40).required(),
+        type: Joi.string().max(15).required()
+    }
+};
 
 
-router.get('/',function(req,res,next){
-   res.status(200).send('hello world v2.0');
-});
 
 
-module.exports.pattern = '/network-profile';
-module.exports.router = router;
