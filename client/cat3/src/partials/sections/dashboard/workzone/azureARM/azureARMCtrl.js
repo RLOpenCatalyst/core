@@ -23,6 +23,11 @@
 				$scope.envParams=requestParams;
 				$scope.azureListCardView();
 			});
+
+			$rootScope.$on('WZ_CFT_SHOW_LATEST', function(){
+				$scope.azureListCardView();
+			});
+			
 			$scope.cardPaginationArmChange = function() {
 				$scope.paginationParams.page = $scope.currentCardPage,
 				$scope.paginationParams.pageSize = $scope.cardsPerPage;
