@@ -75,7 +75,9 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
 };
 
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, callback) {
-    appData['taskId'] = taskId;
+    if(appData){
+        appData['taskId'] = taskId;
+    }
     taskDao.getTaskById(taskId, function(err, task) {
         if (err) {
             var err = new Error('Failed to fetch Task.');
