@@ -136,6 +136,7 @@ module.exports.copyFile = function(src, dst, callback) {
     fsExtra.copy(src, dst, function(err) {
         if (err) {
             logger.debug(err);
+            callback(err);
             return;
         }
         callback(null);

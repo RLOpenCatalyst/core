@@ -28,6 +28,9 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Jenkins = require('_pr/lib/jenkins');
 var CompositeTask = require('./taskTypeComposite');
 var PuppetTask = require('./taskTypePuppet');
+var ScriptTask = require('./taskTypeScript');
+
+
 
 var Schema = mongoose.Schema;
 
@@ -35,7 +38,8 @@ var TASK_TYPE = {
 	CHEF_TASK: 'chef',
 	JENKINS_TASK: 'jenkins',
 	COMPOSITE_TASK: 'composite',
-	PUPPET_TASK: 'puppet'
+	PUPPET_TASK: 'puppet',
+	SCRIPT_TASK: 'script'
 };
 
 var TASK_STATUS = {
@@ -132,6 +136,10 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
 			return;
 		}
 
+	} else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
+		task = new ScriptTask(this.taskConfig);
+		taskHistoryData.nodeIds = this.taskConfig.nodeIds;
+		taskHistoryData.scriptFileName = this.taskConfig.scriptFileName;
 	} else {
 		callback({
 			message: "Invalid Task Type"
@@ -367,6 +375,12 @@ taskSchema.statics.createNew = function(taskData, callback) {
 			assignTasks: taskData.assignTasks,
 			jobName: taskData.jobName
 		});
+	} else if (taskData.taskType === TASK_TYPE.SCRIPT_TASK) {
+		taskConfig = new ScriptTask({
+			taskType: TASK_TYPE.SCRIPT_TASK,
+			nodeIds: taskData.nodeIds,
+			scriptFileName: taskData.scriptFileName
+		});
 	} else {
 		callback({
 			message: "Invalid Task Type"
@@ -499,6 +513,12 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
 			taskType: TASK_TYPE.COMPOSITE_TASK,
 			jobName: taskData.jobName,
 			assignTasks: taskData.assignTasks
+		});
+	} else if (taskData.taskType === TASK_TYPE.SCRIPT_TASK) {
+		taskConfig = new ScriptTask({
+			taskType: TASK_TYPE.SCRIPT_TASK,
+			nodeIds: taskData.nodeIds,
+			scriptFileName: taskData.scriptFileName
 		});
 	} else {
 		callback({
