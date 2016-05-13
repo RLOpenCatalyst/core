@@ -96,12 +96,11 @@
 							"envSequence": envSequence
 						}
 					};
-			    	workzoneServices.postEnvConfig(envList).then(function () {
-						$modalInstance.close();
+			    	workzoneServices.postEnvConfig(envList).then(function (envListResult) {
+						$modalInstance.close(envListResult.data);
 					},function(error){
 						console.log(error);
 					});
-					$modalInstance.close({envList: envList.appDeployPipelineData.envId});
 			    },
 				cancel: function() {
 					$modalInstance.dismiss('cancel');

@@ -446,7 +446,7 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getNexusArtifacts:function(requestData){
-                       var url = '/app-deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifactList';
+                       var url = '/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getNexusVersions:function(requestData){

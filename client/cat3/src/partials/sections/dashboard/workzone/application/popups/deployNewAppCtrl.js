@@ -8,12 +8,6 @@
 (function(){
 "use strict";
 angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment','$timeout', function(items,$scope,$rootScope,$modal,$modalInstance,workSvs,workEnvt,$timeout) {
-		/*$scope.isSelectedEnable = true;
-		$scope.serverType='';
-		console.log($scope.serverType);
-		if($scope.serverType==='nexusServer' || $scope.serverType==='rldocker') {
-			$scope.isSelectedEnable = false;
-		}*/
 		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
@@ -213,7 +207,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				depNewApp.taskLog();
 				$timeout(function () {$modalInstance.close();},400);
 			});
-			//
 		};
 		depNewApp.taskLog=function(){
 				$modal.open({
