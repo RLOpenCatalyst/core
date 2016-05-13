@@ -8,7 +8,7 @@
 (function(){
 	"use strict";
 	angular.module('workzone.orchestration')
-	.controller('viewNodesCtrl', ['$scope', 'items', '$modalInstance', 'workzoneServices', '$rootScope', function($scope, items, $modalInstance, workzoneServices, $rootScope) {
+	.controller('viewNodesCtrl', ['$scope', 'items', '$modalInstance', 'workzoneServices', function($scope, items, $modalInstance, workzoneServices) {
 		$scope.isViewNodesLoading = true;
 		var historyItem = items.taskConfig;
 		$scope.taskInstanceList = [];

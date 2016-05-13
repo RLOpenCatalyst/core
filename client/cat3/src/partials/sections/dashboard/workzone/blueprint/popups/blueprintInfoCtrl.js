@@ -9,7 +9,6 @@
 "use strict";
 angular.module('workzone.blueprint')
 	.controller('blueprintInfoCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
-		console.log(items);
 		var blueprintName;
 		switch (items.templateType) {
 			case "chef":
@@ -33,7 +32,7 @@ angular.module('workzone.blueprint')
 			$scope.blueprintInfo = response.data;
 		},
 		function(error) {
-			$scope.BPInfoerrorMessage = error.fields.errorMessage;
+			$scope.BPInfoerrorMessage = error.data.errMessage;
 		});
 
 		angular.extend($scope, {

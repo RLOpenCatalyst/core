@@ -7,7 +7,7 @@
 
 (function (angular) {
 	"use strict";
-	angular.module('workzone.container', [ 'ngAnimate', 'ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'mgcrea.ngStrap', 'ngSanitize', 'utility.pagination'])
+	angular.module('workzone.container', ['ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'mgcrea.ngStrap', 'ngSanitize', 'utility.pagination'])
 		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil','$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
 			$scope.isContainerPageLoading = true;
 			var gridBottomSpace = 60;
@@ -135,6 +135,9 @@
 					resolve: {
 						items: function() {
 							return app.Id.substring(0, $scope.truncateImageIDLimit);
+						},
+						itemsName: function(){
+							return app.Names;
 						}
 					}
 				});
@@ -230,9 +233,9 @@
 			});
 		}])
 
-		.controller('dockerControllers',  ['$scope', '$modalInstance', function ($scope, $modalInstance) {
-
+		.controller('dockerControllers',  ['itemsName', '$scope', '$modalInstance', function (itemsName, $scope, $modalInstance) {
 			angular.extend($scope,{
+				itemNames: itemsName,
 				cancel:function(){
 					$modalInstance.dismiss('cancel');
 				},

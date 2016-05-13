@@ -7,7 +7,7 @@
 
 (function (angular) {
 	"use strict";
-	angular.module('workzone.application', ['datatables', 'ngAnimate', 'ui.bootstrap', 'apis.workzone', 'workzonePermission', 'filter.currentTime'])
+	angular.module('workzone.application', ['ui.bootstrap', 'apis.workzone', 'workzonePermission', 'filter.currentTime'])
 		.service('appDeployResponseFormatter', [function(){
 			var pipeLineConfig = {
 			};

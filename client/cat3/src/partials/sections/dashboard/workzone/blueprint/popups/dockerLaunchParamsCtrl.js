@@ -175,7 +175,7 @@
                     workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
                         $scope.isDockerInstancesLoading = false;
                         $scope.dockerinstancesData = helper.filterRunningInstances(response.data.instances);
-                    }, function(error){
+                    }, function(){
                         $scope.errorMessage = "No Docker Instances Records found";
                     });
                 },

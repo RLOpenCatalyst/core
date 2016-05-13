@@ -19,9 +19,9 @@
 				$scope.initChefGrids = function(){
 					$scope.taskHistoryChefGridOptions.data='taskHistoryChefData';
 					$scope.taskHistoryChefGridOptions.columnDefs = [
-					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', sort:{ direction: 'desc'}, cellTooltip: true},
+					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
+					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
 					{ name:'Message', field: 'message', 
 					  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
 					{ name:'User',field:'user',cellTooltip: true},
@@ -42,7 +42,7 @@
 									$scope.ischefTaskHistoryPageLoading = false;
 								}
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Chef History Records found";
 							$scope.ischefTaskHistoryPageLoading = false;
 						});
@@ -82,7 +82,7 @@
 									$scope.isjenkinsTaskHistoryPageLoading = false;
 								}
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Jenkins History Records found";
 							$scope.isjenkinsTaskHistoryPageLoading = false;
 						});
@@ -103,9 +103,9 @@
 				$scope.initCompositeGrids = function(){
 					$scope.taskHistoryCompositeGridOptions.data='taskHistoryCompositeData';
 					$scope.taskHistoryCompositeGridOptions.columnDefs = [
-					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>'},
+					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
 					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', sort:{ direction: 'desc'}, cellTooltip: true},
+					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
 					{ name:'Message', field: 'message', 
 					  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
 					{ name:'User',field:'user',cellTooltip: true},
@@ -126,7 +126,7 @@
 									$scope.iscompositeTaskHistoryPageLoading = false;
 								}
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Composite History Records found";
 							$scope.iscompositeTaskHistoryPageLoading = false;
 						});
@@ -138,7 +138,6 @@
 				};
 				//UI Grid for composite Task ends
 
-
 				//UI Grid for puppet Task starts
 				$scope.taskHistoryPuppetData = [];
 				var gridOptionsPuppet = uiGridOptionsClient.options().gridOption;
@@ -147,9 +146,9 @@
 				$scope.initPuppetGrids = function(){
 					$scope.taskHistoryPuppetGridOptions.data='taskHistoryPuppetData';
 					$scope.taskHistoryPuppetGridOptions.columnDefs = [
-					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', sort:{ direction: 'desc'}, cellTooltip: true},
+					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
+					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
 					{ name:'Message', field: 'message', 
 					  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
 					{ name:'User',field:'user',cellTooltip: true},
@@ -170,7 +169,7 @@
 									$scope.ispuppetTaskHistoryPageLoading = false;
 								}
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Puppet History Records found";
 							$scope.ispuppetTaskHistoryPageLoading = false;
 						});
@@ -181,8 +180,6 @@
 					$scope.taskHistoryPuppetListView();
 				};
 				//UI Grid for puppet Task ends
-
-
 				$scope.task=items;
 
 				switch ($scope.task.taskType){

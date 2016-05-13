@@ -42,7 +42,7 @@
 								$scope.tabData = result.data;
 								$scope.isActionHistoryPageLoading = false;
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Records found";
 						});
 					}
@@ -90,6 +90,7 @@
 			$scope.init();
 		}]).controller('cpActionHistoryLogCtrl',['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval',function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval){
 			var _instance = items.cpInstance;
+			$scope.instanceName = _instance.name;
 			var _actionItem = items.actionHistoryData;
 			var helper = {
 				lastTimeStamp: '',

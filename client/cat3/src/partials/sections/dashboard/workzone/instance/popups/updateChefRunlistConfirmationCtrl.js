@@ -13,12 +13,14 @@
 		angular.extend($scope,{
 			ok: function () {
 				var reqBody = items.taskJSON;
+				$scope.isSubmitLoading = true;
 				workzoneServices.updateChefRunlist(instance_id, reqBody).then(function () {
-					$rootScope.$emit('WZ_REFRESH_ENV');
+					$scope.isSubmitLoading = false;
 					$modalInstance.close();
 				}, function(error){
+					$scope.isSubmitLoading = false;
 					if(error.responseText){
-						$scope.errorMessage = error.responseText;
+						$scope.chefRunErrorMessage = error.responseText;
 					}
 				});
 			},

@@ -8,32 +8,29 @@
 (function (angular) {
 	"use strict";
 	 angular.module('workzone.blueprint')
-	.controller('dockerInstanceLogsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval', 'instanceLogs', function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval, instanceLogs) {
+	.controller('dockerInstanceLogsCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceLogs', function($scope, $modalInstance, items, workzoneServices, instanceLogs) {
 		$scope.instanceName = items.name;
 		$scope.isInstanceLogsLoading = true;
 		angular.extend($scope, {
-			logList: []				
+			logListInitial: [],
+			logListDelta: [],
+			cancel: function() {
+				instanceLogs.stopLogsPolling();
+				$modalInstance.dismiss('cancel');
+			}				
 		});
 		var promise = instanceLogs.showInstanceLogs(items._id);
-		promise .then(function(resolveMessage) {
+		promise.then(function(resolveMessage) {
 			console.log(resolveMessage);
-			$modalInstance.dismiss('cancel');
 		},function(rejectMessage) {
 			console.log(rejectMessage);
 			$scope.errorMessage = rejectMessage;
 		},function(notifyMessage) {
 			if(notifyMessage.fullLogs) {
-				$scope.logList = notifyMessage.logs;
+				$scope.logListInitial = notifyMessage.logs;
 				$scope.isInstanceLogsLoading = false;
 			} else {
-				$scope.logList.push.apply($scope.logList, notifyMessage.logs);
-			}
-		});
-
-		angular.extend($scope, {
-			logList: [],
-			cancel: function() {
-				instanceLogs.stopLogsPolling();
+				$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
 			}
 		});
 	}]);

@@ -103,8 +103,8 @@
 							console.log("Promise rejected " + rejectMessage);
 						});
 					}
-				}
-			)};
+				});
+			};
 			$scope.operationSet.checkInstanceStatus = function(instObj, delay) {
 				var _instObj = instObj;
 				$timeout(function(){
