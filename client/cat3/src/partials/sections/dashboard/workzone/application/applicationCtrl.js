@@ -331,7 +331,6 @@
 			pipeLineData.selectedCardClass =$rootScope.selectedCardClass;
 
 		};
-
 		return pipeLineData;
 	}]);
 })(angular);

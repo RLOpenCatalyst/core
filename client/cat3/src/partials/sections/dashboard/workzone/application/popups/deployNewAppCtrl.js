@@ -62,10 +62,8 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				workSvs.getDockerRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
 					$scope.isLoadingNexus = false;
 					depNewApp.repositoryOptions = repositoryResult.data[0].repositories.docker;
-
 				});
 			}
-			
 			depNewApp.clearChildField('serverType');
 		};
 		depNewApp.changeRepository = function(){
@@ -177,7 +175,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					"imageTag": depNewApp.newEnt.tag
 				};
 			}
-
 			depNewApp.deploymentData ={
 				"sourceData": {
 				},
@@ -224,7 +221,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					}
 				});
 		};
-
 		// call job api after creating new job .
 		$rootScope.$on("GET_ALL_TASK", function(){
 			depNewApp.getAllChefJobs();
