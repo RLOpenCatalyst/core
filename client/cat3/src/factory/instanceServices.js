@@ -9,7 +9,7 @@
 	"use strict";
 	angular.module('instanceServices', [
 
-	]).service('instanceLogs', ['$modal', '$q', 'workzoneServices', '$interval', 'instanceSetting', function($modal, $q, workzoneServices, $interval, instanceSetting) {
+	]).service('instanceLogs', ['$modal', '$q', 'workzoneServices', '$timeout', 'instanceSetting', function($modal, $q, workzoneServices, $timeout, instanceSetting) {
 		var instanceId;
 		var serviceInterface = {};
 		var logList,isFullLogs=true;
@@ -24,7 +24,7 @@
 				}
 			},
 			logsPolling: function() {
-				timerObject = $interval(function() {
+				timerObject = $timeout(function() {
 					workzoneServices.getInstanceLogs(instanceId, '?timestamp=' + helper.lastTimeStamp)
 					.then(function(resp) {
 						if (resp.data.length) {
@@ -35,11 +35,12 @@
 							};
 							deferred.notify(logData);
 						}
+						helper.logsPolling();
 					});
 				}, instanceSetting.logCheckTimer);
 			},
 			stopPolling: function() {
-				$interval.cancel(timerObject);
+				$timeout.cancel(timerObject);
 			}
 		};
 		serviceInterface.showInstanceLogs = function(instId) {

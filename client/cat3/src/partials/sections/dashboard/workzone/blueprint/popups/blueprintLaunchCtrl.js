@@ -8,7 +8,7 @@
 (function(){
    "use strict";
 	angular.module('workzone.blueprint')
-		.controller('blueprintLaunchCtrl', ['$scope', '$rootScope', '$modalInstance', 'bpItem', 'workzoneServices', 'workzoneEnvironment', 'instanceSetting', 'instanceLogs', function($scope, $rootScope, $modalInstance, bpItem, workzoneServices, workzoneEnvironment, instanceSetting, instanceLogs) {
+		.controller('blueprintLaunchCtrl', ['$scope', '$rootScope', '$modalInstance', 'bpItem', 'workzoneServices', 'workzoneEnvironment', 'instanceLogs', function($scope, $rootScope, $modalInstance, bpItem, workzoneServices, workzoneEnvironment, instanceLogs) {
 			$scope.isBPLogsLoading = true;
 			$scope.isNewInstanceLogsPromise = false;
 			
@@ -23,9 +23,12 @@
 						$scope.logsErrorMessage = rejectMessage;
 					},function(notifyMessage) {
 						if(notifyMessage.fullLogs) {
-							$scope.logList = notifyMessage.logs;
+							$scope.logListInitial = notifyMessage.logs;
+							$scope.isInstanceLogsLoading = false;
 						} else {
-							$scope.logList.push.apply($scope.logList, notifyMessage.logs);
+							if(notifyMessage.logs.length){
+								$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
+							}
 						}
 					});
 				}
@@ -58,7 +61,8 @@
 			};
 
 			angular.extend($scope, {
-				logList: [],
+				logListInitial: [],
+				logListDelta: [],
 				cancel: function() {
 					$scope.isNewInstanceLogsPromise && instanceLogs.stopLogsPolling();
 					$modalInstance.dismiss('cancel');
