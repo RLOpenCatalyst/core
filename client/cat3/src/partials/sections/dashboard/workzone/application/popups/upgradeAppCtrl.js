@@ -16,7 +16,7 @@ angular.module('workzone.application')
 			},
 			init :function(){
 				wzService.getAppUpgrade(items).then(function (FrzData){
-
+					
 				});
 			}
 		});
