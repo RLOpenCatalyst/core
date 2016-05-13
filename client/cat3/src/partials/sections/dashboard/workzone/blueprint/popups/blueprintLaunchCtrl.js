@@ -78,49 +78,57 @@
 			}
 
 			workzoneServices.launchBlueprint(bpItem.bp._id, versionOptional, envParams.env, bpItem.stackName).then(function(bpLaunchResponse) {
-					$scope.isBPLogsLoading = false;
-					var launchingInstance;
-					if(bpLaunchResponse.data.id && bpLaunchResponse.data.id.length>0){
-						launchingInstance = bpLaunchResponse.data;
-					}else if(bpLaunchResponse.data.stackId || bpLaunchResponse.data.armId){
-						launchingInstance = bpLaunchResponse.data;
-					}
-					$scope.launchResponse = launchingInstance;
-					$scope.launchMessage = messageHelper.launchMessage();
-					//Show logs and poll them, if only one id in array. For CFT, no polling, no id in response. It will be stackId.
-					if($scope.launchResponse.id && $scope.launchResponse.id.length===1){
-						workzoneServices.getInstanceLogs($scope.launchResponse.id[0]).then(function(response) {
-							helper.lastTimeStamp = helper.getlastTimeStamp(response.data);
-							$scope.logList = response.data;
-							helper.logsPolling();
-						});
-					}
-					//event to update the instance tab when blueprint is launched.
-					$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
-				},
-				function(bpLaunchError) {
-					$scope.isBPLogsLoading = false;
-					var message = "Server Behaved Unexpectedly";
-
-					if(bpLaunchError){
-						message = bpLaunchError;
-					}
-					if(bpLaunchError.data){
-						message = bpLaunchError.data;
-					}
-					if (bpLaunchError.data && bpLaunchError.data.message) {
-						message = bpLaunchError.data.message;
-					}else if(bpLaunchError.responseText){
-						message = bpLaunchError.responseText;
-					}
-					$scope.launchResponse = {error:message};
-					$scope.launchMessage = messageHelper.launchMessage();
-				});
-
-				$scope.$on('$destroy', function() {
-					$interval.cancel($scope.timerObject);
+				$scope.isBPLogsLoading = false;
+				var launchingInstance;
+				if(bpLaunchResponse.data.id && bpLaunchResponse.data.id.length>0){
+					launchingInstance = bpLaunchResponse.data;
+				}else if(bpLaunchResponse.data.stackId || bpLaunchResponse.data.armId){
+					launchingInstance = bpLaunchResponse.data;
+					$scope.showCFTInputs = true;
+					$scope.showARMInputs = true;
 				}
-			);
+				$scope.launchResponse = launchingInstance;
+				$scope.launchMessage = messageHelper.launchMessage();
+				//Show logs and poll them, if only one id in array. For CFT, no polling, no id in response. It will be stackId.
+				if($scope.launchResponse.id && $scope.launchResponse.id.length===1){
+					workzoneServices.getInstanceLogs($scope.launchResponse.id[0]).then(function(response) {
+						helper.lastTimeStamp = helper.getlastTimeStamp(response.data);
+						$scope.logList = response.data;
+						helper.logsPolling();
+					});
+				}
+				//event to update the instance tab when blueprint is launched.
+				$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
+				//event to update the Cloud Formation tab when blueprint is launched.
+				if(bpLaunchResponse.data.stackId) {
+					$rootScope.$emit('WZ_CFT_SHOW_LATEST');
+				//event to update the AzureARM tab when blueprint is launched.
+				} else if(bpLaunchResponse.data.armId) {
+					$rootScope.$emit('WZ_AzureARM_SHOW_LATEST');
+				}
+			},
+			function(bpLaunchError) {
+				$scope.isBPLogsLoading = false;
+				var message = "Server Behaved Unexpectedly";
+
+				if(bpLaunchError){
+					message = bpLaunchError;
+				}
+				if(bpLaunchError.data){
+					message = bpLaunchError.data;
+				}
+				if (bpLaunchError.data && bpLaunchError.data.message) {
+					message = bpLaunchError.data.message;
+				}else if(bpLaunchError.responseText){
+					message = bpLaunchError.responseText;
+				}
+				$scope.launchResponse = {error:message};
+				$scope.launchMessage = messageHelper.launchMessage();
+			});
+
+			$scope.$on('$destroy', function() {
+				$interval.cancel($scope.timerObject);
+			});
 		}
 	]);
 })();

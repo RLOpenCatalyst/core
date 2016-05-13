@@ -27,6 +27,11 @@
 				$scope.envParams=requestParams;
 				$scope.cftListCardView();
 			});
+
+			$rootScope.$on('WZ_CFT_SHOW_LATEST', function(){
+				$scope.cftListCardView();
+			});
+
 			$scope.cardPaginationCftChange = function() {
 				$scope.paginationParams.page = $scope.currentCardPage;
 				$scope.paginationParams.pageSize = $scope.cardsPerPage;
