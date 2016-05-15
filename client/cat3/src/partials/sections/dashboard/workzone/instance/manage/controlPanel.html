@@ -11,6 +11,9 @@
 			<span class="instance-state">{{instInfo.instanceState}}</span>
 			<span> | </span>
 			<span class="instance-ip">{{instInfo.instanceIP}}</span>
+			<span ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'"> | </span>
+			<img class="cp-docker-image" alt="Docker"
+			src="images/global/docker.png" ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'" />
 		</div>
 	</div>
 
@@ -30,7 +33,7 @@
 							Information
 						</a>
 					</li>
-					<li ng-class="{active:tab.isSet('Services')}" ng-show="showServicesTab">
+					<li ng-class="{active:tab.isSet('Services')}" ng-if="showServicesTab">
 						<a ng-click="tab.setTab('Services');removeActive()">
 							<i class="fa fa-share-square-o black"></i>&nbsp;
 							Services

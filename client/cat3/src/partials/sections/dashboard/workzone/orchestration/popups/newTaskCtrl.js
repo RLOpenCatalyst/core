@@ -8,8 +8,8 @@
 (function (angular) {
     'use strict';
     angular.module('workzone.orchestration')
-        .controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q',
-            function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
+        .controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope',
+            function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope) {
                 $scope.isNewTaskPageLoading = true;
                 $scope.chefrunlist = [];
                 $scope.cookbookAttributes = [];
@@ -95,8 +95,8 @@
                         $scope.jenkinsParamsList.splice(idx,1);
                     },
                     removeJobLink: function (jobLink) {
-                        var idx = $scope.jobLinkList.indexOf(jobLink);
-                        $scope.jobLinkList.splice(idx,1);
+                        var idx = $scope.jobResultURLPattern.indexOf(jobLink);
+                        $scope.jobResultURLPattern.splice(idx,1);
                     },
                     openAddJobLink: function (type) {
                         $modal.open({
@@ -112,7 +112,7 @@
                             }
                         }).result.then(function (addJobLink) {
                             //adding the job link in the main list.
-                            $scope.jobLinkList.push(addJobLink);
+                            $scope.jobResultURLPattern.push(addJobLink);
 
                         }, function () {
                             console.log('Dismiss time is ' + new Date());
@@ -200,7 +200,7 @@
                                 return false;
                             }
                             taskJSON.isParameterized = $scope.isParameterized.flag;
-                            taskJSON.jobResultURLPattern = $scope.jobLinkList;
+                            taskJSON.jobResultURL = $scope.jobResultURLPattern;
                             taskJSON.parameterized = $scope.jenkinsParamsList;
                         }
                         /*making request body for post*/
@@ -239,7 +239,9 @@
                 $scope.isParameterized = {
                     flag: false
                 };
-                $scope.jobLinkList = [];
+                /*in backend at the time of edit of task the jobResultUrlPattern 
+                was going as null. So there was in issue with the links disappearing.*/
+                $scope.jobResultURLPattern = [];
                 $scope.jenkinsParamsList = [];
                 $scope.jenkinsServerSelect = '';
                 $scope.jenkinJobSelected = '';
@@ -354,7 +356,7 @@
                         $scope.jobUrl = items.taskConfig.jobURL;
                         $scope.autoSync.flag = items.taskConfig.autoSyncFlag === "false" ? false : true;
                         $scope.isParameterized.flag = items.taskConfig.isParameterized;
-                        $scope.jobLinkList = items.jobResultURLPattern;
+                        $scope.jobResultURLPattern = items.taskConfig.jobResultURL;
                         $scope.jenkinsParamsList = items.taskConfig.parameterized;
                         $scope.jenkinJobSelected = items.taskConfig.jobName;
                     }

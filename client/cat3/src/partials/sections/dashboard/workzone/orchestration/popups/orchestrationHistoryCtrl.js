@@ -42,7 +42,7 @@
 									$scope.ischefTaskHistoryPageLoading = false;
 								}
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Chef History Records found";
 							$scope.ischefTaskHistoryPageLoading = false;
 						});
@@ -82,7 +82,7 @@
 									$scope.isjenkinsTaskHistoryPageLoading = false;
 								}
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Jenkins History Records found";
 							$scope.isjenkinsTaskHistoryPageLoading = false;
 						});
@@ -126,7 +126,7 @@
 									$scope.iscompositeTaskHistoryPageLoading = false;
 								}
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Composite History Records found";
 							$scope.iscompositeTaskHistoryPageLoading = false;
 						});
@@ -137,7 +137,6 @@
 					$scope.taskHistoryCompositeListView();
 				};
 				//UI Grid for composite Task ends
-
 
 				//UI Grid for puppet Task starts
 				$scope.taskHistoryPuppetData = [];
@@ -170,7 +169,7 @@
 									$scope.ispuppetTaskHistoryPageLoading = false;
 								}
 							},100);
-						}, function(error){
+						}, function(){
 							$scope.errorMessage = "No Puppet History Records found";
 							$scope.ispuppetTaskHistoryPageLoading = false;
 						});
@@ -181,8 +180,6 @@
 					$scope.taskHistoryPuppetListView();
 				};
 				//UI Grid for puppet Task ends
-
-
 				$scope.task=items;
 
 				switch ($scope.task.taskType){

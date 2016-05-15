@@ -44,6 +44,13 @@ $imagePath : "../../../../../../cat3/images";
     color: $color-red;
 }
 
+.inputValidationMsg {
+	color: $color-red;
+	font-size: 11px;
+	font-style: italic;
+	vertical-align: top;
+}
+
 /*CSS to overwrite input background color for autofill*/
 #loginContainer, #instanceSSHPage {
 	input:-webkit-autofill {
@@ -487,9 +494,13 @@ option.puppet {
 	    color: $color-red;
 	}
 
-	.rowSpacing td {
-	    padding-top: 7px;
-	}
+	.rowSpacing {
+     	padding-top: 7px;
+	 }
+
+	 .logInfo {
+	     margin-left: 10px;
+	 }
 }
 
 /*Can be used globally*/
@@ -563,4 +574,8 @@ option.puppet {
 .paginationStyle {
 	bottom:0px;
 	float:left;	
+}
+
+.btn:focus,.btn:active {
+	outline: none !important;
 }
