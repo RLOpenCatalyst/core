@@ -26,7 +26,9 @@
 							$scope.logListInitial = notifyMessage.logs;
 							$scope.isInstanceLogsLoading = false;
 						} else {
-							$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
+							if(notifyMessage.logs.length){
+								$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
+							}
 						}
 					});
 				}
@@ -89,9 +91,17 @@
 				//Show logs and poll them, if only one id in array. For CFT, no polling, no id in response. It will be stackId.
 				if($scope.launchResponse.id && $scope.launchResponse.id.length===1){
 					helper.showNewInstanceLogs($scope.launchResponse.id[0]);
+					$scope.isNewInstanceLogsPromise = true;
 				}
 				//event to update the instance tab when blueprint is launched.
 				$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
+				//event to update the Cloud Formation tab when blueprint is launched.
+				if(bpLaunchResponse.data.stackId) {
+					$rootScope.$emit('WZ_CFT_SHOW_LATEST');
+				//event to update the AzureARM tab when blueprint is launched.
+				} else if(bpLaunchResponse.data.armId) {
+					$rootScope.$emit('WZ_AzureARM_SHOW_LATEST');
+				}
 			},function(bpLaunchError) {
 				$scope.isBPLogsLoading = false;
 				var message = "Server Behaved Unexpectedly";

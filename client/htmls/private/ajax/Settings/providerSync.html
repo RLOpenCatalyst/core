@@ -1316,7 +1316,7 @@
                 var $environmentName = $('<td></td>').append(unManagnedData.unmanagedInstances[i].environmentName);
                 $tr.append($environmentName);
                 var $input = '';
-                if (unManagnedData[i].state === 'running') {
+                if (unManagnedData.unmanagedInstances[i].state === 'running') {
                     $input = $('<input class="nodeCheckBox" type="checkbox">').val(unManagnedData.unmanagedInstances[i]._id);
                 }
                 var $tdAction = $('<td></td>').append($input);
@@ -1391,7 +1391,9 @@
         //loading Managed Data
         function getManagedInstances() {
             $.get('/providers/' + urlproviderId + '/managedInstances', function(managedInstances) {
-                loadManagedInstances(managedInstances);
+                if(managedInstances) {
+                    loadManagedInstances(managedInstances);
+                }
             }).fail(function(jxhr) {
                 var msg = "Provider Sync Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -1406,7 +1408,9 @@
         //loading Assigned Data
         function getUnmanagedInstances() {
             $.get('/providers/' + urlproviderId + '/unmanagedInstances', function(unmanagnedInstances) {
+                if(unmanagnedInstances) {
                     loadUnmanagedInstances(unmanagnedInstances);
+                }
             }).fail(function(jxhr) {
                 var msg = "Provider Sync unmanaged instances Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
