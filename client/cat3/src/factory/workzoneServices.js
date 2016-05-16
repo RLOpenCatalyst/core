@@ -95,7 +95,6 @@
                 getInstanceBlueprintOrchestration: function (orgId, bgId,
                         projId, envId) {
                     if (!orgId) {
-
                         return $http.get(fullUrl('/cat3/data/json_for_divakar.json'), {
                             cache: true
                         });
@@ -446,7 +445,7 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getNexusArtifacts:function(requestData){
-                       var url = '/app-deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifactList';
+                       var url = '/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getNexusVersions:function(requestData){

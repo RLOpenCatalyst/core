@@ -156,6 +156,13 @@
     .selected-card{
         border: 1px solid #31b0d5 !important;
     }
+    .instance-state-text-unknown {
+        color: #ccc;
+        cursor: default !important;
+    }
+    .instance-state-text-stopped{
+        color: #E3200B;
+    }
 }
 
 .save-loading{

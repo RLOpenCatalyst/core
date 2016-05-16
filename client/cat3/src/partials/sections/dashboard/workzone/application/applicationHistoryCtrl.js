@@ -7,7 +7,7 @@
 
 (function (angular) {
     "use strict";
-    angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices', function ($scope, $rootScope, workzoneServices,uiGridOptiSer) {
+    angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices','$timeout', function ($scope, $rootScope, workzoneServices,uiGridOptiSer,$timeout) {
         var gridOpt=uiGridOptiSer.options();
             angular.extend($scope, {
                 pagiOptionsHistory :gridOpt.pagination,
@@ -51,10 +51,17 @@
 
             function getApplicationHistoryService(envParams, envNames,pagiOptionsHistory){
                 workzoneServices.getApplicationHistoryForEnv(envNames.env, envParams.proj,pagiOptionsHistory).then(function (response) {
-                    $scope.historyGridOptions.data= response.data.appDeploy;
+                    $timeout(function(){$scope.historyGridOptions.data= response.data.appDeploy;},100);
                     $scope.historyGridOptions.totalItems = response.data.metaData.totalRecords;
                 });
             }
+        $rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, requestParamNames) {
+                $scope.requestParams={params:requestParams,paramNames:requestParamNames};
+                $scope.envDetails = requestParams;
+                $scope.orgName = requestParamNames.org;
+                $scope.selectedEnv = requestParamNames.env;
             $scope.getHistoryData($scope.requestParams.params, $scope.requestParams.paramNames);
+            }
+        );
     }]);
 })(angular);

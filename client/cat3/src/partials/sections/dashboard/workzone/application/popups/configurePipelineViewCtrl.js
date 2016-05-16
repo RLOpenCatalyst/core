@@ -4,7 +4,6 @@
  * Written by Relevance UI Team,
  * Aug 2015
  */
-
 (function(){
    "use strict";
 	angular.module('workzone.application')
@@ -73,7 +72,6 @@
 					isExcludeDataFromOption: false,
 				});
 			});
-
 			angular.extend($scope, {
 			    ok:function(){
 			    	var newEnv=[];
@@ -96,12 +94,11 @@
 							"envSequence": envSequence
 						}
 					};
-			    	workzoneServices.postEnvConfig(envList).then(function () {
-						$modalInstance.close();
+			    	workzoneServices.postEnvConfig(envList).then(function (envListResult) {
+						$modalInstance.close(envListResult.data);
 					},function(error){
 						console.log(error);
 					});
-					$modalInstance.close({envList: envList.appDeployPipelineData.envId});
 			    },
 				cancel: function() {
 					$modalInstance.dismiss('cancel');
