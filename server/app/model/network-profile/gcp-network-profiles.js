@@ -17,30 +17,11 @@
 
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
-var ObjectId = require('mongoose').Types.ObjectId;
-var uniqueValidator = require('mongoose-unique-validator');
-var schemaValidator = require('_pr/model/utils/schema-validator');
+var BaseNetworkProfileSchema = require('./base-network-profile');
 
 // File which contains Network Profile DB schema and DAO methods. 
 
-var Schema = mongoose.Schema;
-
-var GCPNPSchema = new Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    type: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    providerId: {
-        type: String,
-        required: true,
-        trim: true
-    },
+var GCPNPSchema = new BaseNetworkProfileSchema({
     networkDetails: {
         zone: {
             type: String,

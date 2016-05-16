@@ -14,19 +14,18 @@
  limitations under the License.
 */
 var logger = require('_pr/logger')(module);
-var gcpNetworkProfile = require('_pr/model/network-profile/gcp/gcp-network-profile.js');
-//var gcpNetworkProfile ={};
+var gcpNetworkProfile = require('_pr/model/network-profile/gcp-network-profiles.js');
 const errorType = 'networkProfile';
 
 var networkProfileService = module.exports = {};
 
 networkProfileService.save = function networkProfileService(nProfile, callback) {
-    gcpNetworkProfile.save(nProfile, function(err, gcpData) {
-        if (err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        }
-        return callback(null,gcpData);
-    });
+    switch (nProfile.type) {
+        case 'GCP':
+            logger.debug('Creating new GCP NetworkProfile');
+            gcpNetworkProfile.save(nProfile, callback);
+            break;
+            defaut:
+                break;
+    }
 };

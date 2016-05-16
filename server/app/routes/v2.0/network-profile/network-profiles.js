@@ -86,8 +86,6 @@ function saveNetworkProfile(req, res, next) {
             }
         ],
         function(err, resData) {
-            logger.debug("err: ", err);
-            logger.debug("resData: ", resData);
             if (err) {
                 next(err);
             } else {
