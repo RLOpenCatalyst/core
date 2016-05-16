@@ -301,7 +301,7 @@
 				$scope.selectedEnv = requestParamNames.env;
 			}
 		);
-	}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal','$attrs', 'appDeployResponseFormatter', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, $attrs,appDeployResponseFormatter) {
+	}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission','$attrs', 'appDeployResponseFormatter', function ($scope, $rootScope, workzoneServices, applicationPerms, $attrs,appDeployResponseFormatter) {
 		var pipeLineData={
 			selectedCardClass:''
 		};

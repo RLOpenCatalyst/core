@@ -51,11 +51,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			if(depNewApp.newEnt.serverType === 'nexus'){
 				// create group select box options
 				depNewApp.groupOptions = depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].groupid;
-				// angular.forEach(depNewApp.serverOptions,function(val){
-				// 	if(val.configType === depNewApp.newEnt.serverType){
-				// 		depNewApp.groupOptions = depNewApp.groupOptions.concat(val.groupid);
-				// 	}
-				// });
 				workSvs.getNexusRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
 					depNewApp.repositoryOptions = repositoryResult.data;
 					$scope.isLoadingNexus = false;
