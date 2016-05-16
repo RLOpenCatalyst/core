@@ -1,13 +1,12 @@
 var express = require('express');
 var router = express.Router();
 
-var Provider = require('./providers.js');
-var NetworkProfile = require('./network-profiles.js');
+var Providers= require('./providers.js');
+var NetworkProfiles = require('./network-profiles.js');
+var Blueprints = require('./blueprints.js');
 
-
-router.use(Provider.pattern, Provider.router);
-router.use(NetworkProfile.pattern, NetworkProfile.router);
-
-
+router.use(Providers.pattern, Providers.router);
+router.use(NetworkProfiles.pattern, NetworkProfiles.router);
+router.use(Blueprints.pattern, Blueprints.router);
 
 module.exports = router;
