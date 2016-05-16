@@ -17,7 +17,7 @@
 				<h4 class="alert alert-danger">{{launchMessage.message}}</h4>
 			</div>
 			<div ng-show="logsErrorMessage" class="errorMsg">{{logsErrorMessage}}</div>
-			<div class="logsArea" ng-hide="showCFTInputs || showARMInputs">
+			<div class="logsArea" ng-show="isNewInstanceLogsPromise">
 			  	<div ng-repeat="log in logListInitial">
 				   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}">
 					    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
