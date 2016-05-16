@@ -41,7 +41,6 @@ var ApiUtil = function() {
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
-
             sortBy:Object.keys(sortField)[0],
             sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
@@ -109,15 +108,12 @@ var ApiUtil = function() {
         databaseCall['options']=options;
         callback(null, databaseCall);
         return;
-
-
     };
 
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
-
             if (pageSize > commons.max_record_limit) {
                 pageSize = commons.max_record_limit;
             }
