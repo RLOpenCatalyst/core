@@ -882,21 +882,16 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
 
 };
 
-BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bgId, projId, filterBlueprintType, provider, callback) {
-    logger.debug("Enter getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType, provider);
+BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData, callback) {
     var options = [];
     options.push({
-        "blueprintConfig.cloudProviderType": provider
+        "blueprintConfig.cloudProviderType": jsonData.providerType
     });
-
-
-    //Handle cft, arm 
-
-    if (provider == 'aws') {
+    if (jsonData.providerType == 'aws') {
         options.push({
             "templateType": "cft"
         });
-    } else if (provider == 'azure') {
+    } else if (jsonData.providerType == 'azure') {
         options.push({
             "templateType": "arm"
         });
@@ -907,9 +902,9 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
     });
 
     var queryObj = {
-        orgId: orgId,
-        bgId: bgId,
-        projectId: projId,
+        orgId: jsonData.orgId,
+        bgId: jsonData.bgId,
+        projectId: jsonData.projectId,
         $or: options
     }
 
@@ -923,13 +918,8 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
             callback(err, null);
             return;
         }
-
-        //function will cleanup the blueprint array and inject version object.
-        var blueprints1 = consolidateVersionOnBlueprint(blueprints);
-        console.log(blueprints1);
-
-        logger.debug("Exit getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType, provider);
-        callback(null, blueprints1);
+       var blueprints1 = consolidateVersionOnBlueprint(blueprints);
+       callback(null, blueprints1);
 
     });
 };

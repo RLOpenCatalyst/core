@@ -1149,105 +1149,64 @@ module.exports.setRoutes = function(app, sessionVerification) {
         logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/applications", req.params.orgId, req.params.bgId, req.params.projectId);
     });
 
-    /*//Duplicated with provider filter for BP Edit
+    //Duplicated with provider filter for BP Edit
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
-        logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+        var jsonData = {};
+        jsonData['orgId'] = req.params.orgId;
+        jsonData['bgId'] = req.params.bgId;
+        jsonData['projectId'] = req.params.projectId;
+        jsonData['envId'] = req.params.envId;
+        jsonData['instanceType'] = req.params.instanceType;
+        jsonData['userName'] = req.session.user.cn;
+        jsonData['blueprintType'] = req.query.blueprintType;
+        jsonData['providerType'] = req.params.provider;
+
         configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
             if (orgbuprojs.length === 0) {
-                logger.debug('User not part of team to see project.');
                 res.send(401, "User not part of team to see project.");
                 return;
             }
-
             if (!err) {
                 if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
-                    Task.getTasksByOrgBgProjectAndEnvId({
-                        orgId: req.params.orgId,
-                        bgId: req.params.bgId,
-                        projectId: req.params.projectId,
-                        envId: req.params.envId
-                    }, function(err, tasksData) {
-                        if (err) {
-                            res.send(500);
-                            return;
-                        }
-                        instancesDao.getInstancesByOrgBgProjectAndEnvId({
-                            orgId: req.params.orgId,
-                            bgId: req.params.bgId,
-                            projectId: req.params.projectId,
-                            envId: req.params.envId,
-                            instanceType: req.query.instanceType,
-                            userName: req.session.user.cn
+                    async.parallel({
+                            tasks: function(callback) {
+                                Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback)
+                            },
+                            instances: function(callback) {
+                                instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback)
+                            },
+                            blueprints: function(callback) {
+                                //Blueprints.getBlueprintsByOrgBgProject(jsonData, callback)
+                                Blueprints.getBlueprintsByOrgBgProjectProvider(jsonData,callback);
+                            },
+                            stacks: function(callback) {
+                                CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback)
+                            },
+                            arms: function(callback) {
+                                AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback)
 
-                        }, function(err, instancesData) {
-                            if (err) {
-                                res.send(500);
-                                return;
                             }
+                        },
+                        function(err, results) {
+                            if (err)
+                                res.status(500).send("Internal Server Error");
+                            else if (!results)
+                                res.status(400).send("Data Not Found");
+                            else
+                                res.status(200).send(results);
+                        }
+                    );
 
-                            Blueprints.getBlueprintsByOrgBgProjectProvider(req.params.orgId, req.params.bgId, req.params.projectId, req.query.blueprintType, req.params.provider, function(err, blueprintsData) {
-
-                                logger.debug(req.params.orgId, req.params.projectId, req.params.envId, req.params.provider);
-                                if (err) {
-                                    res.send(500);
-                                    return;
-                                }
-                                CloudFormation.findByOrgBgProjectAndEnvId({
-                                    orgId: req.params.orgId,
-                                    bgId: req.params.bgId,
-                                    projectId: req.params.projectId,
-                                    envId: req.params.envId,
-
-                                }, function(err, stacks) {
-                                    if (err) {
-                                        res.send(500);
-                                        return;
-                                    }
-
-                                    AzureArm.findByOrgBgProjectAndEnvId({
-                                        orgId: req.params.orgId,
-                                        bgId: req.params.bgId,
-                                        projectId: req.params.projectId,
-                                        envId: req.params.envId,
-
-                                    }, function(err, arms) {
-
-                                        if (err) {
-                                            res.send(500);
-                                            return;
-                                        }
-
-                                        res.send({
-                                            tasks: tasksData,
-                                            instances: instancesData,
-                                            blueprints: blueprintsData,
-                                            stacks: stacks,
-                                            arms: arms
-                                        });
-
-                                    });
-
-                                });
-
-                                logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-                            });
-
-                        });
-
-                    });
-                } //if(orgbuprojs.orgbuprojs.indexOf(req.params.projectId) >= 0)
-                else {
-                    logger.debug('User not part of team to see project.');
-                    res.send(401);
+                } else {
+                    res.status(401).send("User not part of team to see project");
                     return;
                 }
             } else {
-                res.send(500);
-                logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+                res.status(500).send("Internal Server Error");
                 return;
             }
-        }); //end getTeamsOrgBuProjForUser
-    });*/
+        });
+    });
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
         var jsonData = {};
