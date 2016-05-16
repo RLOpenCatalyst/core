@@ -63,14 +63,14 @@
 								<input type="password" class="form-control" ng-model="password">
 							</div>
 						</div>
-					</div>
-					<div class="col-lg-12 col-md-12 no-padding">
 						<div class="col-lg-6 col-md-6 authPemFile control-margin" ng-show="(isPemActive=='pemFile')">
 							<label for="importPemfileInput">Pem File<span class="control-label red">&nbsp;*</span><span id="requiredPemFile" class="hidden red">&nbsp;Required</span></label>
 							<div class="input-groups">
 								<input id="importPemfileInput" class="required form-control form-controls" multiple="" extension="pem" name="importPemfileInput" type="file" aria-required="true" ng-model="pemfile" onchange="angular.element(this).scope().pemFileSelection(this);">
 							</div>
 						</div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
 						<div class="applicationURLContainer" id="appSeries12">
 							<div class="col-lg-6 col-md-6 control-margin">
 								<label for="appName">Application Name</label>
