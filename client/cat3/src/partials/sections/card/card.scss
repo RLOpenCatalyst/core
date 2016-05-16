@@ -333,7 +333,7 @@ $imagePath : "/cat3/images";
 	}
 
 	.btnicons {
-		margin: 0px 6px 5px 10px;
+		margin: 0px 7px 5px 5px;
 		float: left;
 	}
 
@@ -361,16 +361,20 @@ $imagePath : "/cat3/images";
     }
 
 	.blueprint-buttons {
-		margin: 22px 0 0 21px;
+		margin: 20px 0 0 5px;
 	}
 
 	.blueprint-buttons-docker {
-		margin: 5px 0 0 21px;
+		margin: 5px 0 0 0px;
+	}
+
+	.bp-version-dropdown {
+		margin-top: 2px;
 	}
 
 	.bp-provider {
 		position: absolute;
-    	margin: 24px 0 0 5px;
+    	margin: 28px 0 0 5px;
 	}
 }
 
