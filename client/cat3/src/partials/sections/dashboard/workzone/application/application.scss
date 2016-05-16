@@ -121,6 +121,12 @@
         right: 16px;
         bottom: 0;
     }
+    .modal-header .close {
+        position: absolute;
+        z-index: 11;
+        right: 9px;
+        top: 7px;
+    }
 }
 
 

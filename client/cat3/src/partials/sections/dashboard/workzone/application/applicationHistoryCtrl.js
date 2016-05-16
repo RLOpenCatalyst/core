@@ -11,6 +11,7 @@
         var gridOpt=uiGridOptiSer.options();
             angular.extend($scope, {
                 pagiOptionsHistory :gridOpt.pagination,
+                historGgridData:[],
                 requestParams :$scope.$parent.requestParams,
                 viewAppCardLogs: function (logs) {
                     $rootScope.$emit('VIEW-APP-LOGS',logs);
@@ -33,7 +34,7 @@
                         gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
                             if( sortColumns[0] &&  sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction){
                                 $scope.pagiOptionsHistory.sortBy = sortColumns[0].field;
-                                $scope.pagiOptionsHistory.sortOrder = sortColumns[0].sort.direction;
+                                $scope.pagiOptionsHistory.sortOrder = sortColumns[0].sort.direction;git 
                                 getApplicationHistoryService(envParams, envNames ,$scope.pagiOptionsHistory);
                             }
 
@@ -51,10 +52,15 @@
 
             function getApplicationHistoryService(envParams, envNames,pagiOptionsHistory){
                 workzoneServices.getApplicationHistoryForEnv(envNames.env, envParams.proj,pagiOptionsHistory).then(function (response) {
-                    $timeout(function(){$scope.historyGridOptions.data= response.data.appDeploy;},100);
+                    $scope.historyGridOptions.data= response.data.appDeploy;
+                    $scope.historGgridData=response.data.appDeploy;
                     $scope.historyGridOptions.totalItems = response.data.metaData.totalRecords;
                 });
             }
+            $rootScope.$on('RENDER-HISTORY',function(){
+                $scope.historyGridOptions.data=[];
+                $timeout(function(){$scope.historyGridOptions.data=$scope.historGgridData;},10);
+            });
         $rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, requestParamNames) {
                 $scope.requestParams={params:requestParams,paramNames:requestParamNames};
                 $scope.envDetails = requestParams;

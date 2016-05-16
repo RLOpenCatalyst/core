@@ -16,6 +16,7 @@
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
 			angular.extend($scope, {
+				cardGridData:[],
 				selectedGridRow:[],
 				pipelineConfig:'',
 				pipeLineActBarShow:false,
@@ -33,6 +34,7 @@
 							$scope.isAppallCardTab = {icon:false,template:true};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:true,template:false};
+							rendering();
 						break;
 						case 'activeCards' :
 							$scope.isAppallCardTab = {icon:true,template:false};
@@ -43,6 +45,7 @@
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:false,template:true};
+							$scope.$emit('RENDER-HISTORY');
 						break;
 					}
 				},
@@ -236,7 +239,8 @@
 			}
 			function getApplicationCardService(envParams,pagiOptionsCard){
 				workzoneServices.getPipelineView(envParams,pagiOptionsCard).then(function(cardResult){
-					$timeout(function () {$scope.pipeGridOptions.data= cardResult.data.appDeploy;},100);
+					$scope.pipeGridOptions.data= cardResult.data.appDeploy;
+					$scope.cardGridData=cardResult.data.appDeploy;
 					$scope.isApplicationPageLoading=false;
 					$scope.pipeLineActBarShow=false;
 					$rootScope.selectedCardClass='';
@@ -244,6 +248,13 @@
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 
 				});
+			}
+			function rendering(){
+				$scope.pipeGridOptions.data=[];
+				$timeout(function () {$scope.pipeGridOptions.data= $scope.cardGridData;},10);
+				angular.element('#pipelineView .card').removeClass('selected-card');
+				$scope.pipeLineActBarShow=false;
+				$rootScope.selectedCardClass='';
 			}
 			$scope.selectRow = function (row) {
 				$scope.selectedGridRow=[];
