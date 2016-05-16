@@ -4,16 +4,9 @@
  * Written by Relevance UI Team,
  * April 2016
  */
-
 (function(){
 "use strict";
 angular.module('workzone.application').controller('deployNewAppCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment','$timeout', function(items,$scope,$rootScope,$modal,$modalInstance,workSvs,workEnvt,$timeout) {
-		/*$scope.isSelectedEnable = true;
-		$scope.serverType='';
-		console.log($scope.serverType);
-		if($scope.serverType==='nexusServer' || $scope.serverType==='rldocker') {
-			$scope.isSelectedEnable = false;
-		}*/
 		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
@@ -28,8 +21,8 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			artifactsOptions:[],
 			versionsOptions:[],
 			tagOptions:[],
-			deployResult:[]
-			
+			deployResult:[],
+			artifactsVersion:[]
 		};
 		depNewApp.init =function(){
 			$scope.isLoadingServer=true;
@@ -48,6 +41,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			});
 		};
 		depNewApp.getRepository= function(){
+			depNewApp.groupOptions=[];
 			if (depNewApp.newEnt.serverTypeInd){
 				depNewApp.newEnt.serverType = depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].configType;
 			} else {
@@ -56,23 +50,17 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			$scope.isLoadingNexus = true;
 			if(depNewApp.newEnt.serverType === 'nexus'){
 				// create group select box options
-				angular.forEach(depNewApp.serverOptions,function(val){
-					if(val.configType === depNewApp.newEnt.serverType){
-						depNewApp.groupOptions = depNewApp.groupOptions.concat(val.groupid);
-					}
-				});
+				depNewApp.groupOptions = depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].groupid;
 				workSvs.getNexusRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
 					depNewApp.repositoryOptions = repositoryResult.data;
 					$scope.isLoadingNexus = false;
 				});
-			} else {
+			} else if(depNewApp.newEnt.serverType === 'docker'){
 				workSvs.getDockerRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
 					$scope.isLoadingNexus = false;
 					depNewApp.repositoryOptions = repositoryResult.data[0].repositories.docker;
-
 				});
 			}
-			
 			depNewApp.clearChildField('serverType');
 		};
 		depNewApp.changeRepository = function(){
@@ -104,16 +92,22 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					group:depNewApp.newEnt.groupId
 				};
 			workSvs.getNexusArtifacts(depNewApp.requestData).then(function (artifactsResult) {
-				depNewApp.artifactsOptions = artifactsResult.data;
+				var artVerObj=[];
+				angular.forEach(artifactsResult.data,function(val){
+					artVerObj[val.version]=val;
+					depNewApp.artifactsVersion[val.artifactId]=artVerObj;
+					if (depNewApp.artifactsOptions.indexOf(val.artifactId) == -1) {
+						depNewApp.artifactsOptions.push(val.artifactId);
+					}
+				});
 				$scope.isLoadingArtifacts = false;
 			});
 			depNewApp.clearChildField('groupId');
 		};
 		depNewApp.getVersions= function(){
 			$scope.isLoadingNexusVersion = true;
-			depNewApp.newEnt.artifact = depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].artifactId;
-			depNewApp.requestData.artifactId = depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].artifactId;
-			workSvs.getNexusVersions(depNewApp.requestData).then(function (versionsResult) {
+			depNewApp.requestData.artifactId = depNewApp.newEnt.artifact;
+				workSvs.getNexusVersions(depNewApp.requestData).then(function (versionsResult) {
 				depNewApp.versionsOptions = versionsResult.data;
 				$scope.isLoadingNexusVersion = false;
 			});
@@ -142,8 +136,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					break;
 				case 'repository' :
 					depNewApp.newEnt.groupId='';
-					depNewApp.newEnt.artifactInd = '';
-					depNewApp.newEnt.artifact ='';
+					depNewApp.newEnt.artifact= '';
 					depNewApp.newEnt.version ='';
 					depNewApp.artifactsOptions=[];
 					depNewApp.versionsOptions=[];
@@ -151,8 +144,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					depNewApp.newEnt.tag='';
 					break;
 				case 'groupId' :
-					depNewApp.newEnt.artifactInd = '';
-					depNewApp.newEnt.artifact ='';
+					depNewApp.newEnt.artifact = '';
 					depNewApp.newEnt.version ='';
 					depNewApp.versionsOptions=[];
 					break;
@@ -161,25 +153,24 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					break;
 			};
 		};
-		depNewApp.submitAppDeploy = function (){
+		depNewApp.submitAppDeploy = function (DeploymentForm){
 			if(depNewApp.newEnt.serverType === 'nexus'){
 				var nexus={
-					"repoURL":depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].resourceURI,
+					"repoURL":depNewApp.artifactsVersion[depNewApp.newEnt.artifact][depNewApp.newEnt.version].resourceURI,
 					"version": depNewApp.newEnt.version,
-					"artifactId":depNewApp.artifactsOptions[depNewApp.newEnt.artifactInd].artifactId,
+					"artifactId":depNewApp.newEnt.artifact,
 					"groupId": depNewApp.newEnt.groupId,
 					"repository":depNewApp.newEnt.repository
 				};
 			} else{
 				var docker={
-					"image": depNewApp.newEnt.image,
+					"image": depNewApp.newEnt.repositoryIMG,
 					"containerName": depNewApp.newEnt.ContNameId,
 					"containerPort": depNewApp.newEnt.contPort,
 					"hostPort": depNewApp.newEnt.hostPort,
 					"imageTag": depNewApp.newEnt.tag
 				};
 			}
-
 			depNewApp.deploymentData ={
 				"sourceData": {
 				},
@@ -207,7 +198,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				depNewApp.taskLog();
 				$timeout(function () {$modalInstance.close();},400);
 			});
-			//
 		};
 		depNewApp.taskLog=function(){
 				$modal.open({
