@@ -16,15 +16,11 @@
 
 var router = require('express').Router();
 var async = require('async');
-var gcpNetworkProfileService = require('_pr/services/networkProfileService.js');
+var networkProfileService = require('_pr/services/networkProfileService.js');
 var validate = require('express-validation');
 var gcpNetworkProfileValidator = require('_pr/validators/gcpNetworkProfileValidator');
 var logger = require('_pr/logger')(module);
 
-
-router.get('/', function(req, res, next) {
-    res.status(200).send('hello world v2.0');
-});
 
 
 /**
@@ -82,7 +78,7 @@ function saveNetworkProfile(req, res, next) {
     async.waterfall(
         [
             function(next) {
-                gcpNetworkProfileService.save(networkProfile,next)
+                networkProfileService.save(networkProfile, next)
             }
         ],
         function(err, resData) {
@@ -173,9 +169,26 @@ router.put('/:networkProfileId', function(req, res) {});
  */
 
 // get network profile by Id
-router.get('/:networkProfileId', function(req, res) {
+router.get('/:networkProfileId', validate(gcpNetworkProfileValidator.get), getNetworkProfileById);
 
-});
+function getNetworkProfileById(req, res, next) {
+    async.waterfall(
+        [
+            function(next) {
+                networkProfileService.getNetworkProfileById(req.params.networkProfileId, next)
+            }
+        ],
+        function(err, resData) {
+            if (err) {
+                next(err);
+            } else if (resData) {
+                return res.status(200).send(resData);
+            } else {
+                return res.status(404).send("Not Found.");
+            }
+        }
+    )
+};
 
 
 
@@ -192,9 +205,27 @@ router.get('/:networkProfileId', function(req, res) {
  */
 
 // delete network profile by Id
-router.delete('/:networkProfileId', function(req, res) {
+router.delete('/:networkProfileId', validate(gcpNetworkProfileValidator.remove), removeNetworkProfile);
 
-});
+function removeNetworkProfile(req, res, next) {
+    async.waterfall(
+        [
+            function(next) {
+                networkProfileService.checkIfNetworkProfileExists(req.params.networkProfileId, next)
+            },
+            function(networkProfile, next) {
+                networkProfileService.removeNetworkProfile(req.params.networkProfileId, next)
+            }
+        ],
+        function(err, resData) {
+            if (err) {
+                next(err);
+            } else {
+                return res.status(200).send("Delete Success.");
+            }
+        }
+    )
+}
 
 
 
@@ -245,9 +276,24 @@ router.delete('/:networkProfileId', function(req, res) {
 	 */
 
 // List all network profiles
-router.get('/', function(req, res) {
+router.get('/', getAllNetworkProfiles);
 
-});
+function getAllNetworkProfiles(req, res, next) {
+    async.waterfall(
+        [
+            function(next) {
+                networkProfileService.getAllNetworkProfiles(next);
+            }
+        ],
+        function(err, resData) {
+            if (err) {
+                next(err);
+            } else {
+                return res.status(200).send(resData);
+            }
+        }
+    )
+};
 
 
 

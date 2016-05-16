@@ -17,10 +17,11 @@
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var BaseNetworkProfileSchema = require('./base-network-profile');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 var NetworkProfilesSchema = new BaseNetworkProfileSchema();
 
-NetworkProfilesSchema.statics.getNetworkProfiles = function getNetworkProfiles(callback) {
+NetworkProfilesSchema.statics.getAllNetworkProfiles = function getAllNetworkProfiles(callback) {
     this.find(
         function(err, networkProfiles) {
             if (err) {
@@ -31,6 +32,15 @@ NetworkProfilesSchema.statics.getNetworkProfiles = function getNetworkProfiles(c
             }
         }
     );
+};
+
+NetworkProfilesSchema.statics.getNetworkProfileById = function getNetworkProfileById(networkProfileId, callback) {
+    this.findById(networkProfileId, function(err, networkProfile) {
+        if (err) {
+            return callback(err, null);
+        }
+        callback(null, networkProfile);
+    });
 };
 
 var NetworkProfiles = mongoose.model('NetworkProfiles', NetworkProfilesSchema);

@@ -19,7 +19,12 @@ var gcpNetworkProfileValidator = module.exports = {};
 
 gcpNetworkProfileValidator.get = {
     params: {
-        
+        networkProfileId: Joi.required()
+    }
+};
+gcpNetworkProfileValidator.remove = {
+    params: {
+        networkProfileId: Joi.required()
     }
 };
 gcpNetworkProfileValidator.list = {
