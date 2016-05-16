@@ -17,6 +17,8 @@
 var tagsModel = require('_pr/model/tags/tags.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
+var providersModel = require('_pr/model/providers/providers');
+var gcpProviderModel = require('_pr/model/providers/gcp-providers');
 
 const errorType = 'provider';
 
@@ -37,6 +39,21 @@ providerService.checkIfProviderExists = function checkIfProviderExists(providerI
         }
     });
 };
+
+providerService.createProvider = function createProvider(provider, callback) {
+    switch(provider.type) {
+        case 'GCP':
+            logger.debug('Creating new GCP provider');
+            gcpProviderModel.createNew(provider, callback);
+            break;
+        defaut:
+            break;
+    }
+};
+
+providerService.getAllProviders = function getAllProviders(orgId, callback) {
+    providersModel.getAllProviders(callback);
+}
 
 providerService.getTagsByProvider = function getTagsByProvider(provider, callback) {
     tagsModel.getTagsByProviderId(provider._id, function(err, tags) {
