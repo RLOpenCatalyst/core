@@ -33,7 +33,7 @@ var GCPNPSchema = new BaseNetworkProfileSchema({
             trim: true
         },
         accessConfigs: {
-            type: [{}]
+            type: []
         },
         accessConfigName: {
             type: String,

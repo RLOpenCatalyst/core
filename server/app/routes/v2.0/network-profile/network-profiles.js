@@ -78,11 +78,11 @@ router.post('/', validate(gcpNetworkProfileValidator.save), saveNetworkProfile);
 
 function saveNetworkProfile(req, res, next) {
     logger.debug("nProfile called...");
-    var nProfile = req.body;
+    var networkProfile = req.body;
     async.waterfall(
         [
             function(next) {
-                gcpNetworkProfileService.save(nProfile,next)
+                gcpNetworkProfileService.save(networkProfile,next)
             }
         ],
         function(err, resData) {
