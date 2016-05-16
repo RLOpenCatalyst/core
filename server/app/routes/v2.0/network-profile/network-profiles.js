@@ -41,9 +41,9 @@ router.get('/', function(req, res, next) {
 	 * @apiParamExample {json} Request-Example:
 	 	{
 	 * 		"profile":{
-	 * 			"name": "Resource name",
-	 *			"type": "type",
-	 *			"providerId": "providerId",
+	 * 			"providerId": "56456",
+	 * 			"name": "Instance-1",
+	 *			"type": "gcp",
 	 *			"network": "Network resource",
 	 * 			"accessConfigs": [{}],
 	 *			"accessConfigName": "Config name",
@@ -56,9 +56,10 @@ router.get('/', function(req, res, next) {
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
-	 * 			"providerId": "providerId",
-	 * 			"name": "Resource name",
-	 *			"type": "type",
+	 * 			"id": "12345",
+	 * 			"providerId": "56456",
+	 * 			"name": "Instance-1",
+	 *			"type": "gcp",
 	 *			"network": "Network resource",
 	 * 			"accessConfigs": [{}],
 	 *			"accessConfigName": "Config name",
@@ -68,6 +69,7 @@ router.get('/', function(req, res, next) {
 
 // Save gcp network profile
 router.post('/', function(req, res) {
+	logger.debug("nProfile called...");
     var nProfile = req.body.profile;
     async.waterfall(
         [
@@ -90,7 +92,7 @@ router.post('/', function(req, res) {
 
 
 /**
-	 * @api {put} /network-profile/:npId  Update NetworkProfile
+	 * @api {put} /network-profile/:networkProfileId  Update NetworkProfile
 	 * @apiName updateNetworkProfile
 	 * @apiGroup NetworkProfiles
 	 *
@@ -105,9 +107,9 @@ router.post('/', function(req, res) {
 	 * @apiParamExample {json} Request-Example:
 	 	{
 	 * 		"profile":{
-	 * 			"name": "Resource name",
-	 *			"type": "type",
-	 *			"providerId": "providerId",
+	 * 			"providerId": "56456",
+	 * 			"name": "Instance-1",
+	 *			"type": "gcp",
 	 *			"network": "Network resource",
 	 * 			"accessConfigs": [{}],
 	 *			"accessConfigName": "Config name",
@@ -120,10 +122,10 @@ router.post('/', function(req, res) {
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
-	 			"_id": "id",
-	 * 			"providerId": "providerId",
-	 * 			"name": "Resource name",
-	 *			"type": "type",
+	 			"id": "12345",
+	 * 			"providerId": "56456",
+	 * 			"name": "Instance-1",
+	 *			"type": "gcp",
 	 *			"network": "Network resource",
 	 * 			"accessConfigs": [{}],
 	 *			"accessConfigName": "Config name",
@@ -132,12 +134,12 @@ router.post('/', function(req, res) {
 	 */
 
 // Update  network profile
-router.put('/npId', function(req, res) {
+router.put('/:networkProfileId', function(req, res) {
 });
 
 
 /**
-	 * @api {get} /network-profile/npId  Return NetworkProfile by Id
+	 * @api {get} /network-profile/:networkProfileId  Return NetworkProfile by Id
 	 * @apiName getNetworkProfile
 	 * @apiGroup NetworkProfiles
 	 *
@@ -147,10 +149,10 @@ router.put('/npId', function(req, res) {
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		{
-	 			"_id": "id",
-	 * 			"providerId": "providerId",
-	 * 			"name": "Resource name",
-	 *			"type": "type",
+	 			"id": "12345",
+	 * 			"providerId": "56456",
+	 * 			"name": "Instance-1",
+	 *			"type": "gcp",
 	 *			"network": "Network resource",
 	 * 			"accessConfigs": [{}],
 	 *			"accessConfigName": "Config name",
@@ -159,14 +161,14 @@ router.put('/npId', function(req, res) {
 	 */
 
 // get network profile by Id
-router.get('/npId', function(req, res){
+router.get('/:networkProfileId', function(req, res){
 
 });
 
 
 
 /**
-	 * @api {delete} /network-profile/npId  Delete NetworkProfile by Id
+	 * @api {delete} /network-profile/:networkProfileId  Delete NetworkProfile by Id
 	 * @apiName deleteNetworkProfile
 	 * @apiGroup NetworkProfiles
 	 *
@@ -178,7 +180,7 @@ router.get('/npId', function(req, res){
 	 */
 
 // delete network profile by Id
-router.delete('/npId', function(req, res){
+router.delete('/:networkProfileId', function(req, res){
 
 });
 
@@ -195,9 +197,10 @@ router.delete('/npId', function(req, res){
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
 	 * 		[{
-	 * 			"providerId": "providerId",
-	 * 			"name": "Resource name",
-	 *			"type": "type",
+	 			"id": "12345",
+	 * 			"providerId": "56456",
+	 * 			"name": "Instance-1",
+	 *			"type": "gcp",
 	 *			"network": "Network resource",
 	 * 			"accessConfigs": [{}],
 	 *			"accessConfigName": "Config name",
