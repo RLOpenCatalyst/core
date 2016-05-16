@@ -13,11 +13,11 @@
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15 no-padding">
                 <loading size="large" name="isLogsLoading" type="block" align="center"></loading>
                 <div class="logsArea" ng-show="!isLogsLoading">
-                    <div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in ctrlChef.logListInitial.logs">
+                    <div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logListInitial">
                         <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
                         <span class="logInfo"> {{log.log}} </span>
                     </div>
-                    <div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in ctrlChef.logListDelta.logs">
+                    <div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logListDelta">
                         <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
                         <span class="logInfo"> {{log.log}} </span>
                     </div>

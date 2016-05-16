@@ -17,7 +17,7 @@
                 angular.extend($scope, {
                     parentItems:items,
                     updateCookbook: function () {
-                        if ($scope.chefInstanceList.length) {
+                        if ($scope.chefInstanceList.length || $scope.chefBluePrintList.length) {
                             $modal.open({
                                 templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
                                 controller: 'orchestrationUpdateChefRunlistCtrl',

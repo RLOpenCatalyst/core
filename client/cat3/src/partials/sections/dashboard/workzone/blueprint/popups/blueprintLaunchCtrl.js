@@ -22,7 +22,6 @@
 						console.log(rejectMessage);
 						$scope.logsErrorMessage = rejectMessage;
 					},function(notifyMessage) {
-						console.log("Blueprint notifyMessage::",notifyMessage);
 						if(notifyMessage.fullLogs) {
 							$scope.logListInitial = notifyMessage.logs;
 							$scope.isInstanceLogsLoading = false;

@@ -15,6 +15,8 @@
 			var items=$scope.parentItemDetail;
 			$scope.isInstanceListLoading = true;
 			angular.extend($scope, {
+				logListInitial: [],
+				logListDelta: [],
 				cancel: function() {
 					helper.stopPolling();
 				}
@@ -22,9 +24,7 @@
 			
 			var chefLogData = {
 				chefHistoryItem: {},
-				nodeIdsWithActionLog: {},
-				logListInitial: [],
-				logListDelta: []			
+				nodeIdsWithActionLog: {}			
 			};
 			var timerObject;
 			
@@ -41,9 +41,14 @@
 						workzoneServices.getChefJobLogs($scope.selectedInstance.nodeId, $scope.selectedInstance.actionLogId, helper.lastTimeStamp)
 							.then(function(resp) {
 								if (resp.data.length) {
-									helper.lastTimeStamp = helper.getlastTimeStamp(resp.data);
-									chefLogData.logListDelta.logs.push.apply(chefLogData.logListDelta.logs, resp.data);
+									var logData = {
+										logs : resp.data,
+										fullLogs : false
+									};
+									helper.lastTimeStamp = helper.getlastTimeStamp(logData.logs);
+									$scope.logListDelta.push.apply($scope.logListDelta, logData.logs);
 								}
+								helper.logsPolling();
 							});
 
 					}, orchestrationSetting.orchestrationLogsPollerInterval);
@@ -104,7 +109,7 @@
 							logs: response.data,
 							fullLogs: true
 						};
-						chefLogData.logListInitial = logData;
+						$scope.logListInitial = logData.logs;
 					}, function(error){
 						$scope.isLogsLoading = false;
 						console.log(error);
@@ -125,7 +130,7 @@
 							logs: response.data,
 							fullLogs: true
 						};
-						chefLogData.logListInitial = logData;
+						$scope.logListInitial = logData.logs;
 					}, function(error){
 						$scope.isLogsLoading = false;
 						console.log(error);
