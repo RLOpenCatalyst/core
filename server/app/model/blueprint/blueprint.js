@@ -235,68 +235,98 @@ BlueprintSchema.methods.getCloudProviderData = function() {
 BlueprintSchema.methods.launch = function(opts, callback) {
     var infraManager = this.getInfraManagerData();
     var self = this;
-    configmgmtDao.getEnvNameFromEnvId(opts.envId, function(err, envName) {
+    masterUtil.getParticularProject(self.projectId,function(err,project){
         if (err) {
             callback({
-                message: "Failed to get env name from env id"
+                message: "Failed to get project from project id"
             }, null);
             return;
         }
-        if (!envName) {
+        if (project.length === 0) {
             callback({
-                "message": "Unable to find environment name from environment id"
+                "message": "Unable to find Project Information from project id"
             });
             return;
         }
-
-        configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
+        configmgmtDao.getEnvNameFromEnvId(opts.envId, function(err, envName) {
             if (err) {
-                logger.error("Failed to getChefServerDetails", err);
                 callback({
-                    message: "Failed to getChefServerDetails"
+                    message: "Failed to get env name from env id"
                 }, null);
                 return;
             }
-            if (!chefDetails) {
-                logger.error("No CHef Server Detailed available.", err);
+            if (!envName) {
                 callback({
-                    message: "No Chef Server Detailed available"
-                }, null);
+                    "message": "Unable to find environment name from environment id"
+                });
                 return;
             }
-            var chef = new Chef({
-                userChefRepoLocation: chefDetails.chefRepoLocation,
-                chefUserName: chefDetails.loginname,
-                chefUserPemFile: chefDetails.userpemfile,
-                chefValidationPemFile: chefDetails.validatorpemfile,
-                hostedChefUrl: chefDetails.url
-            });
-            logger.debug('Chef Repo Location = ', chefDetails.chefRepoLocation);
-
-            var blueprintConfigType = getBlueprintConfigType(self);
-
-            if (!self.appUrls) {
-                self.appUrls = [];
-            }
-            var appUrls = self.appUrls;
-            if (appConfig.appUrls && appConfig.appUrls.length) {
-                appUrls = appUrls.concat(appConfig.appUrls);
-            }
-
-            chef.getEnvironment(envName, function(err, env) {
+            configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
                 if (err) {
-                    logger.error("Failed chef.getEnvironment", err);
-                    res.send(500);
+                    logger.error("Failed to getChefServerDetails", err);
+                    callback({
+                        message: "Failed to getChefServerDetails"
+                    }, null);
                     return;
                 }
-
-                if (!env) {
-                    chef.createEnvironment(envName, function(err) {
-                        if (err) {
-                            logger.error("Failed chef.createEnvironment", err);
-                            res.send(500);
-                            return;
-                        }
+                if (!chefDetails) {
+                    logger.error("No CHef Server Detailed available.", err);
+                    callback({
+                        message: "No Chef Server Detailed available"
+                    }, null);
+                    return;
+                }
+                var chef = new Chef({
+                    userChefRepoLocation: chefDetails.chefRepoLocation,
+                    chefUserName: chefDetails.loginname,
+                    chefUserPemFile: chefDetails.userpemfile,
+                    chefValidationPemFile: chefDetails.validatorpemfile,
+                    hostedChefUrl: chefDetails.url
+                });
+                logger.debug('Chef Repo Location = ', chefDetails.chefRepoLocation);
+                var blueprintConfigType = getBlueprintConfigType(self);
+                if (!self.appUrls) {
+                    self.appUrls = [];
+                }
+                var appUrls = self.appUrls;
+                if (appConfig.appUrls && appConfig.appUrls.length) {
+                    appUrls = appUrls.concat(appConfig.appUrls);
+                }
+                chef.getEnvironment(envName, function(err, env) {
+                    if (err) {
+                        logger.error("Failed chef.getEnvironment", err);
+                        callback(err,null);
+                        return;
+                    }
+                    if (!env) {
+                        chef.createEnvironment(envName, function(err) {
+                            if (err) {
+                                logger.error("Failed chef.createEnvironment", err);
+                                callback(err,null);
+                                return;
+                            }
+                            blueprintConfigType.launch({
+                                infraManager: chef,
+                                ver: opts.ver,
+                                envName: envName,
+                                envId: opts.envId,
+                                stackName: opts.stackName,
+                                blueprintName: self.name,
+                                orgId: self.orgId,
+                                orgName:project[0].orgname,
+                                bgId: self.bgId,
+                                bgName:project[0].productgroupname,
+                                projectId: self.projectId,
+                                projectName:project[0].projectname,
+                                appUrls: appUrls,
+                                sessionUser: opts.sessionUser,
+                                users: self.users,
+                                blueprintData: self,
+                            }, function(err, launchData) {
+                                callback(err, launchData);
+                            });
+                        });
+                    } else {
                         blueprintConfigType.launch({
                             infraManager: chef,
                             ver: opts.ver,
@@ -305,8 +335,11 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             stackName: opts.stackName,
                             blueprintName: self.name,
                             orgId: self.orgId,
+                            orgName:project[0].orgname,
                             bgId: self.bgId,
+                            bgName:project[0].productgroupname,
                             projectId: self.projectId,
+                            projectName:project[0].projectname,
                             appUrls: appUrls,
                             sessionUser: opts.sessionUser,
                             users: self.users,
@@ -314,30 +347,9 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                         }, function(err, launchData) {
                             callback(err, launchData);
                         });
-
-                    });
-                } else {
-                    blueprintConfigType.launch({
-                        infraManager: chef,
-                        ver: opts.ver,
-                        envName: envName,
-                        envId: opts.envId,
-                        stackName: opts.stackName,
-                        blueprintName: self.name,
-                        orgId: self.orgId,
-                        bgId: self.bgId,
-                        projectId: self.projectId,
-                        appUrls: appUrls,
-                        sessionUser: opts.sessionUser,
-                        users: self.users,
-                        blueprintData: self,
-                    }, function(err, launchData) {
-                        callback(err, launchData);
-                    });
-                }
-
+                    }
+                });
             });
-
         });
     });
 };
@@ -870,21 +882,16 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
 
 };
 
-BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bgId, projId, filterBlueprintType, provider, callback) {
-    logger.debug("Enter getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType, provider);
+BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData, callback) {
     var options = [];
     options.push({
-        "blueprintConfig.cloudProviderType": provider
+        "blueprintConfig.cloudProviderType": jsonData.providerType
     });
-
-
-    //Handle cft, arm 
-
-    if (provider == 'aws') {
+    if (jsonData.providerType == 'aws') {
         options.push({
             "templateType": "cft"
         });
-    } else if (provider == 'azure') {
+    } else if (jsonData.providerType == 'azure') {
         options.push({
             "templateType": "arm"
         });
@@ -895,9 +902,9 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
     });
 
     var queryObj = {
-        orgId: orgId,
-        bgId: bgId,
-        projectId: projId,
+        orgId: jsonData.orgId,
+        bgId: jsonData.bgId,
+        projectId: jsonData.projectId,
         $or: options
     }
 
@@ -911,13 +918,8 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
             callback(err, null);
             return;
         }
-
-        //function will cleanup the blueprint array and inject version object.
-        var blueprints1 = consolidateVersionOnBlueprint(blueprints);
-        console.log(blueprints1);
-
-        logger.debug("Exit getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType, provider);
-        callback(null, blueprints1);
+       var blueprints1 = consolidateVersionOnBlueprint(blueprints);
+       callback(null, blueprints1);
 
     });
 };

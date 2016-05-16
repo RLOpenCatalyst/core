@@ -129,6 +129,11 @@ var InstanceSchema = new Schema({
         trim: true,
         validate: schemaValidator.bgIdValidator
     },
+    bgName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     projectId: {
         type: String,
         required: true,
@@ -266,7 +271,12 @@ var InstanceSchema = new Schema({
     },
     tasks: [Schema.Types.Mixed],
     usage: Schema.Types.Mixed,
-    cost: Schema.Types.Mixed
+    cost: Schema.Types.Mixed,
+    region: {
+        type: String,
+        required: false,
+        trim: true
+    },
 
 });
 
