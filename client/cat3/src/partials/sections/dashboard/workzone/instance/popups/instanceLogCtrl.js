@@ -26,9 +26,7 @@
 				$scope.logListInitial = notifyMessage.logs;
 				$scope.isInstanceLogsLoading = false;
 			} else {
-				if(notifyMessage.logs.length){
-					$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
-				}
+				$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
 			}
 		});
 

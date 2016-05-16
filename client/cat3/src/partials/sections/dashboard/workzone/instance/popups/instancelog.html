@@ -8,18 +8,14 @@
 <div class="modal-body">
 	<loading size="large" name="isInstanceLogsLoading" align="center" type="block"></loading>
 	<div class="logsArea" ng-show="!isInstanceLogsLoading">
-	  	<div ng-repeat="log in logListInitial">
-		   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}">
-			    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
-			    <span class="logInfo"> {{log.log}} </span>
-		   	</div>
-	  	</div>
-	  	<div ng-repeat="log in logListDelta">
-		   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}">
-			    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
-			    <span class="logInfo"> {{log.log}} </span>
-		   	</div>
-	  	</div>
+	   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logListInitial">
+		    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
+		    <span class="logInfo"> {{log.log}} </span>
+	   	</div>
+	   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logListDelta">
+		    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
+		    <span class="logInfo"> {{log.log}} </span>
+	   	</div>
 	</div>
 </div>
 
