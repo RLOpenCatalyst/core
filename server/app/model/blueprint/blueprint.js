@@ -608,7 +608,7 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
                     }
                 }
 
-
+                logger.debug('firing');
                 blueprint.save(function(err, docs) {
                     logger.debug(' docs ==> ', JSON.stringify(docs));
                     count++;
@@ -627,13 +627,7 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
                     }
                 });
 
-                return;
-
-
-
-
-
-
+              
             }
 
             //logger.debug(data);
