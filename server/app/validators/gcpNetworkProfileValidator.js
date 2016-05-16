@@ -33,10 +33,9 @@ gcpNetworkProfileValidator.update = {
     }
 };
 gcpNetworkProfileValidator.save = {
-    params: {
+    body: {
         providerId: Joi.string().max(40).required(),
         name: Joi.string().max(40).required(),
-        network: Joi.string().max(40).required(),
         type: Joi.string().max(15).required()
     }
 };

@@ -19,6 +19,7 @@ var async = require('async');
 var gcpNetworkProfileService = require('_pr/services/networkProfileService.js');
 var validate = require('express-validation');
 var gcpNetworkProfileValidator = require('_pr/validators/gcpNetworkProfileValidator');
+var logger = require('_pr/logger')(module);
 
 
 router.get('/', function(req, res, next) {
@@ -34,61 +35,67 @@ router.get('/', function(req, res, next) {
 	 * @apiParam {String} name				    Mandatory Resource name
 	 * @apiParam {String} type				    Mandatory network profile type
 	 * @apiParam {String} providerId 			Mandatory Provider ID
+	 * @apiParam {String} zone				    Mandatory NetworkProfile zone.
 	 * @apiParam {String} network				Mandatory Network resource for this instance
 	 * @apiParam [String] accessConfigs		    Config list
 	 * @apiParam {String} accessConfigName	    Config name
 	 * @apiParam {String} accessConfigType		Config type
 	 * @apiParamExample {json} Request-Example:
 	 	{
-	 * 		"profile":{
-	 * 			"providerId": "56456",
-	 * 			"name": "Instance-1",
-	 *			"type": "gcp",
-	 *			"network": "Network resource",
-	 * 			"accessConfigs": [{}],
-	 *			"accessConfigName": "Config name",
-	 *			"accessConfigType": "Config type"
+	 * 		"name":	"networkProfileName",
+	 * 		"type": "GCP",
+	 *		"providerId": "<ID>",
+	 * 		"networkDetails": {
+	 *			"zone": "us-east1-c",
+	 *			"network": "global/networks/default",
+	 * 			"accessConfigs": ["ONE_TO_ONE_NAT"],
+	 *			"accessConfigName": "Name of the access configuration.",
+	 *			"accessConfigType": "ONE_TO_ONE_NAT"
 	 * 		}
-	 	}
+	 * 	}
 	 *
 	 * @apiSuccess {Object} profile					NetworkProfile details
 	 *
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
-	 * 		{
-	 * 			"id": "12345",
-	 * 			"providerId": "56456",
-	 * 			"name": "Instance-1",
-	 *			"type": "gcp",
-	 *			"network": "Network resource",
-	 * 			"accessConfigs": [{}],
-	 *			"accessConfigName": "Config name",
-	 *			"accessConfigType": "Config type"
-	 * 		}
+	 * 			 	 {
+	 * 			 	    "id": "<ID>",
+	 * 					"name":	"networkProfileName",
+	 * 					"type": "GCP",
+	 *					"providerId": "<ID>",
+	 * 				     "networkDetails": {
+	 *						"zone": "us-east1-c",
+	 *						"network": "global/networks/default",
+	 * 						"accessConfigs": ["ONE_TO_ONE_NAT"],
+	 *						"accessConfigName": "Name of the access configuration.",
+	 *						"accessConfigType": "ONE_TO_ONE_NAT"
+	 * 				     }
+	 * 				 }
 	 */
 
 // Save gcp network profile
-router.post('/', function(req, res) {
-	logger.debug("nProfile called...");
-    var nProfile = req.body.profile;
+router.post('/', validate(gcpNetworkProfileValidator.save), saveNetworkProfile);
+
+function saveNetworkProfile(req, res, next) {
+    logger.debug("nProfile called...");
+    var nProfile = req.body;
     async.waterfall(
         [
-
             function(next) {
-            	//validate req
-            	validate(gcpNetworkProfileValidator.save,next);
-            },
-            gcpNetworkProfileService.save(nProfile, next)
+                gcpNetworkProfileService.save(nProfile,next)
+            }
         ],
         function(err, resData) {
+            logger.debug("err: ", err);
+            logger.debug("resData: ", resData);
             if (err) {
                 next(err);
             } else {
-                return res.send(resData);
+                return res.status(200).send(resData);
             }
         }
     );
-});
+};
 
 
 /**
@@ -96,91 +103,98 @@ router.post('/', function(req, res) {
 	 * @apiName updateNetworkProfile
 	 * @apiGroup NetworkProfiles
 	 *
-	 * @apiParam {String} npId				    Mandatory NetworkProfile ID.
+	 * @apiParam {String} networkProfileId				    Mandatory NetworkProfile ID.
 	 * @apiParam {String} name				    Mandatory Resource name
 	 * @apiParam {String} type				    Mandatory network profile type
 	 * @apiParam {String} providerId 			Mandatory Provider ID
+	 * @apiParam {String} zone				    Mandatory NetworkProfile zone.
 	 * @apiParam {String} network				Mandatory Network resource for this instance
 	 * @apiParam [String] accessConfigs		    Config list
 	 * @apiParam {String} accessConfigName	    Config name
 	 * @apiParam {String} accessConfigType		Config type
 	 * @apiParamExample {json} Request-Example:
 	 	{
-	 * 		"profile":{
-	 * 			"providerId": "56456",
-	 * 			"name": "Instance-1",
-	 *			"type": "gcp",
-	 *			"network": "Network resource",
-	 * 			"accessConfigs": [{}],
-	 *			"accessConfigName": "Config name",
-	 *			"accessConfigType": "Config type"
+	 * 		"name":	"networkProfileName",
+	 * 		"type": "GCP",
+	 *		"providerId": "<ID>",
+	 * 		"networkDetails": {
+	 *			"zone": "us-east1-c",
+	 *			"network": "global/networks/default",
+	 * 			"accessConfigs": ["ONE_TO_ONE_NAT"],
+	 *			"accessConfigName": "Name of the access configuration.",
+	 *			"accessConfigType": "ONE_TO_ONE_NAT"
 	 * 		}
-	 	}
+	 * 	}
 	 *
 	 * @apiSuccess {Object} profile					NetworkProfile details
 	 *
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
-	 * 		{
-	 			"id": "12345",
-	 * 			"providerId": "56456",
-	 * 			"name": "Instance-1",
-	 *			"type": "gcp",
-	 *			"network": "Network resource",
-	 * 			"accessConfigs": [{}],
-	 *			"accessConfigName": "Config name",
-	 *			"accessConfigType": "Config type"
-	 * 		}
+	 * 			 	 {
+	 * 			 	    "id": "<ID>",
+	 * 					"name":	"networkProfileName",
+	 * 					"type": "GCP",
+	 *					"providerId": "<ID>",
+	 * 				     "networkDetails": {
+	 *						"zone": "us-east1-c",
+	 *						"network": "global/networks/default",
+	 * 						"accessConfigs": ["ONE_TO_ONE_NAT"],
+	 *						"accessConfigName": "Name of the access configuration.",
+	 *						"accessConfigType": "ONE_TO_ONE_NAT"
+	 * 				     }
+	 * 				 }
 	 */
 
 // Update  network profile
-router.put('/:networkProfileId', function(req, res) {
-});
+router.put('/:networkProfileId', function(req, res) {});
 
 
 /**
-	 * @api {get} /network-profile/:networkProfileId  Return NetworkProfile by Id
-	 * @apiName getNetworkProfile
-	 * @apiGroup NetworkProfiles
-	 *
-	 *
-	 * @apiSuccess {Object} profile					Specific NetworkProfile details
-	 *
-	 * @apiSuccessExample {json} Success-Response:
-	 * 		HTTP/1.1 200 OK
-	 * 		{
-	 			"id": "12345",
-	 * 			"providerId": "56456",
-	 * 			"name": "Instance-1",
-	 *			"type": "gcp",
-	 *			"network": "Network resource",
-	 * 			"accessConfigs": [{}],
-	 *			"accessConfigName": "Config name",
-	 *			"accessConfigType": "Config type"
-	 * 		}
-	 */
+ * @api {get} /network-profile/:networkProfileId  Return NetworkProfile by Id
+ * @apiName getNetworkProfile
+ * @apiGroup NetworkProfiles
+ *
+ *
+ * @apiSuccess {Object} profile					Specific NetworkProfile details
+ *
+ * @apiSuccessExample {json} Success-Response:
+ * 		HTTP/1.1 200 OK
+ * 			 	 {
+ * 			 	    "id": "<ID>",
+ * 					"name":	"networkProfileName",
+ * 					"type": "GCP",
+ *					"providerId": "<ID>",
+ * 				     "networkDetails": {
+ *						"zone": "us-east1-c",
+ *						"network": "global/networks/default",
+ * 						"accessConfigs": ["ONE_TO_ONE_NAT"],
+ *						"accessConfigName": "Name of the access configuration.",
+ *						"accessConfigType": "ONE_TO_ONE_NAT"
+ * 				     }
+ * 				 }
+ */
 
 // get network profile by Id
-router.get('/:networkProfileId', function(req, res){
+router.get('/:networkProfileId', function(req, res) {
 
 });
 
 
 
 /**
-	 * @api {delete} /network-profile/:networkProfileId  Delete NetworkProfile by Id
-	 * @apiName deleteNetworkProfile
-	 * @apiGroup NetworkProfiles
-	 *
-	 *
-	 * @apiSuccess {Object} profile					Success to Delete NetworkProfile
-	 *
-	 * @apiSuccessExample {json} Success-Response:
-	 * 		HTTP/1.1 200 OK
-	 */
+ * @api {delete} /network-profile/:networkProfileId  Delete NetworkProfile by Id
+ * @apiName deleteNetworkProfile
+ * @apiGroup NetworkProfiles
+ *
+ *
+ * @apiSuccess {Object} profile					Success to Delete NetworkProfile
+ *
+ * @apiSuccessExample {json} Success-Response:
+ * 		HTTP/1.1 200 OK
+ */
 
 // delete network profile by Id
-router.delete('/:networkProfileId', function(req, res){
+router.delete('/:networkProfileId', function(req, res) {
 
 });
 
@@ -196,21 +210,44 @@ router.delete('/:networkProfileId', function(req, res){
 	 *
 	 * @apiSuccessExample {json} Success-Response:
 	 * 		HTTP/1.1 200 OK
-	 * 		[{
-	 			"id": "12345",
-	 * 			"providerId": "56456",
-	 * 			"name": "Instance-1",
-	 *			"type": "gcp",
-	 *			"network": "Network resource",
-	 * 			"accessConfigs": [{}],
-	 *			"accessConfigName": "Config name",
-	 *			"accessConfigType": "Config type"
-	 * 		},
-	 		{......}]
+	        {
+	 * 			"networkProfiles": [
+	 * 			 	 {
+	 * 			 	    "id": "<ID>",
+	 * 					"name":	"networkProfileName",
+	 * 					"type": "GCP",
+	 *					"providerId": "<ID>",
+	 * 				    "networkDetails": {
+	 *						"zone": "us-east1-c",
+	 *						"network": "global/networks/default",
+	 * 						"accessConfigs": ["ONE_TO_ONE_NAT"],
+	 *						"accessConfigName": "Name of the access configuration.",
+	 *						"accessConfigType": "ONE_TO_ONE_NAT"
+	 * 				     }
+	 * 				 },
+	 * 				 {
+	 * 			 	    "id": "<ID>",
+	 * 					"name":	"networkProfileName",
+	 * 					"type": "AWS",
+	 *					"providerId": "<ID>",
+	 * 				     "networkDetails": {
+	 * 				         "region": "us-west-1",
+	 * 						 "vpc": "vpc-1234",
+	 *						 "subnet": "subnet-y88900",
+	 *						 "securityGroup": "sg-jhf889",
+	 *						 "keyPair": "goldendemo"
+	 * 				     }
+	 * 				 }
+	 * 			],
+	 *			"count": 2,
+	 *			"pageSize": 10,
+	 *			"pageIndex": 1
+	 * 		}
+	 * 
 	 */
 
 // List all network profiles
-router.get('/', function(req, res){
+router.get('/', function(req, res) {
 
 });
 

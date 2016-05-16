@@ -41,36 +41,40 @@ var GCPNPSchema = new Schema({
         required: true,
         trim: true
     },
-    network: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    accessConfigs: {
-        type: [{}]
-    },
-    accessConfigName: {
-        type: String,
-        trim: true
-    },
-    accessConfigType: {
-        type: String,
-        trim: true
+    networkDetails: {
+        zone: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        network: {
+            type: String,
+            trim: true
+        },
+        accessConfigs: {
+            type: [{}]
+        },
+        accessConfigName: {
+            type: String,
+            trim: true
+        },
+        accessConfigType: {
+            type: String,
+            trim: true
+        }
     }
 });
 
 // Save NetworkProfile
-GCPNPSchema.statics.save = function save(networkProfile callback) {
+GCPNPSchema.statics.save = function save(networkProfile, callback) {
     var nProfile = new this(networkProfile);
     nProfile.save(function(err, data) {
         if (err) {
             logger.debug("Unable to save networkProfile: ", err);
-            callback(err, null);
-            return;
+            return callback(err, null);
         }
-        logger.debug("networkProfile saved successfully.");
-        callback(null, data);
-        return;
+        logger.debug("networkProfile saved successfully.", JSON.stringify(data));
+        return callback(null, data);
     });
 };
 
