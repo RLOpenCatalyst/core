@@ -1176,7 +1176,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback)
                             },
                             blueprints: function(callback) {
-                                //Blueprints.getBlueprintsByOrgBgProject(jsonData, callback)
                                 Blueprints.getBlueprintsByOrgBgProjectProvider(jsonData,callback);
                             },
                             stacks: function(callback) {
