@@ -1293,7 +1293,6 @@
             $instanceUnManagedDatatable.clear().draw();
             var $tbody = $('#unManagedInstance tbody').empty();
             for (var i = 0; i < unManagnedData.unmanagedInstances.length; i++) {
-                alert(i);
                 var $tr = $('<tr></tr>').attr('instanceId', unManagnedData.unmanagedInstances[i]._id);
                 var $tdId = $('<td></td>').append(unManagnedData.unmanagedInstances[i].platformId);
                 $tr.append($tdId);
@@ -1302,7 +1301,6 @@
 
                 var $tdIpAddress = $('<td></td>').append(unManagnedData.unmanagedInstances[i].ip);
                 $tr.append($tdIpAddress);
-                alert(1);
                 var region = '';
                 if (unManagnedData.unmanagedInstances[i].providerData && unManagnedData.unmanagedInstances[i].providerData.region) {
                     region = unManagnedData.unmanagedInstances[i].providerData.region;
@@ -1317,8 +1315,6 @@
                 $tr.append($projectName);
                 var $environmentName = $('<td></td>').append(unManagnedData.unmanagedInstances[i].environmentName);
                 $tr.append($environmentName);
-
-                alert(1);
                 var $input = '';
                 if (unManagnedData[i].state === 'running') {
                     $input = $('<input class="nodeCheckBox" type="checkbox">').val(unManagnedData.unmanagedInstances[i]._id);
@@ -1326,7 +1322,6 @@
                 var $tdAction = $('<td></td>').append($input);
                 $tr.append($tdAction);
                 $tbody.append($tr);
-                alert(1);
                 $instanceUnManagedDatatable.row.add($tr).draw();
             }
         }
@@ -1395,7 +1390,6 @@
         }
         //loading Managed Data
         function getManagedInstances() {
-            alert("Managed");
             $.get('/providers/' + urlproviderId + '/managedInstances', function(managedInstances) {
                 loadManagedInstances(managedInstances);
             }).fail(function(jxhr) {
@@ -1411,9 +1405,7 @@
 
         //loading Assigned Data
         function getUnmanagedInstances() {
-            alert("UnManaged");
             $.get('/providers/' + urlproviderId + '/unmanagedInstances', function(unmanagnedInstances) {
-                alert(JSON.stringify(unmanagnedInstances));
                     loadUnmanagedInstances(unmanagnedInstances);
             }).fail(function(jxhr) {
                 var msg = "Provider Sync unmanaged instances Behaved Unexpectedly.";
