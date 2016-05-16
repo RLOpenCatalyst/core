@@ -102,7 +102,7 @@
 						$scope.logList = response.data;
 						helper.logsPolling();
 					});
-				}
+				};
 				//event to update the instance tab when blueprint is launched.
 				$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
 				//event to update the Cloud Formation tab when blueprint is launched.
