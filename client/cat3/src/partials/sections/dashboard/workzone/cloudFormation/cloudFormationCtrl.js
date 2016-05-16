@@ -22,6 +22,10 @@
 			$scope.totalCards = 0;
 			$scope.isCloudFormationPaginationShow = false;
 
+			$scope.setFirstPageView = function() {
+				$scope.paginationParams.page = 1;
+			};
+
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isCloudFormationPageLoading = true;
 				$scope.envParams=requestParams;
@@ -29,8 +33,17 @@
 			});
 
 			$rootScope.$on('WZ_CFT_SHOW_LATEST', function(){
+				$scope.setFirstPageView();
+				//helper.setPaginationDefaults();
 				$scope.cftListCardView();
 			});
+
+			var helper = {
+				setPaginationDefaults: function() {
+					$scope.paginationParams.sortBy = '';//TODO - use correct sort parameter to use.
+					$scope.paginationParams.sortOrder = 'desc';
+				}
+			};
 
 			$scope.cardPaginationCftChange = function() {
 				$scope.paginationParams.page = $scope.currentCardPage;

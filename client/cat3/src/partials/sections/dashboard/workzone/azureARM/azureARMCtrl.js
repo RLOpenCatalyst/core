@@ -18,15 +18,28 @@
 			$scope.totalCards = 0;
 			$scope.isAzureARMPaginationShow = true;
 
+			$scope.setFirstPageView = function() {
+				$scope.paginationParams.page = 1;
+			};
+
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isAzureARMPageLoading = true;
 				$scope.envParams=requestParams;
 				$scope.azureListCardView();
 			});
 
-			$rootScope.$on('WZ_CFT_SHOW_LATEST', function(){
+			$rootScope.$on('WZ_AzureARM_SHOW_LATEST', function(){
+				$scope.setFirstPageView();
+				//helper.setPaginationDefaults();
 				$scope.azureListCardView();
 			});
+
+			var helper = {
+				setPaginationDefaults: function() {
+					$scope.paginationParams.sortBy = '';//TODO - use correct sort parameter to use.
+					$scope.paginationParams.sortOrder = 'desc';
+				}
+			};
 			
 			$scope.cardPaginationArmChange = function() {
 				$scope.paginationParams.page = $scope.currentCardPage,
