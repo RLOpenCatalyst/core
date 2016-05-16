@@ -83,7 +83,7 @@ function getDefaultsConfig() {
                 "tasks": "taskCreatedOn",
                 "applications": "name",
                 "azureArms": "status",
-                "containerList": "Status",
+                "containerList": "Created",
                 "cftList": "status",
                 "appDeploy": "envId",
                 "trackedInstances": "providerType"
