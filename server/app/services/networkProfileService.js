@@ -15,17 +15,46 @@
 */
 var logger = require('_pr/logger')(module);
 var gcpNetworkProfile = require('_pr/model/network-profile/gcp-network-profiles.js');
+var networkProfilesModel = require('_pr/model/network-profile/network-profiles');
 const errorType = 'networkProfile';
 
 var networkProfileService = module.exports = {};
 
-networkProfileService.save = function networkProfileService(nProfile, callback) {
-    switch (nProfile.type) {
+networkProfileService.checkIfNetworkProfileExists = function checkIfNetworkProfileExists(networkProfileId, callback) {
+    networkProfilesModel.getNetworkProfileById(networkProfileId, function(err, networkProfile) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if(!networkProfile) {
+            var err = new Error('NetworkProfile not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            return callback(null, networkProfile);
+        }
+    });
+};
+
+networkProfileService.save = function save(networkProfile, callback) {
+    switch (networkProfile.type) {
         case 'GCP':
             logger.debug('Creating new GCP NetworkProfile');
-            gcpNetworkProfile.save(nProfile, callback);
+            gcpNetworkProfile.save(networkProfile, callback);
             break;
             defaut:
                 break;
     }
 };
+
+networkProfileService.removeNetworkProfile = function removeNetworkProfile(networkProfileId, callback) {
+    gcpNetworkProfile.removeNetworkProfile(networkProfileId,callback);
+};
+
+networkProfileService.getAllNetworkProfiles = function getAllNetworkProfiles(callback){
+	networkProfilesModel.getAllNetworkProfiles(callback);
+}
+
+networkProfileService.getNetworkProfileById = function getNetworkProfileById(networkProfileId, callback){
+	networkProfilesModel.getNetworkProfileById(networkProfileId, callback);
+}

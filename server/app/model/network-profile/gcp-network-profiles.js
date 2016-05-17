@@ -18,10 +18,12 @@
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var BaseNetworkProfileSchema = require('./base-network-profile');
+var NetworkProfiles = require('./network-profiles');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 // File which contains Network Profile DB schema and DAO methods. 
 
-var GCPNPSchema = new BaseNetworkProfileSchema({
+var GCPNetworkProfileSchema = new BaseNetworkProfileSchema({
     networkDetails: {
         zone: {
             type: String,
@@ -33,7 +35,7 @@ var GCPNPSchema = new BaseNetworkProfileSchema({
             trim: true
         },
         accessConfigs: {
-            type: [{}]
+            type: []
         },
         accessConfigName: {
             type: String,
@@ -47,9 +49,9 @@ var GCPNPSchema = new BaseNetworkProfileSchema({
 });
 
 // Save NetworkProfile
-GCPNPSchema.statics.save = function save(networkProfile, callback) {
-    var nProfile = new this(networkProfile);
-    nProfile.save(function(err, data) {
+GCPNetworkProfileSchema.statics.save = function save(networkProfile, callback) {
+    var networkProfileObj = new this(networkProfile);
+    networkProfileObj.save(function(err, data) {
         if (err) {
             logger.debug("Unable to save networkProfile: ", err);
             return callback(err, null);
@@ -59,5 +61,20 @@ GCPNPSchema.statics.save = function save(networkProfile, callback) {
     });
 };
 
-var GCPNetworkProfile = mongoose.model("gcpNetworkProfile", GCPNPSchema);
+GCPNetworkProfileSchema.statics.removeNetworkProfile = function removeNetworkProfile(networkProfileId, callback) {
+    this.remove({
+        "_id": networkProfileId
+    },function(err, data) {
+        if (err) {
+            logger.debug("Unable to Remove networkProfile: ", err);
+            return callback(err, null);
+        }
+        logger.debug("networkProfile Removed successfully.");
+        return callback(null, data);
+    });
+};
+
+
+var GCPNetworkProfile = NetworkProfiles.discriminator('NetworkProfiles', GCPNetworkProfileSchema);
 module.exports = GCPNetworkProfile;
+

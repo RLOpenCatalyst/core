@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var Providers= require('./providers.js');
-var NetworkProfiles = require('./network-profile/network-profiles.js');
+var NetworkProfiles = require('./network-profiles.js');
 var Blueprints = require('./blueprints.js');
 
 router.use(Providers.pattern, Providers.router);

@@ -16,19 +16,15 @@
 
 var router = require('express').Router();
 var async = require('async');
-var gcpNetworkProfileService = require('_pr/services/networkProfileService.js');
+var networkProfileService = require('_pr/services/networkProfileService.js');
 var validate = require('express-validation');
 var gcpNetworkProfileValidator = require('_pr/validators/gcpNetworkProfileValidator');
 var logger = require('_pr/logger')(module);
 
 
-router.get('/', function(req, res, next) {
-    res.status(200).send('hello world v2.0');
-});
-
 
 /**
-	 * @api {post} /network-profile  Save NetworkProfile
+	 * @api {post} /api/v2.0/network-profiles  Save NetworkProfile
 	 * @apiName saveNetworkProfile
 	 * @apiGroup NetworkProfiles
 	 *
@@ -78,11 +74,11 @@ router.post('/', validate(gcpNetworkProfileValidator.save), saveNetworkProfile);
 
 function saveNetworkProfile(req, res, next) {
     logger.debug("nProfile called...");
-    var nProfile = req.body;
+    var networkProfile = req.body;
     async.waterfall(
         [
             function(next) {
-                gcpNetworkProfileService.save(nProfile,next)
+                networkProfileService.save(networkProfile, next)
             }
         ],
         function(err, resData) {
@@ -97,7 +93,7 @@ function saveNetworkProfile(req, res, next) {
 
 
 /**
-	 * @api {put} /network-profile/:networkProfileId  Update NetworkProfile
+	 * @api {put} /api/v2.0/network-profiles/:networkProfileId  Update NetworkProfile
 	 * @apiName updateNetworkProfile
 	 * @apiGroup NetworkProfiles
 	 *
@@ -148,7 +144,7 @@ router.put('/:networkProfileId', function(req, res) {});
 
 
 /**
- * @api {get} /network-profile/:networkProfileId  Return NetworkProfile by Id
+ * @api {get} /api/v2.0/network-profiles/:networkProfileId  Return NetworkProfile by Id
  * @apiName getNetworkProfile
  * @apiGroup NetworkProfiles
  *
@@ -173,14 +169,31 @@ router.put('/:networkProfileId', function(req, res) {});
  */
 
 // get network profile by Id
-router.get('/:networkProfileId', function(req, res) {
+router.get('/:networkProfileId', validate(gcpNetworkProfileValidator.get), getNetworkProfileById);
 
-});
+function getNetworkProfileById(req, res, next) {
+    async.waterfall(
+        [
+            function(next) {
+                networkProfileService.getNetworkProfileById(req.params.networkProfileId, next)
+            }
+        ],
+        function(err, resData) {
+            if (err) {
+                next(err);
+            } else if (resData) {
+                return res.status(200).send(resData);
+            } else {
+                return res.status(404).send("Not Found.");
+            }
+        }
+    )
+};
 
 
 
 /**
- * @api {delete} /network-profile/:networkProfileId  Delete NetworkProfile by Id
+ * @api {delete} /api/v2.0/network-profiles/:networkProfileId  Delete NetworkProfile by Id
  * @apiName deleteNetworkProfile
  * @apiGroup NetworkProfiles
  *
@@ -192,14 +205,32 @@ router.get('/:networkProfileId', function(req, res) {
  */
 
 // delete network profile by Id
-router.delete('/:networkProfileId', function(req, res) {
+router.delete('/:networkProfileId', validate(gcpNetworkProfileValidator.remove), removeNetworkProfile);
 
-});
+function removeNetworkProfile(req, res, next) {
+    async.waterfall(
+        [
+            function(next) {
+                networkProfileService.checkIfNetworkProfileExists(req.params.networkProfileId, next)
+            },
+            function(networkProfile, next) {
+                networkProfileService.removeNetworkProfile(req.params.networkProfileId, next)
+            }
+        ],
+        function(err, resData) {
+            if (err) {
+                next(err);
+            } else {
+                return res.status(200).send("Delete Success.");
+            }
+        }
+    )
+}
 
 
 
 /**
-	 * @api {get} /network-profile  List all NetworkProfiles
+	 * @api {get} /api/v2.0/network-profiles  List all NetworkProfiles
 	 * @apiName listNetworkProfiles
 	 * @apiGroup NetworkProfiles
 	 *
@@ -245,9 +276,24 @@ router.delete('/:networkProfileId', function(req, res) {
 	 */
 
 // List all network profiles
-router.get('/', function(req, res) {
+router.get('/', getAllNetworkProfiles);
 
-});
+function getAllNetworkProfiles(req, res, next) {
+    async.waterfall(
+        [
+            function(next) {
+                networkProfileService.getAllNetworkProfiles(next);
+            }
+        ],
+        function(err, resData) {
+            if (err) {
+                next(err);
+            } else {
+                return res.status(200).send(resData);
+            }
+        }
+    )
+};
 
 
 
