@@ -27,8 +27,8 @@ angular.module('workzone.blueprint')
 				blueprintName = 'Azure ARM';
 			break;
 		}
-
-		workzoneServices.blueprintInfo(items._id).then(function(response) {
+		
+		workzoneServices.blueprintInfo(items.selectedVersionBpId).then(function(response) {
 			$scope.blueprintInfo = response.data;
 		},
 		function(error) {
