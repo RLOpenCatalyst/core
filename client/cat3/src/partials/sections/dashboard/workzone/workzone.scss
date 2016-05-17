@@ -191,7 +191,11 @@
 	visibility: hidden;
 	height: 0px !important;
 }
-.show-grid{
+.show-grid-tab{
 	visibility: visible;
+	height: auto;
+}
+.show-grid{
+	visibility: inherit;
 	height: auto;
 }
