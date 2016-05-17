@@ -89,26 +89,36 @@
             $scope.softwareInfo = softwareInfo;
             $scope.cmInfo = cmInfo;
 
-            $scope.createAppUrl = function() {
+            $scope.createAppUrl = function(type,appUrl) {
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/instance/manage/popups/applicationUrl.html',
-                    controller: 'applicationCreateCtrl',
+                    controller: 'applicationCreateEditCtrl',
                     backdrop: 'static',
                     keyboard: false,
                     resolve: {
                         items: function() {
-                            return cpInstance;
+                            return {
+                                type:type,
+                                cpInstance:cpInstance,
+                                selectedAppUrl:appUrl
+                            }
                         }
                     }
                 }).result.then(function(createdItem) {
-                    $scope.appUrlInfo.push(createdItem);
+                    if(type === 'new'){
+                        $scope.appUrlInfo.push(createdItem);
+                    }else{
+                        console.log('here',createdItem);
+                        appUrl.name = createdItem.name;
+                        appUrl.url = createdItem.url;
+                    }
                 }, function() {
                     console.log('Modal Dismissed at ' + new Date());
                 });
             };
 
-            $scope.editAppUrl = function(appUrl) {
+            /*$scope.editAppUrl = function(appUrl) {
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/instance/manage/popups/applicationUrl.html',
@@ -129,7 +139,7 @@
                 }, function() {
                     console.log('AppUrl Edit modal dismissed');
                 });
-            };
+            };*/
 
             $scope.deleteAppUrl = function(_appUrl, index) {
                 workzoneServices.deleteAppUrl(cpInstance._id, _appUrl._id).then(function() {
@@ -253,52 +263,60 @@
                     $modalInstance.close();
                 });
             };
-        }]).controller('applicationCreateCtrl', ['$scope', 'items', '$modalInstance', 'workzoneServices', function($scope, items, $modalInstance, workzoneServices) {
+        }]).controller('applicationCreateEditCtrl', ['$scope', 'items', '$modalInstance', 'workzoneServices', function($scope, items, $modalInstance, workzoneServices) {
+            /*on opening the popup checking whether the type is edit 
+            and filling the appropriate name and url for the selected appItem*/
+            if(items.type === 'edit'){
+                var url = items.selectedAppUrl.url;
+                if (url) {
+                    url = url.replace(items.cpInstance.instanceIP , '$host');
+                    items.selectedAppUrl.url = url;
+                }
+                $scope.appUrlItem = {
+                    name: items.selectedAppUrl.name,
+                    url: items.selectedAppUrl.url
+                };
+            }
             $scope.ok = function() {
                 var appUrls = [];
                 appUrls.push({
                     name: $scope.appUrlItem.name,
                     url: $scope.appUrlItem.url
                 });
-                if (appUrls.length) {
+                if (appUrls.length) {   
                     var reqBody = {};
-                    reqBody.appUrls = appUrls;
-                    workzoneServices.createAppUrl(items._id, reqBody).then(function(response) {
-                        $modalInstance.close(response.data[0]);
-                    });
+                    /*condition check if the type is new(user is creating a new appUrl)*/
+                    if(items.type === 'new'){
+                        reqBody.appUrls = appUrls;
+                        workzoneServices.createAppUrl(items.cpInstance._id, reqBody).then(function(response) {
+                            var url = response.data[0].url;
+                            if (url) {
+                                url = url.replace('$host', items.cpInstance.instanceIP);
+                                response.data[0].url = url;
+                            }
+                            $scope.appUrlItem = response.data[0];
+                            $modalInstance.close($scope.appUrlItem);
+                        });
+                    }else{
+                        /*condition check if the type is editing a particular entry*/
+                        console.log(appUrls[0]);
+                        reqBody.name = appUrls[0].name;
+                        reqBody.url = appUrls[0].url;
+                        workzoneServices.updateAppUrl(items.cpInstance._id, items.selectedAppUrl._id, reqBody).then(function() {
+                            var url = reqBody.url;
+                            if (url) {
+                                url = url.replace('$host', items.cpInstance.instanceIP);
+                                reqBody.url = url;
+                            }
+                            $scope.appUrlItem = reqBody;
+                            $modalInstance.close($scope.appUrlItem);
+                        });
+                    }
                 }
             };
 
             $scope.cancel = function() {
                 $modalInstance.dismiss('cancel');
             };
-        }]).controller('applicationEditCtrl', ['$scope', 'items', '$modalInstance', 'workzoneServices', function($scope, items, $modalInstance, workzoneServices) {
-            $scope.appUrlItem = {
-                name: items.selectedAppUrl.name,
-                url: items.selectedAppUrl.url
-            };
-            var _instanceId = items.instance._id;
-            var _appUrlId = items.selectedAppUrl._id;
-            $scope.ok = function() {
-                var appUrls = [];
-                appUrls.push({
-                    name: $scope.appUrlItem.name,
-                    url: $scope.appUrlItem.url
-                });
-                if (appUrls.length) {
-                    var reqBody = {};
-                    reqBody.name = appUrls[0].name;
-                    reqBody.url = appUrls[0].url;
-                    workzoneServices.updateAppUrl(_instanceId, _appUrlId, reqBody).then(function() {
-                        $scope.appUrlItem = reqBody;
-                        $modalInstance.close($scope.appUrlItem);
-                    });
-                }
-            };
-
-            $scope.cancel = function() {
-                $modalInstance.dismiss('cancel');
-            };
-        }
-    ]);
+        }]);
 })();

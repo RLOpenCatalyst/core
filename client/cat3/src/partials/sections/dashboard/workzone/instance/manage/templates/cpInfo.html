@@ -254,7 +254,7 @@
 			<section class="app-url-section">
 				<header class="app-url-header">
 					<span>Application URL's</span>
-					<button type="button" class="btn cat-btn-update pull-right header-margin" ng-click="createAppUrl();">
+					<button type="button" class="btn cat-btn-update pull-right header-margin" ng-click="createAppUrl('new','');">
 					   <i class="fa fa-plus white"></i>
 					   New
 					</button>
@@ -274,7 +274,7 @@
 									<td>{{$index + 1}}</td>
 									<td><a class="app-url cursor" target="_blank" ng-href="{{appUrl.url}}">{{appUrl.name}}</td>
 									<td width="110px">
-										<span title="Edit" class="fa fa-pencil btn btn-info tableactionbutton white" ng-click="editAppUrl(appUrl);"></span>
+										<span title="Edit" class="fa fa-pencil btn btn-info tableactionbutton white" ng-click="createAppUrl('edit',appUrl);"></span>
 										<span title="Delete" class="fa fa-trash-o btn btn-danger tableactionbutton white" ng-click="deleteAppUrl(appUrl, $index)"></span>
 									</td>
 								</tr>
