@@ -75,14 +75,13 @@
 			$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption,{
 			data:'tabData',
 				columnDefs : [
-					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'+
-					'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>'+
-					'<img class="docker-image dockerenabledinstacne" alt="Docker" src="images/global/docker.png" ng-show="row.entity.docker" ng-click="grid.appScope.openContainersTab()"/>', cellTooltip: true},
+					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img class="instanceRoleLogo" src="{{grid.appScope.getRoleLogo(row.entity)}}" />'
+					+'<img class="instanceRoleLogo" src="images/global/docker.png" ng-show="row.entity.docker && row.entity.docker.dockerEngineStatus === \'success\'" ng-click="grid.appScope.openContainersTab()">', cellTooltip: true},
 					{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
 					'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
 					'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+
 					'</span>', cellTooltip: true},
-					{ name:'Ip Address', field:'instanceIP',cellTooltip: true},
+					{ name:'Ip Address', displayName:'IP Address', field:'instanceIP',cellTooltip: true},
 					{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
 					{ name:'Status', enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
 					{ name:'Log Info', enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
@@ -182,6 +181,35 @@
 				} else {
 					return instanceStateImagePrefix + colorSuffix;
 				}
+			},
+			/*method to get the instance role*/
+			getRoleLogo: function(inst){
+				var imagePath = '';
+				var type = '';
+				type = inst.blueprintData && inst.blueprintData.templateId;
+				switch(type) {
+					case 'chef': 
+					case 'chef_import':
+						imagePath = 'images/global/chef-import.png';
+						break;
+					case 'Apache':
+					case 'apache':
+						imagePath = 'images/templateicons/appFact4.png';
+						break;
+					case 'CustomTemplate': 
+						imagePath = 'images/templateicons/custom-temp.jpg';
+						break;
+					case 'Tomcat': 
+						imagePath = 'images/templateicons/apache-tomcat.jpeg';
+						break;
+					case 'CFT_newco': 
+						imagePath = 'images/templateicons/cloudformation.png';
+						break;
+					default: 
+						imagePath = 'images/templateicons/imgo.jpg';
+						break;
+				}
+				return imagePath;
 			},
 			getPlatformId: function(providerType, platformID) {
 				/*$scope.platformId1 = 'unknown';
