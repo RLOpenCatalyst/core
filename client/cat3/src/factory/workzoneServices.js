@@ -461,6 +461,11 @@
                     var url = '/app-deploy/project/'+requestEnv.proj+'/appDeployList'+pageiReq;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
+                getSummaryCard:function(requestEnv,pgOptions){
+                    var pageiReq=paginationUtil.pageObjectToString(pgOptions);
+                    var url = '/app-deploy/project/'+requestEnv.proj+'/pipeLineViewList'+pageiReq;
+                    return $http.get(fullUrl(url),Auth.getHeaderObject());
+                },
                 getCardPermission :function(cardDetails){
                     var url= '/deploy-permission/project/'+ cardDetails.params.proj +'/env/' + cardDetails.paramNames.env + '/application/' + cardDetails.appName.name + '/permissionList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());

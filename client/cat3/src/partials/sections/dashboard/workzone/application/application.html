@@ -33,7 +33,7 @@
             </span>
         </div>
 
-        <section id="pipelineView" class=" {{!isAppallCardTab.template? 'hide-grid':'show-grid'}}" >
+        <section id="pipelineView" class="pipelineView {{!isAppallCardTab.template? 'hide-grid':'show-grid'}}" >
             <div ng-if="pipeGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
                         <span ng-show="pipeLineActBarShow">
@@ -51,7 +51,7 @@
                 </div>
                 <div ui-grid="pipeGridOptions"  ui-grid-pagination class="grid"></div>
             </div>
-            <div class="no-data-found" ng-if="!cardGridData.length > 0"> No data found !
+            <div class="no-data-found" ng-if="!pipeGridOptions.data.length > 0"> No data found !
                 <button type="button" class="btn btn-xs cat-btn-update  pull-right" ng-click="appCardRefresh(pipeLineActBarData)">
                     <i class="fa fa-refresh white"></i> Refresh</button>
             </div>
@@ -70,8 +70,19 @@
             </div>
         </section>
 
-        <section  class=" {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
-            under construction
+        <section  class="pipelineView {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
+            <div ng-if="summaryGridOptions.data.length > 0">
+                <div class="action-bar panel-heading">
+                    <button type="button" class="btn btn-xs btn-info  pull-right" ng-click="appCardRefresh(pipeLineActBarData)">
+                        <i class="fa fa-refresh white"></i> Refresh</button>
+                </div>
+                <div ui-grid="summaryGridOptions"  class="grid"></div>
+            </div>
+            <div class="no-data-found" ng-if="!summaryGridOptions.data.length > 0"> No data found !
+                <button type="button" class="btn btn-xs cat-btn-update  pull-right" ng-click="appCardRefresh(pipeLineActBarData)">
+                    <i class="fa fa-refresh white"></i> Refresh</button>
+            </div>
+
         </section>
 
     </div>
