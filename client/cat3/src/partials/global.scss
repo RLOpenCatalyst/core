@@ -559,8 +559,9 @@ option.puppet {
 	    display: table-cell;
 	    float: none;
 	    vertical-align: middle;
-	    height: auto!important;
+	    height: auto;
 	    padding:6px;
+	    overflow: hidden;
 	}
 
 	.ui-grid-cell-contents {

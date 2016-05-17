@@ -96,7 +96,7 @@ $imagePath : "/cat3/images";
 			.card-btns {
 				bottom: 0;
 				right: 0;
-				width: 100%;
+				width: 91%;
 				border-top: 1px solid #ccc;
 				padding: 4px 4px 0px 5px;
 				height: 36px;
@@ -282,6 +282,10 @@ $imagePath : "/cat3/images";
 }
 
 #blueprintPage {
+	.bp-more-info-section {
+		height: 25px;
+	}
+
 	.cardimage {
 		background-image: url("#{$imagePath}/app-store-icons/box-ops.png");
 		background-repeat: no-repeat;
@@ -290,9 +294,8 @@ $imagePath : "/cat3/images";
 	}
 
 	.cardLogo, .card-logo-docker {
-		height: 52px;
-		padding-top: 11px;
-		margin-top: 20px;
+		height: 41px;
+		padding-top: 0px;
 		margin-right: -30px;
 	}
 
@@ -333,7 +336,7 @@ $imagePath : "/cat3/images";
 	}
 
 	.btnicons {
-		margin: 0px 7px 5px 5px;
+		margin: 0px 7px 5px 1px;
 		float: left;
 	}
 

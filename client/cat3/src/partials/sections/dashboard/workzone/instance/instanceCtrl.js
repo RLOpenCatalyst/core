@@ -407,6 +407,15 @@
 			});
 		};
 
+		$scope.rdpFileLink = function(instanceObj) {
+			var fileLink = '/instances/rdp/' + instanceObj.instanceIP + '/3389';
+			return fileLink;
+		};
+		$scope.rdpFileName = function(instanceObj) {
+			var fileName = instanceObj.instanceIP +'.rdp';
+			return fileName;
+		};
+
 		$scope.showAppLinksPopup = function(inst) {
 			inst.showAppLinks = !inst.showAppLinks;
 			console.log(inst.showAppLinks);
