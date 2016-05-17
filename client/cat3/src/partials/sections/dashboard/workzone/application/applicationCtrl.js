@@ -16,6 +16,7 @@
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
 			angular.extend($scope, {
+				cardGridData:[],
 				selectedGridRow:[],
 				pipelineConfig:'',
 				pipeLineActBarShow:false,
@@ -27,6 +28,7 @@
 				currentTargetId:'',
 				pagiOptionsHistory :gridOpt.pagination,
 				pagiOptionsCard : gridOpt.pagination,
+				pagiOptionsSummary : gridOpt.pagination,
 				applicationPipelineTab : function(param) {
 					switch (param){
 						case 'allCards' :
@@ -43,6 +45,7 @@
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:false,template:true};
+							//$scope.$emit('RENDER-HISTORY');
 						break;
 					}
 				},
@@ -116,7 +119,8 @@
 						}
 					}).
 					result.then(function(newEnvList) {
-						$scope.pipeGridOptions.columnDefs=createColUIGrid(newEnvList);
+						$scope.pipeGridOptions.columnDefs=createColUIGrid(newEnvList,'pipeline');
+						$scope.summaryGridOptions.columnDefs=createColUIGrid(newEnvList,'summary');
 					}, function() {
 
 					});
@@ -180,6 +184,9 @@
 				},
 				appCardRefresh :function () {
 					getApplicationCardService($scope.requestParams.params,$scope.pagiOptionsCard);
+				},
+				appSummaryRefresh :function () {
+					getSummaryCardService($scope.requestParams.params);
 				}
 			});
 			var count = 0;
@@ -189,13 +196,12 @@
 				createApp : applicationPerms.createApp()
 			};
 			$scope.perms = _permSet;
-			function createColUIGrid(envList){
+			function createColUIGrid(envList,cardType){
 				var pipecolumnDefs=[];
 					pipecolumnDefs = [{
 						name: 'appName',
-						field: 'appName',
 						displayName: 'App Name',
-						cellTemplate: '<div pipeline-card card-details="row.entity.appName"></div>',
+						cellTemplate: '<div pipeline-card card-type="'+cardType+'" card-details="row.entity.appName"></div>',
 						cellTooltip: true
 					}];
 					if(envList) {
@@ -206,7 +212,7 @@
 									field: val,
 									displayName: val,
 									cellTooltip: true,
-									cellTemplate: '<div pipeline-card env-name="' + val + '" app-name="row.entity.appName" card-details="row.entity[col.field]"></div>'
+									cellTemplate: '<div pipeline-card card-type="'+cardType+'" env-name="' + val + '" app-name="row.entity.appName" card-details="row.entity[col.field]"></div>'
 								};
 								pipecolumnDefs.push(optionObject);
 							}
@@ -230,18 +236,34 @@
 					});
 					$scope.pipeGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>"
 					//Api response is in array but it is only one object.
-					$scope.pipeGridOptions.columnDefs=createColUIGrid(configResult.data[0]);
+					$scope.pipeGridOptions.columnDefs=createColUIGrid(configResult.data[0],'pipeline');
+					getApplicationCardService(envParams, $scope.pagiOptionsCard);
+					getApplicationSummary(envParams,configResult.data[0]);
 				});
-				getApplicationCardService(envParams, $scope.pagiOptionsCard);
 			}
 			function getApplicationCardService(envParams,pagiOptionsCard){
 				workzoneServices.getPipelineView(envParams,pagiOptionsCard).then(function(cardResult){
-					$timeout(function () {$scope.pipeGridOptions.data= cardResult.data.appDeploy;},100);
+					$scope.pipeGridOptions.data= cardResult.data.appDeploy;
 					$scope.isApplicationPageLoading=false;
 					$scope.pipeLineActBarShow=false;
 					$rootScope.selectedCardClass='';
 					angular.element('#pipelineView .card').removeClass('selected-card');
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
+
+				});
+			}
+			function getApplicationSummary(envParams,config){
+				//workzoneServices.getPipelineConfig(envParams).then(function(configResult){
+					$scope.summaryGridOptions = angular.extend({enableColumnMenus: false}, {enableSorting: false},
+					//Api response is in array but it is only one object.
+						{columnDefs:createColUIGrid(config,'summary')});
+				//});
+				getSummaryCardService(envParams, $scope.pagiOptionsSummary);
+			}
+			function getSummaryCardService(envParams){
+				workzoneServices.getSummaryCard(envParams).then(function(cardResult){
+					$scope.summaryGridOptions.data= cardResult.data.pipeLineView;
+					$scope.summaryGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 
 				});
 			}

@@ -7,13 +7,17 @@
 
 (function (angular) {
     "use strict";
-    angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices','$timeout', function ($scope, $rootScope, workzoneServices,uiGridOptiSer,$timeout) {
+    angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices', function ($scope, $rootScope, workzoneServices,uiGridOptiSer) {
         var gridOpt=uiGridOptiSer.options();
             angular.extend($scope, {
                 pagiOptionsHistory :gridOpt.pagination,
+                historGgridData:[],
                 requestParams :$scope.$parent.requestParams,
                 viewAppCardLogs: function (logs) {
                     $rootScope.$emit('VIEW-APP-LOGS',logs);
+                },
+                appHistoryRefresh :function () {
+                    getApplicationHistoryService($scope.requestParams.params, $scope.requestParams.paramNames,$scope.pagiOptionsHistory);
                 },
                 getHistoryData :function(envParams, envNames) {
                 $scope.isBusyShow=true;
@@ -30,10 +34,11 @@
                         { name:'Action',width:70,enableSorting: false,displayName:'Logs',cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.viewAppCardLogs(row.entity)"></i>'},
                     ],
                     onRegisterApi: function(gridApi) {
+                        $scope.gridApi=gridApi;
                         gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
                             if( sortColumns[0] &&  sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction){
                                 $scope.pagiOptionsHistory.sortBy = sortColumns[0].field;
-                                $scope.pagiOptionsHistory.sortOrder = sortColumns[0].sort.direction;
+                                $scope.pagiOptionsHistory.sortOrder = sortColumns[0].sort.direction;git
                                 getApplicationHistoryService(envParams, envNames ,$scope.pagiOptionsHistory);
                             }
 
@@ -51,10 +56,12 @@
 
             function getApplicationHistoryService(envParams, envNames,pagiOptionsHistory){
                 workzoneServices.getApplicationHistoryForEnv(envNames.env, envParams.proj,pagiOptionsHistory).then(function (response) {
-                    $timeout(function(){$scope.historyGridOptions.data= response.data.appDeploy;},100);
+                    $scope.historyGridOptions.data= response.data.appDeploy;
+                    $scope.historGgridData=response.data.appDeploy;
                     $scope.historyGridOptions.totalItems = response.data.metaData.totalRecords;
                 });
             }
+
         $rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, requestParamNames) {
                 $scope.requestParams={params:requestParams,paramNames:requestParamNames};
                 $scope.envDetails = requestParams;
