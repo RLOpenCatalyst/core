@@ -24,7 +24,7 @@ var logger = require('_pr/logger')(module);
 
 
 /**
-	 * @api {post} /network-profile  Save NetworkProfile
+	 * @api {post} /api/v2.0/network-profiles  Save NetworkProfile
 	 * @apiName saveNetworkProfile
 	 * @apiGroup NetworkProfiles
 	 *
@@ -93,7 +93,7 @@ function saveNetworkProfile(req, res, next) {
 
 
 /**
-	 * @api {put} /network-profile/:networkProfileId  Update NetworkProfile
+	 * @api {put} /api/v2.0/network-profiles/:networkProfileId  Update NetworkProfile
 	 * @apiName updateNetworkProfile
 	 * @apiGroup NetworkProfiles
 	 *
@@ -144,7 +144,7 @@ router.put('/:networkProfileId', function(req, res) {});
 
 
 /**
- * @api {get} /network-profile/:networkProfileId  Return NetworkProfile by Id
+ * @api {get} /api/v2.0/network-profiles/:networkProfileId  Return NetworkProfile by Id
  * @apiName getNetworkProfile
  * @apiGroup NetworkProfiles
  *
@@ -193,7 +193,7 @@ function getNetworkProfileById(req, res, next) {
 
 
 /**
- * @api {delete} /network-profile/:networkProfileId  Delete NetworkProfile by Id
+ * @api {delete} /api/v2.0/network-profiles/:networkProfileId  Delete NetworkProfile by Id
  * @apiName deleteNetworkProfile
  * @apiGroup NetworkProfiles
  *
@@ -230,7 +230,7 @@ function removeNetworkProfile(req, res, next) {
 
 
 /**
-	 * @api {get} /network-profile  List all NetworkProfiles
+	 * @api {get} /api/v2.0/network-profiles  List all NetworkProfiles
 	 * @apiName listNetworkProfiles
 	 * @apiGroup NetworkProfiles
 	 *
