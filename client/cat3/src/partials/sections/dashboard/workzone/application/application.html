@@ -9,20 +9,20 @@
                 <span ng-show="!isPipelineViewActive">{{selectedEnv}}</span>
             </span>
             <span class="pull-right">
-                <button type="button" class="btn btn-xs btn-info"
-                ng-click="deployNewApp()">
+                <button type="button" class="btn btn-xs cat-btn-update"
+                        ng-click="deployNewApp()">
                     <i class="fa fa-plus white"></i>
-                     App Deploy
+                    New
                 </button>
-                <button type="button" class="btn btn-xs btn-info"
-                ng-click="applicationPipelineTab('activeCards')"  ng-show="isAppActiveCardTab.icon">
+                <button type="button" class="btn btn-xs cat-btn-update"
+                        ng-click="applicationPipelineTab('activeCards')"  ng-show="isAppActiveCardTab.icon">
                     <i class="fa fa-th-list white"></i>
-                    Active Cards
+                    Pipeline Summary
                 </button>
-                <button type="button" class="btn btn-xs btn-info"
-                ng-click="applicationPipelineTab('allCards')" ng-show="isAppallCardTab.icon">
+                <button type="button" class="btn btn-xs cat-btn-update"
+                        ng-click="applicationPipelineTab('allCards')" ng-show="isAppallCardTab.icon">
                     <i class="fa fa-th-list white"></i>
-                    All cards
+                    Pipeline View
                 </button>
                 <span title="History" ng-click="applicationPipelineTab('history')" ng-show="isHistoryTab.icon">
                     <i class="fa fa-header fa-2x cursor"></i>
@@ -33,11 +33,10 @@
             </span>
         </div>
 
-        <section id="pipelineView" class="scrollContent" ng-show="isAppallCardTab.template" >
+        <section id="pipelineView" class="pipelineView {{!isAppallCardTab.template? 'hide-grid':'show-grid'}}" >
             <div ng-if="pipeGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
-                    <div ng-show="pipeLineActBarShow">
-                        <p>
+                        <span ng-show="pipeLineActBarShow">
                             <button type="button" class="btn btn-xs btn-info" ng-click="appCardDetail(pipeLineActBarData)">
                                 <i class="fa fa-tasks white"></i> Info </button>
                             <button type="button" class="btn btn-xs btn-primary" ng-click="promoteApp(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
@@ -46,18 +45,49 @@
                                 <i class="fa fa-eye white"></i> Approve</button>
                             <button type="button" class="btn btn-xs btn-success" ng-click="upgradeApp(pipeLineActBarData)">
                                 <i class="fa fa-edit white"></i> Upgrade</button>
-                        </p>
-                    </div>
+                        </span>
+                    <button type="button" class="btn btn-xs btn-info pull-right" ng-click="appCardRefresh()">
+                        <i class="fa fa-refresh white"></i> Refresh</button>
                 </div>
                 <div ui-grid="pipeGridOptions"  ui-grid-pagination class="grid"></div>
             </div>
-            <div class="no-data-found" ng-if="!pipeGridOptions.data.length > 0"> No data found !</div>
+            <div class="no-data-found" ng-if="!pipeGridOptions.data.length > 0"> No data found !
+                <button type="button" class="btn btn-xs cat-btn-update  pull-left" ng-click="appCardRefresh()">
+                    <i class="fa fa-refresh white"></i> Refresh</button>
+            </div>
 
         </section>
 
-        <section id="tableView" class="scrollContent"  ng-if="isHistoryTab.template" ng-controller="applicationHistoryCtrl">
-            <div class="no-data-found" ng-if="!historyGridOptions.data.length > 0"> No data found !</div>
-            <div ng-if="historyGridOptions.data.length > 0"  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
+        <section  class=" {{!isHistoryTab.template? 'hide-grid':'show-grid'}}"  ng-controller="applicationHistoryCtrl">
+            <div ng-if="!historGgridData.length > 0">
+                <div class="action-bar panel-heading">
+                    <button type="button" class="btn btn-xs cat-btn-update pull-left" ng-click="appHistoryRefresh()">
+                        <i class="fa fa-refresh white"></i> Refresh</button>
+                </div>
+                <div class="no-data-found"> No data found !</div>
+            </div>
+            <div ng-if="historyGridOptions.data.length > 0">
+                <div class="action-bar panel-heading">
+                    <button type="button" class="btn btn-xs cat-btn-update pull-left" ng-click="appHistoryRefresh()">
+                        <i class="fa fa-refresh white"></i> Refresh</button>
+                </div>
+                <div  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
+            </div>
+        </section>
+
+        <section  class="pipelineView {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
+            <div ng-if="summaryGridOptions.data.length > 0">
+                <div class="action-bar panel-heading">
+                    <button type="button" class="btn btn-xs btn-info  pull-left" ng-click="appSummaryRefresh()">
+                        <i class="fa fa-refresh white"></i> Refresh</button>
+                </div>
+                <div ui-grid="summaryGridOptions"  class="grid"></div>
+            </div>
+            <div class="no-data-found" ng-if="!summaryGridOptions.data.length > 0"> No data found !
+                <button type="button" class="btn btn-xs cat-btn-update  pull-left" ng-click="appSummaryRefresh()">
+                    <i class="fa fa-refresh white"></i> Refresh</button>
+            </div>
+
         </section>
 
     </div>
