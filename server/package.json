@@ -64,7 +64,13 @@
         "apidoc": "0.15.1",
         "async": "v1.5.2",
         "joi": "8.0.5",
-        "lodash.topairs": "4.1.0"
+        "lodash.topairs": "4.1.0",
+        "dashing-js": "~0.1.5",
+        "adm-zip":"*",
+        "csv2json":"*",
+        "jsonfile":"*",
+        "cron": "~1.0.4",
+        "hashmap":"*"
     },
     "devDependencies": {
         "grunt": "0.4.5",

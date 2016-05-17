@@ -10,133 +10,156 @@ var awsCostAggregateSchema = new Schema({
         trim: true,
         validate: schemaValidator.orgIdValidator
     },
-    InvoiceID:{
+    providerId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    providerType: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    projectId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    instanceId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    invoiceID:{
         type: String,
         require:true,
         trim:true
     },
-    PayerAccountId:{
+    payerAccountId:{
         type: Number,
         require:true,
         trim:true
     },
-    LinkedAccountId:{
+    linkedAccountId:{
         type: Number,
         require:true,
         trim:true
     },
-    RecordType:{
+    recordType:{
         type: String,
         require:true,
         trim:true
     },
-    RecordId:{
+    recordId:{
         type: String,
         require:true,
         trim:true
     },
-    ProductName:{
+    productName:{
         type: String,
         require:true,
         trim:true
     },
-    RateId:{
+    rateId:{
         type: Number,
         require:true,
         trim:true
     },
-    SubscriptionId:{
+    subscriptionId:{
         type: Number,
         require:true,
         trim:true
     },
-    PricingPlanId:{
+    pricingPlanId:{
         type: Number,
         require:true,
         trim:true
     },
-    UsageType:{
+    usageType:{
         type: String,
         require:true,
         trim:true
     },
-    Operation:{
+    operation:{
         type: String,
         require:true,
         trim:true
     },
-    AvailabilityZone:{
+    availabilityZone:{
         type: String,
         require:false,
         trim:true
     },
-    ReservedInstance:{
+    reservedInstance:{
         type: String,
         require:true,
         trim:true
     },
-    ItemDescription:{
+    itemDescription:{
         type: String,
         require:true,
         trim:true
     },
-    UsageStartDate:{
+    usageStartDate:{
         type: Date,
         require:true,
         trim:true
     },
-    UsageEndDate:{
+    usageEndDate:{
         type: Date,
         require:true,
         trim:true
     },
-    UsageQuantity:{
+    usageQuantity:{
         type: Number,
         default: 0,
         get: getDecimalNumber,
         set: setDecimalNumber
     },
-    BlendedRate:{
+    blendedRate:{
         type: Number,
         default: 0,
         get: getDecimalNumber,
         set: setDecimalNumber
     },
-    BlendedCost:{
+    blendedCost:{
         type: Number,
         default: 0,
         get: getDecimalNumber,
         set: setDecimalNumber
     },
-    UnBlendedRate:{
+    unBlendedRate:{
         type: Number,
         default: 0,
         get: getDecimalNumber,
         set: setDecimalNumber
     },
-    UnBlendedCost:{
+    unBlendedCost:{
         type: Number,
         default: 0,
         get: getDecimalNumber,
         set: setDecimalNumber
     },
-    ResourceId:{
+    resourceId:{
         type: String,
         require:true,
         trim:true
     },
-    ResourceTags:{
+    resourceTags:{
         type: [String],
         require:true,
         trim:true
     },
-    AwsCostReportCreated:{
+    awsCostReportCreated:{
+        type:Date,
+        require:false,
+        default:Date.now
+    },
+    awsCostReportUpdated:{
         type:Date,
         require:false,
         default:Date.now
     }
-
-
 });
 function getDecimalNumber(val) {
     return (val/1000000);

@@ -457,15 +457,17 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
         if (err) {
             callback(err, null);
             return;
-        }
-        var bluePrintInfo = {};
-        console.log(blueprint[0].masterData[0]);
-        if (blueprint) {
+        } else if (blueprint.length === 0) {
+            callback(null, blueprint);
+            return;
+        } else{
+            var bluePrintInfo = {};
             bluePrintInfo = {
                 orgName: blueprint[0].masterData[0].orgname,
                 bgName: blueprint[0].masterData[0].productgroupname,
                 projectName: blueprint[0].masterData[0].projectname,
                 name: blueprint[0].name,
+                version: blueprint[0].version,
                 iconpath: blueprint[0].iconpath,
                 templateId: blueprint[0].templateId,
                 templateType: blueprint[0].templateType,
@@ -569,16 +571,14 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                 })
 
             } else {
-                if (bluePrintInfo.templateType == 'docker')
-                    bluePrintInfo['blueprintConfig'] = { dockerCompose: blueprint[0].blueprintConfig.dockerCompose };
-                else
+                if (bluePrintInfo.templateType == 'docker') {
+                    bluePrintInfo['blueprintConfig'] = {dockerCompose: blueprint[0].blueprintConfig.dockerCompose};
+                } else {
                     bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
-
+                }
                 callback(null, bluePrintInfo);
             }
-
         }
-
     })
 };
 
