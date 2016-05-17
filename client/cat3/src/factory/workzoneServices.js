@@ -109,7 +109,7 @@
                     }
                 },
                 getBlueprints: function (envParams) {
-                    var url = ' /blueprints/organization/' + envParams.org + '/businessgroup/' + envParams.bg + 
+                    var url = '/blueprints/organization/' + envParams.org + '/businessgroup/' + envParams.bg + 
                     '/project/' + envParams.proj;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
@@ -124,6 +124,10 @@
                 launchBlueprint: function (blueprintID, version, envId, stackName) {
                     var url = '/blueprints/' + blueprintID + '/launch?version=' + version +
                             '&envId=' + envId + '&stackName=' + stackName;
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
+                getBlueprintById: function(blueprintId) {
+                    var url = '/blueprints/' + blueprintId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*containerCtrl*/

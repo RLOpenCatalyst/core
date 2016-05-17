@@ -21,6 +21,8 @@
 					temp;
 					for (var i = 0; i < obj.length; i++) {
 						temp = obj[i];
+						temp.cardVersions = this.getVersionList(temp);
+						temp.selectedVersionBpId = temp.cardVersions[0].id;
 						switch (temp.templateType) {
 							case "chef":
 								list.software_stack.push(temp);
@@ -40,6 +42,21 @@
 						}
 					}
 					return list;
+				},
+				getVersionList : function(bpItem) {
+					var allVersionsList = [];
+					var currentVersion = {
+						id : bpItem._id,
+						name : bpItem.name,
+						version : 1
+					};
+					allVersionsList[0] = currentVersion;
+					var olderVersions = [];
+					if(bpItem.versions && bpItem.versions.length) {
+						olderVersions = bpItem.versions;
+						allVersionsList = allVersionsList.concat(olderVersions);
+					}
+					return allVersionsList.reverse();					
 				}
 			};
 		}])
@@ -73,7 +90,7 @@
 					});
 				},
 				launchInstance: function(blueprintObj) {
-				   $modal.open({
+				    $modal.open({
 						animate: true,
 						templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParams.html",
 						controller: "blueprintLaunchParamsCtrl",

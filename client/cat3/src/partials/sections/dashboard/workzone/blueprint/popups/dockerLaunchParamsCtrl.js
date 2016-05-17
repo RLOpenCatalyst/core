@@ -99,7 +99,7 @@
             /*Step 1 - Docker Images*/
             
             //items gives the details of the selected blueprint.
-            var dockerParams = items.blueprintConfig.dockerCompose;
+            var dockerParams = {};
 
             var dockerImagesOptions = uiGridOptionsClient.options().gridOption;
             $scope.dockerImagesGridOptions = dockerImagesOptions;
@@ -135,8 +135,18 @@
                 },
             });
             $scope.initdockerimages = function(){
-                $scope.initDockerImagesGrids();
-                $scope.dockerImagesListView();
+                $scope.isdockerImagesPageLoading = true;
+                workzoneServices.getBlueprintById(items.selectedVersionBpId).then(function(response){
+                    var bluePrintOfSelectedVersion = response.data;
+                    dockerParams = bluePrintOfSelectedVersion.blueprintConfig.dockerCompose;
+                    $scope.initDockerImagesGrids();
+                    $scope.dockerImagesListView();
+                    $scope.isdockerImagesPageLoading = false;
+                }, function(error){
+                    console.log(error);
+                    $scope.isdockerImagesPageLoading = false;
+                });
+                
             };
             $scope.initdockerimages();
             /*Step 1 - Docker Images Ends*/
