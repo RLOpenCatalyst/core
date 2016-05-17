@@ -29,12 +29,18 @@ gcpNetworkProfileValidator.remove = {
 };
 gcpNetworkProfileValidator.list = {
     params: {
-        
+
     }
 };
 gcpNetworkProfileValidator.update = {
     params: {
-        
+        networkProfileId: Joi.required()
+    },
+    body: {
+        providerId: Joi.string().max(40).required(),
+        name: Joi.string().max(40).required(),
+        type: Joi.string().max(15).required(),
+        networkDetails: Joi.required()
     }
 };
 gcpNetworkProfileValidator.save = {
@@ -45,7 +51,3 @@ gcpNetworkProfileValidator.save = {
         networkDetails: Joi.required()
     }
 };
-
-
-
-

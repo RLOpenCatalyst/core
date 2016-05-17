@@ -73,12 +73,11 @@ var logger = require('_pr/logger')(module);
 router.post('/', validate(gcpNetworkProfileValidator.save), saveNetworkProfile);
 
 function saveNetworkProfile(req, res, next) {
-    logger.debug("nProfile called...");
     var networkProfile = req.body;
     async.waterfall(
         [
             function(next) {
-                networkProfileService.save(networkProfile, next)
+                networkProfileService.saveNetworkProfile(networkProfile, next)
             }
         ],
         function(err, resData) {
@@ -140,7 +139,29 @@ function saveNetworkProfile(req, res, next) {
 	 */
 
 // Update  network profile
-router.put('/:networkProfileId', function(req, res) {});
+router.put('/:networkProfileId', validate(gcpNetworkProfileValidator.update), updateNetworkProfile);
+
+function updateNetworkProfile(req, res, next) {
+    var networkProfiles = req.body;
+    var networkProfileId = req.params.networkProfileId;
+    async.waterfall(
+        [
+            function(next) {
+                networkProfileService.checkIfNetworkProfileExists(networkProfileId, next)
+            },
+            function(networkProfile, next) {
+                networkProfileService.updateNetworkProfile(networkProfileId, networkProfiles, next)
+            }
+        ],
+        function(err, resData) {
+            if (err) {
+                next(err);
+            } else {
+                return res.status(200).send(resData);
+            }
+        }
+    )
+};
 
 
 /**
