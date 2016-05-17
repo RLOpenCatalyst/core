@@ -115,6 +115,9 @@ var sessionMiddleware = expressSession({
 });
 app.use(sessionMiddleware);
 
+
+app.use(expressMultipartMiddleware);
+
 // parse application/x-www-form-urlencoded
 app.use(expressBodyParser.urlencoded({
 	limit: '50mb',
@@ -122,10 +125,12 @@ app.use(expressBodyParser.urlencoded({
 }))
 
 // parse application/json
+
+
 app.use(expressBodyParser.json({
 	limit: '50mb'
 }))
-app.use(expressMultipartMiddleware);
+
 
 //setting up passport
 app.use(passport.initialize());

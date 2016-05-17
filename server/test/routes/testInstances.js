@@ -36,7 +36,7 @@ before(function(done){
 });*/
 
 
-describe("Check UnmanagedInstances List for Perticular Providers ",function(){
+describe("Deploy Permission ",function(){
 
   /*  it(" Unmanaged Instances List with Pagination ",function(done){
         server
@@ -59,15 +59,14 @@ describe("Check UnmanagedInstances List for Perticular Providers ",function(){
             });
     });*/
 
-    it(" Save and Update pipeline Data  ",function(done){
+    it(" Save and Update deploy permission  ",function(done){
         var reqBody = {
-                projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
-                envSequence: ['Dev', 'Prod', 'QA', 'PreProd'],
-                envId: ['Dev', 'QA', 'PreProd']
+            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+            "envSequence": ["PreProd","Prod", "Dev"],
+            "envId": ["PreProd", "Dev","Prod"]
             };
-
             server
-            .put('/app/deploy/data/pipeline/update/configure')
+            .post('/app-deploy-pipeline/save/appConfigPipeLineData')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);

@@ -24,7 +24,7 @@
 						'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,1)" id="start"  title="Start" ng-show="grid.appScope.checkEdited(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="fa fa-play white"></i></span>'+
 						'<span class="marginleft5 containerIcon yellowBg white" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  title="Restart" ng-show="!grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-undo"></i></span>'+
 						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" title="Pause" ng-show="!grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-pause"></i></span>'+
-						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" title="Play" ng-show="!grid.appScope.checkEdited(row.entity) && grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
+						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,5)" id="play" title="UnPause" ng-show="!grid.appScope.checkEdited(row.entity) && grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-eject fa fa-rotate-90"></i></span>'+
 						'<span class="marginleft5 containerIcon crimsonBg white" ng-click="grid.appScope.containerAction(row.entity,6)"  id="sign-out" title="Terminate" ng-show="grid.appScope.checkProgress(row.entity) && !grid.appScope.checkPausePlay(row.entity)"><i class="white fa fa-sign-out"></i></span>', cellTooltip: true},
 						{ name:'State',field:'Status',cellTooltip: true},
 						{ name:'Created',cellTemplate:'<span>{{row.entity.Created*1000  | timestampToCurrentTime}}</span>',cellTooltip: true},
@@ -95,7 +95,7 @@
 				    return (_app.containerStatus === 'STOP' ) ? true : false;
 			};
 			$scope.checkProgress=function(_app){
-				if(_app.Status.indexOf('Progress') >=0)
+				if(_app.Status.indexOf('PROGRESS') >=0)
 					return false;
 				else
 					return true;
@@ -147,10 +147,10 @@
 					}
 				});
 				modalInstance.result.then(function() {
-						app.Status=$scope.dockerPopUpPages[action].action+" In Progress";
+						app.Status=$scope.dockerPopUpPages[action].action+" IN PROGRESS";
 						workzoneServices.checkDockerActions(app.instanceId, app.Id, action)
 							.then(function(response) {
-								if (response.data.success === "ok") {
+								if (response.data.ok) {
 									$scope.getContainerList();
 								}
 							});

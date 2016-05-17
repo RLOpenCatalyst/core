@@ -7,14 +7,15 @@
             scope: {
                 cardDetails:'=',
                 appName :'=',
-                envName:'@'
+                envName:'@',
+                cardType:'@'
             },
             controller: 'PipeLineViewCtrl as pipeCtrl',
             link: function (scope, element) {
                 scope.cardDetails = scope.cardDetails;
                 scope.appName = scope.appName;
                 scope.envName = scope.envName;
-
+                scope.cardType=scope.cardType;
             }
         };
     }]);

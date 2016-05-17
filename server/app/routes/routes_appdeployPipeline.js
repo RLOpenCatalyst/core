@@ -33,7 +33,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 
-    app.post('/app-deploy-pipeline/data/configure', function(req, res) {
+    /*app.post('/app-deploy-pipeline/data/configure', function(req, res) {
         var loggedInUser = req.session.user.cn;
         req.body.appDeployPipelineData.loggedInUser = loggedInUser;
         AppDeployPipeline.getAppDeployPipelineByProjectId(req.body.appDeployPipelineData.projectId, function(err, appDeployes) {
@@ -70,7 +70,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
 
-    });
+    });*/
 
 
     app.get('/app-deploy-pipeline/project/:projectId',validate(appDeployValidator.get),getProject);
@@ -119,7 +119,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 
-    app.post('/app-deploy-pipeline/update/configureData/project/:projectId', function(req, res) {
+    /*app.post('/app-deploy-pipeline/update/configureData/project/:projectId', function(req, res) {
         AppDeployPipeline.updateConfigurePipeline(req.params.projectId, req.body.appDeployPipelineUpdateData, function(err, appDeployes) {
             if (err) {
                 res.send(403, "Pipeline Data Already Exist.");
@@ -130,6 +130,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return;
             }
         });
-    });
+    });*/
 
 };

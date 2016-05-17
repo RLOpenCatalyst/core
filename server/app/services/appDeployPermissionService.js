@@ -40,16 +40,16 @@ appDeployPermissionService.getDeployPermissionByProjectIdEnvNameAppNameVersion=f
     });
 }
 
-appDeployPermissionService.saveAndUpdateDeployPermission=function saveAndUpdateDeployPermission(aDeployPermission,callback){
+appDeployPermissionService.saveAndUpdateDeployPermission=function saveAndUpdateDeployPermission(deployPermissionData,callback){
     async.waterfall([
         function(next){
-            deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(aDeployPermission.projectId,aDeployPermission.envName,aDeployPermission.appName,aDeployPermission.version,next);
+            deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(deployPermissionData.projectId,deployPermissionData.envName,deployPermissionData.appName,deployPermissionData.version,next);
         },
-        function(deployPermission,next){
-            if(deployPermission.length > 0){
-                deployPermission.updateDeployPermission(aDeployPermission,next);
+        function(existPermissionData,next){
+            if(existPermissionData.length > 0){
+                deployPermission.updateDeployPermission(deployPermissionData,next);
             }else{
-                deployPermission.saveDeployPermission(aDeployPermission, next);
+                deployPermission.saveDeployPermission(deployPermissionData, next);
             }
         }
     ],function(err,results){

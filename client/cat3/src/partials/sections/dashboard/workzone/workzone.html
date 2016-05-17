@@ -28,7 +28,7 @@
 								</a>
 							</li>
 							<li ng-class="{active:tab.isSet('CloudFormation')}">
-								<a ng-click="tab.setTab('CloudFormation');addActive()">	
+								<a ng-click="tab.setTab('CloudFormation');addActive()">
 									<i class="fa fa-indent"></i>&nbsp;
 									CloudFormation
 								</a>
@@ -78,7 +78,7 @@
 				<div ng-show="tab.isSet('Orchestration')">
 					  <div ng-include="tab.templates.orchestration.url"></div>
 				</div>
-				<div ng-show="tab.isSet('Applications')">
+				<div class="{{tab.isSet('Applications')? 'show-grid-tab':'hide-grid'}}">
 					  <div ng-include="tab.templates.application.url"></div>
 				</div>
 			</div>

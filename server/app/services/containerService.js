@@ -51,7 +51,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             if(container.length > 0){
                  status=container[0].Status;
                  enumStatus = container[0].containerStatus;
-                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" in Progress",dockerContainerStatus(jsonData.action)+" in Progress",next);
+                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" IN PROGRESS",dockerContainerStatus(jsonData.action)+" IN PROGRESS",next);
             }else{
                  callBackReturn(container,next);
             }
@@ -70,10 +70,10 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
                 if(stdOut.trim().length === jsonData.containerId.length || stdOut.trim().length ===0){
                     containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action),dockerContainerStatus(jsonData.action),next);
                 }else{
-                    containerDao.deleteContainerById(jsonData.containerId, next);
+                    containerDao.deleteContainerById(jsonData.containerId,next);
                 }
             }else {
-                 containerDao.updateContainerStatus(jsonData.containerId, status,enumStatus, next);
+                 containerDao.updateContainerStatus(jsonData.containerId,status,enumStatus,next);
             }
         }
 
@@ -81,7 +81,6 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         if (err) {
             callback(err, null);
         } else {
-            results['success']='ok';
             callback(null, results);
         }
     });

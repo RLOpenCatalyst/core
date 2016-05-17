@@ -34,16 +34,15 @@ var ApiUtil = function() {
     }
     this.paginationResponse=function(data,req, callback) {
         var response={};
-        var sortField=req.sortBy;
+        var sortField=req.mirrorSort;
         response[req.id]=data.docs;
         response['metaData']={
             totalRecords:data.total,
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
-
             sortBy:Object.keys(sortField)[0],
-            sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
+            sortOrder:req.mirrorSort ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
         };
         callback(null, response);
@@ -62,15 +61,15 @@ var ApiUtil = function() {
         var key=Object.keys(sortField)[0];
 
         if(fields.indexOf(key) !== -1){
-            if(jsonData.id === 'tasks'){
+            if(jsonData.id === 'tasks' || jsonData.id === 'instances'){
                 normalizedUtil.normalizedSort(jsonData,key);
                 var sortBy={};
                 sortBy['normalized'] = sortField[key];
                 if(sortField[key] === -1){
-                    sortBy['taskCreatedOn'] = 1;
+                    sortBy[commons.sortReferanceData[jsonData.id]] = 1;
                 };
                 if(sortField[key] === 1){
-                    sortBy['taskCreatedOn'] = -1;
+                    sortBy[commons.sortReferanceData[jsonData.id]] = -1;
                 }
                 jsonData.sortBy=sortBy;
             }
@@ -109,15 +108,12 @@ var ApiUtil = function() {
         databaseCall['options']=options;
         callback(null, databaseCall);
         return;
-
-
     };
 
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
-
             if (pageSize > commons.max_record_limit) {
                 pageSize = commons.max_record_limit;
             }
