@@ -19,7 +19,7 @@ angular.module('workzone.application')
 			submitAppApprove :function(){
 				var requestObject={
 					projectId: items.params.proj,
-					envId: items.envName,
+					envName: items.envName,
 					appName:items.appName.name,
 					version:items.appName.version,
 					comments:$scope.approveAppCommt,
@@ -38,7 +38,7 @@ angular.module('workzone.application')
 			submitAppRevoke :function(){
 				var requestObject={
 					projectId: items.params.proj,
-					envId: items.envName,
+					envName: items.envName,
 					appName:items.appName.name,
 					version:items.appName.version,
 					comments:$scope.approveAppCommt,
