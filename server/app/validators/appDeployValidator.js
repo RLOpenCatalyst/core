@@ -81,7 +81,7 @@ appDeployValidator.deployPermission={
     options : { flatten : true },
     body: {
         projectId: Joi.string().min(1).max(40).required(),
-        envId:     Joi.string().max(10).required(),
+        envName:   Joi.string().max(10).required(),
         appName:  Joi.string().max(40).required(),
         version:  Joi.string().max(40).required(),
         comments: Joi.string().max(100),

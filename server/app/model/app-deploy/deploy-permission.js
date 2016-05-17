@@ -31,7 +31,7 @@ var DeployPermissionSchema = new Schema({
         required: true,
         trim: true
     },
-    envId: {
+    envName: {
         type: String,
         required: true,
         trim: true
@@ -62,7 +62,7 @@ DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback
     var that = this;
     this.find({
         projectId: permission.projectId,
-        envId: permission.envId,
+        envName: permission.envName,
         appName: permission.appName,
         version: permission.version
     }, function(err, aPermission) {
@@ -73,7 +73,7 @@ DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback
         if (aPermission.length > 0) {
             that.update({
                 projectId: permission.projectId,
-                envId: permission.envId,
+                envName: permission.envName,
                 appName: permission.appName,
                 version: permission.version
             }, {
@@ -104,10 +104,10 @@ DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback
 };
 
 // Get AppData by ip,project,env.
-DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(projectId, envId, appName, version, callback) {
+DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(projectId, envName, appName, version, callback) {
     this.find({
         projectId: projectId,
-        envId: envId,
+        envName: envName,
         appName: appName,
         version: version
     }, function(err, permission) {
@@ -119,10 +119,10 @@ DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(pro
     });
 };
 
-DeployPermissionSchema.statics.getDeployPermissionByProjectIdEnvNameAppNameVersion=function(projectId, envId, appName, version, callback) {
+DeployPermissionSchema.statics.getDeployPermissionByProjectIdEnvNameAppNameVersion=function(projectId, envName, appName, version, callback) {
     this.find({
         projectId: projectId,
-        envId: envId,
+        envName: envName,
         appName: appName,
         version: version
     }, function(err, aPermission) {
@@ -134,14 +134,14 @@ DeployPermissionSchema.statics.getDeployPermissionByProjectIdEnvNameAppNameVersi
     });
 };
 
-DeployPermissionSchema.statics.updateDeployPermission=function(aDeployPermission,callback){
+DeployPermissionSchema.statics.updateDeployPermission=function(deployPermission,callback){
     this.update({
-        projectId: aDeployPermission.projectId,
-        envId: aDeployPermission.envId,
-        appName: aDeployPermission.appName,
-        version: aDeployPermission.version
+        projectId: deployPermission.projectId,
+        envId: deployPermission.envId,
+        appName: deployPermission.appName,
+        version: deployPermission.version
     }, {
-        $set: aDeployPermission
+        $set: deployPermission
     }, {
         upsert: false
     }, function (err, updatedDeployPermission) {
@@ -153,14 +153,14 @@ DeployPermissionSchema.statics.updateDeployPermission=function(aDeployPermission
     });
 
 };
-DeployPermissionSchema.statics.saveDeployPermission=function(aDeployPermission,callback){
-    var appPermission = new this(aDeployPermission);
-    appPermission.save(function(err, aPermission) {
+DeployPermissionSchema.statics.saveDeployPermission=function(deployPermission,callback){
+    var appPermission = new this(deployPermission);
+    appPermission.save(function(err, permission) {
         if (err) {
             logger.debug("Got error while creating a Permission: ", err);
             callback(err, null);
         }
-        callback(null, aPermission);
+        callback(null, permission);
     });
 };
 var DeployPermission = mongoose.model("deployPermission", DeployPermissionSchema);

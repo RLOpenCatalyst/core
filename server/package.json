@@ -1,4 +1,5 @@
 {
+
     "name": "Catalyst",
     "version": "0.0.1",
     "description": "DevOps Platform for DevOps",
@@ -84,3 +85,4 @@
         "url": "https://github.com/RLOpenCatalyst/core"
     }
 }
+

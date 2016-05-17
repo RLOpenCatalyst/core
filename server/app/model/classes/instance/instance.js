@@ -272,6 +272,7 @@ var InstanceSchema = new Schema({
     tasks: [Schema.Types.Mixed],
     usage: Schema.Types.Mixed,
     cost: Schema.Types.Mixed,
+    normalized: String,
     region: {
         type: String,
         required: false,
@@ -1757,6 +1758,49 @@ var InstancesDao = function() {
                 callback(null, data);
             }
         });
+    };
+
+    this.NormalizedInstances=function(jsonData,fieldName,callback){
+        var queryObj={};
+        if(jsonData.filterBy){
+            queryObj = jsonData.filterBy;
+        }
+        queryObj['orgId']= jsonData.orgId;
+        queryObj['bgId']= jsonData.bgId;
+        queryObj['projectId']= jsonData.projectId;
+        queryObj['envId']= jsonData.envId;
+        Instances.find(queryObj,function(err,instances){
+            if(err){
+                logger.error(err);
+                callback(err, null);
+                return;
+            }
+            var count=0;
+            for(var i =0;i < instances.length;i++) {
+                (function(instance){
+                    count++;
+                    var normalized=instance[fieldName];
+                    Instances.update({
+                        "_id": new ObjectId(instance._id)
+                    }, {
+                        $set: {
+                            normalized: normalized.toLowerCase()
+                        }
+                    }, {
+                        upsert: false
+                    },function(err,updatedInstance){
+                        if(err){
+                            logger.error(err);
+                            callback(err, null);
+                            return;
+                        }
+                        if(instances.length === count){
+                            callback(null,updatedInstance);
+                        }
+                    });
+                })(instances[i]);
+            }
+        })
     };
 };
 

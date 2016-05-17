@@ -2671,9 +2671,11 @@ function devCall() {
 
 
                                 //ends here..
-                                (function(blueprint) {
-                                    // alert(JSON.stringify(blueprint));
-                                    $liRead.click(function(e) {
+
+                                // alert(JSON.stringify(blueprint));
+                                $liRead.click(function(e) {
+                                    var blueprintId = $(this).parents('.cardimage').find('.blueprintVer').val();
+                                    $.get('/blueprints/' + blueprintId, function(blueprint) {
                                         var $blueprintReadContainerCFT = $('#modalForReadCFT');
                                         $('.modal-title').html('Blueprint Information-Docker');
 
@@ -2684,11 +2686,16 @@ function devCall() {
                                         //for getting the blueprint name
                                         $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name).parents('tr').show();
                                         $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
+                                        if (!blueprint.version) {
+                                            blueprint.version = "1";
+                                        }
+                                        $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(blueprint.version);
 
                                         getOrgProjDetails($blueprintReadContainerCFT);
-
                                     });
-                                })(data[i]);
+
+                                });
+
                                 //alert(JSON.stringify(data[i]));
                             } else if (data[i].templateType == "cft" || data[i].templateType == 'arm') {
                                 $selectVerEdit.hide();
@@ -3185,7 +3192,7 @@ function devCall() {
 
                                     //var dockercompose = JSON.parse($selectedItems.attr('dockercompose'));
                                     var dockercompose = blueprintData.blueprintConfig.dockerCompose;
-                                    
+
                                     //alert('hit');
                                     $('#compositedockertable tr.dockerimagesrow').detach(); //clearing previously loaded table.
                                     dockercompose.forEach(function(k, v) {

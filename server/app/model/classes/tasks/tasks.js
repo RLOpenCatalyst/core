@@ -29,6 +29,8 @@ var CompositeTask = require('./taskTypeComposite');
 var PuppetTask = require('./taskTypePuppet');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var ScriptTask = require('./taskTypeScript');
+
 
 var Schema = mongoose.Schema;
 
@@ -36,7 +38,8 @@ var TASK_TYPE = {
 	CHEF_TASK: 'chef',
 	JENKINS_TASK: 'jenkins',
 	COMPOSITE_TASK: 'composite',
-	PUPPET_TASK: 'puppet'
+	PUPPET_TASK: 'puppet',
+	SCRIPT_TASK: 'script'
 };
 
 var TASK_STATUS = {
@@ -140,6 +143,10 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
 			return;
 		}
 
+	} else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
+		task = new ScriptTask(this.taskConfig);
+		taskHistoryData.nodeIds = this.taskConfig.nodeIds;
+		taskHistoryData.scriptFileName = this.taskConfig.scriptFileName;
 	} else {
 		callback({
 			message: "Invalid Task Type"
@@ -375,6 +382,12 @@ taskSchema.statics.createNew = function(taskData, callback) {
 			assignTasks: taskData.assignTasks,
 			jobName: taskData.jobName
 		});
+	} else if (taskData.taskType === TASK_TYPE.SCRIPT_TASK) {
+		taskConfig = new ScriptTask({
+			taskType: TASK_TYPE.SCRIPT_TASK,
+			nodeIds: taskData.nodeIds,
+			scriptFileName: taskData.scriptFileName
+		});
 	} else {
 		callback({
 			message: "Invalid Task Type"
@@ -413,11 +426,6 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
 					if (err) {
 						var err = new Error('Internal server error');
 						err.status = 500;
-						return callback(err);
-					}
-					else if (tasks.length === 0) {
-						var err = new Error('Tasks are not found');
-						err.status = 404;
 						return callback(err);
 					}
 					callback(null, tasks);
@@ -535,6 +543,12 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
 			taskType: TASK_TYPE.COMPOSITE_TASK,
 			jobName: taskData.jobName,
 			assignTasks: taskData.assignTasks
+		});
+	} else if (taskData.taskType === TASK_TYPE.SCRIPT_TASK) {
+		taskConfig = new ScriptTask({
+			taskType: TASK_TYPE.SCRIPT_TASK,
+			nodeIds: taskData.nodeIds,
+			scriptFileName: taskData.scriptFileName
 		});
 	} else {
 		callback({
@@ -654,11 +668,11 @@ taskSchema.statics.NormalizedTasks=function(jsonData,fieldName,callback){
 			}
 			var count=0;
 			for(var i =0;i < tasks.length;i++) {
-				(function(aTask){
+				(function(task){
 					count++;
-					var normalized=aTask[fieldName];
+					var normalized=task[fieldName];
 					Tasks.update({
-						"_id": new ObjectId(aTask._id)
+						"_id": new ObjectId(task._id)
 					}, {
 						$set: {
 							normalized: normalized.toLowerCase()
