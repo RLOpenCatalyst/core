@@ -114,9 +114,9 @@
                                     }
                                 }	
                                 //checking condition if the attribute length is > 0 and has been edited.
-                                if($scope.allCBAttributes.length > 0){
-                                	$scope.allCBAttributes = angular.copy($scope.allCBAttributes,data);	
-                                }else{
+								if($scope.allCBAttributes.length > 0){
+									$scope.allCBAttributes = angular.copy($scope.allCBAttributes,data);	
+								}else{
 									$scope.allCBAttributes = data;
 								}
 								$scope.editRunListAttributes = false;

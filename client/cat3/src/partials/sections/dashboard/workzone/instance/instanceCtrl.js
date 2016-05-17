@@ -133,7 +133,20 @@
 				workzoneServices.getPaginatedInstances($scope.envParams, $scope.paginationParams).then(function(result) {
 					$timeout(function() {
 						$scope.instancesGridOptions.totalItems = $scope.totalCards = result.data.metaData.totalRecords;
-						$scope.tabData = $scope.instanceList = result.data.instances;
+						$scope.instanceList = result.data.instances;
+						/*condition check for appUrl when $host has been entered by the user which 
+						which should be changed to the instance IP*/
+						for(var i =0; i<$scope.instanceList.length;i++){
+							var appItem = $scope.instanceList[i].appUrls;
+							for(var j =0; j<appItem.length;j++){
+								var url = appItem[j].url;
+								if(url){
+									url = url.replace('$host', $scope.instanceList[i].instanceIP);
+									$scope.instanceList[i].appUrls[j].url = url;
+								}
+							}
+						}
+						$scope.tabData = $scope.instanceList;
 					   	if($scope.totalCards > $scope.paginationParams.pageSize) {
 					   		$scope.cardsAvailable = true;
 					   	} else {

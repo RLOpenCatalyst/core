@@ -109,7 +109,6 @@
                     if(type === 'new'){
                         $scope.appUrlInfo.push(createdItem);
                     }else{
-                        console.log('here',createdItem);
                         appUrl.name = createdItem.name;
                         appUrl.url = createdItem.url;
                     }
@@ -117,29 +116,6 @@
                     console.log('Modal Dismissed at ' + new Date());
                 });
             };
-
-            /*$scope.editAppUrl = function(appUrl) {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/instance/manage/popups/applicationUrl.html',
-                    controller: 'applicationEditCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return {
-                                instance: cpInstance,
-                                selectedAppUrl: appUrl
-                            };
-                        }
-                    }
-                }).result.then(function(updatedItem) {
-                    appUrl.name = updatedItem.name;
-                    appUrl.url = updatedItem.url;
-                }, function() {
-                    console.log('AppUrl Edit modal dismissed');
-                });
-            };*/
 
             $scope.deleteAppUrl = function(_appUrl, index) {
                 workzoneServices.deleteAppUrl(cpInstance._id, _appUrl._id).then(function() {
@@ -266,10 +242,10 @@
         }]).controller('applicationCreateEditCtrl', ['$scope', 'items', '$modalInstance', 'workzoneServices', function($scope, items, $modalInstance, workzoneServices) {
             /*on opening the popup checking whether the type is edit 
             and filling the appropriate name and url for the selected appItem*/
-            if(items.type === 'edit'){
+            if (items.type === 'edit') {
                 var url = items.selectedAppUrl.url;
                 if (url) {
-                    url = url.replace(items.cpInstance.instanceIP , '$host');
+                    url = url.replace(items.cpInstance.instanceIP, '$host');
                     items.selectedAppUrl.url = url;
                 }
                 $scope.appUrlItem = {
@@ -283,10 +259,10 @@
                     name: $scope.appUrlItem.name,
                     url: $scope.appUrlItem.url
                 });
-                if (appUrls.length) {   
+                if (appUrls.length) {
                     var reqBody = {};
                     /*condition check if the type is new(user is creating a new appUrl)*/
-                    if(items.type === 'new'){
+                    if (items.type === 'new') {
                         reqBody.appUrls = appUrls;
                         workzoneServices.createAppUrl(items.cpInstance._id, reqBody).then(function(response) {
                             var url = response.data[0].url;
@@ -297,9 +273,8 @@
                             $scope.appUrlItem = response.data[0];
                             $modalInstance.close($scope.appUrlItem);
                         });
-                    }else{
+                    } else {
                         /*condition check if the type is editing a particular entry*/
-                        console.log(appUrls[0]);
                         reqBody.name = appUrls[0].name;
                         reqBody.url = appUrls[0].url;
                         workzoneServices.updateAppUrl(items.cpInstance._id, items.selectedAppUrl._id, reqBody).then(function() {
@@ -316,7 +291,17 @@
             };
 
             $scope.cancel = function() {
-                $modalInstance.dismiss('cancel');
+                // on cancel retaining the instance IP without getting it changed to $host.
+                var url = items.selectedAppUrl.url;
+                if (url) {
+                    url = url.replace('$host',items.cpInstance.instanceIP);
+                    items.selectedAppUrl.url = url;
+                }
+                $scope.appUrlItem = {
+                    name: items.selectedAppUrl.name,
+                    url: items.selectedAppUrl.url
+                };
+                $modalInstance.dismiss($scope.appUrlItem);
             };
         }]);
 })();
