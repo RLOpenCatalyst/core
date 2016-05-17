@@ -8,7 +8,7 @@
 
     <div class="modal-body body-padding">
         <loading size="large" name="isAddServicePageLoading" type="block"></loading>
-        <div ng-if="tabAddServicesData.length == 0" align="center">No Data Found !!!</div>
+        <div ng-if="tabAddServicesData.length == 0" align="center">No Data Found</div>
         <div id="grid5" ng-if="tabAddServicesData.length >0"  ui-grid="cpAddServicesGridOptions" ui-grid-pagination class="grid" ng-show="!isAddServicePageLoading"></div>
     </div>
 
