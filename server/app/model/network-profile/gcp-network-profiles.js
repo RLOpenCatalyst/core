@@ -49,7 +49,7 @@ var GCPNetworkProfileSchema = new BaseNetworkProfileSchema({
 });
 
 // Save NetworkProfile
-GCPNetworkProfileSchema.statics.save = function save(networkProfile, callback) {
+GCPNetworkProfileSchema.statics.saveNetworkProfile = function saveNetworkProfile(networkProfile, callback) {
     var networkProfileObj = new this(networkProfile);
     networkProfileObj.save(function(err, data) {
         if (err) {
@@ -64,7 +64,7 @@ GCPNetworkProfileSchema.statics.save = function save(networkProfile, callback) {
 GCPNetworkProfileSchema.statics.removeNetworkProfile = function removeNetworkProfile(networkProfileId, callback) {
     this.remove({
         "_id": networkProfileId
-    },function(err, data) {
+    }, function(err, data) {
         if (err) {
             logger.debug("Unable to Remove networkProfile: ", err);
             return callback(err, null);
@@ -74,7 +74,29 @@ GCPNetworkProfileSchema.statics.removeNetworkProfile = function removeNetworkPro
     });
 };
 
+// Save NetworkProfile
+GCPNetworkProfileSchema.statics.updateNetworkProfile = function saveNetworkProfile(networkProfileId, networkProfile, callback) {
+    var setData = {};
+    var keys = Object.keys(networkProfile);
+    for (var i = 0; i < keys.length; i++) {
+        setData[keys[i]] = networkProfile[keys[i]];
+    }
+    this.update({
+        "_id": networkProfileId
+    }, {
+        $set: setData
+    }, {
+        upsert: false
+    }, function(err, updatedRecord) {
+        if (err) {
+            logger.debug("Unable to update networkProfile: ", err);
+            return callback(err, null);
+        }
+        logger.debug("networkProfile updated successfully.", JSON.stringify(updatedRecord));
+        return callback(null, updatedRecord);
+    });
+};
+
 
 var GCPNetworkProfile = NetworkProfiles.discriminator('NetworkProfiles', GCPNetworkProfileSchema);
 module.exports = GCPNetworkProfile;
-

@@ -36,15 +36,19 @@ networkProfileService.checkIfNetworkProfileExists = function checkIfNetworkProfi
     });
 };
 
-networkProfileService.save = function save(networkProfile, callback) {
+networkProfileService.saveNetworkProfile = function saveNetworkProfile(networkProfile, callback) {
     switch (networkProfile.type) {
         case 'GCP':
             logger.debug('Creating new GCP NetworkProfile');
-            gcpNetworkProfile.save(networkProfile, callback);
+            gcpNetworkProfile.saveNetworkProfile(networkProfile, callback);
             break;
             defaut:
                 break;
     }
+};
+
+networkProfileService.updateNetworkProfile = function updateNetworkProfile(networkProfileId, networkProfile, callback) {
+    gcpNetworkProfile.updateNetworkProfile(networkProfileId, networkProfile, callback);
 };
 
 networkProfileService.removeNetworkProfile = function removeNetworkProfile(networkProfileId, callback) {
