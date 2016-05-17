@@ -95,8 +95,12 @@
 					});
 				},
 				setPaginationDefaults: function() {
-					$scope.paginationParams.sortBy = 'taskCreateOn';
+					$scope.paginationParams.sortBy = 'taskCreatedOn';
 					$scope.paginationParams.sortOrder = 'desc';
+					$scope.setFirstPageView();
+					if($scope.paginationParams.page == 1){
+						$scope.taskListGridView();
+					}
 				}
 			};
 			
@@ -253,7 +257,7 @@
 						console.log(taskData);
 						if (type === 'new') {
 							$rootScope.globalSuccessMessage = 'New Job ' + taskData.name + ' created successfully';
-							$scope.setLastPageView();
+							helper.setPaginationDefaults();
 						} else {
 							$rootScope.globalSuccessMessage = taskData.name + ' has been updated successfully';
 							$scope.taskListGridView();
@@ -273,16 +277,15 @@
 			$scope.setFirstPageView = function(){
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
 			};
-			/*method being called to set the last page view when a new task is created*/
-			$scope.setLastPageView = function(){
-				/*$scope.orcheGridOptions.totalItems needs to be updated when a new entry is created.*/
-				$scope.orcheGridOptions.totalItems = $scope.orcheGridOptions.totalItems + 1;
-				var lastPage = (Math.ceil(($scope.orcheGridOptions.totalItems)/$scope.paginationParams.pageSize));
-				//Set sortBy and sortField to controller defaults;
-				helper.setPaginationDefaults();
-				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = lastPage;				
-				$scope.taskListGridView();
+
+			$scope.refreshCurrentPage = function(){
+				$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');    
 			};
+
+			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(){
+				$scope.taskListGridView();
+			});
+
 			$rootScope.$on("CREATE_NEW_JOB", function(){
 				$scope.createNewTask('new');
 			});
@@ -290,8 +293,7 @@
 				$scope.isOrchestrationPageLoading = true;
 				$scope.envParams=requestParams;
 				$scope.initGrids();
-				$scope.setFirstPageView();
-				$scope.taskListGridView();
+				helper.setPaginationDefaults();
 				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('orchestrationPage')-gridBottomSpace;
 				workzoneUIUtils.makeTabScrollable('orchestrationPage');
 			});
@@ -305,6 +307,9 @@
 						$scope.isOrchestrationPageLoading = false;
 					}, 100);
 				}
+			});
+			$rootScope.$on('WZ_ORCHESTRATION_SHOW_LATEST', function(){
+				helper.setPaginationDefaults();
 			});
 		}]);
 })(angular);

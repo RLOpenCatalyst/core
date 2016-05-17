@@ -69,6 +69,11 @@
 					$scope.errorMessage = "No Records found";
 				});
 			};
+
+			$scope.refreshCurrentPage = function(){
+				$scope.getContainerList();
+			};
+
 			$scope.stopDockerFunction = function(actionType){
 				return (actionType)? "fa fa-power-off" : "fa fa-play";
 			};

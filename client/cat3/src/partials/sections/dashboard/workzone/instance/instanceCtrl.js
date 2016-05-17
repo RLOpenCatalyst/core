@@ -35,6 +35,29 @@
 					}
 				}
 				return completeData;
+			},
+			setInitPaginationDefaults: function(){
+				var uigridDefaults = uiGridOptionsService.options();
+				/*object used for ui grid table. This contains page,pageSize,sortBy and sortDirection*/
+				$scope.paginationParams = uigridDefaults.pagination;
+				$scope.paginationParams.sortBy = 'instanceCreatedOn';
+				$scope.paginationParams.sortOrder = 'desc';
+
+				/*objects used for card*/
+				$scope.currentCardPage = uigridDefaults.pagination.page;
+				$scope.cardsPerPage = uigridDefaults.pagination.pageSize;
+				$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
+				$scope.totalCards = 0;
+			},
+			setPaginationDefaults: function(){
+				$scope.paginationParams.sortBy = 'instanceCreatedOn';
+				$scope.paginationParams.sortOrder = 'desc';
+				$scope.setFirstPageView();
+				if($scope.paginationParams.page != 1){
+					$scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
+				}else{
+					$scope.instancesListCardView();	
+				}
 			}
 		};
 		$scope.instancePageLevelLoader = true;
@@ -363,10 +386,9 @@
 		};
 
 		$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
-			$scope.setFirstPageView();
 			$scope.envParams=requestParams;
 			$scope.initGrids();
-			$scope.instancesListCardView();
+			helper.setPaginationDefaults();
 			$scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage')-gridBottomSpace;
 			//workzoneUIUtils.makeTabScrollable('instancePage');//TODO: Ideally this should be on resize event;
 		});
@@ -384,25 +406,13 @@
 
 		//root scope method for refreshing the list view at the time of blueprint launch.
 		$rootScope.$on('WZ_INSTANCES_SHOW_LATEST', function(){
-			$scope.setFirstPageView();
 			helper.setPaginationDefaults();
-			$scope.instancesListCardView();
 		});
 
 		//root scope method for refreshing the list view at the time of docker cookbook run.
 		$rootScope.$on('WZ_INSTANCES_REFRESH_CURRENT', function(){
-			helper.setPaginationDefaults();
 			$scope.instancesListCardView();
 		});
-
-		var helper = {
-			setPaginationDefaults: function() {
-				$scope.paginationParams.page = '';
-				$scope.paginationParams.pageSize = '';
-				$scope.paginationParams.sortBy = 'instanceCreatedOn';
-				$scope.paginationParams.sortOrder = 'desc';
-			}
-		};
 		
 		$scope.instanceImportByIP = function() {
 			$scope.isImportClickEnabled = false;
@@ -444,7 +454,7 @@
 			$scope.selectedCard = identi;
 		};
 
-		$scope.instanceCardView = function() {
+		$scope.setCardView = function() {
 			$scope.isCardViewActive = true;
 			$scope.instanceCardViewSelection = "selectedView";
 			$scope.instanceTableViewSelection = "";
@@ -477,8 +487,14 @@
 				}
 			});
 		};
+
+		$scope.refreshCurrentPage = function(){
+			$rootScope.$emit('WZ_INSTANCES_REFRESH_CURRENT');    
+		};
+
 		$scope.init = function(){
-			$scope.instanceCardView();
+			helper.setInitPaginationDefaults();
+			$scope.setCardView();
 		};
 		
 		$scope.init();

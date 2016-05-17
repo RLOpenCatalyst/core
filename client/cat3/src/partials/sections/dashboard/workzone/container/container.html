@@ -7,10 +7,8 @@
 			<span class="panel-title">
 				<span>Containers</span>
 			</span>
-			<span class="pull-right">
-				<span ng-click='getContainerList();' alt="Refresh View">
-					<i class="fa fa-refresh cursor"></i>
-				</span>
+			<span class="marginleft15" title="Refresh" ng-click="refreshCurrentPage();" alt="Refresh View">
+				<i class="fa fa-refresh cursor"></i>
 			</span>
 		</div>
 		<div id="grid3"  ng-if="tabData.length > 0" ui-grid="containerGridOptions" ui-grid-pagination  class="grid" style="height: {{gridHeight}}px"></div>

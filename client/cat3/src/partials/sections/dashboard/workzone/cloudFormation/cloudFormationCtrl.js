@@ -23,33 +23,38 @@
 			$scope.isCloudFormationPaginationShow = false;
 
 			$scope.setFirstPageView = function() {
-				$scope.paginationParams.page = 1;
+				$scope.currentCardPage = $scope.paginationParams.page = 1;
 			};
 
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isCloudFormationPageLoading = true;
+				$scope.setFirstPageView();
 				$scope.envParams=requestParams;
 				$scope.cftListCardView();
 			});
 
 			$rootScope.$on('WZ_CFT_SHOW_LATEST', function(){
+				//TO DO: Set sort params to show latest CFT in first page.
+				//$scope.paginationParams.sortBy = 'status';
+				//$scope.paginationParams.sortOrder = 'desc';
 				$scope.setFirstPageView();
-				//helper.setPaginationDefaults();
 				$scope.cftListCardView();
 			});
 
-			var helper = {
-				setPaginationDefaults: function() {
-					$scope.paginationParams.sortBy = '';//TODO - use correct sort parameter to use.
-					$scope.paginationParams.sortOrder = 'desc';
-				}
-			};
+			$rootScope.$on('WZ_CFT_REFRESH_CURRENT', function(){
+				$scope.cftListCardView();
+			});
 
 			$scope.cardPaginationCftChange = function() {
 				$scope.paginationParams.page = $scope.currentCardPage;
 				$scope.paginationParams.pageSize = $scope.cardsPerPage;
 				$scope.cftListCardView();
 			};
+
+			$scope.refreshCurrentPage = function(){
+				$rootScope.$emit('WZ_CFT_REFRESH_CURRENT');    
+			};
+
 			angular.extend($scope, {
 				cftListCardView: function() {
 					$scope.isCloudFormationPageLoading = true;

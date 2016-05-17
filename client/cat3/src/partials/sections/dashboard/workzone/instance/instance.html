@@ -8,6 +8,9 @@
 			<span class="panel-title">
 				<span>Instances</span>
 			</span>
+			<span class="marginleft15" title="Refresh" ng-click="refreshCurrentPage();" alt="Refresh View">
+				<i class="fa fa-refresh cursor"></i>
+			</span>			
 			<span class="pull-right">
 				<span class="import-button">
 					<span>
@@ -15,7 +18,7 @@
 						ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch"></i>
 					</span>
 				</span>
-			<span ng-click="instanceCardView()"> <i class="fa fa-th cursor " ng-class="instanceCardViewSelection" title="Card View"></i></span>&nbsp;
+			<span ng-click="setCardView()"> <i class="fa fa-th cursor " ng-class="instanceCardViewSelection" title="Card View"></i></span>&nbsp;
 			<span id="instanceview" ng-click="instanceTableView()"> <i class="fa fa-align-justify fa-2x cursor" ng-class="instanceTableViewSelection" title="Table View"></i></span>
 			</span>
 		</div>
