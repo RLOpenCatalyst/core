@@ -34,7 +34,7 @@ var ApiUtil = function() {
     }
     this.paginationResponse=function(data,req, callback) {
         var response={};
-        var sortField=req.sortBy;
+        var sortField=req.mirrorSort;
         response[req.id]=data.docs;
         response['metaData']={
             totalRecords:data.total,
@@ -42,7 +42,7 @@ var ApiUtil = function() {
             page:data.page,
             totalPages:data.pages,
             sortBy:Object.keys(sortField)[0],
-            sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
+            sortOrder:req.mirrorSort ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
         };
         callback(null, response);
@@ -61,15 +61,15 @@ var ApiUtil = function() {
         var key=Object.keys(sortField)[0];
 
         if(fields.indexOf(key) !== -1){
-            if(jsonData.id === 'tasks'){
+            if(jsonData.id === 'tasks' || jsonData.id === 'instances'){
                 normalizedUtil.normalizedSort(jsonData,key);
                 var sortBy={};
                 sortBy['normalized'] = sortField[key];
                 if(sortField[key] === -1){
-                    sortBy['taskCreatedOn'] = 1;
+                    sortBy[commons.sortReferanceData[jsonData.id]] = 1;
                 };
                 if(sortField[key] === 1){
-                    sortBy['taskCreatedOn'] = -1;
+                    sortBy[commons.sortReferanceData[jsonData.id]] = -1;
                 }
                 jsonData.sortBy=sortBy;
             }

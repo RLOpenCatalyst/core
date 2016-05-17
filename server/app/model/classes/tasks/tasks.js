@@ -668,11 +668,11 @@ taskSchema.statics.NormalizedTasks=function(jsonData,fieldName,callback){
 			}
 			var count=0;
 			for(var i =0;i < tasks.length;i++) {
-				(function(aTask){
+				(function(task){
 					count++;
-					var normalized=aTask[fieldName];
+					var normalized=task[fieldName];
 					Tasks.update({
-						"_id": new ObjectId(aTask._id)
+						"_id": new ObjectId(task._id)
 					}, {
 						$set: {
 							normalized: normalized.toLowerCase()
