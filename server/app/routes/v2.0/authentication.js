@@ -8,6 +8,28 @@ var JWTToken = require('_pr/model/v2.0/jwt_token')
 
 var router = require('express').Router();
 
+/**
+	 * @api {put} /api/v2.0/auth/signIn SignIn Request
+	 * @apiName signIn
+	 * @apiGroup Authentication
+	 *
+	 * @apiParam {String} userName				Mandatory User Name.
+	 * @apiParam {String} password				Mandatory Password
+	 * @apiParamExample {json} Request-Example:
+	 	{
+	 * 		"userName":	"superadmin",
+	 * 		"password": "pass@123"
+	 * 	}
+	 *
+	 * @apiSuccess {Object} SignIn					SignIn details
+	 *
+	 * @apiSuccessExample {json} Success-Response:
+	 * 		HTTP/1.1 200 OK
+	 * 			 	 {
+	 * 			 	    "token": "nhjkfdhskjsjkldksLSKDsnf"
+	 * 				 }
+	 */
+
 
 router.post('/signIn', function(req, res, next) {
     var password = req.body.password;
@@ -21,6 +43,7 @@ router.post('/signIn', function(req, res, next) {
         }
         if (usersData && usersData.length) {
             user = usersData[0];
+            
             authUtil.checkPassword(password, user.password, function(err, isMatched) {
                 if (err) {
                     next(err);
@@ -33,7 +56,8 @@ router.post('/signIn', function(req, res, next) {
                 }
                 // creating new token 
                 jwt.sign({
-                    username: username
+                    username: username,
+                    orgIds: user.orgname_rowid
                 }, config.jwt.secret, {
                     expiresIn: config.jwt.expiresInSec
                 }, function(err, token) {
@@ -63,7 +87,27 @@ router.post('/signIn', function(req, res, next) {
 
 });
 
-router.get('/signOut', function(req, res, next) {
+
+/**
+ * @api {post} /api/v2.0/auth/signOut  
+ * @apiName signOut
+ * @apiGroup Authentication
+ *
+ *
+ * @apiSuccess {Object} Token					SignOut
+ * @apiHeaderExample {string} Header-Authentication:
+ *     {
+ *       "x-catalyst-auth": "askjldkasjld"
+ *     }
+ *
+ * @apiSuccessExample {json} Success-Response:
+ * 		HTTP/1.1 200 OK
+ * 			 	 {
+                message: 'token removed'
+            }
+ */
+
+router.post('/signOut', function(req, res, next) {
 
     var token = req.headers[config.catalystAuthHeaderName];
     if (token) {

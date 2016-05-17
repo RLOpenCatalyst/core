@@ -1,7 +1,12 @@
 var express = require('express');
-var Provider = require('./providers.js');
 var Authentication = require('./authentication.js');
+var Providers= require('./providers.js');
+var NetworkProfiles = require('./network-profiles.js');
+var Blueprints = require('./blueprints.js');
+
+
 var router = express.Router();
+
 
 
 
@@ -11,12 +16,9 @@ if (Authentication.sessionVerifier) {
     router.use(Authentication.sessionVerifier);
 }
 
-router.get('/test', function(req, res) {
-    res.status(200).send('hello token');
-});
 
-router.use(Provider.pattern, Provider.router);
-
-
+router.use(Providers.pattern, Providers.router);
+router.use(NetworkProfiles.pattern, NetworkProfiles.router);
+router.use(Blueprints.pattern, Blueprints.router);
 
 module.exports = router;
