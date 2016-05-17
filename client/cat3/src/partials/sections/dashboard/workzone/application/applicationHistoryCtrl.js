@@ -16,6 +16,9 @@
                 viewAppCardLogs: function (logs) {
                     $rootScope.$emit('VIEW-APP-LOGS',logs);
                 },
+                appHistoryRefresh :function () {
+                    getApplicationHistoryService($scope.requestParams.params, $scope.requestParams.paramNames,$scope.pagiOptionsHistory);
+                },
                 getHistoryData :function(envParams, envNames) {
                 $scope.isBusyShow=true;
                 $scope.historyGridOptions=angular.extend(gridOpt.gridOption,{

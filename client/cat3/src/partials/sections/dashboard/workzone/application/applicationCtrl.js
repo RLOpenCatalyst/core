@@ -184,6 +184,9 @@
 				},
 				appCardRefresh :function () {
 					getApplicationCardService($scope.requestParams.params,$scope.pagiOptionsCard);
+				},
+				appSummaryRefresh :function () {
+					getSummaryCardService($scope.requestParams.params);
 				}
 			});
 			var count = 0;
@@ -257,8 +260,8 @@
 				//});
 				getSummaryCardService(envParams, $scope.pagiOptionsSummary);
 			}
-			function getSummaryCardService(envParams,pagiOptionsCard){
-				workzoneServices.getSummaryCard(envParams,pagiOptionsCard).then(function(cardResult){
+			function getSummaryCardService(envParams){
+				workzoneServices.getSummaryCard(envParams).then(function(cardResult){
 					$scope.summaryGridOptions.data= cardResult.data.pipeLineView;
 					$scope.summaryGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 
