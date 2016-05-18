@@ -4,7 +4,7 @@
     <div ng-show="!isApplicationPageLoading">
         <div class="panel-heading">
             <span class="panel-title">
-                <span class="app-panel-heading-text">Application Deployment for : </span>
+                <span class="app-panel-heading-text">Application : </span>
                 <span ng-show="isPipelineViewActive">{{orgName}}</span>
                 <span ng-show="!isPipelineViewActive">{{selectedEnv}}</span>
             </span>
@@ -41,19 +41,21 @@
                                 <i class="fa fa-tasks white"></i> Info </button>
                             <button type="button" class="btn btn-xs btn-primary" ng-click="promoteApp(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
                                 <i class="fa fa-clone white"></i> Promote</button>
+                             <button type="button" class="btn btn-xs btn-danger" ng-click="appApprove(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved">
+                                 <i class="fa fa-times white"></i> Revoke</button>
                             <button type="button" class="btn btn-xs btn-primary" ng-click="appApprove(pipeLineActBarData)" ng-if="!pipeLineActBarData.isApproved">
                                 <i class="fa fa-eye white"></i> Approve</button>
                             <button type="button" class="btn btn-xs btn-success" ng-click="upgradeApp(pipeLineActBarData)">
                                 <i class="fa fa-edit white"></i> Upgrade</button>
                         </span>
-                    <button type="button" class="btn btn-xs btn-info pull-right" ng-click="appCardRefresh()">
+                    <button type="button" class="btn btn-xs cat-btn-update pull-right" ng-click="appCardRefresh()">
                         <i class="fa fa-refresh white"></i> Refresh</button>
                 </div>
                 <div ui-grid="pipeGridOptions"  ui-grid-pagination class="grid"></div>
             </div>
             <div ng-if="!pipeGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
-                    <button type="button" class="btn btn-xs cat-btn-update pull-left" ng-click="appCardRefresh()">
+                    <button type="button" class="btn btn-xs cat-btn-update pull-right" ng-click="appCardRefresh()">
                         <i class="fa fa-refresh white"></i> Refresh</button>
                 </div>
                 <div class="no-data-found"> No data found !</div>
@@ -64,14 +66,16 @@
         <section  class=" {{!isHistoryTab.template? 'hide-grid':'show-grid'}}"  ng-controller="applicationHistoryCtrl">
             <div ng-if="!historGgridData.length > 0">
                 <div class="action-bar panel-heading">
-                    <button type="button" class="btn btn-xs cat-btn-update pull-left" ng-click="appHistoryRefresh()">
+                    <div class="pull-right width0">
+                        <button type="button" class="btn btn-xs cat-btn-update " ng-click="appHistoryRefresh()">
                         <i class="fa fa-refresh white"></i> Refresh</button>
+                    </div>
                 </div>
                 <div class="no-data-found"> No data found !</div>
             </div>
             <div ng-if="historyGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
-                    <button type="button" class="btn btn-xs cat-btn-update pull-left" ng-click="appHistoryRefresh()">
+                    <button type="button" class="btn btn-xs cat-btn-update pull-right" ng-click="appHistoryRefresh()">
                         <i class="fa fa-refresh white"></i> Refresh</button>
                 </div>
                 <div  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
@@ -81,15 +85,17 @@
         <section  class="pipelineView {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
             <div ng-if="summaryGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
-                    <button type="button" class="btn btn-xs btn-info  pull-left" ng-click="appSummaryRefresh()">
+                    <button type="button" class="btn btn-xs btn-info  pull-right" ng-click="appSummaryRefresh()">
                         <i class="fa fa-refresh white"></i> Refresh</button>
                 </div>
                 <div ui-grid="summaryGridOptions"  class="grid"></div>
             </div>
             <div ng-if="!summaryGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
-                    <button type="button" class="btn btn-xs cat-btn-update pull-left" ng-click="appSummaryRefresh()">
-                        <i class="fa fa-refresh white"></i> Refresh</button>
+                    <div class="pull-right width0">
+                        <button type="button" class="btn btn-xs cat-btn-update " ng-click="appSummaryRefresh()">
+                            <i class="fa fa-refresh white"></i> Refresh</button>
+                    </div>
                 </div>
                 <div class="no-data-found"> No data found !</div>
             </div>
