@@ -55,7 +55,7 @@ userService.getUserOrgs = function getUserOrgs(user, callback) {
     }
 };
 
-userService.getOrgById = function getOrgById(orgId, callback) {
+userService.getOrg = function getOrg(orgId, callback) {
     d4dMastersNewModel.d4dModelMastersOrg.find({
         rowid: orgId
     }, function(err, orgDetails) {
@@ -66,7 +66,9 @@ userService.getOrgById = function getOrgById(orgId, callback) {
         } else if(orgDetails.length > 0) {
             callback(null, orgDetails[0]);
         } else {
-            callback(null, null);
+            var err = new Error('Invalid organization id');
+            err.status = 404;
+            callback(err);
         }
     });
 };

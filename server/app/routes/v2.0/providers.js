@@ -202,13 +202,14 @@ router.delete('/:providerId', validate(providersValidator.accessIndividualResour
  * @apiParam {Object} provider.providerDetails              Provider details based on type
  * @apiParam {String} provider.providerDetails.projectId    GCP Project ID
  * @apiParam {String} provider.providerDetails.keyFile      Base 64 encoded key file
+ * @apiParam {String} provider.providerDetails.sshKey       Base 64 encoded ssh key
  * @apiParamExample {json} GCP-Request-Example:
  * 		{
  * 			"name":	"Provider Name",
- * 			"organization": "<Organization ID>",
  * 			"providerDetails": {
  * 				"projectId": "<GCP Project ID>",
- * 				"keyFile": "<GCP Key File>"
+ * 				"keyFile": "<GCP Key File>",
+ * 			    "sshKey": "<GCP instance SSH Key>"
  * 			}
  * 		}
  *
@@ -240,7 +241,7 @@ function createProvider(req, res, next) {
     async.waterfall([
         // @TODO Check if user has access to the specified organization
         function(next) {
-            userService.getOrgById(req.body.organizationId, next);
+            userService.getOrg(req.body.organizationId, next);
         },
         function(org, next) {
             providerService.createProvider(req.body, org, next);
@@ -258,10 +259,10 @@ function createProvider(req, res, next) {
 function updateProvider(req, res, next) {
     async.waterfall([
         function (next) {
-            providerService.getProviderById(req.params.providerId, next);
+            providerService.getProvider(req.params.providerId, next);
         },
-        function(next, provider) {
-            providerService.updateProvider(req.body, provider, next);
+        function(provider, next) {
+            providerService.updateProvider(provider, req.body, next);
         },
         providerService.createProviderResponseObject
     ], function(err, provider) {
@@ -276,10 +277,10 @@ function updateProvider(req, res, next) {
 function deleteProvider(req, res, next) {
     async.waterfall([
         function (next) {
-            providerService.checkIfGCPProviderExists(req.params.providerId, next);
+            providerService.getProvider(req.params.providerId, next);
         },
         function(next, provider) {
-            providerService.deleteProvider(req.body, next);
+            providerService.deleteProvider(provider, next);
         },
     ], function(err, provider) {
         if(err) {
