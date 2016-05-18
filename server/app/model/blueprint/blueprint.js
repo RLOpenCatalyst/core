@@ -475,14 +475,14 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                 blueprintType: blueprint[0].blueprintType,
                 appUrls: blueprint[0].appUrls
             };
-            if (bluePrintInfo.templateType == 'chef' || bluePrintInfo.templateType == 'ami') {
+            if (bluePrintInfo.templateType === 'chef' || bluePrintInfo.templateType === 'ami') {
                 VMImage.getImageNameById(blueprint[0].blueprintConfig.cloudProviderData.imageId, function(err, imageName) {
                     if (err) {
                         callback(err, null);
                         return;
                     }
                     bluePrintInfo['imageName'] = imageName;
-                    if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType == 'azure') {
+                    if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType === 'azure') {
 
                         AzureProvider.getAzureCloudProviderById(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId, function(err, providerData) {
                             if (err) {
@@ -501,7 +501,7 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                             callback(null, bluePrintInfo);
                         })
 
-                    } else if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType == 'openstack') {
+                    } else if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType === 'openstack') {
 
                         OpenStackProvider.getopenstackProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
                             if (err) {
@@ -525,7 +525,7 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                             callback(null, bluePrintInfo);
                         })
 
-                    } else if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType == 'vmware') {
+                    } else if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType === 'vmware') {
 
                         VmwareProvider.getvmwareProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
                             if (err) {
@@ -570,12 +570,42 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
 
                 })
 
-            } else {
-                if (bluePrintInfo.templateType == 'docker') {
-                    bluePrintInfo['blueprintConfig'] = {dockerCompose: blueprint[0].blueprintConfig.dockerCompose};
-                } else {
+            } else if(bluePrintInfo.templateType === 'docker') {
+                bluePrintInfo['blueprintConfig'] = {dockerCompose: blueprint[0].blueprintConfig.dockerCompose};
+                callback(null, bluePrintInfo);
+            } else if (bluePrintInfo.templateType === 'cft') {
+                if(blueprint[0].blueprintType === 'aws_cf') {
+                    AWSProvider.getAWSProviderById(blueprint[0].blueprintConfig.cloudProviderId, function (err, providerData) {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        bluePrintInfo['providerType'] = providerData.providerType;
+                        bluePrintInfo['providerName'] = providerData.providerName;
+                        bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
+                        callback(null, bluePrintInfo);
+                    })
+                }else {
                     bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
+                    callback(null, bluePrintInfo);
                 }
+            } else if(bluePrintInfo.templateType === 'arm') {
+                AzureProvider.getAzureCloudProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    }
+                    var jsonData = JSON.parse(providerData);
+                    bluePrintInfo['providerType'] = jsonData.providerType;
+                    bluePrintInfo['providerName'] = jsonData.providerName;
+                    bluePrintInfo['pemFileName'] = jsonData.pemFileName;
+                    bluePrintInfo['keyFileName'] = jsonData.keyFileName;
+                    bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
+                    callback(null, bluePrintInfo);
+                })
+                callback(null, bluePrintInfo);
+            }else {
+                bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                 callback(null, bluePrintInfo);
             }
         }

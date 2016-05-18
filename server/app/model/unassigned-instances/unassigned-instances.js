@@ -86,20 +86,6 @@ UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(pro
     );
 };
 
-UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(providerId, callback) {
-    this.find(
-        {'providerId': providerId},
-        function(err, instances) {
-            if (err) {
-                logger.error("Failed getByProviderId (%s)", providerId, err);
-                return callback(err, null);
-            } else {
-                return callback(null, instances);
-            }
-        }
-    );
-};
-
 UnassignedInstancesSchema.statics.getById = function getByProviderId(instanceId, callback) {
     this.findById(instanceId,
         function(err, instance) {
