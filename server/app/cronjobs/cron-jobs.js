@@ -39,8 +39,5 @@ module.exports.start = function start() {
 	logger.info('Docker container sync started with interval ==> '+ dockerContinerSync.getInterval());
 	var dockerContinerSyncJobId
 		= crontab.scheduleJob(dockerContinerSync.getInterval(), dockerContinerSync.execute);
-
-	logger.info('AWS Cost Aggregation started with interval ==> '+ awsCostAggregation.getInterval());
-	var awsCostAggregationJobId
-		= crontab.scheduleJob(awsCostAggregation.getInterval(), awsCostAggregation.execute);
+	
 }
