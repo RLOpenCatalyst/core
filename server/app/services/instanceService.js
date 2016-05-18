@@ -43,22 +43,22 @@ instanceService.validateListInstancesQuery = validateListInstancesQuery;
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
         function(err, instance) {
-            if(err) {
+            if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
                 return callback(err);
-            } else if(!instance) {
+            } else if (!instance) {
                 var err = new Error('Instance not found');
                 err.status = 404;
                 return callback(err);
-            } else if(instance && instance.providerId != provider._id) {
+            } else if (instance && instance.providerId != provider._id) {
                 var err = new Error('Forbidden');
                 err.status = 403;
                 return callback(err);
             } else {
                 return callback(null, instance);
             }
-    });
+        });
 }
 
 // @TODO Try to move this to a common place for validation
@@ -66,12 +66,12 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
     var orgIds = [];
     var queryObjectAndCondition = filterQuery.queryObj['$and'][0];
 
-    if(('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
+    if (('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
         var validOrgs = queryObjectAndCondition['orgName']['$in'].filter(function(orgName) {
             return (orgName in orgs);
         });
 
-        if(validOrgs.length < queryObjectAndCondition['orgName']['$in']) {
+        if (validOrgs.length < queryObjectAndCondition['orgName']['$in']) {
             var err = new Error('Forbidden');
             err.status = 403;
             return callback(err);
@@ -80,8 +80,8 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
                 return a.concat(orgs[b].rowid);
             }, orgIds);
         }
-    } else if('orgName' in queryObjectAndCondition) {
-        if(queryObjectAndCondition['orgName'] in orgs) {
+    } else if ('orgName' in queryObjectAndCondition) {
+        if (queryObjectAndCondition['orgName'] in orgs) {
             orgIds.push(orgs[queryObjectAndCondition['orgName']].rowid);
         } else {
             var err = new Error('Forbidden');
@@ -94,12 +94,12 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
         }, orgIds);
     }
 
-    if('orgName' in queryObjectAndCondition)
+    if ('orgName' in queryObjectAndCondition)
         delete filterQuery.queryObj['$and'][0].orgName;
 
-    if(orgIds.length > 0) {
+    if (orgIds.length > 0) {
         filterQuery.queryObj['$and'][0].orgId = {
-            '$in' : orgIds
+            '$in': orgIds
         }
     }
 
@@ -108,13 +108,13 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
 
 function getUnassignedInstancesByProvider(provider, callback) {
     unassignedInstancesModel.getByProviderId(provider._id, function(err, assignedInstances) {
-        if(err) {
+        if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
             return callback(err);
-        } else if(!assignedInstances) {
+        } else if (!assignedInstances) {
             return callback(null, []);
-        }else {
+        } else {
             return callback(null, assignedInstances);
         }
     });
@@ -123,26 +123,26 @@ function getUnassignedInstancesByProvider(provider, callback) {
 function bulkUpdateInstanceProviderTags(provider, instances, callback) {
     var providerTypes = appConfig.providerTypes;
 
-    if(instances.length > 10) {
+    if (instances.length > 10) {
         var err = new Error("Invalid request");
         err.status = 400;
         return callback(err);
     } else {
         var unassignedInstances = [];
-        for(var i = 0; i < instances.length; i++) {
-            (function (j) {
+        for (var i = 0; i < instances.length; i++) {
+            (function(j) {
                 // @TODO replace with single query
                 // @TODO Improve error handling
                 unassignedInstancesModel.getById(instances[j].id, function(err, unassignedInstance) {
-                    if(err) {
+                    if (err) {
                         var err = new Error('Internal server error');
                         err.status = 500;
                         return callback(err);
-                    } else if(!unassignedInstance) {
+                    } else if (!unassignedInstance) {
                         var err = new Error('Instance not found');
                         err.status = 404;
                         return callback(err);
-                    } else if(unassignedInstance) {
+                    } else if (unassignedInstance) {
                         logger.debug('Update tags for instance ', unassignedInstance._id);
                         for (tagName in instances[j].tags) {
                             unassignedInstance.tags[tagName] = instances[j].tags[tagName];
@@ -151,7 +151,7 @@ function bulkUpdateInstanceProviderTags(provider, instances, callback) {
                     }
 
                     if (j == instances.length - 1) {
-                        switch(provider.providerType) {
+                        switch (provider.providerType) {
                             case providerTypes.AWS:
                                 logger.debug('Update aws instance tags ', unassignedInstances.length);
                                 bulkUpdateAWSInstanceTags(provider, unassignedInstances, callback);
@@ -195,14 +195,14 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
     }
 
     for (var i = 0; i < instances.length; i++) {
-        (function (j) {
+        (function(j) {
             awsSettings.region = instances[j].providerData.region;
             var ec2 = new EC2(awsSettings);
             logger.debug('Updating tags for instance ', instances[j]._id);
 
             // @TODO Improve error handling
             ec2.createTags(instances[j].platformId, instances[j].tags,
-                function (err, data) {
+                function(err, data) {
                     if (err) {
                         logger.error(err);
                         var err = new Error('Internal server error');
@@ -220,7 +220,7 @@ function bulkUpdateUnassignedInstanceTags(instances, callback) {
     var catalystEntityTypes = appConfig.catalystEntityTypes;
 
     for (var i = 0; i < instances.length; i++) {
-        (function (j) {
+        (function(j) {
             var params = {
                 '_id': instances[j]._id
             }
@@ -229,12 +229,12 @@ function bulkUpdateUnassignedInstanceTags(instances, callback) {
             }
             unassignedInstancesModel.updateInstance(params, fields,
                 function(err, instanceUpdated) {
-                    if(err) {
+                    if (err) {
                         logger.error(err);
                         var err = new Error('Internal server error');
                         err.status = 500;
                         return callback(err);
-                    } else if(j == instances.length - 1) {
+                    } else if (j == instances.length - 1) {
                         return callback(null, instances);
                     }
                 }
@@ -248,21 +248,21 @@ function updateUnassignedInstanceProviderTags(provider, instanceId, tags, callba
 
     unassignedInstancesModel.getById(instanceId,
         function(err, instance) {
-            if(err) {
+            if (err) {
                 logger.error(err);
                 var err = new Error('Internal server error');
                 err.status = 500;
                 return callback(err);
-            } else if(!instance) {
+            } else if (!instance) {
                 var err = new Error('Instance not found');
                 err.status = 404;
                 return callback(err);
-            } else if(instance && instance.providerId != provider._id) {
+            } else if (instance && instance.providerId != provider._id) {
                 var err = new Error('Forbidden');
                 err.status = 403;
                 return callback(err);
             } else {
-                switch(provider.providerType) {
+                switch (provider.providerType) {
                     case providerTypes.AWS:
                         updateAWSInstanceTag(provider, instance, tags, callback);
                         break;
@@ -306,7 +306,7 @@ function updateAWSInstanceTag(provider, instance, tags, callback) {
 
     ec2.createTags(instance.platformId, tags,
         function(err, data) {
-            if(err) {
+            if (err) {
                 logger.error(err);
                 var err = new Error('Internal server error');
                 err.status = 500;
@@ -328,12 +328,12 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
         tagMappings[tagMapping.name] = tagMapping;
     });
 
-    var fields = {'tags': instance.tags};
-    for(var key in tags) {
+    var fields = { 'tags': instance.tags };
+    for (var key in tags) {
         fields.tags[key] = tags[key];
 
-        if(key in tagMappings) {
-            switch(tagMappings[key].catalystEntityType) {
+        if (key in tagMappings) {
+            switch (tagMappings[key].catalystEntityType) {
                 case catalystEntityTypes.PROJECT:
                     fields.projectTag = tags[key];
                     instance.projectTag = tags[key];
@@ -355,12 +355,12 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 
     unassignedInstancesModel.updateInstance(params, fields,
         function(err, instanceUpdated) {
-            if(err) {
+            if (err) {
                 logger.error(err);
                 var err = new Error('Internal server error');
                 err.status = 500;
                 return callback(err);
-            } else if(instanceUpdated) {
+            } else if (instanceUpdated) {
                 return callback(null, instance);
             }
         }
@@ -369,17 +369,15 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 
 function getTrackedInstancesForProvider(provider, next) {
     async.parallel({
-            managed: function (callback) {
+            managed: function(callback) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             unmanaged: function(callback) {
-                unManagedInstancesModel.getByProviderId(
-                    {providerId: provider._id}, callback
-                );
+                unManagedInstancesModel.getByProviderId({ providerId: provider._id }, callback);
             }
         },
         function(err, results) {
-            if(err) {
+            if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
                 next(err)
@@ -395,7 +393,7 @@ function getTrackedInstancesForProvider(provider, next) {
 
 function getTrackedInstances(query, next) {
     async.parallel([
-            function (callback) {
+            function(callback) {
                 instancesModel.getAll(query, callback);
             },
             function(callback) {
@@ -403,7 +401,7 @@ function getTrackedInstances(query, next) {
             }
         ],
         function(err, results) {
-            if(err) {
+            if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
                 next(err)
@@ -423,7 +421,7 @@ function createUnassignedInstanceObject(instance, callback) {
     var provider = {
         'id': instance.providerId,
         'type': instance.providerType,
-        'data': instance.providerData?instance.providerData:null,
+        'data': instance.providerData ? instance.providerData : null,
     };
     instanceObject.id = instance._id;
     instanceObject.orgId = instance.orgId;
@@ -449,7 +447,7 @@ function createUnassignedInstancesList(instances, callback) {
         var provider = {
             'id': instance.providerId,
             'type': instance.providerType,
-            'data': instance.providerData?instance.providerData:null,
+            'data': instance.providerData ? instance.providerData : null,
         };
         tempInstance.id = instance._id;
         tempInstance.orgId = instance.orgId;
@@ -458,7 +456,7 @@ function createUnassignedInstancesList(instances, callback) {
         tempInstance.ip = instance.ip;
         tempInstance.os = instance.os;
         tempInstance.state = instance.state;
-        tempInstance.tags = ('tags' in instance)?instance.tags:{};
+        tempInstance.tags = ('tags' in instance) ? instance.tags : {};
 
         instancesList.push(tempInstance);
     });
@@ -475,7 +473,7 @@ function createTrackedInstancesResponse(instances, callback) {
     instancesListObject.trackedInstances = instances.map(function(instance) {
         var instanceObj = {};
         instanceObj.id = instance._id;
-        instanceObj.category = ('chefNodeName' in instance)?'managed':'unmanaged';
+        instanceObj.category = ('chefNodeName' in instance) ? 'managed' : 'unmanaged';
         instanceObj.instancePlatformId = instance.platformId;
         instanceObj.orgName = instance.orgName;
         instanceObj.projectName = instance.projectName;
@@ -483,28 +481,92 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.providerId = instance.providerId;
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
-        instanceObj.bgId = ('bgId' in instance)?instance.bgId:null;
-        instanceObj.cost = (('cost' in instance) && instance.cost)?instance.cost:0;
+        instanceObj.bgId = ('bgId' in instance) ? instance.bgId : null;
+        instanceObj.cost = (('cost' in instance) && instance.cost) ? instance.cost : 0;
 
-        if(('hardware' in instance) && ('os' in instance.hardware))
+        if (('hardware' in instance) && ('os' in instance.hardware))
             instanceObj.os = instance.hardware.os;
-        else if('os' in instance)
+        else if ('os' in instance)
             instanceObj.os = instance.os;
         else
             instanceObj.os = null;
 
-        if('ip' in instance)
+        if ('ip' in instance)
             instanceObj.ip = instance.ip;
-        else if('instanceIP' in instance)
+        else if ('instanceIP' in instance)
             instanceObj.ip = instance.instanceIP;
         else
             instanceObj.ip = null;
 
-        instanceObj.usage = ('usage' in instance)?instance.usage:null;
-        instanceObj.cost = ('cost' in instance)?instance.cost:null;
+        instanceObj.usage = ('usage' in instance) ? instance.usage : null;
+        instanceObj.cost = ('cost' in instance) ? instance.cost : null;
 
         return instanceObj;
     });
 
     callback(null, instancesListObject);
+}
+
+
+function createInstance(instanceObj, callback) {
+    var blueprint = instanceObj.blueprint;
+    var instance = instanceObj.instance;
+    var instances = {
+        name: blueprint.name,
+        orgId: blueprint.organization.id,
+        bgId: blueprint.businessGroup.id,
+        projectId: blueprint.projectId,
+        envId: blueprint.envId,
+        providerId: blueprint.networkProfile.providerId,
+        providerType: blueprint.networkProfile.type,
+        runlist: blueprint.runList,
+        attributes: blueprint.attributes,
+        appUrls: blueprint.applicationURL,
+        hardware: {
+            platform: 'unknown',
+            platformVersion: 'unknown',
+            architecture: 'unknown',
+            memory: {
+                total: 'unknown',
+                free: 'unknown',
+            },
+            os: blueprint.vmImage.osType
+        },
+        credentials: {
+            username: blueprint.vmImage.userName,
+            pemFileLocation: encryptedPemFileLocation, // Needs to decide
+            password: encrptedPassword
+        },
+        blueprintData: {
+            blueprintId: blueprint.id,
+            blueprintName: blueprint.name,
+            templateId: blueprint.softwareTemplate.id,
+            templateType: blueprint.softwareTemplate.templateType,
+            templateComponents: blueprint.softwareTemplate.templateComponents,
+            iconPath: blueprint.softwareTemplate.iconpath
+        }
+    };
+    switch (blueprint.networkProfile.type) {
+        case 'GCP':
+
+                instances['chefNodeName'] = instance.id,
+                instances['platformId'] = instance.id,
+                instances['instanceIP'] = instance.networkInterfaces[0].networkIP,
+                instances['instanceState'] = instance.status,
+                instances['bootStrapStatus'] = 'waiting',
+                instances['chef'] = {
+                    serverId: blueprint.infraManagerId,
+                    chefNodeName: instance.id
+                }
+            break;
+            defaut:
+                break;
+    }
+    instancesModel.createInstance(instances, function(err, instanceData) {
+        if (err) {
+            logger.debug("Failed to createInstance.", err);
+            return callback(err, null);
+        }
+        return callback(null, instanceData);
+    });
 }
