@@ -8,7 +8,7 @@ var JWTToken = require('_pr/model/v2.0/jwt_token')
 
 var userService = require('_pr/services/userService.js');
 var AuthToken = require('_pr/model/auth-token');
-
+var async = require('async');
 
 var router = require('express').Router();
 
@@ -38,14 +38,34 @@ var router = require('express').Router();
 router.post('/signIn', function(req, res, next) {
     var password = req.body.password;
     var username = req.body.username;
-    userService.signIn(username, password, function(err, token) {
-        if (err) {
-            return next(err);
+
+    async.waterfall(
+        [
+
+            function(next) {
+                userService.getUser(username, next)
+            },
+            function(user, next) {
+                userService.checkPassword(user, password, next);
+            },
+            function(user, isMatched, next) {
+                userService.generateToken(user, next);
+            },
+            function(token, next) {
+                res.status(200).send({
+                    token: token
+                });
+            },
+
+        ],
+        function(err, resData) {
+            if (err) {
+                next(err);
+            } else {
+                return res.status(200).send(resData);
+            }
         }
-        res.status(200).send({
-            token: token
-        });
-    })
+    );
 
 });
 

@@ -21,7 +21,7 @@ var jwt = require('jsonwebtoken');
 var authUtil = require('_pr/lib/utils/authUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var config = require('_pr/config');
-var async = require('async');
+
 
 
 var JWTToken = require('_pr/model/v2.0/jwt_token')
@@ -64,57 +64,7 @@ function getUserOrgs(user, callback) {
     }
 }
 
-userService.signIn = function signIn(username, password, callback) {
 
-    d4dModelNew.d4dModelMastersUsers.find({
-        loginname: username,
-        id: 7
-    }, function(err, usersData) {
-        if (err) {
-            return callback(err);
-        }
-        if (usersData && usersData.length) {
-            user = usersData[0];
-
-            authUtil.checkPassword(password, user.password, function(err, isMatched) {
-                if (err) {
-                    callback(err);
-                    return;
-                }
-                if (!isMatched) {
-                    return callback(new Error('Invalid username or password'));
-                }
-                // creating new token 
-                jwt.sign({
-                    username: username,
-                    orgIds: user.orgname_rowid
-                }, config.jwt.secret, {
-                    expiresIn: config.jwt.expiresInSec
-                }, function(err, token) {
-                    if (err) {
-                        logger.error(err);
-                        return callback(err);
-                    }
-                    // saving token in db 
-                    JWTToken.createNew({
-                        token: token,
-                        expiry: config.jwt.expiresInSec
-                    }, function(err, jwtToken) {
-                        if (err) {
-                            return callback(err);
-                        }
-
-                        var base64Token = new Buffer(token).toString('base64')
-
-                        callback(null, base64Token);
-
-                    });
-                });
-
-            });
-        }
-    });
-}
 
 userService.signOut = function signOut(base64Token, callback) {
     if (base64Token) {
@@ -135,4 +85,71 @@ userService.signOut = function signOut(base64Token, callback) {
         err.status = 400;
         callback(err);
     }
-}
+};
+
+
+userService.getUser = function getUser(username, callback) {
+    d4dModelNew.d4dModelMastersUsers.find({
+        loginname: username,
+        id: 7
+    }, function(err, usersData) {
+        if (err) {
+            err.status = 500;
+            return callback(err);
+        }
+        if (usersData && usersData.length) {
+            user = usersData[0];
+            callback(null, user);
+        } else {
+            var err = new Error("User does not exist");
+            err.status = 400;
+        }
+
+    });
+
+};
+
+userService.checkPassword = function checkPassword(user, password, callback) {
+    authUtil.checkPassword(password, user.password, function(err, isMatched) {
+        if (err) {
+            err.status = 500;
+            return allback(err)
+        }
+        if (isMatched) {
+            callback(null, user, true);
+        } else {
+            var err = new Error("password does not match");
+            err.status = 400;
+            callback(err);
+        }
+    });
+};
+
+userService.generateToken = function generateToken(user, callback) {
+    jwt.sign({
+        username: user.loginname,
+        orgIds: user.orgname_rowid
+    }, config.jwt.secret, {
+        expiresIn: config.jwt.expiresInSec
+    }, function(err, token) {
+        if (err) {
+            err.status = 500;
+            logger.error(err);
+            return callback(err);
+        }
+        // saving token in db 
+        JWTToken.createNew({
+            token: token,
+            expiry: config.jwt.expiresInSec
+        }, function(err, jwtToken) {
+            if (err) {
+                err.status = 500;
+                return callback(err);
+            }
+
+            var base64Token = new Buffer(token).toString('base64')
+            callback(null, base64Token);
+        });
+    });
+
+};
