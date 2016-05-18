@@ -26,7 +26,7 @@
 
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isAzureARMPageLoading = true;
-				$scope.setFirstPageView();
+				$scope.currentCardPage = $scope.paginationParams.page = 1;
 				$scope.envParams=requestParams;
 				$scope.azureListCardView();
 			});
