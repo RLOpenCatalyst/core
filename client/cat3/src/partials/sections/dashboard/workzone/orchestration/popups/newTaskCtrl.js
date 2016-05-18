@@ -252,7 +252,7 @@
                 $scope.cookbookAttributes = [];
                 $scope.editRunListAttributes = false;
                 var compositeSelector;
-                workzoneServices.getAllTaskList().then(function (response) {
+                workzoneServices.getEnvironmentTaskList().then(function (response) {
                     var data, selectorList = [],
                             optionList = [];
 

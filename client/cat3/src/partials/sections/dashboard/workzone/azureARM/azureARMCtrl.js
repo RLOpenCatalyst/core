@@ -12,6 +12,8 @@
 			$scope.isAzureARMPageLoading = true;
 			var armPaginationDefault = uiGridOptionsService.options();
 			$scope.paginationParams = armPaginationDefault.pagination;
+			$scope.paginationParams.sortBy = 'created';
+			$scope.paginationParams.sortOrder = 'desc';
 			$scope.currentCardPage = armPaginationDefault.pagination.page;
 			$scope.cardsPerPage = armPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
@@ -24,28 +26,33 @@
 
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.isAzureARMPageLoading = true;
+				$scope.currentCardPage = $scope.paginationParams.page = 1;
 				$scope.envParams=requestParams;
 				$scope.azureListCardView();
 			});
 
 			$rootScope.$on('WZ_AzureARM_SHOW_LATEST', function(){
+				//TO DO: Set sort params to show latest CFT in first page.
+				//$scope.paginationParams.sortBy = 'status';
+				//$scope.paginationParams.sortOrder = 'desc';
 				$scope.setFirstPageView();
-				//helper.setPaginationDefaults();
 				$scope.azureListCardView();
 			});
 
-			var helper = {
-				setPaginationDefaults: function() {
-					$scope.paginationParams.sortBy = '';//TODO - use correct sort parameter to use.
-					$scope.paginationParams.sortOrder = 'desc';
-				}
-			};
+			$rootScope.$on('WZ_AzureARM_REFRESH_CURRENT', function(){
+				$scope.azureListCardView();
+			});
 			
 			$scope.cardPaginationArmChange = function() {
 				$scope.paginationParams.page = $scope.currentCardPage,
 				$scope.paginationParams.pageSize = $scope.cardsPerPage;
 				$scope.azureListCardView();
 			};
+
+			$scope.refreshCurrentPage = function(){
+				$rootScope.$emit('WZ_AzureARM_REFRESH_CURRENT');    
+			};
+
 			angular.extend($scope, {
 				azureListCardView: function() {
 					$scope.isAzureARMPageLoading = true;

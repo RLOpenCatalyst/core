@@ -22,6 +22,15 @@
 			};
 			$scope.perms = _permSet;
 
+			$scope.rdpFileLink = function(instanceObj) {
+				var fileLink = '/instances/rdp/' + instanceObj.instanceIP + '/3389';
+				return fileLink;
+			};
+			$scope.rdpFileName = function(instanceObj) {
+				var fileName = instanceObj.instanceIP +'.rdp';
+				return fileName;
+			};
+
 			/*	START: Methods which make use of instanceService
 				Below methods on the instance card/table make use of instanceAction service.
 				same sevice is reused in control panel actions tab but promise handlers can be different.

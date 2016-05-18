@@ -21,6 +21,7 @@
 					temp;
 					for (var i = 0; i < obj.length; i++) {
 						temp = obj[i];
+						temp.iconpath = this.getIconPath(temp);
 						temp.cardVersions = this.getVersionList(temp);
 						temp.selectedVersionBpId = temp.cardVersions[0].id;
 						switch (temp.templateType) {
@@ -57,6 +58,9 @@
 						allVersionsList = allVersionsList.concat(olderVersions);
 					}
 					return allVersionsList.reverse();					
+				},
+				getIconPath : function(bpItem) {
+					return bpItem.iconpath || "images/templateicons/imgo.jpg";
 				}
 			};
 		}])

@@ -16,6 +16,16 @@
 			$scope.tabData = [];
 			$scope.truncateImageIDLimit = 12;
 			
+			var helper = {
+				setPaginationDefaults: function() {
+					$scope.paginationParams.sortBy = 'Created';
+					$scope.paginationParams.sortOrder = 'desc';
+					$scope.setFirstPageView();
+					if($scope.paginationParams.page == 1){
+						$scope.getContainerList();
+					}
+				}
+			};
 			$scope.initGrids = function(){
 				$scope.containerGridOptions=angular.extend(containerUIGridDefaults.gridOption,{
 				data : 'tabData',
@@ -69,6 +79,15 @@
 					$scope.errorMessage = "No Records found";
 				});
 			};
+
+			$scope.setFirstPageView = function() {
+				$scope.paginationParams.page = 1;
+			};
+
+			$scope.refreshCurrentPage = function(){
+				$scope.getContainerList();
+			};
+
 			$scope.stopDockerFunction = function(actionType){
 				return (actionType)? "fa fa-power-off" : "fa fa-play";
 			};
@@ -178,6 +197,11 @@
 					}
 				);
 			};
+
+			$rootScope.$on('WZ_CONTAINER_SHOW_LATEST', function(){
+				helper.setPaginationDefaults();
+			});
+			
 			$rootScope.$on('WZ_TAB_VISIT', function(event, tabName) {
 				if (tabName === 'Containers') {
 					$scope.isContainerPageLoading = true;
@@ -192,7 +216,7 @@
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.envParams = requestParams;
 				$scope.initGrids();
-				$scope.getContainerList();
+				helper.setPaginationDefaults();
 				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('containerPage')-gridBottomSpace;
 			});
 		}])

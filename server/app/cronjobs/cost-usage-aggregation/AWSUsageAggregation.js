@@ -15,7 +15,6 @@
  */
 var logger = require('_pr/logger')(module);
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
-var appConfig = require('_pr/config');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
