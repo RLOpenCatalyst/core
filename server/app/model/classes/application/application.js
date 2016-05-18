@@ -17,10 +17,12 @@ limitations under the License.
 
 var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
+var mongoosePaginate = require('mongoose-paginate');
 var validate = require('mongoose-validator');
 var logger = require('_pr/logger')(module);
 var schemaValidator = require('../../dao/schema-validator');
 var utils = require('../utils/utils');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 
 var Build = require('./build/build.js');
 var AppInstance = require('./appinstance/appInstance');
@@ -67,6 +69,7 @@ var ApplicationSchema = new Schema({
     appInstances: [AppInstance.schema],
     deployHistoryIds: [String]
 });
+ApplicationSchema.plugin(mongoosePaginate);
 
 // instance method 
 ApplicationSchema.methods.build = function(user, baseUrl, callback) {
@@ -380,23 +383,30 @@ ApplicationSchema.statics.createNew = function(appData, callback) {
     });
 };
 
-ApplicationSchema.statics.getAppCardsByOrgBgAndProjectId = function(orgId, bgId, projectId, callback) {
-    logger.debug("Enter getAppCardsByOrgBgAndProjectId (%s,%s, %s, %s)", orgId, bgId, projectId);
-    var queryObj = {
-        orgId: orgId,
-        bgId: bgId,
-        projectId: projectId,
-    }
-
-    this.find(queryObj, function(err, applications) {
-        if (err) {
-            logger.error("Failed to getAppCardsByOrgBgAndProjectId (%s,%s, %s)", orgId, bgId, projectId, err);
-            callback(err, null);
-            return;
+ApplicationSchema.statics.getAppCardsByOrgBgAndProjectId = function(jsonData, callback) {
+    jsonData['searchColumns']=['name','buildId'];
+    ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+        if(err){
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
         }
-
-        logger.debug("Exit getAppCardsByOrgBgAndProjectId (%s,%s, %s)", orgId, bgId, projectId);
-        callback(null, applications);
+        else{
+            Application.paginate(databaseCall.queryObj, databaseCall.options, function(err, applications) {
+                if(err){
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
+                else if(applications.length === 0) {
+                    var err = new Error('Applications are not found');
+                    err.status = 404;
+                    return callback(err);
+                }
+                else
+                    return callback(null, applications);
+            });
+        }
     });
 };
 

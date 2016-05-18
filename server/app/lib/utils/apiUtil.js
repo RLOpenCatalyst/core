@@ -16,18 +16,16 @@ var ApiUtil = function() {
             errObj['code']=code;
             errObj['message']='Bad Request';
             errObj['fields']={errorMessage:'Bad Request',attribute:field};
-        }
-        else if(code==500){
+        } else if(code==500){
             errObj['code']=code;
             errObj['message']='Internal Server Error';
             errObj['fields']={errorMessage:'Server Behaved Unexpectedly',attribute:field};
-        }
-        else if(code==404){
+        } else if(code==404){
             errObj['code']=code;
             errObj['message']='Not Found';
             errObj['fields']={errorMessage:'The requested resource could not be found but may be available in the future',attribute:field};
-        }
-        else if(code==403){
+        } else if(code==403){
+
             errObj['code']=code;
             errObj['message']='Forbidden';
             errObj['fields']={errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:field};
@@ -36,16 +34,15 @@ var ApiUtil = function() {
     }
     this.paginationResponse=function(data,req, callback) {
         var response={};
-        var sortField=req.sortBy;
+        var sortField=req.mirrorSort;
         response[req.id]=data.docs;
         response['metaData']={
             totalRecords:data.total,
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
-
             sortBy:Object.keys(sortField)[0],
-            sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
+            sortOrder:req.mirrorSort ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
         };
         callback(null, response);
@@ -64,23 +61,25 @@ var ApiUtil = function() {
         var key=Object.keys(sortField)[0];
 
         if(fields.indexOf(key) !== -1){
-            if(jsonData.id === 'tasks'){
+            if(jsonData.id === 'tasks' || jsonData.id === 'instances'){
                 normalizedUtil.normalizedSort(jsonData,key);
                 var sortBy={};
                 sortBy['normalized'] = sortField[key];
                 if(sortField[key] === -1){
-                    sortBy['taskCreatedOn'] = 1;
+                    sortBy[commons.sortReferanceData[jsonData.id]] = 1;
                 };
                 if(sortField[key] === 1){
-                    sortBy['taskCreatedOn'] = -1;
+                    sortBy[commons.sortReferanceData[jsonData.id]] = -1;
                 }
                 jsonData.sortBy=sortBy;
             }
         }
         for(var i = 0; i < columns.length; i++){
             var keyField=columns[i];
-            if(jsonData[keyField])
+            if(jsonData[keyField]) {
                 objAnd[keyField] = jsonData[keyField];
+            }
+
         };
         if(jsonData.search) {
             queryArr.push(objAnd);
@@ -92,8 +91,10 @@ var ApiUtil = function() {
             queryArr.push({$or:objOr});
         }
         else{
-            if(jsonData.filterBy)
+            if(jsonData.filterBy) {
                 objAnd = jsonData.filterBy;
+            }
+
             queryArr.push(objAnd);
         }
         queryObj['$and']=queryArr;
@@ -107,29 +108,31 @@ var ApiUtil = function() {
         databaseCall['options']=options;
         callback(null, databaseCall);
         return;
-
-
     };
 
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {
             pageSize = parseInt(data.pageSize);
-            if (pageSize > commons.max_record_limit)
+            if (pageSize > commons.max_record_limit) {
                 pageSize = commons.max_record_limit;
-        }
-        else
+            }
+        } else {
             pageSize = commons.record_limit;
-        if(data.page)
+        }
+        if(data.page) {
             page = parseInt(data.page);
-        else
+        } else {
             page = commons.skip_Records;
+        }
 
         var sortBy={};
-        if(data.sortBy)
-            sortBy[data.sortBy]=data.sortOrder=='desc' ? -1 : 1;
-        else
-            sortBy[commons.sortReferanceData[key]] = commons.sort_order == 'desc' ? -1 :1;
+        if(data.sortBy) {
+            sortBy[data.sortBy] = data.sortOrder == 'desc' ? -1 : 1;
+        } else {
+            sortBy[commons.sortReferanceData[key]] = commons.sort_order == 'desc' ? -1 : 1;
+        }
+
         var request={
             'sortBy':sortBy,
             'mirrorSort' :sortBy,
@@ -161,8 +164,9 @@ var ApiUtil = function() {
             request['filterBy'] = filterBy;
         }
         if (data.instanceType) {
-            filterBy['blueprintData.templateType'] = data.instanceType;
-            request['filterBy']=filterBy;
+                filterBy['blueprintData.templateType'] = data.instanceType;
+                request['filterBy']=filterBy;
+
         }
         if(data.search){
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);

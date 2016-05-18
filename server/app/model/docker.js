@@ -15,25 +15,21 @@ limitations under the License.
 */
 
 
-var Process = require("./../lib/utils/process");
 var fileIo = require('./../lib/utils/fileio');
 var SSH = require('./../lib/utils/sshexec');
-var instancesDao = require('./classes/instance/instance.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
 var credentialCrpto = require('./../lib/credentialcryptography.js');
-var configmgmtDao = require('../model/d4dmasters/configmgmt');
 var logger = require('_pr/logger')(module);
 
 var Docker = function() {
     var that = this;
     this.runDockerCommands = function(cmd, instanceid, callback, callbackOnStdOut, callbackOnStdErr) {
-        logger.debug(instanceid);
         instancesDao.getInstanceById(instanceid, function(err, data) {
             if (err) {
-                res.send(500);
+                callback(err,null);
                 return;
             }
             if (data.length) {
-                logger.debug(data[0]);
                 logger.debug('reached docker cmd');
                 var instanceoptions = data[0];
                 credentialCrpto.decryptCredential(instanceoptions.credentials, function(err, decrptedCredentials) {
@@ -70,9 +66,7 @@ var Docker = function() {
                             });
 
                         }
-
                         callback(err, code);
-
                     }, callbackOnStdOut, callbackOnStdErr);
 
                 });

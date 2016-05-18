@@ -22,19 +22,69 @@ before(function(done){
         });
 })
 
-/*describe("Check UnmanagedInstances List for Perticular Providers ",function(){
+/*describe("Blueprint Info ",function() {
 
-    it(" Unmanaged Instances List with Pagination ",function(done){
+    it("Blueprint Information  ", function (done) {
         server
-            .get('/providers/56d41d26708c18ba15138941/unmanagedInstances?page=1&pageSize=5')
+            .get('/blueprints/57026274ae7109e261266bd0')
+            .end(function (err, res) {
+                console.log(res.body);
+                console.log(res.status);
+                done();
+            });
+    });
+});*/
+
+
+describe("Deploy Permission ",function(){
+
+  /*  it(" Unmanaged Instances List with Pagination ",function(done){
+        server
+            .get('/providers/56f1459ec9f075275f4ea9be/unmanagedInstances?page=1&pageSize=5')
             .end(function(err,res){
                 assert.equal(res.status, 200);
                 assert.equal(res.body.length,5);
                 done();
             });
+    });*/
+
+
+  /*  it(" Instance List ",function(done){
+        server
+            .get('/instances/instanceIds')
+            .end(function(err,res){
+                console.log(res.body);
+                assert.equal(res.status, 200);
+                done();
+            });
+    });*/
+
+    it(" Save and Update deploy permission  ",function(done){
+        var reqBody = {
+            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+            "envName": "Dev",
+            "appName": "D4D",
+            "version": "3.02.100",
+            "comments":"Durgesh Sharma",
+            "isApproved": true
+
+        };
+            server
+            .post('/deploy-permission/save/permissionData')
+            .send(reqBody)
+            .end(function(err,res){
+                console.log(res.body);
+                assert.equal(res.status, 200);
+                done();
+            });
     });
 
-    it(" Search Unmanaged Instances List based on Status ",function(done){
+
+
+
+
+
+   /* it(" Search Unmanaged Instances List based on Status ",function(done){
         server
             .get('/providers/56d41d26708c18ba15138941/unmanagedInstances?status=running')
             .end(function(err,res){
@@ -43,9 +93,9 @@ before(function(done){
                 assert.equal(res.body[0].state,'running');
                 done();
             });
-    });
+    });*/
 
-    it(" Search Unmanaged Instances List based on OS Type with pagination",function(done){
+    /*it(" Search Unmanaged Instances List based on OS Type with pagination",function(done){
         server
             .get('/providers/56d41d26708c18ba15138941/unmanagedInstances?page=1&pageSize=8&osType=linux')
             .end(function(err,res){
@@ -54,20 +104,11 @@ before(function(done){
                 assert.equal(res.body[0].os,'linux');
                 done();
             });
-    });
-
-});*/
-
-describe("Check Import by IP  ",function(){
-
-   /* it(" Import By IP with without Request Body ",function(done){
-        server
-            .post('/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/b40330fc-c03c-44a2-97ec-b966733641e6/addInstance')
-            .end(function(err,res){
-                assert.equal(res.status, 400);
-                done();
-            });
     });*/
+
+});
+
+/*describe("Check Import by IP  ",function(){
     it(" Import By IP with with Request Body ",function(done){
         var obj = xlsx.parse(__dirname + '/data/dataSheets.xlsx');
         for(var i=0;i<(convertToJSON(obj[0].data)).length;i++) {
@@ -105,7 +146,7 @@ describe("Check Import by IP  ",function(){
 
 
 
-});
+});*/
 
 function convertToJSON(array) {
     var first = array[0].join()
@@ -128,4 +169,5 @@ function convertToJSON(array) {
     }
     return jsonData;
 };
+
 

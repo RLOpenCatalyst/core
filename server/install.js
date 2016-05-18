@@ -35,6 +35,7 @@ function getDefaultsConfig() {
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
+        scriptDirName :'scriptDir',
         staticUploadDir: '/var/chef/cache/uploads',
         app_run_secure_port: 443,
         cryptoSettings: {
@@ -61,29 +62,36 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
-        constantData:  {
-            common_field:['envId','providerId','orgId','bgId','projectId'],
-            sort_field:['name','description'],
-            filterReferanceData : {
-                "unmanagedInstances" : [{"state" : "running"},{"os" : "linux"}],
-                "managedInstances" : [{"instanceState" : "running"}]
+        constantData: {
+            common_field: ['envId', 'providerId', 'orgId', 'bgId', 'projectId'],
+            sort_field: ['name', 'description'],
+            filterReferanceData: {
+
+                "unmanagedInstances": [{
+                    "state": "running"
+                }, {
+                    "os": "linux"
+                }],
+                "managedInstances": [{
+                    "instanceState": "running"
+                }]
             },
-            sort_order : "desc",
-            sortReferanceData : {
-                "unmanagedInstances" : "state",
-                "managedInstances" : "instanceState",
-                "instances" : "instanceCreatedOn",
-                "tasks" : "taskCreatedOn",
-                "applications" : "name",
-                "azureArms" : "status",
-                "containerList" : "Status",
-                "cftList" : "status",
-                "appDeploy" : "envId",
+            sort_order: "desc",
+            sortReferanceData: {
+                "unmanagedInstances": "state",
+                "managedInstances": "instanceState",
+                "instances": "instanceCreatedOn",
+                "tasks": "taskCreatedOn",
+                "applications": "name",
+                "azureArms": "status",
+                "containerList": "Created",
+                "cftList": "status",
+                "appDeploy": "envId",
                 "trackedInstances": "providerType"
             },
-            skip_Records : 1,
-            max_record_limit : 200,
-            record_limit : 10,
+            skip_Records: 1,
+            max_record_limit: 200,
+            record_limit: 10
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
@@ -199,7 +207,7 @@ function getDefaultsConfig() {
         },
         maxInstanceCount: 0,
 
-       // cronjobTimeDelay: '"* * * * * *"',
+        // cronjobTimeDelay: '"* * * * * *"',
 
         //getter methods
         get catalystHome() {
@@ -211,6 +219,9 @@ function getDefaultsConfig() {
         },
         get tempDir() {
             return this.catalystHome + this.tempDirName + "/";
+        },
+        get scriptDir() {
+            return this.catalystHome + this.scriptDirName + "/";
         }
     };
     return config;
@@ -313,7 +324,7 @@ function installPackageJson() {
             console.log("Installation Successfull.");
             process.exit(0);
         } else {
-            console.log("Error occured while installing packages from package.json");
+            console.log("Error occured while installing packages from apidoc.json");
             process.exit(1);
         }
     });
@@ -328,7 +339,7 @@ function restoreSeedData(config, callback) {
             return;
         }
         db.dropDatabase();
-        
+
         var procMongoRestore = spawn('mongorestore', ['--host', config.db.host, '--port', config.db.port, '--db', config.db.dbName, '--drop', '../seed/mongodump/devops_new/']);
         procMongoRestore.on('error', function(mongoRestoreError) {
             console.error("mongorestore error ==> ", mongoRestoreError);

@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 var logger = require('_pr/logger')(module);
@@ -20,7 +20,6 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('../../dao/schema-validator');
-var uniqueValidator = require('mongoose-unique-validator');
 var ChefTask = require('./taskTypeChef');
 var JenkinsTask = require('./taskTypeJenkins');
 var TaskHistory = require('./taskHistory');
@@ -28,6 +27,10 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Jenkins = require('_pr/lib/jenkins');
 var CompositeTask = require('./taskTypeComposite');
 var PuppetTask = require('./taskTypePuppet');
+var mongoosePaginate = require('mongoose-paginate');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var ScriptTask = require('./taskTypeScript');
+
 
 var Schema = mongoose.Schema;
 
@@ -35,7 +38,8 @@ var TASK_TYPE = {
 	CHEF_TASK: 'chef',
 	JENKINS_TASK: 'jenkins',
 	COMPOSITE_TASK: 'composite',
-	PUPPET_TASK: 'puppet'
+	PUPPET_TASK: 'puppet',
+	SCRIPT_TASK: 'script'
 };
 
 var TASK_STATUS = {
@@ -88,15 +92,22 @@ var taskSchema = new Schema({
 	},
 	taskConfig: Schema.Types.Mixed,
 	lastTaskStatus: String,
+	normalized: String,
 	lastRunTimestamp: Number,
 	timestampEnded: Number,
-	blueprintIds: [String]
+	blueprintIds: [String],
+	taskCreatedOn: {
+		type: Date,
+		default: Date.now
+	}
 });
+taskSchema.plugin(mongoosePaginate);
 
-// instance method :-  
+// instance method :-
+
 
 // Executes a task
-taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, callback, onComplete) {
+taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, callback, onComplete) {
 	logger.debug('Executing');
 	var task;
 	var self = this;
@@ -132,6 +143,10 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
 			return;
 		}
 
+	} else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
+		task = new ScriptTask(this.taskConfig);
+		taskHistoryData.nodeIds = this.taskConfig.nodeIds;
+		taskHistoryData.scriptFileName = this.taskConfig.scriptFileName;
 	} else {
 		callback({
 			message: "Invalid Task Type"
@@ -140,7 +155,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
 	}
 	var timestamp = new Date().getTime();
 	var taskHistory = null;
-	task.execute(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
+	task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
 		if (err) {
 			callback(err, null);
 			return;
@@ -155,7 +170,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
 			taskHistoryData = taskHistoryEntry;
 		}
 
-		logger.debug("Task last run timestamp updated", JSON.stringify(taskExecuteData));
+		//logger.debug("Task last run timestamp updated", JSON.stringify(taskExecuteData));
 		self.lastRunTimestamp = timestamp;
 		self.lastTaskStatus = TASK_STATUS.RUNNING;
 		self.save(function(err, data) {
@@ -244,12 +259,12 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
 		if (taskHistory) {
 			taskHistory.timestampEnded = self.timestampEnded;
 			taskHistory.status = self.lastTaskStatus;
-			logger.debug("resultData: ", JSON.stringify(resultData));
+			//logger.debug("resultData: ", JSON.stringify(resultData));
 			if (resultData) {
 				if (resultData.instancesResults && resultData.instancesResults.length) {
 					taskHistory.executionResults = resultData.instancesResults;
 				} else if (resultData.blueprintResults && resultData.blueprintResults.length) {
-					logger.debug("resultData blueprint ==>  ", JSON.stringify(resultData.blueprintResults));
+					//logger.debug("resultData blueprint ==>  ", JSON.stringify(resultData.blueprintResults));
 
 					taskHistory.blueprintExecutionResults = resultData.blueprintResults;
 				}
@@ -328,7 +343,7 @@ var comparer = function compareObject(a, b) {
 }
 
 
-// Static methods :- 
+// Static methods :-
 
 // creates a new task
 taskSchema.statics.createNew = function(taskData, callback) {
@@ -367,6 +382,12 @@ taskSchema.statics.createNew = function(taskData, callback) {
 			assignTasks: taskData.assignTasks,
 			jobName: taskData.jobName
 		});
+	} else if (taskData.taskType === TASK_TYPE.SCRIPT_TASK) {
+		taskConfig = new ScriptTask({
+			taskType: TASK_TYPE.SCRIPT_TASK,
+			nodeIds: taskData.nodeIds,
+			scriptFileName: taskData.scriptFileName
+		});
 	} else {
 		callback({
 			message: "Invalid Task Type"
@@ -391,25 +412,48 @@ taskSchema.statics.createNew = function(taskData, callback) {
 };
 
 // creates a new task
-taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(orgId, bgId, projectId, envId, callback) {
-	var queryObj = {
-		orgId: orgId,
-		bgId: bgId,
-		projectId: projectId,
-		envId: envId
+taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
+	if(jsonData.pageSize) {
+		jsonData['searchColumns'] = ['taskType', 'name'];
+		ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+			if (err) {
+				var err = new Error('Internal server error');
+				err.status = 500;
+				return callback(err);
+			}
+			else{
+				Tasks.paginate(databaseCall.queryObj, databaseCall.options, function (err, tasks) {
+					if (err) {
+						var err = new Error('Internal server error');
+						err.status = 500;
+						return callback(err);
+					}
+					callback(null, tasks);
+				});
+			}
+		});
 	}
-
-	this.find(queryObj, function(err, data) {
-		if (err) {
-			logger.error(err);
-			callback(err, null);
-			return;
+	else{
+		var queryObj = {
+			orgId: jsonData.orgId,
+			bgId: jsonData.bgId,
+			projectId: jsonData.projectId,
+			envId: jsonData.envId
 		}
-		callback(null, data);
-	});
-};
 
-// get task by id
+		this.find(queryObj, function(err, data) {
+			if (err) {
+				logger.error(err);
+				callback(err, null);
+				return;
+			}
+			callback(null, data);
+		});
+	}
+}
+
+
+
 taskSchema.statics.getTaskById = function(taskId, callback) {
 	this.find({
 		"_id": new ObjectId(taskId)
@@ -500,6 +544,12 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
 			jobName: taskData.jobName,
 			assignTasks: taskData.assignTasks
 		});
+	} else if (taskData.taskType === TASK_TYPE.SCRIPT_TASK) {
+		taskConfig = new ScriptTask({
+			taskType: TASK_TYPE.SCRIPT_TASK,
+			nodeIds: taskData.nodeIds,
+			scriptFileName: taskData.scriptFileName
+		});
 	} else {
 		callback({
 			message: "Invalid Task Type"
@@ -580,6 +630,86 @@ taskSchema.statics.listTasks = function(callback) {
 			return;
 		}
 		callback(null, tasks);
+	});
+};
+taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId=function(jsonData,callback){
+	this.find(jsonData,{_id:1,taskType:1,name:1,taskConfig:1,blueprintIds:1},function(err, chefTasks) {
+		if (err) {
+			logger.error(err);
+			callback(err, null);
+			return;
+		}
+		callback(null, chefTasks);
+	});
+};
+taskSchema.statics.getDistinctTaskTypeByIds=function(ids,callback){
+	this.distinct("taskType",{_id:{$in:ids}},function(err,distinctTaskTypes){
+		if (err) {
+			logger.error(err);
+			callback(err, null);
+			return;
+		}
+		callback(null, distinctTaskTypes);
+	});
+};
+
+taskSchema.statics.NormalizedTasks=function(jsonData,fieldName,callback){
+	var queryObj = {
+			orgId: jsonData.orgId,
+			bgId: jsonData.bgId,
+			projectId: jsonData.projectId,
+			envId: jsonData.envId
+		};
+		this.find(queryObj,function(err,tasks){
+			if(err){
+				logger.error(err);
+				callback(err, null);
+				return;
+			}
+			var count=0;
+			for(var i =0;i < tasks.length;i++) {
+				(function(task){
+					count++;
+					var normalized=task[fieldName];
+					Tasks.update({
+						"_id": new ObjectId(task._id)
+					}, {
+						$set: {
+							normalized: normalized.toLowerCase()
+						}
+					}, {
+						upsert: false
+					},function(err,updatedTask){
+						if(err){
+				          logger.error(err);
+				          callback(err, null);
+				          return;
+			            }
+			           if(tasks.length === count){
+			           	callback(null,updatedTask);
+			           }
+					});
+				})(tasks[i]);
+			}
+		})
+};
+
+taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConfig, callback) {
+	Tasks.update({
+		"_id": new ObjectId(taskId)
+	}, {
+		$set: {
+			taskConfig: taskConfig
+		}
+	}, {
+		upsert: false
+	}, function(err, updateCount) {
+		if (err) {
+			return callback(err, null);
+		}
+		logger.debug('Updated task:' + updateCount);
+		return callback(null, updateCount);
+
 	});
 };
 

@@ -1,0 +1,20 @@
+<div id="addNewServicePage">
+    <div class="modal-header">
+        <span class="close" ng-click="cancel()">×</span>
+        <h4 class="modal-title"> 
+            Add New Service
+        </h4>
+    </div>
+
+    <div class="modal-body body-padding">
+        <loading size="large" name="isAddServicePageLoading" type="block"></loading>
+        <div ng-if="tabAddServicesData.length == 0" align="center">No Data Found</div>
+        <div id="grid5" ng-if="tabAddServicesData.length >0"  ui-grid="cpAddServicesGridOptions" ui-grid-pagination class="grid" ng-show="!isAddServicePageLoading"></div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-close" ng-click="cancel()">Cancel</button>
+        <button type="button" class="btn cat-btn-save" ng-click="ok()">Save</button>
+    </div>
+</div>
+

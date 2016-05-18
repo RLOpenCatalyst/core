@@ -37,7 +37,6 @@ module.exports = function(opts) {
     function connect(connectionParamsObj, callback) {
         var con = new sshConnection();
         connectionParamsObj.readyTimeout = 40000; //timeout increased to support azure based vms
-       
         try {
             con.connect(connectionParamsObj);
         } catch (connectErr) {
@@ -164,7 +163,6 @@ module.exports = function(opts) {
                         execSignal = signal;
 
                     });
-
                     stream.on('close', function(code, signal) {
                         logger.debug('SSH STREAM CLOSE');
                         if (con) {
@@ -192,7 +190,6 @@ module.exports = function(opts) {
 
                     if (typeof onStdErr === 'function') {
                         stream.stderr.on('data', function(data) {
-                            logger.debug('STDERR: ' + data);
                             onStdErr(data);
                         });
                     }

@@ -160,6 +160,48 @@ var MasterUtil = function() {
         });
     }
 
+    this.getBusinessGroupsByOrgId = function(orgId, callback) {
+        d4dModelNew.d4dModelMastersProductGroup.find({
+            orgname_rowid: orgId,
+            id:'2'
+         }, function(err, productGroupData) {
+            if(err) {
+                logger.debug("getBusinessGroupsByOrgId: "+err);
+                callback(err, null);
+            }
+            callback(null, productGroupData);
+
+        });
+    };
+
+    this.getProjectsBybgId = function(bgId, callback) {
+        d4dModelNew.d4dModelMastersProjects.find({
+            productgroupname_rowid: bgId,
+            id:'4'
+        }, function(err, projectData) {
+            if(err) {
+                logger.debug("getProjectsBybgId: "+err);
+                callback(err, null);
+            }
+            callback(null, projectData);
+
+        });
+    };
+
+    this.getEnvironmentsByprojectId = function(projectId, callback) {
+        d4dModelNew.d4dModelMastersEnvironments.find({
+            projectname_rowid: projectId,
+            id:'3'
+        }, function(err, environmentData) {
+            if(err) {
+                logger.debug("getEnvironmentsByprojectId: "+err);
+                callback(err, null);
+            }
+            callback(null, environmentData);
+
+        });
+    }
+
     // Return all Environments specific to User
     this.getEnvironments = function(orgList, callback) {
         var envList = [];
@@ -238,6 +280,47 @@ var MasterUtil = function() {
                 callback(null, projectList);
                 return;
             }
+        });
+    }
+    this.getBusinessGroupsByOrgId = function(orgId, callback) {
+        d4dModelNew.d4dModelMastersProductGroup.find({
+            orgname_rowid: orgId,
+            id:'2'
+        }, function(err, productGroupData) {
+            if(err) {
+                logger.debug("getBusinessGroupsByOrgId: "+err);
+                callback(err, null);
+            }
+            callback(null, productGroupData);
+
+        });
+    };
+
+    this.getProjectsBybgId = function(bgId, callback) {
+        d4dModelNew.d4dModelMastersProjects.find({
+            productgroupname_rowid: bgId,
+            id:'4'
+        }, function(err, projectData) {
+            if(err) {
+                logger.debug("getProjectsBybgId: "+err);
+                callback(err, null);
+            }
+            callback(null, projectData);
+
+        });
+    };
+
+    this.getEnvironmentsByprojectId = function(projectId, callback) {
+        d4dModelNew.d4dModelMastersEnvironments.find({
+            projectname_rowid: projectId,
+            id:'3'
+        }, function(err, environmentData) {
+            if(err) {
+                logger.debug("getEnvironmentsByprojectId: "+err);
+                callback(err, null);
+            }
+            callback(null, environmentData);
+
         });
     }
 
@@ -1461,6 +1544,65 @@ var MasterUtil = function() {
             }
         });
     }
+    this.getServerDetails=function(jsonData,callBack){
+        var serverDetail=[];
+        d4dModelNew.d4dModelMastersDockerConfig.find({
+            orgname_rowid:jsonData.orgId,
+            id:jsonData.dockerId
+        },function(err,dockerData){
+            if(err){
+                callBack(err,null);
+                return;
+            }
+            serverDetail=dockerData;
+            d4dModelNew.d4dModelMastersNexusServer.find({
+                orgname_rowid:jsonData.orgId,
+                id:jsonData.nexusId
+            },function(err,nexusData){
+                if(err){
+                    callBack(err,null);
+                    return;
+                }
+                for(var i = 0; i <nexusData.length; i++){
+                    serverDetail.push(nexusData[i])
+                }
+                callBack(null,serverDetail);
+            })
+        })
+    }
+
+   
+
+
+
+    this.getDockerServer=function(jsonData,callBack){
+        d4dModelNew.d4dModelMastersDockerConfig.find({
+            orgname_rowid:jsonData.orgId,
+            id:jsonData.dockerId
+        },function(err,dockerData){
+            if(err){
+                callBack(err,null);
+                return;
+            }
+            callBack(null,dockerData);
+        })
+    }
+
+    this.getNexusServer=function(jsonData,callBack){
+        d4dModelNew.d4dModelMastersNexusServer.find({
+            orgname_rowid:jsonData.orgId,
+            id:jsonData.nexusId
+        },function(err,nexusData){
+            if(err){
+                callBack(err,null);
+                return;
+            }
+            callBack(null,nexusData);
+        })
+    }
+
+
+
 
     // Return all Nexus Servers specific to User
     this.getNexusServers = function(orgList, callback) {
@@ -1627,7 +1769,8 @@ var MasterUtil = function() {
     this.getEnvironmentName = function(envId, callback) {
         logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({
-            rowid: envId
+            rowid: envId,
+            "id": 3
         }, function(err, envs) {
             if (err) {
                 callback(err, null);
@@ -1640,6 +1783,20 @@ var MasterUtil = function() {
                 callback(null, null);
                 return;
             }
+        });
+    };
+
+    this.getEnvironmentByEnvId = function(envId, callback) {
+        logger.debug("org rowids: ", envId);
+        d4dModelNew.d4dModelMastersEnvironments.find({
+            rowid: envId,
+            "id": 3
+        }, function(err, envs) {
+            if (err) {
+                callback(err, null);
+            }
+            callback(null, envs[0]);
+            return;
         });
     }
 
@@ -1670,7 +1827,6 @@ var MasterUtil = function() {
             if (err) {
                 logger.debug("App deploy fetch error.", err);
             }
-            logger.debug("App deploy: ", JSON.stringify(data));
             callback(null,data);
         });
     };
@@ -1816,22 +1972,22 @@ var MasterUtil = function() {
     // Get all appDeploy informations for project.
     // Note: This method logic has to change with stored procedure for better performance.
     // For now due to time constraints implementing with for loop.(Gobinda) 
-    this.getAppDeployListForProject = function(projectId, callback) {
+    this.getAppDeployListForProject = function getAppDeployListForProject(projectId, callback) {
         logger.debug("projectId: ", projectId);
         d4dModelNew.d4dModelMastersProjects.find({
-            rowid: projectId
+            rowid: projectId,
+            id: '4'
         }, function(err, project) {
             if (err) {
                 logger.error("Failed to get project. ", err);
-                callback(err, null);
+                return callback(err, null);
             }
             if (project.length) {
                 AppDeploy.getAppDeployByProjectId(projectId, function(err, appData) {
                     if (err) {
                         logger.debug("App deploy fetch error.", err);
-                        callback(err, null);
+                        return callback(err, null);
                     }
-                    logger.debug("App deploy: ", JSON.stringify(appData));
                     if (appData.length) {
                         var filterArray = [];
                         var finalJson = [];
@@ -1851,7 +2007,7 @@ var MasterUtil = function() {
                                 var arrayValue = filterArray[k].split("@");
                                 logger.debug("name: ", arrayValue[0]);
                                 logger.debug("Version: ", arrayValue[1]);
-                                AppDeploy.getAppDeployByAppNameAndVersion(arrayValue[0], arrayValue[1], function(err, filteredData) {
+                                AppDeploy.getAppDeployByAppNameAndVersion(projectId,arrayValue[0], arrayValue[1], function(err, filteredData) {
                                     count++;
                                     if (err) {
                                         logger.error("Failed to get filteredData: ", err);
@@ -1896,7 +2052,7 @@ var MasterUtil = function() {
                                         finalJson.push(tempJson);
                                         if (filterArray.length === count) {
                                             logger.debug("Send finalJson: ", JSON.stringify(finalJson));
-                                            callback(null, finalJson);
+                                            return callback(null, finalJson);
                                         }
                                     } else {
                                         return;
@@ -1906,14 +2062,11 @@ var MasterUtil = function() {
                         }
 
                     } else {
-                        callback(null, []);
+                        return callback(null, []);
                     }
                 });
-                /*} else {
-                	callback(null, null);
-                }*/
             } else {
-                callback(null, null);
+               return callback(null, null);
             }
         });
     };
@@ -1992,6 +2145,7 @@ var MasterUtil = function() {
             }
         });
     };
+   
 }
 
 module.exports = new MasterUtil();

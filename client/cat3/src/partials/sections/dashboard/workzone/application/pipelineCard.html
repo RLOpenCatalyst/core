@@ -1,0 +1,80 @@
+<div ng-switch="cardType" >
+    <div ng-switch-when="pipeline">
+        <div ng-if="cardDetails.name" class="text-center">
+            <div class="cardView">
+                <div class="card app-details" title="{{cardDetails.name}}">
+                    <div class="card-title">
+                        <div  class="card-title-name"> <strong>{{cardDetails.name}}</strong>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="card-status-state">
+                        <div class="app-instance-image"></div>
+                    </div>
+                    <div class="instance-ip">
+                        <span>{{cardDetails.version}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="!cardDetails.name" class="env-card-wrapper text-center">
+            <div class="cardView">
+                <div class="card {{pipeCtrl.selectedCardClass}}" title="{{cardDetails.applicationNodeIP}}"  ng-click="pipeCtrl.selectedCard(cardDetails,appName,envName)">
+                    <div class="card-title">
+                        <div  class="card-title-name"> <strong>{{cardDetails.applicationNodeIP}}</strong>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="card-status-state">
+                        <div class="status-state ">
+                            <div class="{{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'image')}}">
+                                <i class="fa fa-th cursor {{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'text')}}" title="App Details" ></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="instance-ip">
+                                <span ng-repeat="part in (cardDetails.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines)">
+                                    {{part}}
+                                    <br>
+                                </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+    <div ng-switch-when="summary">
+        <div ng-if="!cardDetails.version" class="text-center" ng-style="(cardDetails && cardDetails.length >0) ? {} : {'opacity': '0.4','filter':'alpha(opacity=40)'}" >
+            <div class="cardView">
+                <div class="card app-details" >
+                    <div class="card-title">
+                        <div  class="card-title-name" > <strong ng-bind-html="(cardDetails && cardDetails.length >0)?cardDetails:''"></strong>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="card-status-state">
+                        <div class="app-instance-image "></div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+        <div ng-if="cardDetails.version" class="text-center">
+            <div class="cardView">
+                <div class="card app-details" title="{{cardDetails.instanceName}}">
+                    <div class="card-title">
+                        <div  class="card-title-name"> <strong>{{cardDetails.instanceName}}</strong>
+                        </div>
+                        <hr/>
+                    </div>
+                    <div class="card-status-state">
+                        <div class="app-instance-image"></div>
+                    </div>
+                    <div class="instance-ip">
+                        <span>{{cardDetails.version}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+    </div>

@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 // This file act as a Model class which contains all Settings schema.
@@ -22,6 +22,7 @@ var uuid = require('node-uuid'); //used for generating unique id
 var validate = require('mongoose-validator');
 var logger = require('_pr/logger')(module);
 var extend = require('mongoose-validator').extend;
+var Schema = mongoose.Schema;
 
 extend('is_ValidName', function(val) {
     var pattern = /^[a-zA-Z0-9-_]+$/;
@@ -116,6 +117,8 @@ var d4dMastersOrg = new mongoose.Schema({
     collection: 'd4dmastersnew'
 });
 var d4dModelMastersOrg = mongoose.model('d4dModelMastersOrg', d4dMastersOrg, 'd4dmastersnew');
+
+
 
 
 var d4dMastersProductGroup = new mongoose.Schema({
@@ -370,6 +373,10 @@ var d4dMastersProjects = new mongoose.Schema({
         trim: true,
         default: true
     },
+    appdeploy: [{
+        applicationname: String,
+        appdescription: String
+    }],
     repositories: {
         nexus: [String],
         docker: [String]
@@ -1272,7 +1279,7 @@ var d4dMastersNexusServer = new mongoose.Schema({
     },
     groupid: {
         type: [String],
-        required: false,
+        required: true,
         trim: true
     },
     active: {

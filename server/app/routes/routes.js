@@ -187,6 +187,7 @@ module.exports.setRoutes = function(app) {
 		}
 	});
 	app.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'client/htmls/private')));
+    	app.use('/cat3', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'client/cat3')));
 
 
 	// for upload dir

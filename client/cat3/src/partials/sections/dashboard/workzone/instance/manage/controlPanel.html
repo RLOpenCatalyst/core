@@ -1,0 +1,78 @@
+<div id="controlPanelPage">
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<span class="modal-title title-font"> 
+			<i class="fa fa-gears"></i>&nbsp;
+			Control Panel
+		</span>
+		<div class="cp-header-card-info">
+			<span class="instance-name">{{instInfo.name}}</span>
+			<span> | </span>
+			<span class="instance-state">{{instInfo.instanceState}}</span>
+			<span> | </span>
+			<span class="instance-ip">{{instInfo.instanceIP}}</span>
+			<span ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'"> | </span>
+			<img class="cp-docker-image" alt="Docker"
+			src="images/global/docker.png" ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'" />
+		</div>
+	</div>
+
+	<div class="modal-body">
+		<div class="cp-container">
+			<div class="row">
+				<ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+					<li ng-class="{active:tab.isSet('Actionhistory')}">
+						<a ng-click="tab.setTab('Actionhistory');removeActive()">
+							<i class="fa fa-sun-o black"></i>&nbsp;
+							Action History
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Information')}">
+						<a ng-click="tab.setTab('Information');removeActive()">
+							<i class="fa fa-fw fa-exclamation-circle black"></i>&nbsp;
+							Information
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Services')}" ng-if="showServicesTab">
+						<a ng-click="tab.setTab('Services');removeActive()">
+							<i class="fa fa-share-square-o black"></i>&nbsp;
+							Services
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Logs')}">
+						<a ng-click="tab.setTab('Logs');removeActive()">
+							<i class="fa fa-clock-o black"></i>&nbsp;
+							Logs
+						</a>
+					</li>
+					<li ng-class="{active:tab.isSet('Instanceactions')}">
+						<a ng-click="tab.setTab('Instanceactions');removeActive()">
+							<i class="fa fa-list-ol black"></i>&nbsp;
+							Instance Actions
+						</a>
+					</li>
+				</ul>
+				
+				<div ng-show="tab.isSet('Actionhistory')">
+					<div ng-include="tab.templates.actionhistory.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Information')">
+					<div ng-include="tab.templates.information.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Services')">
+					<div ng-include="tab.templates.services.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Logs')">
+					<div ng-include="tab.templates.logs.url"></div>
+				</div>
+				<div ng-show="tab.isSet('Instanceactions')">
+					<div ng-include="tab.templates.instanceactions.url"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">Close</button>
+	</div>
+</div>

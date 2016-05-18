@@ -22,7 +22,8 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('_pr/model/utils/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
 var ChefInfraManager = require('./chef-infra-manager/chef-infra-manager');
-
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var mongoosePaginate = require('mongoose-paginate');
 
 var Schema = mongoose.Schema;
 
@@ -83,6 +84,8 @@ var CloudFormationSchema = new Schema({
     autoScaleUsername: String,
     autoScaleRunlist: [String]
 });
+
+CloudFormationSchema.plugin(mongoosePaginate);
 
 
 function getInfraManagerConfigType(cf) {
@@ -162,23 +165,51 @@ CloudFormationSchema.statics.createNew = function(cfData, callback) {
     });
 };
 
-// creates a new task
-CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(orgId, bgId, projectId, envId, callback) {
-    var queryObj = {
-        orgId: orgId,
-        bgId: bgId,
-        projectId: projectId,
-        envId: envId
-    }
 
-    this.find(queryObj, function(err, data) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
+CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
+    if(jsonData.pageSize) {
+        jsonData['searchColumns'] = ['stackName', 'status'];
+        ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            }
+            else{
+                CloudFormation.paginate(databaseCall.queryObj, databaseCall.options, function (err, cftData) {
+                    if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
+                else if (!cftData) {
+                    var err = new Error('Cloud Formation is not found');
+                    err.status = 404;
+                    return callback(err);
+                }
+                else
+                    return callback(null, cftData);
+            });
+            }
+        });
+    }
+    else{
+        var queryObj = {
+            orgId: jsonData.orgId,
+            bgId: jsonData.bgId,
+            projectId: jsonData.projectId,
+            envId: jsonData.envId
         }
-        callback(null, data);
-    });
+
+        this.find(queryObj, function(err, data) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    }
 };
 
 // get task by id
