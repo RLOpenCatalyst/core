@@ -16,6 +16,12 @@
 
 var router = require('express').Router();
 
+var async = require('async');
+var blueprintService = require('_pr/services/blueprintService.js');
+var validate = require('express-validation');
+var blueprintValidator = require('_pr/validators/blueprintValidator');
+var logger = require('_pr/logger')(module);
+
 /**
  * @api {get} /api/v2.0/blueprints 	                        Get blueprints list
  * @apiName getAllBlueprints
@@ -353,7 +359,29 @@ router.post('/', createBlueprint);
  *          "status": "SUCCESS"
  *      }
  */
-router.post('/:blueprintId/launch', launchBlueprint);
+router.post('/:blueprintId/launch', validate(blueprintValidator.launch), launchBlueprint);
+
+function launchBlueprint(req, res, next) {
+    var reqBody = req.body;
+    async.waterfall(
+        [
+            function(next) {
+                blueprintService.getBlueprintById(next);
+
+            },
+            function(blueprint, next) {
+                blueprintService.launchBlueprint(blueprint, next);
+            }
+        ],
+        function(err, results) {
+            if (err) {
+                next(err);
+            } else {
+                return res.status(200).send(results);
+            }
+        }
+    )
+}
 
 /**
  * @api {patch} /api/v2.0/blueprints 	                  Update blueprint

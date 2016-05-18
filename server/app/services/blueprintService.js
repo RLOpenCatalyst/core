@@ -15,13 +15,25 @@
 */
 var logger = require('_pr/logger')(module);
 var GCP = require('_pr/lib/gcp.js');
-var blueprints = require('_pr/model/blueprint/blueprint.js');
+//var blueprintModel = require('_pr/model/v2.0/blueprint/blueprints.js');
+var blueprintModel = require('_pr/model/blueprint/blueprint.js');
 var providerService = require('./providerService.js');
 var async = require('async');
 var instanceService = require('./instanceService.js');
 const errorType = 'blueprint';
 
 var blueprintService = module.exports = {};
+
+blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callback){
+    blueprintModel.findById(blueprintId,function(err, blueprint){
+        if(err){
+            var error = new Error("Error to get blueprint.");
+            error.status(404);
+            return callback(error,null);
+        }
+        return callback(null, blueprint);
+    });
+}
 
 blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback) {
     var networkProfile = blueprint.networkProfile;
@@ -40,7 +52,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
                         var filePath = "/home/gobinda/keyFile.json"
                         var params = {
                             "projectId": provider.projectId,
-                            "keyFilename": filePath
+                            "keyFilename": provider.filePath
                         }
                         var gcp = new GCP(params);
                         var launchParams = {
