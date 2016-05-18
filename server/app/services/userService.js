@@ -22,7 +22,7 @@ var jwt = require('jsonwebtoken');
 var authUtil = require('_pr/lib/utils/authUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var config = require('_pr/config');
-var JWTToken = require('_pr/model/v2.0/jwt_token')
+var JWTToken = require('_pr/model/v2.0/jwt_token');
 
 var userService = module.exports = {};
 
@@ -77,6 +77,7 @@ userService.getOrg = function getOrg(orgId, callback) {
         }
     });
 };
+
 userService.signOut = function signOut(base64Token, callback) {
     if (base64Token) {
         var token = new Buffer(base64Token, 'base64').toString('ascii');
