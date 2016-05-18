@@ -603,7 +603,6 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                     bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                     callback(null, bluePrintInfo);
                 })
-                callback(null, bluePrintInfo);
             }else {
                 bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                 callback(null, bluePrintInfo);
