@@ -77,7 +77,6 @@ userService.getOrg = function getOrg(orgId, callback) {
         }
     });
 };
-
 userService.signOut = function signOut(base64Token, callback) {
     if (base64Token) {
         var token = new Buffer(base64Token, 'base64').toString('ascii');
