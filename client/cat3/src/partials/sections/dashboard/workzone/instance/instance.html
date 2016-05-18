@@ -12,14 +12,15 @@
 				<i class="fa fa-refresh cursor"></i>
 			</span>			
 			<span class="pull-right">
-				<span class="import-button">
-					<span>
-						<i class="fa fa-laptop cursor" title="Import By IP" 
-						ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch"></i>
-					</span>
+				<button type="button" class="btn cat-btn-update instance-import-button" 
+				ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch">
+					<i class="fa fa-plus white"></i>
+					Import
+				</button>
+				<span ng-click="setCardView()"> <i class="fa fa-th cursor " ng-class="instanceCardViewSelection" title="Card View"></i></span>&nbsp;
+				<span id="instanceview" ng-click="instanceTableView()"> 
+					<i class="fa fa-align-justify fa-2x cursor" ng-class="instanceTableViewSelection" title="Table View"></i>
 				</span>
-			<span ng-click="setCardView()"> <i class="fa fa-th cursor " ng-class="instanceCardViewSelection" title="Card View"></i></span>&nbsp;
-			<span id="instanceview" ng-click="instanceTableView()"> <i class="fa fa-align-justify fa-2x cursor" ng-class="instanceTableViewSelection" title="Table View"></i></span>
 			</span>
 		</div>
 		<section id="cardView" class="scrollContent" ng-show="isCardViewActive">
@@ -69,7 +70,9 @@
 						</div>
 						<div class='btn-icons icon-ssh' title="SSH" ng-click="operationSet.instanceSSH(inst)" ng-show="actionSet.isSSHEnabled(inst) &amp;&amp; perms.ssh"></div>
 						 <div class='btn-icons icon-ssh-disabled' ng-show="actionSet.isSSHDisabled(inst) &amp;&amp; perms.ssh"></div>
-						 <div><a class='btn-icons icon-rdp' title="RDP" ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp" target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}"></a></div>
+						 <div ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp">
+						 	<a class='btn-icons icon-rdp' title="RDP" target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}"></a>
+						 </div>
 						 <div class='btn-icons icon-rdp-disabled' ng-show="actionSet.isRDPDisabled(inst) &amp;&amp; perms.rdp"></div>
 						 <div class="options-menu-wrapper">
 							<div class="btn-icons dropdown">

@@ -187,11 +187,6 @@ $imagePath : "../../../../../../images";
 
 		.panel-heading {
 			.pull-right {
-				.fa-laptop {
-					font-size: 20px;
-					margin: -2px 0 0 0;
-				}
-
 				.fa-th, .fa-align-justify {
 					font-size: 1.2em;
 				}
@@ -302,6 +297,10 @@ $imagePath : "../../../../../../images";
 	.ssh-bs {
 		display: none;
 	}
+
+	.rdp-bs {
+		display: none;
+	}
 }
 
 /*Common CSS which is used for all devices*/
@@ -340,18 +339,15 @@ $imagePath : "../../../../../../images";
 }
 
 #instancePage {
-	.fa-laptop {
-		font-size: 25px;
-		margin: -2px 0 0 0;
+	.instance-import-button {
+		margin: -2px 5px 0 0;
+	    padding: 2px 10px;
+	    font-size: 13px;
+	    vertical-align: top;
 	}
 
 	.fa-th, .fa-align-justify {
 		font-size: 1.5em;
-	}
-
-	.import-button {
-		margin-right: 10px;
-		float: left;
 	}
 
 	#tableView {
@@ -374,6 +370,7 @@ $imagePath : "../../../../../../images";
 		.dropdown {
 			width: 58%;
 			float: right;
+			position: static;
 		}
 
 		.dropdown-toggle {
@@ -432,10 +429,10 @@ $imagePath : "../../../../../../images";
 		}
 
 		.dropdown-menu {
-			left: -98px;
-			border-width: 1px;
-			@include theme-border-color;
-			top: 24px;
+			left: 85%;
+		    border-width: 1px;
+		    @include theme-border-color;
+		    top: 36px;
 		}
 
 		.ssh-rdp-wrapper {
@@ -726,6 +723,10 @@ $imagePath : "../../../../../../images";
 	}
 
 	.ssh-bs {
+		display: block;
+	}
+
+	.rdp-bs {
 		display: block;
 	}
 }
