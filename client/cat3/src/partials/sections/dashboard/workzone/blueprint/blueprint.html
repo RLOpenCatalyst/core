@@ -17,9 +17,11 @@
                             <div class="productdiv4" ng-repeat="launcher in blueprints.software_stack">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
-                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
-                                            <i class="fa fa-info-circle"></i>
-                                        </span>
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </div>
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="softwareStack" class="cardLogo">
                                         </li>
@@ -58,9 +60,11 @@
                             <div class="productdiv4" ng-repeat="launcher in blueprints.os_image">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
-                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
-                                            <i class="fa fa-info-circle"></i>
-                                        </span>            
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </div>           
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="OSImage" class="cardLogo"></li>
                                         <li title="{{launcher.name}}" class="card-text-overflow">
@@ -92,9 +96,11 @@
                             <div class="productdiv4" ng-repeat="launcher in blueprints.cloudFormation">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
-                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
-                                            <i class="fa fa-info-circle"></i>
-                                        </span>
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </div>
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="CFT" class="cardLogo"></li>
                                         <li title="{{launcher.name}}" class="card-text-overflow">
@@ -126,9 +132,11 @@
                             <div class="productdiv4" ng-repeat="launcher in blueprints.docker">
                                 <div class="productdiv1 cardimage role-Selected1" data-blueprinttype="instance_launch" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
-                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
-                                            <i class="fa fa-info-circle"></i>
-                                        </span>
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </div>
                                         <li>
                                             <img src="images/global/docker.png" alt="Docker" class="card-logo-docker"></li>
                                         <li title="{{launcher.name}}" class="card-text-overflow">
@@ -168,9 +176,11 @@
                             <div class="productdiv4" ng-repeat="launcher in blueprints.azureARM">
                                 <div class="productdiv1 cardimage role-Selected1">
                                     <ul class="list-unstyled system-prop">
-                                        <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
-                                            <i class="fa fa-info-circle"></i>
-                                        </span>
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                        </div>
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="azureARM" class="cardLogo">
                                         </li>

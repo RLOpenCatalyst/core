@@ -112,8 +112,13 @@
                                             data[j].attributes[attrItem].default = $scope.allCBAttributes[attrItem];
                                         }
                                     }
-                                }
-								$scope.allCBAttributes = data;
+                                }	
+                                //checking condition if the attribute length is > 0 and has been edited.
+								if($scope.allCBAttributes.length > 0){
+									$scope.allCBAttributes = angular.copy($scope.allCBAttributes,data);	
+								}else{
+									$scope.allCBAttributes = data;
+								}
 								$scope.editRunListAttributes = false;
 							} else {
 								$scope.allCBAttributes = $scope.allCBAttributes.concat(data);
