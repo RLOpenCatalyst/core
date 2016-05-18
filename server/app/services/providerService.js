@@ -40,6 +40,22 @@ providerService.checkIfProviderExists = function checkIfProviderExists(providerI
     });
 };
 
+providerService.getProvider = function getProvider(providerId, callback) {
+    providersModel.getById(providerId, function(err, provider) {
+        if(err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(provider) {
+            callback(null, provider);
+        } else {
+            var err = new Error('Provider not found');
+            err.status = 404;
+            callback(err);
+        }
+    })
+}
+
 providerService.createProvider = function createProvider(provider, orgDetails, callback) {
     if(!orgDetails) {
         var err = new Error('Invalid request');
@@ -62,6 +78,43 @@ providerService.createProvider = function createProvider(provider, orgDetails, c
     }
 };
 
+providerService.updateProvider = function updateProvider(provider, updateFields, callback) {
+    var fields = {};
+    if('name' in updateFields) {
+        fields.name = updateFields.name;
+        provider.name = updateFields.name;
+    }
+
+    if('providerDetails' in updateFields) {
+        switch(provider.type) {
+            case 'GCP':
+                if('projectId' in updateFields.providerDetails) {
+                    fields.providerDetails.projectId = updateFields.providerDetails.projectId;
+                    provider.providerDetails.projectId = updateFields.providerDetails.projectId;
+                }
+
+                if('keyFile' in updateFields.providerDetails)
+                    fields.providerDetails.keyFile = updateFields.providerDetails.keyFile;
+
+                if('sshKey' in updateFields.providerDetails)
+                    fields.providerDetails.sshKey = updateFields.providerDetails.sshKey;
+                break;
+            default:
+                break;
+        }
+    }
+
+    providersModel.updateById(provider._id, fields, function(err, result) {
+        if(err || !result) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(result) {
+            callback(null, provider);
+        }
+    });
+};
+
 providerService.createProviderResponseObject = function createProviderResponseObject(provider, callback) {
     var providerResponseObject = {
         id: provider._id,
@@ -73,7 +126,8 @@ providerService.createProviderResponseObject = function createProviderResponseOb
 
     switch(provider.type) {
         case 'GCP':
-            providerResponseObject.providerDetails.projectId = provider.providerDetails.projectId;
+            var gcpProvider =  new gcpProviderModel(provider);
+            providerResponseObject.providerDetails.projectId = gcpProvider.providerDetails.projectId;
             break;
         default:
             break;
@@ -98,7 +152,8 @@ providerService.getTagsByProvider = function getTagsByProvider(provider, callbac
     });
 };
 
-providerService.getTagByNameAndProvider = function getTagByNameAndProvider(providerId, tagName, callback) {
+providerService.getTagByNameAndProvider
+    = function getTagByNameAndProvider(providerId, tagName, callback) {
     var params = {
         'providerId': providerId,
         'name': tagName
