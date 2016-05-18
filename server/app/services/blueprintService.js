@@ -23,7 +23,7 @@ const errorType = 'blueprint';
 
 var blueprintService = module.exports = {};
 
-blueprintService.launch = function launch(blueprint, callback) {
+blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback) {
     var networkProfile = blueprint.networkProfile;
     if (networkProfile) {
         var providerId = networkProfile.providerId;
@@ -44,9 +44,9 @@ blueprintService.launch = function launch(blueprint, callback) {
                         }
                         var gcp = new GCP(params);
                         var launchParams = {
-                            "zone": networkProfile.zone,
-                            "instanceName": 'D4D-'+ blueprint.name,
-                            "osName": blueprint.vmImage.osName
+                            "blueprints": blueprint,
+                            "networkConfig": networkProfile,
+                            "providers": provider
                         }
                         gcp.createVM(launchParams, next);
                         break;
@@ -54,12 +54,15 @@ blueprintService.launch = function launch(blueprint, callback) {
                             break;
                 }
             },
-            function(instance, next){
+            function(instance, next) {
                 var instanceObj = {
                     "blueprint": blueprint,
                     "instance": instance
                 }
                 instanceService.createInstance(instanceObj, next);
+            },
+            function(instanceData,next){
+                instanceService.bootstrapInstance(instanceData,next);
             }
         ], function(err, results) {
             if (err) {
@@ -75,3 +78,4 @@ blueprintService.launch = function launch(blueprint, callback) {
         return callback(err, null);
     }
 }
+

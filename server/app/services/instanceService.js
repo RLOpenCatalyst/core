@@ -24,6 +24,7 @@ var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
 var async = require('async');
+var logsDao = require('_pr/model/dao/logsdao.js');
 
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
@@ -534,8 +535,8 @@ function createInstance(instanceObj, callback) {
         },
         credentials: {
             username: blueprint.vmImage.userName,
-            pemFileLocation: encryptedPemFileLocation, // Needs to decide
-            password: encrptedPassword
+            pemFileLocation: "encryptedPemFileLocation", // Needs to decide
+            password: "encrptedPassword"
         },
         blueprintData: {
             blueprintId: blueprint.id,
@@ -548,15 +549,14 @@ function createInstance(instanceObj, callback) {
     };
     switch (blueprint.networkProfile.type) {
         case 'GCP':
-
-                instances['chefNodeName'] = instance.id,
+            instances['chefNodeName'] = instance.name,
                 instances['platformId'] = instance.id,
-                instances['instanceIP'] = instance.networkInterfaces[0].networkIP,
+                instances['instanceIP'] = instance.ip,
                 instances['instanceState'] = instance.status,
                 instances['bootStrapStatus'] = 'waiting',
                 instances['chef'] = {
                     serverId: blueprint.infraManagerId,
-                    chefNodeName: instance.id
+                    chefNodeName: instance.name
                 }
             break;
             defaut:
@@ -567,6 +567,160 @@ function createInstance(instanceObj, callback) {
             logger.debug("Failed to createInstance.", err);
             return callback(err, null);
         }
-        return callback(null, instanceData);
+        return callback(null, instances);
     });
 }
+
+
+function bootstrapInstance(bootstrapData, callback) {
+
+    var bootstrapInstanceParams = {
+        instanceIp: bootstrapData.instanceIP,
+        pemFilePath: bootstrapData.credentials.pemFileLocation, // should be decrypted
+        runlist: bootstrapData.runlist,
+        instanceUsername: bootstrapData.credentials.username,
+        nodeName: bootstrapData.name,
+        environment: bootstrapData.envName,
+        instanceOS: bootstrapData.os,
+        jsonAttributes: bootstrapData.jsonAttributes,
+        instancePassword: bootstrapData.password // should be decrypted
+    };
+
+    // need to check
+    launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function(err, code) {
+
+        if (bootstrapInstanceParams.pemFilePath) {
+            fileIo.removeFile(bootstrapInstanceParams.pemFilePath, function(err) {
+                if (err) {
+                    logger.error("Unable to delete temp pem file =>", err);
+                } else {
+                    logger.debug("temp pem file deleted =>", err);
+                }
+            });
+        }
+
+
+        logger.error('process stopped ==> ', err, code);
+        if (err) {
+            logger.error("knife launch err ==>", err);
+            instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function(err, updateData) {
+
+            });
+            var timestampEnded = new Date().getTime();
+            logsDao.insertLog({
+                referenceId: logsReferenceIds,
+                err: true,
+                log: "Bootstrap failed",
+                timestamp: timestampEnded
+            });
+            instancesModel.updateActionLog(bootstrapData.id, actionLog._id, false, timestampEnded);
+
+
+        } else {
+            if (code == 0) {
+                instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'success', function(err, updateData) {
+                    if (err) {
+                        logger.error("Unable to set instance bootstarp status. code 0", err);
+                    } else {
+                        logger.debug("Instance bootstrap status set to success");
+                    }
+                });
+                var timestampEnded = new Date().getTime();
+                logsDao.insertLog({
+                    referenceId: logsReferenceIds,
+                    err: false,
+                    log: "Instance Bootstraped successfully",
+                    timestamp: timestampEnded
+                });
+                instancesModel.updateActionLog(bootstrapData.id, actionLog._id, true, timestampEnded);
+
+
+                launchParams.infraManager.getNode(bootstrapData.chefNodeName, function(err, nodeData) {
+                    if (err) {
+                        logger.error("Failed chef.getNode", err);
+                        return;
+                    }
+                    var hardwareData = {};
+                    hardwareData.architecture = nodeData.automatic.kernel.machine;
+                    hardwareData.platform = nodeData.automatic.platform;
+                    hardwareData.platformVersion = nodeData.automatic.platform_version;
+                    hardwareData.memory = {
+                        total: 'unknown',
+                        free: 'unknown'
+                    };
+                    if (nodeData.automatic.memory) {
+                        hardwareData.memory.total = nodeData.automatic.memory.total;
+                        hardwareData.memory.free = nodeData.automatic.memory.free;
+                    }
+                    hardwareData.os = bootstrapData.hardware.os;
+                    instancesModel.setHardwareDetails(bootstrapData.id, hardwareData, function(err, updateData) {
+                        if (err) {
+                            logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                        } else {
+                            logger.debug("Instance hardware details set successessfully");
+                        }
+                    });
+                    //Checking docker status and updating
+                    var _docker = new Docker();
+                    _docker.checkDockerStatus(bootstrapData.id,
+                        function(err, retCode) {
+                            if (err) {
+                                logger.error("Failed _docker.checkDockerStatus", err);
+                                res.send(500);
+                                return;
+                                //res.end('200');
+
+                            }
+                            logger.debug('Docker Check Returned:' + retCode);
+                            if (retCode == '0') {
+                                instancesModel.updateInstanceDockerStatus(bootstrapData.id, "success", '', function(data) {
+                                    logger.debug('Instance Docker Status set to Success');
+                                });
+
+                            }
+                        });
+
+                });
+
+            } else {
+                instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function(err, updateData) {
+                    if (err) {
+                        logger.error("Unable to set instance bootstarp status code != 0", err);
+                    } else {
+                        logger.debug("Instance bootstrap status set to failed");
+                    }
+                });
+                var timestampEnded = new Date().getTime();
+                logsDao.insertLog({
+                    referenceId: logsReferenceIds,
+                    err: false,
+                    log: "Bootstrap Failed",
+                    timestamp: timestampEnded
+                });
+                instancesModel.updateActionLog(bootstrapData.id, actionLog._id, false, timestampEnded);
+
+            }
+        }
+
+    }, function(stdOutData) {
+
+        logsDao.insertLog({
+            referenceId: logsReferenceIds,
+            err: false,
+            log: stdOutData.toString('ascii'),
+            timestamp: new Date().getTime()
+        });
+
+    }, function(stdErrData) {
+
+        //retrying 4 times before giving up.
+        logsDao.insertLog({
+            referenceId: logsReferenceIds,
+            err: true,
+            log: stdErrData.toString('ascii'),
+            timestamp: new Date().getTime()
+        });
+
+
+    });
+};

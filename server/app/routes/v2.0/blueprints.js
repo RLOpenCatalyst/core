@@ -341,7 +341,8 @@ router.post('/', createBlueprint);
  * @apiParam {String} blueprintLaunchDetails.version        Version of blueprint to be launched
  * @apiParamExample {json} Request-Example:
  *      {
- *          "version": "1"
+ *          "version": "1",
+ 			"envName": "Dev"
  *      }
  *
  * @apiSuccess {Object} blueprintLaunchStatus               Check cookbook attributes

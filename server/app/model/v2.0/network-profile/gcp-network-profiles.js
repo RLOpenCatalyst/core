@@ -34,17 +34,14 @@ var GCPNetworkProfileSchema = new BaseNetworkProfileSchema({
             type: String,
             trim: true
         },
-        accessConfigs: {
-            type: []
-        },
-        accessConfigName: {
+        subNetwork: {
             type: String,
             trim: true
         },
-        accessConfigType: {
-            type: String,
-            trim: true
-        }
+        accessConfigs: [{
+            name: String,
+            type: String
+        }]
     }
 });
 
