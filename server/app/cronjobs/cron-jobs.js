@@ -22,7 +22,6 @@ var costUsageAggregation = require('_pr/cronjobs/cost-usage-aggregation');
 var providerSync = require('_pr/cronjobs/provider-sync');
 var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');
 var dockerContinerSync = require('_pr/cronjobs/docker-container-sync');
-var awsCostAggregation = require('_pr/cronjobs/aws-cost-aggregation');
 
 module.exports.start = function start() {
 	logger.info('Cost usage aggregation started with interval ==> '+ costUsageAggregation.getInterval());
@@ -39,5 +38,5 @@ module.exports.start = function start() {
 	logger.info('Docker container sync started with interval ==> '+ dockerContinerSync.getInterval());
 	var dockerContinerSyncJobId
 		= crontab.scheduleJob(dockerContinerSync.getInterval(), dockerContinerSync.execute);
-	
+
 }
