@@ -25,7 +25,7 @@
                     'title': 'Select Instance'
                 }];
 
-            $scope.nextEnabled = true;
+            $scope.nextEnabled = false;
             $scope.previousEnabled = false;
             $scope.submitEnabled = false;
             $scope.repaintStep = steps[stepIndex].name;
@@ -125,6 +125,9 @@
                     $scope.dockerDetails = _dockerImages; 
                 },
                 rePaintDockerImagesListView: function() {
+                    if($scope.dockerDetails.length ===0){
+                        return false;
+                    }
                     $scope.isdockerImagesPageLoading = true;
                     var tableData = $scope.dockerDetails;
                     $scope.dockerDetails = [];
@@ -142,6 +145,8 @@
                     $scope.initDockerImagesGrids();
                     $scope.dockerImagesListView();
                     $scope.isdockerImagesPageLoading = false;
+                    helper.initializeStepChangeListener();
+                    $scope.nextEnabled = true;
                 }, function(error){
                     console.log(error);
                     $scope.isdockerImagesPageLoading = false;
@@ -161,6 +166,19 @@
                         }
                     }
                     return runningInstances;
+                },
+                //Repainting the UI Grid for Docker Images.
+                initializeStepChangeListener: function (){
+                    $scope.$watch('repaintStep', function () {
+                        switch($scope.repaintStep){
+                            case 'dockerimages' :
+                                $scope.rePaintDockerImagesListView();
+                            break;
+                            case 'instances' :
+                               $scope.rePaintDockerinstancesListView();
+                            break;
+                        }
+                    });
                 }
             };
             
@@ -190,6 +208,9 @@
                     });
                 },
                 rePaintDockerinstancesListView: function() {
+                    if($scope.dockerinstancesData.length === 0){
+                        return false;
+                    }
                     $scope.isDockerInstancesLoading = true;
                     var tableData = $scope.dockerinstancesData;
                     $scope.dockerinstancesData = [];
@@ -206,18 +227,7 @@
             $scope.initdockerinstances();
             /*Step 2 - Instances to run Docker images ends*/
 
-            //Repainting the UI Grid for Docker Images.
-            $scope.$watch('repaintStep', function () {
-                switch($scope.repaintStep){
-                    case 'dockerimages' :
-                        $scope.rePaintDockerImagesListView();
-                    break;
-                    case 'instances' :
-                       $scope.rePaintDockerinstancesListView();
-                    break;
-                }
-            });
-
+            
             //modal to show the Docker Parameters Popup
             $scope.launchParam = function(launchObj, idx) {
                 var modalInstance = $modal.open({
