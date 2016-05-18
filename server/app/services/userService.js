@@ -16,13 +16,13 @@
 
 var logger = require('_pr/logger')(module);
 var MasterUtil = require('_pr/lib/utils/masterUtil.js');
+// @TODO to be replaced on deprecation
+var d4dMastersNewModel = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 
 var userService = module.exports = {};
 
-userService.getUserOrgs = getUserOrgs;
-
 //@TODO to be modified to work with tokens as well
-function getUserOrgs(user, callback) {
+userService.getUserOrgs = function getUserOrgs(user, callback) {
     // @TODO Constant to be moved to config
     if(user.roleId == 'Admin') {
         MasterUtil.getAllActiveOrg(function(err, orgs) {
@@ -53,4 +53,20 @@ function getUserOrgs(user, callback) {
             }
         });
     }
-}
+};
+
+userService.getOrgById = function getOrgById(orgId, callback) {
+    d4dMastersNewModel.d4dModelMastersOrg.find({
+        rowid: orgId
+    }, function(err, orgDetails) {
+        if(err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(orgDetails.length > 0) {
+            callback(null, orgDetails[0]);
+        } else {
+            callback(null, null);
+        }
+    });
+};

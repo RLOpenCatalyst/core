@@ -20,18 +20,27 @@ var Providers = require('./providers');
 
 var GCPProviderSchema = new BaseProviderSchema({
     providerDetails: {
+        projectId: {
+            type: String,
+            required: true,
+            trim: false
+        },
         keyFile: {
             type: String,
             required: true,
             trim: false
         },
-        projectId: {
+        sshKey: {
             type: String,
             required: true,
             trim: false
         }
     }
 });
+
+// @TODO hook to encrypt
+/*GCPProviderSchema.pre('save', function(result) {
+});*/
 
 GCPProviderSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
