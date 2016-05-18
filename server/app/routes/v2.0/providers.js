@@ -15,13 +15,17 @@
  */
 
 var router = require('express').Router();
+var async = require('async');
+var providerService = require('_pr/services/providerService');
+var userService = require('_pr/services/userService');
+var providersValidator = require('_pr/validators/providersValidator');
+var validate = require('express-validation');
+var logger = require('_pr/logger')(module);
 
 /**
  * @api {get} /api/v2.0/providers 	                     Get providers list
  * @apiName getAllProviders
  * @apiGroup providers
- *
- * @apiParam {String} providerId                         Provider ID
  *
  * @apiSuccess {Object[]} providers			             List of providers
  * @apiSuccess {String} providers.type		             Provider type (AWS/GCP/Azure)
@@ -38,7 +42,7 @@ var router = require('express').Router();
  * 		{
  * 			"providers": [
  * 			 	 {
- * 			 	    "id": "<ID>",
+ *                  "id": "<ID>",
  * 					"name":	"providerName",
  * 					"type": "AWS",
  * 				    "organization": {
@@ -67,12 +71,11 @@ var router = require('express').Router();
  *			"pageSize": 10,
  *			"pageIndex": 1
  * 		}
- *
  */
-router.get('/', getProviders);
+router.get('/', validate(providersValidator.accessIndividualResource), getProviders);
 
 /**
- * @api {get} /api/v2.0/providers 	                    Get provider
+ * @api {get} /api/v2.0/providers/:providerId 	        Get provider
  * @apiName getProvider
  * @apiGroup providers
  *
@@ -84,7 +87,6 @@ router.get('/', getProviders);
  * @apiSuccess {String} providers.organization.id        Provider organization id
  * @apiSuccess {String} providers.organization.name      Provider organization name
  * @apiSuccess {String} providers.providerDetails        Provider details based on type
- *
  * @apiSuccessExample {json} GCP-Success-Response:
  *      HTTP/1.1 200 OK
  *      {
@@ -100,11 +102,11 @@ router.get('/', getProviders);
  *          }
  *      }
  */
-router.get('/:providerId', getProvider);
+router.get('/:providerId', validate(providersValidator.accessIndividualResource), getProvider);
 
 
 /**
- * @api {post} /api/v2.0/providers 	                        Create provider
+ * @api {post} /api/v2.0/providers 	                     Create provider
  * @apiName createProvider
  * @apiGroup providers
  *
@@ -137,14 +139,16 @@ router.get('/:providerId', getProvider);
  * @apiParam {Object} provider.providerDetails              Provider details based on type
  * @apiParam {String} provider.providerDetails.projectId    GCP Project ID
  * @apiParam {String} provider.providerDetails.keyFile      Base 64 encoded key file
+ * @apiParam {String} provider.providerDetails.sshKey       Base 64 encoded ssh key
  * @apiParamExample {json} GCP-Request-Example:
  * 		{
  * 			"name":	"Provider Name",
  * 			"type": "GCP",
- * 			"organization": "<Organization ID>",
+ * 			"organizationId": "<Organization ID>",
  * 			"providerDetails": {
  * 				"projectId": "<GCP Project ID>",
- * 				"keyFile": "<GCP Key File>"
+ * 				"keyFile": "<GCP Key File>",
+ * 			    "sshKey": "<GCP instance ssh key>"
  * 			}
  * 		}
  *
@@ -170,7 +174,7 @@ router.get('/:providerId', getProvider);
  * 			}
  * 		}
  */
-router.post('/', createProvider);
+router.post('/', validate(providersValidator.create), createProvider);
 
 /**
  * @api {delete} /api/v2.0/providers/:providerId 	    Delete provider
@@ -182,7 +186,7 @@ router.post('/', createProvider);
  * @apiSuccess {Object} response			            Empty response object
  *
  */
-router.delete('/:providerId', deleteProvider);
+router.delete('/:providerId', validate(providersValidator.accessIndividualResource), deleteProvider);
 
 /**
  * @api {patch} /api/v2.0/providers/:providerId 	        Update provider
@@ -230,21 +234,90 @@ router.delete('/:providerId', deleteProvider);
  *          }
  *      }
  */
-router.patch('/:providerId', updateProvider);
+router.patch('/:providerId', validate(providersValidator.accessIndividualResource), updateProvider);
 
 function createProvider(req, res, next) {
+    async.waterfall([
+        // @TODO Check if user has access to the specified organization
+        function(next) {
+            userService.getOrgById(req.body.organizationId, next);
+        },
+        function(org, next) {
+            providerService.createProvider(req.body, org, next);
+        },
+        providerService.createProviderResponseObject
+    ], function(err, provider) {
+        if(err) {
+            next(err);
+        } else {
+            res.status(200).send(provider);
+        }
+    });
 }
 
 function updateProvider(req, res, next) {
+    async.waterfall([
+        function (next) {
+            providerService.getProviderById(req.params.providerId, next);
+        },
+        function(next, provider) {
+            providerService.updateProvider(req.body, provider, next);
+        },
+        providerService.createProviderResponseObject
+    ], function(err, provider) {
+        if(err) {
+            next(err);
+        } else {
+            res.status(200).send(provider);
+        }
+    });
 }
 
 function deleteProvider(req, res, next) {
+    async.waterfall([
+        function (next) {
+            providerService.checkIfGCPProviderExists(req.params.providerId, next);
+        },
+        function(next, provider) {
+            providerService.deleteProvider(req.body, next);
+        },
+    ], function(err, provider) {
+        if(err) {
+            next(err);
+        } else {
+            res.status(200).send({});
+        }
+    });
 }
 
 function getProviders(req, res, next) {
+    async.waterfall([
+        function (next) {
+            providerService.getAllProviders(req.params.providerId, next);
+        },
+        providerService.createProviderResponseList
+    ], function(err, provider) {
+        if(err) {
+            next(err);
+        } else {
+            res.status(200).send(providers);
+        }
+    });
 }
 
-function getProvider(req, res, next) {s
+function getProvider(req, res, next) {
+    async.waterfall([
+        function (next) {
+            providerService.checkIfGCPProviderExists(req.params.providerId, next);
+        },
+        providerService.createProviderResponseObject
+    ], function(err, provider) {
+        if(err) {
+            next(err);
+        } else {
+            res.status(200).send(provider);
+        }
+    });
 }
 
 module.exports.pattern = '/providers';

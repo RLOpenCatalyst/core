@@ -40,10 +40,21 @@ providerService.checkIfProviderExists = function checkIfProviderExists(providerI
     });
 };
 
-providerService.createProvider = function createProvider(provider, callback) {
+providerService.createProvider = function createProvider(provider, orgDetails, callback) {
+    if(!orgDetails) {
+        var err = new Error('Invalid request');
+        err.status = 400;
+        return callback(err);
+    }
+
     switch(provider.type) {
         case 'GCP':
             logger.debug('Creating new GCP provider');
+            provider.organization = {
+                id: orgDetails.rowid,
+                name: orgDetails.orgname
+            };
+            delete provider.organizationId;
             gcpProviderModel.createNew(provider, callback);
             break;
         defaut:
@@ -51,9 +62,29 @@ providerService.createProvider = function createProvider(provider, callback) {
     }
 };
 
+providerService.createProviderResponseObject = function createProviderResponseObject(provider, callback) {
+    var providerResponseObject = {
+        id: provider._id,
+        name: provider.name,
+        type: provider.type,
+        organization: provider.organization,
+        providerDetails: {}
+    };
+
+    switch(provider.type) {
+        case 'GCP':
+            providerResponseObject.providerDetails.projectId = provider.providerDetails.projectId;
+            break;
+        default:
+            break;
+    }
+
+    callback(null, providerResponseObject);
+}
+
 providerService.getAllProviders = function getAllProviders(orgId, callback) {
     providersModel.getAllProviders(callback);
-}
+};
 
 providerService.getTagsByProvider = function getTagsByProvider(provider, callback) {
     tagsModel.getTagsByProviderId(provider._id, function(err, tags) {

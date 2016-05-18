@@ -16,22 +16,18 @@
 
 var logger = require('_pr/logger')(module);
 var MasterUtil = require('_pr/lib/utils/masterUtil.js');
-
+// @TODO to be replaced on deprecation
+var d4dMastersNewModel = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var jwt = require('jsonwebtoken');
 var authUtil = require('_pr/lib/utils/authUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var config = require('_pr/config');
-
-
-
 var JWTToken = require('_pr/model/v2.0/jwt_token')
 
 var userService = module.exports = {};
 
-userService.getUserOrgs = getUserOrgs;
-
 //@TODO to be modified to work with tokens as well
-function getUserOrgs(user, callback) {
+userService.getUserOrgs = function getUserOrgs(user, callback) {
     // @TODO Constant to be moved to config
     if (user.roleId == 'Admin') {
         MasterUtil.getAllActiveOrg(function(err, orgs) {
@@ -62,9 +58,23 @@ function getUserOrgs(user, callback) {
             }
         });
     }
-}
+};
 
-
+userService.getOrgById = function getOrgById(orgId, callback) {
+    d4dMastersNewModel.d4dModelMastersOrg.find({
+        rowid: orgId
+    }, function(err, orgDetails) {
+        if(err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(orgDetails.length > 0) {
+            callback(null, orgDetails[0]);
+        } else {
+            callback(null, null);
+        }
+    });
+};
 
 userService.signOut = function signOut(base64Token, callback) {
     if (base64Token) {
@@ -86,7 +96,6 @@ userService.signOut = function signOut(base64Token, callback) {
         callback(err);
     }
 };
-
 
 userService.getUser = function getUser(username, callback) {
     d4dModelNew.d4dModelMastersUsers.find({
@@ -153,5 +162,4 @@ userService.generateToken = function generateToken(user, callback) {
             });
         });
     });
-
 };
