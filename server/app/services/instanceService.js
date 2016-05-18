@@ -373,9 +373,7 @@ function getTrackedInstancesForProvider(provider, next) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             unmanaged: function(callback) {
-                unManagedInstancesModel.getByProviderId(
-                    {providerId: provider._id}, callback
-                );
+                unManagedInstancesModel.getUnManagedInstanceByProviderId(provider._id, callback);
             }
         },
         function(err, results) {
@@ -384,9 +382,6 @@ function getTrackedInstancesForProvider(provider, next) {
                 err.status = 500;
                 next(err)
             } else {
-                /*var instances = results.reduce(function(a, b) {
-                 return a.concat(b);
-                 }, []);*/
                 next(null, provider, results);
             }
         }

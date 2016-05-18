@@ -62,11 +62,15 @@ describe("Deploy Permission ",function(){
     it(" Save and Update deploy permission  ",function(done){
         var reqBody = {
             "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "envSequence": ["PreProd","Prod", "Dev"],
-            "envId": ["PreProd", "Dev","Prod"]
-            };
+            "envName": "Dev",
+            "appName": "D4D",
+            "version": "3.02.100",
+            "comments":"Durgesh Sharma",
+            "isApproved": true
+
+        };
             server
-            .post('/app-deploy-pipeline/save/appConfigPipeLineData')
+            .post('/deploy-permission/save/permissionData')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);
