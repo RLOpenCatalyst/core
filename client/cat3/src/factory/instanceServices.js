@@ -131,12 +131,12 @@
 			}
 		};
 		serviceInterface.isRDPEnabled = function(inst) {
-			if (isRDPSupportOS(inst) && isBootstrapped(inst) && isRunning(inst)) {
+			if (isRDPSupportOS(inst) && isRunning(inst)) {
 				return true;
 			}
 		};
 		serviceInterface.isRDPDisabled = function(inst) {
-			if (isRDPSupportOS(inst) && (!isBootstrapped(inst) && !isRunning(inst))) {
+			if (isRDPSupportOS(inst) && !isRunning(inst)) {
 				return true;
 			}
 		};
