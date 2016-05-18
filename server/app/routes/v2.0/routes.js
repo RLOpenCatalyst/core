@@ -17,9 +17,6 @@ if (Authentication.sessionVerifier) {
     router.use(Authentication.sessionVerifier);
 }
 
-router.get('/test',function(req,res){
-  res.status(200).send('hello token');
-});
 
 
 router.use(Providers.pattern, Providers.router);
