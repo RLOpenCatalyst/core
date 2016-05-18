@@ -35,6 +35,29 @@
 					}
 				}
 				return completeData;
+			},
+			setInitPaginationDefaults: function(){
+				var uigridDefaults = uiGridOptionsService.options();
+				/*object used for ui grid table. This contains page,pageSize,sortBy and sortDirection*/
+				$scope.paginationParams = uigridDefaults.pagination;
+				$scope.paginationParams.sortBy = 'instanceCreatedOn';
+				$scope.paginationParams.sortOrder = 'desc';
+
+				/*objects used for card*/
+				$scope.currentCardPage = uigridDefaults.pagination.page;
+				$scope.cardsPerPage = uigridDefaults.pagination.pageSize;
+				$scope.numofCardPages = 0;//Have to calculate from totalItems/cardsPerPage
+				$scope.totalCards = 0;
+			},
+			setPaginationDefaults: function(){
+				$scope.paginationParams.sortBy = 'instanceCreatedOn';
+				$scope.paginationParams.sortOrder = 'desc';
+				$scope.setFirstPageView();
+				if($scope.paginationParams.page != 1){
+					$scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
+				}else{
+					$scope.instancesListCardView();	
+				}
 			}
 		};
 		$scope.instancePageLevelLoader = true;
@@ -75,14 +98,13 @@
 			$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption,{
 			data:'tabData',
 				columnDefs : [
-					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.chef"/>'+
-					'<img src="/cat3/images/global/chef-import.png" ng-show="row.entity.puppet"/>'+
-					'<img class="docker-image dockerenabledinstacne" alt="Docker" src="images/global/docker.png" ng-show="row.entity.docker" ng-click="grid.appScope.openContainersTab()"/>', cellTooltip: true},
+					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img class="instanceRoleLogo" src="{{grid.appScope.getRoleLogo(row.entity)}}" />'
+					+'<img class="instanceRoleLogoDocker" src="images/global/docker.png" ng-show="row.entity.docker && row.entity.docker.dockerEngineStatus === \'success\'" ng-click="grid.appScope.openContainersTab()">', cellTooltip: true},
 					{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
 					'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
 					'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+
 					'</span>', cellTooltip: true},
-					{ name:'Ip Address', field:'instanceIP',cellTooltip: true},
+					{ name:'Ip Address', displayName:'IP Address', field:'instanceIP',cellTooltip: true},
 					{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
 					{ name:'Status', enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
 					{ name:'Log Info', enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
@@ -195,6 +217,35 @@
 				} else {
 					return instanceStateImagePrefix + colorSuffix;
 				}
+			},
+			/*method to get the instance role*/
+			getRoleLogo: function(inst){
+				var imagePath = '';
+				var type = '';
+				type = inst.blueprintData && inst.blueprintData.templateId;
+				switch(type) {
+					case 'chef': 
+					case 'chef_import':
+						imagePath = 'images/global/chef-import.png';
+						break;
+					case 'Apache':
+					case 'apache':
+						imagePath = 'images/templateicons/appFact4.png';
+						break;
+					case 'CustomTemplate': 
+						imagePath = 'images/templateicons/custom-temp.jpg';
+						break;
+					case 'Tomcat': 
+						imagePath = 'images/templateicons/apache-tomcat.jpeg';
+						break;
+					case 'CFT_newco': 
+						imagePath = 'images/templateicons/cloudformation.png';
+						break;
+					default: 
+						imagePath = 'images/templateicons/imgo.jpg';
+						break;
+				}
+				return imagePath;
 			},
 			getPlatformId: function(providerType, platformID) {
 				/*$scope.platformId1 = 'unknown';
@@ -348,10 +399,9 @@
 		};
 
 		$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
-			$scope.setFirstPageView();
 			$scope.envParams=requestParams;
 			$scope.initGrids();
-			$scope.instancesListCardView();
+			helper.setPaginationDefaults();
 			$scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage')-gridBottomSpace;
 			//workzoneUIUtils.makeTabScrollable('instancePage');//TODO: Ideally this should be on resize event;
 		});
@@ -369,25 +419,13 @@
 
 		//root scope method for refreshing the list view at the time of blueprint launch.
 		$rootScope.$on('WZ_INSTANCES_SHOW_LATEST', function(){
-			$scope.setFirstPageView();
 			helper.setPaginationDefaults();
-			$scope.instancesListCardView();
 		});
 
 		//root scope method for refreshing the list view at the time of docker cookbook run.
 		$rootScope.$on('WZ_INSTANCES_REFRESH_CURRENT', function(){
-			helper.setPaginationDefaults();
 			$scope.instancesListCardView();
 		});
-
-		var helper = {
-			setPaginationDefaults: function() {
-				$scope.paginationParams.page = '';
-				$scope.paginationParams.pageSize = '';
-				$scope.paginationParams.sortBy = 'instanceCreatedOn';
-				$scope.paginationParams.sortOrder = 'desc';
-			}
-		};
 		
 		$scope.instanceImportByIP = function() {
 			$scope.isImportClickEnabled = false;
@@ -438,7 +476,7 @@
 			$scope.selectedCard = identi;
 		};
 
-		$scope.instanceCardView = function() {
+		$scope.setCardView = function() {
 			$scope.isCardViewActive = true;
 			$scope.instanceCardViewSelection = "selectedView";
 			$scope.instanceTableViewSelection = "";
@@ -471,8 +509,14 @@
 				}
 			});
 		};
+
+		$scope.refreshCurrentPage = function(){
+			$rootScope.$emit('WZ_INSTANCES_REFRESH_CURRENT');    
+		};
+
 		$scope.init = function(){
-			$scope.instanceCardView();
+			helper.setInitPaginationDefaults();
+			$scope.setCardView();
 		};
 		
 		$scope.init();

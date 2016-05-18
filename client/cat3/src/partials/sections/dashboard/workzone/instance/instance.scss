@@ -258,6 +258,9 @@ $imagePath : "../../../../../../images";
 	.fa-info-circle {
 		font-size: 25px;
 	}
+	.panel-title{
+		margin-right: 15px;
+	}
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
@@ -772,4 +775,14 @@ $imagePath : "../../../../../../images";
 
 .paddingtopbottom10 {
 	padding: 10px 0;
+}
+
+.instanceRoleLogo{
+	height: 25px;
+    margin-right: 10px;
+}
+
+.instanceRoleLogoDocker{
+	height: 25px;
+	position: absolute;
 }

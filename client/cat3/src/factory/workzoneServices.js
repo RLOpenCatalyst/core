@@ -327,8 +327,10 @@
                         async: false
                     });
                 },
-                getAllTaskList: function () {
-                    var url = '/tasks/list/all';
+                getEnvironmentTaskList: function () {
+                    var p = workzoneEnvironment.getEnvParams();
+                    var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +
+                            '/projects/' + p.proj + '/environments/' + p.env + '/tasks';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 postNewTask: function (data) {
