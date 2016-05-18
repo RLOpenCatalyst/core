@@ -147,8 +147,10 @@ userService.generateToken = function generateToken(user, callback) {
                 return callback(err);
             }
 
-            var base64Token = new Buffer(token).toString('base64')
-            callback(null, base64Token);
+            var base64Token = new Buffer(token).toString('base64');
+            callback(null, {
+                token: base64Token
+            });
         });
     });
 

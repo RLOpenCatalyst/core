@@ -50,19 +50,14 @@ router.post('/signIn', function(req, res, next) {
             },
             function(user, isMatched, next) {
                 userService.generateToken(user, next);
-            },
-            function(token, next) {
-                res.status(200).send({
-                    token: token
-                });
-            },
+            }
 
         ],
-        function(err, resData) {
+        function(err, token) {
             if (err) {
                 next(err);
             } else {
-                return res.status(200).send(resData);
+                 res.status(200).send(token);
             }
         }
     );
