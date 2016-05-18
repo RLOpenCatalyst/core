@@ -14,6 +14,7 @@ angular.module('workzone.application')
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
 			},
+			items:items,
 			approveAppCommt:'',
 			resultMsg:'',
 			submitAppApprove :function(){
