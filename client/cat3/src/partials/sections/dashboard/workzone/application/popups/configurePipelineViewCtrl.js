@@ -87,13 +87,10 @@
 				    });
 				    envSequence = envListLeft.concat(newEnv);
 				    var envList = {
-						"appDeployPipelineData": {
-							"loggedInUser": "",
 							"projectId": projectID,
 							"envId": newEnv,
 							"envSequence": envSequence
-						}
-					};
+						};
 			    	workzoneServices.postEnvConfig(envList).then(function (envListResult) {
 						$modalInstance.close(envListResult.data);
 					},function(error){

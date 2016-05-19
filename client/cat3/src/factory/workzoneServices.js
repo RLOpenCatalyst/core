@@ -51,7 +51,7 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 postPipeLineConfiguration: function () {
-                    var url = '/app-deploy-pipeline/data/configure';
+                    var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
                     return $http.post(fullUrl(url), Auth.getHeaderObject());
                 },
                 getAppCardLogs: function(instanceNodeIp, projId) {
@@ -73,7 +73,7 @@
                 },
                 postEnvConfig: function(reqBody) {
                     //var url = '/data/appDeployEnvList.json';
-                    var url = '/app-deploy-pipeline/data/configure';
+                    var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },
                 getUpdatedEnvConfig: function(projId) {
