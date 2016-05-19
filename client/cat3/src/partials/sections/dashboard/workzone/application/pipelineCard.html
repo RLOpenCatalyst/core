@@ -9,7 +9,9 @@
                         <hr/>
                     </div>
                     <div class="card-status-state">
-                        <div class="app-instance-image"></div>
+                        <div class="app-icon">
+                            <i class="fa fa-database"></i>
+                        </div>
                     </div>
                     <div class="instance-ip">
                         <span>{{cardDetails.version}}</span>
@@ -45,7 +47,7 @@
 </div>
     <div ng-switch-when="summary">
         <div ng-if="!cardDetails.version" class="text-center" ng-style="(cardDetails && cardDetails.length >0) ? {} : {'opacity': '0.4','filter':'alpha(opacity=40)','-webkit-filter': 'grayscale(1)'}" >
-            <div class="cardView">'
+            <div class="cardView">
                 <div class="card app-details" >
                     <div class="card-title">
                         <div  class="card-title-name" > <strong ng-bind-html="(cardDetails && cardDetails.length >0)?cardDetails:''"></strong>
@@ -53,7 +55,9 @@
                         <hr/>
                     </div>
                     <div class="card-status-state">
-                        <div class="app-instance-image "></div>
+                        <div class="app-icon ">
+                            <i class="fa fa-database"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -68,7 +72,9 @@
                         <hr/>
                     </div>
                     <div class="card-status-state">
-                        <div class="app-instance-image"></div>
+                        <div class="app-icon">
+                            <i class="fa fa-database"></i>
+                        </div>
                     </div>
                     <div class="instance-ip">
                         <span>{{cardDetails.version}}</span>
