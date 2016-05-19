@@ -20,23 +20,8 @@ angular.module('workzone.application')
 				$modalInstance.dismiss('cancel');
 			},
 			init :function(){
-				var FrzData={
-						"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-						"envName": "Stage",
-						"appName": "petclinic",
-						"version": "2.03.76",
-						"nexus": {
-							"rowId":"aa853920-0c9e-43a3-92de-871fc9a814a3",
-							"nodeIds": ["573c4c397850048f2dc4efb6"],
-							"taskId": "573c5a917850048f2dc4f0df",
-							"groupId": "org.catalyst",
-							"repository": "petclinic",
-							"artifactId": "petclinic",
-							"repoURL": "http://nexus.rlcatalyst.com/nexus/service/local/repositories/petclinic/content/org/catalyst/petclinic/2.03.76/petclinic-2.03.76.war"
-						}
-					}
-				//wzService.getAppUpgrade(items).then(function (FrzData){
-					//var FrzData=FrzData.data;
+				wzService.getAppUpgrade(items).then(function (FrzData){
+					var FrzData=FrzData.data;
 					if(FrzData && FrzData.nexus && FrzData.nexus.rowId){
 						upgrdApp.newEnt.serverType='nexus';
 						upgrdApp.newEnt.artifact =FrzData.nexus.artifactId;
@@ -59,7 +44,7 @@ angular.module('workzone.application')
 					upgrdApp.newEnt.version =(upgrdApp.newEnt.serverType === 'nexus')?FrzData.version :upgrdApp.newEnt.tag;
 					upgrdApp.getServer();
 					upgrdApp.getAllChefJobs();
-				//});
+				});
 			}
 
 		});
