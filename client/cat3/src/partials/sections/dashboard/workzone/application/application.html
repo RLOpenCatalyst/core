@@ -75,8 +75,10 @@
             </div>
             <div ng-if="historyGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
-                    <button type="button" class="btn btn-xs cat-btn-update pull-right" ng-click="appHistoryRefresh()">
-                        <i class="fa fa-refresh white"></i> Refresh</button>
+                    <div class="pull-right width0">
+                        <button type="button" class="btn btn-xs cat-btn-update " ng-click="appHistoryRefresh()">
+                            <i class="fa fa-refresh white"></i> Refresh</button>
+                    </div>
                 </div>
                 <div  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
             </div>
@@ -85,8 +87,10 @@
         <section  class="pipelineView {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
             <div ng-if="summaryGridOptions.data.length > 0">
                 <div class="action-bar panel-heading">
-                    <button type="button" class="btn btn-xs btn-info  pull-right" ng-click="appSummaryRefresh()">
-                        <i class="fa fa-refresh white"></i> Refresh</button>
+                    <div class="pull-right width0">
+                        <button type="button" class="btn btn-xs cat-btn-update " ng-click="appSummaryRefresh()">
+                            <i class="fa fa-refresh white"></i> Refresh</button>
+                    </div>
                 </div>
                 <div ui-grid="summaryGridOptions"  class="grid"></div>
             </div>

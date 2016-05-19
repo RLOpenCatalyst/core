@@ -173,6 +173,14 @@
             opacity: 0.4;
             filter: alpha(opacity=40);
         }
+    .app-icon{
+        background-size: 25px 25px;
+        cursor: pointer;
+        margin: 15px 0 0 48px;
+        width: 25px;
+        height: 28px;
+        font-size: 24px;
+    }
 }
 
 .save-loading{
