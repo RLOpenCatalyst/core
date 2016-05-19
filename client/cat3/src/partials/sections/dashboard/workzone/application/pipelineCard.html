@@ -36,7 +36,7 @@
                         </div>
                     </div>
                     <div class="instance-ip">
-                                <span ng-repeat="part in (cardDetails.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines)">
+                                <span ng-repeat="part in (cardDetails.applicationLastDeploy | timestampToLocaleTime)">
                                     {{part}}
                                     <br>
                                 </span>

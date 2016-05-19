@@ -28,7 +28,7 @@
                         { name:'Version',field:'applicationVersion',displayName:'Version'},
                         { name:'Host-Name',field:'hostName',displayName:'Host Name'},
                         { name:'applicationNodeIP',field:'applicationNodeIP',displayName:'Node IP'},
-                        { name:'Last Deploy',displayName:'Last Deploy',cellTemplate:'<span ng-bind-html="row.entity.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines"></span>'},
+                        { name:'Last Deploy',displayName:'Last Deploy',cellTemplate:'<span ng-bind-html="row.entity.applicationLastDeploy | timestampToLocaleTime"></span>'},
                         { name:'Container Name',displayName:'Container Name',cellTemplate:'<span>{{row.entity.containerId || "NA"}}</span>'},
                         { name:'applicationType',field:'applicationType',displayName:'App Type'},
                         { name:'Action',width:70,enableSorting: false,displayName:'Logs',cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.viewAppCardLogs(row.entity)"></i>'},
