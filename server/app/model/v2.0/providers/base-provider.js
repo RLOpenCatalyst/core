@@ -48,6 +48,11 @@ var BaseProviderSchema = function BaseProviderSchema() {
             type: Boolean,
             required: true,
             default: false
+        },
+        invalidCredentials: {
+            type: Boolean,
+            required: true,
+            default: false
         }
     });
 };

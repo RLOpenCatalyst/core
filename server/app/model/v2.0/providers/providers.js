@@ -33,5 +33,36 @@ ProvidersSchema.statics.getAllProviders = function getAllProviders(callback) {
     );
 };
 
+ProvidersSchema.statics.updateById
+    = function updateById(providerId, fields, callback) {
+    this.update(
+        {_id: providerId},
+        { $set: fields },
+        function(err, result) {
+            if (err) {
+                return callback(err, null);
+            } else if(result.ok == 1 && result.n == 1)  {
+                return callback(null, true);
+            }
+        }
+    );
+};
+
+ProvidersSchema.statics.getById = function getById(providerId, callback) {
+    this.find(
+        {'_id': providerId, 'isDeleted': false },
+        function(err, providers) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if(providers.length > 0){
+                return callback(null, providers[0]);
+            } else {
+                return callback(null, null);
+            }
+        }
+    );
+};
+
 var Providers = mongoose.model('Providers', ProvidersSchema);
 module.exports = Providers;
