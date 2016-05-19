@@ -151,7 +151,7 @@ var logger = require('_pr/logger')(module);
  * 		}
  *
  */
-router.get('/', getBlueprints);
+// router.get('/', getBlueprints);
 
 /**
  * @api {get} /api/v2.0/blueprints/:blueprintId 	        Get blueprint
@@ -229,7 +229,7 @@ router.get('/', getBlueprints);
  *          "buleprints": []
  *      }
  */
-router.patch('/:blueprintId', getBlueprint);
+// router.patch('/:blueprintId', getBlueprint);
 
 /**
  * @api {post} /api/v2.0/blueprints 	                  Create blueprint
@@ -335,7 +335,7 @@ router.patch('/:blueprintId', getBlueprint);
  *          "buleprints": []
  *      }
  */
-router.post('/', createBlueprint);
+// router.post('/', createBlueprint);
 
 /**
  * @api {post} /api/v2.0/blueprints/:blueprintId/launch     Launch blueprint
@@ -487,7 +487,7 @@ function launchBlueprint(req, res, next) {
  *          "buleprints": []
  *      }
  */
-router.patch('/:blueprintId', updateBlueprint);
+// router.patch('/:blueprintId', updateBlueprint);
 
 /**
  * @api {delete} /api/v2.0/blueprints/:blueprintId      Delete blueprint
@@ -499,7 +499,7 @@ router.patch('/:blueprintId', updateBlueprint);
  * @apiSuccess {Object} Empty response object
  *
  */
-router.delete('/:blueprintId', deleteBlueprint);
+// router.delete('/:blueprintId', deleteBlueprint);
 
 module.exports.pattern = '/blueprints';
 module.exports.router = router;

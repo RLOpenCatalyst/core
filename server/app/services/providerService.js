@@ -17,8 +17,8 @@
 var tagsModel = require('_pr/model/tags/tags.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
-var providersModel = require('_pr/model/providers/providers');
-var gcpProviderModel = require('_pr/model/providers/gcp-providers');
+var providersModel = require('_pr/model/v2.0/providers/providers');
+var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 
 const errorType = 'provider';
 
