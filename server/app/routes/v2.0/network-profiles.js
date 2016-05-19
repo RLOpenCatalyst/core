@@ -33,9 +33,8 @@ var logger = require('_pr/logger')(module);
 	 * @apiParam {String} providerId 			Mandatory Provider ID
 	 * @apiParam {String} zone				    Mandatory NetworkProfile zone.
 	 * @apiParam {String} network				Mandatory Network resource for this instance
+	 * @apiParam {String} subNetwork			Mandatory subNetwork resource for this instance
 	 * @apiParam [String] accessConfigs		    Config list
-	 * @apiParam {String} accessConfigName	    Config name
-	 * @apiParam {String} accessConfigType		Config type
 	 * @apiParamExample {json} Request-Example:
 	 	{
 	 * 		"name":	"networkProfileName",
@@ -44,9 +43,8 @@ var logger = require('_pr/logger')(module);
 	 * 		"networkDetails": {
 	 *			"zone": "us-east1-c",
 	 *			"network": "global/networks/default",
-	 * 			"accessConfigs": ["ONE_TO_ONE_NAT"],
-	 *			"accessConfigName": "Name of the access configuration.",
-	 *			"accessConfigType": "ONE_TO_ONE_NAT"
+	 *			"subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+	 * 			"accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
 	 * 		}
 	 * 	}
 	 *
@@ -62,9 +60,8 @@ var logger = require('_pr/logger')(module);
 	 * 				     "networkDetails": {
 	 *						"zone": "us-east1-c",
 	 *						"network": "global/networks/default",
-	 * 						"accessConfigs": ["ONE_TO_ONE_NAT"],
-	 *						"accessConfigName": "Name of the access configuration.",
-	 *						"accessConfigType": "ONE_TO_ONE_NAT"
+	 *						"subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+	 * 						"accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
 	 * 				     }
 	 * 				 }
 	 */
@@ -102,9 +99,8 @@ function saveNetworkProfile(req, res, next) {
 	 * @apiParam {String} providerId 			Mandatory Provider ID
 	 * @apiParam {String} zone				    Mandatory NetworkProfile zone.
 	 * @apiParam {String} network				Mandatory Network resource for this instance
+	 * @apiParam {String} subNetwork			Mandatory subNetwork resource for this instance
 	 * @apiParam [String] accessConfigs		    Config list
-	 * @apiParam {String} accessConfigName	    Config name
-	 * @apiParam {String} accessConfigType		Config type
 	 * @apiParamExample {json} Request-Example:
 	 	{
 	 * 		"name":	"networkProfileName",
@@ -113,9 +109,8 @@ function saveNetworkProfile(req, res, next) {
 	 * 		"networkDetails": {
 	 *			"zone": "us-east1-c",
 	 *			"network": "global/networks/default",
-	 * 			"accessConfigs": ["ONE_TO_ONE_NAT"],
-	 *			"accessConfigName": "Name of the access configuration.",
-	 *			"accessConfigType": "ONE_TO_ONE_NAT"
+	 *			"subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+	 * 			"accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
 	 * 		}
 	 * 	}
 	 *
@@ -131,9 +126,8 @@ function saveNetworkProfile(req, res, next) {
 	 * 				     "networkDetails": {
 	 *						"zone": "us-east1-c",
 	 *						"network": "global/networks/default",
-	 * 						"accessConfigs": ["ONE_TO_ONE_NAT"],
-	 *						"accessConfigName": "Name of the access configuration.",
-	 *						"accessConfigType": "ONE_TO_ONE_NAT"
+	 *						"subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+	 * 						"accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
 	 * 				     }
 	 * 				 }
 	 */
@@ -182,9 +176,8 @@ function updateNetworkProfile(req, res, next) {
  * 				     "networkDetails": {
  *						"zone": "us-east1-c",
  *						"network": "global/networks/default",
- * 						"accessConfigs": ["ONE_TO_ONE_NAT"],
- *						"accessConfigName": "Name of the access configuration.",
- *						"accessConfigType": "ONE_TO_ONE_NAT"
+ *						"subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+ * 					    "accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
  * 				     }
  * 				 }
  */
@@ -270,9 +263,8 @@ function removeNetworkProfile(req, res, next) {
 	 * 				    "networkDetails": {
 	 *						"zone": "us-east1-c",
 	 *						"network": "global/networks/default",
-	 * 						"accessConfigs": ["ONE_TO_ONE_NAT"],
-	 *						"accessConfigName": "Name of the access configuration.",
-	 *						"accessConfigType": "ONE_TO_ONE_NAT"
+	 *						"subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+	 * 						"accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
 	 * 				     }
 	 * 				 },
 	 * 				 {

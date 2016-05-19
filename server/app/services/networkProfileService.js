@@ -14,8 +14,8 @@
  limitations under the License.
 */
 var logger = require('_pr/logger')(module);
-var gcpNetworkProfile = require('_pr/model/network-profile/gcp-network-profiles.js');
-var networkProfilesModel = require('_pr/model/network-profile/network-profiles');
+var gcpNetworkProfile = require('_pr/model/v2.0/network-profile/gcp-network-profiles.js');
+var networkProfilesModel = require('_pr/model/v2.0/network-profile/network-profiles');
 const errorType = 'networkProfile';
 
 var networkProfileService = module.exports = {};
