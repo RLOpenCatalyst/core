@@ -16,6 +16,7 @@
 
 var aws = require('aws-sdk');
 var logger = require('_pr/logger')(module);
+var fs = require('fs');
 
 if (process.env.http_proxy) {
     aws.config.update({
@@ -33,26 +34,28 @@ var S3 = function(awsSettings) {
     if (typeof awsSettings.region !== undefined) {
         params.region = awsSettings.region;
     }
-
-    if (typeof awsSettings.isDefault !== undefined && awsSettings.isDefault === true) {
-        params.credentials = new aws.EC2MetadataCredentials({httpOptions: {timeout: 5000}});
-    } else if (typeof awsSettings.access_key !== undefined && typeof awsSettings.secret_key !== undefined) {
-        params.accessKeyId = awsSettings.access_key;
-        params.secretAccessKey = awsSettings.secret_key;
+    if (typeof awsSettings.accessKey !== undefined && typeof awsSettings.secretKey !== undefined) {
+        params.accessKeyId = awsSettings.accessKey;
+        params.secretAccessKey = awsSettings.secretKey;
     }
 
     var s3 = new aws.S3(params);
 
-    this.getObject = function(params, callback) {
-
-        s3.getObject(params, function(err, data) {
-            if (err) {
-                logger.debug("Got getObject info with error: ", err);
-                callback(err, null);
-                return;
-            }
-            callback(null, data);
-        });
+    this.getObject = function(params,key, callback) {
+        if(key==='time') {
+            s3.getObject(params, function (err, data) {
+                if (err) {
+                    logger.debug("Got getObject info with error: ", err);
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data.LastModified);
+            });
+        }else if(key === 'file'){
+            var file = fs.createWriteStream('rlBilling.zip');
+            s3.getObject(params).createReadStream().pipe(file);
+            callback(null,true);
+        }
 
     };
 

@@ -32,13 +32,67 @@ var fs = require('fs');
 var AWS = require('aws-sdk');
 
 var AggregateAWSCost = Object.create(CatalystCronJob);
-AggregateAWSCost.interval = '* * * * *';
+AggregateAWSCost.interval = '*/2 * * * *';
 AggregateAWSCost.execute = aggregateAWSCost;
 
 module.exports = AggregateAWSCost;
 
 function aggregateAWSCost() {
-    async.waterfall([
+
+    var s3Config = appConfig.aws.s3;
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    if (month < 10) {
+        month = '0' + month;
+    }
+    var accountNumber = s3Config.accountNumber;
+    var fullKey = accountNumber + s3Config.keyName + year + "-" + month + ".csv.zip";
+    var csvFile = "./" + accountNumber + s3Config.keyName + year + "-" + month + ".csv";
+    var s3 = new S3(s3Config);
+    var params = {
+        Bucket: s3Config.bucketName,
+        Key: fullKey
+    };
+    var lastModified=100;
+    s3.getObject(params,'time',function(err,updateTime)
+    {
+        console.log(updateTime);
+        var temp = String(updateTime).split(',');
+        console.log(temp[1]);
+        var changedTime = new Date(temp[1]).getTime();
+        console.log(changedTime);
+        console.log(lastModified);
+        if(lastModified < changedTime)
+        {
+            console.log('inside download file');
+            s3.getObject(params,'file',function(err,status)
+            {
+                console.log(status);
+                if(status == true)
+                {
+                    var zip = new AdmZip("./rlBilling.zip");
+                    console.log(__dirname);
+                    zip.extractAllTo(__dirname, true);
+                    console.log('\n finished');
+                    var newJsonFile = fs.createWriteStream('./data.json');
+                    fs.createReadStream(csvFile).pipe(csv2json({ })).pipe(newJsonFile);
+                    newJsonFile.on('finish',function()
+                    {
+                        console.log('done');
+                        json.readFile('./data.json',function(err,jsonArray) {
+                            if (err) console.log(err);
+                            else {
+                                var length = jsonArray.length;
+                                console.log(length);
+                            }
+                        })
+                    })
+                }
+            });
+        }
+    })
+    /*async.waterfall([
         function(next){
             MasterUtils.getAllActiveOrg(next);
         },
@@ -61,10 +115,10 @@ function aggregateAWSCost() {
                                         }else{
                                             async.parallel({
                                                 managed: function(callback) {
-                                                    calculateAWSInstanceCostForProvider(provider,instances.managed, callback);
+                                                    aggregateInstanceCost(instances.managed, callback);
                                                 },
                                                 assigned: function(callback) {
-                                                    calculateAWSInstanceCostForProvider(provider,instances.unmanaged, callback);
+                                                    aggregateInstanceCost(instances.unmanaged, callback);
                                                 }
                                             }, function(err, results){
                                                 if(err) {
@@ -99,76 +153,15 @@ function aggregateAWSCost() {
                 logger.error(err);
                 return;
             }
-        });
+        });*/
 }
 
 function callBackReturn(data,callback){
     callback(null,data);
 };
-function calculateAWSInstanceCostForProvider(provider,instances,next){
-    if(instances.length == 0) {
-        next(null, []);
-    }
-    var s3Config;
-    if (provider.isDefault) {
-        amazonConfig = {
-            "isDefault": true
-        };
-    } else {
-        var s3 = appConfig.aws.s3;
-        s3Config = {
-            "access_key": s3.accessKey,
-            "secret_key": s3.secretKey,
-            "region":s3.region,
-            "accountNumber":s3.accountNumber,
-            "keyName":s3.keyName,
-            "bucket":s3.bucketName
-        };
-    }
-    for(var i = 0; i < instances.length; i++) {
-        (function (instance) {
-            if (instance.providerData) {
-                aggregateInstanceCost(s3Config,'time',next);
-            }
-        })(instances[i]);
-    }
-}
-function aggregateInstanceCost(s3Config,key,next) {
-    var date = new Date();
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    if (month < 10) {
-        month = '0' + month;
-    }
-    var lastModified = 100;
-    var accountNumber = s3Config.accountNumber;
-    var fullKey = accountNumber + s3Config.keyName + year + "-" + month + ".csv.zip";
-    var csvFile = "./" + accountNumber + s3Config.keyName + year + "-" + month + ".csv";
-    var s3 = new S3(s3Config);
-    var params = {
-        Bucket: s3Config.bucket,
-        Key: fullKey
-    };
-    if (key === 'time') {
-        s3.getObject(params, function (err, data) {
-            if (err) {
-                console.log("last updated error \n" + err);
-                return;
-            } else {
-                var temp = String(data.LastModified).split(',');
-                var changedTime = new Date(temp[1]).getTime();
-                console.log(changedTime);
-                if (lastModified < changedTime) {
-                    var file = fs.createWriteStream('billingrl.zip');
-                    s3.getObject(params).createReadStream().pipe(file);
-                    file.on('finish', function () {
-                        next(null, true);
-                    });
-                }
-            }
-        });
-    }
-}
+
+
+
 
 
 
