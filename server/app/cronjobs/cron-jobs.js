@@ -22,6 +22,7 @@ var logger = require('_pr/logger')(module);
 var costUsageAggregation = require('_pr/cronjobs/cost-usage-aggregation');
 var providerSync = require('_pr/cronjobs/provider-sync');
 var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');
+var awsCostAggregation = require('_pr/cronjobs/aws-cost-aggregation');
 
 module.exports.start = function start() {
 	logger.info('Cost usage aggregation started with interval ==> '+ costUsageAggregation.getInterval());
@@ -34,4 +35,8 @@ module.exports.start = function start() {
 	logger.info('Tags aggregation started with interval ==> '+ providerTagsAggregation.getInterval());
 	var providerTagsAggregationJobId
 		= crontab.scheduleJob(providerTagsAggregation.getInterval(), providerTagsAggregation.execute);
+
+	logger.info('AWS Cost aggregation started with interval ==> '+ awsCostAggregation.getInterval());
+	var awsCostAggregationJobId
+		= crontab.scheduleJob(awsCostAggregation.getInterval(), awsCostAggregation.execute);
 }
