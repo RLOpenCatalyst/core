@@ -8,7 +8,7 @@
 (function(){
 "use strict";
 angular.module('workzone.application')
-	.controller('upgradeAppCtrl', ['items','$scope','$rootScope', '$modalInstance','workzoneServices', function(items,$scope,$rootScope, $modalInstance,wzService) {
+	.controller('upgradeAppCtrl', ['items','$scope','$rootScope', '$modalInstance','workzoneServices','$modal',function(items,$scope,$rootScope, $modalInstance,wzService,$modal) {
 		var upgrdApp={
 			newEnt:[],
 			requestData:[],
@@ -20,29 +20,23 @@ angular.module('workzone.application')
 				$modalInstance.dismiss('cancel');
 			},
 			init :function(){
-				// var FrzData={
-				// 	"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-				// 	"envName": "Dev",
-				// 	"appName": "catalyst",
-				// 	"version": "2.01.482",
-				// 	"s3Bucket": {
-				// 		"nodeIds": []
-				// 	},
-				// 	"docker": [],
-				// 	"nexus": {
-				// 		"rowId":"aa853920-0c9e-43a3-92de-871fc9a814a3",
-				// 		"repoURL": "http://nexus.rlcatalyst.com/nexus/service/local/repositories/catalyst/content/org/catalyst/D4D/2.01.482/D4D-2.01.482.zip",
-				// 		"nodeIds": [
-				// 			"57333619aee8be5f7dac184b"
-				// 		],
-				// 		"artifactId": "D4D",
-				// 		"repository": "catalyst",
-				// 		"groupId": "org.catalyst",
-				// 		"taskId": "5739918de9bd748c4106cec6"
-				// 	},
-				// }
-				wzService.getAppUpgrade(items).then(function (FrzData){
-					var FrzData=FrzData.data;
+				var FrzData={
+						"projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+						"envName": "Stage",
+						"appName": "petclinic",
+						"version": "2.03.76",
+						"nexus": {
+							"rowId":"aa853920-0c9e-43a3-92de-871fc9a814a3",
+							"nodeIds": ["573c4c397850048f2dc4efb6"],
+							"taskId": "573c5a917850048f2dc4f0df",
+							"groupId": "org.catalyst",
+							"repository": "petclinic",
+							"artifactId": "petclinic",
+							"repoURL": "http://nexus.rlcatalyst.com/nexus/service/local/repositories/petclinic/content/org/catalyst/petclinic/2.03.76/petclinic-2.03.76.war"
+						}
+					}
+				//wzService.getAppUpgrade(items).then(function (FrzData){
+					//var FrzData=FrzData.data;
 					if(FrzData && FrzData.nexus && FrzData.nexus.rowId){
 						upgrdApp.newEnt.serverType='nexus';
 						upgrdApp.newEnt.artifact =FrzData.nexus.artifactId;
@@ -59,11 +53,13 @@ angular.module('workzone.application')
 						upgrdApp.rowid=FrzData.docker.rowId;
 						upgrdApp.newEnt.repositoryIMG=FrzData.docker.image;
 					}
+					upgrdApp.projectId=FrzData.projectId;
+					upgrdApp.envName=FrzData.envName;
 					upgrdApp.newEnt.repository =FrzData.nexus.repository;
 					upgrdApp.newEnt.version =(upgrdApp.newEnt.serverType === 'nexus')?FrzData.version :upgrdApp.newEnt.tag;
 					upgrdApp.getServer();
 					upgrdApp.getAllChefJobs();
-				});
+				//});
 			}
 
 		});
@@ -131,7 +127,7 @@ angular.module('workzone.application')
 			$rootScope.$emit("CREATE_NEW_JOB");
 			$rootScope.createChefJob=true;
 		};
-		upgrdApp.submitAppDeploy = function (DeploymentForm){
+		upgrdApp.submitAppUpgrade = function (DeploymentForm){
 			if(upgrdApp.newEnt.serverType === 'nexus'){
 				var nexus={
 					"repoURL":upgrdApp.artifactsVersion[upgrdApp.newEnt.artifact][upgrdApp.newEnt.version].resourceURI,
@@ -155,8 +151,8 @@ angular.module('workzone.application')
 				"sourceData": {
 				},
 				"appData": {
-					"projectId":workEnvt.getEnvParams().proj,
-					"envName": items.paramNames.env,
+					"projectId":upgrdApp.projectId,
+					"envName":upgrdApp.envName,
 					"appName": upgrdApp.newEnt.repository,
 					"version":(upgrdApp.newEnt.serverType === 'nexus')?upgrdApp.newEnt.version :upgrdApp.newEnt.tag
 				},
