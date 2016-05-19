@@ -77,6 +77,24 @@ userService.getOrg = function getOrg(orgId, callback) {
         }
     });
 };
+
+userService.getOrg = function getOrg(orgId, callback) {
+    d4dMastersNewModel.d4dModelMastersOrg.find({
+        rowid: orgId
+    }, function(err, orgDetails) {
+        if(err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(orgDetails.length > 0) {
+            callback(null, orgDetails[0]);
+        } else {
+            var err = new Error('Invalid organization id');
+            err.status = 404;
+            callback(err);
+        }
+    });
+};
 userService.signOut = function signOut(base64Token, callback) {
     if (base64Token) {
         var token = new Buffer(base64Token, 'base64').toString('ascii');
