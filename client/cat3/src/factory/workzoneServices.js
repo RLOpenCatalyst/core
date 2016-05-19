@@ -483,6 +483,10 @@
                     var url='/app-deploy/new';
                     return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
                 },
+                putAppDeploy:function(RequestObject){
+                    var url='/app-deploy/upgrade';
+                    return $http.put(fullUrl(url),RequestObject,Auth.getHeaderObject());
+                },
                 getDockerImageTags :function(requestObject) {
                     var url='/d4dMasters/docker/'+requestObject.dockerId+'/repository/'+requestObject.repository+'/image/'+requestObject.image+'/tags';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
