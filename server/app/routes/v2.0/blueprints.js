@@ -81,9 +81,8 @@ var logger = require('_pr/logger')(module);
  *                      "networkDetails": {
  *                      "zone": "us-east1-c",
  *                      "network": "global/networks/default",
- *                          "accessConfigs": ["ONE_TO_ONE_NAT"],
- *                          "accessConfigName": "Name of the access configuration.",
- *                          "accessConfigType": "ONE_TO_ONE_NAT"
+ *                      "subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+ *                      "accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
  *                      }
  *                  },
  *                  "softwareTemplate": {
@@ -122,9 +121,8 @@ var logger = require('_pr/logger')(module);
  *                      "networkDetails": {
  *                      "zone": "us-east1-c",
  *                      "network": "global/networks/default",
- *                          "accessConfigs": ["ONE_TO_ONE_NAT"],
- *                          "accessConfigName": "Name of the access configuration.",
- *                          "accessConfigType": "ONE_TO_ONE_NAT"
+ *                      "subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+ *                      "accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
  *                      }
  *                  },
  *                  "softwareTemplate": {
@@ -209,9 +207,8 @@ router.get('/', getBlueprints);
  *              "networkDetails": {
  *              "zone": "us-east1-c",
  *              "network": "global/networks/default",
- *                  "accessConfigs": ["ONE_TO_ONE_NAT"],
- *                  "accessConfigName": "Name of the access configuration.",
- *                  "accessConfigType": "ONE_TO_ONE_NAT"
+ *              "subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+ *              "accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
  *              }
  *          },
  *          "softwareTemplate": {
@@ -315,9 +312,8 @@ router.patch('/:blueprintId', getBlueprint);
  *              "networkDetails": {
  *              "zone": "us-east1-c",
  *              "network": "global/networks/default",
- *                  "accessConfigs": ["ONE_TO_ONE_NAT"],
- *                  "accessConfigName": "Name of the access configuration.",
- *                  "accessConfigType": "ONE_TO_ONE_NAT"
+ *              "subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+ *              "accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
  *              }
  *          },
  *          "softwareTemplate": {
@@ -467,9 +463,8 @@ function launchBlueprint(req, res, next) {
  *              "networkDetails": {
  *              "zone": "us-east1-c",
  *              "network": "global/networks/default",
- *                  "accessConfigs": ["ONE_TO_ONE_NAT"],
- *                  "accessConfigName": "Name of the access configuration.",
- *                  "accessConfigType": "ONE_TO_ONE_NAT"
+ *              "subNetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614",
+ *              "accessConfigs": [{"name":"External NAT","type:"ONE_TO_ONE_NAT"}]
  *              }
  *          },
  *          "softwareTemplate": {

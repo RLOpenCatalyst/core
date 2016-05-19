@@ -20,16 +20,18 @@ var blueprintModel = require('_pr/model/blueprint/blueprint.js');
 var providerService = require('./providerService.js');
 var async = require('async');
 var instanceService = require('./instanceService.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var instancesModel = require('_pr/model/classes/instance/instance');
 const errorType = 'blueprint';
 
 var blueprintService = module.exports = {};
 
-blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callback){
-    blueprintModel.findById(blueprintId,function(err, blueprint){
-        if(err){
+blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callback) {
+    blueprintModel.findById(blueprintId, function(err, blueprint) {
+        if (err) {
             var error = new Error("Error to get blueprint.");
             error.status(404);
-            return callback(error,null);
+            return callback(error, null);
         }
         return callback(null, blueprint);
     });
@@ -72,8 +74,17 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
                 }
                 instanceService.createInstance(instanceObj, next);
             },
-            function(instanceData,next){
-                instanceService.bootstrapInstance(instanceData,next);
+            function(instanceData, next) {
+                var timestampStarted = new Date().getTime();
+                var actionLog = instancesModel.insertBootstrapActionLog(instanceData.id, instanceData.runlist, instanceData.sessionUser, timestampStarted);
+                var logsReferenceIds = [instanceData.id, actionLog._id];
+                logsDao.insertLog({
+                    referenceId: logsReferenceIds,
+                    err: false,
+                    log: "Starting instance",
+                    timestamp: timestampStarted
+                });
+                instanceService.bootstrapInstance(instanceData, next);
             }
         ], function(err, results) {
             if (err) {
@@ -89,4 +100,3 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
         return callback(err, null);
     }
 }
-

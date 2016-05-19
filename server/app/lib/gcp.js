@@ -122,6 +122,7 @@ var GCP = function GCP(params) {
             return callback(null, zones);
         });
     };
+
     this.getVMs = function getVMs(callback) {
         gce.getVMs(function(err, vms) {
             if (err) {
@@ -132,6 +133,7 @@ var GCP = function GCP(params) {
             return callback(null, vms);
         });
     };
+
     this.getDisks = function getDisks(callback) {
         gce.getDisks(function(err, disks) {
             if (err) {
@@ -142,15 +144,36 @@ var GCP = function GCP(params) {
             return callback(null, disks);
         });
     };
+
     this.startVM = function startVM(instance, callback) {
         var zone = gce.zone(instance.zone);
-        var vm = zone.vm(instance.id);
-        
-    };
-    this.stopVM = function stopVM(instanceId, callback) {
-        
+        var vm = zone.vm(instance.name);
+        vm.stop(function(err, operation, apiResponse) {
+            if (err) {
+                var error = new Error("Failed to start Instance in GCP.");
+                error.status(500);
+                return callback(error, null);
+            }
+            operation.on('complete', function(data) {
+                return callback(null, data);
+            });
+        });
     };
 
+    this.stopVM = function stopVM(instance, callback) {
+        var zone = gce.zone(instance.zone);
+        var vm = zone.vm(instance.name);
+        vm.stop(function(err, operation, apiResponse) {
+            if (err) {
+                var error = new Error("Failed to stop Instance in GCP.");
+                error.status(500);
+                return callback(error, null);
+            }
+            operation.on('complete', function(data) {
+                return callback(null, data);
+            });
+        });
+    };
 };
 
 module.exports = GCP;
