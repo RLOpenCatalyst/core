@@ -37,6 +37,12 @@
 						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.projectName">
 					</td>
 				</tr>
+				<tr>
+					<td class="td-padding">Version:</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.version">
+					</td>
+				</tr>
 			</tbody>
 			<tbody ng-show="(blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='ami') && blueprintInfo.blueprintConfig.cloudProviderType=='aws'">
 				<tr>
@@ -103,12 +109,6 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="td-padding">Version:</td>
-					<td>
-						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.latestVersion">
-					</td>
-				</tr>
-				<tr>
 					<td class="td-padding">Runlist:</td>
 					<td>
 						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.versionsList[0].runlist">
@@ -130,12 +130,6 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="td-padding">Version:</td>
-					<td>
-						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.latestVersion">
-					</td>
-				</tr>
-				<tr>
 					<td class="td-padding">Runlist:</td>
 					<td>
 						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.versionsList[0].runlist">
@@ -154,12 +148,6 @@
 					<td>
 						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.imageName">
 
-					</td>
-				</tr>
-				<tr>
-					<td class="td-padding">Version:</td>
-					<td>
-						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.latestVersion">
 					</td>
 				</tr>
 				<tr>
@@ -195,12 +183,6 @@
 					<td>
 						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.imageName">
 
-					</td>
-				</tr>
-				<tr>
-					<td class="td-padding">Version:</td>
-					<td>
-						<input class="form-control" disabled="disabled" ng-model="blueprintInfo.blueprintConfig.infraManagerData.latestVersion">
 					</td>
 				</tr>
 				<tr>
