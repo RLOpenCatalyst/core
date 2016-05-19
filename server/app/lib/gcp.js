@@ -58,7 +58,10 @@ var GCP = function GCP(params) {
             "networkInterfaces": [{
                 "network": params.networkConfig.network, // url mandatory
                 "subnetwork": params.networkConfig.subnetwork, // url mandatory
-                "accessConfigs": params.networkConfig.accessConfigs
+                "accessConfigs": [{
+                    "name": params.networkConfig.accessConfigs[0].accessConfigName,
+                    "type": params.networkConfig.accessConfigs[0].accessConfigType
+                }]
             }]
         };
 

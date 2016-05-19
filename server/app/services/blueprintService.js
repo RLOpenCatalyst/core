@@ -15,8 +15,7 @@
 */
 var logger = require('_pr/logger')(module);
 var GCP = require('_pr/lib/gcp.js');
-//var blueprintModel = require('_pr/model/v2.0/blueprint/blueprints.js');
-var blueprintModel = require('_pr/model/blueprint/blueprint.js');
+var blueprintModel = require('_pr/model/v2.0/blueprint/blueprint.js');
 var providerService = require('./providerService.js');
 var async = require('async');
 var instanceService = require('./instanceService.js');
@@ -45,14 +44,14 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
 
         async.waterfall([
             function(next) {
-                providerService.getProviderById(providerId, next);
+                providerService.getProvider(providerId, next);
             },
             function(provider, next) {
                 switch (networkProfile.type) {
                     case 'GCP':
                         // Get file from provider decode it and save, after use delete file
-                        var filePath = "/home/gobinda/keyFile.json"
-                        fs.writeFile('/tmp/'+provider.id+'.json', provider.keyFile, next);
+                        // Decode file content with base64 and save.
+                        fs.writeFile('/tmp/'+provider.id+'.json', new Buffer(provider.keyFile,'base64').toString(), next);
                         var params = {
                             "projectId": provider.projectId,
                             "keyFilename": '/tmp/'+provider.id+'.json'
@@ -72,7 +71,8 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
             function(instance, next) {
                 var instanceObj = {
                     "blueprint": blueprint,
-                    "instance": instance
+                    "instance": instance,
+                    "provider": provider
                 }
                 instanceService.createInstance(instanceObj, next);
             },
@@ -93,6 +93,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
                 logger.error("GCP Blueprint launch failed: " + err);
                 next(err);
             } else {
+                // Delete all files after use.
                 fs.unlink('/tmp/'+provider.id+'.json');
                 next(null, results);
             }
