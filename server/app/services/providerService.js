@@ -17,8 +17,8 @@
 var tagsModel = require('_pr/model/tags/tags.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
-var providersModel = require('_pr/model/v2.0/providers/providers');
-var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
+var providersModel = require('_pr/model/providers/providers');
+var gcpProviderModel = require('_pr/model/providers/gcp-providers');
 
 const errorType = 'provider';
 
@@ -40,10 +40,37 @@ providerService.checkIfProviderExists = function checkIfProviderExists(providerI
     });
 };
 
-providerService.createProvider = function createProvider(provider, callback) {
+providerService.getProvider = function getProvider(providerId, callback) {
+    providersModel.getById(providerId, function(err, provider) {
+        if(err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(provider) {
+            callback(null, provider);
+        } else {
+            var err = new Error('Provider not found');
+            err.status = 404;
+            callback(err);
+        }
+    })
+}
+
+providerService.createProvider = function createProvider(provider, orgDetails, callback) {
+    if(!orgDetails) {
+        var err = new Error('Invalid request');
+        err.status = 400;
+        return callback(err);
+    }
+
     switch(provider.type) {
         case 'GCP':
             logger.debug('Creating new GCP provider');
+            provider.organization = {
+                id: orgDetails.rowid,
+                name: orgDetails.orgname
+            };
+            delete provider.organizationId;
             gcpProviderModel.createNew(provider, callback);
             break;
         defaut:
@@ -51,9 +78,67 @@ providerService.createProvider = function createProvider(provider, callback) {
     }
 };
 
+providerService.updateProvider = function updateProvider(provider, updateFields, callback) {
+    var fields = {};
+    if('name' in updateFields) {
+        fields.name = updateFields.name;
+        provider.name = updateFields.name;
+    }
+
+    if('providerDetails' in updateFields) {
+        switch(provider.type) {
+            case 'GCP':
+                if('projectId' in updateFields.providerDetails) {
+                    fields.providerDetails.projectId = updateFields.providerDetails.projectId;
+                    provider.providerDetails.projectId = updateFields.providerDetails.projectId;
+                }
+
+                if('keyFile' in updateFields.providerDetails)
+                    fields.providerDetails.keyFile = updateFields.providerDetails.keyFile;
+
+                if('sshKey' in updateFields.providerDetails)
+                    fields.providerDetails.sshKey = updateFields.providerDetails.sshKey;
+                break;
+            default:
+                break;
+        }
+    }
+
+    providersModel.updateById(provider._id, fields, function(err, result) {
+        if(err || !result) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(result) {
+            callback(null, provider);
+        }
+    });
+};
+
+providerService.createProviderResponseObject = function createProviderResponseObject(provider, callback) {
+    var providerResponseObject = {
+        id: provider._id,
+        name: provider.name,
+        type: provider.type,
+        organization: provider.organization,
+        providerDetails: {}
+    };
+
+    switch(provider.type) {
+        case 'GCP':
+            var gcpProvider =  new gcpProviderModel(provider);
+            providerResponseObject.providerDetails.projectId = gcpProvider.providerDetails.projectId;
+            break;
+        default:
+            break;
+    }
+
+    callback(null, providerResponseObject);
+}
+
 providerService.getAllProviders = function getAllProviders(orgId, callback) {
     providersModel.getAllProviders(callback);
-}
+};
 
 providerService.getTagsByProvider = function getTagsByProvider(provider, callback) {
     tagsModel.getTagsByProviderId(provider._id, function(err, tags) {
@@ -67,7 +152,8 @@ providerService.getTagsByProvider = function getTagsByProvider(provider, callbac
     });
 };
 
-providerService.getTagByNameAndProvider = function getTagByNameAndProvider(providerId, tagName, callback) {
+providerService.getTagByNameAndProvider
+    = function getTagByNameAndProvider(providerId, tagName, callback) {
     var params = {
         'providerId': providerId,
         'name': tagName
