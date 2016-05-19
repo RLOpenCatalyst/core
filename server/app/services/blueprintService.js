@@ -22,6 +22,7 @@ var async = require('async');
 var instanceService = require('./instanceService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instancesModel = require('_pr/model/classes/instance/instance');
+var fs = require('fs');
 const errorType = 'blueprint';
 
 var blueprintService = module.exports = {};
@@ -51,9 +52,10 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
                     case 'GCP':
                         // Get file from provider decode it and save, after use delete file
                         var filePath = "/home/gobinda/keyFile.json"
+                        fs.writeFile('/tmp/'+provider.id+'.json', provider.keyFile, next);
                         var params = {
                             "projectId": provider.projectId,
-                            "keyFilename": filePath
+                            "keyFilename": '/tmp/'+provider.id+'.json'
                         }
                         var gcp = new GCP(params);
                         var launchParams = {
@@ -91,6 +93,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
                 logger.error("GCP Blueprint launch failed: " + err);
                 next(err);
             } else {
+                fs.unlink('/tmp/'+provider.id+'.json');
                 next(null, results);
             }
         })
