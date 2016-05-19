@@ -29,6 +29,7 @@ var userService = module.exports = {};
 //@TODO to be modified to work with tokens as well
 userService.getUserOrgs = function getUserOrgs(user, callback) {
     // @TODO Constant to be moved to config
+
     if (user.roleId == 'Admin') {
         MasterUtil.getAllActiveOrg(function(err, orgs) {
             if (err) {
@@ -64,11 +65,11 @@ userService.getOrg = function getOrg(orgId, callback) {
     d4dMastersNewModel.d4dModelMastersOrg.find({
         rowid: orgId
     }, function(err, orgDetails) {
-        if(err) {
+        if (err) {
             var err = new Error('Internal Server Error');
             err.status = 500;
             callback(err);
-        } else if(orgDetails.length > 0) {
+        } else if (orgDetails.length > 0) {
             callback(null, orgDetails[0]);
         } else {
             var err = new Error('Invalid organization id');
@@ -82,11 +83,11 @@ userService.getOrg = function getOrg(orgId, callback) {
     d4dMastersNewModel.d4dModelMastersOrg.find({
         rowid: orgId
     }, function(err, orgDetails) {
-        if(err) {
+        if (err) {
             var err = new Error('Internal Server Error');
             err.status = 500;
             callback(err);
-        } else if(orgDetails.length > 0) {
+        } else if (orgDetails.length > 0) {
             callback(null, orgDetails[0]);
         } else {
             var err = new Error('Invalid organization id');
@@ -154,31 +155,53 @@ userService.checkPassword = function checkPassword(user, password, callback) {
 };
 
 userService.generateToken = function generateToken(user, callback) {
-    jwt.sign({
-        username: user.loginname,
-        orgIds: user.orgname_rowid
-    }, config.jwt.secret, {
-        expiresIn: config.jwt.expiresInSec
-    }, function(err, token) {
-        if (err) {
-            err.status = 500;
-            logger.error(err);
-            return callback(err);
-        }
-        // saving token in db 
-        JWTToken.createNew({
-            token: token,
-            expiry: config.jwt.expiresInSec
-        }, function(err, jwtToken) {
+    if (user.orgname_rowid && user.orgname_rowid.length && user.orgname_rowid[0]) {
+        sign(user.orgname_rowid);
+    } else {
+        MasterUtil.getAllActiveOrg(function(err, orgs) {
+            if (err) {
+                var err = new Error('Internal Server Error');
+                err.status = 500;
+                callback(err);
+            } else {
+                var orgIds = [];
+                for (var i = 0; i < orgs.length; i++) {
+                    orgIds.push(orgs[i].rowid);
+                }
+
+                sign(orgIds);
+            }
+        });
+    }
+
+    function sign(orgIdsList) {
+
+        jwt.sign({
+            username: user.loginname,
+            orgIds: orgIdsList
+        }, config.jwt.secret, {
+            expiresIn: config.jwt.expiresInSec
+        }, function(err, token) {
             if (err) {
                 err.status = 500;
+                logger.error(err);
                 return callback(err);
             }
+            // saving token in db 
+            JWTToken.createNew({
+                token: token,
+                expiry: config.jwt.expiresInSec
+            }, function(err, jwtToken) {
+                if (err) {
+                    err.status = 500;
+                    return callback(err);
+                }
 
-            var base64Token = new Buffer(token).toString('base64');
-            callback(null, {
-                token: base64Token
+                var base64Token = new Buffer(token).toString('base64');
+                callback(null, {
+                    token: base64Token
+                });
             });
         });
-    });
+    }
 };

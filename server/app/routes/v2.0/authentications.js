@@ -9,11 +9,12 @@ var JWTToken = require('_pr/model/v2.0/jwt_token')
 var userService = require('_pr/services/userService.js');
 var AuthToken = require('_pr/model/auth-token');
 var async = require('async');
+var MasterUtils = require('_pr/lib/utils/masterUtil');
 
 var router = require('express').Router();
 
 /**
-	 * @api {put} /api/v2.0/auth/signIn SignIn Request
+	 * @api {put} /api/v2.0/auth/signin SignIn Request
 	 * @apiName signIn
 	 * @apiGroup Authentication
 	 *
@@ -35,7 +36,7 @@ var router = require('express').Router();
 	 */
 
 
-router.post('/signIn', function(req, res, next) {
+router.post('/signin', function(req, res, next) {
     var password = req.body.password;
     var username = req.body.username;
 
@@ -66,7 +67,7 @@ router.post('/signIn', function(req, res, next) {
 
 
 /**
- * @api {post} /api/v2.0/auth/signOut  
+ * @api {post} /api/v2.0/auth/signout  
  * @apiName signOut
  * @apiGroup Authentication
  *
@@ -74,7 +75,7 @@ router.post('/signIn', function(req, res, next) {
  * @apiSuccess {Object} Token					SignOut
  * @apiHeaderExample {string} Header-Authentication:
  *     {
- *       "x-catalyst-auth": "askjldkasjld"
+ *       "authentication": "Bearer askjldkasjld"
  *     }
  *
  * @apiSuccessExample {json} Success-Response:
@@ -84,7 +85,7 @@ router.post('/signIn', function(req, res, next) {
             }
  */
 
-router.post('/signOut', function(req, res, next) {
+router.post('/signout', function(req, res, next) {
 
     var bearerToken = req.headers['authorization'];
     var token;
