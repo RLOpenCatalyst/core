@@ -63,7 +63,8 @@
         "apidoc": "0.15.1",
         "async": "v1.5.2",
         "joi": "8.0.5",
-        "jsonwebtoken": "6.2.0"
+        "jsonwebtoken": "6.2.0",
+        "gcloud": "0.34.0"
     },
     "devDependencies": {
         "grunt": "0.4.5",
