@@ -1,9 +1,9 @@
 <div id="cpInfo" ng-controller="cpInfoCtrl">
 	<accordion close-others="oneAtATime">
-		<div ng-show="instInfo.blueprintData.blueprintId">
+		<div ng-show="bpInfo.length!==0">
 			<accordion-group is-open="isFirstOpen" heading="Blueprint Information">
 				<table>
-					<div>
+					<tbody>
 						<tr>
 							<td>
 								Template
@@ -12,7 +12,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.templateId}}
+								{{bpInfo.templateId}}
 							</td>
 						</tr>
 						<tr>
@@ -23,7 +23,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.templateType}}
+								{{bpInfo.templateType}}
 							</td>
 						</tr>
 						<tr>
@@ -34,7 +34,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.name}}
+								{{bpInfo.name}}
 							</td>
 						</tr>
 						<tr>
@@ -45,7 +45,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.providerType}}
+								{{bpInfo.providerType}}
 							</td>
 						</tr>
 						<tr>
@@ -56,11 +56,24 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.providerName}}
+								{{bpInfo.providerName}}
 							</td>
 						</tr>
-					</div>
-					<div ng-show="blueprintInfo.templateType=='chef' || blueprintInfo.templateType=='docker'|| blueprintInfo.templateType=='ami'">
+					</tbody>
+					<tbody ng-show="bpInfo.templateType=='arm'">
+						<tr>
+							<td>
+								Resource Group
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.resourceGroup}}
+							</td>
+						</tr>
+					</tbody>
+					<tbody ng-show="bpInfo.templateType=='chef' || bpInfo.templateType=='docker'|| bpInfo.templateType=='ami'">
 						<tr>
 							<td>
 								Instance Size
@@ -69,7 +82,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.blueprintConfig.cloudProviderData.instanceType}}
+								{{bpInfo.blueprintConfig.cloudProviderData.instanceType}}
 							</td>
 						</tr>
 						<tr>
@@ -80,7 +93,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.blueprintConfig.cloudProviderData.vpcId}}
+								{{bpInfo.blueprintConfig.cloudProviderData.vpcId}}
 							</td>
 						</tr>
 						<tr>
@@ -91,7 +104,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.blueprintConfig.cloudProviderData.subnetId}}
+								{{bpInfo.blueprintConfig.cloudProviderData.subnetId}}
 							</td>
 						</tr>
 						<tr>
@@ -102,7 +115,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.blueprintConfig.cloudProviderData.securityGroupIds[0]}}
+								{{bpInfo.blueprintConfig.cloudProviderData.securityGroupIds[0]}}
 							</td>
 						</tr>
 						<tr>
@@ -113,7 +126,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.blueprintConfig.infraManagerData.latestVersion}}
+								{{bpInfo.version}}
 							</td>
 						</tr>
 						<tr>
@@ -124,7 +137,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.imageName}}
+								{{bpInfo.imageName}}
 							</td>
 						</tr>
 						<tr>
@@ -135,7 +148,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.blueprintConfig.cloudProviderData.imageId}}
+								{{bpInfo.blueprintConfig.cloudProviderData.instanceAmiid}}
 							</td>
 						</tr>
 						<tr>
@@ -146,10 +159,10 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{blueprintInfo.keyPairName}}
+								{{bpInfo.keyPairName}}
 							</td>
 						</tr>
-					</div>
+					</tbody>
 				</table>
 			</accordion-group>
 		</div>
@@ -192,7 +205,7 @@
 		</accordion-group>
 		<!--Role Attributes Starts here-->
 		<accordion-group is-open="isThirdOpen" heading="Software">
-			<button type="button" class="btn cat-btn-update inspect-btn pull-right" ng-show="blueprintInfo.instanceState==='running'" ng-click="inspect();">
+			<button type="button" class="btn cat-btn-update inspect-btn pull-right" ng-show="instInfo.instanceState==='running'" ng-click="inspect();">
 				<i class="fa fa-fw fa-search white"></i>
 				Inspect
 			</button>
