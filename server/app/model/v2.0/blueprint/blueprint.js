@@ -130,9 +130,8 @@ var BlueprintSchema = new Schema ({
         trim: true
     },
     bootDiskSize: {
-        type: String,
-        required: false,
-        trim: true
+        type: Number,
+        required: false
     },
     applications: [{
         repoId: {
