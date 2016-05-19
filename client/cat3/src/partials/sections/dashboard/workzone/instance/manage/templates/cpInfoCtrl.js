@@ -93,7 +93,7 @@
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/instance/manage/popups/applicationUrl.html',
-                    controller: 'applicationCreateEditCtrl',
+                    controller: 'appUrlCreateEditCtrl',
                     backdrop: 'static',
                     keyboard: false,
                     resolve: {
@@ -239,7 +239,7 @@
                     $modalInstance.close();
                 });
             };
-        }]).controller('applicationCreateEditCtrl', ['$scope', 'items', '$modalInstance', 'workzoneServices', function($scope, items, $modalInstance, workzoneServices) {
+        }]).controller('appUrlCreateEditCtrl', ['$scope', 'items', '$modalInstance', 'workzoneServices', function($scope, items, $modalInstance, workzoneServices) {
             /*on opening the popup checking whether the type is edit 
             and filling the appropriate name and url for the selected appItem*/
             if (items.type === 'edit') {

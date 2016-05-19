@@ -44,8 +44,8 @@
         </div>
 </div>
     <div ng-switch-when="summary">
-        <div ng-if="!cardDetails.version" class="text-center" ng-style="(cardDetails && cardDetails.length >0) ? {} : {'opacity': '0.4','filter':'alpha(opacity=40)'}" >
-            <div class="cardView">
+        <div ng-if="!cardDetails.version" class="text-center" ng-style="(cardDetails && cardDetails.length >0) ? {} : {'opacity': '0.4','filter':'alpha(opacity=40)','-webkit-filter': 'grayscale(1)'}" >
+            <div class="cardView">'
                 <div class="card app-details" >
                     <div class="card-title">
                         <div  class="card-title-name" > <strong ng-bind-html="(cardDetails && cardDetails.length >0)?cardDetails:''"></strong>

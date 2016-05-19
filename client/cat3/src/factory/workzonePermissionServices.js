@@ -51,5 +51,26 @@
 		this.createApp = function() {
 			return uac.hasPermission('application', 'create');
 		};
+		this.appDeploy = function() {
+			return uac.hasPermission('application_instance','create');
+		};
+		this.deployHistory = function() {
+			return uac.hasPermission('deploy_history','read');
+		};
+		this.upgradeApp = function() {
+			return true;
+		};
+		this.promoteApp = function() {
+			return true;
+		};
+		this.revokeApp = function() {
+			return true;
+		};
+		this.approveApp = function() {
+			return true;
+		};
+		this.createTask = function() {
+			return true;
+		}
 	}]);
 })(angular);
