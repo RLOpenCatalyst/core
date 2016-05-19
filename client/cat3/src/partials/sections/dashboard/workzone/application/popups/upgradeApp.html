@@ -19,44 +19,49 @@
 						</label>
 						<div class="input-groups">
 							<loading size="small" name="isLoadingServer" type="inline"></loading>
-							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.serverName">
 						</div>
 					</div>
-					<div ng-if="depNewApp.newEnt.serverType==='docker'">
+					<div ng-if="upGrdApp.newEnt.serverType==='docker'">
 						<div class="col-lg-6 col-md-6">
 							<label >Repository:<span class="red">*</span>
 								<loading size="small" name="isLoadingNexus" type="inline"></loading>
 							</label>
 							<div class="input-groups">
-								<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+								<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.repository">
 							</div>
 						</div>
 						<div class="col-lg-6 col-md-6">
 							<label>Tags:<span class="red">*</span>
 								<loading size="small" name="isLoadingDocTag" type="inline"></loading>
 							</label>
-							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.tag">
 						</div>
 						<div class="col-lg-6 col-md-6">
 							<label>Container Port:<span class="red">*</span>
 								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
 							</label>
-							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.contPort">
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15" >
+							<label ng-click="showHideLoader()">Host Port:<span class="red">*</span></label>
+							<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+							<input type="text" class="form-control" name="hostPort" ng-model="upGrdApp.newEnt.hostPort" disabled="">
 						</div>
 						<div class="col-lg-12 col-md-12 margintop15" >
 							<label ng-click="showHideLoader()">Container Name/ID:</label>
 							<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
-							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.ContNameId">
 						</div>
 
 					</div>
-					<div  ng-if="depNewApp.newEnt.serverType==='nexus'">
+					<div  ng-if="upGrdApp.newEnt.serverType==='nexus'">
 						<div class="col-lg-6 col-md-6">
 							<label >Repository:<span class="red">*</span>
 								<loading size="small" name="isLoadingNexus" type="inline"></loading>
 							</label>
 							<div class="input-groups">
-								<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+								<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.repository">
 							</div>
 						</div>
 						<div class="col-lg-6 col-md-6" >
@@ -64,7 +69,7 @@
 								<loading size="small" name="isLoadingNexus" type="inline"></loading>
 							</label>
 							<div class="input-groups">
-								<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+								<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.groupId">
 							</div>
 						</div>
 						<div class="col-lg-6 col-md-6">
@@ -72,7 +77,7 @@
 								<loading size="small" name="isLoadingArtifacts" type="inline"></loading>
 							</label>
 							<div class="input-groups">
-								<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+								<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.artifact">
 							</div>
 						</div>
 						<div class="col-lg-6 col-md-6" >
@@ -80,18 +85,18 @@
 								<loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
 							</label>
 							<div class="input-groups">
-								<select class="form-control" ng-model="depNewApp.newEnt.version" required>
+								<select class="form-control" ng-model="upGrdApp.newEnt.version" required>
 									<option value="">Choose Versions</option>
-									<option ng-repeat="(key , values) in depNewApp.versionsOptions" value="{{values}}">{{values}}</option>
+									<option ng-repeat="(key , values) in upGrdApp.versionsOptions" value="{{values}}">{{values}}</option>
 								</select>
 							</div>
 						</div>
-						<div class="col-lg-12 col-md-12">
-							<label>Repository URL:<span class="red">*</span>
-								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
-							</label>
-							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
-						</div>
+						<!--<div class="col-lg-12 col-md-12">-->
+							<!--<label>Repository URL:<span class="red">*</span>-->
+								<!--&lt;!&ndash;<loading size="small" name="isLoadingNexus" type="inline"></loading>&ndash;&gt;-->
+							<!--</label>-->
+							<!--<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.repositoryURL">-->
+						<!--</div>-->
 					</div>
 				</fieldset>
 				<fieldset class="repo-job-details-wrapper margintop20">
@@ -102,13 +107,20 @@
 						</label>
 						<div class="input-groups">
 							<loading size="small" name="isLoadingJob" type="inline"></loading>
-							<input type="text" class="form-control" disabled="" ng-model="depNewApp.newEnt.repositoryURL">
+							<select id="chooseJobType" name="jobInd" ng-model="upGrdApp.newEnt.jobInd"  ng-options="upGrdApp.jobOptions.indexOf(jobOption) as jobOption.name for jobOption in upGrdApp.jobOptions" class="form-control" required>
+								<option value="">Choose Job</option>
+							</select>
 						</div>
 					</div>
 					<div class="col-lg-6 col-md-6">
 						<label>
 							<span></span>
 						</label>
+						<div class="input-groups">
+							<button type="button" class="btn cat-btn-update"  ng-click="upGrdApp.createNewJob()">
+								<i class="fa fa-plus white"></i> Create New Job {{}}
+							</button>
+						</div>
 					</div>
 				</fieldset>
 			</div>
@@ -118,7 +130,7 @@
 				<i class="fa fa-times black"></i> Cancel
 			</button>
 
-			<button type="button" class="btn cat-btn-update " ng-disabled="upgradeForm.$invalid"  ng-click="depNewApp.submitAppUpgrade()">
+			<button type="button" class="btn cat-btn-update " ng-disabled="upgradeForm.$invalid"  ng-click="upGrdApp.submitAppUpgrade()">
 				<i class="fa fa-save white"></i> Upgrade
 			</button>
 		</div>

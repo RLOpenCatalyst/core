@@ -170,6 +170,7 @@ AppDataSchema.statics.createNewOrUpdate = function createNewOrUpdate(appData, ca
                 return;
             });
         } else {
+            logger.debug("This is the appData going to save: ",JSON.stringify(appData));
             var appDataObj = new that(appData);
             appDataObj.save(function(err, anAppData) {
                 if (err) {

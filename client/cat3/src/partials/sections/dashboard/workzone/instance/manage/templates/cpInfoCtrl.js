@@ -17,16 +17,11 @@
             $scope.isFourthOpen = true;
             $scope.isFifthOpen = true;
             $scope.isSixthOpen = true;
+            $scope.taskInfo = [];
+            $scope.bpInfo = [];
 
             var cpInstance = $scope.$parent.cpInstance;
-            if(cpInstance.blueprintData && cpInstance.blueprintData.blueprintId) {
-                workzoneServices.blueprintInfo(cpInstance.blueprintData.blueprintId).then(function(response) {
-                    $scope.blueprintInfo = response.data;
-                },
-                function(error) {
-                    console.log(error.data.errMessage);
-                });
-            }
+                    
             var hardwareInfo = {},
                 softwareInfo = {},
                 cmInfo = {};
@@ -47,33 +42,26 @@
             };
 
             $scope.instInfo = cpInstance;
-            //$scope.bpInfo = TO DO
-            //$scope.imageInfo = TO DO
-
-            /*TODO: cpInstance.providerId should be replaced with data2blueprints[j].blueprintConfig.cloudProviderId
-             when blueprint is available
-             */
-            if (cpInstance.providerId) {
-                workzoneServices.getProviderDetails(cpInstance.providerId).then(function(response) {
-                    $scope.providerInfo = response.data;
-                });
-            }
-
-            //TO DO bpInfo, imageInfo and providerInfo is same as and can be replaced by the blueprint more info service
-
             $scope.appUrlInfo = cpInstance.appUrls;
-
             $scope.setTaskInfo = function() {
                 if (cpInstance.taskIds && cpInstance.taskIds.length) {
                     workzoneServices.postRetrieveTasksDetails(cpInstance.taskIds).then(function(response) {
                         $scope.taskInfo = response.data;
                     });
-                } else {
-                    $scope.taskInfo = [];
                 }
             };
-
+            $scope.setBlueprintInfo = function() {   
+                if(cpInstance.blueprintData && cpInstance.blueprintData.blueprintId) {
+                    workzoneServices.blueprintInfo(cpInstance.blueprintData.blueprintId).then(function(response) {
+                        $scope.bpInfo = response.data;
+                    },
+                    function(error) {
+                        console.log(error.data.errMessage);
+                    });
+                }
+            };
             $scope.setTaskInfo();
+            $scope.setBlueprintInfo();
 
             hardwareInfo.machine = cpInstance.hardware.architecture;
             hardwareInfo.memoryTotal = helper.memoryCalculation(cpInstance.hardware.memory.total);

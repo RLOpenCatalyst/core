@@ -48,7 +48,7 @@ angular.module('workzone.application')
 				wzService.postAppApprove(requestObject).success(function(Saveresult){
 					$scope.msgText='revoked';
 					$scope.resultMsg='success';
-					items.isApproved=true;
+					items.isApproved=false;
 					$modalInstance.close(items);
 				}).error(function(data, status, headers, config) {
 					$scope.msgText=data.message;
