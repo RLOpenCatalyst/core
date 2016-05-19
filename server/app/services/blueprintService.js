@@ -47,12 +47,11 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
             function(provider, next) {
                 switch (networkProfile.type) {
                     case 'GCP':
-                        //@TODO create gcp obj and launch BP
                         // Get file from provider decode it and save, after use delete file
                         var filePath = "/home/gobinda/keyFile.json"
                         var params = {
                             "projectId": provider.projectId,
-                            "keyFilename": provider.filePath
+                            "keyFilename": filePath
                         }
                         var gcp = new GCP(params);
                         var launchParams = {

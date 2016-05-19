@@ -63,35 +63,6 @@ var GCP = function GCP(params) {
         };
 
 
-        /*var param1 = {
-            "name": "gobinda-instance",
-            "zone": "us-central1-b",
-            "machineType": "f1-micro",
-            "metadata": {
-                "items": [{
-                    "key": "ssh-keys",
-                    "value": "root:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDgAc/oTIxLPlI77dyl5CF9noGxPUslp/Cg/zymDgy0ewhBBwMm6KPlJaVHigVfLlYHGl7WqZ3toBCZ8IbHEGakLPgx+Yu//yjVmFlLG6y6ud8n/2ocwlX4WgCSKzORmiGM3kC0VL8GzOAYqm7uN0MjueJsu4PTX6QT0JtVlNQnSFnjyBrkaPU3vPWDRGdnLMmKHKFc5Dqh8HCBmKCh8NVmtpYUhnghuMr7IhmJrr3HgmLH4fPjOfPSHjAqtvCxjtEEJieeDLCrFG36+iDQ9m6nxWe9E2+Zatnq7jEwZIKs9NFDw9HcB+E79a7uTIdVB9eBnn3SxM37gvCERayWcBhx root@gobinda-Latitude-3450"
-                }]
-            },
-            "disks": [{
-                "boot": true, // Mandatory field
-                "deviceName": "gobinda-instance",
-                "initializeParams": {
-                    "sourceImage": "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20160516", // url mandatory
-                    "diskType": "projects/eastern-clock-129807/zones/us-central1-b/diskTypes/pd-ssd", // url mandatory
-                    "diskSizeGb": "10"
-                }
-            }],
-            "networkInterfaces": [{
-                "network": "projects/eastern-clock-129807/global/networks/default", // url mandatory
-                "subnetwork": "projects/eastern-clock-129807/regions/us-central1/subnetworks/default-3582ec0a991fc614", // url mandatory
-                "accessConfigs": [{
-                    "name": "External NAT",
-                    "type": "ONE_TO_ONE_NAT"
-                }]
-            }]
-        };*/
-
         zone.createVM(name, paramConfig, function(err, vm, operation) {
             if (err) {
                 var error = new Error("Error to create VM.");
@@ -171,25 +142,13 @@ var GCP = function GCP(params) {
             return callback(null, disks);
         });
     };
-    this.getDisks = function getDisks(callback) {
-        gce.getDisks(function(err, disks) {
-            if (err) {
-                var error = new Error("Failed to get Disks from GCP.");
-                error.status(500);
-                return callback(error, null);
-            }
-            return callback(null, disks);
-        });
+    this.startVM = function startVM(instance, callback) {
+        var zone = gce.zone(instance.zone);
+        var vm = zone.vm(instance.id);
+        
     };
-    this.getDisks = function getDisks(callback) {
-        gce.getDisks(function(err, disks) {
-            if (err) {
-                var error = new Error("Failed to get Disks from GCP.");
-                error.status(500);
-                return callback(error, null);
-            }
-            return callback(null, disks);
-        });
+    this.stopVM = function stopVM(instanceId, callback) {
+        
     };
 
 };

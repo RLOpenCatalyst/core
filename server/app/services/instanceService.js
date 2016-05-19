@@ -523,6 +523,7 @@ function createInstance(instanceObj, callback) {
         runlist: blueprint.runList,
         attributes: blueprint.attributes,
         appUrls: blueprint.applicationURL,
+        zone: blueprint.networkProfile.zone,
         hardware: {
             platform: 'unknown',
             platformVersion: 'unknown',
