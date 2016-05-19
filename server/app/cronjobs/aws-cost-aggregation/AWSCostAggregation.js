@@ -14,7 +14,6 @@
  limitations under the License.
  */
 var logger = require('_pr/logger')(module);
-var Cryptography = require('_pr/lib/utils/cryptography');
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
@@ -29,10 +28,8 @@ var csv2json = require('csv2json');
 var json = require('jsonfile');
 var fs = require('fs');
 
-var AWS = require('aws-sdk');
-
 var AggregateAWSCost = Object.create(CatalystCronJob);
-AggregateAWSCost.interval = '*/2 * * * *';
+AggregateAWSCost.interval = '*/5 * * * *';
 AggregateAWSCost.execute = aggregateAWSCost;
 
 module.exports = AggregateAWSCost;
@@ -55,6 +52,7 @@ function aggregateAWSCost() {
         Key: fullKey
     };
     var lastModified=100;
+    fs.unlinkSync("./rlBilling.zip");
     s3.getObject(params,'time',function(err,updateTime)
     {
         console.log(updateTime);
