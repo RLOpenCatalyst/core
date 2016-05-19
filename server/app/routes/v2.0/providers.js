@@ -72,7 +72,7 @@ var logger = require('_pr/logger')(module);
  *			"pageIndex": 1
  * 		}
  */
-router.get('/', validate(providersValidator.accessIndividualResource), getProviders);
+router.get('/', getProviders);
 
 /**
  * @api {get} /api/v2.0/providers/:providerId 	        Get provider
@@ -240,6 +240,7 @@ router.patch('/:providerId', validate(providersValidator.accessIndividualResourc
 function createProvider(req, res, next) {
     async.waterfall([
         // @TODO Check if user has access to the specified organization
+        // @TODO Authorization checks to be addded
         function(next) {
             userService.getOrg(req.body.organizationId, next);
         },
@@ -274,27 +275,32 @@ function updateProvider(req, res, next) {
     });
 }
 
-function deleteProvider(req, res, next) {
+function getProvider(req, res, next) {
     async.waterfall([
         function (next) {
             providerService.getProvider(req.params.providerId, next);
         },
-        function(next, provider) {
-            providerService.deleteProvider(provider, next);
-        },
+        providerService.createProviderResponseObject
     ], function(err, provider) {
         if(err) {
             next(err);
         } else {
-            res.status(200).send({});
+            res.status(200).send(provider);
         }
     });
 }
 
 function getProviders(req, res, next) {
     async.waterfall([
-        function (next) {
-            providerService.getAllProviders(req.params.providerId, next);
+        function(next) {
+            if('session' in req) {
+                userService.getUserOrgs(req.session.user, next);
+            } else {
+                next(null, req.user.orgs);
+            }
+        },
+        function (org, next) {
+            providerService.getAllProviders(org.rowid, next);
         },
         providerService.createProviderResponseList
     ], function(err, provider) {
@@ -306,17 +312,28 @@ function getProviders(req, res, next) {
     });
 }
 
-function getProvider(req, res, next) {
+function deleteProvider(req, res, next) {
     async.waterfall([
-        function (next) {
-            providerService.checkIfGCPProviderExists(req.params.providerId, next);
+        // @TODO Check if user has access to the specified organization
+        // @TODO Authorization checks to be addded
+        function(next) {
+            if('session' in req) {
+                userService.getUserOrgs(req.session.user, next);
+            } else {
+                next(null, req.user.orgs);
+            }
         },
-        providerService.createProviderResponseObject
+        function() {
+            providerService.checkProviderDeleteAuthorization(orgs, req.params.providerId, next);
+        },
+        function(orgs, next) {
+            providerService.deleteProvider(req.param.providerId, next);
+        },
     ], function(err, provider) {
         if(err) {
             next(err);
         } else {
-            res.status(200).send(provider);
+            res.status(200).send({});
         }
     });
 }
