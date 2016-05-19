@@ -516,7 +516,7 @@ function createInstance(instanceObj, callback) {
     var blueprint = instanceObj.blueprint;
     var instance = instanceObj.instance;
     var instances = {
-        name: blueprint.name,
+        name: instance.name,
         orgId: blueprint.organization.id,
         bgId: blueprint.businessGroup.id,
         projectId: blueprint.projectId,
@@ -549,19 +549,19 @@ function createInstance(instanceObj, callback) {
             templateType: blueprint.softwareTemplate.templateType,
             templateComponents: blueprint.softwareTemplate.templateComponents,
             iconPath: blueprint.softwareTemplate.iconpath
+        },
+        chef: {
+            serverId: blueprint.chefServerId,
+            chefNodeName: instance.name
         }
     };
     switch (blueprint.networkProfile.type) {
         case 'GCP':
-            instances['chefNodeName'] = instance.name,
+                instances['chefNodeName'] = instance.name,
                 instances['platformId'] = instance.id,
                 instances['instanceIP'] = instance.ip,
                 instances['instanceState'] = instance.status,
-                instances['bootStrapStatus'] = 'waiting',
-                instances['chef'] = {
-                    serverId: blueprint.chefServerId,
-                    chefNodeName: instance.name
-                }
+                instances['bootStrapStatus'] = 'waiting'
             break;
             defaut:
                 break;

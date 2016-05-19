@@ -95,7 +95,8 @@ var logger = require('_pr/logger')(module);
  *                  "applicationURL": "application url",
  *                  "runList": [],
  *                  "attributes": [],
- *                  "buleprints": []
+ *                  "buleprints": [],
+ *                  "chefServerId": "rowid"
  * 				 },
  * 				 {
  *                  "id": "<ID>",
@@ -133,6 +134,7 @@ var logger = require('_pr/logger')(module);
  *                      "imageId": "<Image ID>"
  *                  },
  *                  "machineType": "m1.large",
+ *                  "chefServerId": "rowid",
  *                  "applications": [],
  *                  "applicationURL": "application url",
  *                  "runList": [],
@@ -223,7 +225,8 @@ var logger = require('_pr/logger')(module);
  *          "applicationURL": "application url",
  *          "runList": [],
  *          "attributes": [],
- *          "buleprints": []
+ *          "buleprints": [],
+ *          "chefServerId": "rowid"
  *      }
  */
 // router.patch('/:blueprintId', getBlueprint);
@@ -328,7 +331,8 @@ var logger = require('_pr/logger')(module);
  *          "applicationURL": "application url",
  *          "runList": [],
  *          "attributes": [],
- *          "buleprints": []
+ *          "buleprints": [],
+ *          "chefServerId": "rowid"
  *      }
  */
 // router.post('/', createBlueprint);
