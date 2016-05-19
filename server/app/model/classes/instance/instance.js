@@ -261,7 +261,17 @@ var InstanceSchema = new Schema({
     cloudFormationId: String,
     armId: String,
     usage: Schema.Types.Mixed,
-    cost: Schema.Types.Mixed
+    cost: Schema.Types.Mixed,
+    zone: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    region: {
+        type: String,
+        required: false,
+        trim: true
+    },
 });
 
 InstanceSchema.plugin(uniqueValidator);

@@ -20,16 +20,19 @@ var blueprintModel = require('_pr/model/blueprint/blueprint.js');
 var providerService = require('./providerService.js');
 var async = require('async');
 var instanceService = require('./instanceService.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var instancesModel = require('_pr/model/classes/instance/instance');
+var fs = require('fs');
 const errorType = 'blueprint';
 
 var blueprintService = module.exports = {};
 
-blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callback){
-    blueprintModel.findById(blueprintId,function(err, blueprint){
-        if(err){
+blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callback) {
+    blueprintModel.findById(blueprintId, function(err, blueprint) {
+        if (err) {
             var error = new Error("Error to get blueprint.");
             error.status(404);
-            return callback(error,null);
+            return callback(error, null);
         }
         return callback(null, blueprint);
     });
@@ -47,12 +50,12 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
             function(provider, next) {
                 switch (networkProfile.type) {
                     case 'GCP':
-                        //@TODO create gcp obj and launch BP
                         // Get file from provider decode it and save, after use delete file
                         var filePath = "/home/gobinda/keyFile.json"
+                        fs.writeFile('/tmp/'+provider.id+'.json', provider.keyFile, next);
                         var params = {
                             "projectId": provider.projectId,
-                            "keyFilename": provider.filePath
+                            "keyFilename": '/tmp/'+provider.id+'.json'
                         }
                         var gcp = new GCP(params);
                         var launchParams = {
@@ -73,14 +76,24 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
                 }
                 instanceService.createInstance(instanceObj, next);
             },
-            function(instanceData,next){
-                instanceService.bootstrapInstance(instanceData,next);
+            function(instanceData, next) {
+                var timestampStarted = new Date().getTime();
+                var actionLog = instancesModel.insertBootstrapActionLog(instanceData.id, instanceData.runlist, instanceData.sessionUser, timestampStarted);
+                var logsReferenceIds = [instanceData.id, actionLog._id];
+                logsDao.insertLog({
+                    referenceId: logsReferenceIds,
+                    err: false,
+                    log: "Starting instance",
+                    timestamp: timestampStarted
+                });
+                instanceService.bootstrapInstance(instanceData, next);
             }
         ], function(err, results) {
             if (err) {
                 logger.error("GCP Blueprint launch failed: " + err);
                 next(err);
             } else {
+                fs.unlink('/tmp/'+provider.id+'.json');
                 next(null, results);
             }
         })
@@ -90,4 +103,3 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
         return callback(err, null);
     }
 }
-
