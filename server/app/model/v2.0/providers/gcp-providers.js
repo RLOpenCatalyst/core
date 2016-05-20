@@ -17,6 +17,8 @@
 var logger = require('_pr/logger')(module);
 var BaseProviderSchema = require('./base-provider');
 var Providers = require('./providers');
+var appConfig = require('_pr/config');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 var GCPProviderSchema = new BaseProviderSchema({
     providerDetails: {
@@ -38,9 +40,17 @@ var GCPProviderSchema = new BaseProviderSchema({
     }
 });
 
-// @TODO hook to encrypt
-/*GCPProviderSchema.pre('save', function(result) {
-});*/
+GCPProviderSchema.pre('save', function(next) {
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+
+    this.providerDetails.keyFile = cryptography.encryptText(this.providerDetails.keyFile,
+        cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
+    this.providerDetails.sshKey = cryptography.encryptText(this.providerDetails.sshKey,
+        cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
+
+    next();
+});
 
 GCPProviderSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
