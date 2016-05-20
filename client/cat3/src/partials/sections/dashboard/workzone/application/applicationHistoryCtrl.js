@@ -7,8 +7,9 @@
 
 (function (angular) {
     "use strict";
-    angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices', function ($scope, $rootScope, workzoneServices,uiGridOptiSer) {
+    angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices', 'workzoneUIUtils', function ($scope, $rootScope, workzoneServices, uiGridOptiSer, workzoneUIUtils) {
         var gridOpt=uiGridOptiSer.options();
+        var gridBottomSpace = 30;
             angular.extend($scope, {
                 pagiOptionsHistory :gridOpt.pagination,
                 historGgridData:[],
@@ -66,7 +67,9 @@
                 $scope.envDetails = requestParams;
                 $scope.orgName = requestParamNames.org;
                 $scope.selectedEnv = requestParamNames.env;
-            $scope.getHistoryData($scope.requestParams.params, $scope.requestParams.paramNames);
+                $scope.getHistoryData($scope.requestParams.params, $scope.requestParams.paramNames);
+                $scope.gridHeight = workzoneUIUtils.makeTabScrollable('applicationPage')-gridBottomSpace;
+                workzoneUIUtils.makeTabScrollable('applicationPage');
             }
         );
     }]);

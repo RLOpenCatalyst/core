@@ -10,7 +10,7 @@
 	angular.module('workzone.container', ['ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'mgcrea.ngStrap', 'ngSanitize', 'utility.pagination'])
 		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil','$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
 			$scope.isContainerPageLoading = true;
-			var gridBottomSpace = 60;
+			var gridBottomSpace = 30;
 			var containerUIGridDefaults = uiGridOptionsService.options();
 			$scope.paginationParams = containerUIGridDefaults.pagination;
 			$scope.tabData = [];

@@ -12,9 +12,11 @@
 			var pipeLineConfig = {
 			};
 		}])
-		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'appDeployResponseFormatter','uiGridOptionsService','$timeout', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, appDeployResponseFormatter,uiGridOptiSer,$timeout) {
+		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'workzoneUIUtils', 'appDeployResponseFormatter','uiGridOptionsService','$timeout', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, workzoneUIUtils, appDeployResponseFormatter,uiGridOptiSer,$timeout) {
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
+			var gridBottomSpace = 60;
+			var gridBottomSpaceSummary = 30;
 			angular.extend($scope, {
 				cardGridData:[],
 				selectedGridRow:[],
@@ -320,6 +322,9 @@
 				$scope.envDetails = requestParams;
 				$scope.orgName = requestParamNames.org;
 				$scope.selectedEnv = requestParamNames.env;
+				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('applicationPage')-gridBottomSpace;
+				$scope.gridHeightSummary = workzoneUIUtils.makeTabScrollable('applicationPage')-gridBottomSpaceSummary;
+				workzoneUIUtils.makeTabScrollable('applicationPage');
 			}
 		);
 	}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission','$attrs', 'appDeployResponseFormatter', function ($scope, $rootScope, workzoneServices, applicationPerms, $attrs,appDeployResponseFormatter) {
