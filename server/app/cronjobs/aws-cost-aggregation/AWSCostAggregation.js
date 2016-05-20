@@ -21,12 +21,14 @@ var async = require('async');
 var appConfig = require('_pr/config');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
+var awsCostDao = require('_pr/model/aws-cost-aggregate');
 var instanceService = require('_pr/services/instanceService');
 var S3 = require('_pr/lib/s3.js');
 var AdmZip = require('adm-zip');
 var csv2json = require('csv2json');
 var json = require('jsonfile');
 var fs = require('fs');
+var lastModified=100;
 
 var AggregateAWSCost = Object.create(CatalystCronJob);
 AggregateAWSCost.interval = '*/5 * * * *';
@@ -35,7 +37,7 @@ AggregateAWSCost.execute = aggregateAWSCost;
 module.exports = AggregateAWSCost;
 
 function aggregateAWSCost() {
-
+    console.log("123456");
     var s3Config = appConfig.aws.s3;
     var date = new Date();
     var year = date.getFullYear();
@@ -51,45 +53,73 @@ function aggregateAWSCost() {
         Bucket: s3Config.bucketName,
         Key: fullKey
     };
-    var lastModified=100;
-    fs.unlinkSync("./rlBilling.zip");
     s3.getObject(params,'time',function(err,updateTime)
     {
-        console.log(updateTime);
-        var temp = String(updateTime).split(',');
-        console.log(temp[1]);
-        var changedTime = new Date(temp[1]).getTime();
-        console.log(changedTime);
-        console.log(lastModified);
-        if(lastModified < changedTime)
-        {
-            console.log('inside download file');
-            s3.getObject(params,'file',function(err,status)
-            {
-                console.log(status);
-                if(status == true)
-                {
-                    var zip = new AdmZip("./rlBilling.zip");
-                    console.log(__dirname);
-                    zip.extractAllTo(__dirname, true);
-                    console.log('\n finished');
-                    var newJsonFile = fs.createWriteStream('./data.json');
-                    fs.createReadStream(csvFile).pipe(csv2json({ })).pipe(newJsonFile);
-                    newJsonFile.on('finish',function()
-                    {
-                        console.log('done');
-                        json.readFile('./data.json',function(err,jsonArray) {
-                            if (err) console.log(err);
-                            else {
-                                var length = jsonArray.length;
-                                console.log(length);
-                            }
-                        })
-                    })
-                }
+         var temp = String(updateTime).split(',');
+         var changedTime = new Date(temp[1]).getTime();
+         if(lastModified < changedTime)
+         {
+             s3.getObject(params,'file',function(err,status) {
+                 if (status == true) {
+                     var zip = new AdmZip("./rlBilling.zip");
+                     zip.extractAllTo(__dirname, true);
+                     console.log(__dirname);
+                     var newJsonFile = fs.createWriteStream('./data.json');
+                     fs.createReadStream(__dirname+'/'+csvFile).pipe(csv2json({})).pipe(newJsonFile);
+                     console.log(1234);
+                     newJsonFile.on('finish', function () {
+                         json.readFile('./data.json', function (err, jsonArray) {
+                             if (err) {
+                                 console.log(err);
+                                 return;
+                             } else {
+                                 var length = jsonArray.length;
+                                 console.log(length);
+                                 for (var i = 0; i < length; i++) {
+                                     if (jsonArray[i].ResourceId !== '' || jsonArray[i].ResourceId !== null || jsonArray[i].ResourceId.substring(0, 1) ==='i') {
+                                         console.log("Hello");
+                                         var awsAggregateCost = {
+                                             InvoiceID: jsonArray[i].InvoiceID,
+                                             PayerAccountId: jsonArray[i].PayerAccountId,
+                                             LinkedAccountId: jsonArray[i].LinkedAccountId,
+                                             RecordType: jsonArray[i].RecordType,
+                                             RecordId: jsonArray[i].RecordId,
+                                             ProductName: jsonArray[i].ProductName,
+                                             RateId: jsonArray[i].RateId,
+                                             SubscriptionId: jsonArray[i].SubscriptionId,
+                                             PricingPlanId: jsonArray[i].PricingPlanId,
+                                             UsageType: jsonArray[i].UsageType,
+                                             Operation: jsonArray[i].Operation,
+                                             AvailabilityZone: jsonArray[i].AvailabilityZone,
+                                             ReservedInstance: jsonArray[i].ReservedInstance,
+                                             ItemDescription: jsonArray[i].ItemDescription,
+                                             UsageStartDate: jsonArray[i].UsageStartDate,
+                                             UsageEndDate: jsonArray[i].UsageEndDate,
+                                             UsageQuantity: jsonArray[i].UsageQuantity,
+                                             BlendedRate: jsonArray[i].BlendedRate,
+                                             BlendedCost: jsonArray[i].BlendedCost,
+                                             UnBlendedRate: jsonArray[i].UnBlendedRate,
+                                             UnBlendedCost: jsonArray[i].UnBlendedCost,
+                                             ResourceId: jsonArray[i].ResourceId,
+                                             ResourceTags: {
+                                                 Bill: jsonArray[i]['user:Bill'],
+                                                 Name: jsonArray[i]['user:Name']
+                                             }
+                                         }
+                                         saveAndUpdateAwsCostCsvData(awsAggregateCost);
+                                     }
+                                 }
+                             }
+                         })
+                     })
+                 }
+             });
+         }
+    });
+    /*            }
             });
         }
-    })
+    })*/
     /*async.waterfall([
         function(next){
             MasterUtils.getAllActiveOrg(next);
@@ -154,9 +184,18 @@ function aggregateAWSCost() {
         });*/
 }
 
-function callBackReturn(data,callback){
-    callback(null,data);
-};
+function saveAndUpdateAwsCostCsvData(awsAggregateCostData){
+async.waterfall([
+    function(next){
+        awsCostDao.createAWSCostByCSV(awsAggregateCostData,next);
+    }
+],function(err,results){
+    if(err){
+        logger.error(err);
+        return;
+    }
+})
+}
 
 
 

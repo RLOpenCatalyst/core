@@ -53,8 +53,12 @@ var S3 = function(awsSettings) {
             });
         }else if(key === 'file'){
             var file = fs.createWriteStream('rlBilling.zip');
-            s3.getObject(params).createReadStream().pipe(file);
-            callback(null,true);
+            var fileStream = s3.getObject(params).createReadStream();
+            fileStream.pipe(file);
+            file.on('finish',function(){
+                console.log('done');
+                callback(null,true);
+            });
         }
 
     };
