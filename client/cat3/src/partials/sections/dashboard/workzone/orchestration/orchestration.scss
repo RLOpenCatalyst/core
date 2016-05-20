@@ -355,21 +355,17 @@ $imagePath : "../../../../../../images";
 #orchestrationHistoryPage {
 	font-size: 12px;
 
-	.success, .SUCCESS, .failure, .failed{
+	.success, .SUCCESS, .failure, .failed {
 		color: #fff;
 		padding: 8px;
 	}
 
-	.success, .SUCCESS{
+	.success, .SUCCESS {
 		background: $color-green;
 	}
 
-	.failure, .failed{
+	.failure, .failed {
 		background: $color-red;
-	}
-	
-	.modal-body {
-		padding: 15px 15px 50px 15px;
 	}
 
 	.fa-info-circle {

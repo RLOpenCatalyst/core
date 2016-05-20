@@ -1,6 +1,6 @@
 <div id="cpInfo" ng-controller="cpInfoCtrl">
 	<accordion close-others="oneAtATime">
-		<div ng-show="bpInfo.length!==0">
+		<div class="bp-info-wrapper" ng-if="bpInfo.length!==0">
 			<accordion-group is-open="isFirstOpen" heading="Blueprint Information">
 				<table>
 					<tbody>

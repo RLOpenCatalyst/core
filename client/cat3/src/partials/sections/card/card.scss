@@ -368,7 +368,7 @@ $imagePath : "/cat3/images";
 	}
 
 	.blueprint-buttons-docker {
-		margin: 5px 0 0 0px;
+		margin: 5px 0 0 10px;
 	}
 
 	.bp-version-dropdown {
@@ -525,7 +525,7 @@ $imagePath : "/cat3/images";
 	.card {
 		.card-title-role img {
 			height: 25px;
-			width: 33px;
+			margin: 0 4px;
 		}
 
 		.card-title-edit {
