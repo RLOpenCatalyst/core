@@ -21,7 +21,7 @@
 			};
 			$scope.perms = _permSet;
 			$scope.isOrchestrationPageLoading = true;
-			var gridBottomSpace = 60;
+			var gridBottomSpace = 30;
 			var orchestrationUIGridDefaults = uiGridOptionsService.options();
 			$scope.paginationParams = orchestrationUIGridDefaults.pagination;
 			$scope.tabData = [];
