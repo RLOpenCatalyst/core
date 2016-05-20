@@ -367,12 +367,6 @@ $imagePath : "../../../../../../images";
 			margin: -24px -7px 0 0px;
 		}
 
-		/*.dropdown {
-			width: 58%;
-			float: right;
-			position: static;
-		}*/
-
 		.dropdown {
 			width: 50px;
 		    right: 20px;
@@ -433,13 +427,6 @@ $imagePath : "../../../../../../images";
 			height: 28px;
 			background: url("#{$imagePath}/global/sprites.png") no-repeat -59px -10px;
 		}
-
-		/*.dropdown-menu {
-			left: 85%;
-		    border-width: 1px;
-		    @include theme-border-color;
-		    top: 36px;
-		}*/
 
 		.dropdown-menu {
 		    border-width: 1px;
