@@ -64,14 +64,37 @@ providerService.getProvider = function getProvider(providerId, callback) {
                     gcpProvider.providerDetails.sshKey = cryptography.decryptText(gcpProvider.providerDetails.sshKey,
                         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
 
-                    callback(null, gcpProvider);
+                    return callback(null, gcpProvider);
                     break;
                 default:
                     break;
             }
         }
     })
-}
+};
+
+providerService.checkProviderAccess = function checkProviderAccess(orgs, providerId, callback) {
+    providerService.getProvider(providerId, function(err, provider) {
+        if(err) {
+            return callback(err);
+        }
+
+        var authorized = orgs.reduce(function(a, b) {
+            if(b == provider.organizationId)
+                return true || a;
+            else
+                return false || a;
+        }, false);
+
+        if(!authorized) {
+            var err = new Error('Forbidden');
+            err.status = 403;
+            return callback(err);
+        } else {
+            return callback(null, provider);
+        }
+    });
+};
 
 providerService.createProvider = function createProvider(provider, callback) {
     switch(provider.type) {
@@ -121,6 +144,23 @@ providerService.updateProvider = function updateProvider(provider, updateFields,
     });
 };
 
+providerService.deleteProvider = function deleteProvider(providerId, callback) {
+    providersModel.deleteById(providerId, function(err, provider) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if(!provider) {
+            var err = new Error('Provider not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
+        }
+    });
+};
+
 providerService.getAllProviders = function getAllProviders(orgIds, callback) {
     providersModel.getAllByOrgs(orgIds, function(err, providers) {
         if(err) {
@@ -159,16 +199,19 @@ providerService.createProviderResponseList = function createProviderResponseList
     var providersList = [];
     for(var i = 0; i < providers.length; i++) {
         (function(provider) {
-            // @TODO call to self should not be order dependent
+            // @TODO Improve call to self
             providerService.createProviderResponseObject(provider, function(err, formattedProvider) {
                 if(err) {
-                    return next(err);
+                    return callback(err);
                 } else {
                     providersList.push(formattedProvider);
                 }
 
                 if(providersList.length == providers.length) {
-                    return callback(null, providersList);
+                    var providerListObj = {
+                        providers: providersList
+                    }
+                    return callback(null, providerListObj);
                 }
             });
         })(providers[i]);
