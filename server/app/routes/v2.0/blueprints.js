@@ -343,6 +343,9 @@ router.post('/', function createBlueprint(req, res, next) {
         "runList": req.body.runList,
         "blueprints": req.body.blueprints,
         "machineType": req.body.machineType,
+        "chefServerId": req.body.chefServerId,
+        "bootDiskType": req.body.bootDiskType,
+        "bootDiskSize": req.body.bootDiskSize
     };
 
 

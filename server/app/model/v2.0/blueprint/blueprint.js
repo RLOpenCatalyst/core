@@ -120,6 +120,11 @@ var BlueprintSchema = new Schema({
         type: Number,
         //required: false
     },
+    chefServerId: {
+        type: String,
+        required: false,
+        trim: true
+    },
     applications: [{
         repoId: {
             type: String,

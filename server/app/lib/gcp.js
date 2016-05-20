@@ -44,15 +44,20 @@ var GCP = function GCP(params) {
             "metadata": {
                 "items": [{
                     "key": "ssh-keys",
-                    "value": new Buffer(params.providers.providerDetails.sshKey, 'base64').toString()
+                    "value": params.blueprints.vmImage.userName+':'+new Buffer(params.providers.providerDetails.sshPublicKey, 'base64').toString()
                 }]
+            },
+            "tags": {
+                "items": [
+                    "http-server"
+                ]
             },
             "disks": [{
                 "boot": true, // Mandatory field
                 "deviceName": name,
                 "initializeParams": {
-                    //"sourceImage": params.blueprints.vmImage.vmImageId, // url mandatory
-                    "sourceImage": "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20160516",
+                    "sourceImage": params.blueprints.vmImage.vmImageId, // url mandatory
+                    //"sourceImage": "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20160516",
                     "diskType": params.blueprints.bootDiskType, // url mandatory
                     "diskSizeGb": params.blueprints.bootDiskSize
                 }
@@ -70,7 +75,7 @@ var GCP = function GCP(params) {
 
         zone.createVM(name, paramConfig, function(err, vm, operation) {
             if (err) {
-                logger.debug("Error while creating VM: ",err);
+                logger.debug("Error while creating VM: ", err);
                 var error = new Error("Error to create VM.");
                 error.status = 500;
                 return callback(error, null);
@@ -83,7 +88,7 @@ var GCP = function GCP(params) {
                         if (err) {
                             logger.debug("Error to fetch VM: ", err);
                             var error = new Error("Failed to get VM from GCP.");
-                            error.status=500;
+                            error.status = 500;
                             return callback(error, null);
                         }
                         if (data && data.length) {
@@ -91,17 +96,17 @@ var GCP = function GCP(params) {
                             var id = data[0].metadata.id;
                             var status = data[0].metadata.status;
                             var ip = data[0].metadata.networkInterfaces[0].accessConfigs[0].natIP || data[0].metadata.networkInterfaces[0].networkIP;
-                            return callback(null, { "id": id, "name": name, "status": status, "ip": ip ,"prvider":params.providers});
+                            return callback(null, { "id": id, "name": name, "status": status, "ip": ip, "prvider": params.providers });
                         } else {
                             var error = new Error("No VM found from GCP.");
-                            error.status=404;
+                            error.status = 404;
                             return callback(error, null);
                         }
                     });
                 });
             } else {
                 var error = new Error("Error to create VM.");
-                error.status=500;
+                error.status = 500;
                 return callback(error, null);
             }
         });
@@ -111,7 +116,7 @@ var GCP = function GCP(params) {
         gce.getNetworks(function(err, networks) {
             if (err) {
                 var error = new Error("Failed to get Networks from GCP.");
-                error.status=500;
+                error.status = 500;
                 return callback(error, null);
             }
             return callback(null, networks);
@@ -122,7 +127,7 @@ var GCP = function GCP(params) {
         gce.getZones(function(err, zones) {
             if (err) {
                 var error = new Error("Failed to get Zones from GCP.");
-                error.status=500;
+                error.status = 500;
                 return callback(error, null);
             }
             return callback(null, zones);
@@ -133,7 +138,7 @@ var GCP = function GCP(params) {
         gce.getVMs(function(err, vms) {
             if (err) {
                 var error = new Error("Failed to get VMs from GCP.");
-                error.status=500;
+                error.status = 500;
                 return callback(error, null);
             }
             return callback(null, vms);
@@ -144,7 +149,7 @@ var GCP = function GCP(params) {
         gce.getDisks(function(err, disks) {
             if (err) {
                 var error = new Error("Failed to get Disks from GCP.");
-                error.status=500;
+                error.status = 500;
                 return callback(error, null);
             }
             return callback(null, disks);
@@ -157,7 +162,7 @@ var GCP = function GCP(params) {
         vm.stop(function(err, operation, apiResponse) {
             if (err) {
                 var error = new Error("Failed to start Instance in GCP.");
-                error.status=500;
+                error.status = 500;
                 return callback(error, null);
             }
             operation.on('complete', function(data) {
@@ -172,7 +177,7 @@ var GCP = function GCP(params) {
         vm.stop(function(err, operation, apiResponse) {
             if (err) {
                 var error = new Error("Failed to stop Instance in GCP.");
-                error.status=500;
+                error.status = 500;
                 return callback(error, null);
             }
             operation.on('complete', function(data) {

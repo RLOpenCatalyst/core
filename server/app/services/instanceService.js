@@ -517,7 +517,6 @@ function createTrackedInstancesResponse(instances, callback) {
 instanceService.createInstance =  function createInstance(instanceObj, callback) {
     var blueprint = instanceObj.blueprint;
     var instance = instanceObj.instance;
-    var gcpProvider = instanceObj.providers;
     var instances = {
         name: instance.name,
         orgId: blueprint.organization,
@@ -542,7 +541,7 @@ instanceService.createInstance =  function createInstance(instanceObj, callback)
         },
         credentials: {
             username: blueprint.vmImage.userName,
-            pemFile: instanceObj.provider.providerDetails.sshKey,
+            pemFile: instanceObj.provider.providerDetails.sshPrivateKey,
             password: blueprint.vmImage.password
         },
         blueprintData: {
@@ -576,13 +575,15 @@ instanceService.createInstance =  function createInstance(instanceObj, callback)
             error.status = 500;
             return callback(error, null);
         }
+        logger.debug("createInstance.", JSON.stringify(instanceData));
+        instances['_id'] = instanceData._id;
          callback(null, instances);
     });
 };
 
 
 instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, callback) {
-    fs.writeFile('/tmp/' + bootstrapData.id + '.pem', new Buffer(bootstrapData.credentials.pemFile, 'base64').toString(), function(err, savedFile) {
+    fs.writeFile('/tmp/' + bootstrapData._id + '.pem', new Buffer(bootstrapData.credentials.pemFile, 'base64').toString(), function(err, savedFile) {
         if (err) {
             var error = new Error("Unable to create pem file.");
             error.status = 500;
@@ -590,7 +591,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
         }
         var bootstrapInstanceParams = {
             instanceIp: bootstrapData.instanceIP,
-            pemFilePath: '/tmp/' + bootstrapData.id + '.pem',
+            pemFilePath: '/tmp/' + bootstrapData._id + '.pem',
             runlist: bootstrapData.runlist,
             instanceUsername: bootstrapData.credentials.username,
             nodeName: bootstrapData.name,
@@ -636,9 +637,12 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
 
                     });
                 }
+                var timestampStarted = new Date().getTime();
+                var actionLog = instancesModel.insertBootstrapActionLog(bootstrapData.id, bootstrapData.runlist, "admin", timestampStarted);
+                var logsReferenceIds = [bootstrapData.id, actionLog._id];
                 chef.bootstrapInstance(bootstrapInstanceParams, function(err, code) {
                     if (bootstrapInstanceParams.pemFilePath) {
-                        fs.unlink(bootstrapInstanceParams.pemFilePath);
+                        //fs.unlink(bootstrapInstanceParams.pemFilePath);
                     }
 
                     logger.error('process stopped ==> ', err, code);
