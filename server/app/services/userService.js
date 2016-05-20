@@ -223,12 +223,12 @@ userService.generateToken = function generateToken(user, callback) {
     }
 };
 
-userService.updateOwnerDetails = function updateOwnerDetails(object, next) {
+userService.updateOwnerDetails = function updateOwnerDetails(entity, next) {
     async.parallel({
         organization: function(callback) {
-            if('organizationId' in object)
-                // @TODO call to self should not be order dependent
-                userService.getOrg(object.organizationId, callback);
+            if('organizationId' in entity)
+                // @TODO Improve call to self
+                userService.getOrg(entity.organizationId, callback);
             else
                 callback(null);
         }
@@ -239,14 +239,34 @@ userService.updateOwnerDetails = function updateOwnerDetails(object, next) {
             next(err);
         } else {
             if(results.organization) {
-                delete object.organizationId;
-                object.organization = {
+                delete entity.organizationId;
+                entity.organization = {
                     id: results.organization.rowid,
                     name: results.organization.orgname
                 }
             }
 
-            next(null, object);
+            next(null, entity);
         }
     });
 };
+
+userService.updateOwnerDetailsOfList = function updateOwnerDetailsOfList(entities, callback) {
+    var entitiesList = [];
+    for(var i = 0; i < entities.length; i++) {
+        (function(entity) {
+            // @TODO Improve call to self
+            userService.updateOwnerDetails(entity, function(err, updatedEntity) {
+                if(err) {
+                    return callback(err);
+                } else {
+                    entitiesList.push(updatedEntity);
+                }
+
+                if(entitiesList.length == entities.length) {
+                    return callback(null, entitiesList);
+                }
+            });
+        })(entities[i]);
+    }
+}

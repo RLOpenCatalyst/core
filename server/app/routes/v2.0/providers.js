@@ -298,11 +298,12 @@ function getProviders(req, res, next) {
             } else {
                 next(null, req.user.orgIds);
             }
-        }/*,
+        },
         function (orgIds, next) {
             providerService.getAllProviders(orgIds, next);
-        },*/
-        // providerService.createProviderResponseList
+        },
+        userService.updateOwnerDetailsOfList,
+        providerService.createProviderResponseList
     ], function(err, providers) {
         if(err) {
             next(err);
@@ -317,17 +318,17 @@ function deleteProvider(req, res, next) {
         // @TODO Check if user has access to the specified organization
         // @TODO Authorization checks to be addded
         function(next) {
-            if('session' in req) {
+            if('user' in req.session) {
                 userService.getUserOrgs(req.session.user, next);
             } else {
-                next(null, req.user.orgs);
+                next(null, req.user.orgIds);
             }
         },
         function(orgs, next) {
-            providerService.checkProviderDeleteAuthorization(orgs, req.params.providerId, next);
+            providerService.checkProviderAccess(orgs, req.params.providerId, next);
         },
-        function(orgs, next) {
-            providerService.deleteProvider(req.param.providerId, next);
+        function(provider, next) {
+            providerService.deleteProvider(provider._id, next);
         },
     ], function(err, provider) {
         if(err) {
