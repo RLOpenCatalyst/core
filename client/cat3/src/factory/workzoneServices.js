@@ -73,7 +73,7 @@
                 },
                 postEnvConfig: function(reqBody) {
                     //var url = '/data/appDeployEnvList.json';
-                    var url = '/app-deploy-pipeline/data/configure';
+                    var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },
                 getUpdatedEnvConfig: function(projId) {
@@ -469,10 +469,6 @@
                 },
                 getSummaryCard:function(requestEnv){
                     var url = '/app-deploy/project/'+requestEnv.proj+'/pipeLineViewList';
-                    return $http.get(fullUrl(url),Auth.getHeaderObject());
-                },
-                getCardPermission :function(cardDetails){
-                    var url= '/deploy-permission/project/'+ cardDetails.params.proj +'/env/' + cardDetails.paramNames.env + '/application/' + cardDetails.appName.name + '/permissionList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getCardHistoryList :function(envDetails){

@@ -294,10 +294,6 @@
 				}
 				$scope.pipeLineActBarData = angular.extend(cardDetails,{appName:appName},{envName:envName},$scope.requestParams);
 				$scope.isLastEnv=($scope.pipelineConfig.envId.length-1 === $scope.pipelineConfig.envId.indexOf(envName)) ? true :false;
-				// call service for manage button
-				workzoneServices.getCardPermission($scope.pipeLineActBarData).then(function (PermissionResult) {
-					$scope.cardPermission = PermissionResult.data;
-				});
 				if(!$scope.currentTargetId) {
 					$scope.pipeLineActBarShow =true;
 					$rootScope.selectedCardClass='selected-card';
