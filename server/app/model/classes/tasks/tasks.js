@@ -482,7 +482,6 @@ taskSchema.statics.getTaskByIds = function(taskIds, callback) {
 	queryObj._id = {
 		$in: taskIds
 	}
-	logger.debug(taskIds);
 	this.find(queryObj, function(err, tasks) {
 		if (err) {
 			logger.error(err);

@@ -244,13 +244,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     };
 
-    app.get('/app-deploy/project/:projectId/env/:envName/appName/:appName/version/:version/appDeployHistoryList', validate(appDeployValidator.appDeployHistoryList), getAppDeployHistoryForPipeLineList);
+    app.get('/app-deploy/project/:projectId/env/:envName/appDeployInstanceList',validate(appDeployValidator.appDeploy), getAppDeployHistoryForPipeLineList);
 
     function getAppDeployHistoryForPipeLineList(req, res, next) {
         async.waterfall(
             [
                 function(next) {
-                    appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(req.params.projectId, req.params.envName, req.params.appName, req.params.version, next);
+                    appDeployService.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion(req.params.projectId, req.params.envName, req.query.appName, req.query.version, next);
                 }
             ],
             function(err, results) {
@@ -265,7 +265,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     }
 
 
-    app.get('/app-deploy/project/:projectId/env/:envName/appDeployHistoryList', validate(appDeployValidator.get), getAppDeployHistoryList);
+    app.get('/app-deploy/project/:projectId/env/:envName/appDeployHistoryList', validate(appDeployValidator.appDeploy), getAppDeployHistoryList);
 
     function getAppDeployHistoryList(req, res, next) {
         var reqData = {};
