@@ -3626,7 +3626,7 @@ function addBlueprintToDom(data) {
         var $ul = $('<ul></ul>').addClass('list-unstyled system-prop').css({
             'text-align': 'center'
         });
-        var $liRead = $('<a style="float:right;margin:5px;cursor:pointer" class="readBtn"><div class="moreInfo"></div></a>').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'More Info');
+        var $liRead = $('<a style="float:right;margin:5px;cursor:pointer" class="readBtn"><div class="moreInfo moreInfoabsolute"></div></a>').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'More Info');
         $ul.append($liRead);
         var $img
         if (data.iconpath) {
