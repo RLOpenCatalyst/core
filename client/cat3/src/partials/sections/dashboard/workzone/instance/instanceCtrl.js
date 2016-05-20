@@ -252,11 +252,32 @@
 				}
 				return imagePath;
 			},
+			getOSLogo: function(inst){
+				var imagePath = '';
+				var type = '';
+				type = inst.hardware && inst.hardware.platform;
+				switch(type) {
+					case 'unknown': 
+						imagePath = 'images/osIcons/linux.png';
+						break;
+					case 'ubuntu':
+					case 'Ubuntu':
+						imagePath = 'images/osIcons/ubuntu.png';
+						break;
+					case 'windows':
+					case 'azure': 
+						imagePath = 'images/osIcons/windows.png';
+						break;
+					case 'centos': 
+						imagePath = 'images/osIcons/centos.png';
+						break;
+					default: 
+						imagePath = 'images/osIcons/linux.png';
+						break;
+				}
+				return imagePath;
+			},
 			getPlatformId: function(providerType, platformID) {
-				/*$scope.platformId1 = 'unknown';
-				$scope.providerIdText = 'Instance Id : ';*/
-				/*if ($scope.instanceList.platformId) {*/
-				/*platformId = $scope.instanceList.platformId;*/
 				var providerIdPrefix;
 				switch (providerType) {
 					case 'aws':

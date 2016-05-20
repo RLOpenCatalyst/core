@@ -21,16 +21,16 @@
 		<div class="cp-container">
 			<div class="row">
 				<ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+					<li ng-class="{active:tab.isSet('Information')}">
+						<a ng-click="tab.setTab('Information');removeActive()">
+							<i class="fa fa-fw fa-info black"></i>&nbsp;
+							Information
+						</a>
+					</li>
 					<li ng-class="{active:tab.isSet('Actionhistory')}">
 						<a ng-click="tab.setTab('Actionhistory');removeActive()">
 							<i class="fa fa-sun-o black"></i>&nbsp;
 							Action History
-						</a>
-					</li>
-					<li ng-class="{active:tab.isSet('Information')}">
-						<a ng-click="tab.setTab('Information');removeActive()">
-							<i class="fa fa-fw fa-exclamation-circle black"></i>&nbsp;
-							Information
 						</a>
 					</li>
 					<li ng-class="{active:tab.isSet('Services')}" ng-if="showServicesTab">
