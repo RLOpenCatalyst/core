@@ -340,7 +340,7 @@ router.post('/', function createBlueprint(req, res, next) {
         "project": req.body.projectId,
         "applications": req.body.applications,
         "applicationUrls": req.body.applicationURLs,
-        "runList": runList,
+        "runList": req.body.runList,
         "blueprints": req.body.blueprints,
         "machineType": req.body.machineType,
     };
@@ -411,11 +411,11 @@ function launchBlueprint(req, res, next) {
         [
 
             function(next) {
-                blueprintService.getBlueprintById(next);
+                blueprintService.getBlueprintById(req.params.blueprintId,next);
 
             },
             function(blueprint, next) {
-                blueprintService.launchBlueprint(blueprint, next);
+                blueprintService.launchBlueprint(blueprint,reqBody, next);
             }
         ],
         function(err, results) {
