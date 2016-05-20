@@ -50,6 +50,11 @@
                     var url = '/cat3/data/app_deploy_env_application.json';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
+                postPipeLineConfiguration: function () {
+                    var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
+                    return $http.post(fullUrl(url), Auth.getHeaderObject());
+                },
+
                 getAppCardLogs: function(instanceNodeIp, projId) {
                     var url = '/instances/' + instanceNodeIp + '/project/' + projId + '/logs';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
@@ -68,6 +73,7 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 postEnvConfig: function(reqBody) {
+                    //var url = '/data/appDeployEnvList.json';
                     var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },

@@ -63,8 +63,8 @@ appDeployValidator.post={
     options : { flatten : true },
     body: {
         projectId: Joi.string().min(1).max(40).required(),
-        envId:     Joi.array().max(10).required(),
-        envSequence:  Joi.array().max(10).required()
+        envId:     Joi.array().max(20).required(),
+        envSequence:  Joi.array().max(20).required()
     }
 };
 
