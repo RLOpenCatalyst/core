@@ -59,9 +59,14 @@ providerService.getProvider = function getProvider(providerId, callback) {
                     var cryptoConfig = appConfig.cryptoSettings;
                     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
 
-                    gcpProvider.providerDetails.keyFile = cryptography.decryptText(gcpProvider.providerDetails.keyFile,
+                    gcpProvider.providerDetails.keyFile
+                        = cryptography.decryptText(gcpProvider.providerDetails.keyFile,
                         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                    gcpProvider.providerDetails.sshKey = cryptography.decryptText(gcpProvider.providerDetails.sshKey,
+                    gcpProvider.providerDetails.sshPrivateKey
+                        = cryptography.decryptText(gcpProvider.providerDetails.sshPrivateKey,
+                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                    gcpProvider.providerDetails.sshPublicKey
+                        = cryptography.decryptText(gcpProvider.providerDetails.sshPublicKey,
                         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
 
                     return callback(null, gcpProvider);
@@ -100,7 +105,20 @@ providerService.createProvider = function createProvider(provider, callback) {
     switch(provider.type) {
         case 'GCP':
             logger.debug('Creating new GCP provider');
-            gcpProviderModel.createNew(provider, callback);
+            gcpProviderModel.createNew(provider, function(err, provider) {
+                //@TODO To be generalized
+                if(err && err.name == 'ValidationError') {
+                    var err = new Error('Bad Request');
+                    err.status = 400;
+                    callback(err);
+                } else if(err) {
+                    var err = new Error('Internal Server Error');
+                    err.status = 500;
+                    callback(err);
+                }else {
+                    callback(null, provider);
+                }
+            });
             break;
         defaut:
             break;
@@ -125,8 +143,11 @@ providerService.updateProvider = function updateProvider(provider, updateFields,
                 if('keyFile' in updateFields.providerDetails)
                     fields.providerDetails.keyFile = updateFields.providerDetails.keyFile;
 
-                if('sshKey' in updateFields.providerDetails)
-                    fields.providerDetails.sshKey = updateFields.providerDetails.sshKey;
+                if('sshPrivateKey' in updateFields.providerDetails)
+                    fields.providerDetails.sshPrivateKey = updateFields.providerDetails.sshPrivateKey;
+
+                if('sshPublicKey' in updateFields.providerDetails)
+                    fields.providerDetails.sshPrivateKey = updateFields.providerDetails.sshPublicKey;
                 break;
             default:
                 break;
@@ -197,6 +218,10 @@ providerService.createProviderResponseObject = function createProviderResponseOb
 
 providerService.createProviderResponseList = function createProviderResponseList(providers, callback) {
     var providersList = [];
+
+    if(providers.length == 0)
+        return callback(null, providersList);
+
     for(var i = 0; i < providers.length; i++) {
         (function(provider) {
             // @TODO Improve call to self

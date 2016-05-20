@@ -36,12 +36,12 @@ function errorHandler(err, req, res, next) {
             'message': err.message,
             'errors': []
         };
-        /*if ('errors' in err) {
+        if ('errors' in err) {
             for (var i = 0; i < err.errors.length; i++) {
                 if ('message' in err.errors[i])
                     errorResponse.errors.push(err.errors[i].messages);
             }
-        }*/
+        }
 
         return res.status(err.status).send(errorResponse);
     }

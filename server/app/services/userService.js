@@ -253,6 +253,10 @@ userService.updateOwnerDetails = function updateOwnerDetails(entity, next) {
 
 userService.updateOwnerDetailsOfList = function updateOwnerDetailsOfList(entities, callback) {
     var entitiesList = [];
+
+    if(entities.length == 0)
+        return callback(null, entitiesList);
+
     for(var i = 0; i < entities.length; i++) {
         (function(entity) {
             // @TODO Improve call to self
