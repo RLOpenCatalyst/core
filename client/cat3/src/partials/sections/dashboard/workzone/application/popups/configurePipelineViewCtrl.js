@@ -87,10 +87,10 @@
 				    });
 				    envSequence = envListLeft.concat(newEnv);
 				    var envList = {
-							"projectId": projectID,
-							"envId": newEnv,
-							"envSequence": envSequence
-						};
+						"projectId": projectID,
+						"envId": newEnv,
+						"envSequence": envSequence
+					};
 			    	workzoneServices.postEnvConfig(envList).then(function (envListResult) {
 						$modalInstance.close(envListResult.data[0]);
 					},function(error){

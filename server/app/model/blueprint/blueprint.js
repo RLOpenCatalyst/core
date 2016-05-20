@@ -1100,7 +1100,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                         }
                         var appData = {
                             "projectId": instance.projectId,
-                            "envId": envName,
+                            "envName": envName,
                             "appName": artifactId,
                             "version": actualVersion,
                             "nexus": {

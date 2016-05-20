@@ -391,7 +391,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         }
                         nodeIds.push(instance.instanceIP);
                         masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
-                            var appData = {
+                            var appDataObj = {
                                 "projectId": instance.projectId,
                                 "envName": envName,
                                 "appName": appName,
@@ -399,7 +399,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 "nexus": nexus,
                                 "docker": [docker]
                             };
-                            AppData.createNewOrUpdate(appData, function(err, data) {
+                            AppData.createNewOrUpdate(appDataObj, function(err, data) {
                                 if (err) {
                                     logger.debug("Failed to create or update app-data: ", err);
                                 }
