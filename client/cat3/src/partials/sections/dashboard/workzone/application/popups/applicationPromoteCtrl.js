@@ -62,23 +62,21 @@
 
         };
         promApp.taskLog=function(promAppResult){
-            workSvs.runTask(promAppResult.taskId).then(function(response) {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
-                    controller: 'orchestrationLogCtrl as orchLogCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return {
-                                taskId:promAppResult.taskId,
-                                historyId: promAppResult.historyId,
-                                taskType: promAppResult.taskType
-                            };
-                        }
+            $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
+                controller: 'orchestrationLogCtrl as orchLogCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return {
+                            taskId:promAppResult.taskId,
+                            historyId: promAppResult.historyId,
+                            taskType: promAppResult.taskType
+                        };
                     }
-                });
+                }
             });
         };
         // call job api after creating new job .
