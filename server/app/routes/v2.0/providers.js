@@ -293,7 +293,6 @@ function getProviders(req, res, next) {
     async.waterfall([
         function(next) {
             if('user' in req.session) {
-                console.log(req.session);
                 userService.getUserOrgs(req.session.user, next);
             } else {
                 next(null, req.user.orgIds);

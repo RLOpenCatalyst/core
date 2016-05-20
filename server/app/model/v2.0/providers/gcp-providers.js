@@ -32,7 +32,12 @@ var GCPProviderSchema = new BaseProviderSchema({
             required: true,
             trim: false
         },
-        sshKey: {
+        sshPrivateKey: {
+            type: String,
+            required: true,
+            trim: false
+        },
+        sshPublicKey: {
             type: String,
             required: true,
             trim: false
@@ -46,7 +51,9 @@ GCPProviderSchema.pre('save', function(next) {
 
     this.providerDetails.keyFile = cryptography.encryptText(this.providerDetails.keyFile,
         cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
-    this.providerDetails.sshKey = cryptography.encryptText(this.providerDetails.sshKey,
+    this.providerDetails.sshPublicKey = cryptography.encryptText(this.providerDetails.sshPublicKey,
+        cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
+    this.providerDetails.sshPrivateKey = cryptography.encryptText(this.providerDetails.sshPrivateKey,
         cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
 
     next();
@@ -58,7 +65,7 @@ GCPProviderSchema.statics.createNew = function createNew(data, callback) {
     GCPProvider.save(function (err, data) {
         if (err) {
             logger.error(err);
-            return callback(err, null);
+            return callback(err);
         } else {
             return callback(null, GCPProvider);
         }
