@@ -37,7 +37,6 @@ AggregateAWSCost.execute = aggregateAWSCost;
 module.exports = AggregateAWSCost;
 
 function aggregateAWSCost() {
-    console.log("123456");
     var s3Config = appConfig.aws.s3;
     var date = new Date();
     var year = date.getFullYear();
@@ -53,149 +52,129 @@ function aggregateAWSCost() {
         Bucket: s3Config.bucketName,
         Key: fullKey
     };
-    s3.getObject(params,'time',function(err,updateTime)
-    {
-         var temp = String(updateTime).split(',');
-         var changedTime = new Date(temp[1]).getTime();
-         if(lastModified < changedTime)
-         {
-             s3.getObject(params,'file',function(err,status) {
-                 if (status == true) {
-                     var zip = new AdmZip("./rlBilling.zip");
-                     zip.extractAllTo(__dirname, true);
-                     console.log(__dirname);
-                     var newJsonFile = fs.createWriteStream('./data.json');
-                     fs.createReadStream(__dirname+'/'+csvFile).pipe(csv2json({})).pipe(newJsonFile);
-                     console.log(1234);
-                     newJsonFile.on('finish', function () {
-                         json.readFile('./data.json', function (err, jsonArray) {
-                             if (err) {
-                                 console.log(err);
-                                 return;
-                             } else {
-                                 var length = jsonArray.length;
-                                 console.log(length);
-                                 for (var i = 0; i < length; i++) {
-                                     if (jsonArray[i].ResourceId !== '' || jsonArray[i].ResourceId !== null || jsonArray[i].ResourceId.substring(0, 1) ==='i') {
-                                         console.log("Hello");
-                                         var awsAggregateCost = {
-                                             InvoiceID: jsonArray[i].InvoiceID,
-                                             PayerAccountId: jsonArray[i].PayerAccountId,
-                                             LinkedAccountId: jsonArray[i].LinkedAccountId,
-                                             RecordType: jsonArray[i].RecordType,
-                                             RecordId: jsonArray[i].RecordId,
-                                             ProductName: jsonArray[i].ProductName,
-                                             RateId: jsonArray[i].RateId,
-                                             SubscriptionId: jsonArray[i].SubscriptionId,
-                                             PricingPlanId: jsonArray[i].PricingPlanId,
-                                             UsageType: jsonArray[i].UsageType,
-                                             Operation: jsonArray[i].Operation,
-                                             AvailabilityZone: jsonArray[i].AvailabilityZone,
-                                             ReservedInstance: jsonArray[i].ReservedInstance,
-                                             ItemDescription: jsonArray[i].ItemDescription,
-                                             UsageStartDate: jsonArray[i].UsageStartDate,
-                                             UsageEndDate: jsonArray[i].UsageEndDate,
-                                             UsageQuantity: jsonArray[i].UsageQuantity,
-                                             BlendedRate: jsonArray[i].BlendedRate,
-                                             BlendedCost: jsonArray[i].BlendedCost,
-                                             UnBlendedRate: jsonArray[i].UnBlendedRate,
-                                             UnBlendedCost: jsonArray[i].UnBlendedCost,
-                                             ResourceId: jsonArray[i].ResourceId,
-                                             ResourceTags: {
-                                                 Bill: jsonArray[i]['user:Bill'],
-                                                 Name: jsonArray[i]['user:Name']
-                                             }
-                                         }
-                                         saveAndUpdateAwsCostCsvData(awsAggregateCost);
-                                     }
-                                 }
-                             }
-                         })
-                     })
-                 }
-             });
-         }
-    });
-    /*            }
-            });
-        }
-    })*/
-    /*async.waterfall([
-        function(next){
-            MasterUtils.getAllActiveOrg(next);
+    async.waterfall([
+        function (next) {
+            s3.getObject(params, 'time', next);
         },
-        function(orgs,next){
-            async.forEach(orgs,function(organization,next){
-                async.waterfall([
-                    function(next){
-                        AWSProvider.getAWSProvidersByOrgId(organization._id,next);
-                    },
-                    function(providers,next){
-                        if(providers.length > 0){
-                            async.forEach(providers,function(provider,next){
-                                async.waterfall([
-                                    function(next){
-                                        instanceService.getTrackedInstancesForProvider(provider, next);
-                                    },
-                                    function(provider, instances,next){
-                                        if(instances.managed.length === 0 && instances.unmanaged.length === 0){
-                                            callBackReturn(providers,next);
-                                        }else{
-                                            async.parallel({
-                                                managed: function(callback) {
-                                                    aggregateInstanceCost(instances.managed, callback);
-                                                },
-                                                assigned: function(callback) {
-                                                    aggregateInstanceCost(instances.unmanaged, callback);
-                                                }
-                                            }, function(err, results){
-                                                if(err) {
-                                                    next(err);
-                                                } else {
-                                                    next(null, results);
-                                                }
-                                            });
-                                        }
-                                    }],
-                                    function(err,results){
-                                        if(err){
-                                            logger.error(err);
-                                            return;
-                                        }
-                                    })
-                            })
-                        }else{
-                            callBackReturn(providers,next);
-                        }
-                    }],
-                    function (err, results) {
-                        if(err){
+        function (updateTime, next) {
+            var temp = String(updateTime).split(',');
+            var changedTime = new Date(temp[1]).getTime();
+            if (lastModified < changedTime) {
+                s3.getObject(params, 'file', next);
+            } else {
+                next(null, updateTime);
+            }
+        },
+        function (status, next) {
+            if (status) {
+                var zip = new AdmZip("./rlBilling.zip");
+                zip.extractAllTo(__dirname, true);
+                var newJsonFile = fs.createWriteStream('./data.json');
+                fs.createReadStream(__dirname + '/' + csvFile).pipe(csv2json({})).pipe(newJsonFile);
+                newJsonFile.on('finish', function () {
+                    json.readFile('./data.json', function (err, awsCosts) {
+                        if (err) {
                             logger.error(err);
                             return;
+                        } else {
+                            async.forEach(awsCosts, function (awsCost, next) {
+                                awsCost.ResourceId
+                            })
                         }
-                    });
-            });
-        }],
-        function (err, results) {
-            if(err){
-                logger.error(err);
-                return;
+                    })
+                })
+            } else {
+                next(null, status);
             }
-        });*/
+        },
+        function (next) {
+            MasterUtils.getAllActiveOrg(next);
+        },
+        function (orgs, next) {
+            if(orgs.length > 0) {
+                getInstancesList(orgs, next);
+            }else{
+                next(null,orgs);
+            }
+        }
+    ], function (err, result) {
+
+    })
+}
+function saveAndUpdateAwsCostCsvData(awsAggregateCostData){
+    async.waterfall([
+        function(next){
+            awsCostDao.createAWSCostByCSV(awsAggregateCostData,next);
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            return;
+        }
+    })
 }
 
-function saveAndUpdateAwsCostCsvData(awsAggregateCostData){
-async.waterfall([
-    function(next){
-        awsCostDao.createAWSCostByCSV(awsAggregateCostData,next);
-    }
-],function(err,results){
-    if(err){
-        logger.error(err);
-        return;
-    }
-})
+function getProvidersList(orgs,next){
+    var count=0;
+    async.forEach(orgs, function (organization, next) {
+        count++;
+        async.waterfall([
+            function (next) {
+                AWSProvider.getAWSProvidersByOrgId(organization._id, next);
+            }],
+            function (err, result) {
+                if(err){
+                    logger.error(err);
+                    return;
+                }else{
+                    if(count === orgs.length){
+                        next(null,result);
+                    }
+             }
+        })
+    });
 }
+
+function getInstanceList(providers,next){
+    var count=0;
+    var instanceIds=[];
+    async.forEach(providers, function (provider, next) {
+        count++;
+        async.waterfall([
+            function (next) {
+                instanceService.getTrackedInstancesForProvider(provider, next);
+            },
+            function (provider, instances, next) {
+                if (instances.managed.length === 0 && instances.unmanaged.length === 0) {
+                    next(null,instanceIds);
+                } else {
+                    if(instances.managed.length > 0){
+                        for(var i = 0; i < instances.managed.length; i++){
+                            instanceIds.push(instances.managed[i].platformId);
+                        }
+                    }
+                    if(instances.unmanaged.length > 0){
+                        for(var i = 0; i < instances.unmanaged.length; i++){
+                            instanceIds.push(instances.unmanaged[i].platformId);
+                        }
+                    }
+
+                }
+            }],
+            function (err, results) {
+                if (err) {
+                    logger.error(err);
+                    return;
+                }else{
+                    if(providers.length === count){
+                        next(null,results);
+                    }
+                }
+            })
+    })
+}
+
+
 
 
 
