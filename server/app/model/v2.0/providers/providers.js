@@ -20,8 +20,11 @@ var BaseProviderSchema = require('./base-provider');
 
 var ProvidersSchema = new BaseProviderSchema();
 
-ProvidersSchema.statics.getAllProviders = function getAllProviders(callback) {
-    this.find(
+ProvidersSchema.statics.getAllByOrgs = function getAllProviders(orgIds, callback) {
+    this.find({
+            isDeleted: false,
+            organizationId: {$in: orgIds}
+        },
         function(err, providers) {
             if (err) {
                 logger.error(err);
@@ -62,6 +65,21 @@ ProvidersSchema.statics.getById = function getById(providerId, callback) {
             }
         }
     );
+};
+
+ProvidersSchema.statics.deleteById = function deleteById(providerId, callback) {
+    this.update(
+        {'_id': providerId},
+        { $set: {isDeleted: true} },
+        function(err, provider) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, true);
+            }
+        }
+    )
 };
 
 var Providers = mongoose.model('Providers', ProvidersSchema);

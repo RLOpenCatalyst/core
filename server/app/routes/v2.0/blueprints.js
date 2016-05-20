@@ -334,12 +334,12 @@ router.post('/', function createBlueprint(req, res, next) {
 
     var blueprintData = {
         "name": req.body.name,
-        "version": "1",
-        "organization": req.body.organizationId,
-        "businessGroup": req.body.businessGroupId,
-        "project": req.body.projectId,
+        "version": 1,
+        "organizationId": req.body.organizationId,
+        "businessGroupId": req.body.businessGroupId,
+        "projectId": req.body.projectId,
         "applications": req.body.applications,
-        "applicationUrls": req.body.applicationURLs,
+        "applicationUrls": req.body.applicationUrls,
         "runList": req.body.runList,
         "blueprints": req.body.blueprints,
         "machineType": req.body.machineType,
@@ -373,6 +373,7 @@ router.post('/', function createBlueprint(req, res, next) {
             });
         },
         function(next) {
+            logger.debug(blueprintData);
         	blueprintService.createNew(blueprintData,next);
         }
     ], function(err, results) {
@@ -414,11 +415,11 @@ function launchBlueprint(req, res, next) {
         [
 
             function(next) {
-                blueprintService.getBlueprintById(req.params.blueprintId,next);
+                blueprintService.getBlueprintById(next);
 
             },
             function(blueprint, next) {
-                blueprintService.launchBlueprint(blueprint,reqBody, next);
+                blueprintService.launchBlueprint(blueprint, next);
             }
         ],
         function(err, results) {

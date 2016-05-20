@@ -37,17 +37,17 @@ var BlueprintSchema = new Schema({
         type: [String],
         required: false
     },
-    organization: {
+    organizationId: {
         type: String,
         required: false,
         trim: true
     },
-    businessGroup: {
+    businessGroupId: {
         type: String,
         required: false,
         trim: true
     },
-    project: {
+    projectId: {
         type: String,
         required: false,
         trim: true

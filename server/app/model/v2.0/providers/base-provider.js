@@ -32,17 +32,10 @@ var BaseProviderSchema = function BaseProviderSchema() {
             required: true,
             trim: true
         },
-        organization: {
-            id: {
-                type: String,
-                required: true,
-                trim: false
-            },
-            name: {
-                type: String,
-                required: true,
-                trim: true
-            }
+        organizationId: {
+            type: String,
+            required: true,
+            trim: false
         },
         isDeleted: {
             type: Boolean,
