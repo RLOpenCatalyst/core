@@ -469,7 +469,7 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getCardHistoryList :function(envDetails){
-                    var url= '/app-deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appName/'+envDetails.appName.name+'/version/'+envDetails.appName.version+'/appDeployHistoryList';
+                    var url= '/app-deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appDeployInstanceList?appName='+envDetails.appName.name+'&version='+envDetails.appName.version;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 postAppDeploy:function(RequestObject){

@@ -176,11 +176,23 @@
         }
     .app-icon{
         background-size: 25px 25px;
-        cursor: pointer;
         margin: 15px 0 0 48px;
         width: 25px;
         height: 28px;
         font-size: 24px;
+        i{
+            color: #E49C25 !important;
+        }
+    }
+    .app-icon-card{
+        background-size: 25px 25px;
+        margin: 15px 0 0 48px;
+        width: 25px;
+        height: 28px;
+        font-size: 24px;
+    }
+    .inavtive-card{
+        i{color:#DADADA !important;}
     }
 }
 
@@ -193,7 +205,4 @@
     opacity: 0.4;
     text-align: center;
     padding: 40%;
-}
-.width0{
-    width: 0px;
 }

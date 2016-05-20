@@ -62,7 +62,6 @@
 
         };
         promApp.taskLog=function(promAppResult){
-            workSvs.runTask(promAppResult.taskId).then(function(response) {
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
@@ -79,7 +78,6 @@
                         }
                     }
                 });
-            });
         };
         // call job api after creating new job .
         $rootScope.$on("GET_ALL_TASK", function(){
