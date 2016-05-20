@@ -462,10 +462,6 @@
                     var url = '/app-deploy/project/'+requestEnv.proj+'/pipeLineViewList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
-                getCardPermission :function(cardDetails){
-                    var url= '/deploy-permission/project/'+ cardDetails.params.proj +'/env/' + cardDetails.paramNames.env + '/application/' + cardDetails.appName.name + '/permissionList';
-                    return $http.get(fullUrl(url),Auth.getHeaderObject());
-                },
                 getCardHistoryList :function(envDetails){
                     var url= '/app-deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appName/'+envDetails.appName.name+'/version/'+envDetails.appName.version+'/appDeployHistoryList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());

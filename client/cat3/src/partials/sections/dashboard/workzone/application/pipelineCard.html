@@ -22,7 +22,7 @@
 
         <div ng-if="!cardDetails.name" class="env-card-wrapper text-center">
             <div class="cardView">
-                <div class="card {{pipeCtrl.selectedCardClass}}" title="{{cardDetails.applicationNodeIP}}"  ng-click="pipeCtrl.selectedCard(cardDetails,appName,envName)">
+                <div id="{{cardDetails.id}}" class="card {{pipeCtrl.selectedCardClass}}" title="{{cardDetails.applicationNodeIP}}"  ng-click="pipeCtrl.selectedCard(cardDetails,appName,envName,cardDetails.id)">
                     <div class="card-title">
                         <div  class="card-title-name"> <strong>{{cardDetails.applicationNodeIP}}</strong>
                         </div>
@@ -36,9 +36,7 @@
                         </div>
                     </div>
                     <div class="instance-ip">
-                                <span ng-repeat="part in (cardDetails.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines)">
-                                    {{part}}
-                                    <br>
+                                <span ng-bind-html="(cardDetails.applicationLastDeploy | timestampToLocaleTime )">
                                 </span>
                     </div>
                 </div>

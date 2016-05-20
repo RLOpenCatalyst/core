@@ -16,9 +16,6 @@
                 viewAppCardLogs: function (logs) {
                     $rootScope.$emit('VIEW-APP-LOGS',logs);
                 },
-                appHistoryRefresh :function () {
-                    getApplicationHistoryService($scope.requestParams.params, $scope.requestParams.paramNames,$scope.pagiOptionsHistory);
-                },
                 getHistoryData :function(envParams, envNames) {
                 $scope.isBusyShow=true;
                 $scope.historyGridOptions=angular.extend(gridOpt.gridOption,{
@@ -28,7 +25,7 @@
                         { name:'Version',field:'applicationVersion',displayName:'Version'},
                         { name:'Host-Name',field:'hostName',displayName:'Host Name'},
                         { name:'applicationNodeIP',field:'applicationNodeIP',displayName:'Node IP'},
-                        { name:'Last Deploy',displayName:'Last Deploy',cellTemplate:'<span ng-bind-html="row.entity.applicationLastDeploy | timestampToLocaleTime | timeStampTo2lines"></span>'},
+                        { name:'Last Deploy',displayName:'Last Deploy',cellTemplate:'<span ng-bind-html="row.entity.applicationLastDeploy | timestampToLocaleTime"></span>'},
                         { name:'Container Name',displayName:'Container Name',cellTemplate:'<span>{{row.entity.containerId || "NA"}}</span>'},
                         { name:'applicationType',field:'applicationType',displayName:'App Type'},
                         { name:'Action',width:70,enableSorting: false,displayName:'Logs',cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.viewAppCardLogs(row.entity)"></i>'},
@@ -61,7 +58,9 @@
                     $scope.historyGridOptions.totalItems = response.data.metaData.totalRecords;
                 });
             }
-
+        $rootScope.$on('REFRESH-HISTORY',function(){
+            getApplicationHistoryService($scope.requestParams.params, $scope.requestParams.paramNames,$scope.pagiOptionsHistory);
+        });
         $rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, requestParamNames) {
                 $scope.requestParams={params:requestParams,paramNames:requestParamNames};
                 $scope.envDetails = requestParams;

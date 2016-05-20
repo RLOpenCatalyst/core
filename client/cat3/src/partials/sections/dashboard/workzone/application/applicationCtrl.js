@@ -21,9 +21,9 @@
 				pipelineConfig:'',
 				pipeLineActBarShow:false,
 				isApplicationPageLoading :true,
-				isAppallCardTab : {icon:false,template:true},
+				isAppallCardTab : {icon:true,template:false},
 				isHistoryTab:{icon:true,template:false},
-				isAppActiveCardTab:{icon:true,template:false},
+				isAppActiveCardTab:{icon:false,template:true},
 				requestParams:{},
 				currentTargetId:'',
 				pagiOptionsHistory :gridOpt.pagination,
@@ -187,6 +187,9 @@
 				},
 				appSummaryRefresh :function () {
 					getSummaryCardService($scope.requestParams.params);
+				},
+				appHistoryRefresh :function () {
+					$rootScope.$emit('REFRESH-HISTORY');
 				}
 			});
 			var count = 0;
@@ -291,10 +294,6 @@
 				}
 				$scope.pipeLineActBarData = angular.extend(cardDetails,{appName:appName},{envName:envName},$scope.requestParams);
 				$scope.isLastEnv=($scope.pipelineConfig.envId.length-1 === $scope.pipelineConfig.envId.indexOf(envName)) ? true :false;
-				// call service for manage button
-				workzoneServices.getCardPermission($scope.pipeLineActBarData).then(function (PermissionResult) {
-					$scope.cardPermission = PermissionResult.data;
-				});
 				if(!$scope.currentTargetId) {
 					$scope.pipeLineActBarShow =true;
 					$rootScope.selectedCardClass='selected-card';
@@ -347,10 +346,12 @@
 			}
 			return type==="image" ? appCardStateImagePrefix + colorSuffix : instanceStateTextPrefix + colorSuffix;
 		};
-		pipeLineData.selectedCard = function(cardDetails,appName,envName){
+		pipeLineData.selectedCard = function(cardDetails,appName,envName,id){
 			$scope.$emit('SELECTED-CARD',cardDetails,appName,envName);
 			angular.element('#pipelineView .card').removeClass('selected-card');
-			pipeLineData.selectedCardClass =$rootScope.selectedCardClass;
+			if($rootScope.selectedCardClass){
+				angular.element('#'+id).addClass('selected-card');
+			}
 
 		};
 		return pipeLineData;
