@@ -26,3 +26,7 @@ blueprintValidator.launch = {
         envName: Joi.required()
     }
 };
+
+blueprintValidator.upgrade = {
+
+};

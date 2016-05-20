@@ -19,7 +19,7 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;
 
-var BlueprintSchema = new Schema ({
+var BlueprintSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -29,56 +29,30 @@ var BlueprintSchema = new Schema ({
         type: Number,
         required: true
     },
-    parentBlueprintId : {
+    parentBlueprintId: {
         type: String,
         required: false
     },
-    childBlueprintIds : {
+    childBlueprintIds: {
         type: [String],
         required: false
     },
     organization: {
-        id: {
-            type: String,
-            required: true,
-            trim: false
-        },
-        name: {
-            type: String,
-            required: true,
-            trim: true
-        }
+        type: String,
+        required: false,
+        trim: true
     },
     businessGroup: {
-        id: {
-            type: String,
-            required: true,
-            trim: false
-        },
-        name: {
-            type: String,
-            required: true,
-            trim: true
-        }
+        type: String,
+        required: false,
+        trim: true
     },
     project: {
-        id: {
-            type: String,
-            required: true,
-            trim: false
-        },
-        name: {
-            type: String,
-            required: true,
-            trim: true
-        }
+        type: String,
+        required: false,
+        trim: true
     },
     networkProfile: {
-        id: {
-            type: String,
-            required: true,
-            trim: false
-        },
         name: {
             type: String,
             required: true,
@@ -98,11 +72,6 @@ var BlueprintSchema = new Schema ({
     },
     softwareTemplate: Schema.Types.Mixed,
     vmImage: {
-        id: {
-            type: String,
-            required: true,
-            trim: true
-        },
         name: {
             type: String,
             required: true,
@@ -112,12 +81,30 @@ var BlueprintSchema = new Schema ({
             type: String,
             required: true,
             trim: true
+        },
+        osType: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        osName: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        userName: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        password: {
+            type: String,
+            trim: true
+        },
+        pemFile: {
+            type: String,
+            trim: true
         }
-    },
-    machineType: {
-        type: String,
-        required: true,
-        trim: true
     },
     machineType: {
         type: String,
@@ -126,12 +113,12 @@ var BlueprintSchema = new Schema ({
     },
     bootDiskType: {
         type: String,
-        required: false,
+        //required: false,
         trim: true
     },
     bootDiskSize: {
         type: Number,
-        required: false
+        //required: false
     },
     applications: [{
         repoId: {
@@ -165,6 +152,19 @@ var BlueprintSchema = new Schema ({
     }],
     blueprints: [Schema.Types.Mixed]
 });
+
+BlueprintSchema.statics.createNew = function createNew(blueprintData, callback) {
+    var self = this;
+
+    var blueprint = new self(blueprintData);
+    blueprint.save(function(err, bp) {
+        if (err) {
+            return callback(err);
+        }
+        callback(null, bp);
+    });
+};
+
 
 var Blueprint = mongoose.model('Blueprint', BlueprintSchema);
 module.exports = Blueprint;

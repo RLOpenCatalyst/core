@@ -30,7 +30,7 @@ blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callb
     blueprintModel.findById(blueprintId, function(err, blueprint) {
         if (err) {
             var error = new Error("Error to get blueprint.");
-            error.status(404);
+            error.status = 404;
             return callback(error, null);
         }
         return callback(null, blueprint);
@@ -43,6 +43,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
         var providerId = networkProfile.providerId;
 
         async.waterfall([
+
             function(next) {
                 providerService.getProvider(providerId, next);
             },
@@ -54,7 +55,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
                         fs.writeFile('/tmp/'+provider.id+'.json', new Buffer(provider.keyFile,'base64').toString(), next);
                         var params = {
                             "projectId": provider.projectId,
-                            "keyFilename": '/tmp/'+provider.id+'.json'
+                            "keyFilename": '/tmp/' + provider.id + '.json'
                         }
                         var gcp = new GCP(params);
                         var launchParams = {
@@ -64,8 +65,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
                         }
                         gcp.createVM(launchParams, next);
                         break;
-                        defaut:
-                            break;
+                        defaut: break;
                 }
             },
             function(instance, next) {
@@ -103,4 +103,14 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, callback)
         err.status = 404;
         return callback(err, null);
     }
-}
+};
+
+blueprintService.createNew = function createNew(blueprintData, callback) {
+    blueprintModel.createNew(blueprintData, function(err, blueprint) {
+        if (err) {
+            err.status = 500;
+            return callback(err, null);
+        }
+        return callback(null, blueprint);
+    });
+};

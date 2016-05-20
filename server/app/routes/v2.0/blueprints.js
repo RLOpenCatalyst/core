@@ -20,6 +20,9 @@ var async = require('async');
 var blueprintService = require('_pr/services/blueprintService.js');
 var validate = require('express-validation');
 var blueprintValidator = require('_pr/validators/blueprintValidator');
+var networkProfileService = require('_pr/services/networkProfileService.js');
+var vmImageDao = require('_pr/model/classes/masters/vmImage.js');
+
 var logger = require('_pr/logger')(module);
 
 /**
@@ -261,10 +264,10 @@ var logger = require('_pr/logger')(module);
  *          "vmImageId": "<ID>",
  *          "machineType": "m1.small",
  *          "applications": [],
- *          "applicationURL": "application url",
+ *          "applicationURLs": "application url",
  *          "runList": [],
  *          "attributes": [],
- *          "buleprints": []
+ *          "blueprints": []
  *      }
  *
  * @apiSuccess {Object} blueprint                           Blueprint
@@ -295,20 +298,10 @@ var logger = require('_pr/logger')(module);
  *          "id": "<ID>",
  *          "name":	"blueprintName",
  *          "version": "1",
- *          "organization": {
- *              "id": "<ID>",
- *              "name": "Organization name"
- *          },
- *          "businessGroup": {
- *              "id": "<ID>",
- *              "name": "Business group name"
- *          },
- *          "project": {
- *              "id": "<ID>",
- *              "name": "Project name"
- *          }
+ *          "organization": "<ID>",
+ *          "businessGroup": "<ID>",
+ *          "project": "<ID>",
  *          "networkProfile": {
- *              "id": "<Network profile id>",
  *              "name":	"networkProfileName",
  *              "type": "GCP",
  *              "providerId": "<ID>",
@@ -335,7 +328,58 @@ var logger = require('_pr/logger')(module);
  *          "chefServerId": "rowid"
  *      }
  */
-// router.post('/', createBlueprint);
+
+router.post('/', function createBlueprint(req, res, next) {
+
+
+    var blueprintData = {
+        "name": req.body.name,
+        "version": "1",
+        "organization": req.body.organizationId,
+        "businessGroup": req.body.businessGroupId,
+        "project": req.body.projectId,
+        "applications": req.body.applications,
+        "applicationUrls": req.body.applicationURLs,
+        "runList": runList,
+        "blueprints": req.body.blueprints,
+        "machineType": req.body.machineType,
+    };
+
+
+    async.waterfall([
+
+        function(next) {
+            networkProfileService.getNetworkProfileById(req.body.networkProfileId, next)
+        },
+        function(networkProfile, next) {
+            blueprintData.networkProfile = networkProfile;
+            vmImageDao.getImageById(req.body.vmImageId, function(err, vmImage) {
+                if (err) {
+                    err.status = 500;
+                    return next(err);
+                }
+                blueprintData.vmImage = {
+                    name: vmImage.name,
+                    vmImageId: vmImage.imageIdentifier,
+                    osType: vmImage.osType,
+                    osName: vmImage.osName,
+                    userName: vmImage.userName,
+                    password: vmImage.password,
+                };
+                return next();
+            });
+        },
+        function(next) {
+        	blueprintService.createNew(blueprintData,next);
+        }
+    ], function(err, results) {
+        if (err) {
+            next(err);
+        } else {
+            return res.status(200).send(results);
+        }
+    })
+});
 
 /**
  * @api {post} /api/v2.0/blueprints/:blueprintId/launch     Launch blueprint
@@ -365,6 +409,7 @@ function launchBlueprint(req, res, next) {
     var reqBody = req.body;
     async.waterfall(
         [
+
             function(next) {
                 blueprintService.getBlueprintById(next);
 
@@ -384,15 +429,12 @@ function launchBlueprint(req, res, next) {
 }
 
 /**
- * @api {patch} /api/v2.0/blueprints 	                  Update blueprint
+ * @api {patch} /api/v2.0/blueprints/:blueprintId/upgrade 	                  Update blueprint
  * @apiName updateBlueprint
  * @apiGroup blueprints
  *
  * @apiParam {Object} blueprint                           Blueprint
  * @apiParam {String} blueprint.name                      Blueprint organization
- * @apiParam {String} blueprint.organizationId            Organization id
- * @apiParam {String} blueprint.businessGroupId           BG id
- * @apiParam {String} blueprint.projectId                 Project id
  * @apiParam {String} blueprint.networkProfileId          Network profile id
  * @apiParam {String} blueprint.softwareTemplateId        Software template id
  * @apiParam {String} blueprint.vmImageId                 VM Image name
@@ -405,9 +447,6 @@ function launchBlueprint(req, res, next) {
  * @apiParamExample {json} Request-Example:
  *      {
  *          "name":	"blueprintName",
- *          "organizationId": "<ID>",
- *          "businessGroupId": "<ID>",
- *          "projectId": "<ID>",
  *          "networkProfileId": "<ID>",
  *          "softwareTemplateId": "<ID>",
  *          "vmImageId": "<ID>",
@@ -486,7 +525,13 @@ function launchBlueprint(req, res, next) {
  *          "buleprints": []
  *      }
  */
-// router.patch('/:blueprintId', updateBlueprint);
+
+router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
+    // blueprintService.getBlueprintById(req.params.blueprintId,function(err,blueprint){
+
+    // });
+
+});
 
 /**
  * @api {delete} /api/v2.0/blueprints/:blueprintId      Delete blueprint
