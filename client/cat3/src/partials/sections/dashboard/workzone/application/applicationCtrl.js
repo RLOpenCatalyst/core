@@ -187,6 +187,9 @@
 				},
 				appSummaryRefresh :function () {
 					getSummaryCardService($scope.requestParams.params);
+				},
+				appHistoryRefresh :function () {
+					$rootScope.$emit('REFRESH-HISTORY');
 				}
 			});
 			var count = 0;
@@ -347,10 +350,12 @@
 			}
 			return type==="image" ? appCardStateImagePrefix + colorSuffix : instanceStateTextPrefix + colorSuffix;
 		};
-		pipeLineData.selectedCard = function(cardDetails,appName,envName){
+		pipeLineData.selectedCard = function(cardDetails,appName,envName,id){
 			$scope.$emit('SELECTED-CARD',cardDetails,appName,envName);
 			angular.element('#pipelineView .card').removeClass('selected-card');
-			pipeLineData.selectedCardClass =$rootScope.selectedCardClass;
+			if($rootScope.selectedCardClass){
+				angular.element('#'+id).addClass('selected-card');
+			}
 
 		};
 		return pipeLineData;

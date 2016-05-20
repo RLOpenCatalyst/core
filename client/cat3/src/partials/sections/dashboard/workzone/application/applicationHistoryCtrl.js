@@ -16,9 +16,6 @@
                 viewAppCardLogs: function (logs) {
                     $rootScope.$emit('VIEW-APP-LOGS',logs);
                 },
-                appHistoryRefresh :function () {
-                    getApplicationHistoryService($scope.requestParams.params, $scope.requestParams.paramNames,$scope.pagiOptionsHistory);
-                },
                 getHistoryData :function(envParams, envNames) {
                 $scope.isBusyShow=true;
                 $scope.historyGridOptions=angular.extend(gridOpt.gridOption,{
@@ -61,7 +58,9 @@
                     $scope.historyGridOptions.totalItems = response.data.metaData.totalRecords;
                 });
             }
-
+        $rootScope.$on('REFRESH-HISTORY',function(){
+            getApplicationHistoryService($scope.requestParams.params, $scope.requestParams.paramNames,$scope.pagiOptionsHistory);
+        });
         $rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, requestParamNames) {
                 $scope.requestParams={params:requestParams,paramNames:requestParamNames};
                 $scope.envDetails = requestParams;
