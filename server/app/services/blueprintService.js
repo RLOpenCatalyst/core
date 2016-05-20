@@ -212,3 +212,14 @@ blueprintService.createNew = function createNew(blueprintData, callback) {
         return callback(null, blueprint);
     });
 };
+
+blueprintService.getParentBlueprintCount = function getParentBlueprintCount(parentId, callback) {
+    blueprintModel.countByParentId(parentId, function(err, count) {
+        if (err) {
+            err.status = 500;
+            return callback(err, null);
+        }
+        
+        return callback(null, count);
+    });
+};

@@ -167,13 +167,28 @@ BlueprintSchema.statics.createNew = function createNew(blueprintData, callback) 
 };
 
 BlueprintSchema.statics.findById = function findById(blueprintId, callback) {
-    logger.debug("BlueprintId: ",blueprintId);
-    this.find({ _id: blueprintId }, function(err, data) {
+    logger.debug("BlueprintId: ", blueprintId);
+    this.find({
+        _id: blueprintId
+    }, function(err, data) {
         if (err) {
             logger.error("got error while fetching Blueprint: ", err);
             return callback(err);
         }
         callback(null, data);
+    });
+};
+
+BlueprintSchema.statics.countByParentId = function countByParentId(blueprintId, callback) {
+
+    this.count({
+        parentBlueprintId: blueprintId
+    }, function(err, count) {
+        if (err) {
+            logger.error("got error while counting Blueprints: ", err);
+            return callback(err);
+        }
+        callback(null, count);
     });
 };
 

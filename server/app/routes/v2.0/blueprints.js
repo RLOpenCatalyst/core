@@ -371,7 +371,7 @@ router.post('/', function createBlueprint(req, res, next) {
         },
         function(next) {
             logger.debug(blueprintData);
-        	blueprintService.createNew(blueprintData,next);
+            blueprintService.createNew(blueprintData, next);
         }
     ], function(err, results) {
         if (err) {
@@ -379,7 +379,7 @@ router.post('/', function createBlueprint(req, res, next) {
         } else {
             return res.status(200).send(results);
         }
-    })
+    });
 });
 
 /**
@@ -456,7 +456,7 @@ function launchBlueprint(req, res, next) {
  *          "applicationURL": "application url",
  *          "runList": [],
  *          "attributes": [],
- *          "buleprints": []
+ *          "blueprints": []
  *      }
  *
  * @apiSuccess {Object} blueprint                           Blueprint
@@ -528,6 +528,96 @@ function launchBlueprint(req, res, next) {
  */
 
 router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
+
+    var blueprintData = {
+        "name": req.body.name,
+        "applications": req.body.applications,
+        "applicationUrls": req.body.applicationUrls,
+        "runList": req.body.runList,
+        "blueprints": req.body.blueprints,
+        "machineType": req.body.machineType,
+    };
+
+    async.waterfall([
+
+        function(next) {
+            if (req.body.networkProfileId) {
+                networkProfileService.getNetworkProfileById(req.body.networkProfileId, next)
+            } else {
+                next(null);
+            }
+        },
+        function(networkProfile, next) {
+            if (networkProfile) {
+                blueprintData.networkProfile = networkProfile;
+            }
+            if (req.body.vmImageId) {
+                vmImageDao.getImageById(req.body.vmImageId, function(err, vmImage) {
+                    if (err) {
+                        err.status = 500;
+                        return next(err);
+                    }
+                    blueprintData.vmImage = {
+                        name: vmImage.name,
+                        vmImageId: vmImage.imageIdentifier,
+                        osType: vmImage.osType,
+                        osName: vmImage.osName,
+                        userName: vmImage.userName,
+                        password: vmImage.password,
+                    };
+                    blueprintService.getBlueprintById(req.params.blueprintId, next);
+                });
+            } else {
+                blueprintService.getBlueprintById(req.params.blueprintId, next);
+            }
+        },
+        function(parentBlueprint, next) {
+            logger.debug('here in next');
+            parentBlueprint = JSON.parse(JSON.stringify(parentBlueprint));
+            if (!parentBlueprint.parentBlueprintId && parentBlueprint.version === 1) {
+                blueprintService.getParentBlueprintCount(parentBlueprint._id, function(err, count) {
+
+                    if (err) {
+                        return next(err);
+                    }
+                    logger.debug('calling next');
+                    next(null, parentBlueprint, count);
+                });
+            } else {
+                var err = new Error("Wrong blueprint version");
+                err.status = 400;
+                next(err);
+            }
+        },
+        function(parentBlueprint, count, next) {
+            logger.debug('in next');
+            var version = count + 1;
+            blueprintData.version = version;
+            blueprintData.parentBlueprintId = parentBlueprint._id;
+            blueprintData.organizationId = parentBlueprint.organizationId,
+            blueprintData.businessGroupId = parentBlueprint.businessGroupId,
+            blueprintData.projectId = parentBlueprint.projectId;
+            Object.assign(parentBlueprint, blueprintData);
+            delete parentBlueprint._id;
+            delete parentBlueprint.__v;
+
+            logger.debug('blueprint data ==>', JSON.stringify(parentBlueprint));
+
+            next(null, parentBlueprint);
+
+        },
+        function(blueprintData) {
+            blueprintService.createNew(blueprintData, next);
+        }
+    ], function(err, results) {
+        if (err) {
+            next(err);
+        } else {
+            return res.status(200).send(results);
+        }
+    });
+
+
     // blueprintService.getBlueprintById(req.params.blueprintId,function(err,blueprint){
 
     // });
