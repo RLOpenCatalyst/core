@@ -23,6 +23,7 @@ var authUtil = require('_pr/lib/utils/authUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var config = require('_pr/config');
 var JWTToken = require('_pr/model/v2.0/jwt_token');
+var async = require('async');
 
 var userService = module.exports = {};
 
@@ -61,22 +62,37 @@ userService.getUserOrgs = function getUserOrgs(user, callback) {
     }
 };
 
-userService.getOrg = function getOrg(orgId, callback) {
-    d4dMastersNewModel.d4dModelMastersOrg.find({
-        rowid: orgId
-    }, function(err, orgDetails) {
-        if (err) {
-            var err = new Error('Internal Server Error');
-            err.status = 500;
-            callback(err);
-        } else if (orgDetails.length > 0) {
-            callback(null, orgDetails[0]);
-        } else {
-            var err = new Error('Invalid organization id');
-            err.status = 404;
-            callback(err);
-        }
-    });
+userService.getUserOrgIds = function getUserOrgIds(user, callback) {
+    // @TODO Constant to be moved to config
+    if (user.roleId == 'Admin') {
+        MasterUtil.getAllActiveOrg(function(err, orgs) {
+            if (err) {
+                var err = new Error('Internal Server Error');
+                err.status = 500;
+                callback(err);
+            } else {
+                var orgsResult = orgs.reduce(function(a, b) {
+                    a.push(b.rowid);
+                    return a;
+                }, []);
+                callback(null, orgsResult);
+            }
+        });
+    } else {
+        MasterUtil.getOrgs(user.cn, function(err, orgs) {
+            if (err) {
+                var err = new Error('Internal Server Error');
+                err.status = 500;
+                callback(err);
+            } else {
+                var orgsResult = orgs.reduce(function(a, b) {
+                    a.push(b.rowid);
+                    return a;
+                }, []);
+                callback(null, orgsResult);
+            }
+        });
+    }
 };
 
 userService.getOrg = function getOrg(orgId, callback) {
@@ -96,6 +112,7 @@ userService.getOrg = function getOrg(orgId, callback) {
         }
     });
 };
+
 userService.signOut = function signOut(base64Token, callback) {
     if (base64Token) {
         var token = new Buffer(base64Token, 'base64').toString('ascii');
@@ -204,4 +221,32 @@ userService.generateToken = function generateToken(user, callback) {
             });
         });
     }
+};
+
+userService.updateOwnerDetails = function updateOwnerDetails(object, next) {
+    async.parallel({
+        organization: function(callback) {
+            if('organizationId' in object)
+                // @TODO call to self should not be order dependent
+                userService.getOrg(object.organizationId, callback);
+            else
+                callback(null);
+        }
+    }, function(err, results) {
+        if(err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            next(err);
+        } else {
+            if(results.organization) {
+                delete object.organizationId;
+                object.organization = {
+                    id: results.organization.rowid,
+                    name: results.organization.orgname
+                }
+            }
+
+            next(null, object);
+        }
+    });
 };

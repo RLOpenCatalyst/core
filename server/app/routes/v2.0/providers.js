@@ -242,10 +242,7 @@ function createProvider(req, res, next) {
         // @TODO Check if user has access to the specified organization
         // @TODO Authorization checks to be addded
         function(next) {
-            userService.getOrg(req.body.organizationId, next);
-        },
-        function(org, next) {
-            providerService.createProvider(req.body, org, next);
+            providerService.createProvider(req.body, next);
         },
         providerService.createProviderResponseObject
     ], function(err, provider) {
@@ -265,6 +262,7 @@ function updateProvider(req, res, next) {
         function(provider, next) {
             providerService.updateProvider(provider, req.body, next);
         },
+        userService.updateOwnerDetails,
         providerService.createProviderResponseObject
     ], function(err, provider) {
         if(err) {
@@ -280,6 +278,7 @@ function getProvider(req, res, next) {
         function (next) {
             providerService.getProvider(req.params.providerId, next);
         },
+        userService.updateOwnerDetails,
         providerService.createProviderResponseObject
     ], function(err, provider) {
         if(err) {
@@ -293,17 +292,18 @@ function getProvider(req, res, next) {
 function getProviders(req, res, next) {
     async.waterfall([
         function(next) {
-            if('session' in req) {
+            if('user' in req.session) {
+                console.log(req.session);
                 userService.getUserOrgs(req.session.user, next);
             } else {
-                next(null, req.user.orgs);
+                next(null, req.user.orgIds);
             }
-        },
-        function (org, next) {
-            providerService.getAllProviders(org.rowid, next);
-        },
-        providerService.createProviderResponseList
-    ], function(err, provider) {
+        }/*,
+        function (orgIds, next) {
+            providerService.getAllProviders(orgIds, next);
+        },*/
+        // providerService.createProviderResponseList
+    ], function(err, providers) {
         if(err) {
             next(err);
         } else {
@@ -323,7 +323,7 @@ function deleteProvider(req, res, next) {
                 next(null, req.user.orgs);
             }
         },
-        function() {
+        function(orgs, next) {
             providerService.checkProviderDeleteAuthorization(orgs, req.params.providerId, next);
         },
         function(orgs, next) {
