@@ -35,7 +35,7 @@ var GCP = function GCP(params) {
         }*/
         // Create a new VM using the latest OS image of your choice. 
         var zone = gce.zone(params.networkConfig.networkDetails.zone);
-        var name = "d4d-" + params.blueprints.name.toLowerCase();
+        var name = "d4d-" + params.blueprints.name.toLowerCase()+new Date().getTime();
 
         var paramConfig = {
             "name": name,
@@ -71,8 +71,7 @@ var GCP = function GCP(params) {
                 }]
             }]
         };
-
-
+        
         zone.createVM(name, paramConfig, function(err, vm, operation) {
             if (err) {
                 logger.debug("Error while creating VM: ", err);

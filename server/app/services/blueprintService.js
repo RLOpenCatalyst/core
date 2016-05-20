@@ -90,27 +90,28 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
                             }
                             instanceService.createInstance(instanceObj, function(err, instanceData) {
                                 if (err) {
+                                    logger.debug("Failed to create instance: ", err);
                                     var error = new Error("instance creation failed.");
                                     error.status = 500;
                                     return callback(error, null);
                                 }
+                                callback(null, instanceData);
+
                                 var timestampStarted = new Date().getTime();
-                                var actionLog = instancesModel.insertBootstrapActionLog(instanceData.id, instanceData.runlist, instanceData.sessionUser, timestampStarted);
-                                var logsReferenceIds = [instanceData.id, actionLog._id];
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    referenceId: instanceData.id,
                                     err: false,
                                     log: "Starting instance",
                                     timestamp: timestampStarted
                                 });
                                 instanceService.bootstrapInstance(instanceData, function(err, result) {
+                                    fs.unlink('/tmp/' + provider.id + '.json');
                                     if (err) {
                                         var error = new Error("Instance bootstrap failed.");
                                         error.status = 500;
                                         return callback(error, null);
                                     }
-                                    fs.unlink('/tmp/' + provider.id + '.json');
-                                    callback(null, result);
+
                                 });
                             });
                         });
