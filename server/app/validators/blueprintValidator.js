@@ -23,7 +23,7 @@ blueprintValidator.launch = {
     },
     body: {
         version: Joi.required(),
-        envName: Joi.required()
+        envId: Joi.required()
     }
 };
 

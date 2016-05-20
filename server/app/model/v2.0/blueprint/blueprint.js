@@ -155,13 +155,25 @@ var BlueprintSchema = new Schema({
 
 BlueprintSchema.statics.createNew = function createNew(blueprintData, callback) {
     var self = this;
-
+    logger.debug("Got BPData to save: ", JSON.stringify(blueprintData));
     var blueprint = new self(blueprintData);
     blueprint.save(function(err, bp) {
         if (err) {
+            logger.error("got error: ", err);
             return callback(err);
         }
         callback(null, bp);
+    });
+};
+
+BlueprintSchema.statics.findById = function findById(blueprintId, callback) {
+    logger.debug("BlueprintId: ",blueprintId);
+    this.find({ _id: blueprintId }, function(err, data) {
+        if (err) {
+            logger.error("got error while fetching Blueprint: ", err);
+            return callback(err);
+        }
+        callback(null, data);
     });
 };
 

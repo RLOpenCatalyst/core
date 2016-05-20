@@ -513,15 +513,17 @@ function createTrackedInstancesResponse(instances, callback) {
 }
 
 
-function createInstance(instanceObj, callback) {
+
+instanceService.createInstance =  function createInstance(instanceObj, callback) {
     var blueprint = instanceObj.blueprint;
     var instance = instanceObj.instance;
+    var gcpProvider = instanceObj.providers;
     var instances = {
         name: instance.name,
-        orgId: blueprint.organization.id,
-        bgId: blueprint.businessGroup.id,
-        projectId: blueprint.projectId,
-        envId: blueprint.envId,
+        orgId: blueprint.organization,
+        bgId: blueprint.businessGroup,
+        projectId: blueprint.project,
+        envId: instanceObj.envId,
         providerId: blueprint.networkProfile.providerId,
         providerType: blueprint.networkProfile.type,
         runlist: blueprint.runList,
@@ -540,16 +542,16 @@ function createInstance(instanceObj, callback) {
         },
         credentials: {
             username: blueprint.vmImage.userName,
-            pemFile: instanceObj.provider.sshKey,
+            pemFile: instanceObj.provider.providerDetails.sshKey,
             password: blueprint.vmImage.password
         },
         blueprintData: {
-            blueprintId: blueprint.id,
+            blueprintId: blueprint._id,
             blueprintName: blueprint.name,
-            templateId: blueprint.softwareTemplate.id,
-            templateType: blueprint.softwareTemplate.templateType,
-            templateComponents: blueprint.softwareTemplate.templateComponents,
-            iconPath: blueprint.softwareTemplate.iconpath
+            templateId: "blueprint.softwareTemplate.id",
+            templateType: "blueprint.softwareTemplate.templateType",
+            templateComponents: "blueprint.softwareTemplate.templateComponents",
+            iconPath: "blueprint.softwareTemplate.iconpath"
         },
         chef: {
             serverId: blueprint.chefServerId,
@@ -574,12 +576,12 @@ function createInstance(instanceObj, callback) {
             error.status = 500;
             return callback(error, null);
         }
-        return callback(null, instances);
+         callback(null, instances);
     });
-}
+};
 
 
-function bootstrapInstance(bootstrapData, callback) {
+instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, callback) {
     fs.writeFile('/tmp/' + bootstrapData.id + '.pem', new Buffer(bootstrapData.credentials.pemFile, 'base64').toString(), function(err, savedFile) {
         if (err) {
             var error = new Error("Unable to create pem file.");

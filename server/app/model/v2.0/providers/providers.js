@@ -55,7 +55,7 @@ ProvidersSchema.statics.getById = function getById(providerId, callback) {
             if (err) {
                 logger.error(err);
                 return callback(err, null);
-            } else if(providers.length > 0){
+            } else if(providers && providers.length > 0){
                 return callback(null, providers[0]);
             } else {
                 return callback(null, null);
