@@ -16,7 +16,7 @@
 
             var _tab = {
             //To activate the tab
-            tab : "Actionhistory",
+            tab : "Information",
             setTab : function (tabId) {
                 _tab.tab = tabId;     
             },

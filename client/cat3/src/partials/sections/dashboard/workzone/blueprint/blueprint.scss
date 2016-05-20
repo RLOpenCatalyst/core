@@ -5,6 +5,10 @@
 		width: 100%;
 	}
 
+	.panel-body {
+	    padding: 15px 5px;
+	}
+
 	.panel-group .panel+.panel {
 		margin-top: 0px;
 	}
@@ -18,7 +22,6 @@
 		width: 154px;
 		float: left;
 		padding-top: 7px;
-		margin-left: 10px;
 		padding-left: 10px;
 	}
 

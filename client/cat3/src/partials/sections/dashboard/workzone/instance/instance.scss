@@ -368,9 +368,9 @@ $imagePath : "../../../../../../images";
 		}
 
 		.dropdown {
-			width: 58%;
-			float: right;
-			position: static;
+			width: 50px;
+		    right: 20px;
+		    position: absolute;
 		}
 
 		.dropdown-toggle {
@@ -429,22 +429,15 @@ $imagePath : "../../../../../../images";
 		}
 
 		.dropdown-menu {
-			left: 85%;
 		    border-width: 1px;
-		    @include theme-border-color;
-		    top: 36px;
+		    border-color: #40BAF1;
+		    margin: 0 0 0 14px;
 		}
 
 		.ssh-rdp-wrapper {
 			float: left;
 			width: 34px;
 			margin-left: 24px;
-		}
-
-		.docker-image {
-			width: 35px;
-		    float: right;
-		    margin: -45px 7px 0 0px;
 		}
 	}
 }
@@ -608,6 +601,10 @@ $imagePath : "../../../../../../images";
 		color: #3a87ad;
 		font-size: 12px;
 		font-weight: bold;
+	}
+
+	.bp-info-wrapper {
+		margin-bottom: 5px;
 	}
 
 	.inspect-btn {
