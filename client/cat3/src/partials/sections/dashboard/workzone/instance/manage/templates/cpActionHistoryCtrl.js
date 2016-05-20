@@ -105,7 +105,7 @@
 							.then(function(response) {
 								if (response.data.length) {
 									helper.lastTimeStamp = helper.getlastTimeStamp(response);
-									$scope.logList.push(response.data);
+									$scope.logListDelta.push.apply($scope.logListDelta, response.data);
 								}
 							});
 					}, instanceSetting.logCheckTimer * 100);
@@ -116,7 +116,8 @@
 			};
 
 			angular.extend($scope, {
-				logList: [],
+				logListInitial: [],
+				logListDelta: [],
 				cancel: function() {
 					helper.stopPolling();
 					$modalInstance.dismiss('cancel');
@@ -126,7 +127,7 @@
 
 			workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id).then(function(response) {
 				helper.lastTimeStamp = helper.getlastTimeStamp(response.data);
-				$scope.logList = response.data;
+				$scope.logListInitial = response.data;
 				helper.logsPolling();
 			});
 

@@ -54,6 +54,7 @@
                     var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
                     return $http.post(fullUrl(url), Auth.getHeaderObject());
                 },
+
                 getAppCardLogs: function(instanceNodeIp, projId) {
                     var url = '/instances/' + instanceNodeIp + '/project/' + projId + '/logs';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
@@ -213,10 +214,6 @@
                 },
                 getServiceCommand: function () {
                     var url = '/d4dMasters/19/commandtype/Service%20Command';
-                    return $http.get(fullUrl(url), Auth.getHeaderObject);
-                },
-                getProviderDetails: function (providerId) {
-                    var url = '/aws/providers/' + providerId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject);
                 },
                 getImageDetails: function (imageId) {
@@ -482,6 +479,10 @@
                 postAppDeploy:function(RequestObject){
                     var url='/app-deploy/new';
                     return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
+                },
+                putAppDeploy:function(RequestObject){
+                    var url='/app-deploy/upgrade';
+                    return $http.put(fullUrl(url),RequestObject,Auth.getHeaderObject());
                 },
                 getDockerImageTags :function(requestObject) {
                     var url='/d4dMasters/docker/'+requestObject.dockerId+'/repository/'+requestObject.repository+'/image/'+requestObject.image+'/tags';
