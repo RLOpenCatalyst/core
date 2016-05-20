@@ -464,7 +464,6 @@ var InstancesDao = function() {
                             for (var i = 0; i < instanceList.length; i++) {
                                 (function(instance) {
                                     if (instance.taskIds.length > 0) {
-                                        count++;
                                         tasks.getTaskByIds(instance.taskIds, function(err, tasks) {
                                             if (err) {
                                                 var err = new Error('Internal server error');
@@ -473,6 +472,7 @@ var InstancesDao = function() {
                                             } else if (tasks.length === 0) {
                                                 return callback(null, instances);
                                             } else {
+                                                count++;
                                                 var taskObj = {};
                                                 var taskList = [];
                                                 for (var j = 0; j < tasks.length; j++) {
