@@ -244,7 +244,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     };
 
-    app.get('/app-deploy/project/:projectId/env/:envName/appDeployHistoryList', getAppDeployHistoryForPipeLineList);
+    app.get('/app-deploy/project/:projectId/env/:envName/appDeployInstanceList',validate(appDeployValidator.appDeploy), getAppDeployHistoryForPipeLineList);
 
     function getAppDeployHistoryForPipeLineList(req, res, next) {
         async.waterfall(
@@ -265,7 +265,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     }
 
 
-    app.get('/app-deploy/project/:projectId/env/:envName/appDeployHistoryList', validate(appDeployValidator.get), getAppDeployHistoryList);
+    app.get('/app-deploy/project/:projectId/env/:envName/appDeployHistoryList', validate(appDeployValidator.appDeploy), getAppDeployHistoryList);
 
     function getAppDeployHistoryList(req, res, next) {
         var reqData = {};
