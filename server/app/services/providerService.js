@@ -19,6 +19,8 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var logger = require('_pr/logger')(module);
 var providersModel = require('_pr/model/v2.0/providers/providers');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
+var appConfig = require('_pr/config');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 const errorType = 'provider';
 
@@ -45,32 +47,36 @@ providerService.getProvider = function getProvider(providerId, callback) {
         if(err) {
             var err = new Error('Internal Server Error');
             err.status = 500;
-            callback(err);
-        } else if(provider) {
-            callback(null, provider);
-        } else {
+            return callback(err);
+        } else if (!provider) {
             var err = new Error('Provider not found');
             err.status = 404;
-            callback(err);
+            return callback(err);
+        } else if(provider) {
+            switch(provider.type) {
+                case 'GCP':
+                    var gcpProvider =  new gcpProviderModel(provider);
+                    var cryptoConfig = appConfig.cryptoSettings;
+                    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+
+                    gcpProvider.providerDetails.keyFile = cryptography.decryptText(gcpProvider.providerDetails.keyFile,
+                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                    gcpProvider.providerDetails.sshKey = cryptography.decryptText(gcpProvider.providerDetails.sshKey,
+                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+                    callback(null, gcpProvider);
+                    break;
+                default:
+                    break;
+            }
         }
     })
 }
 
-providerService.createProvider = function createProvider(provider, orgDetails, callback) {
-    if(!orgDetails) {
-        var err = new Error('Invalid request');
-        err.status = 400;
-        return callback(err);
-    }
-
+providerService.createProvider = function createProvider(provider, callback) {
     switch(provider.type) {
         case 'GCP':
             logger.debug('Creating new GCP provider');
-            provider.organization = {
-                id: orgDetails.rowid,
-                name: orgDetails.orgname
-            };
-            delete provider.organizationId;
             gcpProviderModel.createNew(provider, callback);
             break;
         defaut:
@@ -115,6 +121,19 @@ providerService.updateProvider = function updateProvider(provider, updateFields,
     });
 };
 
+providerService.getAllProviders = function getAllProviders(orgIds, callback) {
+    providersModel.getAllByOrgs(orgIds, function(err, providers) {
+        if(err) {
+            logger.error(err);
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else {
+            callback(null, providers);
+        }
+    });
+};
+
 providerService.createProviderResponseObject = function createProviderResponseObject(provider, callback) {
     var providerResponseObject = {
         id: provider._id,
@@ -134,10 +153,26 @@ providerService.createProviderResponseObject = function createProviderResponseOb
     }
 
     callback(null, providerResponseObject);
-}
+};
 
-providerService.getAllProviders = function getAllProviders(orgId, callback) {
-    providersModel.getAllProviders(callback);
+providerService.createProviderResponseList = function createProviderResponseList(providers, callback) {
+    var providersList = [];
+    for(var i = 0; i < providers.length; i++) {
+        (function(provider) {
+            // @TODO call to self should not be order dependent
+            providerService.createProviderResponseObject(provider, function(err, formattedProvider) {
+                if(err) {
+                    return next(err);
+                } else {
+                    providersList.push(formattedProvider);
+                }
+
+                if(providersList.length == providers.length) {
+                    return callback(null, providersList);
+                }
+            });
+        })(providers[i]);
+    }
 };
 
 providerService.getTagsByProvider = function getTagsByProvider(provider, callback) {
