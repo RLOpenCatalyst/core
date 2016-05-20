@@ -519,9 +519,9 @@ instanceService.createInstance =  function createInstance(instanceObj, callback)
     var instance = instanceObj.instance;
     var instances = {
         name: instance.name,
-        orgId: blueprint.organization,
-        bgId: blueprint.businessGroup,
-        projectId: blueprint.project,
+        orgId: blueprint.organizationId,
+        bgId: blueprint.businessGroupId,
+        projectId: blueprint.projectId,
         envId: instanceObj.envId,
         providerId: blueprint.networkProfile.providerId,
         providerType: blueprint.networkProfile.type,

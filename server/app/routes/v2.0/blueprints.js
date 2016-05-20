@@ -26,7 +26,7 @@ var vmImageDao = require('_pr/model/classes/masters/vmImage.js');
 var logger = require('_pr/logger')(module);
 
 /**
- * @api {get} /api/v2.0/blueprints 	                        Get blueprints list
+ * @api {get} /api/v2.0/blueprints                          Get blueprints list
  * @apiName getAllBlueprints
  * @apiGroup blueprints
  *
@@ -53,32 +53,32 @@ var logger = require('_pr/logger')(module);
  * @apiSuccess {String} blueprint.tasRunList                Task run list
  * @apiSuccess {String} blueprint.attributes                Check cookbook attributes
  * @apiSuccess {String} blueprint.blueprints                Nested blueprints
- * @apiSuccess {Number} count				                Number of providers in the result set
- * @apiSuccess {pageSize} pageSize			                Page size
- * @apiSuccess {pageIndex} pageIndex		                Page index
+ * @apiSuccess {Number} count                               Number of providers in the result set
+ * @apiSuccess {pageSize} pageSize                          Page size
+ * @apiSuccess {pageIndex} pageIndex                        Page index
  * @apiSuccessExample {json} Success-Response:
  *      HTTP/1.1 200 OK
- * 		{
- * 			"blueprints": [
- * 			 	 {
+ *      {
+ *          "blueprints": [
+ *               {
  *                  "id": "<ID>",
- * 					"name":	"blueprintName",
+ *                  "name": "blueprintName",
  *                  "version": "2",
- * 				    "organization": {
- * 				        "id": "<ID>",
- * 				        "name": "Organization name"
- * 				     },
- * 				     "businessGroup": {
- * 				        "id": "<ID>",
- * 				        "name": "Business group name"
- * 				     },
- * 				     "project": {
- * 				        "id": "<ID>",
- * 				        "name": "Project name"
- * 				     }
+ *                  "organization": {
+ *                      "id": "<ID>",
+ *                      "name": "Organization name"
+ *                   },
+ *                   "businessGroup": {
+ *                      "id": "<ID>",
+ *                      "name": "Business group name"
+ *                   },
+ *                   "project": {
+ *                      "id": "<ID>",
+ *                      "name": "Project name"
+ *                   }
  *                  "networkProfile": {
  *                      "id": "<Network profile id>",
- * 		                "name":	"networkProfileName",
+ *                      "name": "networkProfileName",
  *                      "type": "GCP",
  *                      "providerId": "<ID>",
  *                      "networkDetails": {
@@ -100,26 +100,26 @@ var logger = require('_pr/logger')(module);
  *                  "attributes": [],
  *                  "buleprints": [],
  *                  "chefServerId": "rowid"
- * 				 },
- * 				 {
+ *               },
+ *               {
  *                  "id": "<ID>",
- * 					"name":	"blueprintName",
+ *                  "name": "blueprintName",
  *                  "version": "1",
- * 				    "organization": {
- * 				        "id": "<ID>",
- * 				        "name": "Organization name"
- * 				     },
- * 				     "businessGroup": {
- * 				        "id": "<ID>",
- * 				        "name": "Business group name"
- * 				     },
- * 				     "project": {
- * 				        "id": "<ID>",
- * 				        "name": "Project name"
- * 				     }
+ *                  "organization": {
+ *                      "id": "<ID>",
+ *                      "name": "Organization name"
+ *                   },
+ *                   "businessGroup": {
+ *                      "id": "<ID>",
+ *                      "name": "Business group name"
+ *                   },
+ *                   "project": {
+ *                      "id": "<ID>",
+ *                      "name": "Project name"
+ *                   }
  *                  "networkProfile": {
  *                      "id": "<Network profile id>",
- * 		                "name":	"networkProfileName",
+ *                      "name": "networkProfileName",
  *                      "type": "GCP",
  *                      "providerId": "<ID>",
  *                      "networkDetails": {
@@ -146,18 +146,18 @@ var logger = require('_pr/logger')(module);
  *                      "<Blueprint ID 0>",
  *                      "<Blueprint ID 1>"
  *                  ]
- * 				 }
- * 			],
- *			"count": 2,
- *			"pageSize": 10,
- *			"pageIndex": 1
- * 		}
+ *               }
+ *          ],
+ *          "count": 2,
+ *          "pageSize": 10,
+ *          "pageIndex": 1
+ *      }
  *
  */
 // router.get('/', getBlueprints);
 
 /**
- * @api {get} /api/v2.0/blueprints/:blueprintId 	        Get blueprint
+ * @api {get} /api/v2.0/blueprints/:blueprintId             Get blueprint
  * @apiName getBlueprint
  * @apiGroup blueprints
  *
@@ -190,7 +190,7 @@ var logger = require('_pr/logger')(module);
  *      HTTP/1.1 200 OK
  *      {
  *          "id": "<ID>",
- *          "name":	"blueprintName",
+ *          "name": "blueprintName",
  *          "version": "1",
  *          "organization": {
  *              "id": "<ID>",
@@ -206,7 +206,7 @@ var logger = require('_pr/logger')(module);
  *          }
  *          "networkProfile": {
  *              "id": "<Network profile id>",
- *              "name":	"networkProfileName",
+ *              "name": "networkProfileName",
  *              "type": "GCP",
  *              "providerId": "<ID>",
  *              "networkDetails": {
@@ -235,7 +235,7 @@ var logger = require('_pr/logger')(module);
 // router.patch('/:blueprintId', getBlueprint);
 
 /**
- * @api {post} /api/v2.0/blueprints 	                  Create blueprint
+ * @api {post} /api/v2.0/blueprints                       Create blueprint
  * @apiName createBlueprint
  * @apiGroup blueprints
  *
@@ -255,7 +255,7 @@ var logger = require('_pr/logger')(module);
  * @apiParam {String[]} blueprint.blueprints              List of nested blueprint ids
  * @apiParamExample {json} Request-Example:
  *      {
- *          "name":	"blueprintName",
+ *          "name": "blueprintName",
  *          "organizationId": "<ID>",
  *          "businessGroupId": "<ID>",
  *          "projectId": "<ID>",
@@ -296,13 +296,13 @@ var logger = require('_pr/logger')(module);
  *      HTTP/1.1 200 OK
  *      {
  *          "id": "<ID>",
- *          "name":	"blueprintName",
+ *          "name": "blueprintName",
  *          "version": "1",
  *          "organization": "<ID>",
  *          "businessGroup": "<ID>",
  *          "project": "<ID>",
  *          "networkProfile": {
- *              "name":	"networkProfileName",
+ *              "name": "networkProfileName",
  *              "type": "GCP",
  *              "providerId": "<ID>",
  *              "networkDetails": {
@@ -374,7 +374,7 @@ router.post('/', function createBlueprint(req, res, next) {
         },
         function(next) {
             logger.debug(blueprintData);
-        	blueprintService.createNew(blueprintData,next);
+            blueprintService.createNew(blueprintData, next);
         }
     ], function(err, results) {
         if (err) {
@@ -396,7 +396,7 @@ router.post('/', function createBlueprint(req, res, next) {
  * @apiParamExample {json} Request-Example:
  *      {
  *          "version": "1",
- 			"envName": "Dev"
+            "envName": "Dev"
  *      }
  *
  * @apiSuccess {Object} blueprintLaunchStatus               Check cookbook attributes
@@ -415,11 +415,11 @@ function launchBlueprint(req, res, next) {
         [
 
             function(next) {
-                blueprintService.getBlueprintById(next);
+                blueprintService.getBlueprintById(req.params.blueprintId, next);
 
             },
             function(blueprint, next) {
-                blueprintService.launchBlueprint(blueprint, next);
+                blueprintService.launchBlueprint(blueprint, reqBody, next);
             }
         ],
         function(err, results) {
@@ -433,7 +433,7 @@ function launchBlueprint(req, res, next) {
 }
 
 /**
- * @api {patch} /api/v2.0/blueprints/:blueprintId/upgrade 	                  Update blueprint
+ * @api {patch} /api/v2.0/blueprints/:blueprintId/upgrade                     Update blueprint
  * @apiName updateBlueprint
  * @apiGroup blueprints
  *
@@ -450,7 +450,7 @@ function launchBlueprint(req, res, next) {
  * @apiParam {String[]} blueprint.blueprints              List of nested blueprint ids
  * @apiParamExample {json} Request-Example:
  *      {
- *          "name":	"blueprintName",
+ *          "name": "blueprintName",
  *          "networkProfileId": "<ID>",
  *          "softwareTemplateId": "<ID>",
  *          "vmImageId": "<ID>",
@@ -488,7 +488,7 @@ function launchBlueprint(req, res, next) {
  *      HTTP/1.1 200 OK
  *      {
  *          "id": "<ID>",
- *          "name":	"blueprintName",
+ *          "name": "blueprintName",
  *          "version": "2",
  *          "organization": {
  *              "id": "<ID>",
@@ -504,7 +504,7 @@ function launchBlueprint(req, res, next) {
  *          }
  *          "networkProfile": {
  *              "id": "<Network profile id>",
- *              "name":	"networkProfileName",
+ *              "name": "networkProfileName",
  *              "type": "GCP",
  *              "providerId": "<ID>",
  *              "networkDetails": {
