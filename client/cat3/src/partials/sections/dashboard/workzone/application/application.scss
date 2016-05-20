@@ -171,16 +171,28 @@
         color: #E3200B;
     }
     .app-instance-image.instance-state-unknown{
-            opacity: 0.4;
-            filter: alpha(opacity=40);
-        }
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+    }
     .app-icon{
         background-size: 25px 25px;
-        cursor: pointer;
         margin: 15px 0 0 48px;
         width: 25px;
         height: 28px;
         font-size: 24px;
+        i{
+            color: #E49C25 !important;
+        }
+    }
+    .app-icon-card{
+        background-size: 25px 25px;
+        margin: 15px 0 0 48px;
+        width: 25px;
+        height: 28px;
+        font-size: 24px;
+    }
+    .inavtive-card{
+        i{color:#DADADA !important;}
     }
 }
 

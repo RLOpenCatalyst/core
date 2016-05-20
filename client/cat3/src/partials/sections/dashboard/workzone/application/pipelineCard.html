@@ -10,7 +10,7 @@
                     </div>
                     <div class="card-status-state">
                         <div class="app-icon">
-                            <i class="fa fa-database"></i>
+                            <i class="fa fa-cube"></i>
                         </div>
                     </div>
                     <div class="instance-ip">
@@ -22,7 +22,7 @@
 
         <div ng-if="!cardDetails.name" class="env-card-wrapper text-center">
             <div class="cardView">
-                <div id="{{cardDetails.id}}" class="card {{pipeCtrl.selectedCardClass}}" title="{{cardDetails.applicationNodeIP}}"  ng-click="pipeCtrl.selectedCard(cardDetails,appName,envName,cardDetails.id)">
+                <div id="{{cardDetails.id}}" ng-style="(cardDetails && cardDetails.applicationNodeIP) ? {} : {'opacity': '0.4','filter':'alpha(opacity=40)','-webkit-filter': 'grayscale(1)'}" class="card {{(cardDetails.applicationNodeIP)?'cursor':''}} {{pipeCtrl.selectedCardClass}}" title="{{cardDetails.applicationNodeIP}}"  ng-click="pipeCtrl.selectedCard(cardDetails,appName,envName,cardDetails.id)">
                     <div class="card-title">
                         <div  class="card-title-name"> <strong>{{cardDetails.applicationNodeIP}}</strong>
                         </div>
@@ -31,13 +31,13 @@
                     <div class="card-status-state">
                         <div class="status-state ">
                             <div class="{{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'image')}}">
-                                <i class="fa fa-th cursor {{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'text')}}" title="App Details" ></i>
+                                <i class="fa fa-th fa-database {{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'text')}}" title="App Details" ></i>
                             </div>
                         </div>
                     </div>
                     <div class="instance-ip">
-                                <span ng-bind-html="(cardDetails.applicationLastDeploy | timestampToLocaleTime )">
-                                </span>
+                        <span ng-bind-html="(cardDetails.applicationLastDeploy | timestampToLocaleTime )">
+                        </span>
                     </div>
                 </div>
             </div>
@@ -53,8 +53,8 @@
                         <hr/>
                     </div>
                     <div class="card-status-state">
-                        <div class="app-icon ">
-                            <i class="fa fa-database"></i>
+                        <div class="app-icon {{(cardDetails && cardDetails.length >0) ?'':'inavtive-card'}}">           
+                            <i class="fa fa-cube"></i>
                         </div>
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                         <hr/>
                     </div>
                     <div class="card-status-state">
-                        <div class="app-icon">
+                        <div class="app-icon-card">
                             <i class="fa fa-database"></i>
                         </div>
                     </div>
