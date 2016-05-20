@@ -73,7 +73,7 @@
                 },
                 postEnvConfig: function(reqBody) {
                     //var url = '/data/appDeployEnvList.json';
-                    var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
+                    var url = '/app-deploy-pipeline/data/configure';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },
                 getUpdatedEnvConfig: function(projId) {
