@@ -1,11 +1,110 @@
 @import '../../theme';
 
 #loginContainer {
-	margin-top: 50px;
+	margin-top: 20px;
 }
 
+/*styles added based on cat2.0*/
+.login-header-big {
+    font-weight: 400;
+}
+
+.txt-color-red {
+    color: #a90329;
+}
+
+h1 {
+    letter-spacing: -1px;
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.hero {
+	height: 300px;
+    background-repeat: no-repeat;
+    background-position: 0 137px;
+    width: 100%;
+    float: left;
+}
+
+.login-desc-box-l {
+    min-height: 350px;
+    width: 65%;
+}
+
+h5 {
+    font-size: 17px;
+    font-weight: 300;
+    margin: 10px 0;
+    line-height: normal;
+}
+
+.display-image {
+    margin-top: -60px;
+    margin-right: 20px;
+}
+
+.plan, .design, .workzone, .track, .Monitor {
+    background: url(../../../../images/sprites.png) no-repeat;
+}
+
+.images-margin {
+    margin-left: 30px;
+}
+
+.plan {
+    background-position: 0 0;
+    width: 150px;
+    height: 150px;
+}
+
+.design {
+    background-position: -198px 0;
+    width: 150px;
+    height: 153px;
+}
+
+.workzone {
+    background-position: -399px 0;
+    width: 150px;
+    height: 150px;
+}
+
+.track {
+    background-position: -600px 0;
+    width: 150px;
+    height: 150px;
+}
+
+.Monitor {
+    background-position: -799px 0;
+    width: 150px;
+    height: 150px;
+}
+
+.login-footer {
+	background: none repeat scroll 0 0 #222;
+	background-image: linear-gradient(to bottom, #f3f3f3, #e2e2e2); 
+	bottom: 0px; 
+	min-height: 60px;
+	position: fixed;
+	width: 100%;
+}
+
+.login-footer-text-wrapper {
+	color: white;
+	float: left;
+}
+
+.login-footer-text {
+	padding-top: 20px;
+	padding-left: 10px;
+	font-size: 12px;
+}
+/*styles added based on cat2.0 ends here*/
+
 .grayBorder {
-	border: 1px solid #808080;
+	border: 1px solid #e3e3e3;
 }
 
 .loginform {
@@ -54,9 +153,11 @@
 	.loginform_note {
 		margin-top: 6px;
 		padding: 0px 1px;
-		font-size: 11px;
+		font-size: 13px;
 		line-height: 15px;
 		color: #999;
+		width: 70%;
+    	float: left;
 	}
 
 	.loginform_input {
@@ -106,6 +207,5 @@
 	.loginform_incorlog {
 		color: $color-red;
 		font-size: 9pt;
-		margin-top: 17px;
 	}
 }
