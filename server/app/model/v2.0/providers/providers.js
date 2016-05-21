@@ -20,7 +20,7 @@ var BaseProviderSchema = require('./base-provider');
 
 var ProvidersSchema = new BaseProviderSchema();
 
-ProvidersSchema.statics.getAllByOrgs = function getAllProviders(orgIds, callback) {
+ProvidersSchema.statics.getAllByOrgs = function getAllByOrgs(orgIds, callback) {
     this.find({
             isDeleted: false,
             organizationId: {$in: orgIds}

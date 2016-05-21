@@ -155,7 +155,11 @@ var BlueprintSchema = new Schema({
         },
         attributes: [Schema.Types.Mixed]
     }],
-    blueprints: [Schema.Types.Mixed]
+    blueprints: [Schema.Types.Mixed],
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 BlueprintSchema.statics.createNew = function createNew(blueprintData, callback) {
@@ -180,6 +184,22 @@ BlueprintSchema.statics.findById = function findById(blueprintId, callback) {
         }
         callback(null, data);
     });
+};
+
+BlueprintSchema.statics.getAllByOrgs = function getAllByOrgs(orgIds, callback) {
+    this.find({
+            isDeleted: false,
+            organizationId: {$in: orgIds}
+        },
+        function(err, blueprints) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, blueprints);
+            }
+        }
+    );
 };
 
 
