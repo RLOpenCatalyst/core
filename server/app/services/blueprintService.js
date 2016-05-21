@@ -30,12 +30,13 @@ var blueprintService = module.exports = {};
 
 blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callback) {
     logger.debug("BlueprintId: ", blueprintId);
-    blueprintModel.findById(blueprintId, function(err, blueprint) {
+    blueprintModel.findById(blueprintId, function (err, blueprint) {
         if (err) {
             var error = new Error("Error to get blueprint.");
             error.status = 500;
             return callback(error, null);
         }
+        //@TODO Model should return single object
         if (blueprint && blueprint.length) {
             return callback(null, blueprint[0]);
         } else {
@@ -45,7 +46,20 @@ blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callb
         }
 
     });
-}
+};
+
+blueprintService.getAllBlueprints = function getAllBlueprints(orgIds, callback) {
+    blueprintModel.getAllByOrgs(orgIds, function(err, blueprints) {
+        if(err) {
+            logger.error(err);
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else {
+            callback(null, blueprints);
+        }
+    });
+};
 
 blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, callback) {
     var networkProfile = new gcpNetworkProfileModel(blueprint.networkProfile);
@@ -517,5 +531,56 @@ blueprintService.getCookBookAttributes = function getCookBookAttributes(instance
         var attributeObj = utils.mergeObjects(objectArray);
         callback(null, attributeObj);
         return;
+    }
+};
+
+blueprintService.createBlueprintResponseObject
+    = function createBlueprintResponseObject(blueprint, callback) {
+    var providerResponseObject = {
+        id: blueprint._id,
+        name: blueprint.name,
+        version: blueprint.version,
+        organization: blueprint.organization,
+        businessGroup: blueprint.businessGroup,
+        project: blueprint.project,
+        networkProfile: blueprint.networkProfile,
+        vmImage: blueprint.vmImage,
+        runList: blueprint.runList,
+        applications: blueprint.applications,
+        applicationUrls: blueprint.applicationUrls,
+        blueprints: blueprint.blueprints,
+        childBlueprintIds: blueprint.childBlueprintIds,
+        parentBlueprintId: blueprint.parentBlueprintId
+    };
+
+    callback(null, providerResponseObject);
+};
+
+blueprintService.createBlueprintResponseList
+    = function createBlueprintResponseList(blueprints, callback) {
+    var blueprintsList = [];
+
+    if(blueprints.length == 0)
+        return callback(null, {});
+
+    for(var i = 0; i < blueprints.length; i++) {
+        (function(blueprint) {
+            // @TODO Improve call to self
+            blueprintService.createBlueprintResponseObject(blueprint,
+                function(err, formattedBlueprint) {
+                    if(err) {
+                        return callback(err);
+                    } else {
+                        blueprintsList.push(formattedBlueprint);
+                    }
+
+                    if(blueprintsList.length == blueprints.length) {
+                        var blueprintsListObj = {
+                            blueprints: blueprintsList
+                        }
+                        return callback(null, blueprintsListObj);
+                    }
+            });
+        })(blueprints[i]);
     }
 };

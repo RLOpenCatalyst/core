@@ -275,6 +275,7 @@ function updateProvider(req, res, next) {
 
 function getProvider(req, res, next) {
     async.waterfall([
+        // @TODO check access to provider
         function (next) {
             providerService.getProvider(req.params.providerId, next);
         },
@@ -314,7 +315,6 @@ function getProviders(req, res, next) {
 
 function deleteProvider(req, res, next) {
     async.waterfall([
-        // @TODO Check if user has access to the specified organization
         // @TODO Authorization checks to be addded
         function(next) {
             if('user' in req.session) {

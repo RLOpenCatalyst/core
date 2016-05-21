@@ -35,6 +35,7 @@ var uuid = require('node-uuid');
 var credentialCryptography = require('_pr/lib/credentialcryptography.js');
 
 var fs = require('fs');
+var blueprintService = require('./blueprintService.js');
 
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
@@ -624,7 +625,6 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
     });
 };
 
-
 instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, callback) {
     var blueprintObj = bootstrapData.blueprint;
     credentialCryptography.decryptCredential(bootstrapData.credentials, function(err, decryptedCredential) {
@@ -666,7 +666,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                         }
                     }
 
-                    blueprintObj.getCookBookAttributes(bootstrapData, repoData, function(err, jsonAttributes) {
+                    blueprintService.getCookBookAttributes(bootstrapData, repoData, function(err, jsonAttributes) {
                         logger.debug("jsonAttributes::::: ", JSON.stringify(jsonAttributes));
                         var runlist = bootstrapData.runlist;
                         //logger.debug("launchParams.blueprintData.extraRunlist: ", JSON.stringify(launchParams.blueprintData.extraRunlist));
@@ -865,4 +865,5 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
             });
         });
     });
+
 };

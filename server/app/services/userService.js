@@ -231,9 +231,28 @@ userService.updateOwnerDetails = function updateOwnerDetails(entity, next) {
                 userService.getOrg(entity.organizationId, callback);
             else
                 callback(null);
+        },
+        businessGroup: function(callback) {
+            if ('businessGroupId' in entity) {
+                d4dModelNew.d4dModelMastersProductGroup.find({
+                    rowid: entity.businessGroupId
+                }, callback);
+            } else {
+                callback(null, null);
+            }
+        },
+        project: function(callback) {
+            if('projectId' in entity) {
+                d4dModelNew.d4dModelMastersProjects.find({
+                    rowid: entity.projectId
+                }, callback);
+            } else {
+                callback(null, null);
+            }
         }
     }, function(err, results) {
         if(err) {
+            logger.error(err);
             var err = new Error('Internal Server Error');
             err.status = 500;
             next(err);
@@ -246,11 +265,28 @@ userService.updateOwnerDetails = function updateOwnerDetails(entity, next) {
                 }
             }
 
+            if(results.businessGroup) {
+                delete entity.businessGroupId;
+                entity.businessGroup = {
+                    id: results.businessGroup[0].rowid,
+                    name: results.businessGroup[0].productgroupname
+                }
+            }
+
+            if(results.project) {
+                delete entity.projectId;
+                entity.project = {
+                    id: results.project[0].rowid,
+                    name: results.project[0].projectname
+                }
+            }
+
             next(null, entity);
         }
     });
 };
 
+// @TODO Optimize to avoid multiple db calls
 userService.updateOwnerDetailsOfList = function updateOwnerDetailsOfList(entities, callback) {
     var entitiesList = [];
 
