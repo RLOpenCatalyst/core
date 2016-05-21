@@ -24,6 +24,8 @@ var instancesModel = require('_pr/model/classes/instance/instance');
 var fs = require('fs');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var gcpNetworkProfileModel = require('_pr/model/v2.0/network-profile/gcp-network-profiles');
+var MasterUtils = require('_pr/lib/utils/masterUtil.js');
+
 const errorType = 'blueprint';
 
 var blueprintService = module.exports = {};
@@ -222,4 +224,34 @@ blueprintService.getParentBlueprintCount = function getParentBlueprintCount(pare
         
         return callback(null, count);
     });
+};
+
+blueprintService.getParentBlueprintCount = function getParentBlueprintCount(parentId, callback) {
+    blueprintModel.countByParentId(parentId, function(err, count) {
+        if (err) {
+            err.status = 500;
+            return callback(err, null);
+        }
+        
+        return callback(null, count);
+    });
+};
+
+blueprintService.getTemplateById = function(templateId,callback){
+    MasterUtils.getTemplateById(templateId,function(err,templates){
+        if(err) {
+            err.status = 500;
+            return callback(err);
+        }
+        console.log('templates ==>',templateId,templates)
+        if(templates && templates.length) {
+            callback(null,templates[0]);
+        } else {
+            var err = new Error("Template not found");
+            err.status = 400;
+            return callback(err);
+        }
+
+    });
+
 };

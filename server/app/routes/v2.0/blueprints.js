@@ -358,6 +358,11 @@ router.post('/', function createBlueprint(req, res, next) {
                     err.status = 500;
                     return next(err);
                 }
+                if (!vmImage) {
+                    var err = new Error("VMImage not found");
+                    err.status = 400;
+                    return next(err);
+                }
                 blueprintData.vmImage = {
                     name: vmImage.name,
                     vmImageId: vmImage.imageIdentifier,
@@ -368,6 +373,30 @@ router.post('/', function createBlueprint(req, res, next) {
                 };
                 return next();
             });
+        },
+        function(next) {
+            if (req.body.runList && req.body.runList.length) {
+                blueprintData.runList = req.body.runList;
+                next();
+            } else {
+                if (req.body.softwareTemplateId) {
+                    blueprintService.getTemplateById(req.body.softwareTemplateId, function(err, template) {
+                        if (err) {
+                            return next(err);
+                        }
+                        var runListArray = template.templatescookbooks.split(',');
+                        blueprintData.runList = [];
+                        for (var i = 0; i < runListArray.length; i++) {
+                            blueprintData.runList.push({
+                                name: runListArray[i]
+                            });
+                        }
+                        next();
+                    });
+                } else {
+                    next();
+                }
+            }
         },
         function(next) {
             logger.debug(blueprintData);
@@ -572,6 +601,31 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
             }
         },
         function(parentBlueprint, next) {
+            if (req.body.runList && req.body.runList.length) {
+                blueprintData.runList = req.body.runList;
+                next(null,parentBlueprint);
+            } else {
+                if (req.body.softwareTemplateId) {
+                    blueprintService.getTemplateById(req.body.softwareTemplateId, function(err, template) {
+                        if (err) {
+                            return next(err);
+                        }
+                        var runListArray = template.templatescookbooks.split(',');
+                        blueprintData.runList = [];
+                        for (var i = 0; i < runListArray.length; i++) {
+                            blueprintData.runList.push({
+                                name: runListArray[i]
+                            });
+                        }
+
+                        next(null,parentBlueprint);
+                    });
+                } else {
+                    next(null,parentBlueprint);
+                }
+            }
+        },
+        function(parentBlueprint, next) {
             logger.debug('here in next');
             parentBlueprint = JSON.parse(JSON.stringify(parentBlueprint));
             if (!parentBlueprint.parentBlueprintId && parentBlueprint.version === 1) {
@@ -591,7 +645,8 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
         },
         function(parentBlueprint, count, next) {
             logger.debug('in next');
-            var version = count + 1;
+            var version = count + 2;
+
             blueprintData.version = version;
             blueprintData.parentBlueprintId = parentBlueprint._id;
             blueprintData.organizationId = parentBlueprint.organizationId,
@@ -601,12 +656,11 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
             delete parentBlueprint._id;
             delete parentBlueprint.__v;
 
-            logger.debug('blueprint data ==>', JSON.stringify(parentBlueprint));
 
             next(null, parentBlueprint);
 
         },
-        function(blueprintData) {
+        function(blueprintData, next) {
             blueprintService.createNew(blueprintData, next);
         }
     ], function(err, results) {

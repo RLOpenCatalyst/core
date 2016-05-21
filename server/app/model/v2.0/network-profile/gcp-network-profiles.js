@@ -40,7 +40,8 @@ var GCPNetworkProfileSchema = new BaseNetworkProfileSchema({
         },
         accessConfigs: [{
             accessConfigName: String,
-            accessConfigType: String
+            accessConfigType: String,
+            _id: false
         }]
     }
 });

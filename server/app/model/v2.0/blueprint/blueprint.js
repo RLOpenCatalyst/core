@@ -68,9 +68,16 @@ var BlueprintSchema = new Schema({
             required: true,
             trim: true
         },
-        networkDetails: Schema.Types.Mixed,
+        networkDetails: {
+            type: Schema.Types.Mixed,
+            _id: false
+        },
+        _id: false
     },
-    softwareTemplate: Schema.Types.Mixed,
+    softwareTemplate: {
+        type: Schema.Types.Mixed,
+        _id: false
+    },
     vmImage: {
         name: {
             type: String,
@@ -104,7 +111,8 @@ var BlueprintSchema = new Schema({
         pemFile: {
             type: String,
             trim: true
-        }
+        },
+        _id: false
     },
     machineType: {
         type: String,
@@ -129,7 +137,11 @@ var BlueprintSchema = new Schema({
             type: String,
             required: true
         },
-        repoDetails: Schema.Types.Mixed
+        repoDetails: {
+            type: Schema.Types.Mixed,
+            _id: false
+        },
+        _id: false
     }],
     applicationUrls: [{
         name: {
@@ -141,16 +153,24 @@ var BlueprintSchema = new Schema({
             type: String,
             required: true,
             trim: true
-        }
+        },
+        _id: false
     }],
     runList: [{
         name: {
             type: String,
             required: false
         },
-        attributes: [Schema.Types.Mixed]
+        attributes: [{
+            type: Schema.Types.Mixed,
+            _id: false
+        }],
+        _id: false,
     }],
-    blueprints: [Schema.Types.Mixed]
+    blueprints: [{
+        type: Schema.Types.Mixed,
+        _id: false
+    }]
 });
 
 BlueprintSchema.statics.createNew = function createNew(blueprintData, callback) {

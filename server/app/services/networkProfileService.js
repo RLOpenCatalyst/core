@@ -22,11 +22,11 @@ var networkProfileService = module.exports = {};
 
 networkProfileService.checkIfNetworkProfileExists = function checkIfNetworkProfileExists(networkProfileId, callback) {
     networkProfilesModel.getNetworkProfileById(networkProfileId, function(err, networkProfile) {
-        if(err) {
+        if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
             return callback(err);
-        } else if(!networkProfile) {
+        } else if (!networkProfile) {
             var err = new Error('NetworkProfile not found');
             err.status = 404;
             return callback(err);
@@ -42,8 +42,7 @@ networkProfileService.saveNetworkProfile = function saveNetworkProfile(networkPr
             logger.debug('Creating new GCP NetworkProfile');
             gcpNetworkProfile.saveNetworkProfile(networkProfile, callback);
             break;
-            defaut:
-                break;
+            defaut: break;
     }
 };
 
@@ -52,13 +51,25 @@ networkProfileService.updateNetworkProfile = function updateNetworkProfile(netwo
 };
 
 networkProfileService.removeNetworkProfile = function removeNetworkProfile(networkProfileId, callback) {
-    gcpNetworkProfile.removeNetworkProfile(networkProfileId,callback);
+    gcpNetworkProfile.removeNetworkProfile(networkProfileId, callback);
 };
 
-networkProfileService.getAllNetworkProfiles = function getAllNetworkProfiles(callback){
-	networkProfilesModel.getAllNetworkProfiles(callback);
+networkProfileService.getAllNetworkProfiles = function getAllNetworkProfiles(callback) {
+    networkProfilesModel.getAllNetworkProfiles(callback);
 }
 
-networkProfileService.getNetworkProfileById = function getNetworkProfileById(networkProfileId, callback){
-	networkProfilesModel.getNetworkProfileById(networkProfileId, callback);
+networkProfileService.getNetworkProfileById = function getNetworkProfileById(networkProfileId, callback) {
+    networkProfilesModel.getNetworkProfileById(networkProfileId, function(err, networkProfile) {
+        if (err) {
+            err.status = 500;
+            return callback(err);
+        }
+        if (!networkProfile) {
+            var err = new Error("NetworkProfile Not found");
+            err.status = 500;
+            return callback(err);
+        } else {
+            callback(null, networkProfile);
+        }
+    });
 }
