@@ -26,6 +26,11 @@ var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var gcpNetworkProfileModel = require('_pr/model/v2.0/network-profile/gcp-network-profiles');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 
+var networkProfileService = require('_pr/services/networkProfileService.js');
+var vmImageDao = require('_pr/model/classes/masters/vmImage.js');
+
+
+
 const errorType = 'blueprint';
 
 var blueprintService = module.exports = {};
@@ -38,6 +43,7 @@ blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callb
             error.status = 500;
             return callback(error, null);
         }
+        //@TODO Model should return single object
         if (blueprint && blueprint.length) {
             return callback(null, blueprint[0]);
         } else {
@@ -47,7 +53,20 @@ blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callb
         }
 
     });
-}
+};
+
+blueprintService.getAllBlueprints = function getAllBlueprints(orgIds, callback) {
+    blueprintModel.getAllByOrgs(orgIds, function(err, blueprints) {
+        if (err) {
+            logger.error(err);
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else {
+            callback(null, blueprints);
+        }
+    });
+};
 
 blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, callback) {
     var networkProfile = new gcpNetworkProfileModel(blueprint.networkProfile);
@@ -92,27 +111,28 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
                             }
                             instanceService.createInstance(instanceObj, function(err, instanceData) {
                                 if (err) {
+                                    logger.debug("Failed to create instance: ", err);
                                     var error = new Error("instance creation failed.");
                                     error.status = 500;
                                     return callback(error, null);
                                 }
+                                callback(null, instanceData);
+
                                 var timestampStarted = new Date().getTime();
-                                var actionLog = instancesModel.insertBootstrapActionLog(instanceData.id, instanceData.runlist, instanceData.sessionUser, timestampStarted);
-                                var logsReferenceIds = [instanceData.id, actionLog._id];
                                 logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
+                                    referenceId: instanceData.id,
                                     err: false,
                                     log: "Starting instance",
                                     timestamp: timestampStarted
                                 });
                                 instanceService.bootstrapInstance(instanceData, function(err, result) {
+                                    fs.unlink('/tmp/' + provider.id + '.json');
                                     if (err) {
                                         var error = new Error("Instance bootstrap failed.");
                                         error.status = 500;
                                         return callback(error, null);
                                     }
-                                    fs.unlink('/tmp/' + provider.id + '.json');
-                                    callback(null, result);
+
                                 });
                             });
                         });
@@ -215,13 +235,14 @@ blueprintService.createNew = function createNew(blueprintData, callback) {
     });
 };
 
+
 blueprintService.getParentBlueprintCount = function getParentBlueprintCount(parentId, callback) {
     blueprintModel.countByParentId(parentId, function(err, count) {
         if (err) {
             err.status = 500;
             return callback(err, null);
         }
-        
+
         return callback(null, count);
     });
 };
@@ -232,20 +253,20 @@ blueprintService.getParentBlueprintCount = function getParentBlueprintCount(pare
             err.status = 500;
             return callback(err, null);
         }
-        
+
         return callback(null, count);
     });
 };
 
-blueprintService.getTemplateById = function(templateId,callback){
-    MasterUtils.getTemplateById(templateId,function(err,templates){
-        if(err) {
+blueprintService.getTemplateById = function getTemplateById(templateId, callback) {
+    MasterUtils.getTemplateById(templateId, function(err, templates) {
+        if (err) {
             err.status = 500;
             return callback(err);
         }
-        console.log('templates ==>',templateId,templates)
-        if(templates && templates.length) {
-            callback(null,templates[0]);
+        console.log('templates ==>', templateId, templates)
+        if (templates && templates.length) {
+            callback(null, templates[0]);
         } else {
             var err = new Error("Template not found");
             err.status = 400;
@@ -253,5 +274,118 @@ blueprintService.getTemplateById = function(templateId,callback){
         }
 
     });
+};
+
+blueprintService.populateBlueprintRelatedData = function populateBlueprintRelatedData(blueprintData, entity, callback) {
+    var self = this;
+    async.parallel({
+        networkProfile: function(callback) {
+            if (entity.networkProfileId) {
+                networkProfileService.getNetworkProfileById(entity.networkProfileId, callback)
+            } else {
+                callback(null);
+            }
+        },
+        vmImage: function(callback) {
+            if (entity.vmImageId) {
+                vmImageDao.getImageById(entity.vmImageId, callback);
+            } else {
+                callback(null);
+            }
+        },
+        template: function(callback) {
+            if (entity.templateId) {
+                self.getTemplateById(entity.templateId, callback);
+            } else {
+                callback(null);
+            }
+        }
+    }, function(err, results) {
+        if (err) {
+            if (!err.status) {
+                err = new Error('Internal Server Error');
+                err.status = 500;
+            }
+            callback(err);
+        } else {
+
+            if (results.networkProfile) {
+                blueprintData.networkProfile = results.networkProfile;
+            }
+
+            if (results.vmImage) {
+                blueprintData.vmImage = {
+                    name: results.vmImage.name,
+                    vmImageId: results.vmImage.imageIdentifier,
+                    osType: results.vmImage.osType,
+                    osName: results.vmImage.osName,
+                    userName: results.vmImage.userName,
+                    password: results.vmImage.password,
+                };
+            }
+
+            if (results.template) {
+                var runListArray = results.template.templatescookbooks.split(',');
+                blueprintData.runList = [];
+                for (var i = 0; i < runListArray.length; i++) {
+                    blueprintData.runList.push({
+                        name: runListArray[i]
+                    });
+                }
+            }
+
+            callback(null, blueprintData);
+        }
+    });
+};
+
+
+blueprintService.createBlueprintResponseObject = function createBlueprintResponseObject(blueprint, callback) {
+    var providerResponseObject = {
+        id: blueprint._id,
+        name: blueprint.name,
+        version: blueprint.version,
+        organization: blueprint.organization,
+        businessGroup: blueprint.businessGroup,
+        project: blueprint.project,
+        networkProfile: blueprint.networkProfile,
+        vmImage: blueprint.vmImage,
+        runList: blueprint.runList,
+        applications: blueprint.applications,
+        applicationUrls: blueprint.applicationUrls,
+        blueprints: blueprint.blueprints,
+        childBlueprintIds: blueprint.childBlueprintIds,
+        parentBlueprintId: blueprint.parentBlueprintId
+    };
+
+    callback(null, providerResponseObject);
+};
+
+blueprintService.createBlueprintResponseList = function createBlueprintResponseList(blueprints, callback) {
+    var blueprintsList = [];
+
+    if (blueprints.length == 0)
+        return callback(null, {});
+
+    for (var i = 0; i < blueprints.length; i++) {
+        (function(blueprint) {
+            // @TODO Improve call to self
+            blueprintService.createBlueprintResponseObject(blueprint,
+                function(err, formattedBlueprint) {
+                    if (err) {
+                        return callback(err);
+                    } else {
+                        blueprintsList.push(formattedBlueprint);
+                    }
+
+                    if (blueprintsList.length == blueprints.length) {
+                        var blueprintsListObj = {
+                            blueprints: blueprintsList
+                        }
+                        return callback(null, blueprintsListObj);
+                    }
+                });
+        })(blueprints[i]);
+    }
 
 };

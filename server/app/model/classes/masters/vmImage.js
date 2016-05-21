@@ -45,15 +45,13 @@ var imageSchema = new Schema({
     imageIdentifier: {
         type: String,
         required: true,
-        trim: true,
-        validate: schemaValidator.imageIdValidator
+        trim: true
     },
     name: {
         type: String,
         required: true,
         trim: true,
-        unique: true,
-        validate: schemaValidator.imageNameValidator
+        unique: true
     },
     osType: {
         type: String,

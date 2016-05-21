@@ -128,6 +128,11 @@ var BlueprintSchema = new Schema({
         type: Number,
         //required: false
     },
+    chefServerId: {
+        type: String,
+        required: false,
+        trim: true
+    },
     applications: [{
         repoId: {
             type: String,
@@ -170,7 +175,11 @@ var BlueprintSchema = new Schema({
     blueprints: [{
         type: Schema.Types.Mixed,
         _id: false
-    }]
+    }],
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 BlueprintSchema.statics.createNew = function createNew(blueprintData, callback) {
@@ -209,6 +218,23 @@ BlueprintSchema.statics.countByParentId = function countByParentId(blueprintId, 
             return callback(err);
         }
         callback(null, count);
+    });
+};
+
+BlueprintSchema.statics.getAllByOrgs = function getAllByOrgs(orgIds, callback) {
+    this.find({
+        isDeleted: false,
+        organizationId: {
+            $in: orgIds
+        }
+    }, function(err, blueprints) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        } else {
+            return callback(null, blueprints);
+        }
+
     });
 };
 

@@ -66,7 +66,7 @@ networkProfileService.getNetworkProfileById = function getNetworkProfileById(net
         }
         if (!networkProfile) {
             var err = new Error("NetworkProfile Not found");
-            err.status = 500;
+            err.status = 400;
             return callback(err);
         } else {
             callback(null, networkProfile);
