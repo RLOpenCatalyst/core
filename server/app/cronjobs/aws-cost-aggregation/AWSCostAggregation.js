@@ -54,6 +54,7 @@ function aggregateAWSCost() {
     };
     async.waterfall([
         function (next) {
+            console.log("Welcome");
             s3.getObject(params, 'time', next);
         },
         function (updateTime, next) {
@@ -67,6 +68,26 @@ function aggregateAWSCost() {
         },
         function (status, next) {
             if (status) {
+                MasterUtils.getAllActiveOrg(next);
+            } else {
+                next(null,status);
+            }
+        },
+        function (orgs, next) {
+            if(orgs.length > 0) {
+                getProvidersList(orgs, next);
+            }else{
+                next(null,orgs);
+            }
+        },
+        function(providers,next){
+            if(providers.length > 0){
+                getInstanceList(providers,next);
+            }else{
+                next(null,providers);
+            }
+        },
+        function(instanceIdsResults,next){
                 var zip = new AdmZip("./rlBilling.zip");
                 zip.extractAllTo(__dirname, true);
                 var newJsonFile = fs.createWriteStream('./data.json');
@@ -77,28 +98,128 @@ function aggregateAWSCost() {
                             logger.error(err);
                             return;
                         } else {
-                            async.forEach(awsCosts, function (awsCost, next) {
-                                awsCost.ResourceId
-                            })
+                            var length = awsCosts.length;
+                            for (var i = 0; i < length; i++) {
+                                if(instanceIdsResults.unassignedRunningPlatformIds.length > 0 && instanceIdsResults.unassignedRunningPlatformIds.indexOf(awsCosts[i].ResourceId) >= 0){
+                                    var awsCostObject={
+                                        orgId:instanceIdsResults.orgId,
+                                        providerId:instanceIdsResults.providerId,
+                                        providerType:instanceIdsResults.providerType,
+                                        providerName:instanceIdsResults.providerName,
+                                        instanceId:awsCosts[i].ResourceId,
+                                        invoiceID:awsCosts[i].InvoiceID,
+                                        payerAccountNumber:awsCosts[i].PayerAccountId,
+                                        recordType:awsCosts[i].RecordType,
+                                        productName:awsCosts[i].ProductName,
+                                        usageType:awsCosts[i].UsageType,
+                                        operation:awsCosts[i].Operation,
+                                        region:awsCosts[i].AvailabilityZone,
+                                        isReservedInstance:awsCosts[i].ReservedInstance,
+                                        description:awsCosts[i].ItemDescription,
+                                        usageStartDate:awsCosts[i].UsageStartDate,
+                                        usageEndDate:awsCosts[i].UsageEndDate,
+                                        usageQuantity:awsCosts[i].UsageQuantity,
+                                        blendedRate:awsCosts[i].BlendedRate,
+                                        blendedCost:awsCosts[i].BlendedCost,
+                                        ResourceTags:{ Bill:awsCosts[i]['user:Bill'],Name:awsCosts[i]['user:Name']},
+                                        instanceState:'running',
+                                        instanceType:'unassigned',
+                                    };
+                                    saveAndUpdateAwsCostCsvData(awsCostObject);
+                                    awsCostObject={};
+                                }else if(instanceIdsResults.unassignedStoppedPlatformIds.length > 0 && instanceIdsResults.unassignedStoppedPlatformIds.indexOf(awsCosts[i].ResourceId) >= 0){
+                                    var awsCostObject={
+                                        orgId:instanceIdsResults.orgId,
+                                        providerId:instanceIdsResults.providerId,
+                                        providerType:instanceIdsResults.providerType,
+                                        providerName:instanceIdsResults.providerName,
+                                        instanceId:awsCosts[i].ResourceId,
+                                        invoiceID:awsCosts[i].InvoiceID,
+                                        payerAccountNumber:awsCosts[i].PayerAccountId,
+                                        recordType:awsCosts[i].RecordType,
+                                        productName:awsCosts[i].ProductName,
+                                        usageType:awsCosts[i].UsageType,
+                                        operation:awsCosts[i].Operation,
+                                        region:awsCosts[i].AvailabilityZone,
+                                        isReservedInstance:awsCosts[i].ReservedInstance,
+                                        description:awsCosts[i].ItemDescription,
+                                        usageStartDate:awsCosts[i].UsageStartDate,
+                                        usageEndDate:awsCosts[i].UsageEndDate,
+                                        usageQuantity:awsCosts[i].UsageQuantity,
+                                        blendedRate:awsCosts[i].BlendedRate,
+                                        blendedCost:awsCosts[i].BlendedCost,
+                                        ResourceTags:{ Bill:awsCosts[i]['user:Bill'],Name:awsCosts[i]['user:Name']},
+                                        instanceState:'stopped',
+                                        instanceType:'unassigned',
+                                    };
+                                    saveAndUpdateAwsCostCsvData(awsCostObject);
+                                    awsCostObject={};
+                                }else if(instanceIdsResults.unassignedTerminatePlatformIds.length > 0 && instanceIdsResults.unassignedTerminatePlatformIds.indexOf(awsCosts[i].ResourceId) >= 0){
+                                    var awsCostObject={
+                                        orgId:instanceIdsResults.orgId,
+                                        providerId:instanceIdsResults.providerId,
+                                        providerType:instanceIdsResults.providerType,
+                                        providerName:instanceIdsResults.providerName,
+                                        instanceId:awsCosts[i].ResourceId,
+                                        invoiceID:awsCosts[i].InvoiceID,
+                                        payerAccountNumber:awsCosts[i].PayerAccountId,
+                                        recordType:awsCosts[i].RecordType,
+                                        productName:awsCosts[i].ProductName,
+                                        usageType:awsCosts[i].UsageType,
+                                        operation:awsCosts[i].Operation,
+                                        region:awsCosts[i].AvailabilityZone,
+                                        isReservedInstance:awsCosts[i].ReservedInstance,
+                                        description:awsCosts[i].ItemDescription,
+                                        usageStartDate:awsCosts[i].UsageStartDate,
+                                        usageEndDate:awsCosts[i].UsageEndDate,
+                                        usageQuantity:awsCosts[i].UsageQuantity,
+                                        blendedRate:awsCosts[i].BlendedRate,
+                                        blendedCost:awsCosts[i].BlendedCost,
+                                        ResourceTags:{ Bill:awsCosts[i]['user:Bill'],Name:awsCosts[i]['user:Name']},
+                                        instanceState:'terminate',
+                                        instanceType:'unassigned',
+                                    };
+                                    saveAndUpdateAwsCostCsvData(awsCostObject);
+                                    awsCostObject={};
+                                }else if(instanceIdsResults.unassignedPendingPlatformIds.length > 0 && instanceIdsResults.unassignedPendingPlatformIds.indexOf(awsCosts[i].ResourceId) >= 0){
+                                    var awsCostObject={
+                                        orgId:instanceIdsResults.orgId,
+                                        providerId:instanceIdsResults.providerId,
+                                        providerType:instanceIdsResults.providerType,
+                                        providerName:instanceIdsResults.providerName,
+                                        instanceId:awsCosts[i].ResourceId,
+                                        invoiceID:awsCosts[i].InvoiceID,
+                                        payerAccountNumber:awsCosts[i].PayerAccountId,
+                                        recordType:awsCosts[i].RecordType,
+                                        productName:awsCosts[i].ProductName,
+                                        usageType:awsCosts[i].UsageType,
+                                        operation:awsCosts[i].Operation,
+                                        region:awsCosts[i].AvailabilityZone,
+                                        isReservedInstance:awsCosts[i].ReservedInstance,
+                                        description:awsCosts[i].ItemDescription,
+                                        usageStartDate:awsCosts[i].UsageStartDate,
+                                        usageEndDate:awsCosts[i].UsageEndDate,
+                                        usageQuantity:awsCosts[i].UsageQuantity,
+                                        blendedRate:awsCosts[i].BlendedRate,
+                                        blendedCost:awsCosts[i].BlendedCost,
+                                        ResourceTags:{ Bill:awsCosts[i]['user:Bill'],Name:awsCosts[i]['user:Name']},
+                                        instanceState:'pending',
+                                        instanceType:'unassigned',
+                                    };
+                                    saveAndUpdateAwsCostCsvData(awsCostObject);
+                                    awsCostObject={};
+                                }
+                            }
                         }
                     })
                 })
-            } else {
-                next(null, status);
-            }
-        },
-        function (next) {
-            MasterUtils.getAllActiveOrg(next);
-        },
-        function (orgs, next) {
-            if(orgs.length > 0) {
-                getInstancesList(orgs, next);
-            }else{
-                next(null,orgs);
-            }
+            next(null,instanceIdsResults);
         }
     ], function (err, result) {
-
+        if(err){
+            logger.error(err);
+            return;
+        }
     })
 }
 function saveAndUpdateAwsCostCsvData(awsAggregateCostData){
@@ -116,62 +237,118 @@ function saveAndUpdateAwsCostCsvData(awsAggregateCostData){
 
 function getProvidersList(orgs,next){
     var count=0;
-    async.forEach(orgs, function (organization, next) {
-        count++;
-        async.waterfall([
-            function (next) {
-                AWSProvider.getAWSProvidersByOrgId(organization._id, next);
-            }],
-            function (err, result) {
-                if(err){
-                    logger.error(err);
-                    return;
-                }else{
-                    if(count === orgs.length){
-                        next(null,result);
-                    }
-             }
-        })
-    });
+    var providers=[];
+    for(var i = 0; i < orgs.length; i++){
+        AWSProvider.getAWSProvidersByOrgId(orgs[i]._id, function(err,provider){
+            if(err){
+                logger.error(err);
+                return;
+            }else {
+                count++;
+                providers.push(provider[0]);
+                if(orgs.length === count){
+                    next(null,providers);
+                }
+            }
+        });
+    }
 }
 
 function getInstanceList(providers,next){
     var count=0;
     var instanceIds=[];
-    async.forEach(providers, function (provider, next) {
-        count++;
-        async.waterfall([
-            function (next) {
-                instanceService.getTrackedInstancesForProvider(provider, next);
-            },
-            function (provider, instances, next) {
-                if (instances.managed.length === 0 && instances.unmanaged.length === 0) {
-                    next(null,instanceIds);
-                } else {
-                    if(instances.managed.length > 0){
-                        for(var i = 0; i < instances.managed.length; i++){
-                            instanceIds.push(instances.managed[i].platformId);
-                        }
-                    }
-                    if(instances.unmanaged.length > 0){
-                        for(var i = 0; i < instances.unmanaged.length; i++){
-                            instanceIds.push(instances.unmanaged[i].platformId);
-                        }
-                    }
-
-                }
-            }],
-            function (err, results) {
+    var managedRunningInstanceIds=[];
+    var managedStoppedInstanceIds=[];
+    var managedTerminateInstanceIds=[];
+    var managedPendingInstanceIds=[];
+    var unManagedRunningInstanceIds=[];
+    var unManagedStoppedInstanceIds=[];
+    var unManagedTerminateInstanceIds=[];
+    var unManagedPendingInstanceIds=[];
+    var unassignedRunningInstanceIds=[];
+    var unassignedStoppedInstanceIds=[];
+    var unassignedTerminateInstanceIds=[];
+    var unassignedPendingInstanceIds=[];
+    for(var i = 0; i < providers.length; i++) {
+        instanceService.getTrackedInstancesForProvider(providers[i], function (err,provider, instances) {
+            if (err) {
                 if (err) {
                     logger.error(err);
                     return;
-                }else{
+                }
+            } else {
+                count++;
+                if (instances.managed.length === 0 && instances.unmanaged.length === 0 && instances.unassigned.length === 0) {
+                    next(null, instanceIds);
+                } else {
+                    if (instances.managed.length > 0) {
+                        for (var j = 0; j < instances.managed.length; j++) {
+                            instanceIds.push(instances.managed[j].platformId);
+                            if(instances.managed[j].state === 'running'){
+                                managedRunningInstanceIds.push(instances.managed[j].platformId);
+                            }else if(instances.managed[j].state === 'stopped'){
+                                managedStoppedInstanceIds.push(instances.managed[j].platformId);
+                            }else if(instances.managed[j].state === 'terminate'){
+                                managedTerminateInstanceIds.push(instances.managed[j].platformId);
+                            }else if(instances.managed[j].state === 'pending'){
+                                managedPendingInstanceIds.push(instances.managed[j].platformId);
+                            }
+                        }
+                    }
+                    if (instances.unmanaged.length > 0) {
+                        for (var j = 0; j < instances.unmanaged.length; j++) {
+                            instanceIds.push(instances.unmanaged[j].platformId);
+                            if(instances.unmanaged[j].state === 'running'){
+                                unManagedRunningInstanceIds.push(instances.unmanaged[j].platformId);
+                            }else if(instances.unmanaged[j].state === 'stopped'){
+                                unManagedStoppedInstanceIds.push(instances.unmanaged[j].platformId);
+                            }else if(instances.unmanaged[j].state === 'terminate'){
+                                unManagedTerminateInstanceIds.push(instances.unmanaged[j].platformId);
+                            }else if(instances.unmanaged[j].state === 'pending'){
+                                unManagedPendingInstanceIds.push(instances.unmanaged[j].platformId);
+                            }
+                        }
+                    }
+                    if (instances.unassigned.length > 0) {
+                        for (var j = 0; j < instances.unassigned.length; j++) {
+                            instanceIds.push(instances.unassigned[j].platformId);
+                            if(instances.unassigned[j].state === 'running'){
+                                unassignedRunningInstanceIds.push(instances.unassigned[j].platformId);
+                            }else if(instances.unassigned[j].state === 'stopped'){
+                                unassignedStoppedInstanceIds.push(instances.unassigned[j].platformId);
+                            }else if(instances.unassigned[j].state === 'terminate'){
+                                unassignedTerminateInstanceIds.push(instances.unassigned[j].platformId);
+                            }else if(instances.unassigned[j].state === 'pending'){
+                                unassignedPendingInstanceIds.push(instances.unassigned[j].platformId);
+                            }
+                        }
+                    }
                     if(providers.length === count){
-                        next(null,results);
+                        var results={
+                            orgId:provider.orgId,
+                            providerId:provider._id,
+                            providerType:provider.providerType,
+                            providerName:provider.providerName,
+                            platformIds:instanceIds,
+                            managedRunningPlatformIds:managedRunningInstanceIds,
+                            managedStoppedPlatformIds:managedStoppedInstanceIds,
+                            managedTerminatePlatformIds:managedTerminateInstanceIds,
+                            managedPendingPlatformIds:managedPendingInstanceIds,
+                            unManagedRunningPlatformIds:unManagedRunningInstanceIds,
+                            unManagedStoppedPlatformIds:unManagedStoppedInstanceIds,
+                            unManagedTerminatePlatformIds:unManagedTerminateInstanceIds,
+                            unManagedPendingPlatformIds:unManagedPendingInstanceIds,
+                            unassignedRunningPlatformIds:unassignedRunningInstanceIds,
+                            unassignedStoppedPlatformIds:unassignedStoppedInstanceIds,
+                            unassignedTerminatePlatformIds:unassignedTerminateInstanceIds,
+                            unassignedPendingPlatformIds:unassignedPendingInstanceIds,
+                        };
+                        next(null, results);
                     }
                 }
-            })
-    })
+            }
+        });
+    }
 }
 
 

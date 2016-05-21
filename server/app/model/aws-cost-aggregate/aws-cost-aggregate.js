@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var schemaValidator = require('_pr/model/dao/schema-validator.js');
 
 var awsCostAggregateSchema = new Schema({
-    /*orgId: {
+    orgId: {
         type: String,
         required: true,
         trim: true,
@@ -20,119 +20,81 @@ var awsCostAggregateSchema = new Schema({
         required: false,
         trim: true
     },
-    projectId: {
+    providerName:{
         type: String,
-        required: false,
-        trim: true
+        required:true,
+        trim:true
     },
     instanceId: {
         type: String,
         required: false,
         trim: true
-    },*/
-    InvoiceID:{
+    },
+    invoiceID:{
         type: String,
         require:true,
         trim:true
     },
-    PayerAccountId:{
+    payerAccountNumber:{
         type: String,
         require:true,
         trim:true
     },
-    LinkedAccountId:{
+    recordType:{
         type: String,
         require:true,
         trim:true
     },
-    RecordType:{
+    productName:{
         type: String,
         require:true,
         trim:true
     },
-    RecordId:{
+    usageType:{
         type: String,
         require:true,
         trim:true
     },
-    ProductName:{
+    operation:{
         type: String,
         require:true,
         trim:true
     },
-    RateId:{
-        type: String,
-        require:true,
-        trim:true
-    },
-    SubscriptionId:{
-        type: String,
-        require:true,
-        trim:true
-    },
-    PricingPlanId:{
-        type: String,
-        require:true,
-        trim:true
-    },
-    UsageType:{
-        type: String,
-        require:true,
-        trim:true
-    },
-    Operation:{
-        type: String,
-        require:true,
-        trim:true
-    },
-    AvailabilityZone:{
+    region:{
         type: String,
         require:false,
         trim:true
     },
-    ReservedInstance:{
+    isReservedInstance:{
         type: String,
         require:true,
         trim:true
     },
-    ItemDescription:{
+    description:{
         type: String,
         require:true,
         trim:true
     },
-    UsageStartDate:{
+    usageStartDate:{
         type: String,
         require:true,
         trim:true
     },
-    UsageEndDate:{
+    usageEndDate:{
         type: String,
         require:true,
         trim:true
     },
-    UsageQuantity:{
+    usageQuantity:{
         type: String,
         trim:true
     },
-    BlendedRate:{
+    blendedRate:{
         type: String,
         trim:true
     },
-    BlendedCost:{
+    blendedCost:{
         type: String,
-        trim:true
-    },
-    UnBlendedRate:{
-        type: String,
-        trim:true
-    },
-    UnBlendedCost:{
-        type: String,
-        trim:true
-    },
-    ResourceId:{
-        type: String,
-        require:true,
         trim:true
     },
     ResourceTags:Schema.Types.Mixed,
@@ -140,6 +102,16 @@ var awsCostAggregateSchema = new Schema({
         type:Date,
         require:false,
         default:Date.now
+    },
+    instanceState:{
+        type:String,
+        trim:true,
+        require:false
+    },
+    instanceType:{
+        type:String,
+        trim:true,
+        require:false
     }
 });
 
