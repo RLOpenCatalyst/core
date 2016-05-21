@@ -52,9 +52,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var password = '';
         if (req.body.password) {
             //encrypting password before save
-           // cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding
-           password = cryptography.encryptText(req.body.password.trim(),cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding)
-           // password = req.body.password.trim();
+            // cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding
+            password = cryptography.encryptText(req.body.password.trim(), cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding)
+                // password = req.body.password.trim();
         }
 
         var orgId = req.body.orgId;
@@ -152,6 +152,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 return;
                             });
                         }); //end awsprovider
+                    } else if (providerType == "gcp") {
+                        vmimageData.vType = 'gcp';
+                        VMImage.createNew(vmimageData, function(err, anImage) {
+                            if (err) {
+                                logger.error("err. ", err);
+                                res.status(500).send("Error while saving vmimage.");
+                                return;
+                            }
+                            logger.debug("Exit post() for /vmimages got GCP.");
+                            res.send(anImage);
+                            return;
+                        });
                     } else {
                         AWSProvider.getAWSProviderById(providerId, function(err, aProvider) {
                             if (err) {
@@ -166,7 +178,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 }
 
                                 var ec2;
-                                if(aProvider.isDefault) {
+                                if (aProvider.isDefault) {
                                     ec2 = new EC2({
                                         "isDefault": true,
                                         "region": keyPair[0].region
@@ -188,7 +200,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                 }
 
-                                ec2.checkImageAvailability(vmimageData.imageIdentifier, function (err, data) {
+                                ec2.checkImageAvailability(vmimageData.imageIdentifier, function(err, data) {
                                     if (err) {
                                         logger.debug("Unable to describeImages from AWS.", err);
                                         res.status(500).send("Invalid Image Id.");
@@ -198,7 +210,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         logger.debug("Success to Describe Images from AWS. %s", data.Images[0].VirtualizationType);
                                         vmimageData.vType = data.Images[0].VirtualizationType;
 
-                                        VMImage.createNew(vmimageData, function (err, anImage) {
+                                        VMImage.createNew(vmimageData, function(err, anImage) {
                                             if (err) {
                                                 logger.error("err. ", err);
                                                 res.status(500).send("Selected is already registered.");
@@ -423,7 +435,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 }
 
                                 var ec2;
-                                if(aProvider.isDefault) {
+                                if (aProvider.isDefault) {
                                     ec2 = new EC2({
                                         "isDefault": true,
                                         "region": keyPair[0].region
@@ -445,13 +457,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                 }
 
-                                ec2.checkImageAvailability(vmimageData.imageIdentifier, function (err, data) {
+                                ec2.checkImageAvailability(vmimageData.imageIdentifier, function(err, data) {
                                     if (err) {
                                         logger.debug("Unable to describeImages from AWS.", err);
                                         res.status(500).send("Invalid Image Id.");
                                         return;
                                     }
-                                    VMImage.getImageById(imageId, function (err, anImage) {
+                                    VMImage.getImageById(imageId, function(err, anImage) {
                                         if (err) {
                                             logger.error(err);
                                             res.status(500).send(errorResponses.db.error);
@@ -460,7 +472,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         if (anImage) {
                                             vmimageData.vType = anImage.vType;
                                         }
-                                        VMImage.updateImageById(imageId, vmimageData, function (err, updateCount) {
+                                        VMImage.updateImageById(imageId, vmimageData, function(err, updateCount) {
                                             if (err) {
                                                 logger.error(err);
                                                 res.status(500).send(errorResponses.db.error);
