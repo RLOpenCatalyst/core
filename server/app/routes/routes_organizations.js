@@ -42,8 +42,27 @@ var masterUtil = require('../lib/utils/masterUtil.js');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
 var Docker = require('_pr/model/docker.js');
+var containerDao = require('../model/container');
 
 module.exports.setRoutes = function(app, sessionVerification) {
+
+	app.get('/organizations/:orgId/dockerContainerList',function(req,res){
+		logger.debug("Enter get() for all docker Containers");
+		containerDao.getAllContainersByOrgId(req.params.orgId,function(err,containerList){
+			if(err){
+				logger.error(err);
+				res.send(err);
+				return;
+			}else if(containerList.length === 0){
+				logger.debug("Presently,there is not container in catalyst");
+				res.send(containerList);
+				return;
+			}else{
+				res.send(containerList);
+				return;
+			}
+		})
+	});
 
 	app.all('/organizations/*', sessionVerification);
 

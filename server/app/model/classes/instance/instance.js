@@ -447,6 +447,23 @@ var InstancesDao = function() {
         });
     };
 
+    this.getInstancesByOrgBgProjectAndEnvIdForDocker = function(jsonData, callback) {
+        var queryObj = {
+            orgId: jsonData.orgId,
+            bgId: jsonData.bgId,
+            projectId: jsonData.projectId,
+            envId: jsonData.envId
+        }
+        Instances.find(queryObj,function(err, instances) {
+            if (err) {
+                logger.error("Failed to getInstancesByOrgBgProjectAndEnvIdForDocker", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, instances);
+        });
+    };
+
     this.getInstancesByOrgEnvIdAndChefNodeName = function(orgId, envId, nodeName, callback) {
         logger.debug("Enter getInstancesByOrgEnvIdAndChefNodeName (%s, %s, %s)", orgId, envId, nodeName);
         var queryObj = {
