@@ -20,17 +20,17 @@
 	<div class="modal-body">
 		<div class="cp-container">
 			<div class="row">
-				<ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+				<ul id="myTab3" class="nav nav-tabs tabs-pull-left" ng-show="tileView">
+					<li ng-class="{active:tab.isSet('Information')}">
+						<a ng-click="tab.setTab('Information');removeActive()">
+							<i class="fa fa-fw fa-info black"></i>&nbsp;
+							Information
+						</a>
+					</li>
 					<li ng-class="{active:tab.isSet('Actionhistory')}">
 						<a ng-click="tab.setTab('Actionhistory');removeActive()">
 							<i class="fa fa-sun-o black"></i>&nbsp;
 							Action History
-						</a>
-					</li>
-					<li ng-class="{active:tab.isSet('Information')}">
-						<a ng-click="tab.setTab('Information');removeActive()">
-							<i class="fa fa-fw fa-exclamation-circle black"></i>&nbsp;
-							Information
 						</a>
 					</li>
 					<li ng-class="{active:tab.isSet('Services')}" ng-if="showServicesTab">
@@ -73,6 +73,7 @@
 	</div>
 
 	<div class="modal-footer">
-		<button type="button" class="btn cat-btn-close" ng-click="cancel()">Close</button>
+		<button type="button" class="btn cat-btn-close pull-left" ng-click="back()" ng-show="!tileView">Back</button>
+ 		<button type="button" class="btn cat-btn-close" ng-click="cancel()">Close</button>
 	</div>
 </div>

@@ -379,6 +379,7 @@ AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion 
                 applicationType: 1,
                 containerId: 1,
                 lastAppDeployDate: 1,
+                applicationLastDeploy:1,
                 hostName: 1
             }
         }],

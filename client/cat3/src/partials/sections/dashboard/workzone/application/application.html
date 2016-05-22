@@ -7,6 +7,9 @@
                 <span class="app-panel-heading-text">Application : </span>
                 <span ng-show="isPipelineViewActive">{{orgName}}</span>
                 <span ng-show="!isPipelineViewActive">{{selectedEnv}}</span>
+                    <i ng-show="isAppallCardTab.template" title="Refresh" class="fa fa-refresh cursor"  ng-click="appSummaryRefresh()"></i>
+                    <i ng-show="isHistoryTab.template" title="Refresh" class="fa fa-refresh cursor" ng-click="appHistoryRefresh()"></i>
+                    <i ng-show="isAppActiveCardTab.template" title="Refresh" class="fa fa-refresh cursor" ng-click="appCardRefresh()"></i>
             </span>
             <span class="pull-right">
                 <button type="button" class="btn btn-xs cat-btn-update"
@@ -48,16 +51,10 @@
                             <button type="button" class="btn btn-xs btn-success" ng-click="upgradeApp(pipeLineActBarData)">
                                 <i class="fa fa-edit white"></i> Upgrade</button>
                         </span>
-                    <button type="button" class="btn btn-xs cat-btn-update pull-right" ng-click="appCardRefresh()">
-                        <i class="fa fa-refresh white"></i> Refresh</button>
                 </div>
-                <div ui-grid="pipeGridOptions"  ui-grid-pagination class="grid"></div>
+                <div ui-grid="pipeGridOptions"  ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
             </div>
             <div ng-if="!pipeGridOptions.data.length > 0">
-                <div class="action-bar panel-heading">
-                    <button type="button" class="btn btn-xs cat-btn-update pull-right" ng-click="appCardRefresh()">
-                        <i class="fa fa-refresh white"></i> Refresh</button>
-                </div>
                 <div class="no-data-found"> No data found !</div>
             </div>
 
@@ -65,42 +62,18 @@
 
         <section  class=" {{!isHistoryTab.template? 'hide-grid':'show-grid'}}"  ng-controller="applicationHistoryCtrl">
             <div ng-if="!historGgridData.length > 0">
-                <div class="action-bar panel-heading">
-                    <div class="pull-right width0">
-                        <button type="button" class="btn btn-xs cat-btn-update " ng-click="appHistoryRefresh()">
-                        <i class="fa fa-refresh white"></i> Refresh</button>
-                    </div>
-                </div>
                 <div class="no-data-found"> No data found !</div>
             </div>
             <div ng-if="historyGridOptions.data.length > 0">
-                <div class="action-bar panel-heading">
-                    <div class="pull-right width0">
-                        <button type="button" class="btn btn-xs cat-btn-update " ng-click="appHistoryRefresh()">
-                            <i class="fa fa-refresh white"></i> Refresh</button>
-                    </div>
-                </div>
-                <div  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
+                <div  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns  class="grid" style="height: {{gridHeight}}px"></div>
             </div>
         </section>
 
         <section  class="pipelineView {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
             <div ng-if="summaryGridOptions.data.length > 0">
-                <div class="action-bar panel-heading">
-                    <div class="pull-right width0">
-                        <button type="button" class="btn btn-xs cat-btn-update " ng-click="appSummaryRefresh()">
-                            <i class="fa fa-refresh white"></i> Refresh</button>
-                    </div>
-                </div>
-                <div ui-grid="summaryGridOptions"  class="grid"></div>
+                <div ui-grid="summaryGridOptions"  class="grid" style="height: {{gridHeightSummary}}px"></div>
             </div>
             <div ng-if="!summaryGridOptions.data.length > 0">
-                <div class="action-bar panel-heading">
-                    <div class="pull-right width0">
-                        <button type="button" class="btn btn-xs cat-btn-update " ng-click="appSummaryRefresh()">
-                            <i class="fa fa-refresh white"></i> Refresh</button>
-                    </div>
-                </div>
                 <div class="no-data-found"> No data found !</div>
             </div>
         </section>

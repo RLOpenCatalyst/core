@@ -60,6 +60,9 @@ appDeployPipelineService.saveAndUpdatePipeLineConfiguration=function saveAndUpda
             }else{
                 appDeployPipeline.createNew(configurationData, next);
             }
+        },
+        function(appDeployConfigData,next){
+            appDeployPipeline.getAppDeployPipelineByProjectId(configurationData.projectId,next);
         }
     ],function(err,results){
             if (err) {

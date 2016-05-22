@@ -49,13 +49,11 @@ appDeployValidator.versionList = {
     }
 };
 
-appDeployValidator.appDeployHistoryList = {
+appDeployValidator.appDeploy = {
     options : { flatten : true },
     params: {
         projectId: Joi.string().max(40).required(),
-        envName: Joi.string().max(20).required(),
-        version: Joi.string().max(20).required(),
-        appName: Joi.string().max(30).required()
+        envName: Joi.string().max(20).required()
     }
 };
 
@@ -63,8 +61,8 @@ appDeployValidator.post={
     options : { flatten : true },
     body: {
         projectId: Joi.string().min(1).max(40).required(),
-        envId:     Joi.array().max(10).required(),
-        envSequence:  Joi.array().max(10).required()
+        envId:     Joi.array().max(20).required(),
+        envSequence:  Joi.array().max(20).required()
     }
 };
 
@@ -84,7 +82,6 @@ appDeployValidator.deployPermission={
         envName:   Joi.string().max(10).required(),
         appName:  Joi.string().max(40).required(),
         version:  Joi.string().max(40).required(),
-        comments: Joi.string().max(100),
         isApproved: Joi.boolean().required()
     }
 };

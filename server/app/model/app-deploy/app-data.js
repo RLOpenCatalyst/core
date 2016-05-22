@@ -47,6 +47,10 @@ var AppDataSchema = new Schema({
         trim: true
     },
     nexus: {
+        rowId:{
+            type: String,
+            trim: true
+        },
         repository: {
             type: String,
             trim: true
@@ -72,6 +76,10 @@ var AppDataSchema = new Schema({
         }
     },
     docker: [{
+        rowId:{
+            type: String,
+            trim: true
+        },
         image: {
             type: String,
             trim: true

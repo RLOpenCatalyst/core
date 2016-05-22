@@ -13,11 +13,12 @@
                 instanceLogs.stopLogsPolling();
                 $modalInstance.dismiss('cancel');
             };
-
+            $scope.tileView = true;
             var _tab = {
             //To activate the tab
-            tab : "Actionhistory",
+            tab : 'none',
             setTab : function (tabId) {
+                $scope.tileView = false;
                 _tab.tab = tabId;     
             },
             isSet : function (tabId) {
@@ -55,6 +56,10 @@
             //To activate the tab
             $scope.activateTab = function (tabName) {
                 $scope.tab.setTab(tabName);
+            };
+            $scope.back = function(){
+                $scope.activateTab('none');
+                $scope.tileView = true;
             };
         }
     ]);

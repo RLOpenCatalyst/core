@@ -50,6 +50,11 @@
                     var url = '/cat3/data/app_deploy_env_application.json';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
+                postPipeLineConfiguration: function () {
+                    var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
+                    return $http.post(fullUrl(url), Auth.getHeaderObject());
+                },
+
                 getAppCardLogs: function(instanceNodeIp, projId) {
                     var url = '/instances/' + instanceNodeIp + '/project/' + projId + '/logs';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
@@ -68,6 +73,7 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 postEnvConfig: function(reqBody) {
+                    //var url = '/data/appDeployEnvList.json';
                     var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },
@@ -462,12 +468,8 @@
                     var url = '/app-deploy/project/'+requestEnv.proj+'/pipeLineViewList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
-                getCardPermission :function(cardDetails){
-                    var url= '/deploy-permission/project/'+ cardDetails.params.proj +'/env/' + cardDetails.paramNames.env + '/application/' + cardDetails.appName.name + '/permissionList';
-                    return $http.get(fullUrl(url),Auth.getHeaderObject());
-                },
                 getCardHistoryList :function(envDetails){
-                    var url= '/app-deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appName/'+envDetails.appName.name+'/version/'+envDetails.appName.version+'/appDeployHistoryList';
+                    var url= '/app-deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appDeployInstanceList?appName='+envDetails.appName.name+'&version='+envDetails.appName.version;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 postAppDeploy:function(RequestObject){
