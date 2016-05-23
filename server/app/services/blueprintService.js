@@ -125,6 +125,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
                                     log: "Starting instance",
                                     timestamp: timestampStarted
                                 });
+                                instanceData['blueprint'] = blueprint;
                                 instanceService.bootstrapInstance(instanceData, function(err, result) {
                                     fs.unlink('/tmp/' + provider.id + '.json');
                                     if (err) {
@@ -132,7 +133,6 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
                                         error.status = 500;
                                         return callback(error, null);
                                     }
-
                                 });
                             });
                         });
@@ -387,5 +387,4 @@ blueprintService.createBlueprintResponseList = function createBlueprintResponseL
                 });
         })(blueprints[i]);
     }
-
 };

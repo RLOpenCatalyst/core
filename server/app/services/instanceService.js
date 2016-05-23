@@ -35,6 +35,10 @@ var uuid = require('node-uuid');
 var credentialCryptography = require('_pr/lib/credentialcryptography.js');
 
 var fs = require('fs');
+var nexus = require('_pr/lib/nexus.js');
+var utils = require('_pr/model/classes/utils/utils.js');
+var AppData = require('_pr/model/app-deploy/app-data');
+
 
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
@@ -529,6 +533,19 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
     var blueprint = instanceObj.blueprint;
     var instance = instanceObj.instance;
     var tempLocation = appConfig.tempDir + uuid.v4();
+
+    var attributes = [];
+    var runList = [];
+    if (blueprint.runList && blueprint.runList.length) {
+        for (var j = 0; j < blueprint.runList.length; j++) {
+            // Attributes which are configures in blueprint.
+            var attr = blueprint.runList[j].attributes;
+            if (attr && attr.length) {
+                attributes.push(attr);
+            }
+            runList.push(blueprint.runList[j].name);
+        }
+    }
     fs.writeFile(tempLocation, instanceObj.provider.providerDetails.sshPrivateKey, function(err) {
         if (err) {
             var error = new Error("Unable to create pem file.");
@@ -556,11 +573,11 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
                 envId: instanceObj.envId,
                 providerId: blueprint.networkProfile.providerId,
                 providerType: blueprint.networkProfile.type,
-                runlist: blueprint.runList,
-                attributes: blueprint.attributes,
+                runlist: runList,
+                attributes: attributes,
                 appUrls: blueprint.applicationURL,
                 zone: blueprint.networkProfile.zone,
-                instanceState:'pending',
+                instanceState: 'pending',
                 hardware: {
                     platform: 'unknown',
                     platformVersion: 'unknown',
@@ -588,12 +605,12 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
             switch (blueprint.networkProfile.type) {
                 case 'GCP':
                     instances['chefNodeName'] = instance.name,
-                    instances['platformId'] = instance.id,
-                    instances['instanceIP'] = instance.ip,
-                    instances['instanceState'] = instance.status,
-                    instances['bootStrapStatus'] = 'waiting',
-                    instances['instanceState'] = 'running'
-                    
+                        instances['platformId'] = instance.id,
+                        instances['instanceIP'] = instance.ip,
+                        instances['instanceState'] = instance.status,
+                        instances['bootStrapStatus'] = 'waiting',
+                        instances['instanceState'] = 'running'
+
                     break;
                     defaut: break;
             }
@@ -611,9 +628,8 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
     });
 };
 
-
 instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, callback) {
-
+    var blueprintObj = bootstrapData.blueprint;
     credentialCryptography.decryptCredential(bootstrapData.credentials, function(err, decryptedCredential) {
         fs.readFile(decryptedCredential.pemFileLocation, 'ascii', function(err, readFileBase64) {
             if (err) {
@@ -630,196 +646,525 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                     error.status = 500;
                     return callback(error, null);
                 }
-
-                var bootstrapInstanceParams = {
-                    instanceIp: bootstrapData.instanceIP,
-                    pemFilePath: decryptedCredential.pemFileLocation,
-                    runlist: bootstrapData.runlist,
-                    instanceUsername: bootstrapData.credentials.username,
-                    nodeName: bootstrapData.name,
-                    environment: bootstrapData.envId,
-                    instanceOS: bootstrapData.os,
-                    jsonAttributes: bootstrapData.jsonAttributes,
-                    instancePassword: decryptedCredential.password
-                };
-                configmgmtDao.getChefServerDetails(bootstrapData.chef.serverId, function(err, chefDetails) {
+                configmgmtDao.getEnvNameFromEnvId(bootstrapData.envId, function(err, envName) {
                     if (err) {
-                        var error = new Error("Failed to getChefServerDetails");
-                        error.status = 500;
-                        return callback(error, null);
+                        callback({
+                            message: "Failed to get env name from env id"
+                        }, null);
+                        return;
                     }
-                    if (!chefDetails) {
-                        var error = new Error("No Chef Server Detailed available");
-                        error.status = 500;
-                        return callback(error, null);
+                    if (!envName) {
+                        callback({
+                            "message": "Unable to find environment name from environment id"
+                        });
+                        return;
                     }
-                    var chef = new Chef({
-                        userChefRepoLocation: chefDetails.chefRepoLocation,
-                        chefUserName: chefDetails.loginname,
-                        chefUserPemFile: chefDetails.userpemfile,
-                        chefValidationPemFile: chefDetails.validatorpemfile,
-                        hostedChefUrl: chefDetails.url
-                    });
-
-                    chef.getEnvironment(bootstrapData.envId, function(err, env) {
-                        if (err) {
-                            var error = new Error("Failed chef.getEnvironment");
-                            error.status = 500;
-                            return callback(error, null);
+                    
+                    getCookBookAttributes(bootstrapData, function(err, jsonAttributes) {
+                        logger.debug("jsonAttributes::::: ", JSON.stringify(jsonAttributes));
+                        var runlist = bootstrapData.runlist;
+                        //logger.debug("launchParams.blueprintData.extraRunlist: ", JSON.stringify(launchParams.blueprintData.extraRunlist));
+                        if (bootstrapData.extraRunlist) {
+                            runlist = bootstrapData.runlist.extraRunlist.concat(runlist);
                         }
+                        var bootstrapInstanceParams = {
+                            instanceIp: bootstrapData.instanceIP,
+                            pemFilePath: decryptedCredential.pemFileLocation,
+                            runlist: bootstrapData.runlist,
+                            instanceUsername: bootstrapData.credentials.username,
+                            nodeName: bootstrapData.name,
+                            environment: envName,
+                            instanceOS: bootstrapData.os,
+                            jsonAttributes: jsonAttributes,
+                            instancePassword: decryptedCredential.password
+                        };
+                        configmgmtDao.getChefServerDetails(bootstrapData.chef.serverId, function(err, chefDetails) {
+                            if (err) {
+                                var error = new Error("Failed to getChefServerDetails");
+                                error.status = 500;
+                                return callback(error, null);
+                            }
+                            if (!chefDetails) {
+                                var error = new Error("No Chef Server Detailed available");
+                                error.status = 500;
+                                return callback(error, null);
+                            }
+                            var chef = new Chef({
+                                userChefRepoLocation: chefDetails.chefRepoLocation,
+                                chefUserName: chefDetails.loginname,
+                                chefUserPemFile: chefDetails.userpemfile,
+                                chefValidationPemFile: chefDetails.validatorpemfile,
+                                hostedChefUrl: chefDetails.url
+                            });
 
-                        if (!env) {
-                            chef.createEnvironment(bootstrapData.envId, function(err) {
+                            chef.getEnvironment(envName, function(err, env) {
                                 if (err) {
-                                    logger.error("Failed chef.createEnvironment", err);
-                                    var error = new Error("Failed to create environment in chef server.");
+                                    var error = new Error("Failed chef.getEnvironment");
                                     error.status = 500;
                                     return callback(error, null);
                                 }
-                                bootstrap();
-                            });
-                        } else {
-                            bootstrap();
-                        }
 
-                        function bootstrap() {
-
-                            var timestampStarted = new Date().getTime();
-                            var actionLog = instancesModel.insertBootstrapActionLog(bootstrapData.id, bootstrapData.runlist, "admin", timestampStarted);
-                            var logsReferenceIds = [bootstrapData.id, actionLog._id];
-                            chef.bootstrapInstance(bootstrapInstanceParams, function(err, code) {
-                                if (bootstrapInstanceParams.pemFilePath) {
-                                    //fs.unlink(bootstrapInstanceParams.pemFilePath);
-                                }
-
-                                logger.error('process stopped ==> ', err, code);
-                                if (err) {
-                                    logger.error("knife launch err ==>", err);
-                                    instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function(err, updateData) {});
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: true,
-                                        log: "Bootstrap failed",
-                                        timestamp: timestampEnded
+                                if (!env) {
+                                    chef.createEnvironment(envName, function(err) {
+                                        if (err) {
+                                            logger.error("Failed chef.createEnvironment", err);
+                                            var error = new Error("Failed to create environment in chef server.");
+                                            error.status = 500;
+                                            return callback(error, null);
+                                        }
+                                        bootstrap();
                                     });
-                                    instancesModel.updateActionLog(bootstrapData.id, actionLog._id, false, timestampEnded);
-                                    return callback(err);
                                 } else {
-                                    if (code == 0) {
-                                        instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'success', function(err, updateData) {
-                                            if (err) {
-                                                logger.error("Unable to set instance bootstarp status. code 0", err);
-                                            } else {
-                                                logger.debug("Instance bootstrap status set to success");
-                                            }
-                                        });
-                                        var timestampEnded = new Date().getTime();
-                                        logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
-                                            err: false,
-                                            log: "Instance Bootstraped successfully",
-                                            timestamp: timestampEnded
-                                        });
-                                        instancesModel.updateActionLog(bootstrapData.id, actionLog._id, true, timestampEnded);
-
-
-                                        chef.getNode(bootstrapData.chefNodeName, function(err, nodeData) {
-                                            if (err) {
-                                                logger.error("Failed chef.getNode", err);
-                                                var error = new Error("Failed to get Node from chef server.");
-                                                error.status = 500;
-                                                return;
-                                            }
-                                            var hardwareData = {};
-                                            hardwareData.architecture = nodeData.automatic.kernel.machine;
-                                            hardwareData.platform = nodeData.automatic.platform;
-                                            hardwareData.platformVersion = nodeData.automatic.platform_version;
-                                            hardwareData.memory = {
-                                                total: 'unknown',
-                                                free: 'unknown'
-                                            };
-                                            if (nodeData.automatic.memory) {
-                                                hardwareData.memory.total = nodeData.automatic.memory.total;
-                                                hardwareData.memory.free = nodeData.automatic.memory.free;
-                                            }
-                                            hardwareData.os = bootstrapData.hardware.os;
-                                            instancesModel.setHardwareDetails(bootstrapData.id, hardwareData, function(err, updateData) {
-                                                if (err) {
-                                                    logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
-                                                } else {
-                                                    logger.debug("Instance hardware details set successessfully");
-                                                }
-                                            });
-                                            //Checking docker status and updating
-                                            var docker = new Docker();
-                                            docker.checkDockerStatus(bootstrapData.id, function(err, retCode) {
-                                                if (err) {
-                                                    logger.error("Failed docker.checkDockerStatus", err);
-                                                    var error = new Error("Failed to check Status from Docker.");
-                                                    error.status = 500;
-                                                    return;
-
-                                                }
-                                                logger.debug('Docker Check Returned:' + retCode);
-                                                if (retCode == '0') {
-                                                    instancesModel.updateInstanceDockerStatus(bootstrapData.id, "success", '', function(data) {
-                                                        logger.debug('Instance Docker Status set to Success');
-                                                    });
-                                                }
-                                            });
-                                        });
-
-                                        return callback(null, {
-                                            message: "bootstraped"
-                                        });
-
-                                    } else {
-                                        instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function(err, updateData) {
-                                            if (err) {
-                                                logger.error("Unable to set instance bootstarp status code != 0", err);
-                                            } else {
-                                                logger.debug("Instance bootstrap status set to failed");
-                                            }
-                                        });
-                                        var timestampEnded = new Date().getTime();
-                                        logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
-                                            err: false,
-                                            log: "Bootstrap Failed",
-                                            timestamp: timestampEnded
-                                        });
-                                        instancesModel.updateActionLog(bootstrapData.id, actionLog._id, false, timestampEnded);
-                                        
-                                        var error = new Error("Bootstrap failed with ret code ==>"+code);
-                                        error.status = 500;
-                                        return callback(error);
-                                    }
+                                    bootstrap();
                                 }
 
-                            }, function(stdOutData) {
+                                function bootstrap() {
+                                    var timestampStarted = new Date().getTime();
+                                    var actionLog = instancesModel.insertBootstrapActionLog(bootstrapData.id, bootstrapData.runlist, "admin", timestampStarted);
+                                    var logsReferenceIds = [bootstrapData.id, actionLog._id];
+                                    chef.bootstrapInstance(bootstrapInstanceParams, function(err, code) {
+                                        if (bootstrapInstanceParams.pemFilePath) {
+                                            //fs.unlink(bootstrapInstanceParams.pemFilePath);
+                                        }
 
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: false,
-                                    log: stdOutData.toString('ascii'),
-                                    timestamp: new Date().getTime()
-                                });
+                                        logger.error('process stopped ==> ', err, code);
+                                        if (err) {
+                                            logger.error("knife launch err ==>", err);
+                                            instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function(err, updateData) {});
+                                            var timestampEnded = new Date().getTime();
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: "Bootstrap failed",
+                                                timestamp: timestampEnded
+                                            });
+                                            instancesModel.updateActionLog(bootstrapData.id, actionLog._id, false, timestampEnded);
+                                            return callback(err);
+                                        } else {
+                                            if (code == 0) {
+                                                instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'success', function(err, updateData) {
+                                                    if (err) {
+                                                        logger.error("Unable to set instance bootstarp status. code 0", err);
+                                                    } else {
+                                                        logger.debug("Instance bootstrap status set to success");
+                                                    }
+                                                });
+                                                var timestampEnded = new Date().getTime();
+                                                logsDao.insertLog({
+                                                    referenceId: logsReferenceIds,
+                                                    err: false,
+                                                    log: "Instance Bootstraped successfully",
+                                                    timestamp: timestampEnded
+                                                });
+                                                instancesModel.updateActionLog(bootstrapData.id, actionLog._id, true, timestampEnded);
 
-                            }, function(stdErrData) {
 
-                                //retrying 4 times before giving up.
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: true,
-                                    log: stdErrData.toString('ascii'),
-                                    timestamp: new Date().getTime()
-                                });
+                                                chef.getNode(bootstrapData.chefNodeName, function(err, nodeData) {
+                                                    if (err) {
+                                                        logger.error("Failed chef.getNode", err);
+                                                        var error = new Error("Failed to get Node from chef server.");
+                                                        error.status = 500;
+                                                        return;
+                                                    }
+                                                    var hardwareData = {};
+                                                    hardwareData.architecture = nodeData.automatic.kernel.machine;
+                                                    hardwareData.platform = nodeData.automatic.platform;
+                                                    hardwareData.platformVersion = nodeData.automatic.platform_version;
+                                                    hardwareData.memory = {
+                                                        total: 'unknown',
+                                                        free: 'unknown'
+                                                    };
+                                                    if (nodeData.automatic.memory) {
+                                                        hardwareData.memory.total = nodeData.automatic.memory.total;
+                                                        hardwareData.memory.free = nodeData.automatic.memory.free;
+                                                    }
+                                                    hardwareData.os = bootstrapData.hardware.os;
+                                                    instancesModel.setHardwareDetails(bootstrapData.id, hardwareData, function(err, updateData) {
+                                                        if (err) {
+                                                            logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                                                        } else {
+                                                            logger.debug("Instance hardware details set successessfully");
+                                                        }
+                                                    });
+                                                    //Checking docker status and updating
+                                                    var docker = new Docker();
+                                                    docker.checkDockerStatus(bootstrapData.id, function(err, retCode) {
+                                                        if (err) {
+                                                            logger.error("Failed docker.checkDockerStatus", err);
+                                                            var error = new Error("Failed to check Status from Docker.");
+                                                            error.status = 500;
+                                                            return;
+
+                                                        }
+                                                        logger.debug('Docker Check Returned:' + retCode);
+                                                        if (retCode == '0') {
+                                                            instancesModel.updateInstanceDockerStatus(bootstrapData.id, "success", '', function(data) {
+                                                                logger.debug('Instance Docker Status set to Success');
+                                                            });
+                                                        }
+                                                    });
+                                                });
+
+                                                return callback(null, {
+                                                    message: "bootstraped"
+                                                });
+
+                                            } else {
+                                                instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function(err, updateData) {
+                                                    if (err) {
+                                                        logger.error("Unable to set instance bootstarp status code != 0", err);
+                                                    } else {
+                                                        logger.debug("Instance bootstrap status set to failed");
+                                                    }
+                                                });
+                                                var timestampEnded = new Date().getTime();
+                                                logsDao.insertLog({
+                                                    referenceId: logsReferenceIds,
+                                                    err: false,
+                                                    log: "Bootstrap Failed",
+                                                    timestamp: timestampEnded
+                                                });
+                                                instancesModel.updateActionLog(bootstrapData.id, actionLog._id, false, timestampEnded);
+
+                                                var error = new Error("Bootstrap failed with ret code ==>" + code);
+                                                error.status = 500;
+                                                return callback(error);
+                                            }
+                                        }
+
+                                    }, function(stdOutData) {
+
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: false,
+                                            log: stdOutData.toString('ascii'),
+                                            timestamp: new Date().getTime()
+                                        });
+
+                                    }, function(stdErrData) {
+
+                                        //retrying 4 times before giving up.
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: true,
+                                            log: stdErrData.toString('ascii'),
+                                            timestamp: new Date().getTime()
+                                        });
+                                    });
+                                }
                             });
-                        }
+                        });
                     });
                 });
             });
         });
     });
+
+};
+
+function getCookBookAttributes(instance, callback) {
+    logger.debug("getCookBookAttributes calles: ",JSON.stringify(instance));
+    var blueprint = instance.blueprint;
+    //merging attributes Objects
+    var attributeObj = {};
+    var objectArray = [];
+    var attr = [];
+    if (instance.runlist && instance.runlist.length) {
+        for (var j = 0; j < instance.runlist.length; j++) {
+            (function(j) {
+                // Attributes which are configures in blueprint.
+                attr = instance.runlist[j].attributes;
+                if (attr && attr.length) {
+                    for (var i = 0; i < attr.length; i++) {
+                        objectArray.push(attr[i].jsonObj);
+                    }
+                }
+            })(j);
+        }
+    }
+    // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
+    //var temp = new Date().getTime();
+    if (blueprint.applications && blueprint.applications.length) {
+        if (blueprint.applications[0].repoType === "nexus") {
+            var url = blueprint.applications[0].repoDetails.url;
+            var repoName = blueprint.applications[0].repoDetails.repoName;
+            var groupId = blueprint.applications[0].repoDetails.groupId;
+            var artifactId = blueprint.applications[0].repoDetails.artifactId;
+            var version = blueprint.applications[0].repoDetails.version;
+            objectArray.push({
+                "rlcatalyst": {
+                    "upgrade": false
+                }
+            });
+            objectArray.push({
+                "rlcatalyst": {
+                    "applicationNodeIP": instance.instanceIP
+                }
+            });
+
+            nexus.getNexusArtifactVersions(blueprint.applications[0].repoId, repoName, groupId, artifactId, function(err, data) {
+                if (err) {
+                    logger.debug("Failed to fetch Repository from Mongo: ", err);
+                    objectArray.push({
+                        "rlcatalyst": {
+                            "nexusUrl": url
+                        }
+                    });
+                    objectArray.push({
+                        "rlcatalyst": {
+                            "version": version
+                        }
+                    });
+                }
+
+                if (data) {
+                    var flag = false;
+                    var versions = data.metadata.versioning[0].versions[0].version;
+                    var latestVersionIndex = versions.length;
+                    var latestVersion = versions[latestVersionIndex - 1];
+                    //logger.debug("Got latest catalyst version from nexus: ", latestVersion);
+
+                    nexus.getNexusArtifact(blueprint.applications[0].repoId, repoName, groupId, function(err, artifacts) {
+                        if (err) {
+                            logger.debug("Failed to get artifacts.");
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "nexusUrl": url
+                                }
+                            });
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "version": version
+                                }
+                            });
+                        } else {
+                            if (artifacts.length) {
+                                for (var i = 0; i < artifacts.length; i++) {
+                                    if (latestVersion === artifacts[i].version && artifactId === artifacts[i].artifactId) {
+                                        url = artifacts[i].resourceURI;
+
+                                        objectArray.push({
+                                            "rlcatalyst": {
+                                                "nexusUrl": url
+                                            }
+                                        });
+                                        objectArray.push({
+                                            "rlcatalyst": {
+                                                "version": latestVersion
+                                            }
+                                        });
+                                        flag = true;
+                                        //logger.debug("latest objectArray::: ", JSON.stringify(objectArray));
+                                        break;
+                                    }
+
+                                }
+                                if (!flag) {
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "nexusUrl": url
+                                        }
+                                    });
+                                    objectArray.push({
+                                        "rlcatalyst": {
+                                            "version": version
+                                        }
+                                    });
+                                }
+                            } else {
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "nexusUrl": url
+                                    }
+                                });
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "version": latestVersion
+                                    }
+                                });
+                            }
+                        }
+
+                        var actualVersion = "";
+                        if (latestVersion) {
+                            actualVersion = latestVersion;
+                        } else {
+                            actualVersion = version;
+                        }
+
+                        // Update app-data for promote
+                        var nodeIp = [];
+                        nodeIp.push(instance.instanceIP);
+                        configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+                            if (err) {
+                                callback({
+                                    message: "Failed to get env name from env id"
+                                }, null);
+                                return;
+                            }
+                            if (!envName) {
+                                callback({
+                                    "message": "Unable to find environment name from environment id"
+                                });
+                                return;
+                            }
+                            var appData = {
+                                "projectId": instance.projectId,
+                                "envId": envName,
+                                "appName": artifactId,
+                                "version": actualVersion,
+                                "nexus": {
+                                    "repoURL": url,
+                                    "nodeIps": nodeIp
+                                }
+                            };
+                            AppData.createNewOrUpdate(appData, function(err, data) {
+                                if (err) {
+                                    logger.debug("Failed to create or update app-data: ", err);
+                                }
+                                if (data) {
+                                    logger.debug("Created or Updated app-data successfully: ", data);
+                                }
+                            });
+                        });
+
+                        var attributeObj = utils.mergeObjects(objectArray);
+                        callback(null, attributeObj);
+                        return;
+                    });
+                } else {
+                    logger.debug("No artifact version found.");
+                }
+
+            });
+        } else if (blueprint.applications[0].repoType === "docker") {
+            if (blueprint.applications[0].repoDetails.containerId) {
+                objectArray.push({
+                    "rlcatalyst": {
+                        "containerId": blueprint.applications[0].repoDetails.containerId
+                    }
+                });
+            }
+
+            if (blueprint.applications[0].repoDetails.containerPort) {
+                objectArray.push({
+                    "rlcatalyst": {
+                        "containerPort": blueprint.applications[0].repoDetails.containerPort
+                    }
+                });
+            }
+
+            if (blueprint.applications[0].repoDetails.image) {
+                objectArray.push({
+                    "rlcatalyst": {
+                        "dockerImage": blueprint.applications[0].repoDetails.image
+                    }
+                });
+            }
+
+            if (blueprint.applications[0].repoDetails.hostPort) {
+                objectArray.push({
+                    "rlcatalyst": {
+                        "hostPort": blueprint.applications[0].repoDetails.hostPort
+                    }
+                });
+            }
+
+            if (blueprint.applications[0].repoDetails.dockerUser) {
+                objectArray.push({
+                    "rlcatalyst": {
+                        "dockerUser": blueprint.applications[0].repoDetails.dockerUser
+                    }
+                });
+            }
+
+            if (blueprint.applications[0].repoDetails.dockerPassword) {
+                objectArray.push({
+                    "rlcatalyst": {
+                        "dockerPassword": blueprint.applications[0].repoDetails.dockerPassword
+                    }
+                });
+            }
+
+            if (blueprint.applications[0].repoDetails.dockerEmailId) {
+                objectArray.push({
+                    "rlcatalyst": {
+                        "dockerEmailId": blueprint.applications[0].repoDetails.dockerEmailId
+                    }
+                });
+            }
+
+            if (blueprint.applications[0].repoDetails.imageTag) {
+                objectArray.push({
+                    "rlcatalyst": {
+                        "imageTag": blueprint.applications[0].repoDetails.imageTag
+                    }
+                });
+            }
+            objectArray.push({
+                "rlcatalyst": {
+                    "upgrade": false
+                }
+            });
+
+            objectArray.push({
+                "rlcatalyst": {
+                    "applicationNodeIP": instance.instanceIP
+                }
+            });
+            var attrs = utils.mergeObjects(objectArray);
+            // Update app-data for promote
+            var nodeIp = [];
+            nodeIp.push(instance.instanceIP);
+            configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+                if (err) {
+                    callback({
+                        message: "Failed to get env name from env id"
+                    }, null);
+                    return;
+                }
+                if (!envName) {
+                    callback({
+                        "message": "Unable to find environment name from environment id"
+                    });
+                    return;
+                }
+                var actualDocker = [];
+                var docker = {
+                    "image": blueprint.applications[0].repoDetails.image,
+                    "containerId": blueprint.applications[0].repoDetails.containerId,
+                    "containerPort": blueprint.applications[0].repoDetails.containerPort,
+                    "hostPort": blueprint.applications[0].repoDetails.hostPort,
+                    "dockerUser": blueprint.applications[0].repoDetails.dockerUser,
+                    "dockerPassword": blueprint.applications[0].repoDetails.dockerPassword,
+                    "dockerEmailId": blueprint.applications[0].repoDetails.dockerEmailId,
+                    "imageTag": blueprint.applications[0].repoDetails.imageTag,
+                    "nodeIp": instance.instanceIP
+                };
+                actualDocker.push(docker);
+                var appData = {
+                    "projectId": instance.projectId,
+                    "envId": envName,
+                    "appName": artifactId,
+                    "version": blueprint.applications[0].repoDetails.imageTag,
+                    "docker": actualDocker
+                };
+                AppData.createNewOrUpdate(appData, function(err, data) {
+                    if (err) {
+                        logger.debug("Failed to create or update app-data: ", err);
+                    }
+                    if (data) {
+                        logger.debug("Created or Updated app-data successfully: ", data);
+                    }
+                })
+            });
+
+            callback(null, attrs);
+            return;
+        }
+    } else {
+        var attributeObj = utils.mergeObjects(objectArray);
+        callback(null, attributeObj);
+        return;
+    }
 };
