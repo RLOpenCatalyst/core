@@ -64,7 +64,8 @@
 		"apidoc": "0.15.1",
 		"async": "v1.5.2",
 		"multer": "1.1.0",
-		"joi": "8.0.5"
+		"joi": "8.0.5",
+		"lodash.topairs": "4.1.0"
 	},
 	"devDependencies": {
 		"grunt": "0.4.5",
