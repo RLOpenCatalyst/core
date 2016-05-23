@@ -24,7 +24,6 @@
 						temp.iconpath = this.getIconPath(temp);
 						temp.cardVersions = this.getVersionList(temp);
 						temp.selectedVersionBpId = temp.cardVersions[0].id;
-						//temp.selectedVersionBpName = temp.cardVersions[0].name;
 						switch (temp.templateType) {
 							case "chef":
 								list.software_stack.push(temp);
