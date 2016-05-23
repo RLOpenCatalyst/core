@@ -70,18 +70,18 @@ blueprintService.getAllBlueprints = function getAllBlueprints(orgIds, callback) 
 
 blueprintService.checkBlueprintAccess = function checkBlueprintAccess(orgs, blueprintId, callback) {
     blueprintService.getBlueprintById(blueprintId, function(err, blueprint) {
-        if(err) {
+        if (err) {
             return callback(err);
         }
 
         var authorized = orgs.reduce(function(a, b) {
-            if(b == blueprint.organizationId)
+            if (b == blueprint.organizationId)
                 return true || a;
             else
                 return false || a;
         }, false);
 
-        if(!authorized) {
+        if (!authorized) {
             var err = new Error('Forbidden');
             err.status = 403;
             return callback(err);
@@ -363,8 +363,8 @@ blueprintService.populateBlueprintRelatedData = function populateBlueprintRelate
 };
 
 
-blueprintService.createBlueprintResponseObject = function createBlueprintResponseObject(blueprint, callback) {
-    var providerResponseObject = {
+blueprintService.createBlueprintResponseObject = function createBlueprintResponseObject(blueprint) {
+    var blueprintResponseObject = {
         id: blueprint._id,
         name: blueprint.name,
         version: blueprint.version,
@@ -381,44 +381,33 @@ blueprintService.createBlueprintResponseObject = function createBlueprintRespons
         parentBlueprintId: blueprint.parentBlueprintId
     };
 
-    callback(null, providerResponseObject);
+    return blueprintResponseObject
+
 };
 
 blueprintService.createBlueprintResponseList = function createBlueprintResponseList(blueprints, callback) {
     var blueprintsList = [];
 
     if (blueprints.length == 0)
-        return callback(null, {});
+        return {};
 
     for (var i = 0; i < blueprints.length; i++) {
-        (function(blueprint) {
-            // @TODO Improve call to self
-            blueprintService.createBlueprintResponseObject(blueprint,
-                function(err, formattedBlueprint) {
-                    if (err) {
-                        return callback(err);
-                    } else {
-                        blueprintsList.push(formattedBlueprint);
-                    }
-
-                    if (blueprintsList.length == blueprints.length) {
-                        var blueprintsListObj = {
-                            blueprints: blueprintsList
-                        }
-                        return callback(null, blueprintsListObj);
-                    }
-                });
-        })(blueprints[i]);
+        var bpResObj = blueprintService.createBlueprintResponseObject(blueprints[i]);
+        blueprintsList.push(bpResObj);
     }
+    return {
+        blueprints: blueprintsList
+    }
+
 };
 
 blueprintService.deleteBlueprint = function deleteBlueprint(blueprintId, callback) {
     blueprintModel.deleteById(blueprintId, function(err, blueprint) {
-        if(err) {
+        if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
             return callback(err);
-        } else if(!blueprint) {
+        } else if (!blueprint) {
             var err = new Error('Blueprint not found');
             err.status = 404;
             return callback(err);

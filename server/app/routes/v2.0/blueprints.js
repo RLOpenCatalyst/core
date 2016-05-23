@@ -330,7 +330,7 @@ router.get('/:blueprintId', getBlueprint);
  *      }
  */
 
-router.post('/', function createBlueprint(req, res, next) {
+router.post('/', validate(blueprintValidator.create), function createBlueprint(req, res, next) {
 
 
     var blueprintData = {
@@ -367,7 +367,15 @@ router.post('/', function createBlueprint(req, res, next) {
             if (err) {
                 return next(err);
             }
-            res.status(200).send(blueprint);
+            userService.updateOwnerDetails(blueprint, function(err, updatedBP) {
+                if (err) {
+                    return next(err);
+                }
+
+                var bpRes = blueprintService.createBlueprintResponseObject(updatedBP);
+                res.status(200).send(bpRes);
+            });
+
         });
     });
 });
@@ -582,7 +590,13 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
             },
             function(blueprintData, next) {
                 blueprintService.createNew(blueprintData, next);
+            },
+            userService.updateOwnerDetails,
+            function(updatedBP, next) {
+                var respObj = blueprintService.createBlueprintResponseObject(updatedBP);
+                next(null, respObj);
             }
+
         ], function(err, results) {
             if (err) {
                 next(err);
@@ -613,7 +627,10 @@ function getBlueprint(req, res, next) {
             blueprintService.getBlueprintById(req.params.blueprintId, next);
         },
         userService.updateOwnerDetails,
-        blueprintService.createBlueprintResponseObject
+        function(blueprint, next) {
+            var respObj = blueprintService.createBlueprintResponseObject(blueprint);
+            next(null, respObj);
+        }
     ], function(err, blueprint) {
         if (err) {
             next(err);
@@ -637,7 +654,11 @@ function getBlueprints(req, res, next) {
             blueprintService.getAllBlueprints(orgIds, next);
         },
         userService.updateOwnerDetailsOfList,
-        blueprintService.createBlueprintResponseList
+        function(blueprints, next) {
+            var respObj = blueprintService.createBlueprintResponseList(blueprints);
+            next(null, respObj);
+        },
+
     ], function(err, blueprints) {
         if (err) {
             next(err);
