@@ -628,7 +628,7 @@ function getBlueprints(req, res, next) {
         // @TODO Check authorization
         function(next) {
             if ('user' in req.session) {
-                userService.getUserOrgs(req.session.user, next);
+                userService.getUserOrgIds(req.session.user, next);
             } else {
                 next(null, req.user.orgIds);
             }
@@ -652,7 +652,7 @@ function deleteBlueprint(req, res, next) {
         // @TODO Authorization checks to be addded
         function(next) {
             if ('user' in req.session) {
-                userService.getUserOrgs(req.session.user, next);
+                userService.getUserOrgIds(req.session.user, next);
             } else {
                 next(null, req.user.orgIds);
             }
