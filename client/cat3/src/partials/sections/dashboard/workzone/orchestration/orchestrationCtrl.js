@@ -106,6 +106,14 @@
 					if($scope.paginationParams.page == 1){
 						$scope.taskListGridView();
 					}
+				},
+				removeTask: function() {
+					/*need to set the totalItems(less) when there is only 1 task available. Need to repaint
+					the grid on delete.*/
+					$scope.orcheGridOptions.totalItems = $scope.orcheGridOptions.totalItems -1;
+					$timeout(function() {
+						$scope.taskListGridView();
+					},100);
 				}
 			};
 			
@@ -202,7 +210,7 @@
 					confirmbox.showModal({}, modalOptions).then(function() {
 						workzoneServices.deleteTask(orchestrationObj._id).then(function(response) {
 							if (response.data.deleteCount.ok) {
-								$scope.taskListGridView();
+								helper.removeTask();
 							}
 						}, function(data) {
 							alert('error:: ' + data.toString());

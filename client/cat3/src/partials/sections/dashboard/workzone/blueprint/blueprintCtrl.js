@@ -106,23 +106,18 @@
 					angular.forEach(cardVersions,function(val){
 						if(val.id === $scope.blueprints[bpType][idx].selectedVersionBpId){
 							if(bpType === 'software_stack'){
-								console.log(bpType);
 								$scope.newVersionNameSS = val.name;
 							}
 							if(bpType === 'os_image'){
-								console.log(bpType);
 								$scope.newVersionNameOS = val.name;	
 							}
 							if(bpType === 'docker'){
-								console.log(bpType);
 								$scope.newVersionNameDocker = val.name;	
 							}
 							if(bpType === 'azureARM'){
-								console.log(bpType);
 								$scope.newVersionNameARM = val.name;	
 							}
 							if(bpType === 'cloudFormation'){
-								console.log(bpType);
 								$scope.newVersionNameCF = val.name;	
 							}
 						}
