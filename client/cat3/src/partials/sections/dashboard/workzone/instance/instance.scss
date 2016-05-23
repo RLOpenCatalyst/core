@@ -564,25 +564,40 @@ $imagePath : "../../../../../../images";
 	}
 
 	.cp-container {
-		/*margin-top: 10px;*/
+		height: 350px;
+		overflow-y: auto;
 	}
 
-	.nav-tabs {
-		border-bottom-width: 1px;
-		@include theme-border-color;
+	.cp-cards {
+		margin-top: 70px;
 
-		li {
-			cursor: pointer;
+		.card-info-wrapper {
+			margin-top: 50px;
 		}
 
-		li.active {
-			a, a:hover {
-				border-bottom-width: 0px;
-				border-top-width: 3px;
-				@include theme-border-color;
-			}
+		.card-page-name {
+			font-size: 20px;
+			color: #40BAF1;
 		}
-	}
+
+		.card {
+			position: relative;
+			width: 155px;
+			float: left;
+			border: 2px solid #40BAF1;
+			text-align: center;
+			font-size: 10px;
+			min-height: 210px;
+			border-radius: 11px;
+			margin-right: 15px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.6);
+			@include border-radius(11px);
+		}
+
+		.fa {
+			font-size: 60px;
+		}
+	} 
 }
 
 #cpInfo {
