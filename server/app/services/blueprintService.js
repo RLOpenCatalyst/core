@@ -68,6 +68,29 @@ blueprintService.getAllBlueprints = function getAllBlueprints(orgIds, callback) 
     });
 };
 
+blueprintService.checkBlueprintAccess = function checkBlueprintAccess(orgs, blueprintId, callback) {
+    blueprintService.getBlueprintById(blueprintId, function(err, blueprint) {
+        if(err) {
+            return callback(err);
+        }
+
+        var authorized = orgs.reduce(function(a, b) {
+            if(b == blueprint.organizationId)
+                return true || a;
+            else
+                return false || a;
+        }, false);
+
+        if(!authorized) {
+            var err = new Error('Forbidden');
+            err.status = 403;
+            return callback(err);
+        } else {
+            return callback(null, blueprint);
+        }
+    });
+};
+
 blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, callback) {
     var networkProfile = new gcpNetworkProfileModel(blueprint.networkProfile);
     if (networkProfile) {
@@ -388,4 +411,21 @@ blueprintService.createBlueprintResponseList = function createBlueprintResponseL
         })(blueprints[i]);
     }
 
+};
+
+blueprintService.deleteBlueprint = function deleteBlueprint(blueprintId, callback) {
+    blueprintModel.deleteById(blueprintId, function(err, blueprint) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if(!blueprint) {
+            var err = new Error('Blueprint not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
+        }
+    });
 };
