@@ -137,7 +137,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                     return;
                 }
                 var appDeployList = [];
-                var aAppDeployObj = {};
+                var appDeployObj = {};
                 var environments = project[0].environmentname.split(",");
                 var applicationNames = distinctAppDeployApplicationNames.applicationNames;
                 if (applicationNames.length > 0) {
@@ -169,13 +169,13 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                     callback(null, []);
                                                     return;
                                                 }
-                                                aAppDeployObj['appName'] = {
+                                                appDeployObj['appName'] = {
                                                     "name": appDeploys[0].applicationName,
                                                     "version": appDeploys[0].applicationVersion
                                                 };
                                                 for (var k = 0; k < appDeploys.length; k++) {
                                                     (function(appDeploy) {
-                                                        aAppDeployObj[appDeploy.envName] = {
+                                                        appDeployObj[appDeploy.envName] = {
                                                             "id": appDeploy.id,
                                                             "applicationInstanceName": appDeploy.applicationInstanceName,
                                                             "applicationNodeIP": appDeploy.applicationNodeIP,
@@ -189,11 +189,11 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                     })(appDeploys[k]);
                                                 }
                                                 for (var l = 0; l < environments.length; l++) {
-                                                    if (!aAppDeployObj[environments[l]]) {
-                                                        aAppDeployObj[environments[l]] = {};
+                                                    if (!appDeployObj[environments[l]]) {
+                                                        appDeployObj[environments[l]] = {};
                                                     }
                                                 }
-                                                appDeployList.push(aAppDeployObj);
+                                                appDeployList.push(appDeployObj);
                                                 if (distinctAppDeployApplicationNames.pageSize === appDeployList.length) {
                                                     var response = {};
                                                     response[jsonData.id] = appDeployList;
@@ -207,7 +207,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                     };
                                                     callback(null, response);
                                                 }
-                                                aAppDeployObj = {};
+                                                appDeployObj = {};
                                             });
                                         })(appDeployVersions[j]);
                                     }
@@ -305,7 +305,7 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                     return;
                 }
                 var pipeLineViewList = [];
-                var aPipeLineViewObj = {};
+                var pipeLineViewObj = {};
                 var environments = project[0].environmentname.split(",");
                 var applicationNames = distinctAppDeployApplicationNames.applicationNames;
                 if (applicationNames.length > 0) {
@@ -316,33 +316,37 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                                     logger.debug("Failed to fetch App Deploy");
                                     callback(err, null);
                                     return;
-                                }
+                                };
                                 if (appDeploys.length === 0) {
                                     logger.debug("There is no App Deploy configured.");
                                     callback(null, []);
                                     return;
-                                }
-                                aPipeLineViewObj['appName'] = appDeploys[0].applicationName;
+                                };
+                                pipeLineViewObj['appName'] = {
+                                    "name": appDeploys[0].applicationName,
+                                };
                                 for (var k = 0; k < appDeploys.length; k++) {
                                     (function(appDeploy) {
-                                        aPipeLineViewObj[appDeploy.envName] = {
+                                        pipeLineViewObj[appDeploy.envName] = {
                                             "id": appDeploy.id,
                                             "version": appDeploy.applicationVersion,
-                                            "instanceName": appDeploy.applicationInstanceName,
+                                            "applicationInstanceName": appDeploy.applicationInstanceName,
+                                            "applicationNodeIP": appDeploy.applicationNodeIP,
                                             "applicationLastDeploy": appDeploy.lastAppDeployDate,
                                             "applicationStatus": appDeploy.applicationStatus,
                                             "applicationType": appDeploy.applicationType,
                                             "containerId": appDeploy.containerId,
+                                            "hostName": appDeploy.hostName,
                                             "isApproved": appDeploy.isApproved
                                         }
                                     })(appDeploys[k]);
                                 }
                                 for (var l = 0; l < environments.length; l++) {
-                                    if (!aPipeLineViewObj[environments[l]]) {
-                                        aPipeLineViewObj[environments[l]] = {};
+                                    if (!pipeLineViewObj[environments[l]]) {
+                                        pipeLineViewObj[environments[l]] = {};
                                     }
                                 }
-                                pipeLineViewList.push(aPipeLineViewObj);
+                                pipeLineViewList.push(pipeLineViewObj);
                                 if (pipeLineViewList.length === distinctAppDeployApplicationNames.applicationNamesLength) {
                                     var response = {};
                                     response['pipeLineView'] = pipeLineViewList;
@@ -356,7 +360,7 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                                     };
                                     callback(null, response);
                                 }
-                                aPipeLineViewObj = {};
+                                pipeLineViewObj = {};
                             });
                         })(applicationNames[i]);
                     }
