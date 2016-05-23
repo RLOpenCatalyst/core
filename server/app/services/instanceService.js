@@ -580,7 +580,7 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
                 runlist: runList,
                 attributes: attributes,
                 appUrls: blueprint.applicationURL,
-                zone: blueprint.networkProfile.zone,
+                zone: blueprint.networkProfile.networkDetails.zone,
                 instanceState: 'pending',
                 hardware: {
                     platform: 'unknown',
@@ -596,10 +596,10 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
                 blueprintData: {
                     blueprintId: blueprint._id,
                     blueprintName: blueprint.name,
-                    templateId: "blueprint.softwareTemplate.id",
-                    templateType: "blueprint.softwareTemplate.templateType",
-                    templateComponents: "blueprint.softwareTemplate.templateComponents",
-                    iconPath: "blueprint.softwareTemplate.iconpath"
+                    templateId: "",
+                    templateType: "",
+                    templateComponents: "",
+                    iconPath: ""
                 },
                 chef: {
                     serverId: blueprint.chefServerId,
