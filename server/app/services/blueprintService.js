@@ -24,13 +24,20 @@ var instancesModel = require('_pr/model/classes/instance/instance');
 var fs = require('fs');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var gcpNetworkProfileModel = require('_pr/model/v2.0/network-profile/gcp-network-profiles');
+var MasterUtils = require('_pr/lib/utils/masterUtil.js');
+
+var networkProfileService = require('_pr/services/networkProfileService.js');
+var vmImageDao = require('_pr/model/classes/masters/vmImage.js');
+
+
+
 const errorType = 'blueprint';
 
 var blueprintService = module.exports = {};
 
 blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callback) {
     logger.debug("BlueprintId: ", blueprintId);
-    blueprintModel.findById(blueprintId, function (err, blueprint) {
+    blueprintModel.findById(blueprintId, function(err, blueprint) {
         if (err) {
             var error = new Error("Error to get blueprint.");
             error.status = 500;
@@ -50,7 +57,7 @@ blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callb
 
 blueprintService.getAllBlueprints = function getAllBlueprints(orgIds, callback) {
     blueprintModel.getAllByOrgs(orgIds, function(err, blueprints) {
-        if(err) {
+        if (err) {
             logger.error(err);
             var err = new Error('Internal Server Error');
             err.status = 500;
@@ -228,8 +235,112 @@ blueprintService.createNew = function createNew(blueprintData, callback) {
     });
 };
 
-blueprintService.createBlueprintResponseObject
-    = function createBlueprintResponseObject(blueprint, callback) {
+
+blueprintService.getParentBlueprintCount = function getParentBlueprintCount(parentId, callback) {
+    blueprintModel.countByParentId(parentId, function(err, count) {
+        if (err) {
+            err.status = 500;
+            return callback(err, null);
+        }
+
+        return callback(null, count);
+    });
+};
+
+blueprintService.getParentBlueprintCount = function getParentBlueprintCount(parentId, callback) {
+    blueprintModel.countByParentId(parentId, function(err, count) {
+        if (err) {
+            err.status = 500;
+            return callback(err, null);
+        }
+
+        return callback(null, count);
+    });
+};
+
+blueprintService.getTemplateById = function getTemplateById(templateId, callback) {
+    MasterUtils.getTemplateById(templateId, function(err, templates) {
+        if (err) {
+            err.status = 500;
+            return callback(err);
+        }
+        console.log('templates ==>', templateId, templates)
+        if (templates && templates.length) {
+            callback(null, templates[0]);
+        } else {
+            var err = new Error("Template not found");
+            err.status = 400;
+            return callback(err);
+        }
+
+    });
+};
+
+blueprintService.populateBlueprintRelatedData = function populateBlueprintRelatedData(blueprintData, entity, callback) {
+    var self = this;
+    async.parallel({
+        networkProfile: function(callback) {
+            if (entity.networkProfileId) {
+                networkProfileService.getNetworkProfileById(entity.networkProfileId, callback)
+            } else {
+                callback(null);
+            }
+        },
+        vmImage: function(callback) {
+            if (entity.vmImageId) {
+                vmImageDao.getImageById(entity.vmImageId, callback);
+            } else {
+                callback(null);
+            }
+        },
+        template: function(callback) {
+            if (entity.templateId) {
+                self.getTemplateById(entity.templateId, callback);
+            } else {
+                callback(null);
+            }
+        }
+    }, function(err, results) {
+        if (err) {
+            if (!err.status) {
+                err = new Error('Internal Server Error');
+                err.status = 500;
+            }
+            callback(err);
+        } else {
+
+            if (results.networkProfile) {
+                blueprintData.networkProfile = results.networkProfile;
+            }
+
+            if (results.vmImage) {
+                blueprintData.vmImage = {
+                    name: results.vmImage.name,
+                    vmImageId: results.vmImage.imageIdentifier,
+                    osType: results.vmImage.osType,
+                    osName: results.vmImage.osName,
+                    userName: results.vmImage.userName,
+                    password: results.vmImage.password,
+                };
+            }
+
+            if (results.template) {
+                var runListArray = results.template.templatescookbooks.split(',');
+                blueprintData.runList = [];
+                for (var i = 0; i < runListArray.length; i++) {
+                    blueprintData.runList.push({
+                        name: runListArray[i]
+                    });
+                }
+            }
+
+            callback(null, blueprintData);
+        }
+    });
+};
+
+
+blueprintService.createBlueprintResponseObject = function createBlueprintResponseObject(blueprint, callback) {
     var providerResponseObject = {
         id: blueprint._id,
         name: blueprint.name,
@@ -250,31 +361,31 @@ blueprintService.createBlueprintResponseObject
     callback(null, providerResponseObject);
 };
 
-blueprintService.createBlueprintResponseList
-    = function createBlueprintResponseList(blueprints, callback) {
+blueprintService.createBlueprintResponseList = function createBlueprintResponseList(blueprints, callback) {
     var blueprintsList = [];
 
-    if(blueprints.length == 0)
+    if (blueprints.length == 0)
         return callback(null, {});
 
-    for(var i = 0; i < blueprints.length; i++) {
+    for (var i = 0; i < blueprints.length; i++) {
         (function(blueprint) {
             // @TODO Improve call to self
             blueprintService.createBlueprintResponseObject(blueprint,
                 function(err, formattedBlueprint) {
-                    if(err) {
+                    if (err) {
                         return callback(err);
                     } else {
                         blueprintsList.push(formattedBlueprint);
                     }
 
-                    if(blueprintsList.length == blueprints.length) {
+                    if (blueprintsList.length == blueprints.length) {
                         var blueprintsListObj = {
                             blueprints: blueprintsList
                         }
                         return callback(null, blueprintsListObj);
                     }
-            });
+                });
         })(blueprints[i]);
     }
+
 };

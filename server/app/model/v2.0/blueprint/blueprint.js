@@ -68,9 +68,16 @@ var BlueprintSchema = new Schema({
             required: true,
             trim: true
         },
-        networkDetails: Schema.Types.Mixed,
+        networkDetails: {
+            type: Schema.Types.Mixed,
+            _id: false
+        },
+        _id: false
     },
-    softwareTemplate: Schema.Types.Mixed,
+    softwareTemplate: {
+        type: Schema.Types.Mixed,
+        _id: false
+    },
     vmImage: {
         name: {
             type: String,
@@ -104,7 +111,8 @@ var BlueprintSchema = new Schema({
         pemFile: {
             type: String,
             trim: true
-        }
+        },
+        _id: false
     },
     machineType: {
         type: String,
@@ -134,7 +142,11 @@ var BlueprintSchema = new Schema({
             type: String,
             required: true
         },
-        repoDetails: Schema.Types.Mixed
+        repoDetails: {
+            type: Schema.Types.Mixed,
+            _id: false
+        },
+        _id: false
     }],
     applicationUrls: [{
         name: {
@@ -146,16 +158,24 @@ var BlueprintSchema = new Schema({
             type: String,
             required: true,
             trim: true
-        }
+        },
+        _id: false
     }],
     runList: [{
         name: {
             type: String,
             required: false
         },
-        attributes: [Schema.Types.Mixed]
+        attributes: [{
+            type: Schema.Types.Mixed,
+            _id: false
+        }],
+        _id: false,
     }],
-    blueprints: [Schema.Types.Mixed],
+    blueprints: [{
+        type: Schema.Types.Mixed,
+        _id: false
+    }],
     isDeleted: {
         type: Boolean,
         default: false
@@ -176,8 +196,10 @@ BlueprintSchema.statics.createNew = function createNew(blueprintData, callback) 
 };
 
 BlueprintSchema.statics.findById = function findById(blueprintId, callback) {
-    logger.debug("BlueprintId: ",blueprintId);
-    this.find({ _id: blueprintId }, function(err, data) {
+    logger.debug("BlueprintId: ", blueprintId);
+    this.find({
+        _id: blueprintId
+    }, function(err, data) {
         if (err) {
             logger.error("got error while fetching Blueprint: ", err);
             return callback(err);
@@ -186,20 +208,34 @@ BlueprintSchema.statics.findById = function findById(blueprintId, callback) {
     });
 };
 
+BlueprintSchema.statics.countByParentId = function countByParentId(blueprintId, callback) {
+
+    this.count({
+        parentBlueprintId: blueprintId
+    }, function(err, count) {
+        if (err) {
+            logger.error("got error while counting Blueprints: ", err);
+            return callback(err);
+        }
+        callback(null, count);
+    });
+};
+
 BlueprintSchema.statics.getAllByOrgs = function getAllByOrgs(orgIds, callback) {
     this.find({
-            isDeleted: false,
-            organizationId: {$in: orgIds}
-        },
-        function(err, blueprints) {
-            if (err) {
-                logger.error(err);
-                return callback(err, null);
-            } else {
-                return callback(null, blueprints);
-            }
+        isDeleted: false,
+        organizationId: {
+            $in: orgIds
         }
-    );
+    }, function(err, blueprints) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        } else {
+            return callback(null, blueprints);
+        }
+
+    });
 };
 
 
