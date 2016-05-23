@@ -303,6 +303,17 @@ $(document).ready(function() {
     $('.artifactClass').hide();
     $('.versionClass').hide();
     $('#selectOrgName').trigger('change');
+    if (isAngularIntegration) {
+        $('#workZoneNew').attr('href', '#');
+        $('#workZoneNew').removeClass('active');
+        $('#Workspace1').addClass('hidden');
+        $('#designNew').addClass('active');
+        $('ul#blueprints').removeClass('hidden');
+        $("#ribbon ol.breadcrumb").empty();
+        var providerselected = $('#blueprints').attr('providerselected');
+        providerselected = providerselected.toUpperCase();
+        $("#ribbon ol.breadcrumb").append($("<li>Design</li>" + "<li>PROVIDERS</li>" + "<li>"+providerselected+"</li>"));
+    }
     var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
     if (window.url.indexOf('addnew') > 0) {
         $addal.attr('href', '#ajax/Aws-Production.html?addanother');
@@ -1627,10 +1638,13 @@ function validateApplicationDeployData() {
             }
             return true;
         }
+    } else {
+        return true;
     }
 }
 
 var saveblueprint = function(tempType) {
+   
     if (validateApplicationDeployData()) {
         bootbox.confirm({
             message: "Are you sure want to submit this Blueprint Data? Press Ok to Continue",

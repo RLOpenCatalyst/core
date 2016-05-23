@@ -1,0 +1,23 @@
+[
+    {
+        "_id": "55e99b4e02d123966789786a",
+        "applicationName": "Catalyst",
+        "description": "Deployment for catalyst applicaiton",
+        "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+        "__v": 0
+    },
+    {
+        "_id": "55ed63db6908d817644422c1",
+        "applicationName": "Test",
+        "description": "",
+        "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+        "__v": 0
+    },
+    {
+        "_id": "55f31f27e9f3ccdc59830cb1",
+        "applicationName": "test",
+        "description": "",
+        "projectId": "895990bc-2dc8-43bf-ab65-d75d8e5f5f07",
+        "__v": 0
+    }
+]

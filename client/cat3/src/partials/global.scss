@@ -1,0 +1,578 @@
+@import 'theme';
+
+$imagePath : "../../../../../../cat3/images";
+
+/*CSS for defining colors Globally starts*/
+.green {
+	color: $color-green;
+}
+
+.blue {
+	@include theme-text-color;
+}
+
+.red {
+	color: $color-red;
+}
+
+.orange {
+	color: $color-orange;
+}
+
+.active-color, .selectedView {
+	color: $selected-color !important;
+}
+/*CSS for defining colors Globally ends*/
+
+.cursor {
+	cursor: pointer;
+}
+
+.fa {
+	@include theme-text-color; 
+}
+
+.white {
+	color: #fff;
+}
+
+.black {
+	color: #333;
+}
+
+.errorMsg {
+    color: $color-red;
+}
+
+.inputValidationMsg {
+	color: $color-red;
+	font-size: 11px;
+	font-style: italic;
+	vertical-align: top;
+}
+
+/*CSS to overwrite input background color for autofill*/
+#loginContainer, #instanceSSHPage {
+	input:-webkit-autofill {
+	    -webkit-box-shadow: 0 0 0px 1000px white inset;
+	}
+}
+
+/*CSS for header,breadcrumb and tree starts*/
+#breadcrumb-block { 
+	@include theme-bg-color;
+	color: white;
+}
+
+#section-name {
+	padding: 6px 10px 6px 40px;
+	font-size: 14px; 
+	font-weight: bold;
+}
+
+#breadcrumb-nav {
+	padding-top: 6px;
+	padding-left: 60px;
+}
+
+#breadcrumb-block #breadcrumb-nav ul {
+	margin: 0px;
+	padding: 0px;
+}
+
+#breadcrumb-block #breadcrumb-nav ul li {
+	list-style: none;
+	display: inline;
+}
+
+@media (min-width : 0px) and (max-width: 767px) {
+	#breadcrumb-nav {
+		display: none;
+	}
+}
+
+@media (min-width : 0px) and (max-width: 320px) {
+	.selectCookbooksandRecipesdiv {
+		width: 85%;
+
+		.selectCookbooksandRecipes {
+			min-width: 150px;
+			width: 89%;
+		}
+	}
+
+	.smart-form {
+		.marginleft6 {
+		    margin: 35% 0% 0 0;
+		    float: right;
+		    width: 13%;
+		}
+	}
+
+	.logsArea {
+    	height: 180px;
+    }
+}
+
+@media (min-width : 321px) and (max-width: 480px) {
+	.selectCookbooksandRecipesdiv {
+		.selectCookbooksandRecipes {
+			min-width: 289px;
+		}
+	}
+
+	#newTaskPage {
+		.left-right-selection {
+			margin: 20% 6% 0 0;
+		}
+	}
+
+	.logsArea {
+    	height: 30px;
+    }
+}
+
+@media (min-width : 0px) and (max-width: 480px) {
+	#instancePage, #bluePrintPage, #cloudFormationPage, #containerPage, #orchestrationPage, #applicationPage {
+		.panel-heading {
+	    	padding: 2px 15px;
+	    	height: 23px;
+
+	    	.panel-title {
+	    		font-size: 12px;
+	    	}
+	    }
+	}
+
+	.breadcrumb-wrapper {
+		#breadcrumb-block {
+			height: 22px;
+			min-height: 22px;
+
+			#section-name {
+			    padding: 3px 10px 2px 40px;
+			    font-size: 12px;
+			}
+		}
+	}
+}
+
+@media (min-width : 768px) and (max-width: 991px) {
+	.logsArea {
+    	height: 710px;
+    }
+}
+
+@media (min-width: 991px) {
+	.logsArea {
+    	height: 413px;
+    }
+}
+
+/*CSS for header,breadcrumb and tree ends*/
+
+/*Used by loader module for different loader sizes*/
+.catloader.very-large {
+	font-size: 40px;
+}
+
+.catloader.large {
+	font-size: 30px;
+}
+
+/*default size is medium*/
+.catloader,.catloader.medium {
+	font-size: 20px;
+}
+
+.catloader.small {
+	font-size: 14px;
+}
+
+.catloader.very-small {
+	font-size: 12px;
+}
+/*Loader sizes end*/
+
+/*Global Confirmation Modal Buttons Styles starts*/
+.cat-btn-update, .cat-btn-save {
+	color: #fff;  
+	@include btn-theme; 
+}
+
+.cat-btn-cancel, .cat-btn-close { 
+	color: #333; 
+	background-color: #fff; 
+	border-color: #ccc; 
+}
+
+.cat-btn-cancel:hover, .cat-btn-close:hover {  
+	color: #333; 
+	background-color: #e6e6e6; 
+	border-color: #adadad;
+}
+
+.cat-btn-delete { 
+	color: #fff; 
+	background-color: #d9534f; 
+	border-color: #d43f3a; 
+}
+
+.cat-btn-delete:hover {  
+	color: #fff; 
+	background-color: #c9302c; 
+	border-color: #ac2925;
+}
+/*Global Confirmation Modal Buttons Styles ends*/
+
+/*CSS for Composite Component Starts*/
+#optionSelector, #selectorList {
+	width: 100%; 
+	height: 250px;   
+}
+
+.left-right-selection {
+	float: right;
+	margin: 30% 2% 0 0;
+}
+
+.selectCookbooksandRecipesdivLeft, .selectCookbooksandRecipesdivRight {
+	width: 80%;
+}
+
+.selectCookbooksandRecipesdivLeft {
+	margin: 0 0 0 10px;
+}
+
+#btnaddToRunlist, #btnremoveFromRunlist, #btnRunlistItemUp, #btnRunlistItemDown {
+	border-radius: 50%;
+}
+
+#btnaddToRunlist, #btnremoveFromRunlist {
+	padding: 5px 10px;
+}
+
+#btnRunlistItemUp, #btnRunlistItemDown {
+	padding: 5px 8px;
+}
+
+.anchorRemove, .anchorDown {
+	margin-top: 50%;
+}
+
+.paddingbottom15 {
+	padding: 0 0 17px 0;
+}
+
+option.jenkins, option.chef, option.composite, option.puppet {
+	background-repeat: no-repeat !important;
+	height: 26px;
+	padding-left: 36px;
+	padding-top: 6px;
+	background-position: 4px 2px !important;
+	font-size: 12px;
+	background-size: 24px auto !important;
+}
+
+option.jenkins {
+	background: url("#{$imagePath}/orchestration/jenkins.png");
+}
+
+option.chef {
+	background: url("#{$imagePath}/orchestration/chef.png");
+}
+
+option.composite {
+	background: url("#{$imagePath}/orchestration/composite.png");
+}
+
+option.puppet {
+	background: url("#{$imagePath}/global/puppet.png");
+}
+/*CSS for Composite Component ends*/
+
+/*CSS for Chef Component Starts here*/
+.runlistLabel {
+	width: 100%;
+	height: 35px;
+}
+
+.searchCookbooksRolesLabel {
+	width: 76%;
+	position: relative;
+}
+
+.smart-form {
+	margin: 0;
+	outline: 0;
+	color: #666;
+	position: relative;
+
+	.row {
+		margin: 10px 0px;
+	}
+
+	label {
+		vertical-align: middle;
+	}
+
+	.icon-append {
+		right: 5px;
+		padding-left: 3px;
+		border-left-width: 1px;
+		border-left-style: solid;
+		position: absolute;
+		top: 5px;
+		width: 22px;
+		height: 22px;
+		font-size: 14px;
+		line-height: 22px;
+		text-align: center;
+		z-index: 1;
+		color: #A2A2A2;
+	}
+
+	.input input {
+		display: block;
+		width: 100%;
+		padding: 8px 10px;
+		outline: 0;
+		border-width: 1px;
+		border-style: solid;
+		border-radius: 0;
+		background: #fff;
+		color: #404040;
+		border-color: #ccc;
+	}
+}
+
+.chef-client-loader-wrapper {
+	margin: 6px 0;
+}
+
+.runlist-section {
+	padding: 10px 0 0 0;
+}
+
+.marginleft6 {
+	margin-left: 6%;
+}
+
+.selectCookbooksandRecipes {
+	height: 250px !important;
+	width: 100%;
+	margin-bottom: 10px;
+	border-width: 1px 1px 1px 2px;
+	border-style: solid;
+	border-color: #ccc;
+	min-width: 203px;
+}
+
+.cookbook, .deploy {
+	background: url("#{$imagePath}/global/cookbook.png") no-repeat;
+	background-repeat: no-repeat;
+	height: 24px;
+	padding-left: 36px;
+	padding-top: 6px;
+	background-position: 4px 2px;
+	font-size: 12px; 
+}
+
+.role, .template, .environment {
+	background-repeat: no-repeat;
+	height: 24px;
+	padding-left: 34px;
+	padding-top: 6px;
+	background-position: 4px 2px !important;
+	font-size: 12px; 
+}
+
+.role {
+	background: url("#{$imagePath}/global/recipe.png") no-repeat;
+}
+
+.template {
+	background: url("#{$imagePath}/global/template.png") no-repeat;
+}
+
+.environment {
+	background: url("#{$imagePath}/global/environment.png") no-repeat;
+}
+
+.anchorAddi, .anchorRemovei, .anchorUpi, .anchorDowni {
+	color: #fff;
+}
+
+.anchorAdd {
+	border-radius: 50%;
+	height: 32px;
+	width: 32px;
+	margin-bottom: 15px;
+}
+
+.anchorRemove {
+	border-radius: 50%;
+	height: 32px;
+	margin-top: 15px;
+	width: 32px;
+}
+
+.anchorUp {
+	border-radius: 50%;
+	height: 32px;
+	width: 32px;
+	margin-bottom: 15px;
+}
+
+.anchorDown {
+	border-radius: 50%;
+	height: 32px;
+	margin-top: 15px;
+	width: 32px;
+}
+/*CSS for Chef Component ends*/
+
+/*Global styles for page name in header starts here*/
+.panel-heading {
+ 	background: #fcfcfc;
+ 	border-bottom-width: 1px;
+ 	@include theme-border-color;
+ 	height: 30px;
+ 	padding: 5px 15px;
+ }
+
+ .panel-title {
+ 	font-size: 14px;
+ }
+ /*Global styles for page name in header ends*/
+
+ .globalPopup {
+    position: fixed;
+    top: -70px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    text-align: center;
+    padding: 20px;
+    z-index: 10;
+}
+
+#globalSuccessMessage {
+	background-color: #b3ddba;
+	border-bottom: 1px solid #d6e9c6;
+	color: #3c763d;
+	/*color: #a94442;*/
+}
+
+.globalPopup .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.ui-grid-cell {
+	text-overflow: ellipsis;
+}
+
+/* global styles for logs display across workzone*/
+
+.logsArea {
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+    font-size: 12px;
+
+    .timeStamp {
+	    color: #000;
+	}
+
+	.logMsg {
+	    color: $color-darkBlue;
+	}
+
+	.logErrorMsg {
+	    color: $color-red;
+	}
+
+	.rowSpacing {
+     	padding-top: 7px;
+	 }
+
+	 .logInfo {
+	     margin-left: 10px;
+	 }
+}
+
+/*Can be used globally*/
+.margintop15 {
+	margin-top: 15px;
+}
+
+.marginleft15 {
+	margin-left: 15px;
+}
+
+.no-padding {
+	padding: 0px;
+}
+
+.marginleft5 {
+	margin-left: 5px;
+}
+
+/* global styles for logs display across workzone ends here*/
+
+/*ui grid css starts here*/
+.ui-grid {
+	font-size: 13px;
+	text-align: center;
+
+	li.ng-binding.ng-scope {
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+	
+	.ui-grid-cell {
+		text-overflow: ellipsis;
+		overflow: initial;
+	}
+
+	ul.ng-scope {
+		padding: 0px;
+		text-align: center;
+	}
+
+	ul li {
+		line-height: 2;
+	}
+
+	.ui-grid-row {
+	    height: auto!important;
+	}
+
+	.ui-grid-pager-panel.ng-scope {
+		background: #ccc;
+	}
+
+	.ui-grid-row > div .ui-grid-cell {
+	    display: table-cell;
+	    float: none;
+	    vertical-align: middle;
+	    height: auto;
+	    padding:6px;
+	    overflow: hidden;
+	}
+
+	.ui-grid-cell-contents {
+	    white-space: pre-wrap;
+	}
+}
+/*ui grid css ends*/
+
+/*pagination Styling*/
+
+.paginationStyle {
+	bottom:0px;
+	float:left;	
+}

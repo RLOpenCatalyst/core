@@ -1,0 +1,345 @@
+{
+  "tasks": [
+    {
+      "_id": "5641a6b50a358afd258f76a0",
+      "taskType": "chef",
+      "name": "cheftask",
+      "description": "",
+      "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+      "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+      "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+      "envId": "c393e5da-ae81-40db-9347-11f77ee6c0d7",
+      "taskConfig": {
+        "_id": "5641a6b50a358afd258f7692",
+        "nodeIds": [
+          "5641a4e50a358afd258f74e3"
+        ],
+        "runlist": [
+          "recipe[tomcat-all]"
+        ],
+        "attributes": [
+          {
+            "_id": "5641a6b50a358afd258f769f",
+            "jsonObj": {
+              "java": {
+                "install_flavor": "oracle"
+              }
+            },
+            "name": "Java Flavour"
+          },
+          {
+            "_id": "5641a6b50a358afd258f769e",
+            "jsonObj": {
+              "java": {
+                "jdk_version": "7"
+              }
+            },
+            "name": "Java JDK Version"
+          },
+          {
+            "_id": "5641a6b50a358afd258f769d",
+            "jsonObj": {
+              "java": {
+                "oracle": {
+                  "accept_oracle_download_terms": "true"
+                }
+              }
+            },
+            "name": "Oracle Download Terms"
+          },
+          {
+            "_id": "5641a6b50a358afd258f769c",
+            "jsonObj": {
+              "tomcat-all": {
+                "user": "tomcat"
+              }
+            },
+            "name": "Tomcat User"
+          },
+          {
+            "_id": "5641a6b50a358afd258f769b",
+            "jsonObj": {
+              "tomcat-all": {
+                "group": "tomcat"
+              }
+            },
+            "name": "Tomcat Group"
+          },
+          {
+            "_id": "5641a6b50a358afd258f769a",
+            "jsonObj": {
+              "tomcat-all": {
+                "version": "7.0.53"
+              }
+            },
+            "name": "Tomcat Version"
+          },
+          {
+            "_id": "5641a6b50a358afd258f7699",
+            "jsonObj": {
+              "tomcat-all": {
+                "tomcat_home": "/opt/tomcat7"
+              }
+            },
+            "name": "Tomcat Home"
+          },
+          {
+            "_id": "5641a6b50a358afd258f7698",
+            "jsonObj": {
+              "tomcat-all": {
+                "set_etc_environment": "true"
+              }
+            },
+            "name": "Set Tomcat Environment"
+          },
+          {
+            "_id": "5641a6b50a358afd258f7697",
+            "jsonObj": {
+              "tomcat-all": {
+                "shutdown_port": "8005"
+              }
+            },
+            "name": "Tomcat Shutdown Port"
+          },
+          {
+            "_id": "5641a6b50a358afd258f7696",
+            "jsonObj": {
+              "tomcat-all": {
+                "port": "8080"
+              }
+            },
+            "name": "Tomcat Running Port"
+          },
+          {
+            "_id": "5641a6b50a358afd258f7695",
+            "jsonObj": {
+              "tomcat-all": {
+                "max_threads": "100"
+              }
+            },
+            "name": "Tomcat Max Threads"
+          },
+          {
+            "_id": "5641a6b50a358afd258f7694",
+            "jsonObj": {
+              "tomcat-all": {
+                "min_spare_threads": "10"
+              }
+            },
+            "name": "Tomcat Min Spare Threads"
+          },
+          {
+            "_id": "5641a6b50a358afd258f7693",
+            "jsonObj": {
+              "tomcat-all": {
+                "java_opts": "-d64 -server -Djava.awt.headless=true -XX:PermSize=64m -XX:MaxPermSize=256m"
+              }
+            },
+            "name": "Tomcat Java Opts"
+          }
+        ],
+        "taskType": "chef"
+      },
+      "__v": 0,
+      "lastRunTimestamp": 1447143142184,
+      "lastTaskStatus": "success",
+      "timestampEnded": 1447143191294,
+      "jobResultURLPattern": []
+    }
+  ],
+  "instances": [
+    {
+      "_id": "5641a4e50a358afd258f74e3",
+      "name": "Apache2",
+      "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+      "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+      "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+      "envId": "c393e5da-ae81-40db-9347-11f77ee6c0d7",
+      "providerId": "556c505a632bffa92554f3ac",
+      "keyPairId": "556c505a632bffa92554f3ad",
+      "chefNodeName": "i-8b26c251",
+      "platformId": "i-8b26c251",
+      "instanceIP": "52.33.214.100",
+      "instanceState": "terminated",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [
+        "98391cd2-1e4c-46f7-8041-aae3d66f132a"
+      ],
+      "blueprintData": {
+        "blueprintId": "5641a4c60a358afd258f74e1",
+        "blueprintName": "Apache2",
+        "templateId": "Apache",
+        "templateType": "chef",
+        "iconPath": "/d4dMasters/image/e3ab8cc1-047b-4528-9a15-4c13a9e52287__templatesicon__appFact4.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "ubuntu",
+        "pemFileLocation": "/var/lib/jenkins/jobs/Deploy_To_D4D_New/workspace/server/catdata/catalyst/instance-pemfiles/556c505a632bffa92554f3ad"
+      },
+      "software": [],
+      "chef": {
+        "serverId": "f858448c-5ed2-46f7-be1a-14bd6486d2fb",
+        "chefNodeName": "i-8b26c251"
+      },
+      "hardware": {
+        "platform": "ubuntu",
+        "platformVersion": "14.04",
+        "architecture": "x86_64",
+        "os": "linux",
+        "memory": {
+          "total": "1016256kB",
+          "free": "450576kB"
+        }
+      },
+      "users": [
+        "padmin",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [
+        {
+          "name": "google",
+          "url": "http://ww.google.com",
+          "_id": "5641a4c60a358afd258f74e2"
+        }
+      ],
+      "attributes": [],
+      "runlist": [
+        "recipe[mongodb]"
+      ]
+    },
+    {
+      "_id": "56442f470a358afd258f7d6a",
+      "name": "Apache2",
+      "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+      "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+      "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+      "envId": "c393e5da-ae81-40db-9347-11f77ee6c0d7",
+      "providerId": "556c505a632bffa92554f3ac",
+      "keyPairId": "556c505a632bffa92554f3ad",
+      "chefNodeName": "i-d9b05303",
+      "platformId": "i-d9b05303",
+      "instanceIP": "52.11.69.82",
+      "instanceState": "running",
+      "bootStrapStatus": "success",
+      "__v": 0,
+      "taskIds": [],
+      "chefClientExecutionIds": [],
+      "serviceIds": [],
+      "blueprintData": {
+        "blueprintId": "5641a4c60a358afd258f74e1",
+        "blueprintName": "Apache2",
+        "templateId": "Apache",
+        "templateType": "chef",
+        "iconPath": "/d4dMasters/image/e3ab8cc1-047b-4528-9a15-4c13a9e52287__templatesicon__appFact4.png",
+        "templateComponents": []
+      },
+      "credentials": {
+        "username": "ubuntu",
+        "pemFileLocation": "/var/lib/jenkins/jobs/Deploy_To_D4D_New/workspace/server/catdata/catalyst/instance-pemfiles/556c505a632bffa92554f3ad"
+      },
+      "software": [],
+      "chef": {
+        "serverId": "f858448c-5ed2-46f7-be1a-14bd6486d2fb",
+        "chefNodeName": "i-d9b05303"
+      },
+      "hardware": {
+        "platform": "ubuntu",
+        "platformVersion": "14.04",
+        "architecture": "x86_64",
+        "os": "linux",
+        "memory": {
+          "total": "1016256kB",
+          "free": "452208kB"
+        }
+      },
+      "users": [
+        "padmin",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [
+        {
+          "name": "google",
+          "url": "http://ww.google.com",
+          "_id": "5641a4c60a358afd258f74e2"
+        }
+      ],
+      "attributes": [],
+      "runlist": [
+        "recipe[apt]",
+        "recipe[apache2]"
+      ]
+    }
+  ],
+  "blueprints": [
+    {
+      "_id": "5641a4c60a358afd258f74e1",
+      "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+      "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+      "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
+      "name": "Apache2",
+      "iconpath": "/d4dMasters/image/e3ab8cc1-047b-4528-9a15-4c13a9e52287__templatesicon__appFact4.png",
+      "templateId": "Apache",
+      "templateType": "chef",
+      "blueprintConfig": {
+        "_id": "5641a4c60a358afd258f74e0",
+        "infraManagerData": {
+          "versionsList": [
+            {
+              "runlist": [
+                "recipe[apt]",
+                "recipe[apache2]"
+              ],
+              "_id": "5641a4c60a358afd258f74df",
+              "ver": "0.1"
+            }
+          ],
+          "_id": "5641a4c60a358afd258f74de",
+          "latestVersion": "0.1"
+        },
+        "infraManagerId": "f858448c-5ed2-46f7-be1a-14bd6486d2fb",
+        "infraMangerType": "chef",
+        "cloudProviderData": {
+          "securityGroupIds": [
+            "sg-c00ee1a5"
+          ],
+          "_id": "5641a4c60a358afd258f74dd",
+          "instanceCount": "1",
+          "instanceOS": "linux",
+          "imageId": "556c50d0632bffa92554f3af",
+          "subnetId": "subnet-aed68ce8",
+          "vpcId": "vpc-b1f3ecd3",
+          "instanceUsername": "root",
+          "instanceAmiid": "ami-3d50120d",
+          "instanceType": "t2.micro",
+          "keyPairId": "556c505a632bffa92554f3ad"
+        },
+        "cloudProviderId": "556c505a632bffa92554f3ac",
+        "cloudProviderType": "aws"
+      },
+      "blueprintType": "instance_launch",
+      "__v": 0,
+      "users": [
+        "padmin",
+        "superadmin",
+        "userc",
+        "userd"
+      ],
+      "appUrls": [
+        {
+          "name": "google",
+          "url": "http://ww.google.com",
+          "_id": "5641a4c60a358afd258f74e2"
+        }
+      ]
+    }
+  ],
+  "stacks": []
+}

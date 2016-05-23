@@ -41,6 +41,9 @@ var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.passwor
 var waitForPort = require('wait-for-port');
 var parser = require('xml2json');
 var util = require('util');
+var Task = require('../model/classes/tasks/tasks.js');
+var async = require('async');
+var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -413,20 +416,53 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (dbtype) {
                                             var item = '\"' + req.params.fieldname + '\"';
                                             logger.debug("About to delete Master Type: %s : % : %", dbtype, item, req.params.fieldvalue);
-                                            eval('d4dModelNew.' + dbtype).remove({
-                                                rowid: req.params.fieldvalue
-                                            }, function(err) {
-                                                if (err) {
-                                                    logger.debug("Hit an errror on delete : %s", err);
-                                                    res.send(500);
-                                                    return;
-                                                } else {
-                                                    logger.debug("Document deleted : %s", req.params.fieldvalue);
-                                                    res.send(200);
-                                                    logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
-                                                    return;
-                                                }
-                                            }); //end findOne
+                                            if(fieldname.indexOf('environmentname') === -1) {
+                                                eval('d4dModelNew.' + dbtype).remove({
+                                                    rowid: req.params.fieldvalue
+                                                }, function (err) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror on delete : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
+                                                        res.send(200);
+                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                        return;
+                                                    }
+                                                }); //end findOne
+                                            }else{
+                                                masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, aEnvironment) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror to get Environment Name : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        eval('d4dModelNew.' + dbtype).remove({
+                                                            rowid: req.params.fieldvalue
+                                                        }, function (err) {
+                                                            if (err) {
+                                                                    logger.debug("Hit an errror on delete : %s", err);
+                                                                    res.send(500);
+                                                                    return;
+                                                            }else {
+                                                                    appDeployPipelineService.updateAppDeployPipeLineEnviornment(aEnvironment,function(err,data){
+                                                                        if (err) {
+                                                                            logger.debug("Hit an errror on updating the PipeLine Configuration : %s", err);
+                                                                            res.send(500);
+                                                                            return;
+                                                                        }
+                                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
+                                                                        res.send(200);
+                                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                                        return;
+
+                                                                    })
+                                                                }
+                                                            }); //end findOne
+                                                        }
+                                                    })
+                                            }
                                         }
                                     }); //end configmgmtDao
                                 } else {
@@ -3480,4 +3516,69 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     });
+
+    app.get('/d4dMasters/organization/:orgId/repositoryServer/list', function(req, res) {
+        var jsonData= {
+            orgId: req.params.orgId,
+            nexusId:'26',
+            dockerId:'18'
+        };
+        async.parallel({
+                server:function(callback) {
+                    masterUtil.getServerDetails(jsonData, callback)
+                }
+            },
+            function(err, results) {
+                if (err)
+                    res.status(500).send("Internal Server Error");
+                else if (!results)
+                    res.status(400).send("Data is not available for Organization " + req.params.orgId);
+                else
+                    res.status(200).send(results);
+            }
+        );
+    });
+
+    // List image tags w.r.t. docker repo and image
+    app.get('/d4dMasters/docker/:dockerId/repository/:repository/image/:image/tags', function(req, res) {
+        masterUtil.getDockerById(req.params.dockerId, function(err, docker) {
+            if (err) {
+                logger.debug("Failed to fetch  Docker", err);
+            }
+            logger.debug("docker: ",JSON.stringify(docker));
+            if (docker && docker.length) {
+                var options_auth = {
+                    user: docker[0].dockeruserid,
+                    password: docker[0].dockerpassword
+                };
+                client = new Client(options_auth);
+                var dockerUrl = "https://registry.hub.docker.com/v1/repositories/" + req.params.repository + "/" + req.params.image + "/tags";
+                client.registerMethod("jsonMethod", dockerUrl, "GET");
+                var reqSubmit = client.methods.jsonMethod(function(data, response) {
+                    if (util.isArray(data)) {
+                        res.send(data);
+                        return;
+                    } else {
+                        res.status(404).send("Docker Image not found.");
+                        return;
+                    }
+                });
+            } else {
+                var options_auth = {};
+                client = new Client(options_auth);
+                var dockerUrl = "https://registry.hub.docker.com/v1/repositories/" + req.params.repository + "/" + req.params.image + "/tags";
+                client.registerMethod("jsonMethod", dockerUrl, "GET");
+                var reqSubmit = client.methods.jsonMethod(function(data, response) {
+                    if (util.isArray(data)) {
+                        res.send(data);
+                        return;
+                    } else {
+                        res.status(404).send("Docker Image not found.");
+                        return;
+                    }
+                });
+            }
+        });
+    });
+
 }

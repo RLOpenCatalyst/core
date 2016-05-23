@@ -4,6 +4,20 @@
 }
 </style>
 <script type="text/javascript">
+$(document).ready(function() {
+
+    //added for v3.0 - when navigating from v2.0 workzone to track-
+	if(isAngularIntegration){
+	    $('#workZoneNew').attr('href','#');
+	    $('#workZoneNew').removeClass('active');
+	    $('#Workspace1').addClass('hidden');
+	    $('#trackShow').show();
+	    $("#ribbon ol.breadcrumb").empty();
+	    $("#ribbon ol.breadcrumb").append($("<li>Track</li>"));
+	    getTrackTreeDetails();
+	    loadTrackTree();
+	    $('#trackNew').addClass('active');
+	}
     $('#trackTree ul>li').trigger('click');
     $('#trackTree ul>li').find("[nodetype='parentNode']").first().click();
     $('#trackTree ul>li').find("[nodetype='childType']").first().click();
@@ -17,4 +31,5 @@
             }
         }
     });
+});
 </script>

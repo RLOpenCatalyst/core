@@ -120,7 +120,6 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 
 
 UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
-	var databaseReq={};
 	jsonData['searchColumns']=['ip','platformId'];
 	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
 		if(err){
@@ -129,34 +128,34 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 			});
 			return;
 		}
-		databaseReq=databaseCall;
+		else {
+			UnmanagedInstance.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
+				if (err) {
+					logger.error("Failed getByOrgProviderId (%s)", err);
+					callback(err, null);
+					return;
+				}
+				callback(null, instances);
+			});
+		}
 	});
-		this.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
-			if (err) {
-				logger.error("Failed getByOrgProviderId (%s)", err);
-				callback(err, null);
-				return;
-			}
-			callback(null, instances);
-		});
 };
 
-UnmanagedInstanceSchema.statics.getUnManagedInstanceByProviderId = function(providerId,callback){
+UnmanagedInstanceSchema.statics.getUnManagedInstanceByProviderId = function(providerId, callback) {
 	logger.debug("Enter getUnManagedInstanceByProviderId (%s)", providerId);
-
-	this.find({
+	UnmanagedInstance.find({
 		providerId: providerId
 	}, function(err, data) {
 		if (err) {
-			logger.error("Failed getUnManagedInstanceByProviderId (%s)", providerId, err);
+			logger.error("Failed getUnManagedInstanceByProviderId (%s)", providerId,err);
 			callback(err, null);
 			return;
 		}
 		logger.debug("Exit getUnManagedInstanceByProviderId (%s)", providerId);
 		callback(null, data);
-
 	});
-}
+};
+
 //End By Durgesh
 
 UnmanagedInstanceSchema.statics.getInstanceTagByProviderId = function(providerIds, callback) {

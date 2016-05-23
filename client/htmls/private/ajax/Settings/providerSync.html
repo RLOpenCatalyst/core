@@ -713,7 +713,6 @@
                         $('#'+id).css('background-color','lightyellow');
                     },
                     error: function(jxhr) {
-
                     }
                 });
             });
@@ -986,16 +985,7 @@
                             $('#spanprojectMappingSaveId').delay(2000).fadeOut();
                         },
                         error: function(jqxhr) {
-                            /*var msg = " ";
-                             if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                             msg = jxhr.responseJSON.message;
-                             } else if (jxhr.responseText) {
-                             msg = jxhr.responseText;
-                             }
-                             //bootbox.alert(msg);
-                             $('#spanprojectMappingSaveId').fadeIn();
-                             $('#spanprojectMappingSaveId').html(msg);
-                             $('#spanprojectMappingSaveId').delay(2000).fadeOut();*/
+
                         }
                     });
                 }
@@ -1231,34 +1221,30 @@
         function loadManagedInstances(managnedData) {
             $instanceManagedDatatable.clear().draw();
             var $tbody = $('#managedInstance tbody').empty();
-            for (var i = 0; i < managnedData.length; i++) {
-                var $tr = $('<tr class="managedInstance"></tr>').attr('data-id',managnedData[i]._id);
-                var $tdId = $('<td></td>').append(managnedData[i].platformId);
+            for (var i = 0; i < managnedData.managedInstances.length; i++) {
+                var $tr = $('<tr class="managedInstance"></tr>').attr('data-id',managnedData.managedInstances[i]._id);
+                var $tdId = $('<td></td>').append(managnedData.managedInstances[i].platformId);
                 $tr.append($tdId);
 
-                var $tdOs = $('<td></td>').append(managnedData[i].hardware.os);
+                var $tdOs = $('<td></td>').append(managnedData.managedInstances[i].hardware.os);
                 $tr.append($tdOs);
 
-                var $tdIpAddress = $('<td></td>').append(managnedData[i].instanceIP);
+                var $tdIpAddress = $('<td></td>').append(managnedData.managedInstances[i].instanceIP);
                 $tr.append($tdIpAddress);
 
-                var region = '';
-                if (managnedData[i].providerData && managnedData[i].providerData.region) {
-                    region = managnedData[i].providerData.region;
-                }
-                var $tdRegion = $('<td></td>').append(region);
+                var $tdRegion = $('<td></td>').append(managnedData.managedInstances[i].region);
                 $tr.append($tdRegion);
-                var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
+                var $tdStatus = $('<td></td>').append(managnedData.managedInstances[i].instanceState);
                 $tr.append($tdStatus);
 
-                var $projectName = $('<td></td>').append(managnedData[i].projectName);
+                var $projectName = $('<td></td>').append(managnedData.managedInstances[i].projectName);
                 $tr.append($projectName);
-                var $environmentName = $('<td></td>').append(managnedData[i].environmentName);
+                var $environmentName = $('<td></td>').append(managnedData.managedInstances[i].environmentName);
                 $tr.append($environmentName);
 
                 var $button = '';
 
-                if (managnedData[i].instanceState === 'terminated') {
+                if (managnedData.managedInstances[i].instanceState === 'terminated') {
 
                     $button = $('<div class="btn-group marginleft14"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
                     $button.click(function() {
@@ -1306,36 +1292,32 @@
         function loadUnmanagedInstances(unManagnedData) {
             $instanceUnManagedDatatable.clear().draw();
             var $tbody = $('#unManagedInstance tbody').empty();
-            for (var i = 0; i < unManagnedData.length; i++) {
-                var $tr = $('<tr></tr>').attr('instanceId', unManagnedData[i]._id);
-                var $tdId = $('<td></td>').append(unManagnedData[i].platformId);
+            for (var i = 0; i < unManagnedData.unmanagedInstances.length; i++) {
+                var $tr = $('<tr></tr>').attr('instanceId', unManagnedData.unmanagedInstances[i]._id);
+                var $tdId = $('<td></td>').append(unManagnedData.unmanagedInstances[i].platformId);
                 $tr.append($tdId);
-
-                var $tdOs = $('<td></td>').append(unManagnedData[i].os);
+                var $tdOs = $('<td></td>').append(unManagnedData.unmanagedInstances[i].os);
                 $tr.append($tdOs);
 
-                var $tdIpAddress = $('<td></td>').append(unManagnedData[i].ip);
+                var $tdIpAddress = $('<td></td>').append(unManagnedData.unmanagedInstances[i].ip);
                 $tr.append($tdIpAddress);
-
                 var region = '';
-                if (unManagnedData[i].providerData && unManagnedData[i].providerData.region) {
-                    region = unManagnedData[i].providerData.region;
+                if (unManagnedData.unmanagedInstances[i].providerData && unManagnedData.unmanagedInstances[i].providerData.region) {
+                    region = unManagnedData.unmanagedInstances[i].providerData.region;
                 }
                 var $tdRegion = $('<td></td>').append(region);
                 $tr.append($tdRegion);
-                var $tdStatus = $('<td></td>').append(unManagnedData[i].state);
+                var $tdStatus = $('<td></td>').append(unManagnedData.unmanagedInstances[i].state);
                 $tr.append($tdStatus);
 
 
-                var $projectName = $('<td></td>').append(unManagnedData[i].projectName);
+                var $projectName = $('<td></td>').append(unManagnedData.unmanagedInstances[i].projectName);
                 $tr.append($projectName);
-                var $environmentName = $('<td></td>').append(unManagnedData[i].environmentName);
+                var $environmentName = $('<td></td>').append(unManagnedData.unmanagedInstances[i].environmentName);
                 $tr.append($environmentName);
-
-
                 var $input = '';
-                if (unManagnedData[i].state === 'running') {
-                    $input = $('<input class="nodeCheckBox" type="checkbox">').val(unManagnedData[i]._id);
+                if (unManagnedData.unmanagedInstances[i].state === 'running') {
+                    $input = $('<input class="nodeCheckBox" type="checkbox">').val(unManagnedData.unmanagedInstances[i]._id);
                 }
                 var $tdAction = $('<td></td>').append($input);
                 $tr.append($tdAction);
@@ -1409,7 +1391,9 @@
         //loading Managed Data
         function getManagedInstances() {
             $.get('/providers/' + urlproviderId + '/managedInstances', function(managedInstances) {
-                loadManagedInstances(managedInstances);
+                if(managedInstances) {
+                    loadManagedInstances(managedInstances);
+                }
             }).fail(function(jxhr) {
                 var msg = "Provider Sync Behaved Unexpectedly.";
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -1424,7 +1408,7 @@
         //loading Assigned Data
         function getUnmanagedInstances() {
             $.get('/providers/' + urlproviderId + '/unmanagedInstances', function(unmanagnedInstances) {
-                if(unmanagnedInstances){
+                if(unmanagnedInstances) {
                     loadUnmanagedInstances(unmanagnedInstances);
                 }
             }).fail(function(jxhr) {
@@ -1440,7 +1424,6 @@
 
         //loading UnAssigned Data
         function getUnassignedInstances() {
-
             $.get('/providers/'+ urlproviderId +'/tag-mappings', function(tagsListSelected) {
                 if(tagsListSelected){
                     var envprojMappingObject = {};
