@@ -27,6 +27,18 @@ blueprintValidator.launch = {
     }
 };
 
+blueprintValidator.create = {
+    body: {
+        "name": Joi.string().required(),
+        "organizationId": Joi.string().required(),
+        "businessGroupId": Joi.string().required(),
+        "projectId": Joi.string().required(),
+        "networkProfileId": Joi.string().required(),
+        "vmImageId": Joi.string().required(),
+        "machineType": Joi.string().required(),
+    }
+};
+
 blueprintValidator.upgrade = {
 
 };

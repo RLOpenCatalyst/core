@@ -330,7 +330,7 @@ router.get('/:blueprintId', getBlueprint);
  *      }
  */
 
-router.post('/', function createBlueprint(req, res, next) {
+router.post('/', validate(blueprintValidator.create), function createBlueprint(req, res, next) {
 
 
     var blueprintData = {
@@ -592,9 +592,9 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
                 blueprintService.createNew(blueprintData, next);
             },
             userService.updateOwnerDetails,
-            function(updatedBP,next) {
+            function(updatedBP, next) {
                 var respObj = blueprintService.createBlueprintResponseObject(updatedBP);
-                next(null,respObj);
+                next(null, respObj);
             }
 
         ], function(err, results) {
