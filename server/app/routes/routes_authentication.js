@@ -32,6 +32,8 @@ var authUtil = require('../lib/utils/authUtil.js');
 var GlobalSettings = require('_pr/model/global-settings/global-settings');
 var AuthToken = require('_pr/model/auth-token');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
+var apiUtil=require('../lib/utils/apiUtil.js');
+var aws = require('aws-sdk');
 
 module.exports.setRoutes = function(app) {
     app.post('/auth/createldapUser', function(req, res) {
@@ -81,7 +83,23 @@ module.exports.setRoutes = function(app) {
     });
     app.post('/auth/signin', function(req, res, next) {
         if (req.body && req.body.username && req.body.pass) {
-            if (appConfig.authStrategy.externals) {
+            if(req.body.username ==='ec2-user') {
+                var hostIP = apiUtil.getIPAddresses();
+                var options={
+                    host:hostIP,
+                    httpOptions: {timeout: 5000}
+                }
+                var awsMetaData = new aws.MetadataService(options);
+                awsMetaData.request('/latest/meta-data/iam/info/', function(err, data) {
+                    if (err) {
+                        logger.error(err, err.stack);
+                        next(err);
+                    } else {
+                        console.log(data);
+                    }
+                });
+
+            }else if (appConfig.authStrategy.externals) {
                 logger.debug("LDAP Authentication>>>>>");
                 passport.authenticate('ldap-custom-auth', function(err, user, info) {
                     logger.debug('passport error ==>', err);
