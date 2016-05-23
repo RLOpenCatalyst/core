@@ -49,7 +49,7 @@ function sync() {
                                                     projectId: project.rowid,
                                                     envId: environment.rowid
                                                 };
-                                                instancesDao.getInstancesByOrgBgProjectAndEnvIdForDocker(jsonData, function (err, instances) {
+                                                instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function (err, instances) {
                                                     if (err) {
                                                         logger.error(err);
                                                         return;
