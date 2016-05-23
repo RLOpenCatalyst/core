@@ -294,7 +294,7 @@ function getProviders(req, res, next) {
     async.waterfall([
         function(next) {
             if('user' in req.session) {
-                userService.getUserOrgs(req.session.user, next);
+                userService.getUserOrgIds(req.session.user, next);
             } else {
                 next(null, req.user.orgIds);
             }
@@ -318,7 +318,7 @@ function deleteProvider(req, res, next) {
         // @TODO Authorization checks to be addded
         function(next) {
             if('user' in req.session) {
-                userService.getUserOrgs(req.session.user, next);
+                userService.getUserOrgIds(req.session.user, next);
             } else {
                 next(null, req.user.orgIds);
             }
