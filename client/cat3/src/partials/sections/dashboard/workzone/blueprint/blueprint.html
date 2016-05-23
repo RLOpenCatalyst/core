@@ -141,7 +141,7 @@
                             <div class="productdiv4" ng-repeat="launcher in blueprints.docker">
                                 <div class="productdiv1 cardimage role-Selected1" data-blueprinttype="instance_launch" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
-                                        <div class="bp-more-info-section">
+                                        <div class="bp-more-info-section-docker">
                                             <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
                                                 <i class="fa fa-info-circle"></i>
                                             </span>
@@ -149,21 +149,23 @@
                                         <li>
                                             <img src="images/global/docker.png" alt="Docker" class="card-logo-docker"></li>
                                         <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.cardVersions.name}}</b></u>
+                                          <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                         <div class="docker-repo-list">
-                                            <ul class="docker-repo" ng-repeat="docker in launcher.blueprintConfig.dockerCompose">
+                                            <ul class="docker-repo" ng-repeat="docker in launcher.blueprintConfig.dockerCompose" ng-show="launcher.blueprintConfig.dockerCompose.length<2">
                                                 <li class="docker-image-text">
                                                     <i class="fa fa-check-square docker-image-name"></i> 
                                                     {{docker.dockercontainerpathstitle}}
                                                 </li>
                                             </ul>
+                                            <span class="docker-repo-list-link cursor" ng-show="launcher.blueprintConfig.dockerCompose.length>1" ng-click="showDockerRepoList(launcher)">
+                                                Show Repos
+                                            </span>
                                         </div>
                                     </ul>
-                                    <div class="bp-version-dropdown-wrapper">
+                                    <div class="bp-version-dropdown-wrapper-docker">
                                         <span class="bp-version-dropdown-text">Version: </span>
-                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'docker');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'docker')">
-                                        </select>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'docker');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'docker')"></select>
                                     </div>
                                     <div class="blueprint-buttons-docker">
                                         <div class="btnicons">
