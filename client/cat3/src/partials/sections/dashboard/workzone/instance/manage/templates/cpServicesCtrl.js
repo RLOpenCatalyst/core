@@ -111,17 +111,6 @@
                 $scope.initGrids();
                 $scope.cpServivceListView();
             };
-            /*$rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
-                if(tabName === 'Services'){
-                    $scope.isServicePageLoading = true;
-                    var tableData = $scope.tabData;
-                    $scope.tabData = [];
-                    $timeout(function(){
-                        $scope.tabData = tableData;
-                        $scope.isServicePageLoading = false;
-                    });
-                }
-            });*/
 
             $scope.init();
         }]).controller('addServiceCtrl', ['$scope', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', 'serviceTabItems', 'cacheServices', 'instanceFactories', function ($scope, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, serviceTabItems, cacheServices, instanceFactories) {

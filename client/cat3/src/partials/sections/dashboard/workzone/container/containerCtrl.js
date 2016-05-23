@@ -202,17 +202,6 @@
 				helper.setPaginationDefaults();
 			});
 			
-			$rootScope.$on('WZ_TAB_VISIT', function(event, tabName) {
-				if (tabName === 'Containers') {
-					$scope.isContainerPageLoading = true;
-					var tableData = $scope.tabData;
-					$scope.tabData = [];
-					$timeout(function() {
-						$scope.tabData = tableData;
-						$scope.isContainerPageLoading = false;
-					}, 100);
-				}
-			});
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.envParams = requestParams;
 				$scope.initGrids();

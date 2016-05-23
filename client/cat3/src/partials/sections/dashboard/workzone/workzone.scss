@@ -190,6 +190,7 @@
 	padding: 0px !important;
 	visibility: hidden;
 	height: 0px !important;
+	overflow: hidden;
 }
 .show-grid-tab{
 	visibility: visible;
@@ -198,4 +199,18 @@
 .show-grid{
 	visibility: inherit;
 	height: auto;
+}
+
+//For active tab view
+.app-tab-active{
+	background-color: #fff !important;
+    border: 1px solid #40baf1 !important;
+    border-bottom: 0px !important;
+    box-shadow: 0 -1px 5px -1px;
+    border-radius: 0px;
+    color: #40baf1 !important;
+    font-weight: 500;
+    i{
+    	color: #40baf1 !important;
+    }
 }
