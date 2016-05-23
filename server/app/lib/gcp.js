@@ -35,7 +35,7 @@ var GCP = function GCP(params) {
         }*/
         // Create a new VM using the latest OS image of your choice. 
         var zone = gce.zone(params.networkConfig.networkDetails.zone);
-        var name = "d4d-" + params.blueprints.name.toLowerCase()+new Date().getTime();
+        var name = "d4d-" + params.blueprints.name.toLowerCase() + new Date().getTime();
 
         var paramConfig = {
             "name": name,
@@ -44,7 +44,7 @@ var GCP = function GCP(params) {
             "metadata": {
                 "items": [{
                     "key": "ssh-keys",
-                    "value": params.blueprints.vmImage.userName+':'+new Buffer(params.providers.providerDetails.sshPublicKey, 'base64').toString()
+                    "value": params.blueprints.vmImage.userName + ':' + new Buffer(params.providers.providerDetails.sshPublicKey, 'base64').toString()
                 }]
             },
             "tags": {
@@ -71,7 +71,7 @@ var GCP = function GCP(params) {
                 }]
             }]
         };
-        
+
         zone.createVM(name, paramConfig, function(err, vm, operation) {
             if (err) {
                 logger.debug("Error while creating VM: ", err);
@@ -158,19 +158,41 @@ var GCP = function GCP(params) {
     this.startVM = function startVM(instance, callback) {
         var zone = gce.zone(instance.zone);
         var vm = zone.vm(instance.name);
-        vm.stop(function(err, operation, apiResponse) {
+        vm.start(function(err, operation, apiResponse) {
             if (err) {
                 var error = new Error("Failed to start Instance in GCP.");
                 error.status = 500;
                 return callback(error, null);
             }
-            operation.on('complete', function(data) {
-                return callback(null, data);
+            operation.on('complete', function(metadata) {
+                gce.getVMs({
+                    filter: "id eq " + metadata.targetId
+                }, function(err, data) {
+                    if (err) {
+                        logger.debug("Error to fetch VM: ", err);
+                        var error = new Error("Failed to get VM from GCP.");
+                        error.status = 500;
+                        return callback(error, null);
+                    }
+                    if (data && data.length) {
+                        var name = data[0].metadata.name;
+                        var id = data[0].metadata.id;
+                        var status = data[0].metadata.status;
+                        var ip = data[0].metadata.networkInterfaces[0].accessConfigs[0].natIP || data[0].metadata.networkInterfaces[0].networkIP;
+                        logger.debug("After start : ",ip,status);
+                        return callback(null, { "id": id, "name": name, "status": status, "ip": ip, "prvider": params.providers });
+                    } else {
+                        var error = new Error("No VM found from GCP.");
+                        error.status = 404;
+                        return callback(error, null);
+                    }
+                });
             });
         });
     };
 
     this.stopVM = function stopVM(instance, callback) {
+        logger.debug("Stop vm params: ", JSON.stringify(instance));
         var zone = gce.zone(instance.zone);
         var vm = zone.vm(instance.name);
         vm.stop(function(err, operation, apiResponse) {
@@ -179,7 +201,45 @@ var GCP = function GCP(params) {
                 error.status = 500;
                 return callback(error, null);
             }
+            operation.on('complete', function(metadata) {
+                gce.getVMs({
+                    filter: "id eq " + metadata.targetId
+                }, function(err, data) {
+                    if (err) {
+                        logger.debug("Error to fetch VM: ", err);
+                        var error = new Error("Failed to get VM from GCP.");
+                        error.status = 500;
+                        return callback(error, null);
+                    }
+                    if (data && data.length) {
+                        var name = data[0].metadata.name;
+                        var id = data[0].metadata.id;
+                        var status = data[0].metadata.status;
+                        var ip = data[0].metadata.networkInterfaces[0].accessConfigs[0].natIP || data[0].metadata.networkInterfaces[0].networkIP;
+                        logger.debug("After stop : ",ip,status);
+                        return callback(null, { "id": id, "name": name, "status": status, "ip": ip, "prvider": params.providers });
+                    } else {
+                        var error = new Error("No VM found from GCP.");
+                        error.status = 404;
+                        return callback(error, null);
+                    }
+                });
+            });
+        });
+    };
+
+    this.deleteVM = function stopVM(instance, callback) {
+        logger.debug("Stop vm params: ", JSON.stringify(instance));
+        var zone = gce.zone(instance.zone);
+        var vm = zone.vm(instance.name);
+        vm.delete(function(err, operation, apiResponse) {
+            if (err) {
+                var error = new Error("Failed to delete Instance in GCP.");
+                error.status = 500;
+                return callback(error, null);
+            }
             operation.on('complete', function(data) {
+                logger.debug("Deleted instance response: ", JSON.stringify(data));
                 return callback(null, data);
             });
         });

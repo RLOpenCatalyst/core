@@ -48,6 +48,9 @@ var shellEscape = require('shell-escape');
 var Puppet = require('_pr/lib/puppet.js');
 var masterUtil = require('_pr/lib/utils/masterUtil');
 var fs = require('fs');
+var providerService = require('_pr/services/providerService.js');
+var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
+var GCP = require('_pr/lib/gcp.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -618,7 +621,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 break;
         }
 
-       var cmd = 'sudo docker ' + action + ' ' + req.params.containerid;
+        var cmd = 'sudo docker ' + action + ' ' + req.params.containerid;
         if (action == 'delete') {
             cmd = 'sudo docker stop ' + req.params.containerid + ' &&  sudo docker rm ' + req.params.containerid;
         }
@@ -1751,6 +1754,80 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                 });
 
+                            } else if (data[0].providerType && data[0].providerType == 'GCP') {
+                                providerService.getProvider(data[0].providerId, function(err, provider) {
+                                    if (err) {
+                                        res.status(500).send({
+                                            message: "Error while fetching Provider."
+                                        });
+                                        return;
+                                    }
+                                    var gcpProvider = new gcpProviderModel(provider);
+                                    // Get file from provider decode it and save, after use delete file
+                                    // Decode file content with base64 and save.
+                                    var base64Decoded = new Buffer(gcpProvider.providerDetails.keyFile, 'base64').toString();
+                                    fs.writeFile('/tmp/' + provider.id + '.json', base64Decoded);
+                                    var params = {
+                                        "projectId": gcpProvider.providerDetails.projectId,
+                                        "keyFilename": '/tmp/' + provider.id + '.json'
+                                    }
+                                    var gcp = new GCP(params);
+                                    var gcpParam = {
+                                        "zone": data[0].zone,
+                                        "name": data[0].name
+                                    }
+                                    gcp.stopVM(gcpParam, function(err, vmResponse) {
+                                        if (err) {
+                                            if (err) {
+                                                var timestampEnded = new Date().getTime();
+                                                logsDao.insertLog({
+                                                    referenceId: logReferenceIds,
+                                                    err: true,
+                                                    log: "Unable to stop instance",
+                                                    timestamp: timestampEnded
+                                                });
+                                                instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                fs.unlink('/tmp/' + provider.id + '.json', function(err) {
+                                                    if (err) {
+                                                        logger.error("Unable to delete json file.");
+                                                    }
+                                                });
+                                                res.status(500).send({
+                                                    actionLogId: actionLog._id
+                                                });
+                                                return;
+                                            }
+                                        } else {
+                                            instancesDao.updateInstanceIp(req.params.instanceId, vmResponse.ip, function(err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance ip err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance ip upadated');
+                                            });
+                                            instancesDao.updateInstanceState(req.params.instanceId, "stopped", function(err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance state err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance state upadated');
+                                            });
+                                            var timestampEnded = new Date().getTime();
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Stopped",
+                                                timestamp: timestampEnded
+                                            });
+                                            instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                            fs.unlink('/tmp/' + provider.id + '.json', function(err) {
+                                                if (err) {
+                                                    logger.error("Unable to delete json file.");
+                                                }
+                                            });
+                                        }
+                                    });
+                                });
                             } else {
                                 AWSProvider.getAWSProviderById(data[0].providerId, function(err, aProvider) {
                                     if (err) {
@@ -2126,6 +2203,99 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                 });
 
+                            } else if (data[0].providerType && data[0].providerType == 'GCP') {
+                                var providerService = require('_pr/services/providerService.js');
+                                var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
+                                var GCP = require('_pr/lib/gcp.js');
+                                providerService.getProvider(data[0].providerId, function(err, provider) {
+                                    if (err) {
+                                        res.status(500).send({
+                                            message: "Error while fetching Provider."
+                                        });
+                                        return;
+                                    }
+                                    var gcpProvider = new gcpProviderModel(provider);
+                                    // Get file from provider decode it and save, after use delete file
+                                    // Decode file content with base64 and save.
+                                    var base64Decoded = new Buffer(gcpProvider.providerDetails.keyFile, 'base64').toString();
+                                    fs.writeFile('/tmp/' + provider.id + '.json', base64Decoded);
+                                    var params = {
+                                        "projectId": gcpProvider.providerDetails.projectId,
+                                        "keyFilename": '/tmp/' + provider.id + '.json'
+                                    }
+                                    var gcp = new GCP(params);
+                                    var gcpParam = {
+                                        "zone": data[0].zone,
+                                        "name": data[0].name
+                                    }
+
+                                    var timestampStarted = new Date().getTime();
+                                    var actionLog = instancesDao.insertStartActionLog(req.params.instanceId, req.session.user.cn, timestampStarted);
+                                    var logReferenceIds = [req.params.instanceId];
+                                    if (actionLog) {
+                                        logReferenceIds.push(actionLog._id);
+                                    }
+
+
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: false,
+                                        log: "Instance Starting",
+                                        timestamp: timestampStarted
+                                    });
+
+                                    gcp.startVM(gcpParam, function(err, vmResponse) {
+                                        if (err) {
+                                            if (err) {
+                                                var timestampEnded = new Date().getTime();
+                                                logsDao.insertLog({
+                                                    referenceId: logReferenceIds,
+                                                    err: true,
+                                                    log: "Unable to start instance",
+                                                    timestamp: timestampEnded
+                                                });
+                                                instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                fs.unlink('/tmp/' + provider.id + '.json', function(err) {
+                                                    if (err) {
+                                                        logger.error("Unable to delete json file.");
+                                                    }
+                                                });
+                                                res.status(500).send({
+                                                    actionLogId: actionLog._id
+                                                });
+                                                return;
+                                            }
+                                        } else {
+                                            instancesDao.updateInstanceIp(req.params.instanceId, vmResponse.ip, function(err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance ip err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance ip upadated');
+                                            });
+                                            instancesDao.updateInstanceState(req.params.instanceId, "running", function(err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance state err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance state upadated');
+                                            });
+                                            var timestampEnded = new Date().getTime()
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Started",
+                                                timestamp: timestampEnded
+                                            });
+                                            instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                            fs.unlink('/tmp/' + provider.id + '.json', function(err) {
+                                                if (err) {
+                                                    logger.error("Unable to delete json file.");
+                                                }
+                                            });
+                                        }
+                                    });
+                                });
                             } else {
                                 AWSProvider.getAWSProviderById(data[0].providerId, function(err, aProvider) {
                                     if (err) {
