@@ -225,17 +225,15 @@ containerSchema.statics.deleteContainersByContainerIds=function(instanceId,conta
     });
 };
 
-containerSchema.statics.getAllContainersByOrgId=function(orgId,callback){
-    logger.debug("Enter getAllContainersByOrgId");
-    container.find({
-        orgId:orgId
-    },function(err, containers) {
+containerSchema.statics.getAllContainers=function(callback){
+    logger.debug("Enter getAllContainers");
+    container.find({},function(err, containers) {
         if (err) {
-            logger.error("getAllContainersByOrgId Failed", err,orgId);
+            logger.error("getAllContainers Failed", err);
             callback(err, null);
             return;
         }
-        logger.debug("Exit getAllContainersByOrgId : ");
+        logger.debug("Exit getAllContainers : ");
         callback(null, containers);
     });
 }
