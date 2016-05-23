@@ -24,6 +24,7 @@
 						temp.iconpath = this.getIconPath(temp);
 						temp.cardVersions = this.getVersionList(temp);
 						temp.selectedVersionBpId = temp.cardVersions[0].id;
+						//temp.selectedVersionBpName = temp.cardVersions[0].name;
 						switch (temp.templateType) {
 							case "chef":
 								list.software_stack.push(temp);
@@ -69,6 +70,11 @@
 			$scope.oneAtATime = true;
 			/*Initialising First Accordian-group open on load*/
 			$scope.isFirstOpen = true;
+			$scope.newVersionNameSS='';
+			$scope.newVersionNameOS='';
+			$scope.newVersionNameDocker='';
+			$scope.newVersionNameARM='';
+			$scope.newVersionNameCF='';
 
 			var envParams ;
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, data) {
@@ -92,6 +98,30 @@
 						console.log(error);
 						$scope.errorMessage = "No Records found";
 					});
+				},
+				//method used to change the bp Name when the version is changed.
+				changeCardVersion: function(blueprintObj,bpType){	
+					var idx = $scope.blueprints[bpType].indexOf(blueprintObj);
+					var cardVersions = $scope.blueprints[bpType][idx].cardVersions;
+					angular.forEach(cardVersions,function(val){
+						if(val.id === $scope.blueprints[bpType][idx].selectedVersionBpId){
+							if(bpType === 'software_stack'){
+								$scope.newVersionNameSS = val.name;
+							}
+							if(bpType === 'os_image'){
+								$scope.newVersionNameOS = val.name;	
+							}
+							if(bpType === 'docker'){
+								$scope.newVersionNameDocker = val.name;	
+							}
+							if(bpType === 'azureARM'){
+								$scope.newVersionNameARM = val.name;	
+							}
+							if(bpType === 'cloudFormation'){
+								$scope.newVersionNameCF = val.name;	
+							}
+						}
+					})
 				},
 				launchInstance: function(blueprintObj) {
 				    $modal.open({
