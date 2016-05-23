@@ -604,7 +604,7 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
  * @apiSuccess {Object} Empty response object
  *
  */
-// router.delete('/:blueprintId', deleteBlueprint);
+router.delete('/:blueprintId', deleteBlueprint);
 
 function getBlueprint(req, res, next) {
     async.waterfall([
@@ -661,7 +661,7 @@ function deleteBlueprint(req, res, next) {
             blueprintService.checkBlueprintAccess(orgs, req.params.blueprintId, next);
         },
         function(blueprint, next) {
-            blueprintServiceService.deleteBlueprint(blueprint._id, next);
+            blueprintService.deleteBlueprint(blueprint._id, next);
         },
     ], function(err, result) {
         if (err) {
