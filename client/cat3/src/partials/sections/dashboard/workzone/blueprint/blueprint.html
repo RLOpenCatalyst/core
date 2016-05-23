@@ -25,8 +25,8 @@
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="softwareStack" class="cardLogo">
                                         </li>
-                                        <li title="{{(newVersionNameSS)?newVersionNameSS:launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{(newVersionNameSS)?newVersionNameSS:launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
                                     <div class="blueprint-buttons">
@@ -67,8 +67,8 @@
                                         </div>           
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="OSImage" class="cardLogo"></li>
-                                        <li title="{{(newVersionNameOS)?newVersionNameOS:launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{(newVersionNameOS)?newVersionNameOS:launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
                                     <div class="blueprint-buttons">
@@ -103,8 +103,8 @@
                                         </div>
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="CFT" class="cardLogo"></li>
-                                        <li title="{{(newVersionNameCF)?newVersionNameCF:launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{(newVersionNameCF)?newVersionNameCF:launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
                                     <div class="blueprint-buttons">
@@ -139,8 +139,8 @@
                                         </div>
                                         <li>
                                             <img src="images/global/docker.png" alt="Docker" class="card-logo-docker"></li>
-                                        <li title="{{(newVersionNameDocker)?newVersionNameDocker:launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{(newVersionNameDocker)?newVersionNameDocker:launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                         <div class="docker-repo-list">
                                             <ul class="docker-repo" ng-repeat="docker in launcher.blueprintConfig.dockerCompose">
@@ -184,8 +184,8 @@
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="azureARM" class="cardLogo">
                                         </li>
-                                        <li title="{{(newVersionNameARM)?newVersionNameARM:launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{(newVersionNameARM)?newVersionNameARM:launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
                                     <div class="blueprint-buttons">

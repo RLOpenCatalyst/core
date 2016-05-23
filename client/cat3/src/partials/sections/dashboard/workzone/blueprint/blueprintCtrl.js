@@ -70,11 +70,6 @@
 			$scope.oneAtATime = true;
 			/*Initialising First Accordian-group open on load*/
 			$scope.isFirstOpen = true;
-			$scope.newVersionNameSS='';
-			$scope.newVersionNameOS='';
-			$scope.newVersionNameDocker='';
-			$scope.newVersionNameARM='';
-			$scope.newVersionNameCF='';
 
 			var envParams ;
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, data) {
@@ -106,19 +101,19 @@
 					angular.forEach(cardVersions,function(val){
 						if(val.id === $scope.blueprints[bpType][idx].selectedVersionBpId){
 							if(bpType === 'software_stack'){
-								$scope.newVersionNameSS = val.name;
+								cardVersions.name = val.name;
 							}
 							if(bpType === 'os_image'){
-								$scope.newVersionNameOS = val.name;	
+								cardVersions.name = val.name;
 							}
 							if(bpType === 'docker'){
-								$scope.newVersionNameDocker = val.name;	
+								cardVersions.name = val.name;
 							}
 							if(bpType === 'azureARM'){
-								$scope.newVersionNameARM = val.name;	
+								cardVersions.name = val.name;	
 							}
 							if(bpType === 'cloudFormation'){
-								$scope.newVersionNameCF = val.name;	
+								cardVersions.name = val.name;
 							}
 						}
 					})
