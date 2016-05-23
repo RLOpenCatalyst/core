@@ -20,7 +20,7 @@
 	<div class="modal-body">
 		<div class="cp-container">
 			<div class="row">
-				<ul id="myTab3" class="nav nav-tabs tabs-pull-left" ng-show="tileView">
+				<!-- <ul id="myTab3" class="nav nav-tabs tabs-pull-left" ng-show="tileView">
 					<li ng-class="{active:tab.isSet('Information')}">
 						<a ng-click="tab.setTab('Information');removeActive()">
 							<i class="fa fa-fw fa-info black"></i>&nbsp;
@@ -51,7 +51,64 @@
 							Instance Actions
 						</a>
 					</li>
-				</ul>
+				</ul> -->
+				<div class="cp-cards" ng-show="tileView">
+					<div class="card" ng-class="{'card-border' :inst._id == selectedCard}" ng-click="tab.setTab('Information');removeActive()">
+						<div class="card-info-wrapper">
+							<div>
+								<i class="fa fa-fw fa-info"></i>
+							</div>
+							<div>
+								<span class="card-page-name">Information</span>
+							</div>
+						</div>
+					</div>
+					<div class="card" ng-class="{'card-border' :inst._id == selectedCard}" ng-click="tab.setTab('Actionhistory');removeActive()">
+						<div class="card-info-wrapper">
+							<div>
+								<i class="fa fa-sun-o"></i>
+							</div>
+							<div>
+								<span class="card-page-name">Action History</span>
+							</div>
+						</div>
+					</div>
+					<div class="card" ng-class="{'card-border' :inst._id == selectedCard}" ng-click="tab.setTab('Services');removeActive()">
+						<div class="card-info-wrapper">
+							<div>
+								<i class="fa fa-share-square-o"></i>
+							</div>
+							<div>
+								<span class="card-page-name">Services</span>
+							</div>
+						</div>
+					</div>
+					<div class="card" ng-class="{'card-border' :inst._id == selectedCard}" ng-click="tab.setTab('Logs');removeActive()">
+						<div class="card-info-wrapper">
+							<div>
+								<i class="fa fa-clock-o"></i>
+							</div>
+							<div>
+								<span class="card-page-name">Logs</span>
+							</div>
+						</div>
+					</div>
+					<div class="card" ng-class="{'card-border' :inst._id == selectedCard}" ng-click="tab.setTab('Instanceactions');removeActive()">
+						<div class="card-info-wrapper">
+							<div>
+								<i class="fa fa-list-ol"></i>
+							</div>
+							<div>
+								<span class="card-page-name">Actions</span>
+							</div>
+						</div>
+					</div>
+					<!-- <button type="button" class="btn cat-btn-update" ng-click="tab.setTab('Information');removeActive()">Information</button>
+					<button type="button" class="btn cat-btn-update" ng-click="tab.setTab('Actionhistory');removeActive()">Action History</button>
+					<button type="button" class="btn cat-btn-update" ng-click="tab.setTab('Services');removeActive()">Services</button>
+					<button type="button" class="btn cat-btn-update" ng-click="tab.setTab('Logs');removeActive()">Logs</button>
+					<button type="button" class="btn cat-btn-update" ng-click="tab.setTab('Instanceactions');removeActive()">Actions</button> -->
+				</div>
 				
 
 				<div class="{{tab.isSet('Actionhistory')? 'show-grid':'hide-grid'}}">
