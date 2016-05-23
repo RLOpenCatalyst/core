@@ -238,6 +238,20 @@ BlueprintSchema.statics.getAllByOrgs = function getAllByOrgs(orgIds, callback) {
     });
 };
 
+BlueprintSchema.statics.deleteById = function deleteById(blueprintId, callback) {
+    this.update(
+        {'_id': blueprintId},
+        { $set: {isDeleted: true} },
+        function(err, blueprint) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, true);
+            }
+        }
+    )
+};
 
 var Blueprint = mongoose.model('Blueprint', BlueprintSchema);
 module.exports = Blueprint;
