@@ -20,6 +20,7 @@ function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
     async.waterfall([
             function(next){
+               // masterDataForDockerContainerCronJob(next);
                 MasterUtils.getAllActiveOrg(next);
             },
             function(orgs,next) {
@@ -172,10 +173,8 @@ function sync() {
                             })
                         });
                     });
-                })
-            }
-        ],
-        function (err, results) {
+                });
+            }], function (err, results) {
             if(err){
                 logger.error(err);
                 return;
@@ -241,4 +240,69 @@ function deleteContainerByInstanceId(instanceId){
             return;
         });
 };
+
+/*
+function masterDataForDockerContainerCronJob(callback){
+    var environmentList=[];
+    var count=0;
+    console.log("Durgesh");
+    MasterUtils.getAllActiveOrg(function(err,orgs) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+        };
+        for (var i = 0; i < orgs.length; i++) {
+            (function(org){
+                MasterUtils.getBusinessGroupsByOrgId(org.rowid, function (err, businessGroups) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                };
+                count++;
+                for (var j = 0; j < businessGroups.length; j++) {
+                    (function (businessGroup) {
+                        MasterUtils.getProjectsBybgId(businessGroup.rowid, function (err, projects) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                            };
+                            for (var k = 0; k < projects.length; k++) {
+                                (function (project) {
+                                    MasterUtils.getEnvironmentsByprojectId(project.rowid, function (err, environments) {
+                                        if (err) {
+                                            logger.error(err);
+                                            callback(err, null);
+                                        } else if (environments.length > 0) {
+                                            for (var l = 0; l < environments.length; l++) {
+                                                (function (environment) {
+                                                    var jsonData = {
+                                                        orgId: org.rowid,
+                                                        bgId: businessGroup.rowid,
+                                                        projectId: project.rowid,
+                                                        envId: environment.rowid
+                                                    };
+                                                    environmentList.push(jsonData);
+                                                    jsonData = {};
+                                                    if (environments.length === count) {
+                                                        callback(null, environmentList);
+                                                    }
+
+                                                })(environments[l]);
+                                            }
+                                        } else {
+                                            callback(null, environmentList);
+                                        }
+
+                                    });
+                                })(projects[k]);
+                            }
+                        });
+                    })(businessGroups[j]);
+                }
+                });
+            })(orgs[i]);
+        }
+    });
+};
+*/
 
