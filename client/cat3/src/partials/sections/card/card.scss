@@ -287,7 +287,7 @@ $imagePath : "/cat3/images";
 	}
 
 	.cardimage {
-		background-image: url("#{$imagePath}/app-store-icons/box-ops.png");
+		/*background-image: url("#{$imagePath}/app-store-icons/box-ops.png");*/
 		background-repeat: no-repeat;
 		height: 160px;
 		margin-left: 15px;
@@ -335,6 +335,11 @@ $imagePath : "/cat3/images";
 		font-size: 23px;
 	}
 
+	.bp-version-dropdown-wrapper {
+		margin: 4px 0 0 19px;
+		height: 40px;
+	}
+
 	.btnicons {
 		margin: 0px 7px 5px 1px;
 		float: left;
@@ -364,7 +369,7 @@ $imagePath : "/cat3/images";
     }
 
 	.blueprint-buttons {
-		margin: 20px 0 0 5px;
+		margin: 0 0 0 32px;
 	}
 
 	.blueprint-buttons-docker {
@@ -377,7 +382,7 @@ $imagePath : "/cat3/images";
 
 	.bp-provider {
 		position: absolute;
-    	margin: 28px 0 0 5px;
+    	margin: 5px 0 0 5px;
 	}
 }
 
