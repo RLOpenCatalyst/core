@@ -191,6 +191,25 @@
 						
 					});
 				},
+				showDockerRepoList: function(dockerRepoList) {
+					var modalInstance = $modal.open({
+						animation: true,
+						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/dockerRepoList.html',
+						controller: 'dockerRepoListCtrl',
+						backdrop : 'static',
+						keyboard: false,
+						resolve: {
+							items: function() {
+								return dockerRepoList;
+							}
+						}
+					});
+					modalInstance.result.then(function(selectedItem) {
+						$scope.selected = selectedItem;
+					}, function() {
+						
+					});
+				},
 				removeBlueprint: function(blueprintObj, bpType) { 
 					$modal.open({
 						animate: true,
