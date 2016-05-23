@@ -46,9 +46,9 @@ var containerDao = require('../model/container');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
-	app.get('/organizations/:orgId/dockerContainerList',function(req,res){
+	app.get('/containers',function(req,res){
 		logger.debug("Enter get() for all docker Containers");
-		containerDao.getAllContainersByOrgId(req.params.orgId,function(err,containerList){
+		containerDao.getAllContainers(function(err,containerList){
 			if(err){
 				logger.error(err);
 				res.send(err);
