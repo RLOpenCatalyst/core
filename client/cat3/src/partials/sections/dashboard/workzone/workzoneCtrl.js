@@ -14,8 +14,7 @@ function workzoneFunct($scope, $rootScope) {
 	var _tab = {
 		tab : "Instances",
 		setTab : function (tabId) {
-			_tab.tab = tabId;
-			$rootScope.$emit('WZ_TAB_VISIT', $scope.tab.tab);		
+			_tab.tab = tabId;	
 		},
 		isSet : function (tabId) {
 			return _tab.tab === tabId;
@@ -96,7 +95,7 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 		'use strict';
 		//For showing menu icon in menu over breadcrumb without position flickering during load
 		$scope.isLoading = true;
-		$scope.showTree = false;
+		$scope.showTree = true;
 		function getParams(str) {
 			var l = str.split('&');
 			var list = [];
@@ -112,12 +111,22 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 			};
 		}
 
-		$scope.showTreeOverlay = function () {
-			$scope.showTree = true;
-		};
-
 		$scope.hideTreeOverlay = function () {
 			$scope.showTree = false;
+			$(".panelRight").css("width", "97%");
+			$("#navigPage").addClass("tree-close");
+			$(".minifyme").css("left", "0px");
+			$(".minifyme").css("border-radius", "0px");
+			$(".minifyme").css("width", "35px");
+		};
+
+		$scope.showTreeOverlay = function () {
+			$scope.showTree = true;
+			$(".panelRight").css("width", "80%");
+			$("#navigPage").removeClass("tree-close");
+			$(".minifyme").css("left", "222px");
+			$(".minifyme").css("width", "38px");
+			$(".minifyme").css("border-radius", "5px 0 0 5px");
 		};
 
 		//this function is applicable only if enviornments are only selectable items.
@@ -164,7 +173,7 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 					$rootScope.$emit('WZ_ENV_CHANGE_END', requestParams, response.data, requestParamNames);
 					var treeNames = ['Workzone', requestParamNames.org, requestParamNames.bg, requestParamNames.proj, requestParamNames.env];
 					$rootScope.$emit('treeNameUpdate', treeNames);
-					$scope.hideTreeOverlay();
+					$scope.showTreeOverlay();
 				}, function(){
 					var emptyData = {
 						instances: [],

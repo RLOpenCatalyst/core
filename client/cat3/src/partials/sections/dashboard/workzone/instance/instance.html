@@ -8,19 +8,23 @@
 			<span class="panel-title">
 				<span>Instances</span>
 			</span>
-			<span title="Refresh" ng-click="refreshCurrentPage();" alt="Refresh View">
-				<i class="fa fa-refresh cursor"></i>
-			</span>			
+			<button type="button" class="btn btn-xs cat-btn-update {{instanceCardViewSelection}}" ng-click="setCardView()"> 
+				<i class="fa fa-th white" title="Card View"></i>
+				Grid
+			</button>
+			<button type="button" id="instanceview" class="btn btn-xs cat-btn-update {{instanceTableViewSelection}}"  ng-click="instanceTableView()"> 
+				<i class="fa fa-align-justify white" title="Table View"></i>
+				List
+			</button>	
 			<span class="pull-right">
-				<button type="button" title="Import By Ip" class="btn cat-btn-update instance-import-button" 
+				<button type="button" title="Refresh" ng-click="refreshCurrentPage();" class="btn btn-xs btn-link">
+					<i class="fa fa-refresh"></i>
+				</button>
+				<button type="button" title="Import By Ip" class="btn btn-xs btn-link" 
 				ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch">
-					<i class="fa fa-plus white"></i>
+					<i class="fa fa-plus"></i>
 					Import
 				</button>
-				<span ng-click="setCardView()"> <i class="fa fa-th cursor " ng-class="instanceCardViewSelection" title="Card View"></i></span>&nbsp;
-				<span id="instanceview" ng-click="instanceTableView()"> 
-					<i class="fa fa-align-justify fa-2x cursor" ng-class="instanceTableViewSelection" title="Table View"></i>
-				</span>
 			</span>
 		</div>
 		<section id="cardView" class="scrollContent" ng-show="isCardViewActive">

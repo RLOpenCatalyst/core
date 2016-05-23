@@ -67,18 +67,22 @@
 			width: 254px;
 		}
 
-		#navigPage-inner {
-			background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
-			color: #fff;
-			z-index: 1;
-			position: absolute;
-			width: 254px;
+		#navigPage {
+			width: 207px;
 		}
 
 		.panelRight {
 			padding-left: 10px;
 			padding-right: 0px;
 			float: right;
+		}
+	}
+}
+
+@media (min-width : 992px) and (max-width: 1200px) {
+	#workzonePage {
+		#navigPage {
+			width: 207px;
 		}
 	}
 }
@@ -97,9 +101,10 @@
 	}
 
 	.panelRight {
-		width: 100%;
+		width: 80%;
 		background: linear-gradient(to right, #ffffff 99%, #ffffff 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
 		padding-right: 0px;
+		float: right;
 	}
 
 	#rightPanel {
@@ -190,6 +195,7 @@
 	padding: 0px !important;
 	visibility: hidden;
 	height: 0px !important;
+	overflow: hidden;
 }
 .show-grid-tab{
 	visibility: visible;
@@ -198,4 +204,18 @@
 .show-grid{
 	visibility: inherit;
 	height: auto;
+}
+
+//For active tab view
+.app-tab-active{
+	background-color: #fff !important;
+    border: 1px solid #40baf1 !important;
+    border-bottom: 0px !important;
+    box-shadow: 0 -1px 5px -1px;
+    border-radius: 0px;
+    color: #40baf1 !important;
+    font-weight: 500;
+    i{
+    	color: #40baf1 !important;
+    }
 }

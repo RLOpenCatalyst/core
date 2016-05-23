@@ -76,17 +76,6 @@
 				$scope.cpActionHistoryListView();
 			};
 			
-			/*$rootScope.$on('WZ_CONTROLPANEL_TAB_VISIT', function(event, tabName){
-				if(tabName === 'Action History'){
-					$scope.isActionHistoryPageLoading = true;
-					var tableData = $scope.tabData;
-					$scope.tabData = [];
-					$timeout(function(){
-						$scope.tabData = tableData;
-						$scope.isActionHistoryPageLoading = false;
-					}, 100);
-				}
-			});*/
 			$scope.init();
 		}]).controller('cpActionHistoryLogCtrl',['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval',function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval){
 			var _instance = items.cpInstance;

@@ -93,6 +93,30 @@
 						$scope.errorMessage = "No Records found";
 					});
 				},
+				//method used to change the bp Name when the version is changed.
+				changeCardVersion: function(blueprintObj,bpType){	
+					var idx = $scope.blueprints[bpType].indexOf(blueprintObj);
+					var cardVersions = $scope.blueprints[bpType][idx].cardVersions;
+					angular.forEach(cardVersions,function(val){
+						if(val.id === $scope.blueprints[bpType][idx].selectedVersionBpId){
+							if(bpType === 'software_stack'){
+								cardVersions.name = val.name;
+							}
+							if(bpType === 'os_image'){
+								cardVersions.name = val.name;
+							}
+							if(bpType === 'docker'){
+								cardVersions.name = val.name;
+							}
+							if(bpType === 'azureARM'){
+								cardVersions.name = val.name;	
+							}
+							if(bpType === 'cloudFormation'){
+								cardVersions.name = val.name;
+							}
+						}
+					})
+				},
 				launchInstance: function(blueprintObj) {
 				    $modal.open({
 						animate: true,

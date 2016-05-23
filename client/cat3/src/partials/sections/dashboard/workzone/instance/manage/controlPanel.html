@@ -53,13 +53,14 @@
 					</li>
 				</ul>
 				
-				<div ng-show="tab.isSet('Actionhistory')">
+
+				<div class="{{tab.isSet('Actionhistory')? 'show-grid':'hide-grid'}}">
 					<div ng-include="tab.templates.actionhistory.url"></div>
 				</div>
 				<div ng-show="tab.isSet('Information')">
 					<div ng-include="tab.templates.information.url"></div>
 				</div>
-				<div ng-show="tab.isSet('Services')">
+				<div class="{{tab.isSet('Services')? 'show-grid':'hide-grid'}}">
 					<div ng-include="tab.templates.services.url"></div>
 				</div>
 				<div ng-show="tab.isSet('Logs')">

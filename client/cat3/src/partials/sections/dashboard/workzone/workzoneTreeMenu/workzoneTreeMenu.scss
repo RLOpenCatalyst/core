@@ -1,33 +1,21 @@
 @media (min-width : 0px) and (max-width: 480px) {
-	.tree-wrapper {
-		.tree-toggle {
-		    top: -31px;
-		    font-size: 1.2em;
-		}
-	}	
+	
 }
 
 #navigPage {
-	background: transparent;
+	background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
 	z-index: 1;
 	position: fixed;
-	width: 100%;
+	width: 260px;
 	z-index: 3;
 
 	#navigPage-inner {
 		background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
 		color: #fff;
 		z-index: 1;
-		position: fixed;
-		width: 254px;
+		width: 100%;
 		box-shadow: 2px 2px 14px #655D5D;
 		overflow-y: auto;
-	}
-
-	#navigPage-bg {
-		width: 100%;
-		background: #fcfcfc;
-		opacity: 0.5;
 	}
 
 	div[data-angular-treeview] {
@@ -68,12 +56,27 @@
 	}
 }
 
-.tree-toggle {
-	position: absolute;
-	top: -35px;
-	z-index: 100;
-	color: #fff;
-	font-size: 1.2em;
-	padding: 11px;
+.tree-close {
+	width: 35px !important;
+}
+
+.minifyme {
+	background: #D7DAE2;
+    border-bottom: 1px solid #818181;
+    color: #7E7E7E;
+    z-index: 100;
+    text-align: center;
+    padding: 0;
+    width: 38px;
+    height: 28px;
+    display: block;
+    position: absolute;
+    right: 0px;
+    border-radius: 5px 0 0 5px;
+    cursor: pointer;
+    font-size: 19px;
+    -webkit-transition: all .1s linear 0s;
+    transition: all .1s linear 0s;
+    left: 222px;
 }
 

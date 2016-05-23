@@ -31,13 +31,13 @@
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="softwareStack" class="cardLogo">
                                         </li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
                                     <div class="bp-version-dropdown-wrapper">
                                         <span class="bp-version-dropdown-text">Version: </span>
-                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher,'software_stack');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher,'software_stack')">
                                         </select>
                                     </div>
                                     <div class="blueprint-buttons">
@@ -74,13 +74,13 @@
                                         </div>           
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="OSImage" class="cardLogo"></li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
                                     <div class="bp-version-dropdown-wrapper">
                                         <span class="bp-version-dropdown-text">Version: </span>
-                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'os_image');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'os_image')">
                                         </select>
                                     </div>
                                     <div class="blueprint-buttons">
@@ -111,13 +111,13 @@
                                         </div>
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="CFT" class="cardLogo"></li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
                                     <div class="bp-version-dropdown-wrapper">
                                         <span class="bp-version-dropdown-text">Version: </span>
-                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'cloudFormation');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'cloudFormation')">
                                         </select>
                                     </div>
                                     <div class="blueprint-buttons">
@@ -148,8 +148,8 @@
                                         </div>
                                         <li>
                                             <img src="images/global/docker.png" alt="Docker" class="card-logo-docker"></li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                         <div class="docker-repo-list">
                                             <ul class="docker-repo" ng-repeat="docker in launcher.blueprintConfig.dockerCompose">
@@ -162,7 +162,7 @@
                                     </ul>
                                     <div class="bp-version-dropdown-wrapper">
                                         <span class="bp-version-dropdown-text">Version: </span>
-                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'docker');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'docker')">
                                         </select>
                                     </div>
                                     <div class="blueprint-buttons-docker">
@@ -194,13 +194,13 @@
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="azureARM" class="cardLogo">
                                         </li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
                                     <div class="bp-version-dropdown-wrapper">
                                         <span class="bp-version-dropdown-text">Version: </span>
-                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(changeCardVersion(launcher, 'azureARM'));" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(changeCardVersion(launcher, 'azureARM'))">
                                         </select>
                                     </div>
                                     <div class="blueprint-buttons">

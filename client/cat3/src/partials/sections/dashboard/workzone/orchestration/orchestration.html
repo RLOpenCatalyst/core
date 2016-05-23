@@ -7,13 +7,14 @@
 			<span class="panel-title">
 				<span>List of Tasks</span>
 			</span>
-			<span title="Refresh" ng-click="refreshCurrentPage();" alt="Refresh View">
-				<i class="fa fa-refresh cursor"></i>
-			</span>
+
 			<span class="pull-right">
-				<button type="button" class="btn cat-btn-update orchestration-new-button" 
+				<button type="button" title="Refresh" ng-click="refreshCurrentPage();" class="btn btn-xs btn-link">
+					<i class="fa fa-refresh"></i>
+				</button>
+				<button type="button" class="btn btn-xs btn-link orchestration-new-button" 
 				ng-click="createNewTask('new')" ng-show="perms.createTask">
-					<i class="fa fa-plus white"></i>
+					<i class="fa fa-plus"></i>
 					New
 				</button>
 			</span>

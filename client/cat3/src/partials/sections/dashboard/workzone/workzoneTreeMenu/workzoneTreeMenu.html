@@ -3,11 +3,11 @@
 
 <div ng-controller="workzoneTreeCtrl">
 	<span ng-show="!isLoading" class="tree-wrapper">
-		<i ng-click="showTreeOverlay()" class="fa fa-bars cursor tree-toggle" title="Menu" ng-show="!showTree"></i>
-		<i ng-click="hideTreeOverlay()" class="fa fa-arrow-left cursor tree-toggle" title="Menu" ng-show="showTree"></i>
+		<span ng-click="showTreeOverlay()" class="minifyme cursor"> <i class="fa fa-arrow-circle-right black hit"></i> </span>
+		<span ng-click="hideTreeOverlay()" class="minifyme cursor" title="Hide Tree" ng-show="showTree"> <i class="fa fa-arrow-circle-left black hit"></i> </span>
 	</span>
-	<div id='navigPage' class='controller' ng-show="showTree">
-		<div id='navigPage-inner'>
+	<div id='navigPage' class='controller'>
+		<div id='navigPage-inner' ng-show="showTree">
 			<div id="treeParent"
 				data-angular-treeview="true"
 				data-tree-model="roleList"
@@ -16,7 +16,6 @@
 				data-node-children="nodes">
 			</div>
 		</div>
-		<div id="navigPage-bg" ng-click="hideTreeOverlay();"></div>
 	</div>
 </div>
 
@@ -29,7 +28,6 @@
 			var setTreeContentHeight = windowHeight - (brdcrmbHeight + headerHeight);
 			$('#navigPage').css('height', (setTreeContentHeight) + 'px');
 			$('#navigPage-inner').css('height', (setTreeContentHeight) + 'px');
-			$('#navigPage-bg').css('height', (setTreeContentHeight) + 'px');
 		};
 		setHeight();
 
