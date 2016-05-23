@@ -286,8 +286,11 @@ $imagePath : "/cat3/images";
 		height: 25px;
 	}
 
+	.bp-more-info-section-docker {
+		height: 18px;
+	}
+
 	.cardimage {
-		/*background-image: url("#{$imagePath}/app-store-icons/box-ops.png");*/
 		background-repeat: no-repeat;
 		height: 160px;
 		margin-left: 15px;
@@ -335,9 +338,16 @@ $imagePath : "/cat3/images";
 		font-size: 23px;
 	}
 
-	.bp-version-dropdown-wrapper {
+	.bp-version-dropdown-wrapper, .bp-version-dropdown-wrapper-docker {
 		margin: 4px 0 0 19px;
+	}
+
+	.bp-version-dropdown-wrapper {
 		height: 40px;
+	}
+
+	.bp-version-dropdown-wrapper-docker {
+		height: 24px;
 	}
 
 	.btnicons {
@@ -358,9 +368,7 @@ $imagePath : "/cat3/images";
 	}
 
 	.docker-repo-list {
-        height: 35px;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        height: 20px;
     }
 
     .docker-repo {
@@ -368,12 +376,18 @@ $imagePath : "/cat3/images";
         font-size: 12px;
     }
 
+    .docker-repo-list-link {
+        font-size: 11px;
+        color: blue;
+        text-decoration: underline;
+    }
+
 	.blueprint-buttons {
 		margin: 0 0 0 32px;
 	}
 
 	.blueprint-buttons-docker {
-		margin: 5px 0 0 10px;
+		margin: 5px 0 0 32px;
 	}
 
 	.bp-version-dropdown {
