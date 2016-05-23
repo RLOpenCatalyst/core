@@ -349,41 +349,27 @@ router.post('/', function createBlueprint(req, res, next) {
         "bootDiskSize": req.body.bootDiskSize
     };
 
+    var entity = {
+        networkProfileId: req.body.networkProfileId,
+        vmImageId: req.body.vmImageId
+    };
 
-    async.waterfall([
+    if (!(req.body.runList && req.body.runList.length)) {
+        entity.templateId = req.body.softwareTemplateId;
+    }
 
-        function(next) {
-            networkProfileService.getNetworkProfileById(req.body.networkProfileId, next)
-        },
-        function(networkProfile, next) {
-            blueprintData.networkProfile = networkProfile;
-            vmImageDao.getImageById(req.body.vmImageId, function(err, vmImage) {
-                if (err) {
-                    err.status = 500;
-                    return next(err);
-                }
-                blueprintData.vmImage = {
-                    name: vmImage.name,
-                    vmImageId: vmImage.imageIdentifier,
-                    osType: vmImage.osType,
-                    osName: vmImage.osName,
-                    userName: vmImage.userName,
-                    password: vmImage.password,
-                };
-                return next();
-            });
-        },
-        function(next) {
-            logger.debug(blueprintData);
-            blueprintService.createNew(blueprintData, next);
-        }
-    ], function(err, results) {
+    blueprintService.populateBlueprintRelatedData(blueprintData, entity, function(err, blueprintData) {
         if (err) {
-            next(err);
-        } else {
-            return res.status(200).send(results);
+            return next(err);
         }
-    })
+        logger.debug(blueprintData);
+        blueprintService.createNew(blueprintData, function(err, blueprint) {
+            if (err) {
+                return next(err);
+            }
+            res.status(200).send(blueprint);
+        });
+    });
 });
 
 /**
@@ -414,6 +400,7 @@ function launchBlueprint(req, res, next) {
     var reqBody = req.body;
     async.waterfall(
         [
+
             function(next) {
                 blueprintService.getBlueprintById(req.params.blueprintId, next);
 
@@ -459,7 +446,7 @@ function launchBlueprint(req, res, next) {
  *          "applicationURL": "application url",
  *          "runList": [],
  *          "attributes": [],
- *          "buleprints": []
+ *          "blueprints": []
  *      }
  *
  * @apiSuccess {Object} blueprint                           Blueprint
@@ -531,9 +518,79 @@ function launchBlueprint(req, res, next) {
  */
 
 router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
-    // blueprintService.getBlueprintById(req.params.blueprintId,function(err,blueprint){
 
-    // });
+    var blueprintData = {
+        "name": req.body.name,
+        "applications": req.body.applications,
+        "applicationUrls": req.body.applicationUrls,
+        "runList": req.body.runList,
+        "blueprints": req.body.blueprints,
+        "machineType": req.body.machineType,
+    };
+
+    var entity = {
+        networkProfileId: req.body.networkProfileId,
+        vmImageId: req.body.vmImageId
+    };
+
+    if (!(req.body.runList && req.body.runList.length)) {
+        entity.templateId = req.body.softwareTemplateId;
+    }
+
+    blueprintService.populateBlueprintRelatedData(blueprintData, entity, function(err, blueprintData) {
+        if (err) {
+            return next(err);
+        }
+
+
+        async.waterfall([
+
+            function(next) {
+                blueprintService.populateBlueprintRelatedData(blueprintData, entity, next);
+            },
+            function(blueprintData, next) {
+                blueprintService.getBlueprintById(req.params.blueprintId, next);
+
+            },
+            function(parentBlueprint, next) {
+                parentBlueprint = JSON.parse(JSON.stringify(parentBlueprint));
+                blueprintService.getParentBlueprintCount(parentBlueprint._id, function(err, count) {
+                    if (err) {
+                        return next(err);
+                    }
+                    next(null, parentBlueprint, count)
+                });
+            },
+            function(parentBlueprint, count, next) {
+                logger.debug('in next');
+                var version = count + 2;
+
+                blueprintData.version = version;
+                blueprintData.parentBlueprintId = parentBlueprint._id;
+                blueprintData.organizationId = parentBlueprint.organizationId,
+                blueprintData.businessGroupId = parentBlueprint.businessGroupId,
+                blueprintData.projectId = parentBlueprint.projectId;
+
+                Object.assign(parentBlueprint, blueprintData);
+                delete parentBlueprint._id;
+                delete parentBlueprint.__v;
+
+                console.log('pb==>', parentBlueprint);
+
+                next(null, parentBlueprint);
+
+            },
+            function(blueprintData, next) {
+                blueprintService.createNew(blueprintData, next);
+            }
+        ], function(err, results) {
+            if (err) {
+                next(err);
+            } else {
+                return res.status(200).send(results);
+            }
+        });
+    });
 
 });
 
@@ -552,13 +609,13 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
 function getBlueprint(req, res, next) {
     async.waterfall([
         // @TODO Check authorization
-        function (next) {
+        function(next) {
             blueprintService.getBlueprintById(req.params.blueprintId, next);
         },
         userService.updateOwnerDetails,
         blueprintService.createBlueprintResponseObject
     ], function(err, blueprint) {
-        if(err) {
+        if (err) {
             next(err);
         } else {
             res.status(200).send(blueprint);
@@ -570,19 +627,19 @@ function getBlueprints(req, res, next) {
     async.waterfall([
         // @TODO Check authorization
         function(next) {
-            if('user' in req.session) {
+            if ('user' in req.session) {
                 userService.getUserOrgs(req.session.user, next);
             } else {
                 next(null, req.user.orgIds);
             }
         },
-        function (orgIds, next) {
+        function(orgIds, next) {
             blueprintService.getAllBlueprints(orgIds, next);
         },
         userService.updateOwnerDetailsOfList,
         blueprintService.createBlueprintResponseList
     ], function(err, blueprints) {
-        if(err) {
+        if (err) {
             next(err);
         } else {
             res.status(200).send(blueprints);
@@ -594,7 +651,7 @@ function deleteBlueprint(req, res, next) {
     async.waterfall([
         // @TODO Authorization checks to be addded
         function(next) {
-            if('user' in req.session) {
+            if ('user' in req.session) {
                 userService.getUserOrgs(req.session.user, next);
             } else {
                 next(null, req.user.orgIds);
@@ -607,7 +664,7 @@ function deleteBlueprint(req, res, next) {
             blueprintServiceService.deleteBlueprint(blueprint._id, next);
         },
     ], function(err, result) {
-        if(err) {
+        if (err) {
             next(err);
         } else {
             res.status(200).send({});
