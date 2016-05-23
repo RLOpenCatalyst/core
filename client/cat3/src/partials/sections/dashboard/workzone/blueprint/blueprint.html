@@ -21,14 +21,25 @@
                                             <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
                                                 <i class="fa fa-info-circle"></i>
                                             </span>
+                                            <div class="bp-provider">
+                                                <img src="images/providers/azure-card.png" ng-show="launcher.blueprintConfig.cloudProviderData.cloudProviderType === 'azure'" />
+                                                <img src="images/providers/openstack-card.png" ng-show="launcher.providerType=== 'openstack'" />
+                                                <img src="images/providers/vmware-card.png" ng-show="launcher.cloudProviderData.cloudProviderType=== 'vmware'" />
+                                                <img src="images/providers/hpcloud-card.png" ng-show="launcher.cloudProviderType === 'hppubliccloud'" />
+                                            </div>
                                         </div>
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="softwareStack" class="cardLogo">
                                         </li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher,'software_stack');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher,'software_stack')">
+                                        </select>
+                                    </div>
                                     <div class="blueprint-buttons">
                                         <div class="btnicons">
                                             <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
@@ -36,20 +47,10 @@
                                             </span>
                                         </div>
                                         <div class="btnicons">
-                                            <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
-                                            </select>
-                                        </div>
-                                        <div class="btnicons">
                                             <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'software_stack')">
                                                 <i class="fa fa-trash-o white"></i>
                                             </span>
                                         </div>
-                                    </div>
-                                    <div class="bp-provider">
-                                        <img src="images/providers/azure-card.png" ng-show="launcher.blueprintConfig.cloudProviderData.cloudProviderType === 'azure'" />
-                                        <img src="images/providers/openstack-card.png" ng-show="launcher.providerType=== 'openstack'" />
-                                        <img src="images/providers/vmware-card.png" ng-show="launcher.cloudProviderData.cloudProviderType=== 'vmware'" />
-                                        <img src="images/providers/hpcloud-card.png" ng-show="launcher.cloudProviderType === 'hppubliccloud'" />
                                     </div>
                                 </div>
                             </div>
@@ -64,22 +65,29 @@
                                             <span class="readBtn" title="More Info" ng-click="moreInfo(launcher)">
                                                 <i class="fa fa-info-circle"></i>
                                             </span>
+                                            <div class="bp-provider">
+                                                <img src="images/providers/azure-card.png" ng-show="launcher.blueprintConfig.cloudProviderData.cloudProviderType === 'azure'" />
+                                                <img src="images/providers/openstack-card.png" ng-show="launcher.providerType=== 'openstack'" />
+                                                <img src="images/providers/vmware-card.png" ng-show="launcher.cloudProviderData.cloudProviderType=== 'vmware'" />
+                                                <img src="images/providers/hpcloud-card.png" ng-show="launcher.cloudProviderType === 'hppubliccloud'" />
+                                            </div>
                                         </div>           
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="OSImage" class="cardLogo"></li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'os_image');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'os_image')">
+                                        </select>
+                                    </div>
                                     <div class="blueprint-buttons">
                                         <div class="btnicons">
                                             <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
                                                 <i class="fa  fa-location-arrow white"></i>
                                             </span>
-                                        </div>
-                                        <div class="btnicons">
-                                            <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
-                                            </select>
                                         </div>
                                         <div class="btnicons">
                                             <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'os_image')">
@@ -103,19 +111,20 @@
                                         </div>
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="CFT" class="cardLogo"></li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'cloudFormation');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'cloudFormation')">
+                                        </select>
+                                    </div>
                                     <div class="blueprint-buttons">
                                         <div class="btnicons">
                                             <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
                                                 <i class="fa fa-location-arrow white"></i>
                                             </span>
-                                        </div>
-                                        <div class="btnicons">
-                                            <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
-                                            </select>
                                         </div>
                                         <div class="btnicons">
                                             <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'cloudFormation')">
@@ -139,8 +148,8 @@
                                         </div>
                                         <li>
                                             <img src="images/global/docker.png" alt="Docker" class="card-logo-docker"></li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                         <div class="docker-repo-list">
                                             <ul class="docker-repo" ng-repeat="docker in launcher.blueprintConfig.dockerCompose">
@@ -151,15 +160,16 @@
                                             </ul>
                                         </div>
                                     </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(launcher, 'docker');" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'docker')">
+                                        </select>
+                                    </div>
                                     <div class="blueprint-buttons-docker">
                                         <div class="btnicons">
                                             <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
                                                 <i class="fa fa-location-arrow white"></i>
                                             </span>
-                                        </div>
-                                        <div class="btnicons">
-                                            <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
-                                            </select>
                                         </div>
                                         <div class="btnicons">
                                             <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'docker')">
@@ -184,19 +194,20 @@
                                         <li>
                                             <img ng-src="{{launcher.iconpath}}" alt="azureARM" class="cardLogo">
                                         </li>
-                                        <li title="{{launcher.name}}" class="card-text-overflow">
-                                            <u><b>{{launcher.name}}</b></u>
+                                        <li title="{{launcher.cardVersions.name}}" class="card-text-overflow">
+                                            <u><b>{{launcher.cardVersions.name}}</b></u>
                                         </li>
                                     </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text">Version: </span>
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(changeCardVersion(launcher, 'azureARM'));" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(changeCardVersion(launcher, 'azureARM'))">
+                                        </select>
+                                    </div>
                                     <div class="blueprint-buttons">
                                         <div class="btnicons">
                                             <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstance(launcher);">
                                                 <i class="fa fa-location-arrow white"></i>
                                             </span>
-                                        </div>
-                                        <div class="btnicons">
-                                            <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion();" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="launcher.selectedVersionBpId = launcher.cardVersions[0].id">
-                                            </select>
                                         </div>
                                         <div class="btnicons">
                                             <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'software_stack')">
