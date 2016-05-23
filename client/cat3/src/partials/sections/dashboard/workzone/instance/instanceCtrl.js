@@ -431,17 +431,6 @@
 			$scope.gridHeight = workzoneUIUtils.makeTabScrollable('instancePage')-gridBottomSpace;
 			//workzoneUIUtils.makeTabScrollable('instancePage');//TODO: Ideally this should be on resize event;
 		});
-		$rootScope.$on('WZ_TAB_VISIT', function(event, tabName) {
-			if (tabName === 'Instances') {
-				$scope.isInstancePageLoading = true;
-				var tableData = $scope.tabData;
-				$scope.tabData = [];
-				$timeout(function() {
-					$scope.tabData = tableData;
-					$scope.isInstancePageLoading = false;
-				}, 100);
-			}
-		});
 
 		//root scope method for refreshing the list view at the time of blueprint launch.
 		$rootScope.$on('WZ_INSTANCES_SHOW_LATEST', function(){
@@ -504,13 +493,13 @@
 
 		$scope.setCardView = function() {
 			$scope.isCardViewActive = true;
-			$scope.instanceCardViewSelection = "selectedView";
+			$scope.instanceCardViewSelection = "app-tab-active";
 			$scope.instanceTableViewSelection = "";
 		};
 
 		$scope.instanceTableView = function() {
 			$scope.isCardViewActive = false;
-			$scope.instanceTableViewSelection = "selectedView";
+			$scope.instanceTableViewSelection = "app-tab-active";
 			$scope.instanceCardViewSelection = "";
 			var tableData = $scope.tabData;
 			$scope.tabData = [];

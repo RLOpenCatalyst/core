@@ -60,7 +60,7 @@
 						</a>
 					</li>
 				</ul>
-				<div ng-show="tab.isSet('Instances')">
+				<div class="{{tab.isSet('Instances')? 'show-grid-tab':'hide-grid'}}">
 					 <div ng-include="tab.templates.instance.url"></div>
 				</div>
 				<div ng-show="tab.isSet('Blueprints')">
@@ -72,10 +72,10 @@
 				<div ng-show="tab.isSet('AzureARM')">
 					  <div ng-include="tab.templates.azureARM.url"></div>
 				</div>
-				<div ng-show="tab.isSet('Containers')">
+				<div class="{{tab.isSet('Containers')? 'show-grid-tab':'hide-grid'}}">
 					  <div ng-include="tab.templates.container.url"></div>
 				</div>
-				<div ng-show="tab.isSet('Orchestration')">
+				<div class="{{tab.isSet('Orchestration')? 'show-grid-tab':'hide-grid'}}">
 					  <div ng-include="tab.templates.orchestration.url"></div>
 				</div>
 				<div class="{{tab.isSet('Applications')? 'show-grid-tab':'hide-grid'}}">

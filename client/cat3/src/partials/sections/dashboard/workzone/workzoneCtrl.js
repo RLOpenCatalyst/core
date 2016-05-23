@@ -14,8 +14,7 @@ function workzoneFunct($scope, $rootScope) {
 	var _tab = {
 		tab : "Instances",
 		setTab : function (tabId) {
-			_tab.tab = tabId;
-			$rootScope.$emit('WZ_TAB_VISIT', $scope.tab.tab);		
+			_tab.tab = tabId;	
 		},
 		isSet : function (tabId) {
 			return _tab.tab === tabId;

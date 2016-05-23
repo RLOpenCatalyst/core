@@ -310,17 +310,6 @@
 				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('orchestrationPage')-gridBottomSpace;
 				workzoneUIUtils.makeTabScrollable('orchestrationPage');
 			});
-			$rootScope.$on('WZ_TAB_VISIT', function(event, tabName){
-				if(tabName === 'Orchestration'){
-					$scope.isOrchestrationPageLoading = true;
-					var tableData = $scope.tabData;
-					$scope.tabData = [];
-					$timeout(function(){
-						$scope.tabData = tableData;
-						$scope.isOrchestrationPageLoading = false;
-					}, 100);
-				}
-			});
 			$rootScope.$on('WZ_ORCHESTRATION_SHOW_LATEST', function(){
 				helper.setPaginationDefaults();
 			});
