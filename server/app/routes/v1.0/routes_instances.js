@@ -1798,6 +1798,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 return;
                                             }
                                         } else {
+                                            instancesDao.updateInstanceIp(req.params.instanceId, vmResponse.ip, function(err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance ip err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance ip upadated');
+                                            });
                                             instancesDao.updateInstanceState(req.params.instanceId, "stopped", function(err, updateCount) {
                                                 if (err) {
                                                     logger.error("update instance state err ==>", err);
@@ -2259,6 +2266,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 return;
                                             }
                                         } else {
+                                            instancesDao.updateInstanceIp(req.params.instanceId, vmResponse.ip, function(err, updateCount) {
+                                                if (err) {
+                                                    logger.error("update instance ip err ==>", err);
+                                                    return;
+                                                }
+                                                logger.debug('instance ip upadated');
+                                            });
                                             instancesDao.updateInstanceState(req.params.instanceId, "running", function(err, updateCount) {
                                                 if (err) {
                                                     logger.error("update instance state err ==>", err);
