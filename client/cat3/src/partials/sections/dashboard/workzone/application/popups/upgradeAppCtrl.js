@@ -22,11 +22,11 @@ angular.module('workzone.application')
 			init :function(){
 				wzService.getAppUpgrade(items).then(function (FrzData){
 					var FrzData=FrzData.data;
-					if(FrzData && FrzData.nexus && FrzData.nexus.rowId){
+					if(FrzData && FrzData.nexus && FrzData.nexus.serverRowId){
 						upgrdApp.newEnt.serverType='nexus';
 						upgrdApp.newEnt.artifact =FrzData.nexus.artifactId;
 						upgrdApp.newEnt.groupId=FrzData.nexus.groupId;
-						upgrdApp.rowid=FrzData.nexus.rowId;
+						upgrdApp.rowid=FrzData.nexus.serverRowId;
 						upgrdApp.newEnt.taskId=FrzData.nexus.taskId;
 					} else if(FrzData && FrzData.docker && FrzData.docker.imageTag) {
 						upgrdApp.newEnt.serverType='docker';
@@ -35,7 +35,7 @@ angular.module('workzone.application')
 						upgrdApp.newEnt.hostPort = FrzData.docker.hostPort;
 						upgrdApp.newEnt.tag=FrzData.docker.imageTag;
 						upgrdApp.newEnt.taskId=FrzData.docker.taskId;
-						upgrdApp.rowid=FrzData.docker.rowId;
+						upgrdApp.rowid=FrzData.docker.serverRowId;
 						upgrdApp.newEnt.repositoryIMG=FrzData.docker.image;
 					}
 					upgrdApp.projectId=FrzData.projectId;
@@ -120,7 +120,7 @@ angular.module('workzone.application')
 					"artifactId":upgrdApp.newEnt.artifact,
 					"groupId": upgrdApp.newEnt.groupId,
 					"repository":upgrdApp.newEnt.repository,
-					"rowId":upgrdApp.rowid
+					"serverRowId":upgrdApp.rowid
 				};
 			} else{
 				var docker={
@@ -129,7 +129,7 @@ angular.module('workzone.application')
 					"containerPort": upgrdApp.newEnt.contPort,
 					"hostPort": upgrdApp.newEnt.hostPort,
 					"imageTag": upgrdApp.newEnt.tag,
-					"rowId":upgrdApp.rowid
+					"serverRowId":upgrdApp.rowid
 				};
 			}
 			upgrdApp.deploymentData ={

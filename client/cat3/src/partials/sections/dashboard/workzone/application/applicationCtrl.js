@@ -207,7 +207,8 @@
 						name: 'appName',
 						displayName: 'App Name',
 						cellTemplate: '<div pipeline-card card-type="'+cardType+'" card-details="row.entity.appName"></div>',
-						cellTooltip: true
+						cellTooltip: true,
+						width:180
 					}];
 					if(envList) {
 						angular.forEach(envList.envSequence, function (val) {

@@ -161,7 +161,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					"artifactId":depNewApp.newEnt.artifact,
 					"groupId": depNewApp.newEnt.groupId,
 					"repository":depNewApp.newEnt.repository,
-					"rowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
+					"serverRowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
 				};
 			} else{
 				var docker={
@@ -170,7 +170,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 					"containerPort": depNewApp.newEnt.contPort,
 					"hostPort": depNewApp.newEnt.hostPort,
 					"imageTag": depNewApp.newEnt.tag,
-					"rowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
+					"serverRowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
 				};
 			}
 			depNewApp.deploymentData ={
