@@ -47,7 +47,7 @@ var AppDataSchema = new Schema({
         trim: true
     },
     nexus: {
-        rowId:{
+        serverRowId:{
             type: String,
             trim: true
         },
@@ -76,7 +76,7 @@ var AppDataSchema = new Schema({
         }
     },
     docker: [{
-        rowId:{
+        serverRowId:{
             type: String,
             trim: true
         },
