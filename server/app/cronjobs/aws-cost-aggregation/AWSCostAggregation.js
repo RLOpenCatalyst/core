@@ -54,7 +54,6 @@ function aggregateAWSCost() {
     };
     async.waterfall([
         function (next) {
-            console.log("Welcome");
             s3.getObject(params, 'time', next);
         },
         function (updateTime, next) {

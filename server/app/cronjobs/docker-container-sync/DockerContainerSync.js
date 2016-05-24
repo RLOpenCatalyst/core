@@ -158,7 +158,7 @@ function sync() {
                                                             });
                                                         })
                                                     } else {
-                                                        logger.debug("No instance is Available for Container Cron Job");
+                                                        logger.debug("No instance is Available in "+environment.environmentname +" Environment for Container Cron Job");
                                                         return;
                                                     }
                                                 })
