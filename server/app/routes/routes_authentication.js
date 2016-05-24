@@ -90,12 +90,52 @@ module.exports.setRoutes = function(app) {
                     httpOptions: {timeout: 5000}
                 }
                 var awsMetaData = new aws.MetadataService(options);
-                awsMetaData.request('/latest/meta-data/iam/info/', function(err, data) {
+                awsMetaData.request('latest/meta-data/ami-id', function(err, data) {
                     if (err) {
                         logger.error(err, err.stack);
                         next(err);
                     } else {
-                        console.log(data);
+                        logger.debug("AMI-ID is "+data);
+                        var instanceId=data;
+                        var user = {
+                            "cn": req.body.username,
+                            "password": req.body.pass
+                        };
+                        req.session.user = user;
+                        if(req.body.username ==='ec2-user' && req.body.pass === instanceId) {
+                            user.roleName = "Admin";
+                            user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
+
+                            if (req.body.authType === 'token') {
+                                AuthToken.createNew(req.session.user, function (err, authToken) {
+                                    req.session.destroy();
+                                    if (err) {
+                                        return next(err);
+                                    }
+
+                                    res.send(200, {
+                                        token: authToken.token
+                                    });
+                                    return;
+                                });
+                            } else {
+                                req.logIn(user, function (err) {
+                                    if (err) {
+                                        return next(err);
+                                    }
+
+                                    return res.redirect('/private/index.html');
+                                });
+                            }
+                        }else{
+                            req.session.destroy();
+                            if (req.body.authType === 'token') {
+                                return res.status(400).send({
+                                    message: "Invalid username or password"
+                                });
+                            }
+                            res.redirect('/public/login.html?o=try');
+                        }
                     }
                 });
 
