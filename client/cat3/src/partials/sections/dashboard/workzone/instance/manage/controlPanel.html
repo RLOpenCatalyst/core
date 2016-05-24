@@ -20,40 +20,59 @@
 	<div class="modal-body">
 		<div class="cp-container">
 			<div class="row">
-				<ul id="myTab3" class="nav nav-tabs tabs-pull-left" ng-show="tileView">
-					<li ng-class="{active:tab.isSet('Information')}">
-						<a ng-click="tab.setTab('Information');removeActive()">
-							<i class="fa fa-fw fa-info black"></i>&nbsp;
-							Information
-						</a>
-					</li>
-					<li ng-class="{active:tab.isSet('Actionhistory')}">
-						<a ng-click="tab.setTab('Actionhistory');removeActive()">
-							<i class="fa fa-sun-o black"></i>&nbsp;
-							Action History
-						</a>
-					</li>
-					<li ng-class="{active:tab.isSet('Services')}" ng-if="showServicesTab">
-						<a ng-click="tab.setTab('Services');removeActive()">
-							<i class="fa fa-share-square-o black"></i>&nbsp;
-							Services
-						</a>
-					</li>
-					<li ng-class="{active:tab.isSet('Logs')}">
-						<a ng-click="tab.setTab('Logs');removeActive()">
-							<i class="fa fa-clock-o black"></i>&nbsp;
-							Logs
-						</a>
-					</li>
-					<li ng-class="{active:tab.isSet('Instanceactions')}">
-						<a ng-click="tab.setTab('Instanceactions');removeActive()">
-							<i class="fa fa-list-ol black"></i>&nbsp;
-							Instance Actions
-						</a>
-					</li>
-				</ul>
+				<div class="cp-cards" ng-show="tileView">
+					<div class="cp-card" ng-click="tab.setTab('Information')">
+						<div class="cp-card-info-wrapper">
+							<div>
+								<i class="fa fa-fw fa-info"></i>
+							</div>
+							<div>
+								<span class="cp-card-page-name">Information</span>
+							</div>
+						</div>
+					</div>
+					<div class="cp-card" ng-click="tab.setTab('Actionhistory')">
+						<div class="cp-card-info-wrapper">
+							<div>
+								<i class="fa fa-sun-o"></i>
+							</div>
+							<div>
+								<span class="cp-card-page-name">Action History</span>
+							</div>
+						</div>
+					</div>
+					<div class="cp-card" ng-click="tab.setTab('Services')">
+						<div class="cp-card-info-wrapper">
+							<div>
+								<i class="fa fa-share-square-o"></i>
+							</div>
+							<div>
+								<span class="cp-card-page-name">Services</span>
+							</div>
+						</div>
+					</div>
+					<div class="cp-card" ng-click="tab.setTab('Logs')">
+						<div class="cp-card-info-wrapper">
+							<div>
+								<i class="fa fa-clock-o"></i>
+							</div>
+							<div>
+								<span class="cp-card-page-name">Logs</span>
+							</div>
+						</div>
+					</div>
+					<div class="cp-card" ng-click="tab.setTab('Instanceactions')">
+						<div class="cp-card-info-wrapper">
+							<div>
+								<i class="fa fa-list-ol"></i>
+							</div>
+							<div>
+								<span class="cp-card-page-name">Actions</span>
+							</div>
+						</div>
+					</div>
+				</div>
 				
-
 				<div class="{{tab.isSet('Actionhistory')? 'show-grid':'hide-grid'}}">
 					<div ng-include="tab.templates.actionhistory.url"></div>
 				</div>
