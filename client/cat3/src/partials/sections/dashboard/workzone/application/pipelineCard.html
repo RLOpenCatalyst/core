@@ -2,11 +2,9 @@
     <div ng-switch-when="pipeline">
         <div ng-if="cardDetails.name" class="text-center">
             <div class="cardView">
-                <div class="card app-details" title="{{cardDetails.name}}">
-                    <div class="card-title">
-                        <div  class="card-title-name"> <strong>{{cardDetails.name}}</strong>
-                        </div>
-                        <hr/>
+                <div class="card app-details app-card" title="{{cardDetails.name}}">
+                    <div class="card-title app-card-title">
+                        <div  class="card-title-name"> <strong>{{cardDetails.name}}</strong></div>
                     </div>
                     <div class="card-status-state">
                         <div class="app-icon">
@@ -53,7 +51,7 @@
                         <hr/>
                     </div>
                     <div class="card-status-state">
-                        <div class="app-icon {{(cardDetails && cardDetails.length >0) ?'':'inavtive-card'}}">           
+                        <div class="app-icon {{(cardDetails && cardDetails.length >0) ?'':'inavtive-card'}}">
                             <i class="fa fa-cube"></i>
                         </div>
                     </div>
