@@ -88,10 +88,10 @@ module.exports.setRoutes = function(app) {
             if(req.body.username ==='ec2-user') {
                 var hostIP = apiUtil.getIPAddresses();
                 var options={
-                    host:hostIP,
+                    host:'52.53.235.166',
                     httpOptions: {timeout: 5000}
                 };
-                logger.debug("IP Address is >>>>"+options);
+                logger.debug("IP Address is >>>>"+JSON.stringify(options));
                 var awsMetaData = new aws.MetadataService(options);
                 awsMetaData.request('latest/meta-data/ami-id', function(err, data) {
                     if (err) {
