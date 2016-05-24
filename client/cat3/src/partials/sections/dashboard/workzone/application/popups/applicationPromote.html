@@ -24,7 +24,7 @@
                         <label >Target Environment:<span class="red">*</span>
                         </label>
                         <div class="input-groups">
-                            <select name="" class="form-control" ng-model="promApp.newEnt.targetEnv"  required>
+                            <select name="" class="form-control" ng-model="promApp.newEnt.targetEnv" ng-change="promApp.getAllChefJobs();"  required>
                                 <option value="">Choose Environment</option>
                                 <option ng-repeat="(key, value) in promApp.envOptions" value="{{value}}">{{value}}</option>
                             </select>

@@ -17,14 +17,14 @@
             <div ng-show="steps[0].isDisplayed">
                <loading size="large" name="isdockerImagesPageLoading" type="block"></loading>
                <div ng-show="!isdockerImagesPageLoading">
-                  <div id="grid9" ng-if="dockerDetails.length >0" ui-grid="dockerImagesGridOptions" ui-grid-pagination class="grid"></div>
+                  <div id="grid9" ng-if="dockerDetails.length >0" ui-grid="dockerImagesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
                </div>
             </div>
             <div ng-show="steps[1].isDisplayed">
                <div class="control-group">
                   <loading size="large" name="isDockerInstancesLoading" type="block"></loading>
                   <div ng-show="!isDockerInstancesLoading">
-                     <div id="grid10" ng-if="dockerinstancesData.length >0"  ui-grid="dockerinstancesGridOptions" ui-grid-pagination class="grid"></div>
+                     <div id="grid10" ng-if="dockerinstancesData.length >0"  ui-grid="dockerinstancesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
                   </div>
 
                   <div class="errorMsg" align="center" ng-show="showNoDockerAvailable">
