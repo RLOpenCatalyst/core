@@ -1819,6 +1819,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 log: "Instance Stopped",
                                                 timestamp: timestampEnded
                                             });
+                                            res.send(200, {
+                                                instanceCurrentState: "stopped",
+                                                actionLogId: actionLog._id
+                                            });
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                             fs.unlink('/tmp/' + provider.id + '.json', function(err) {
                                                 if (err) {
@@ -2279,6 +2283,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     return;
                                                 }
                                                 logger.debug('instance state upadated');
+                                            });
+                                            res.send(200, {
+                                                instanceCurrentState: "running",
+                                                actionLogId: actionLog._id
                                             });
                                             var timestampEnded = new Date().getTime()
                                             logsDao.insertLog({
