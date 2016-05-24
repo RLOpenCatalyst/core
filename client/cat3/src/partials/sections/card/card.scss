@@ -338,16 +338,14 @@ $imagePath : "/cat3/images";
 		font-size: 23px;
 	}
 
-	.bp-version-dropdown-wrapper, .bp-version-dropdown-wrapper-docker {
+	.bp-version-dropdown-wrapper {
+		height: 40px;
 		margin: 4px 0 0 19px;
 	}
 
-	.bp-version-dropdown-wrapper {
-		height: 40px;
-	}
-
 	.bp-version-dropdown-wrapper-docker {
-		height: 24px;
+		height: 31px;
+		margin: -3px 0 0 19px;
 	}
 
 	.btnicons {
