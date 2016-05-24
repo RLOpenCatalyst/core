@@ -83,12 +83,15 @@ module.exports.setRoutes = function(app) {
     });
     app.post('/auth/signin', function(req, res, next) {
         if (req.body && req.body.username && req.body.pass) {
+            logger.debug("UserName is >>>>"+req.body.username);
+            logger.debug("Password is >>>>"+req.body.pass);
             if(req.body.username ==='ec2-user') {
                 var hostIP = apiUtil.getIPAddresses();
                 var options={
                     host:hostIP,
                     httpOptions: {timeout: 5000}
-                }
+                };
+                logger.debug("IP Address is >>>>"+options);
                 var awsMetaData = new aws.MetadataService(options);
                 awsMetaData.request('latest/meta-data/ami-id', function(err, data) {
                     if (err) {
