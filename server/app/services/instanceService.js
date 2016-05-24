@@ -607,7 +607,7 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
                 }
             };
             switch (blueprint.networkProfile.type) {
-                case 'GCP':
+                case 'gcp':
                     instances['chefNodeName'] = instance.name,
                         instances['platformId'] = instance.id,
                         instances['instanceIP'] = instance.ip,

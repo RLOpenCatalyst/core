@@ -104,7 +104,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
             }
             if (provider) {
                 switch (networkProfile.type) {
-                    case 'GCP':
+                    case 'gcp':
                         var gcpProvider = new gcpProviderModel(provider);
                         // Get file from provider decode it and save, after use delete file
                         // Decode file content with base64 and save.
@@ -179,7 +179,7 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
     },
     function(provider, next) {
         switch (networkProfile.type) {
-            case 'GCP':
+            case 'gcp':
                 var gcpProvider = new gcpProviderModel(provider);
                 //logger.debug("provider.keyFile: ",JSON.stringify(gcpProvider));
                 // Get file from provider decode it and save, after use delete file

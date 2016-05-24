@@ -54,7 +54,7 @@ providerService.getProvider = function getProvider(providerId, callback) {
             return callback(err);
         } else if(provider) {
             switch(provider.type) {
-                case 'GCP':
+                case 'gcp':
                     var gcpProvider =  new gcpProviderModel(provider);
                     var cryptoConfig = appConfig.cryptoSettings;
                     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -103,7 +103,7 @@ providerService.checkProviderAccess = function checkProviderAccess(orgs, provide
 
 providerService.createProvider = function createProvider(provider, callback) {
     switch(provider.type) {
-        case 'GCP':
+        case 'gcp':
             logger.debug('Creating new GCP provider');
             gcpProviderModel.createNew(provider, function(err, provider) {
                 //@TODO To be generalized
@@ -134,7 +134,7 @@ providerService.updateProvider = function updateProvider(provider, updateFields,
 
     if('providerDetails' in updateFields) {
         switch(provider.type) {
-            case 'GCP':
+            case 'gcp':
                 if('projectId' in updateFields.providerDetails) {
                     fields.providerDetails.projectId = updateFields.providerDetails.projectId;
                     provider.providerDetails.projectId = updateFields.providerDetails.projectId;
@@ -205,7 +205,7 @@ providerService.createProviderResponseObject = function createProviderResponseOb
     };
 
     switch(provider.type) {
-        case 'GCP':
+        case 'gcp':
             var gcpProvider =  new gcpProviderModel(provider);
             providerResponseObject.providerDetails.projectId = gcpProvider.providerDetails.projectId;
             break;
