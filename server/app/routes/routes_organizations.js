@@ -1150,7 +1150,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     //Duplicated with provider filter for BP Edit
-    
+
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
         var jsonData = {};
         jsonData['orgId'] = req.params.orgId;

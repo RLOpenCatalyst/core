@@ -654,43 +654,43 @@ taskSchema.statics.getDistinctTaskTypeByIds=function(ids,callback){
 
 taskSchema.statics.NormalizedTasks=function(jsonData,fieldName,callback){
 	var queryObj = {
-			orgId: jsonData.orgId,
-			bgId: jsonData.bgId,
-			projectId: jsonData.projectId,
-			envId: jsonData.envId
-		};
-		this.find(queryObj,function(err,tasks){
-			if(err){
-				logger.error(err);
-				callback(err, null);
-				return;
-			}
-			var count=0;
-			for(var i =0;i < tasks.length;i++) {
-				(function(task){
-					count++;
-					var normalized=task[fieldName];
-					Tasks.update({
-						"_id": new ObjectId(task._id)
-					}, {
-						$set: {
-							normalized: normalized.toLowerCase()
-						}
-					}, {
-						upsert: false
-					},function(err,updatedTask){
-						if(err){
-				          logger.error(err);
-				          callback(err, null);
-				          return;
-			            }
-			           if(tasks.length === count){
-			           	callback(null,updatedTask);
-			           }
-					});
-				})(tasks[i]);
-			}
-		})
+		orgId: jsonData.orgId,
+		bgId: jsonData.bgId,
+		projectId: jsonData.projectId,
+		envId: jsonData.envId
+	};
+	this.find(queryObj,function(err,tasks){
+		if(err){
+			logger.error(err);
+			callback(err, null);
+			return;
+		}
+		var count=0;
+		for(var i =0;i < tasks.length;i++) {
+			(function(task){
+				count++;
+				var normalized=task[fieldName];
+				Tasks.update({
+					"_id": new ObjectId(task._id)
+				}, {
+					$set: {
+						normalized: normalized.toLowerCase()
+					}
+				}, {
+					upsert: false
+				},function(err,updatedTask){
+					if(err){
+						logger.error(err);
+						callback(err, null);
+						return;
+					}
+					if(tasks.length === count){
+						callback(null,updatedTask);
+					}
+				});
+			})(tasks[i]);
+		}
+	})
 };
 
 taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConfig, callback) {

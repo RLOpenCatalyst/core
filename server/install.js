@@ -62,6 +62,7 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
+
         constantData: {
             common_field: ['envId', 'providerId', 'orgId', 'bgId', 'projectId'],
             sort_field: ['name', 'description'],
@@ -89,9 +90,9 @@ function getDefaultsConfig() {
                 "appDeploy": "envId",
                 "trackedInstances": "providerType"
             },
-            skip_Records: 1,
-            max_record_limit: 200,
-            record_limit: 10
+            skip_Records : 1,
+            max_record_limit : 200,
+            record_limit : 10
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
@@ -187,7 +188,6 @@ function getDefaultsConfig() {
                 NetworkIn: 'MB',
                 NetworkOut: 'MB'
             }
-
         },
         vmware: {
             serviceHost: "http://localhost:3000"

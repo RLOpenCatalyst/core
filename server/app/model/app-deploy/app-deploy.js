@@ -249,7 +249,6 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId = func
                 bgId: { $last: "$bgId" },
                 projectId: { $last: "$projectId" },
                 envName: { $last: "$envId" },
-                description: { $last: "$description" },
                 applicationType: { $last: "$applicationType" },
                 containerId: { $last: "$containerId" },
                 hostName: { $last: "$hostName" },
@@ -314,9 +313,9 @@ AppDeploySchema.statics.getPipeLineViewListByProjectIdAppName = function getPipe
                 applicationNodeIP: { $last: "$applicationNodeIP" },
                 applicationStatus: { $last: "$applicationStatus" },
                 envName: { $last: "$envId" },
-                description: { $last: "$description" },
                 applicationType: { $last: "$applicationType" },
                 containerId: { $last: "$containerId" },
+                hostName: { $last: "$hostName" },
                 lastAppDeployDate: { $last: "$applicationLastDeploy" }
             }
         }],

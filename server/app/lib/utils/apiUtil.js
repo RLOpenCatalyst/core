@@ -164,15 +164,15 @@ var ApiUtil = function() {
             request['filterBy'] = filterBy;
         }
         if (data.instanceType) {
-                filterBy['blueprintData.templateType'] = data.instanceType;
-                request['filterBy']=filterBy;
+            filterBy['blueprintData.templateType'] = data.instanceType;
+            request['filterBy']=filterBy;
 
         }
         if(data.search){
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-            var encrpt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);
-            var dcypt=cryptography.decryptText(encrpt, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            request['search']=dcypt;
+            var encrypt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);
+            var decrypt=cryptography.decryptText(encrypt, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            request['search']=decrypt;
         }
         if (typeof callback === 'function') {
             callback(null, request);

@@ -1579,5 +1579,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function callBackReturn(data,callback){
         callback(null,data);
     };
-
 };
