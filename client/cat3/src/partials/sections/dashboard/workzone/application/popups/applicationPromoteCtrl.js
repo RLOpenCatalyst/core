@@ -28,10 +28,10 @@
                    promApp.envOptions.push(val);
                }
            });
-            promApp.getAllChefJobs();
+            //promApp.getAllChefJobs();
         };
         promApp.getAllChefJobs =function () {
-            workSvs.getChefJob().then(function (jobResult) {
+            workSvs.getChefJobEnv(promApp.newEnt.targetEnv).then(function (jobResult) {
                 promApp.jobOptions = jobResult.data;
             });
         };

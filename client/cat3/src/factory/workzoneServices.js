@@ -437,6 +437,11 @@
                     var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +'/projects/' + p.proj + '/environments/' + p.env + '/chefTasks';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
+                 getChefJobEnv: function (env) {
+                    var p = workzoneEnvironment.getEnvParams();
+                    var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +'/projects/' + p.proj + '/environments/' +env + '/chefTasks';
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
                 getNexusRepository:function(nexusId){
                     var p = workzoneEnvironment.getEnvParams(),
                         url = '/app-deploy/nexus/'+nexusId+'/project/' + p.proj + '/nexusRepositoryList';
