@@ -80,7 +80,7 @@ var logger = require('_pr/logger')(module);
  *                  "networkProfile": {
  *                      "id": "<Network profile id>",
  *                      "name": "networkProfileName",
- *                      "type": "GCP",
+ *                      "type": "gcp",
  *                      "providerId": "<ID>",
  *                      "networkDetails": {
  *                      "zone": "us-east1-c",
@@ -121,7 +121,7 @@ var logger = require('_pr/logger')(module);
  *                  "networkProfile": {
  *                      "id": "<Network profile id>",
  *                      "name": "networkProfileName",
- *                      "type": "GCP",
+ *                      "type": "gcp",
  *                      "providerId": "<ID>",
  *                      "networkDetails": {
  *                      "zone": "us-east1-c",
@@ -208,7 +208,7 @@ router.get('/', getBlueprints);
  *          "networkProfile": {
  *              "id": "<Network profile id>",
  *              "name": "networkProfileName",
- *              "type": "GCP",
+ *              "type": "gcp",
  *              "providerId": "<ID>",
  *              "networkDetails": {
  *              "zone": "us-east1-c",
@@ -304,7 +304,7 @@ router.get('/:blueprintId', getBlueprint);
  *          "project": "<ID>",
  *          "networkProfile": {
  *              "name": "networkProfileName",
- *              "type": "GCP",
+ *              "type": "gcp",
  *              "providerId": "<ID>",
  *              "networkDetails": {
  *              "zone": "us-east1-c",
@@ -500,7 +500,7 @@ function launchBlueprint(req, res, next) {
  *          "networkProfile": {
  *              "id": "<Network profile id>",
  *              "name": "networkProfileName",
- *              "type": "GCP",
+ *              "type": "gcp",
  *              "providerId": "<ID>",
  *              "networkDetails": {
  *              "zone": "us-east1-c",
