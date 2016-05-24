@@ -191,7 +191,7 @@
 						
 					});
 				},
-				showDockerRepoList: function(dockerRepoList) {
+				showDockerRepoList: function(blueprintObj) {
 					var modalInstance = $modal.open({
 						animation: true,
 						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/dockerRepoList.html',
@@ -200,7 +200,7 @@
 						keyboard: false,
 						resolve: {
 							items: function() {
-								return dockerRepoList;
+								return blueprintObj;
 							}
 						}
 					});
