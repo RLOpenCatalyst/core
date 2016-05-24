@@ -187,17 +187,7 @@ function getDefaultsConfig() {
                 DiskWriteBytes: 'MB',
                 NetworkIn: 'MB',
                 NetworkOut: 'MB'
-            },
-            s3: {
-                accessKey: "AKIAJEP7C6AIIXGB6NJA",//,"AKIAIZN6VTKKJKMU3DZQ"
-                secretKey: "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",// "yf9jLnWL6tB6J6iE3vBJkGY9ADTt3QstvQNgf+NC"
-                bucketName: "RLBilling",
-                accountNumber: "549974527830",
-                region:"us-east-1",
-                keyName:"-aws-billing-detailed-line-items-with-resources-and-tags-"
-
-            },
-
+            }
         },
         vmware: {
             serviceHost: "http://localhost:3000"

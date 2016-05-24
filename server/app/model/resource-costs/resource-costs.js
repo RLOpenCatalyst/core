@@ -59,9 +59,8 @@ var ResourceCostsSchema = new Schema({
         required: false
     },
     endTime: {
-        type: String,
-        required: false,
-        trim: true
+        type: Date,
+        required: true
     },
     costMetrics: Schema.Types.Mixed
 });
