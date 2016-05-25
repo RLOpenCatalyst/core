@@ -372,6 +372,8 @@ $imagePath : "../../../../../../images";
 
 #jenkinLogs {
 	font-size: 12px;
+	height: 214px;
+	overflow-y: auto;
 }
 
 #compositeLogs {
@@ -395,4 +397,14 @@ $imagePath : "../../../../../../images";
 
 .marginleft10 {
 	margin-left: 10px;
+}
+
+.chef-logs-wrapper {
+	height: 462px;
+	overflow-y: auto;
+}
+
+.composite-logs-wrapper {
+	height: 511px;
+	overflow-y: auto;
 }
