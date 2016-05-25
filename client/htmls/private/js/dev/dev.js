@@ -6407,6 +6407,13 @@ function devCall() {
 
 
             var $docctr = $('#dockercontainertabletemplatetr').clone().removeClass('hidden');
+
+            $docctr.find('.dockeractionSSHbutton').attr('data-instanceId', instanceid);
+            $docctr.find('.dockeractionSSHbutton').attr('data-containerId', dockerContainerItem.Id);
+
+
+
+
             $docctr.attr('id', 'trfordockercontainer_' + dockerContainerItem.Id);
             $docctr.find('.dockercontainerstatus').html(dockerContainerItem.Status).parent().append($cadvisor);
             var docdate = new Date(1000 * dockerContainerItem.Created);
@@ -6473,6 +6480,7 @@ function devCall() {
 
                 $docctr.find('.stop').removeClass('hidden');
                 $docctr.find('.start').addClass('hidden');
+                $docctr.find('.dockerSSHShell').removeClass('hidden');
 
 
                 if (dockerContainerItem.Status.indexOf('Paused') >= 0) {
@@ -6486,6 +6494,7 @@ function devCall() {
             } else if (dockerContainerItem.Status.indexOf('Exited') >= 0) {
                 $docctr.find('.stop').addClass('hidden');
                 $docctr.find('.start').removeClass('hidden');
+                $docctr.find('.dockerSSHShell').addClass('hidden');
                 $docctr.find('.pause').addClass('hidden');
                 $docctr.find('.unpause').addClass('hidden');
             } else if (dockerContainerItem.Status.indexOf('Paused') >= 0) {
@@ -6494,6 +6503,7 @@ function devCall() {
             } else {
                 $docctr.find('.stop').addClass('hidden');
                 $docctr.find('.start').removeClass('hidden');
+                $docctr.find('.dockerSSHShell').addClass('hidden');
             }
 
             $docctr.find('.dockeractionbutton').click(function() {
@@ -6596,6 +6606,52 @@ function devCall() {
                     performAction();
                 }
 
+
+            });
+
+            $docctr.find('.dockeractionSSHbutton').click(function() {
+
+
+                var hasConnectPermission = false;
+                if (haspermission("instanceconnect", "execute")) {
+                    hasConnectPermission = true;
+                }
+                if (!hasConnectPermission) {
+                    bootbox.alert('User has no permission to do SSH');
+                    return;
+                }
+
+                var $sshModal = $('#modalSSHShellContainer');
+
+                var instanceId = $(this).attr('data-instanceId');
+                var containerId = $(this).attr('data-containerId');
+
+                $sshModal.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+                $sshModal.modal('show');
+                $.ajax({
+
+                    type: "GET",
+                    url: "/d4dMasters/getuser",
+                    success: function(usrdata) {
+
+                        // alert(JSON.stringify(data));
+                        //$("#liuserinfo").html("<i class=\"fa fa-user\"></i>&nbsp;<b>" + usrdata[0]['loginname'] + "</b>&nbsp;[" + usrdata[0]['userrolename'] + "]");
+                        var username = '';
+                        if (usrdata.user && usrdata.user.length) {
+                            if (usrdata.user[0].username) {
+                                username = usrdata.user[0].username.cn;
+                            }
+                        }
+                        console.log(username);
+                        $.get('sshShell.html?id=' + instanceId+'&containerId='+containerId, function(data) {
+
+                            $sshModal.find('.modal-body').empty().append(data);
+                            $sshModal.find('#ssh-instanceId').val(instanceId);
+                            $sshModal.find('#ssh-containerId').val(containerId);
+                            $sshModal.find('#ssh-sessionUser').val(username);
+                        });
+                    }
+                });
 
             });
 
