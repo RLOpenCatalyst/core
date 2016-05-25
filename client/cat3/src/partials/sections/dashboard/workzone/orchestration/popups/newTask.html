@@ -107,7 +107,9 @@
 								<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 									<label>
 										<i class="fa fa-list-ul addRunList-icon"></i>
-										<lable class="control-label">Add Runlist</lable>
+										<lable class="control-label" ng-if="!isEditMode">Add Runlist</lable>
+										<lable class="control-label" ng-if="isEditMode && chefrunlist.length==0">Add Runlist</lable>
+										<lable class="control-label" ng-if="isEditMode && chefrunlist.length>0">Edit Runlist</lable>
 									</label>
 									<span class="cursor pull-right">
 										<i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook()" ng-show="chefInstanceList.length || chefBluePrintList.length"></i>
@@ -310,8 +312,11 @@
 		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
 			<i class="fa fa-times black"></i> Cancel
 		</button>
-		<button type="button" class="btn cat-btn-update" ng-click="ok()">
+		<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-if="!isEditMode">
 			<i class="fa fa-check white"></i> Save
+		</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-if="isEditMode">
+			<i class="fa fa-check white"></i> Update
 		</button>
 	</div>
 </div>
