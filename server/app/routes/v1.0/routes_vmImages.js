@@ -316,7 +316,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     // Update a paricular Image values.
     app.post('/vmimages/:imageId/update', function(req, res) {
-        logger.debug("Enter Post() for /vmimages/%s/update", req.params.imageId);
+        logger.debug("Enter Post() for /vmimages/%s/update");
+
         var user = req.session.user;
         var category = configmgmtDao.getCategoryFromID("22");
         var permissionto = 'modify';
@@ -329,7 +330,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var userName = req.body.userName.trim();
         var orgId = req.body.orgId;
         var providerType = req.body.providertype.toLowerCase().trim();
-        var password = req.body.password.trim(); //only for azure provider
+        var password="";
+        if(req.body.password){
+            password = req.body.password.trim(); //only for azure provider
+        } else if(req.body.instancePassword){
+            password = req.body.instancePassword.trim();
+        }
 
         if (typeof providerId === 'undefined' || providerId.length === 0) {
             res.status(400).send("{Please Enter ProviderId.}");
@@ -418,6 +424,33 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                 } else {
                                     res.send(400);
+                                }
+                            });
+                        });
+                    } else if (providerType == "gcp") {
+                        VMImage.getImageById(imageId, function(err, anImage) {
+                            if (err) {
+                                logger.error(err);
+                                res.status(500).send(errorResponses.db.error);
+                                return;
+                            }
+                            if (anImage) {
+                                vmimageData.vType = anImage.vType;
+                            }
+                            VMImage.updateImageById(imageId, vmimageData, function(err, updateCount) {
+                                if (err) {
+                                    logger.error(err);
+                                    res.status(500).send(errorResponses.db.error);
+                                    return;
+                                }
+                                if (updateCount) {
+                                    res.send({
+                                        updateCount: updateCount
+                                    });
+                                    return;
+                                } else {
+                                    res.send(400);
+                                    return;
                                 }
                             });
                         });
