@@ -364,6 +364,11 @@ blueprintService.populateBlueprintRelatedData = function populateBlueprintRelate
 
 
 blueprintService.createBlueprintResponseObject = function createBlueprintResponseObject(blueprint) {
+    if (blueprint && blueprint.isDeleted) {
+        var err = new Error('Blueprint not found.');
+        err.status = 404;
+        return err;
+    }
     var blueprintResponseObject = {
         id: blueprint._id,
         name: blueprint.name,
@@ -378,10 +383,13 @@ blueprintService.createBlueprintResponseObject = function createBlueprintRespons
         applicationUrls: blueprint.applicationUrls,
         blueprints: blueprint.blueprints,
         childBlueprintIds: blueprint.childBlueprintIds,
-        parentBlueprintId: blueprint.parentBlueprintId
+        parentBlueprintId: blueprint.parentBlueprintId,
+        bootDiskType: blueprint.bootDiskType,
+        bootDiskSize: blueprint.bootDiskSize,
+        chefServerId: blueprint.chefServerId
     };
 
-    return blueprintResponseObject
+    return blueprintResponseObject;
 
 };
 

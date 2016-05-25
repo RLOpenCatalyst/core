@@ -534,6 +534,8 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
         "runList": req.body.runList,
         "blueprints": req.body.blueprints,
         "machineType": req.body.machineType,
+        "bootDiskType": req.body.bootDiskType,
+        "bootDiskSize": req.body.bootDiskSize
     };
 
     var entity = {
@@ -578,6 +580,7 @@ router.post('/:blueprintId/upgrade', function updateBlueprint(req, res, next) {
                 blueprintData.organizationId = parentBlueprint.organizationId,
                 blueprintData.businessGroupId = parentBlueprint.businessGroupId,
                 blueprintData.projectId = parentBlueprint.projectId;
+                blueprintData.chefServerId = parentBlueprint.chefServerId;
 
                 Object.assign(parentBlueprint, blueprintData);
                 delete parentBlueprint._id;
@@ -629,6 +632,9 @@ function getBlueprint(req, res, next) {
         userService.updateOwnerDetails,
         function(blueprint, next) {
             var respObj = blueprintService.createBlueprintResponseObject(blueprint);
+            if(respObj && respObj.status){
+                next(respObj,null);
+            }
             next(null, respObj);
         }
     ], function(err, blueprint) {
