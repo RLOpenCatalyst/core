@@ -172,10 +172,8 @@ function sync() {
                             })
                         });
                     });
-                })
-            }
-        ],
-        function (err, results) {
+                });
+            }], function (err, results) {
             if(err){
                 logger.error(err);
                 return;
