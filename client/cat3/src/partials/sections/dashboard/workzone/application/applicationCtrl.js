@@ -37,16 +37,22 @@
 							$scope.isAppallCardTab = {icon:false,template:true};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:true,template:false};
+							$scope.pipeLineActBarShow=false;
+							angular.element('.card').removeClass('selected-card');
 						break;
 						case 'activeCards' :
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab =  {icon:false,template:true};
 							$scope.isHistoryTab = {icon:true,template:false};
+							$scope.pipeLineActBarShow=false;
+							angular.element('.card').removeClass('selected-card');
 						break;
 						case 'history' :
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:false,template:true};
+							$scope.pipeLineActBarShow=false;
+							angular.element('.card').removeClass('selected-card');
 							//$scope.$emit('RENDER-HISTORY');
 						break;
 					}
@@ -123,6 +129,9 @@
 					result.then(function(newEnvList) {
 						$scope.pipeGridOptions.columnDefs=createColUIGrid(newEnvList,'pipeline');
 						$scope.summaryGridOptions.columnDefs=createColUIGrid(newEnvList,'summary');
+						if($scope.pipeLineActBarShow){
+							$scope.isLastEnv=($scope.pipelineConfig.envId.length-1 === $scope.pipelineConfig.envId.indexOf($scope.pipeLineActBarData.envName)) ? true :false;
+						}
 					}, function() {
 
 					});
@@ -202,6 +211,7 @@
 			};
 			$scope.perms = _permSet;
 			function createColUIGrid(envList,cardType){
+				$scope.pipelineConfig=envList;
 				var pipecolumnDefs=[];
 					pipecolumnDefs = [{
 						name: 'appName',
@@ -253,7 +263,7 @@
 					$scope.isApplicationPageLoading=false;
 					$scope.pipeLineActBarShow=false;
 					$rootScope.selectedCardClass='';
-					angular.element('#pipelineView .card').removeClass('selected-card');
+					angular.element('.card').removeClass('selected-card');
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 
 				});
@@ -292,7 +302,7 @@
 					$scope.pipeLineActBarShow =false;
 					$rootScope.selectedCardClass='';
 					$scope.currentTargetId='';
-					angular.element('#pipelineView .card').removeClass('selected-card');
+					angular.element('.card').removeClass('selected-card');
 					return true;
 				}
 				$scope.pipeLineActBarData = angular.extend(cardDetails,{appName:appName},{envName:envName},$scope.requestParams);
@@ -352,11 +362,11 @@
 			}
 			return type==="image" ? appCardStateImagePrefix + colorSuffix : instanceStateTextPrefix + colorSuffix;
 		};
-		pipeLineData.selectedCard = function(cardDetails,appName,envName,id){
+		pipeLineData.selectedCard = function(cardDetails,appName,envName,id,cardType){
 			$scope.$emit('SELECTED-CARD',cardDetails,appName,envName);
-			angular.element('#pipelineView .card').removeClass('selected-card');
+			angular.element('.card').removeClass('selected-card');
 			if($rootScope.selectedCardClass){
-				angular.element('#'+id).addClass('selected-card');
+				angular.element('#'+id+cardType).addClass('selected-card');
 			}
 
 		};

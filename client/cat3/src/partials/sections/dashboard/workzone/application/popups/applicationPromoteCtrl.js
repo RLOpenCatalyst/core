@@ -8,6 +8,7 @@
 (function(){
     "use strict";
     angular.module('workzone.application').controller('applicationPromoteCtrl', ['items','$scope','$rootScope','$modal', '$modalInstance','workzoneServices','workzoneEnvironment', function(items,$scope,$rootScope,$modal, $modalInstance,workSvs,workEnvt) {
+        console.log(items);
         angular.extend($scope,{currentCardDetails:items}, {
             cancel: function() {
                 $modalInstance.dismiss('cancel');
@@ -31,8 +32,16 @@
             //promApp.getAllChefJobs();
         };
         promApp.getAllChefJobs =function () {
-            workSvs.getChefJobEnv(promApp.newEnt.targetEnv).then(function (jobResult) {
-                promApp.jobOptions = jobResult.data;
+            workSvs.getAllEnv().then(function (EnvResult) {
+                var envIdNames = EnvResult.data;
+                if(envIdNames && envIdNames[0].environmentname){
+                    var envName=envIdNames[0].environmentname.split(',');
+                    var envId=envIdNames[0].environmentname_rowid.split(',');
+                    var indexEnvName=envName.indexOf(promApp.newEnt.targetEnv);
+                    workSvs.getChefJobEnv(envId[indexEnvName]).then(function (jobResult) {
+                        promApp.jobOptions = jobResult.data;
+                    });
+                }
             });
         };
         promApp.createNewJob = function (){
