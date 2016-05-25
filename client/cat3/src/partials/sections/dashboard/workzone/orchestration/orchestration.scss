@@ -199,6 +199,15 @@ $imagePath : "../../../../../../images";
 #newTaskPage {
 	font-size: 12px;
 
+	.new-task-wrapper {
+		height: 325px;
+		overflow-y: auto;
+	}
+
+	textarea {
+	    resize: none;
+	}
+
 	.jobDetailsContent {
 		.form-control {
 			font-size: 13px;
@@ -372,8 +381,8 @@ $imagePath : "../../../../../../images";
 		font-size: 23px;
 	}
 
-	.marginright3 {
-		margin-right: 3px;
+	.marginbottomright3 {
+		margin: 0 3px 3px 0;
 	}
 }
 
@@ -398,10 +407,6 @@ $imagePath : "../../../../../../images";
 
 .tableactionbutton {
 	border-radius: 50%;
-}
-
-.marginleft30 {
-	margin-left: 30px;
 }
 
 .marginleft10 {
