@@ -402,6 +402,91 @@
       </div>
     </div>
 
+    <!--modal for blueprint launch parameters -->
+    <div class="modal fade bs-example-modal-lg" id="modalSelectEnvironment" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel"><i class="fa fa-list-ol txt-color-blue"></i>&nbsp;Select Blueprint Launch Parameters</h4>
+          </div>
+          <div class="modal-body">
+          <fieldset>
+            <div class="col-lg-6 col-md-6">
+                <label for="">Organization</label>
+                <input id="blueprintOrgEnv" disabled="disabled" class="form-control">
+            </div>
+
+
+            <div class="col-lg-6 col-md-6">
+                <label for="" class="">Business Group</label>
+                <input id="blueprintBuEnv" disabled="disabled" class="form-control">
+            </div>
+
+            <div class="col-lg-6 col-md-6 projectRepo">
+                <label for="" class="">Project Name
+                </label>
+                <input id="blueprintProEnv" disabled="disabled" class="form-control">
+            </div>
+
+            <div class="col-lg-6 col-md-6 projectRepo">
+                <label for=""  class="">Choose Environment:</label>
+                <select id="envSelect" class="width-100 form-control">
+                </select>
+            </div>
+          </fieldset>         
+            </div>
+            <div class="modal-footer">
+                <a type="button" class="btn btn-default btn-default" data-dismiss="modal">Close</a>
+                <button type="button" class="btn btn-default btn-primary launchBlueprintBtn" data-dismiss="modal">Launch</button>
+             </div>
+        </div>
+      </div>
+    </div>
+    <!--modal ends here-->
+
+    <!--modal for CFT launch-->
+    <div class="modal fade" id="cftContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+       <div class="modal-dialog">
+          <div class="modal-content">
+             <form role="form" class="cmxform" id="cftForm">
+                <div class="modal-header">
+                   <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                   <h4 class="modal-title" id="myModalLabel">Enter a Unique Stack Name?</h4>
+                </div>
+                <div class="modal-body">
+                   <i>(Only numbers,letters allowed. No spaces and underscores)</i>
+                   <input type="text" uniqueconditionedby="cftInput" class="form-control" autofocus name="cftInput" id="cftInput"/>
+                </div>
+                <div class="modal-footer">
+                   <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                   <input type="submit" class="btn btn-default btn-primary" value="Submit">
+                </div>
+             </form>
+          </div>
+       </div>
+    </div>
+
+    <!--modal for launching the blueprint-->
+    <div class="modal fade" id="launchResultContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+       <div class="modal-dialog">
+          <div class="modal-content">
+             <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Launching Blueprint</h4>
+             </div>
+             <div class="modal-body">
+                ...
+             </div>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+             </div>
+          </div>
+       </div>
+    </div>
+    <!--modal for launch ends here-->
+
+
     
 <script src="js/libs/jquery-2.0.2.min.js"></script>
 <script src="js/libs/jquery-ui-1.10.3.min.js"></script>

@@ -1920,10 +1920,390 @@ var saveblueprint = function(tempType) {
                             validatorForm.resetForm();
                             $('.blueprintSaveSuccess').show();
                             $('.blueprintNameSuccess').html('Blueprint&nbsp;&nbsp;<a id="blueprintInfo" data-toggle="modal">' + data.name + '</a>&nbsp;&nbsp;Saved Successfully');
+                            $('.blueprintNameLaunch').html('Launch Blueprint -&nbsp;&nbsp;' + data.name);
                             $wizard.data('secondClick', true);
                             var wizard = $wizard.data('bootstrapWizard');
                             wizard.next();
-                            wizard.disablePreviouBtn();
+                            wizard.disablePreviouBtn(); 
+                            //modal to open the launch popup where user will select the 
+                            $('a#blueprintLaunch').click(function(e) {
+                                var $blueprintLaunch = $('#modalSelectEnvironment');
+                                getOrgProjBUComparison($blueprintLaunch);
+                                $.get("../organizations/getTreeForbtv", function(treeData) {
+                                    for (var i = 0; i < treeData.length; i++) {
+                                        if (data.orgId === treeData[i].rowid) {
+                                            for (var j = 0; j < treeData[i].nodes.length; j++) {
+                                                if (data.bgId === treeData[i].nodes[j].rowid) {
+                                                    for (var k = 0; k < treeData[i].nodes[j].nodes.length; k++) {
+                                                        if (data.projectId === treeData[i].nodes[j].nodes[k].rowid) {
+                                                            for (var m = 0; m < treeData[i].nodes[j].nodes[k].nodes.length; m++) {
+                                                                var str;
+                                                                var $option = $('<option></option>').val(treeData[i].nodes[j].nodes[k].nodes[m].rowid).html(treeData[i].nodes[j].nodes[k].nodes[m].text).attr('selectedEnv',treeData[i].nodes[j].nodes[k].nodes[m].rowid);                                                                
+                                                                $blueprintLaunch.find('.modal-body #envSelect').append($option);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                            var eventAdded = false;
+                            $('.launchBlueprintBtn').click(function(e) {
+                                bootbox.confirm({
+                                    message: "Are you sure you want to launch the Blueprint? Press Ok To continue",
+                                    title: "Confirmation",
+                                    callback: function(result) {
+                                        if (!result) {
+                                            return;
+                                        } else {
+
+                                            /*$('#cftForm').trigger('reset');
+
+                                            $('#commentForm')[0].reset();
+                                            $('#Removeonexitfield').change();*/
+
+
+                                            /*if (tempType === 'Docker') {
+                                                var blueprintId = $($selectedItems.get(0)).find('.blueprintVer').val();
+                                                if (!blueprintId) {
+                                                    blueprintId = $($selectedItems.get(0)).attr('data-blueprintId');
+                                                }
+
+                                                //$.get('../blueprints/' + blueprintId, function(blueprintData) {
+
+
+
+
+                                                    $('.oldlaunchparams').empty(); //clearing the old div for composite blue print.
+                                                    // alert('in test');
+                                                    //Force hiding the start button
+                                                    $('.dockerinstancestart').first().addClass('hidden');
+
+                                                    var cardCount = $('.instancesList').find('.componentlistContainer:not(.stopped)').length;
+
+                                                    if (cardCount === 0) {
+                                                        bootbox.alert('No instances available.Kindly Launch one instance');
+                                                        return;
+                                                    }
+                                                    //commented below to have a composite bp for docker
+                                                    // loadLaunchParams();
+                                                    //Loading table for all docker images for compose
+
+                                                    //var dockercompose = JSON.parse($selectedItems.attr('dockercompose'));
+                                                    var dockercompose = data.blueprintConfig.dockerCompose;
+
+                                                    //alert('hit');
+                                                    $('#compositedockertable tr.dockerimagesrow').detach(); //clearing previously loaded table.
+                                                    dockercompose.forEach(function(k, v) {
+                                                        // alert(dockercompose[v]["dockercontainerpaths"]);
+                                                        addDockerTemplateToTable(dockercompose[v]["dockercontainerpathstitle"], dockercompose[v]["dockercontainerpaths"], dockercompose[v]["dockerrepotags"], dockercompose[v]["dockerreponame"], dockercompose[v]["dockerlaunchparameters"]);
+                                                    });
+                                                    //onclick="loadLaunchParams(\'launchparam' + uniqueid + '\');
+                                                    $('.lnktolaunchparam').click(function() { //binding clicks for launch params
+                                                        loadLaunchParams('launchparam' + $(this).attr('uniqueid'));
+                                                    });
+
+                                                    $('.dockerimageselectordown').click(function() {
+                                                        movetablerow('dockerimageselectordown', $(this).attr('uniqueid'));
+                                                    });
+
+                                                    $('.dockerimageselectorup').click(function() {
+                                                        movetablerow('dockerimageselectorup', $(this).attr('uniqueid'));
+                                                    });
+
+                                                    $('.btnaddDockerLaunchParams').click(function() {
+                                                        var lp = generateDockerLaunchParams();
+                                                        if (lp != '') {
+                                                            var dockerParamsList = lp[0];
+
+                                                            if ((lp[1] !== undefined) && (lp[1] != ''))
+                                                                dockerParamsList += ' -c ' + lp[1];
+
+                                                            if ((lp[2] !== undefined) && (lp[2] != ''))
+                                                                dockerParamsList += ' -exec ' + lp[2];
+
+                                                            $('#' + $('#myModalLabelDockerContainer').attr('saveto')).val(dockerParamsList);
+                                                            $('#myModalLabelDockerContainer').removeAttr('saveto').modal('hide');
+                                                        }
+                                                    });
+
+                                                    var $launchDockerInstanceSelector = $('#launchDockerInstanceSelector');
+                                                    var blueprintId = $selectedItems.attr('data-blueprintId');
+                                                    var dockerreponame = $selectedItems.attr('dockerreponame');
+                                                    $launchDockerInstanceSelector.data('blueprintId', blueprintId);
+                                                    //  $launchDockerInstanceSelector.data('blueprintId',blueprintId);
+
+                                                    loadInstancesContainerList();
+
+                                                    function loadInstancesContainerList() {
+                                                        $launchDockerInstanceSelector.modal('show');
+                                                        $('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
+                                                        $.get('../organizations/' + urlParams.org + '/businessgroups/' + urlParams['bg'] + '/projects/' + urlParams.projid + '/environments/' + urlParams.envid + '/', function(dataInstancesList) {
+                                                            if (!$.fn.dataTable.isDataTable('#dockerinstancesTable')) {
+                                                                var $dockerinstancesDatatable = $('#dockerinstancesTable').DataTable({
+                                                                    "pagingType": "full_numbers",
+                                                                    "aaSorting": [
+                                                                        [0, "desc"]
+                                                                    ],
+                                                                    "aoColumns": [{
+                                                                        "bSortable": false
+                                                                    }, {
+                                                                        "bSortable": true
+                                                                    }, {
+                                                                        "bSortable": true
+                                                                    }, {
+                                                                        "bSortable": false
+                                                                    }]
+
+                                                                });
+                                                            }
+                                                            $dockerinstancesDatatable.clear().draw(false);
+                                                            //commented out as instances are needed for docker.
+                                                            /*for (var i = 0; i < dataInstancesList.instances.length; i++) {
+                                                                var imagePath;
+                                                                if (dataInstancesList.instances[i].data.iconPath == undefined) {
+                                                                    imagePath = dataInstancesList.instances[i].data.iconPath = 'img/imgo.jpg';
+                                                                } else {
+                                                                    imagePath = dataInstancesList.instances[i].data.iconPath;
+                                                                }
+                                                                if (dataInstancesList.instances[i].instanceState == 'running') {
+                                                                    var $tdcheckbox = '<div class="text-center"><input type="checkbox" class="instanceselectedfordocker"><img src="' + imagePath + '" style="width:40px;height:30px;" /></div>';
+                                                                    var $tdname = '<div class="dockerinstanceClass text-center" data-instanceId="' + dataInstancesList.instances[i]._id + '" data-blueprintname="' + dataInstancesList.instances[i].data.blueprintName + '">' + dataInstancesList.instances[i].name + '</div>';
+                                                                    var $tdinstanceip = '<div class="text-center">' + dataInstancesList.instances[i].instanceIP + '</div>';
+                                                                    var $moreinfo = '<a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceId="' + dataInstancesList.instances[i]._id + '" class="tableMoreInfo moreInfo dockerintsancesmoreInfo"></a>';
+
+                                                                    var $dockerinstancesDatatable = $('#dockerinstancesTable');
+                                                                    $dockerinstancesDatatable.dataTable().fnAddData([
+                                                                        $tdcheckbox,
+                                                                        $tdname,
+                                                                        $tdinstanceip,
+                                                                        $moreinfo
+                                                                    ]);
+                                                                }
+
+                                                                $dockerinstancesDatatable.on('click', '.dockerintsancesmoreInfo', instanceLogsHandler);
+                                                            }*/ // till here...
+                                            //             });
+                                            //       }
+                                            //commented out get call });
+                                            //   return;
+                                            // }*/
+
+
+
+                                            // if ($selectedItems.length) {
+                                            var projectId = data.projectId;
+                                            console.log(projectId);
+                                            var envId = $('#envSelect').val();
+                                            console.log(envId);
+                                            var blueprintId = data._id;
+
+                                            var blueprintType = data.templateType;
+                                            alert(blueprintType);
+                                            if(blueprintType === 'chef' || blueprintType === 'osimage'){
+                                                var version = data.blueprintConfig.infraManagerData.latestVersion;
+                                            } 
+                                            
+
+                                            function launchBP(blueprintId, stackName) {
+                                                var $launchResultContainer = $('#launchResultContainer');
+                                                $launchResultContainer.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+                                                $launchResultContainer.find('.modal-title').html('Launching Blueprint');
+                                                $launchResultContainer.modal('show');
+                                                $.get('/blueprints/' + blueprintId + '/launch?version=' + version + '&envId=' + envId + '&stackName=' + stackName, function(data) {
+
+
+                                                    var msgStr = 'Instance Id : ';
+                                                    if (blueprintType === 'cft') {
+                                                        msgStr = 'Stack Id : ' + data.stackId + '. You can view your stack in cloudformation tab(workzone)';
+                                                    } else {
+                                                        msgStr = 'Instance Id : ';
+                                                        msgStr += data.id.join(',');
+
+                                                        msgStr += '<br/>You can monitor logs from the Launched Instances.';
+                                                    }
+
+                                                    var $msg = $('<div></div>').append('<h3 style="font-size:16px;" class=\"alert alert-success\">Your Created Blueprint is being Launched, kindly check Workzone to view your instance.</h3>').append(msgStr);
+
+                                                    $launchResultContainer.find('.modal-body').empty();
+                                                    $launchResultContainer.find('.modal-body').append($msg);
+                                                    if (blueprintType === 'cft') {
+                                                        return;
+                                                    } 
+
+
+                                                    var instanceId = data.id;
+                                                    alert(instanceId);
+                                                    var timeout;
+
+                                                    $launchResultContainer.on('hidden.bs.modal', function(e) {
+                                                        $launchResultContainer.off('hidden.bs.modal');
+                                                        if (timeout) {
+                                                            clearTimeout(timeout);
+                                                        }
+                                                    });
+                                                    $divBootstrapLogArea = $('<div></div>').addClass('logsAreaBootstrap');
+
+                                                    $launchResultContainer.find('.modal-body').append($divBootstrapLogArea);
+
+                                                    var lastTimestamp;
+
+                                                    function pollLogs(timestamp, delay, clearData) {
+                                                        var url = '../instances/' + instanceId + '/logs';
+                                                        if (timestamp) {
+                                                            url = url + '?timestamp=' + timestamp;
+                                                        }
+
+                                                        timeout = setTimeout(function() {
+                                                            $.get(url, function(data) {
+                                                                var $modalBody = $divBootstrapLogArea;
+                                                                if (clearData) {
+                                                                    $modalBody.empty();
+                                                                }
+                                                                var $table = $('<div></div>');
+
+                                                                for (var i = 0; i < data.length; i++) {
+                                                                    var $rowDiv = $('<div class="row"></div>');
+                                                                    var timeString = new Date().setTime(data[i].timestamp);
+                                                                    var date = new Date(timeString).toLocaleString(); //converts to human readable strings
+                                                                    //$rowDiv.append($('<div class="col-lg-4 col-sm-4"></div>').append('<div>' + date + '</div>'));
+
+                                                                    if (data[i].err) {
+                                                                        $rowDiv.append($('<div class="col-lg-12 col-sm-12" style="color:red;"></div>').append('<span>' + data[i].log + '</span>'));
+                                                                    } else {
+                                                                        $rowDiv.append($('<div class="col-lg-12 col-sm-12 " style="color:white;"></div>').append('<span>' + data[i].log + '</span>'));
+                                                                    }
+
+                                                                    $table.append($rowDiv);
+                                                                }
+
+
+                                                                if (data.length) {
+                                                                    lastTimestamp = data[data.length - 1].timestamp;
+                                                                    console.log(lastTimestamp);
+                                                                    $modalBody.append($table);
+                                                                    $modalBody.scrollTop($modalBody[0].scrollHeight + 100);
+                                                                }
+
+
+                                                                console.log('polling again');
+                                                                if ($launchResultContainer.data()['bs.modal'].isShown) {
+                                                                    pollLogs(lastTimestamp, 1000, false);
+                                                                } else {
+                                                                    console.log('not polling again');
+                                                                }
+                                                            });
+                                                        }, delay);
+                                                    }
+                                                    //alert('Instances ' + data.id.length);
+                                                    if (data.id.length <= 1) {
+                                                        instanceId = data.id[0];
+                                                        //to be called only when there is one instance.
+                                                        pollLogs(lastTimestamp, 0, true);
+                                                    } else {
+                                                        for (var j = 0; j < data.id.length; j++) {
+                                                            if (j >= data.id.length - 1) {
+                                                                $('.logsAreaBootstrap').hide();
+                                                            }
+                                                        }
+                                                    }
+                                                }).error(function(jxhr) {
+                                                    var message = "Server Behaved Unexpectedly";
+                                                    if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                                        message = jxhr.responseJSON.message;
+                                                    }
+                                                    $launchResultContainer.find('.modal-body').empty().append('<span>' + message + '</span>');
+                                                });
+
+                                            }
+
+                                            if (blueprintType === 'cft') {
+                                                jQuery.validator.addMethod("noSpace", function(value, element) {
+                                                    return value.indexOf(" ") < 0 && value != "";
+                                                }, "No space allowed and the user can't leave it empty");
+                                               // var $modalCftContainer = $('#cftContainer');
+                                                $('#cftContainer').modal('show');
+                                                var validator = $("#cftForm").validate({
+                                                    rules: {
+                                                        cftInput: {
+                                                            noSpace: true,
+                                                            alphanumeric: true
+                                                        }
+                                                    }
+                                                });
+                                                $('a.launchBtn[type="reset"]').on('click', function() {
+
+                                                    validator.resetForm();
+                                                });
+
+                                                if (!eventAdded) {
+                                                    $("#cftForm").submit(function(e) {
+                                                        var stackName = $('#cftInput').val();
+                                                        var isValid = $('#cftForm').valid();
+                                                        if (!isValid) {
+                                                            e.preventDefault();
+                                                            return false;
+                                                        } else {
+                                                            var blueprintId = data._id;
+                                                            if (!blueprintId) {
+                                                                blueprintId = $($selectedItems.get(0)).attr('data-blueprintId');
+                                                            }
+                                                            launchBP(blueprintId, stackName);
+                                                            $('#cftContainer').modal('hide');
+                                                            e.preventDefault();
+
+                                                            return false;
+                                                        }
+                                                    });
+                                                    eventAdded = true;
+                                                }
+
+                                            } else {
+                                                alert("whatisBP>>" + blueprintType);
+                                                launchBP(blueprintId);
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                            
+                            //to get the org,BU and Proj.
+                            function getOrgProjBUComparison(id){
+                                $.ajax({
+                                    type: "get",
+                                    dataType: "json",
+                                    async: false,
+                                    url: "../organizations/getTreeNew",
+                                    success: function(dataTree) {
+                                        console.log(data);
+                                        data = JSON.parse(JSON.stringify(data));
+                                        $.get("/d4dMasters/readmasterjsonnew/4", function(tdata) {
+                                            var $blueprintReadContainer = $(id);
+                                            var $blueprintLaunch = $(id);
+                                            for (var i = 0; i < tdata.length; i += 1) {
+                                                if (data.orgId == tdata[i].orgname_rowid) {
+                                                    $blueprintReadContainer.find('.modal-body #blueprintORG').val(tdata[i].orgname[0]);
+                                                    $blueprintLaunch.find('.modal-body #blueprintOrgEnv').val(tdata[i].orgname[0]);
+                                                   // $blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(tdata[i].orgname[0]);
+                                                }
+                                                if (data.bgId == tdata[i].productgroupname_rowid) {
+                                                    $blueprintReadContainer.find('.modal-body #blueprintBU').val(tdata[i].productgroupname);
+                                                    $blueprintLaunch.find('.modal-body #blueprintBuEnv').val(tdata[i].productgroupname);
+                                                    //$blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(tdata[i].orgname[0]);
+                                                }
+                                                if (data.projectId == tdata[i].rowid) {
+                                                    $blueprintReadContainer.find('.modal-body #blueprintProject').val(tdata[i].projectname);
+                                                    $blueprintLaunch.find('.modal-body #blueprintProEnv').val(tdata[i].projectname);
+                                                    //$blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(tdata[i].orgname[0]);
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        
                             if (tempType === 'softwarestack' || tempType === 'osimage') {
                                 $('a#blueprintInfo').attr('href', '#modalForRead').click(function(e) {
                                     var $blueprintReadContainer = $('#modalForRead');
@@ -1980,30 +2360,8 @@ var saveblueprint = function(tempType) {
                                         }
                                     });
                                     $blueprintReadContainer.find('.modal-body #blueprintTemplateType').val(data.templateType);
-                                    $.ajax({
-                                        type: "get",
-                                        dataType: "json",
-                                        async: false,
-                                        url: "../organizations/getTreeNew",
-                                        success: function(dataTree) {
-                                            console.log(data);
-                                            data = JSON.parse(JSON.stringify(data));
-                                            //  alert(JSON.stringify(data));
-                                            $.get("/d4dMasters/readmasterjsonnew/4", function(tdata) {
-                                                for (var i = 0; i < tdata.length; i += 1) {
-                                                    if (data.orgId == tdata[i].orgname_rowid) {
-                                                        $blueprintReadContainer.find('.modal-body #blueprintORG').val(tdata[i].orgname[0]);
-                                                    }
-                                                    if (data.bgId == tdata[i].productgroupname_rowid) {
-                                                        $blueprintReadContainer.find('.modal-body #blueprintBU').val(tdata[i].productgroupname);
-                                                    }
-                                                    if (data.projectId == tdata[i].rowid) {
-                                                        $blueprintReadContainer.find('.modal-body #blueprintProject').val(tdata[i].projectname);
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    });
+                                    getOrgProjBUComparison($blueprintReadContainer);
+                                    
                                 });
                             } else if (tempType === 'cloudformation') {
                                 $('a#blueprintInfo').attr('href', '#modalForReadCFT').click(function(e) {
