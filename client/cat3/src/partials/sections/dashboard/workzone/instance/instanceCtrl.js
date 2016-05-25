@@ -493,13 +493,13 @@
 
 		$scope.setCardView = function() {
 			$scope.isCardViewActive = true;
-			$scope.instanceCardViewSelection = "app-tab-active";
+			$scope.instanceCardViewSelection = "instance-tab-active";
 			$scope.instanceTableViewSelection = "";
 		};
 
 		$scope.instanceTableView = function() {
 			$scope.isCardViewActive = false;
-			$scope.instanceTableViewSelection = "app-tab-active";
+			$scope.instanceTableViewSelection = "instance-tab-active";
 			$scope.instanceCardViewSelection = "";
 			var tableData = $scope.tabData;
 			$scope.tabData = [];

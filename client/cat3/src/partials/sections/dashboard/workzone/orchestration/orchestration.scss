@@ -80,17 +80,7 @@ $imagePath : "../../../../../../images";
 }
 
 @media (min-width : 0px) and (max-width : 480px) {
-	#orchestrationPage {
-		.panel-heading {
-			.pull-right {
-				.orchestration-new-button {
-				    margin: -1px 0 0 0;
-				    padding: 0px 4px;
-				    font-size: 12px;
-				}
-			}
-		}
-	}
+	
 }
 
 @media (min-width : 481px) {
@@ -135,12 +125,6 @@ $imagePath : "../../../../../../images";
 
 	input[type=search] {
 		-webkit-appearance: textfield;
-	}
-
-	.orchestration-new-button {
-		margin: -3px 0 0 0;
-	    padding: 2px 10px;
-	    font-size: 13px;
 	}
 
 	.btnEditTask {
