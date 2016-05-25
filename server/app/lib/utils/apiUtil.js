@@ -8,29 +8,8 @@ var commons=appConfig.constantData;
 var Cryptography = require('_pr/lib/utils/cryptography.js');
 var cryptoConfig = appConfig.cryptoSettings;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
-var os = require('os');
-var ifaces = os.networkInterfaces();
 
 var ApiUtil = function() {
-
-    this.getIPAddresses=function(){
-        var ipAddresses=[];
-        Object.keys(ifaces).forEach(function (ifname) {
-            var alias = 0;
-            ifaces[ifname].forEach(function (iface) {
-                if ('IPv4' !== iface.family || iface.internal !== false) {
-                    return;
-                }
-                if (alias >= 1) {
-                    ipAddresses.push(iface.address);
-                } else {
-                    ipAddresses.push(iface.address);
-                }
-                ++alias;
-            });
-        });
-        return ipAddresses[0];
-    };
     this.errorResponse=function(code,field){
         var errObj={};
         if(code==400){

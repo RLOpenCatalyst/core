@@ -65,8 +65,7 @@
 		"async": "v1.5.2",
 		"multer": "1.1.0",
 		"joi": "8.0.5",
-		"lodash.topairs": "4.1.0",
-		"os" :"0.1.1"
+		"lodash.topairs": "4.1.0"
 	},
 	"devDependencies": {
 		"grunt": "0.4.5",
