@@ -199,6 +199,11 @@ $imagePath : "../../../../../../images";
 #newTaskPage {
 	font-size: 12px;
 
+	.new-task-wrapper {
+		height: 325px;
+		overflow-y: auto;
+	}
+
 	.jobDetailsContent {
 		.form-control {
 			font-size: 13px;
