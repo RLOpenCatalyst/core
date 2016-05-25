@@ -32,7 +32,6 @@ var authUtil = require('../lib/utils/authUtil.js');
 var GlobalSettings = require('_pr/model/global-settings/global-settings');
 var AuthToken = require('_pr/model/auth-token');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
-var apiUtil=require('../lib/utils/apiUtil.js');
 var aws = require('aws-sdk');
 
 module.exports.setRoutes = function(app) {
