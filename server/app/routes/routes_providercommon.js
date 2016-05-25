@@ -88,7 +88,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
-		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+		/*AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 			if (err) {
 				res.status(500).send({
 					message: "Server Behaved Unexpectedly"
@@ -100,16 +100,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					message: "provider not found"
 				});
 				return;
-			}
+			}*/
 
-			instancesDao.getByProviderId(provider._id, function(err, managedInstances) {
+			instancesDao.getByProviderId(req.params.providerId, function(err, managedInstances) {
 				if (err) {
 					res.status(500).send(managedInstances);
 					return;
 				}
 				res.status(200).send(managedInstances);
 			});
-		});
+		// });
 
 	});
 
