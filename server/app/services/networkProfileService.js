@@ -38,7 +38,7 @@ networkProfileService.checkIfNetworkProfileExists = function checkIfNetworkProfi
 
 networkProfileService.saveNetworkProfile = function saveNetworkProfile(networkProfile, callback) {
     switch (networkProfile.type) {
-        case 'GCP':
+        case 'gcp':
             logger.debug('Creating new GCP NetworkProfile');
             gcpNetworkProfile.saveNetworkProfile(networkProfile, callback);
             break;

@@ -38,7 +38,7 @@ var logger = require('_pr/logger')(module);
 	 * @apiParamExample {json} Request-Example:
 	 	{
 	 * 		"name":	"networkProfileName",
-	 * 		"type": "GCP",
+	 * 		"type": "gcp",
 	 *		"providerId": "<ID>",
 	 * 		"networkDetails": {
 	 *			"zone": "us-east1-c",
@@ -55,7 +55,7 @@ var logger = require('_pr/logger')(module);
 	 * 			 	 {
 	 * 			 	    "id": "<ID>",
 	 * 					"name":	"networkProfileName",
-	 * 					"type": "GCP",
+	 * 					"type": "gcp",
 	 *					"providerId": "<ID>",
 	 * 				     "networkDetails": {
 	 *						"zone": "us-east1-c",
@@ -104,7 +104,7 @@ function saveNetworkProfile(req, res, next) {
 	 * @apiParamExample {json} Request-Example:
 	 	{
 	 * 		"name":	"networkProfileName",
-	 * 		"type": "GCP",
+	 * 		"type": "gcp",
 	 *		"providerId": "<ID>",
 	 * 		"networkDetails": {
 	 *			"zone": "us-east1-c",
@@ -121,7 +121,7 @@ function saveNetworkProfile(req, res, next) {
 	 * 			 	 {
 	 * 			 	    "id": "<ID>",
 	 * 					"name":	"networkProfileName",
-	 * 					"type": "GCP",
+	 * 					"type": "gcp",
 	 *					"providerId": "<ID>",
 	 * 				     "networkDetails": {
 	 *						"zone": "us-east1-c",
@@ -171,7 +171,7 @@ function updateNetworkProfile(req, res, next) {
  * 			 	 {
  * 			 	    "id": "<ID>",
  * 					"name":	"networkProfileName",
- * 					"type": "GCP",
+ * 					"type": "gcp",
  *					"providerId": "<ID>",
  * 				     "networkDetails": {
  *						"zone": "us-east1-c",
@@ -258,7 +258,7 @@ function removeNetworkProfile(req, res, next) {
 	 * 			 	 {
 	 * 			 	    "id": "<ID>",
 	 * 					"name":	"networkProfileName",
-	 * 					"type": "GCP",
+	 * 					"type": "gcp",
 	 *					"providerId": "<ID>",
 	 * 				    "networkDetails": {
 	 *						"zone": "us-east1-c",

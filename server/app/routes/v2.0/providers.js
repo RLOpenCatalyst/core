@@ -57,7 +57,7 @@ var logger = require('_pr/logger')(module);
  * 				 {
  * 				    "id": "<ID>",
  * 					"name":	"providerName",
- * 					"type": "GCP",
+ * 					"type": "gcp",
  * 				    "organization": {
  * 				        "id": "<ID>",
  * 				        "name": "Organization name"
@@ -143,7 +143,7 @@ router.get('/:providerId', validate(providersValidator.accessIndividualResource)
  * @apiParamExample {json} GCP-Request-Example:
  * 		{
  * 			"name":	"Provider Name",
- * 			"type": "GCP",
+ * 			"type": "gcp",
  * 			"organizationId": "<Organization ID>",
  * 			"providerDetails": {
  * 				"projectId": "<GCP Project ID>",
@@ -164,7 +164,7 @@ router.get('/:providerId', validate(providersValidator.accessIndividualResource)
  * 		{
  * 	        "id": "<ID>",
  * 			"name":	"providerName",
- * 			"type": "GCP",
+ * 			"type": "gcp",
  * 			"organization": {
  *             "id": "<ID>",
  * 				"name": "Organization name"
@@ -224,7 +224,7 @@ router.delete('/:providerId', validate(providersValidator.accessIndividualResour
  *      HTTP/1.1 200 OK
  *      {
  *          "id": "<Provider ID>
- *          "type": "GCP",
+ *          "type": "gcp",
  *          "name":	"providerName",
  *          "organization": {
  *              "id": "<ID>",

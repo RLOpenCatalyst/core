@@ -1754,7 +1754,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                 });
 
-                            } else if (data[0].providerType && data[0].providerType == 'GCP') {
+                            } else if (data[0].providerType && data[0].providerType == 'gcp') {
                                 providerService.getProvider(data[0].providerId, function(err, provider) {
                                     if (err) {
                                         res.status(500).send({
@@ -2207,7 +2207,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                 });
 
-                            } else if (data[0].providerType && data[0].providerType == 'GCP') {
+                            } else if (data[0].providerType && data[0].providerType == 'gcp') {
                                 var providerService = require('_pr/services/providerService.js');
                                 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
                                 var GCP = require('_pr/lib/gcp.js');
