@@ -3,6 +3,9 @@
 $imagePath : "../../../../../../cat3/images";
 
 /*CSS for defining colors Globally starts*/
+.fa {
+	@include theme-text-color; 
+}
 .green {
 	color: $color-green;
 }
@@ -26,10 +29,6 @@ $imagePath : "../../../../../../cat3/images";
 
 .cursor {
 	cursor: pointer;
-}
-
-.fa {
-	@include theme-text-color; 
 }
 
 .white {
@@ -443,6 +442,9 @@ option.puppet {
 
  .panel-title {
  	font-size: 14px;
+ }
+ .panel-title a{
+ 	outline: none;
  }
  /*Global styles for page name in header ends*/
 

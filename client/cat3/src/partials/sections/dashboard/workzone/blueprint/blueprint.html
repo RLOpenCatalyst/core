@@ -11,9 +11,13 @@
         </div>
         <div class="scrollContent">
             <div class="container">
-                <accordion close-others="oneAtATime">
-                    <div ng-show="blueprints.software_stack.length">
-                        <accordion-group is-open="isFirstOpen" heading="Software Stack">
+                <accordion>
+                    <div ng-if="blueprints.software_stack.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                SoftwareStack
+                            </accordion-heading>
                             <div class="productdiv4" ng-repeat="launcher in blueprints.software_stack">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
@@ -56,8 +60,12 @@
                             </div>
                         </accordion-group>
                     </div>
-                    <div ng-show="blueprints.os_image.length>0">
-                        <accordion-group heading="OSImage">
+                     <div ng-if="blueprints.os_image.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                OSImage
+                            </accordion-heading>
                             <div class="productdiv4" ng-repeat="launcher in blueprints.os_image">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
@@ -99,8 +107,12 @@
                             </div>
                         </accordion-group>
                     </div>
-                    <div ng-show="blueprints.cloudFormation.length>0">
-                        <accordion-group heading="Cloud Formation">
+                    <div ng-if="blueprints.cloudFormation.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                CloudFormation
+                            </accordion-heading>
                             <div class="productdiv4" ng-repeat="launcher in blueprints.cloudFormation">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
@@ -136,8 +148,12 @@
                             </div>
                         </accordion-group>
                     </div>
-                    <div ng-show="blueprints.docker.length>0">
-                        <accordion-group heading="Docker">
+                    <div ng-if="blueprints.docker.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                Docker
+                            </accordion-heading>
                             <div class="productdiv4" ng-repeat="launcher in blueprints.docker">
                                 <div class="productdiv1 cardimage role-Selected1" data-blueprinttype="instance_launch" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
@@ -183,8 +199,12 @@
                             </div>
                         </accordion-group>
                     </div>
-                    <div ng-show="blueprints.azureARM.length>0">
-                        <accordion-group heading="AzureARM">
+                    <div ng-if="blueprints.azureARM.length>0">
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                ArmTemplate
+                            </accordion-heading>
                             <div class="productdiv4" ng-repeat="launcher in blueprints.azureARM">
                                 <div class="productdiv1 cardimage role-Selected1">
                                     <ul class="list-unstyled system-prop">
