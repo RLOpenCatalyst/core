@@ -204,6 +204,10 @@ $imagePath : "../../../../../../images";
 		overflow-y: auto;
 	}
 
+	textarea {
+	    resize: none;
+	}
+
 	.jobDetailsContent {
 		.form-control {
 			font-size: 13px;
@@ -377,8 +381,8 @@ $imagePath : "../../../../../../images";
 		font-size: 23px;
 	}
 
-	.marginright3 {
-		margin-right: 3px;
+	.marginbottomright3 {
+		margin: 0 3px 3px 0;
 	}
 }
 
