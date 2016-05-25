@@ -24,14 +24,18 @@
 				//tree template
 				var template =
 					'<ul>' +
-					'<li data-ng-repeat="node in ' + treeModel1 + '">' +
+					'<li data-ng-repeat="node in ' + treeModel1 + '" data-ng-class="node.selected">' +
+					'<div class="liContents">' +
 					'<i class="expand-collapse click-expand fa fa-angle-right collapse-spacing" data-ng-show="node.' + nodeChildren + '.length && node.collapsed" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
 					'<i class="expand-collapse click-collapse fa fa-angle-down collapse-spacing" data-ng-show="node.' + nodeChildren + '.length && !node.collapsed" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
-					'<span class="{{getClass(node)}}" data-ng-click="' + treeId + '.selectNodeHead(node)"></span>'+
+					'<i class="fa fa-fw collapse-spacing" data-ng-hide="node.' + nodeChildren + '.length"></i>' +
+					'<i class="{{getClass(node)}}" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>'+
 					
 					/*'<i class="normal" data-ng-hide="node.' + nodeChildren + '.length" data-ng-click="' + treeId + '.selectNodeHead(node)"></i> ' +*/
 					'<span data-ng-class="node.selected" data-nodetype="{{getNodeType(node)}}" data-ng-click="' + treeId + '.selectNodeLabel(node)" id="{{node.rowid}}">{{node.' + nodeLabel + '}}</span>' +
+					'<i class="caret-spacing fa fa-caret-left pull-right" data-ng-show="node.selected"></i>' +
 					'<div data-ng-hide="node.collapsed" data-tree-id="' + treeId + '" data-tree-model="node.' + nodeChildren + '" data-node-id=' + nodeId + ' data-node-label=' + nodeLabel + ' data-node-children=' + nodeChildren + '></div>' +
+					'</div>' +
 					'</li>' +
 					'</ul>';
 
@@ -56,41 +60,43 @@
 						//if node label clicks,
 						scope[treeId].selectNodeLabel = scope[treeId].selectNodeLabel || function(selectedNode) {
 
+							//last level node is missing even the property. the levels above have the property, with value false
 							//remove highlight from previous node
-							if (scope[treeId].currentNode && scope[treeId].currentNode.selected) {
+							if ((selectedNode.selectable===undefined) && scope[treeId].currentNode && scope[treeId].currentNode.selected) {
 								scope[treeId].currentNode.selected = undefined;
 							}
 
-							//set highlight to selected node
-							selectedNode.selected = 'selected';
+							if(selectedNode.selectable===undefined) { //means it is selectable, data from API is missing this property for env nodes
+								//set highlight to selected node
+								selectedNode.selected = 'selected';
 
-							//set currentNode
-							scope[treeId].currentNode = selectedNode;
-
+								//set currentNode
+								scope[treeId].currentNode = selectedNode;
+							}
 							scope[treeId].selectNodeLabelCallback(selectedNode);
 						};
 
-					scope.getNodeType=function(node){
-						if(node.selectable===false){
-							return "not-env";
-						}else{
-							return "env";
-						}
-					};
+						scope.getNodeType=function(node){
+							if(node.selectable===false){
+								return "not-env";
+							}else{
+								return "env";
+							}
+						};
 
-					scope.getClass=function(node){
-						var extraClass="label-spacing";
-						if(node.selectable===false && !node.orgname){
-						return "icon fa fa-building" +" "+extraClass;
-					}else if(node.selectable===false && node.orgname && !node.bgname){
-						return "icon fa fa-fw fa-1x fa-group" +" "+extraClass;
-					}else if(node.selectable===false && node.orgname && node.bgname && !node.projname){
-						return "icon fa fa-fw fa-1x fa-tasks" +" "+extraClass;
+						scope.getClass=function(node){
+							var extraClass="label-spacing";
+							if(node.selectable===false && !node.orgname){
+								return "icon fa fa-building" +" "+extraClass;
+							}else if(node.selectable===false && node.orgname && !node.bgname){
+								return "icon fa fa-group" +" "+extraClass;
+							}else if(node.selectable===false && node.orgname && node.bgname && !node.projname){
+								return "icon fa fa-tasks" +" "+extraClass;
 
-					}else if(node.selectable===undefined){
-						return "icon fa fa-fw fa-1x fa-desktop" +" "+extraClass;
-					}
-					};
+							}else if(node.selectable===undefined){
+								return "icon fa fa-desktop" +" "+extraClass;
+							}
+						};
 					}
 					//Rendering template.
 					element.html('').append($compile(template)(scope));
