@@ -32,6 +32,7 @@ var authUtil = require('../lib/utils/authUtil.js');
 var GlobalSettings = require('_pr/model/global-settings/global-settings');
 var AuthToken = require('_pr/model/auth-token');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
+var aws = require('aws-sdk');
 
 module.exports.setRoutes = function(app) {
     app.post('/auth/createldapUser', function(req, res) {
@@ -80,8 +81,74 @@ module.exports.setRoutes = function(app) {
         }
     });
     app.post('/auth/signin', function(req, res, next) {
+        /**
+         * Ad-hoc changes in authentication to comply to AWS marketplace requirements.
+         * NOTE: Will not be refactored as this will be deprecated and v2.0 token based authentication will be used.
+         */
         if (req.body && req.body.username && req.body.pass) {
-            if (appConfig.authStrategy.externals) {
+            if(req.body.username ==='ec2-user') {
+                var awsMetaData = new aws.MetadataService();
+                awsMetaData.request('/latest/meta-data/instance-id', function(err, data) {
+                    if (err) {
+                        logger.error(err, err.stack);
+                        next(err);
+                    } else if(req.body.username ==='ec2-user' && req.body.pass === data) {
+                        var password = req.body.pass;
+                        var userName = req.body.username;
+                        var user = {
+                            "cn": userName,
+                            "password": password
+                        };
+                        req.session.user = user;
+
+                        usersDao.getUser(req.body.username, req, function(err, data) {
+                            logger.debug("User is not a Admin.");
+                            if (err) {
+                                req.session.destroy();
+                                next(err);
+                                return;
+                            }
+                            if (data && data.length) {
+                                user.roleId = data[0].userrolename;
+
+                                logger.debug('Just before role:', data[0].userrolename);
+                                user.roleName = "Admin";
+                                user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
+                                if (req.body.authType === 'token') {
+
+                                    AuthToken.createNew(req.session.user, function(err, authToken) {
+                                        req.session.destroy();
+                                        if (err) {
+                                            return next(err);
+                                        }
+                                        res.send(200, {
+                                            token: authToken.token
+                                        });
+                                        return;
+                                    });
+                                } else {
+                                    req.logIn(user, function(err) {
+                                        if (err) {
+                                            return next(err);
+                                        }
+                                        return res.redirect('/private/index.html');
+                                    });
+                                }
+                            } else {
+                                req.session.destroy();
+                                if (req.body.authType === 'token') {
+                                    return res.status(400).send({
+                                        message: "Invalid username or password"
+                                    });
+                                }
+                                res.redirect('/public/login.html?o=try');
+                            }
+                        });
+
+                    }
+                });
+
+            }else if (appConfig.authStrategy.externals) {
                 logger.debug("LDAP Authentication>>>>>");
                 passport.authenticate('ldap-custom-auth', function(err, user, info) {
                     logger.debug('passport error ==>', err);
@@ -154,6 +221,9 @@ module.exports.setRoutes = function(app) {
                     "password": password
                 };
                 req.session.user = user;
+
+
+
                 usersDao.getUser(userName, req, function(err, data) {
                     logger.debug("User is not a Admin.");
                     if (err) {
