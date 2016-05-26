@@ -44,7 +44,7 @@
 			<div ng-show="!iscompositeTaskHistoryPageLoading">
 				<div id="grid8" ng-if="taskHistoryCompositeData.length >0 && task.taskType=='composite'" ui-grid="taskHistoryCompositeGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
 			</div>
-			<div ng-show="!ischefTaskHistoryPageLoading && !ispuppetTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !iscompositeTaskHistoryPageLoading" ng-if="taskHistoryChefData.length == 0 && taskHistoryPuppetData.length == 0 && taskHistoryJenkinsData.length == 0 && taskHistoryCompositeData.length == 0" align="center">No Data Found</div>
+			<div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !ispuppetTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !iscompositeTaskHistoryPageLoading" ng-if="taskHistoryChefData.length == 0 && taskHistoryPuppetData.length == 0 && taskHistoryJenkinsData.length == 0 && taskHistoryCompositeData.length == 0" align="center">No Data Found</div>
 		</section>
 	</div>
 

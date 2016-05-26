@@ -11,20 +11,20 @@
 		}
 
 		.loginform .loginform_note {
-				width: 65%;
-				padding-left: 10px;
+			width: 65%;
+			padding-left: 10px;
 		}
 
 		.loginform footer .btn {
-				margin: 10px 10px 0 0px;
+			margin: 10px 10px 0 0px;
 		}
 	}
 }
 
 @media screen and (max-width: 768px) and (min-width: 0px) {
 	#header {
-			height: 49px;
-			background: #2C3742;
+		height: 49px;
+		background: #2C3742;
 		}
 
 	body {
@@ -45,80 +45,80 @@
 
 /*styles added based on cat2.0*/
 .login-header-big {
-		font-weight: 400;
+	font-weight: 400;
 }
 
 .txt-color-red {
-		color: #a90329;
+	color: #a90329;
 }
 
 h1 {
-		letter-spacing: -1px;
-		font-size: 24px;
-		margin: 10px 0;
+	letter-spacing: -1px;
+	font-size: 24px;
+	margin: 10px 0;
 }
 
 .hero {
 	height: 300px;
-		background-repeat: no-repeat;
-		background-position: 0 137px;
-		width: 100%;
-		float: left;
+	background-repeat: no-repeat;
+	background-position: 0 137px;
+	width: 100%;
+	float: left;
 }
 
 .login-desc-box-l {
-		min-height: 350px;
-		width: 65%;
+	min-height: 350px;
+	width: 65%;
 }
 
 h5 {
-		font-size: 17px;
-		font-weight: 300;
-		margin: 10px 0;
-		line-height: normal;
+	font-size: 17px;
+	font-weight: 300;
+	margin: 10px 0;
+	line-height: normal;
 }
 
 .display-image {
-		margin-top: -60px;
-		margin-right: 20px;
+	margin-top: -60px;
+	margin-right: 20px;
 }
 
 .plan, .design, .workzone, .track, .Monitor {
-		background: url(../../../../images/sprites.png) no-repeat;
+	background: url(../../../../images/sprites.png) no-repeat;
 }
 
 .images-margin {
-		margin-left: 30px;
+	margin-left: 30px;
 }
 
 .plan {
-		background-position: 0 0;
-		width: 150px;
-		height: 150px;
+	background-position: 0 0;
+	width: 150px;
+	height: 150px;
 }
 
 .design {
-		background-position: -198px 0;
-		width: 150px;
-		height: 153px;
+	background-position: -198px 0;
+	width: 150px;
+	height: 153px;
 }
 
 .workzone {
-		background-position: -399px 0;
-		width: 150px;
-		height: 150px;
+	background-position: -399px 0;
+	width: 150px;
+	height: 150px;
 }
 
 .track {
-		background-position: -600px 0;
-		width: 150px;
-		height: 150px;
+	background-position: -600px 0;
+	width: 150px;
+	height: 150px;
 }
 
 .Monitor {
-		background-position: -799px 0;
-		width: 150px;
-		height: 150px;
+	background-position: -799px 0;
+	width: 150px;
+	height: 150px;
 }
 
 .login-footer {
