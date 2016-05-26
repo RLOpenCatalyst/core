@@ -35,7 +35,10 @@
 							<label>Tags:<span class="red">*</span>
 								<loading size="small" name="isLoadingDocTag" type="inline"></loading>
 							</label>
-							<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.tag">
+							<select class="form-control" ng-model="upGrdApp.newEnt.tag"  required>
+								<option value="">Choose Tag</option>
+								<option ng-repeat="tagOption in upGrdApp.tagOptions" value="{{tagOption.name}}">{{tagOption.name}}</option>
+							</select>
 						</div>
 						<div class="col-lg-6 col-md-6">
 							<label>Container Port:<span class="red">*</span>

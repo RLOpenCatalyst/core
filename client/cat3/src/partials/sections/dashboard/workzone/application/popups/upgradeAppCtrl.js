@@ -28,8 +28,10 @@ angular.module('workzone.application')
 						upgrdApp.newEnt.groupId=FrzData.nexus.groupId;
 						upgrdApp.rowid=FrzData.nexus.rowId;
 						upgrdApp.newEnt.taskId=FrzData.nexus.taskId;
+						upgrdApp.newEnt.repository =FrzData.nexus.repository;
 					} else if(FrzData && FrzData.docker && FrzData.docker.imageTag) {
 						upgrdApp.newEnt.serverType='docker';
+						upgrdApp.newEnt.repositoryIMG=FrzData.docker.image;
 						upgrdApp.newEnt.ContNameId=FrzData.docker.containerName;
 						upgrdApp.newEnt.contPort= FrzData.docker.containerPort;
 						upgrdApp.newEnt.hostPort = FrzData.docker.hostPort;
@@ -37,10 +39,10 @@ angular.module('workzone.application')
 						upgrdApp.newEnt.taskId=FrzData.docker.taskId;
 						upgrdApp.rowid=FrzData.docker.rowId;
 						upgrdApp.newEnt.repositoryIMG=FrzData.docker.image;
+						upgrdApp.newEnt.repository =FrzData.docker.image;
 					}
 					upgrdApp.projectId=FrzData.projectId;
 					upgrdApp.envName=FrzData.envName;
-					upgrdApp.newEnt.repository =FrzData.nexus.repository;
 					upgrdApp.newEnt.version =(upgrdApp.newEnt.serverType === 'nexus')?FrzData.version :upgrdApp.newEnt.tag;
 					upgrdApp.getServer();
 					upgrdApp.getAllChefJobs();
@@ -55,7 +57,12 @@ angular.module('workzone.application')
 						upgrdApp.newEnt.serverName=(val.nexusservername)?val.nexusservername:val.dockerreponame;
 					}
 				});
-				upgrdApp.getArtifacts();
+				if(upgrdApp.newEnt.serverType === 'nexus'){
+					upgrdApp.getArtifacts();
+				} else {
+					upgrdApp.getTagDetails();
+				}
+
 			});
 		};
 		upgrdApp.getArtifacts= function(){
@@ -81,26 +88,33 @@ angular.module('workzone.application')
 			});
 		};
 		upgrdApp.getVersions= function(){
-			$scope.isLoadingNexusVersion = true;
-			upgrdApp.requestData.artifactId = upgrdApp.newEnt.artifact;
-			wzService.getNexusVersions(upgrdApp.requestData).then(function (versionsResult) {
-				upgrdApp.versionsOptions = versionsResult.data;
-				$scope.isLoadingNexusVersion = false;
-			});
-			angular.forEach(upgrdApp.jobOptions,function(val,key){
-				if(val._id === upgrdApp.newEnt.taskId){
-					upgrdApp.newEnt.jobInd=key;
-				}
-			});
+				$scope.isLoadingNexusVersion = true;
+				upgrdApp.requestData.artifactId = upgrdApp.newEnt.artifact;
+				wzService.getNexusVersions(upgrdApp.requestData).then(function (versionsResult) {
+					upgrdApp.versionsOptions = versionsResult.data;
+					$scope.isLoadingNexusVersion = false;
+				});
+				angular.forEach(upgrdApp.jobOptions, function (val, key) {
+					if (val._id === upgrdApp.newEnt.taskId) {
+						upgrdApp.newEnt.jobInd = key;
+					}
+				});
 		};
 		upgrdApp.getTagDetails = function () {
 			var repository=upgrdApp.newEnt.repositoryIMG.split('/');
-			upgrdApp.newEnt.repository=repository[0];
-			upgrdApp.newEnt.image=repository[1];
+			upgrdApp.newEnt.repository=upgrdApp.newEnt.repositoryIMG;
+			var tagRep='';
+			if(upgrdApp.newEnt.repositoryIMG && upgrdApp.newEnt.repositoryIMG.indexOf('/') === -1){
+				tagRep='library';
+				upgrdApp.newEnt.image=upgrdApp.newEnt.repository;
+			} else {
+				tagRep=repository[0];
+				upgrdApp.newEnt.image=repository[1];
+			}
 			$scope.isLoadingDocTag=true;
 			var requestObject={
 				dockerId:upgrdApp.rowid,
-				repository:upgrdApp.newEnt.repository,
+				repository:tagRep,
 				image:upgrdApp.newEnt.image
 			};
 			wzService.getDockerImageTags(requestObject).then(function(tagResult){
