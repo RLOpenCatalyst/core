@@ -500,7 +500,11 @@
                 postAppApprove :function(RequestObject){
                     var url='/deploy-permission/save/permissionData';
                     return $http.post(fullUrl(url),RequestObject,Auth.getHeaderObject());
-                }
+                },
+                getAllEnv:function() {
+                    var url='/d4dMasters/readmasterjsonnew/4';
+                    return $http.get(fullUrl(url),Auth.getHeaderObject());
+                },
             };
             return serviceInterface;
         }
