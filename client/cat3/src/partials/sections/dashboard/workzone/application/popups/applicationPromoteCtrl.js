@@ -52,7 +52,7 @@
             $scope.isLoadingPromApp=true;
             promApp.submitData= {
                 "appData": {
-                    "version": $scope.currentCardDetails.appName.version,
+                    "version": ($scope.currentCardDetails.appName.version)?($scope.currentCardDetails.appName.version):$scope.currentCardDetails.version,
                     "sourceEnv": promApp.newEnt.currentEnv,
                     "targetEnv":promApp.newEnt.targetEnv,
                     "appName":$scope.currentCardDetails.appName.name, // for nexus(nexus.artifactId) and for docker(docker.image)

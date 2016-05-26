@@ -22,8 +22,8 @@ angular.module('workzone.application')
 					projectId: items.params.proj,
 					envName: items.envName,
 					appName:items.appName.name,
-					version:items.appName.version,
 					comments:$scope.approveAppCommt,
+					version:(items.appName.version)?(items.appName.version):items.version,
 					isApproved:true
 				};
 				wzService.postAppApprove(requestObject).success(function(){
