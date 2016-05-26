@@ -26,7 +26,7 @@ angular.module('workzone.application')
 					version:(items.appName.version)?(items.appName.version):items.version,
 					isApproved:flg
 				};
-				wzService.postAppApprove(requestObject).success(function(Saveresult){
+				wzService.postAppApprove(requestObject).success(function(){
 					$scope.msgText='approved';
 					$scope.resultMsg='success';
 					items.isApproved=flg;

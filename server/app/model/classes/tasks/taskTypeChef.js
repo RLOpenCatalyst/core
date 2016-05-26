@@ -289,60 +289,60 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             });
                         }
                         if (appData.docker) {
-                            if (appData.docker[0].containerName) {
+                            if (appData.docker.containerName) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "containerId": appData.docker[0].containerName
+                                        "containerId": appData.docker.containerName
                                     }
                                 });
                             }
-                            if (appData.docker[0].containerPort) {
+                            if (appData.docker.containerPort) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "containerPort": appData.docker[0].containerPort
+                                        "containerPort": appData.docker.containerPort
                                     }
                                 });
                             }
-                            if (appData.docker[0].image) {
+                            if (appData.docker.image) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerImage": appData.docker[0].image
+                                        "dockerImage": appData.docker.image
                                     }
                                 });
                             }
 
-                            if (appData.docker[0].hostPort) {
+                            if (appData.docker.hostPort) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "hostPort": appData.docker[0].hostPort
+                                        "hostPort": appData.docker.hostPort
                                     }
                                 });
                             }
-                            if (appData.docker[0].dockerUser) {
+                            if (appData.docker.dockerUser) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerUser": appData.docker[0].dockerUser
+                                        "dockerUser": appData.docker.dockerUser
                                     }
                                 });
                             }
-                            if (appData.docker[0].dockerPassword) {
+                            if (appData.docker.dockerPassword) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerPassword": appData.docker[0].dockerPassword
+                                        "dockerPassword": appData.docker.dockerPassword
                                     }
                                 });
                             }
-                            if (appData.docker[0].dockerEmailId) {
+                            if (appData.docker.dockerEmailId) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "dockerEmailId": appData.docker[0].dockerEmailId
+                                        "dockerEmailId": appData.docker.dockerEmailId
                                     }
                                 });
                             }
-                            if (appData.docker[0].imageTag) {
+                            if (appData.docker.imageTag) {
                                 objectArray.push({
                                     "rlcatalyst": {
-                                        "imageTag": appData.docker[0].imageTag
+                                        "imageTag": appData.docker.imageTag
                                     }
                                 });
                             }
@@ -371,23 +371,25 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             nexus['artifactId'] = appData.nexus.artifactId;
                             nexus['repository'] = appData.nexus.repository;
                             nexus['groupId'] = appData.nexus.groupId;
+                            nexus['rowId'] = appData.nexus.rowId;
                             nexus['taskId'] = appData.taskId;
                             appName = appData.appName;
                             appVersion = appData.version;
                         }
-                        if (appData.docker && appData.docker.length) {
-                            docker['image'] = appData.docker[0].image;
-                            docker['containerName'] = appData.docker[0].containerName;
-                            docker['containerPort'] = appData.docker[0].containerPort;
-                            docker['dockerUser'] = appData.docker[0].dockerUser;
-                            docker['dockerPassword'] = appData.docker[0].dockerPassword;
-                            docker['dockerEmailId'] = appData.docker[0].dockerEmailId;
-                            docker['imageTag'] = appData.docker[0].imageTag;
-                            docker['nodeIds'] = appData.docker[0].nodeIds;
-                            docker['hostPort'] = appData.docker[0].hostPort;
+                        if (appData.docker) {
+                            docker['image'] = appData.docker.image;
+                            docker['containerName'] = appData.docker.containerName;
+                            docker['containerPort'] = appData.docker.containerPort;
+                            docker['dockerUser'] = appData.docker.dockerUser;
+                            docker['dockerPassword'] = appData.docker.dockerPassword;
+                            docker['dockerEmailId'] = appData.docker.dockerEmailId;
+                            docker['imageTag'] = appData.docker.imageTag;
+                            docker['nodeIds'] = appData.docker.nodeIds;
+                            docker['hostPort'] = appData.docker.hostPort;
+                            docker['rowId'] = appData.docker.rowId;
                             docker['taskId'] = appData.taskId;
                             appName = appData.appName;
-                            appVersion = appData.docker[0].imageTag;
+                            appVersion = appData.docker.imageTag;
                         }
                         nodeIds.push(instance.instanceIP);
                         masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
@@ -397,7 +399,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 "appName": appName,
                                 "version": appVersion,
                                 "nexus": nexus,
-                                "docker": [docker]
+                                "docker": docker
                             };
                             AppData.createNewOrUpdate(appDataObj, function(err, data) {
                                 if (err) {

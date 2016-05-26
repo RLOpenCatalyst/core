@@ -7,25 +7,30 @@
 		<div class="panel-heading">
 			<span class="panel-title">
 				<span>Instances</span>
-			</span>
-			<button type="button" class="btn btn-xs cat-btn-update {{instanceCardViewSelection}}" ng-click="setCardView()"> 
-				<i class="fa fa-th white" title="Card View"></i>
-				Grid
-			</button>
-			<button type="button" id="instanceview" class="btn btn-xs cat-btn-update {{instanceTableViewSelection}}"  ng-click="instanceTableView()"> 
-				<i class="fa fa-align-justify white" title="Table View"></i>
-				List
-			</button>	
+			</span>	
+			<span>
+                <button type="button" class="btn btn-xs btn-link {{instanceCardViewSelection}}" title="Card View" ng-click="setCardView()"  >
+                    <i class="fa fa-th"></i>
+                    Grid
+                </button>
+                 <button type="button" class="btn btn-xs btn-link {{instanceTableViewSelection}}" title="Table View" ng-click="instanceTableView()">
+                 	<i class="fa fa-align-justify"></i>
+                    List
+                </button>
+            </span>
 			<span class="pull-right">
-				<button type="button" title="Refresh" ng-click="refreshCurrentPage();" class="btn btn-xs btn-link">
-					<i class="fa fa-refresh"></i>
-				</button>
-				<button type="button" title="Import By Ip" class="btn btn-xs btn-link" 
+                <button type="button" title="Import By Ip" class="btn btn-xs cat-btn-update" 
 				ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch">
-					<i class="fa fa-plus"></i>
+					<i class="fa fa-plus white"></i>
 					Import
 				</button>
+                <button type="button" title="Refresh" class="btn btn-xs cat-btn-update" ng-click="refreshCurrentPage()">
+					<i class="fa fa-refresh white"></i>
+				</button>
 			</span>
+		</div>
+		<div class="alert alert-info fade in text-center" ng-show="instanceList.length===0">
+			No Instances Available
 		</div>
 		<section id="cardView" class="scrollContent" ng-show="isCardViewActive">
 			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
@@ -41,11 +46,6 @@
 						<div class="card-title-osIcon">
 							<img src="{{getOSLogo(inst)}}" />
 						</div>
-						<!-- <div class="card-title-osIcon" title="Linux"><img src="images/osIcons/linux.png"/ ng-show="inst.hardware.platform==='unknown'"></div>
-						<div class="card-title-osIcon" title="Ubuntu"><img src="images/osIcons/ubuntu.png"/ ng-show="inst.hardware.platform==='ubuntu'"></div>
-						<div class="card-title-osIcon" title="Windows"><img src="images/osIcons/windows.png"/ ng-show="inst.hardware.platform==='windows' || inst.hardware.platform==='azure'"></div>
-						<div class="card-title-osIcon" title="centos"><img src="images/osIcons/centos.png"/ ng-show="inst.hardware.platform==='centos'">
-						</div> -->
 						<hr/>
 					</div>
 					<div class="card-status-state">

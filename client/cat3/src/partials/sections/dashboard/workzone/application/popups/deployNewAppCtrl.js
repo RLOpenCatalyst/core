@@ -103,7 +103,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				angular.forEach(artifactsResult.data,function(val){
 					artVerObj[val.version]=val;
 					depNewApp.artifactsVersion[val.artifactId]=artVerObj;
-					if (depNewApp.artifactsOptions.indexOf(val.artifactId) == -1) {
+					if (depNewApp.artifactsOptions.indexOf(val.artifactId) === -1) {
 						depNewApp.artifactsOptions.push(val.artifactId);
 					}
 				});
@@ -158,9 +158,9 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				case 'artifact' :
 					depNewApp.newEnt.version ='';
 					break;
-			};
+			}
 		};
-		depNewApp.submitAppDeploy = function (DeploymentForm){
+		depNewApp.submitAppDeploy = function (){
 			if(depNewApp.newEnt.serverType === 'nexus'){
 				var nexus={
 					"repoURL":depNewApp.artifactsVersion[depNewApp.newEnt.artifact][depNewApp.newEnt.version].resourceURI,

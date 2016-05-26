@@ -8,13 +8,13 @@
 (function(){
 "use strict";
 angular.module('workzone.application')
-	.controller('upgradeAppCtrl', ['items','$scope','$rootScope', '$modalInstance','workzoneServices','$modal',function(items,$scope,$rootScope, $modalInstance,wzService,$modal) {
+	.controller('upgradeAppCtrl', ['items','$scope','$rootScope', '$modalInstance','workzoneServices','$modal', '$timeout', function(items,$scope,$rootScope, $modalInstance,wzService,$modal,$timeout) {
 		var upgrdApp={
 			newEnt:[],
 			requestData:[],
 			artifactsVersion:[],
 			jobOptions:[]
-		}
+		};
 		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
@@ -107,7 +107,7 @@ angular.module('workzone.application')
 				upgrdApp.tagOptions = tagResult.data;
 				$scope.isLoadingDocTag=false;
 			});
-		}
+		};
 		upgrdApp.createNewJob = function (){
 			$rootScope.$emit("CREATE_NEW_JOB");
 			$rootScope.createChefJob=true;

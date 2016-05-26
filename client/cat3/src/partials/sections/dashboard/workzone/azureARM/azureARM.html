@@ -3,17 +3,20 @@
 	<div ng-show="!isAzureARMPageLoading">
 		<div class="panel-heading">
 			<span class="panel-title">
-				<span>Deployments</span>
+				<span> ARM Deployments</span>
 			</span>
 			<span class="pull-right">
-				<button type="button" title="Refresh" ng-click="refreshCurrentPage();" class="btn btn-xs btn-link">
-					<i class="fa fa-refresh"></i>
+				<button type="button" title="Refresh" class="btn btn-xs cat-btn-update" ng-click="refreshCurrentPage()">
+					<i class="fa fa-refresh white"></i>
 				</button>
 			</span>
 		</div>
 		<div class="scrollContent">
+			<div class="alert alert-info fade in text-center" ng-show="arms.length===0">
+	            No ARM Deployments Available
+	        </div>
 			<div class="productdiv4" ng-repeat="arm in arms">
-				<div class="productdiv1 cardimage" data-stackid="561755a879f6f3154823ed09" data-stackname="{{arm.deploymentName}}">
+				<div class="productdiv1 cardimage">
 					<ul class="list-unstyled system-prop">
 						<li>
 							<img src="images/global/cf-icon.png" alt="azureArm" class="armLogo" />
