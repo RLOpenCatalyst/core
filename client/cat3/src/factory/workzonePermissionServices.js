@@ -71,6 +71,6 @@
 		};
 		this.createTask = function() {
 			return true;
-		}
+		};
 	}]);
 })(angular);

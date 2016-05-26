@@ -53,7 +53,7 @@
 				$scope.paginationParams.sortBy = 'instanceCreatedOn';
 				$scope.paginationParams.sortOrder = 'desc';
 				$scope.setFirstPageView();
-				if($scope.paginationParams.page != 1){
+				if($scope.paginationParams.page !== 1){
 					$scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
 				}else{
 					$scope.instancesListCardView();	
@@ -81,7 +81,7 @@
 
 		$scope.openContainersTab = function() {
 			$scope.$parent.$parent.activateTab('Containers');
-		}
+		};
 
 		/*User permission set example*/
 		//defining an object for permission.
@@ -113,8 +113,8 @@
 			$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption,{
 			data:'tabData',
 				columnDefs : [
-					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img class="instanceRoleLogo" src="{{grid.appScope.getRoleLogo(row.entity)}}" />'
-					+'<img class="instanceRoleLogoDocker" src="images/global/docker.png" ng-show="row.entity.docker && row.entity.docker.dockerEngineStatus === \'success\'" ng-click="grid.appScope.openContainersTab()">', cellTooltip: true},
+					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img class="instanceRoleLogo" src="{{grid.appScope.getRoleLogo(row.entity)}}" />'+
+					'<img class="instanceRoleLogoDocker" src="images/global/docker.png" ng-show="row.entity.docker && row.entity.docker.dockerEngineStatus === \'success\'" ng-click="grid.appScope.openContainersTab()">', cellTooltip: true},
 					{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
 					'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
 					'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+

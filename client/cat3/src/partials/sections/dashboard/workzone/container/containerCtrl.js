@@ -21,7 +21,7 @@
 					$scope.paginationParams.sortBy = 'Created';
 					$scope.paginationParams.sortOrder = 'desc';
 					$scope.setFirstPageView();
-					if($scope.paginationParams.page == 1){
+					if($scope.paginationParams.page === 1){
 						$scope.getContainerList();
 					}
 				}
@@ -109,10 +109,12 @@
 				    return (_app.containerStatus === 'STOP' ) ? true : false;
 			};
 			$scope.checkProgress=function(_app){
-				if(_app.Status.indexOf('PROGRESS') >=0)
+				if(_app.Status.indexOf('PROGRESS') >=0) {
 					return false;
-				else
+				}
+				else {
 					return true;
+				}
 			};
 			$scope.checkcAdvisor = function(_app){
 				return (_app.Image.indexOf('cadvisor') >=0 ) ? true : false;
