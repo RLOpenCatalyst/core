@@ -473,8 +473,8 @@
                     var url = '/app-deploy/project/'+requestEnv.proj+'/pipeLineViewList';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
-                getCardHistoryList :function(envDetails){
-                    var url= '/app-deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appDeployInstanceList?appName='+envDetails.appName.name+'&version='+envDetails.appName.version;
+                getCardHistoryList :function(envDetails,version){
+                    var url= '/app-deploy/project/' + envDetails.params.proj + '/env/' + envDetails.envName + '/appDeployInstanceList?appName='+envDetails.appName.name+'&version='+version;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 postAppDeploy:function(RequestObject){
@@ -493,8 +493,8 @@
                     var url='/app-deploy/promote';
                     return $http.put(fullUrl(url),RequestObject,Auth.getHeaderObject());
                 },
-                getAppUpgrade:function(requestOject){
-                    var url ='/app-data/project/' + requestOject.params.proj + '/env/' + requestOject.envName + '?application='+requestOject.appName.name+'&version='+requestOject.appName.version;
+                getAppUpgrade:function(requestOject,version){
+                    var url ='/app-data/project/' + requestOject.params.proj + '/env/' + requestOject.envName + '?application='+requestOject.appName.name+'&version='+version;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 postAppApprove :function(RequestObject){

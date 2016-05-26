@@ -37,7 +37,8 @@
 							cellTemplate: '<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.viewAppCardLogs(row.entity)"></i>'
 						},
 					];
-				workzoneServices.getCardHistoryList($scope.applicationsDetails).then(function (response) {
+				var version =($scope.applicationsDetails.appName.version)?$scope.applicationsDetails.appName.version:$scope.applicationsDetails.version;
+				workzoneServices.getCardHistoryList($scope.applicationsDetails,version).then(function (response) {
 					appDetail.gridOptions.data = response.data;
 				});
 			};
