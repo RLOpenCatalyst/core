@@ -90,7 +90,7 @@
                                 type:type,
                                 cpInstance:cpInstance,
                                 selectedAppUrl:appUrl
-                            }
+                            };
                         }
                     }
                 }).result.then(function(createdItem) {

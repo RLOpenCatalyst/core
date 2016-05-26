@@ -28,7 +28,7 @@
                                         return {
                                             chefrunlist:$scope.chefrunlist,
                                             attributes:$scope.cookbookAttributes
-                                        }
+                                        };
                                     }
                                 }
                             }).result.then(function (selectedCookBooks) {

@@ -12,7 +12,7 @@
 			$scope.applicationsDetails = items;
 			var appDetail = {
 				gridOptions:uiGridOptiSer.options().gridOption
-			}
+			};
 			angular.extend($scope, {
 				cancel: function () {
 					$modalInstance.dismiss('cancel');

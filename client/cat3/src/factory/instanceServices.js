@@ -73,9 +73,6 @@
 				return true;
 			}
 		},
-		isBootstrapped = function(inst) {
-			return inst.bootStrapStatus === 'success';
-		},
 		isRunning = function(inst) {
 			return inst.instanceState === 'running';
 		};
@@ -271,7 +268,7 @@
 							return{
 								instanceId:instance._id,
 								chefrunlist:instance.runlist
-							} 
+							}; 
 						}
 					}
 				});
