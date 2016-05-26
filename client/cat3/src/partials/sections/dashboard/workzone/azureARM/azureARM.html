@@ -12,8 +12,11 @@
 			</span>
 		</div>
 		<div class="scrollContent">
+			<div class="alert alert-info fade in text-center" ng-show="arms.length===0">
+	            No ARM Deployments Available
+	        </div>
 			<div class="productdiv4" ng-repeat="arm in arms">
-				<div class="productdiv1 cardimage" data-stackid="561755a879f6f3154823ed09" data-stackname="{{arm.deploymentName}}">
+				<div class="productdiv1 cardimage">
 					<ul class="list-unstyled system-prop">
 						<li>
 							<img src="images/global/cf-icon.png" alt="azureArm" class="armLogo" />

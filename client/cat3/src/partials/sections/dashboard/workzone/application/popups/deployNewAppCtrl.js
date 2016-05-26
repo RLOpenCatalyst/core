@@ -66,12 +66,19 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 		depNewApp.changeRepository = function(){
 			if(depNewApp.newEnt.serverType === 'docker') {
 				var repository=depNewApp.newEnt.repositoryIMG.split('/');
-				depNewApp.newEnt.repository=repository[0];
-				depNewApp.newEnt.image=repository[1];
+				depNewApp.newEnt.repository=depNewApp.newEnt.repositoryIMG;
+				var tagRep='';
+				if(depNewApp.newEnt.repositoryIMG && depNewApp.newEnt.repositoryIMG.indexOf('/') === -1){
+					tagRep='library';
+					depNewApp.newEnt.image=depNewApp.newEnt.repository;
+				} else {
+					tagRep=repository[0];
+					depNewApp.newEnt.image=repository[1];
+				}
 				$scope.isLoadingDocTag=true;
 				var requestObject={
 					dockerId:depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid,
-					repository:depNewApp.newEnt.repository,
+					repository:tagRep,
 					image:depNewApp.newEnt.image
 				};
 				workSvs.getDockerImageTags(requestObject).then(function(tagResult){
@@ -96,7 +103,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				angular.forEach(artifactsResult.data,function(val){
 					artVerObj[val.version]=val;
 					depNewApp.artifactsVersion[val.artifactId]=artVerObj;
-					if (depNewApp.artifactsOptions.indexOf(val.artifactId) == -1) {
+					if (depNewApp.artifactsOptions.indexOf(val.artifactId) === -1) {
 						depNewApp.artifactsOptions.push(val.artifactId);
 					}
 				});
@@ -151,9 +158,9 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				case 'artifact' :
 					depNewApp.newEnt.version ='';
 					break;
-			};
+			}
 		};
-		depNewApp.submitAppDeploy = function (DeploymentForm){
+		depNewApp.submitAppDeploy = function (){
 			if(depNewApp.newEnt.serverType === 'nexus'){
 				var nexus={
 					"repoURL":depNewApp.artifactsVersion[depNewApp.newEnt.artifact][depNewApp.newEnt.version].resourceURI,
@@ -179,7 +186,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				"appData": {
 					"projectId":workEnvt.getEnvParams().proj,
 					"envName": items.paramNames.env,
-					"appName": depNewApp.newEnt.repository,
+					"appName":depNewApp.newEnt.repository,
 					"version":(depNewApp.newEnt.serverType === 'nexus')?depNewApp.newEnt.version :depNewApp.newEnt.tag
 				},
 				"task": {

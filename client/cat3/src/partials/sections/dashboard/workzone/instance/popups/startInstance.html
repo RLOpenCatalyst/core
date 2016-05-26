@@ -7,8 +7,8 @@
 	Are you sure you want to Start the instance "{{ instance.name }}"
 </div>
 <div class="modal-footer">
-	<loading name="isStartStopInstanceLoading" size="small" type="block" align="right"></loading>
 	<div ng-show="!isStartStopInstanceLoading">{{ authMsg }}</div>
 	<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
 	<button type="button" class="btn cat-btn-update" ng-click="ok()">Ok</button>
+	<loading size="small" name="isStartStopInstanceLoading" type="inline"></loading>
 </div>

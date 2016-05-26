@@ -51,17 +51,15 @@
             <div ng-if="pipeGridOptions.data.length > 0">
                 <div ui-grid="pipeGridOptions"  ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
             </div>
-            <div ng-if="!pipeGridOptions.data.length > 0">
-                <div class="no-data-found"> No data found !</div>
+            <div class="alert alert-info fade in text-center" ng-if="!pipeGridOptions.data.length > 0">
+                No Data Found
             </div>
-
         </section>
 
         <section  class=" {{!isHistoryTab.template? 'hide-grid':'show-grid'}}"  ng-controller="applicationHistoryCtrl">
-            <div ng-if="!historGgridData.length > 0">
-                <div class="no-data-found"> No data found !</div>
+            <div class="alert alert-info fade in text-center" ng-if="!historGgridData.length > 0">
+                No Data Found
             </div>
-
             <div ng-if="historyGridOptions.data.length > 0">
                 <div  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
             </div>
@@ -69,11 +67,10 @@
 
         <section  class="pipelineView {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
             <div ng-if="summaryGridOptions.data.length > 0">
-
                 <div ui-grid="summaryGridOptions" ui-grid-auto-resize class="grid" style="height:{{gridHeightSummary}}px"></div>
             </div>
-            <div ng-if="!summaryGridOptions.data.length > 0">
-                <div class="no-data-found"> No data found !</div>
+            <div class="alert alert-info fade in text-center" ng-if="!summaryGridOptions.data.length > 0">
+                No Data Found
             </div>
         </section>
 
