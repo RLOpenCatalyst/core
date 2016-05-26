@@ -393,15 +393,17 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(reqBody, isUpg
     var taskId = task.taskId;
     if (sourceData && appData && task) {
         var nexus = sourceData.nexus;
-        var docker = [sourceData.docker];
+        var docker = sourceData.docker;
         appData['upgrade'] = isUpgrade;
         if (nexus) {
             appData['nexus'] = nexus;
             appData['nexus']['nodeIds'] = task.nodeIds;
+            appData['nexus']['taskId'] = taskId;
         }
-        if (docker && docker.length && docker[0] != null) {
+        if (docker) {
             appData['docker'] = docker;
-            appData['docker'][0]['nodeIds'] = task.nodeIds;
+            appData.docker['nodeIds'] = task.nodeIds;
+            appData.docker['taskId'] = taskId;
         }
         AppData.createNewOrUpdate(appData, function(err, savedData) {
             if (err) {
@@ -446,10 +448,12 @@ appDeployService.promoteApp = function promoteApp(reqBody, callback) {
                 if (nexus && nexus.nodeIds.length) {
                     appData['nexus'] = nexus;
                     appData['nexus']['nodeIds'] = task.nodeIds;
+                    appData['nexus']['taskId'] = taskId;
                 }
-                if (docker && docker.length && docker[0] != null && docker[0].nodeIds.length) {
+                if (docker && docker.nodeIds.length) {
                     appData['docker'] = docker;
-                    appData['docker']['nodeIds'] = task.nodeIds;
+                    appData.docker['nodeIds'] = task.nodeIds;
+                    appData.docker['taskId'] = taskId;
                 }
                 var applicationData = {
                     "projectId": appData.projectId,
