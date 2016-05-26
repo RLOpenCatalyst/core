@@ -1,5 +1,8 @@
 <div id="cpServicesPage" ng-controller="cpServicesCtrl">
     <loading size="large" name="isServicePageLoading" type="block"></loading>
+    <button type="button" class="btn cat-btn-update add-new-service-btn pull-right" ng-click="addService()">
+        Add New Service
+    </button>
     <div class="inactive-grid" ng-show="inactiveGrid"></div>
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="!isServicePageLoading">
         <div class="alert alert-info text-center" ng-if="tabData.length == 0">
@@ -7,7 +10,4 @@
 		</div>
         <div id="grid4" ng-if="tabData.length >0"  ui-grid="cpServicesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
     </div>
-    <button type="button" class="btn cat-btn-update add-new-service-btn" ng-click="addService()">
-        Add New Service
-    </button>
 </div>

@@ -310,6 +310,7 @@ $imagePath : "../../../../../../images";
 		.dropdown-menu {
 			border-width: 1px;
 			@include theme-border-color;
+			margin-bottom: 20px;
 		}
 
 		.dropdown-icon {
@@ -701,7 +702,7 @@ $imagePath : "../../../../../../images";
 	padding: 10px 0 0 0;
 	
 	.add-new-service-btn {
-		margin: 26px 0 0 5%;
+		margin: 0px 15px 10px 0;
 	}
 
 	.special-service-section {
