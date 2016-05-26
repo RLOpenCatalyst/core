@@ -472,7 +472,7 @@ appDeployService.promoteApp = function promoteApp(reqBody, callback) {
                         return callback(err, null);
                     }
                     logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
-                    return callback(null, appDatas[0]);
+                    return callback(null, applicationData);
                 });
 
             } else {

@@ -276,7 +276,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                     }
                     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
                     if (appData) {
-                        if (appData.nexus) {
+                        if (appData.nexus && appData.nexus.nodeIds && appData.nexus.nodeIds.length) {
+                            logger.debug("Inside nexus....");
                             objectArray.push({
                                 "rlcatalyst": {
                                     "nexusUrl": appData.nexus.repoURL
@@ -288,7 +289,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 }
                             });
                         }
-                        if (appData.docker) {
+                        if (appData.docker && appData.docker.nodeIds && appData.docker.nodeIds.length) {
+                            logger.debug("Inside docker....");
                             if (appData.docker.containerName) {
                                 objectArray.push({
                                     "rlcatalyst": {
@@ -366,6 +368,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         var nexus = {};
                         var docker = {};
                         if (appData.nexus) {
+                            nexus['rowId'] = appData.nexus.rowId;
                             nexus['repoURL'] = appData.nexus.repoURL;
                             nexus['nodeIds'] = appData.nexus.nodeIds;
                             nexus['artifactId'] = appData.nexus.artifactId;
@@ -377,6 +380,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             appVersion = appData.version;
                         }
                         if (appData.docker) {
+                            docker['rowId'] = appData.docker.rowId;
                             docker['image'] = appData.docker.image;
                             docker['containerName'] = appData.docker.containerName;
                             docker['containerPort'] = appData.docker.containerPort;
@@ -543,6 +547,23 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
                                             instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
+                                            // Update Instance with docker status.
+                                            var _docker = new Docker();
+                                            _docker.checkDockerStatus(instance._id, function(err, retCode) {
+                                                if (err) {
+                                                    logger.error("Failed _docker.checkDockerStatus", err);
+                                                    return;
+                                                    //res.end('200');
+
+                                                }
+                                                logger.debug('Docker Check Returned:' + retCode);
+                                                if (retCode == '0') {
+                                                    instancesDao.updateInstanceDockerStatus(instance._id, "success", '', function(data) {
+                                                        logger.debug('Instance Docker Status set to Success');
+                                                    });
+
+                                                }
+                                            });
                                         } else {
                                             instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
                                             if (retCode === -5000) {

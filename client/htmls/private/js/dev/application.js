@@ -823,6 +823,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                         var nexus = {};
                         var docker = {};
                         if(data.nexus && data.nexus.nodeIds.length){
+                            nexus['rowId'] = data.nexus.rowId;
                             nexus['repoURL'] = data.nexus.repoURL;
                             nexus['version'] = data.version;
                             nexus['artifactId'] = data.nexus.artifactId;
@@ -833,6 +834,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                         }
 
                         if(data.docker && data.docker.nodeIds.length){
+                            docker['rowId'] = data.docker.rowId;
                             docker['image'] = data.docker.image;
                             docker['containerName'] = data.docker.containerName;
                             docker['containerPort'] = data.docker.containerPort;
@@ -1690,6 +1692,7 @@ function deployNewForDocker() {
         "artifactId": ""
     };
     var docker = {
+        "rowId" : nexusId,
         "containerName": containerId,
         "containerPort": containerPort,
         "image": dockerImage,
@@ -1720,6 +1723,7 @@ function deployNewForDocker() {
                         nodeIds.push(instance.id);
                     }
                     var docker = {
+                        "rowId" : nexusId,
                         "image": dockerImage,
                         "containerName": containerId,
                         "containerPort": containerPort,
@@ -1854,6 +1858,7 @@ function upgradeOrDeploy() {
                                     "appName": artifactId,
                                     "version": versionId,
                                     "nexus": {
+                                        "rowId" : nexusId,
                                         "repoURL": nexusRepoUrl,
                                         "nodeIds": nodeIds,
                                         "artifactId": artifactId,
