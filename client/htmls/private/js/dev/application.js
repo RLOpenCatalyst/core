@@ -791,7 +791,7 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
             }
 
             $.get('/tasks/' + taskId, function(tasksData) {
-                if (tasksData) {
+                /*if (tasksData) {
                     var ipAddress = {
                         "ipAddress": nodeList
                     }
@@ -816,31 +816,31 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
                             });
                         }
                     });
-                }
+                }*/
 
                 $.get('/app-data/project/' + projectId + '/env/' + sourceEnv + '?application=' + appName + '&version=' + version, function(data) {
-                    if (data && data.length) {
+                    if (data) {
                         var nexus = {};
                         var docker = {};
-                        if(data[0].nexus && data[0].nexus.nodeIds.length){
-                            nexus['repoURL'] = data[0].nexus.repoURL;
-                            nexus['version'] = data[0].version;
-                            nexus['artifactId'] = data[0].nexus.artifactId;
+                        if(data.nexus && data.nexus.nodeIds.length){
+                            nexus['repoURL'] = data.nexus.repoURL;
+                            nexus['version'] = data.version;
+                            nexus['artifactId'] = data.nexus.artifactId;
                             nexus['nodeIds'] = tasksData.taskConfig.nodeIds;
-                            nexus['repository'] = data[0].nexus.repository;
-                            nexus['groupId'] = data[0].nexus.groupId;
+                            nexus['repository'] = data.nexus.repository;
+                            nexus['groupId'] = data.nexus.groupId;
                             nexus['taskId'] = taskId;
                         }
 
-                        if(data[0].docker && data[0].docker.length && data[0].docker[0].nodeIds.length){
-                            docker['image'] = data[0].docker[0].image;
-                            docker['containerName'] = data[0].docker[0].containerName;
-                            docker['containerPort'] = data[0].docker[0].containerPort;
-                            docker['hostPort'] = data[0].docker[0].hostPort;
-                            docker['dockerUser'] = data[0].docker[0].dockerUser;
-                            docker['dockerPassword'] = data[0].docker[0].dockerPassword;
-                            docker['dockerEmailId'] = data[0].docker[0].dockerEmailId;
-                            docker['imageTag'] = data[0].docker[0].imageTag;
+                        if(data.docker && data.docker.nodeIds.length){
+                            docker['image'] = data.docker.image;
+                            docker['containerName'] = data.docker.containerName;
+                            docker['containerPort'] = data.docker.containerPort;
+                            docker['hostPort'] = data.docker.hostPort;
+                            docker['dockerUser'] = data.docker.dockerUser;
+                            docker['dockerPassword'] = data.docker.dockerPassword;
+                            docker['dockerEmailId'] = data.docker.dockerEmailId;
+                            docker['imageTag'] = data.docker.imageTag;
                             docker['nodeIds'] = tasksData.taskConfig.nodeIds;
                             docker['taskId'] = taskId;
                         }
@@ -854,12 +854,12 @@ function btnPromoteDetailsPipelineViewClickHandler(e) {
 
                         var appData = {
                             "appData": {
-                                "projectId": data[0].projectId,
+                                "projectId": data.projectId,
                                 "envName": targetEnvName,
-                                "appName": data[0].appName,
-                                "version": data[0].version,
+                                "appName": data.appName,
+                                "version": data.version,
                                 "nexus": nexus,
-                                "docker": [docker]
+                                "docker": docker
                             }
                         };
                         $.ajax({

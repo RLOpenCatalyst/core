@@ -75,7 +75,7 @@ var AppDataSchema = new Schema({
             trim: true
         }
     },
-    docker: [{
+    docker: {
         rowId:{
             type: String,
             trim: true
@@ -119,7 +119,7 @@ var AppDataSchema = new Schema({
             type: String,
             trim: true
         }
-    }],
+    },
     s3Bucket: {
         url: {
             type: String,
@@ -153,14 +153,14 @@ AppDataSchema.statics.createNewOrUpdate = function createNewOrUpdate(appData, ca
         }
 
         if (aData && aData.length) {
-            var existData = checkDuplicate(aData[0], appData);
+            //var existData = checkDuplicate(aData[0], appData);
             var setData = {};
-            if (existData) {
-                var keys = Object.keys(existData);
+            //if (existData) {
+                var keys = Object.keys(appData);
                 for (var i = 0; i < keys.length; i++) {
-                    setData[keys[i]] = existData[keys[i]];
+                    setData[keys[i]] = appData[keys[i]];
                 }
-            }
+            //}
 
             that.update({
                 "_id": aData[0].id
