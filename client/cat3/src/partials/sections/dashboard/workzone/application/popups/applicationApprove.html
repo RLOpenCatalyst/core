@@ -41,10 +41,10 @@
 				<i class="fa fa-times black"></i> Cancel
 			</button>
 
-			<button type="button" class="btn cat-btn-update"  ng-show="!items.isApproved"  ng-click="submitAppApprove()">
+			<button type="button" class="btn cat-btn-update"  ng-show="!items.isApproved"  ng-click="submitAppApprove(true)">
 				<i class="fa fa-check white"></i>  Approve
 			</button>
-			<button class="btn btn-danger revokeSave marginleft10" ng-show="items.isApproved" ng-click="submitAppRevoke()">
+			<button class="btn btn-danger revokeSave marginleft10" ng-show="items.isApproved" ng-click="submitAppApprove(false)">
 				<i class="ace-icon fa fa-times-circle white"></i>
 				Revoke
 			</button>
