@@ -89,7 +89,7 @@ if (!$.fn.dataTable.isDataTable('#tableRunlist')) {
         "bLengthChange": false,
         "paging": false,
         "bFilter": false,
-        "bSort":false,
+        "bSort": false,
         "aoColumns": [{
             "bSortable": false
         }]
@@ -369,7 +369,7 @@ $(document).ready(function() {
                         checked = true;
                     }
                 }
-                var $li = $('<li><label class="checkbox" style="margin: 5px;font-size:13px;"><input type="checkbox" name="deploymentBlueprintsCheckBox" value="' + data.blueprints[i]._id + '"><i></i>' + blueprintName + '</label></li>'); 
+                var $li = $('<li><label class="checkbox" style="margin: 5px;font-size:13px;"><input type="checkbox" name="deploymentBlueprintsCheckBox" value="' + data.blueprints[i]._id + '"><i></i>' + blueprintName + '</label></li>');
                 if (checked) {
                     $li.find('input')[0].checked = true;
                 }
@@ -378,6 +378,40 @@ $(document).ready(function() {
                 }
             }
         });
+
+        $.get('../organizations/' + urlParams.org + '/roles', function(data) {
+            var $deploymentBlueprintList = $('.deploymentRoleList').empty();
+            var roles = data.roles;
+            roles = Object.keys(roles);
+
+            for (var i = 0; i < roles.length; i++) {
+                var role = roles[i];
+                var checked = false;
+                if (taskData && (taskData.taskType === 'chef') && taskData.taskConfig.role == role) {
+
+                    checked = true;
+
+                }
+                var $li = $('<li><label class="checkbox" style="margin: 5px;font-size:13px;"><input type="radio" name="deploymentRoleCheckBox" value="' + role + '"><i></i>' + role + '</label></li>');
+                if (checked) {
+                    $li.find('input').attr('checked','checked');
+                }
+
+                $('#selectedRoleChefTask').append($li);
+
+            }
+        });
+
+        if (taskData && taskData.taskType === 'chef') {
+            if (taskData.taskConfig.nodeIds && taskData.taskConfig.nodeIds.length) {
+                $('#jobNodeDetailsId').click();
+            } else if (taskData.taskConfig.role) {
+                $('#selectRoleInputId').click();
+            } else if (taskData.blueprintIds && taskData.blueprintIds.length) {
+                $('#selectBlueprintInputId').click();
+            }
+        }
+
 
         var runlist = null;
         if (taskData && taskData.taskType === 'chef') {
@@ -587,39 +621,51 @@ $(document).ready(function() {
 
             taskData.description = chefJobDescription;
 
-            var $selectedNodes = $('#selectedNodesChefTask input[type=checkbox]');
+
             // var $addParameters = $('#addParameters input[type=checkbox]');
 
-            console.log($selectedNodes.length);
+            var selectedType = $('.jobTypeSelectorRadioBtn:checked').attr('data-jobdetails');
             var nodesList = [];
-            $selectedNodes.each(function() {
-                if (this.checked) {
-                    nodesList.push(this.value);
-                }
-            });
-
-            var $selectedBlueprints = $('#selectedBlueprintChefTask input[type=checkbox]');
             var blueprintList = [];
-            $selectedBlueprints.each(function() {
-                if (this.checked) {
-                    blueprintList.push(this.value);
-                }
-            });
-            
-            if (!nodesList.length && !blueprintList.length) {
+            var role
+            if (selectedType === 'Node') {
+                var $selectedNodes = $('#selectedNodesChefTask input[type=checkbox]');
+                console.log($selectedNodes.length);
+
+                $selectedNodes.each(function() {
+                    if (this.checked) {
+                        nodesList.push(this.value);
+                    }
+                });
+                taskData.nodeIds = nodesList;
+
+            } else if (selectedType === 'Role') {
+                role = $('input[name="deploymentRoleCheckBox"]:checked').val();
+                taskData.role = role;
+
+            } else {
+                var $selectedBlueprints = $('#selectedBlueprintChefTask input[type=checkbox]');
+
+                $selectedBlueprints.each(function() {
+                    if (this.checked) {
+                        blueprintList.push(this.value);
+                    }
+                });
+                taskData.blueprintIds = blueprintList;
+            }
+
+
+
+
+
+            if (!nodesList.length && !blueprintList.length && !role) {
                 bootbox.alert({
-                    message: 'Please choose either nodes or blueprints',
+                    message: 'Please choose either nodes, blueprints or role',
                     title: "Error"
                 });
                 return false;
             }
-            if (nodesList.length && blueprintList.length) {
-                bootbox.alert({
-                    message: 'Please choose either nodes or blueprints',
-                    title: "Error"
-                });
-                return false;
-            }
+
 
             var $ccrs = $('.runlistContainer').data('$ccrs');
             var runlist = $ccrs.getSelectedRunlist();
@@ -629,9 +675,9 @@ $(document).ready(function() {
                 alert('Please choose runlist');
                 return false;
             }*/
-            taskData.blueprintIds = blueprintList;
-            taskData.nodeIds = nodesList;
+
             taskData.runlist = runlist;
+
             //alert(JSON.stringify(taskData));
             //taskData.attributesjson = $('#attrtextarea').val().trim();
             $trAttribute = $('#attributesViewListTable').find('tbody tr');
@@ -719,7 +765,7 @@ $(document).ready(function() {
             }
 
             // Currently removed blueprint launch from jenkins
-           /* var $selectedJenkinsBlueprints = $('#selectedBlueprintJenkinsTask input[type=checkbox]');
+            /* var $selectedJenkinsBlueprints = $('#selectedBlueprintJenkinsTask input[type=checkbox]');
             var jenkinsBlueprintList = [];
             $selectedJenkinsBlueprints.each(function() {
                 if (this.checked) {
@@ -1428,7 +1474,7 @@ $(document).ready(function() {
                             'data-attributeKey': keyString,
                             'data-attributeValue': obj[keys[i]],
                             'data-attributeName': attributes[j].name
-                        }).data('jsonObj', attributes[j].jsonObj).css('word-break','break-all');
+                        }).data('jsonObj', attributes[j].jsonObj).css('word-break', 'break-all');
 
                         var passwordField = false;
                         var passwordField = false;
