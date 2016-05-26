@@ -41,7 +41,7 @@ angular.module('workzone.application')
 					projectId: items.params.proj,
 					envName: items.envName,
 					appName:items.appName.name,
-					version:items.appName.version,
+					version:(items.appName.version)?(items.appName.version):items.version,
 					comments:$scope.approveAppCommt,
 					isApproved:false
 				};
