@@ -13,6 +13,9 @@
 				</button>
 			</span>
 		</div>
+		<div class="alert alert-info fade in text-center" ng-show="tabData.length === 0">
+            No Containers Available
+        </div>
 		<div id="grid3"  ng-if="tabData.length > 0" ui-grid="containerGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
 	</div>
 </div>
