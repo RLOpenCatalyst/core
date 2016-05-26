@@ -276,7 +276,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                     }
                     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
                     if (appData) {
-                        if (appData.nexus) {
+                        if (appData.nexus && appData.nexus.nodeIds && appData.nexus.nodeIds.length) {
+                            logger.debug("Inside nexus....");
                             objectArray.push({
                                 "rlcatalyst": {
                                     "nexusUrl": appData.nexus.repoURL
@@ -288,7 +289,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 }
                             });
                         }
-                        if (appData.docker) {
+                        if (appData.docker && appData.docker.nodeIds && appData.docker.nodeIds.length) {
+                            logger.debug("Inside docker....");
                             if (appData.docker.containerName) {
                                 objectArray.push({
                                     "rlcatalyst": {
@@ -366,6 +368,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         var nexus = {};
                         var docker = {};
                         if (appData.nexus) {
+                            nexus['rowId'] = appData.nexus.rowId;
                             nexus['repoURL'] = appData.nexus.repoURL;
                             nexus['nodeIds'] = appData.nexus.nodeIds;
                             nexus['artifactId'] = appData.nexus.artifactId;
@@ -377,6 +380,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             appVersion = appData.version;
                         }
                         if (appData.docker) {
+                            docker['rowId'] = appData.docker.rowId;
                             docker['image'] = appData.docker.image;
                             docker['containerName'] = appData.docker.containerName;
                             docker['containerPort'] = appData.docker.containerPort;

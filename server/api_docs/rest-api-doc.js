@@ -1224,6 +1224,7 @@
 
 
 //  List image tags w.r.t. docker repo and image
+// For community image send repository= library
 /**
  * @api {get} /d4dMasters/docker/:dockerId/repository/:repository/image/:image/tags Request Docker Image Tag information
  * @apiName GetDockerImageTags
