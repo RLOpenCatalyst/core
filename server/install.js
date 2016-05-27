@@ -35,6 +35,7 @@ function getDefaultsConfig() {
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
+        scriptDirName :'scriptDir',
         staticUploadDir: '/var/chef/cache/uploads',
         app_run_secure_port: 443,
         cryptoSettings: {
@@ -83,7 +84,7 @@ function getDefaultsConfig() {
             },
             skip_Records : 1,
             max_record_limit : 200,
-            record_limit : 10,
+            record_limit : 10
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
@@ -211,6 +212,9 @@ function getDefaultsConfig() {
         },
         get tempDir() {
             return this.catalystHome + this.tempDirName + "/";
+        },
+        get scriptDir() {
+            return this.catalystHome + this.scriptDirName + "/";
         }
     };
     return config;

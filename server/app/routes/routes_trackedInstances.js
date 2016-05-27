@@ -21,7 +21,6 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
 var MasterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
-var constantData = require('_pr/lib/utils/constant.js');
 var validate = require('express-validation');
 var instanceValidator = require('_pr/validators/instanceValidator');
 var	providerService = require('_pr/services/providerService');
