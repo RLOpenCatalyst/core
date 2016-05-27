@@ -95,7 +95,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='managedInstances';
-			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+		/*	AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 				if (err) {
 					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
 					return;
@@ -103,7 +103,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				if (!provider) {
 					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
 					return;
-				}
+				}*/
 				instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
 					if (err) {
 						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
@@ -122,7 +122,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					});
 
 
-				});
+				//});
 			});
 		});
 	});
@@ -136,7 +136,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='unmanagedInstances';
-			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+			/*AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 				if (err) {
 					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
 					return;
@@ -144,7 +144,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				if (!provider) {
 					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
 					return;
-				}
+				}*/
 				unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
 					if (err) {
 						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
@@ -157,7 +157,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 						}
 						res.status(200).send(paginationRes);
 					});
-				});
+				//});
 			});
 		});
 	});
