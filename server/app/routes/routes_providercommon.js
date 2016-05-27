@@ -23,6 +23,7 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var instancesDao = require('_pr/model/classes/instance/instance');
 var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var waitForPort = require('wait-for-port');
 var uuid = require('node-uuid');
 var taskStatusModule = require('_pr/model/taskstatus');
@@ -32,7 +33,6 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
 var tagsDao = require('_pr/model/tags');
-var constantData = require('_pr/lib/utils/constant.js');
 var validate = require('express-validation');
 var tagsValidator = require('_pr/validators/tagsValidator');
 var instanceValidator = require('_pr/validators/instanceValidator');
@@ -88,87 +88,121 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
-		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+<<<<<<< HEAD
+		/*AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+=======
+		ApiUtils.paginationRequest(req.query,'managedInstances',function(err, paginationReq){
+>>>>>>> topic-1636
 			if (err) {
-				res.status(500).send({
-					message: "Server Behaved Unexpectedly"
-				});
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
-			}
-			if (!provider) {
-				res.status(404).send({
-					message: "provider not found"
-				});
-				return;
-			}
+<<<<<<< HEAD
+			}*/
 
-			instancesDao.getByProviderId(provider._id, function(err, managedInstances) {
+			instancesDao.getByProviderId(req.params.providerId, function(err, managedInstances) {
+=======
+			}
+			paginationReq['providerId']=req.params.providerId;
+			paginationReq['id']='managedInstances';
+			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+>>>>>>> topic-1636
 				if (err) {
-					res.status(500).send(managedInstances);
+					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
 					return;
 				}
-				res.status(200).send(managedInstances);
-			});
-		});
+				if (!provider) {
+					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
+					return;
+				}
+				instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
+					if (err) {
+						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
+						return;
+					}
+					ApiUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
+						if (err) {
+							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+							return;
+						}
+						if (!paginationRes.managedInstances.length>0) {
+							res.status(200).send(paginationRes);
+							return;
+						}
+						res.status(200).send(paginationRes);
+					});
 
+
+				});
+			});
+<<<<<<< HEAD
+		// });
+
+=======
+		});
+>>>>>>> topic-1636
 	});
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		logger.debug("Provider ID is >>>>>" + req.params.providerId);
-		var pageSize, page;
-		if (req.query.pageSize)
-			pageSize = parseInt(req.query.pageSize);
-		else
-			pageSize = constantData.record_limit;
-		if (req.query.page)
-			page = parseInt(req.query.page) - 1;
-		else
-			page = constantData.skip_Records;
-
-		var skip = pageSize * page;
-		var searchParameter, searchParameterValue;
-		if (req.query.status) {
-			searchParameter = "state";
-			searchParameterValue = req.query.status + "";
-		} else if (req.query.osType) {
-			searchParameter = "os";
-			searchParameterValue = req.query.osType + "";
-		}
-		var jsonData = {
-			'providerId': req.params.providerId,
-			'searchParameter': searchParameter,
-			'searchParameterValue': searchParameterValue,
-			'record_Skip': skip,
-			'record_Limit': pageSize
-		};
-		AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-
+		ApiUtils.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
 			if (err) {
-				res.status(500).send({
-					message: "Server Behaved Unexpectedly"
-				});
+				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
 			}
-			if (!provider) {
-				res.status(404).send({
-					message: "provider not found"
-				});
-				return;
-			}
-			unManagedInstancesDao.getByProviderId(jsonData, function(err, unmanagedInstances) {
+			paginationReq['providerId']=req.params.providerId;
+			paginationReq['id']='unmanagedInstances';
+			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
 				if (err) {
-					res.status(500).send(unmanagedInstances);
+					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
 					return;
 				}
-				if (unmanagedInstances.length > 0)
-					res.status(200).send(unmanagedInstances);
-				else
-					res.status(200).send([]);
-
+				if (!provider) {
+					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
+					return;
+				}
+				unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
+					if (err) {
+						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
+						return;
+					}
+					ApiUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
+						if (err) {
+							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+							return;
+						}
+						res.status(200).send(paginationRes);
+					});
+				});
 			});
 		});
 	});
+
+	function getUnmanagedInstanceList(req, res, next) {
+		var pageReq={};
+		async.waterfall(
+			[
+				function(next) {
+	                AWSProvider.getAWSProviderById(req.params.providerId,next);
+				},
+				function(next) {
+	                ApiUtils.paginationRequest(req.query,next);
+				},
+				function(paginationReq, next) {
+	                paginationReq['providerId']=req.params.providerId;
+	                paginationReq['id']='unmanagedInstances';
+	                pageReq = paginationReq;
+					unManagedInstancesDao.getByProviderId(paginationReq,next);
+				 }
+			],
+			function(err, results) {
+				if(err) {
+					next(err);
+				} else {
+					return res.status(200).send(results);
+				}
+			}
+		);
+	}
 
 	// @TODO To be refactored and API end point to be changed
 	app.post('/providers/:providerId/sync', function(req, res) {

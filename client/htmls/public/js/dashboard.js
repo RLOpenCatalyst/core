@@ -114,22 +114,17 @@ $(document).ready(function() {
             $('#trackedInstancesSpecProviderTableContainer').show();
 
             $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              console.log("Hit specific");
               loadtrackedspecProviderInstances(data);
             }).fail(function() {
                 //TO DO
                 alert("Tracked Instances for specific provider not properly Loaded");
             }); 
-
           });
-          
-          
 
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
           $rowTemplate.append($childUnmanagedInstanceTemplate);
-
 
           $childUnmanagedInstanceTemplate.css({
             display: 'block'
@@ -161,16 +156,6 @@ $(document).ready(function() {
           $childProviderTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-yellow');
 
           var providerid = totalProviders.azureProviders[j]._id;
-          var totalInstances;
-          
-          var providerSpecificHref = "/private/index.html#ajax/Settings/CreateProviders.html?"+providerid;
-          $childProviderTemplate.find('.providerSpecificMoreInfo').click(function(){
-            if (top.location != location) {
-              window.top.location.href = providerSpecificHref;
-            }else{
-              window.location.href = providerSpecificHref;
-            }
-          });
 
           var $childManagedInstanceTemplate = $('.childManagedInstanceTemplate').clone();
           $childManagedInstanceTemplate.removeClass('childManagedInstanceTemplate');
@@ -183,6 +168,42 @@ $(document).ready(function() {
           var $childTotalInstanceTemplate = $('.childTotalInstanceTemplate').clone();
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-yellow');
+
+          $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
+            var managedInstancesLength = dataManaged.length;
+            $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
+
+            var totalManagedUnmanagedData;
+            var managedData = dataManaged.length;
+            updateTotalCount("managed", providerid, managedData);
+
+            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+              $('#mainPanelId').hide();
+              $('#managedTableContainer').show();
+              $('#providerforManagedInstId').empty().append(azureProvidersName);
+              //Managned data passed to loadManagedInstances function to populate data in table.
+              loadManagedInstances(dataManaged);
+            });
+
+            var unmanagedData = 0;
+            updateTotalCount("unmanaged", providerid, unmanagedData);
+            totalManagedUnmanagedData = managedData + unmanagedData;
+
+            updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
+
+            $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
+          });
+
+          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
+            $('#mainPanelId').hide();
+            $('#trackedInstancesSpecProviderTableContainer').show();
+            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
+              loadtrackedspecProviderInstances(data);
+            }).fail(function() {
+                //TO DO
+                alert("Tracked Instances for specific provider not properly Loaded");
+            }); 
+          });
           
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
@@ -209,16 +230,7 @@ $(document).ready(function() {
           $childProviderTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-blue');
 
           var providerid = totalProviders.vmwareProviders[k]._id;
-          var totalInstances;
-
-          var providerSpecificHref = "/private/index.html#ajax/Settings/CreateProviders.html?"+providerid;
-          $childProviderTemplate.find('.providerSpecificMoreInfo').click(function(){
-            if (top.location != location) {
-              window.top.location.href = providerSpecificHref;
-            }else{
-              window.location.href = providerSpecificHref;
-            }
-          });
+          
           var $childManagedInstanceTemplate = $('.childManagedInstanceTemplate').clone();
           $childManagedInstanceTemplate.removeClass('childManagedInstanceTemplate');
           $childManagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-blue');
@@ -230,6 +242,42 @@ $(document).ready(function() {
           var $childTotalInstanceTemplate = $('.childTotalInstanceTemplate').clone();
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-blue');
+
+          $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
+            var managedInstancesLength = dataManaged.length;
+            $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
+
+            var totalManagedUnmanagedData;
+            var managedData = dataManaged.length;
+            updateTotalCount("managed", providerid, managedData);
+
+            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+              $('#mainPanelId').hide();
+              $('#managedTableContainer').show();
+              $('#providerforManagedInstId').empty().append(vmwareProvidersName);
+              //Managned data passed to loadManagedInstances function to populate data in table.
+              loadManagedInstances(dataManaged);
+            });
+
+            var unmanagedData = 0;
+            updateTotalCount("unmanaged", providerid, unmanagedData);
+            totalManagedUnmanagedData = managedData + unmanagedData;
+
+            updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
+
+            $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
+          });
+
+          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
+            $('#mainPanelId').hide();
+            $('#trackedInstancesSpecProviderTableContainer').show();
+            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
+              loadtrackedspecProviderInstances(data);
+            }).fail(function() {
+                //TO DO
+                alert("Tracked Instances for specific provider not properly Loaded");
+            }); 
+          });
           
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
@@ -304,17 +352,7 @@ $(document).ready(function() {
           $childProviderTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-red');
 
           var providerid = totalProviders.openstackProviders[m]._id;
-          var totalInstances;
-          
-          var providerSpecificHref = "/private/index.html#ajax/Settings/CreateProviders.html?"+providerid;
-          $childProviderTemplate.find('.providerSpecificMoreInfo').click(function(){
-            if (top.location != location) {
-              window.top.location.href = providerSpecificHref;
-            }else{
-              window.location.href = providerSpecificHref;
-            }
-          });
-
+    
           var $childManagedInstanceTemplate = $('.childManagedInstanceTemplate').clone();
           $childManagedInstanceTemplate.removeClass('childManagedInstanceTemplate');
           $childManagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-red');
@@ -326,6 +364,42 @@ $(document).ready(function() {
           var $childTotalInstanceTemplate = $('.childTotalInstanceTemplate').clone();
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-red');
+
+          $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
+            var managedInstancesLength = dataManaged.length;
+            $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
+
+            var totalManagedUnmanagedData;
+            var managedData = dataManaged.length;
+            updateTotalCount("managed", providerid, managedData);
+
+            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+              $('#mainPanelId').hide();
+              $('#managedTableContainer').show();
+              $('#providerforManagedInstId').empty().append(openstackSpecificProvName);
+              //Managned data passed to loadManagedInstances function to populate data in table.
+              loadManagedInstances(dataManaged);
+            });
+
+            var unmanagedData = 0;
+            updateTotalCount("unmanaged", providerid, unmanagedData);
+            totalManagedUnmanagedData = managedData + unmanagedData;
+
+            updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
+
+            $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
+          });
+
+          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
+            $('#mainPanelId').hide();
+            $('#trackedInstancesSpecProviderTableContainer').show();
+            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
+              loadtrackedspecProviderInstances(data);
+            }).fail(function() {
+                //TO DO
+                alert("Tracked Instances for specific provider not properly Loaded");
+            }); 
+          });
           
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);

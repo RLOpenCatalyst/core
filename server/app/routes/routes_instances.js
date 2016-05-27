@@ -464,7 +464,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var _docker = new Docker();
         var stdmessages = '';
         var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
-
+        console.log("Durgesh Sharma");
         logger.debug('cmd received: ', cmd);
         var stdOut = '';
         _docker.runDockerCommands(cmd, instanceid, function(err, retCode) {
@@ -504,8 +504,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     retCode: retCode
                 });
             }
-
-
         }, function(stdOutData) {
             stdOut += stdOutData;
         }, function(stdOutErr) {

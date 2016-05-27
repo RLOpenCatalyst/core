@@ -84,7 +84,7 @@ function getDefaultsConfig() {
             },
             skip_Records : 1,
             max_record_limit : 200,
-            record_limit : 10,
+            record_limit : 10
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
