@@ -519,9 +519,14 @@ $(document).ready(function() {
       var $tdip = $('<td></td>').append(allProviderData.trackedInstances[i].ip);
       $tr.append($tdip);
 
-      var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
-      $tr.append($tdproviderType);
-
+      if(allProviderData.trackedInstances[i].providerType){
+        var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType.toUpperCase());
+        $tr.append($tdproviderType);
+      }else{
+        var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
+        $tr.append($tdproviderType);
+      }
+      
       if(allProviderData.trackedInstances[i].cost)
         var $tdcost = $('<td></td>').append(allProviderData.trackedInstances[i].cost);
       else
@@ -614,7 +619,7 @@ $(document).ready(function() {
       var $tdip = $('<td></td>').append(specProviderData.trackedInstances[i].ip);
       $tr.append($tdip);
 
-      var $tdproviderType = $('<td></td>').append(specProviderData.trackedInstances[i].providerType);
+      var $tdproviderType = $('<td></td>').append(specProviderData.trackedInstances[i].providerType.toUpperCase());
       $tr.append($tdproviderType);
 
       if(specProviderData.trackedInstances[i].cost)
