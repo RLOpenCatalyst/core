@@ -534,7 +534,7 @@ var Chef = function(settings) {
             argList.push('-j');
             var jsonAttributesString = JSON.stringify(params.jsonAttributes);
             jsonAttributesString = jsonAttributesString.split('"').join('\\\"');
-            jsonAttributesString =  '"' + jsonAttributesString + '"';
+            jsonAttributesString = '"' + jsonAttributesString + '"';
             argList.push(jsonAttributesString);
         }
         procNodeDelete.on('close', function(code) {
@@ -1378,6 +1378,36 @@ var Chef = function(settings) {
                     callback(null, chefRes.statusCode);
                     return;
                 } else {
+                    callback(true, null);
+                    return;
+                }
+
+            });
+
+        });
+    };
+
+    this.search = function(index, query, callback) {
+        initializeChefClient(function(err, chefClient) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            var url = '/search/' + index + '?q=' + query;
+            logger.debug(url);;
+            chefClient.get(url, function(err, chefRes, chefResBody) {
+
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                logger.debug("chef status ", chefRes.statusCode);
+
+                if (chefRes.statusCode === 200) {
+                    callback(null, chefResBody);
+                    return;
+                } else {
+                    logger.debug(chefRes.statusCode, chefResBody);
                     callback(true, null);
                     return;
                 }

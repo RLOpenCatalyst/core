@@ -27,7 +27,8 @@ var checkandupdateRunlistTable = function() {
             "bFilter": false,
             "aoColumns": [{
                 "bSortable": false
-            }]
+            }],
+            "bSort": false
         });
     }
 }

@@ -158,6 +158,14 @@
                                                                     <span class="colorRed">*</span>
                                                                   </label>
                                                                </div>
+                                                                <div class="col-lg-6 col-md-12">
+                                                                  <label class="radio">
+                                                                    <input id="selectRoleInputId" class="jobTypeSelectorRadioBtn" type="radio" name="jobDetType" data-jobdetails="Role"><i></i>
+                                                                    <img src="img/templateicons/Create-run-list---deployment.png" class="margintopMinus5">
+                                                                    Roles
+                                                                    <span class="colorRed">*</span>
+                                                                  </label>
+                                                               </div>
                                                             </div>
                                                             
                                                             <div id="Nodes" class="jobDetailsClass col-lg-12">
@@ -166,6 +174,10 @@
                                                             </div>
                                                             <div id="Blueprint" class="jobDetailsClass col-lg-12" style="display:none">
                                                                <ul id="selectedBlueprintChefTask" class="deploymentBlueprintList selectedNodesTaskCSS">
+                                                               </ul>
+                                                            </div>
+                                                            <div id="Role" class="jobDetailsClass col-lg-12" style="display:none">
+                                                               <ul id="selectedRoleChefTask" class="deploymentRoleList selectedNodesTaskCSS">
                                                                </ul>
                                                             </div>
                                                             <!-- <ul id="selectedNodesChefTask" class="deploymentNodeList selectedNodesTaskCSS">
@@ -867,24 +879,5 @@ var projectId = urlParams['projid'];
 var envId = urlParams['envid'];
 var orgId = urlParams['org'];
 var bgId = urlParams['bg'];
-/*$.get('../organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/environments/' + envId + '/', function(data) {
-   
-   for (var i = 0; i < data.blueprints.length; i++) {
-      var blueprintName = data.blueprints[i].name;
-      var $li = $('<li><label class="checkbox" style="margin: 5px;font-size:13px;"><input type="checkbox" name="deploymentBlueprintsCheckBox" value="' + data.blueprints[i]._id + '"><i></i>' + blueprintName + '</label></li>'); 
-      if (blueprintName) {
-         $('#selectedBlueprintChefTask').append($li);
-      }
-   }
-});*/
-/*$.get('../organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/environments/' + envId + '/', function(data) {
-   
-   for (var i = 0; i < data.blueprints.length; i++) {
-      var blueprintName = data.blueprints[i].name;
-      var $li = $('<li><label class="checkbox" style="margin: 5px;font-size:13px;"><input type="checkbox" name="deploymentBlueprintsCheckBox" value="' + data.blueprints[i]._id + '"><i></i>' + blueprintName + '</label></li>'); 
-      if (blueprintName) {
-         $('#selectedBlueprintJenkinsTask').append($li);
-      }
-   }
-});*/
+
 </script>
