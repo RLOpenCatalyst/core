@@ -234,7 +234,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
     masterUtil.getParticularProject(self.projectId,function(err,project){
         if (err) {
             callback({
-                message: "Failed to get project from project id"
+                message: "Failed to get project via project id"
             }, null);
             return;
         }
@@ -244,7 +244,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
             });
             return;
         }
-        console.log("Project Information >>>>"+project);
+        logger.debug("Project Information >>>>"+project);
         configmgmtDao.getEnvNameFromEnvId(opts.envId, function(err, envName) {
             if (err) {
                 callback({
