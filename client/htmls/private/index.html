@@ -648,6 +648,27 @@
 </div>
 
 
+<!--instance launching pad-->
+<div class="modal fade" id="instanceLogModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel">
+               <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Instance Logs
+            </h4>
+         </div>
+         <div class="modal-body">
+            <div class="logsArea font-size-12"></div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+
 
 
     
@@ -1002,12 +1023,11 @@ function dockerBlueprintLaunch(data){
                                     ]);
                                     $('.dockerinstancestart').unbind().click(function(e) {
                                         generateCompositeJsonfromtable();
-                                        var dataCheck =  compositeDockerLaunch(data);
-                                        console.log(dataCheck);
+                                        compositeDockerLaunch(data);
                                     });
+                                    $dockerinstancesDatatable.on('click', '.dockerintsancesmoreInfo', instanceLogsHandler);
                                 }
                             }
-                            // $dockerinstancesDatatable.on('click', '.dockerintsancesmoreInfo');
                         }
                         return;
                     })(i);
@@ -1018,6 +1038,69 @@ function dockerBlueprintLaunch(data){
     }
   });
 }
+
+var instanceLogsHandler = function(e) {
+    var instanceId = $(this).attr('data-instanceId');
+    var timeout;
+    var $instanceLogModalContainer = $('#instanceLogModalContainer');
+    $instanceLogModalContainer.on('hidden.bs.modal', function(e) {
+        $instanceLogModalContainer.off('hidden.bs.modal');
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+    });
+    $instanceLogModalContainer.find('.logsArea').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+    $instanceLogModalContainer.modal('show');
+    var lastTimestamp;
+
+    //Showing the log for Instances
+    function pollLogs(timestamp, delay, clearData) {
+        var url = '../instances/' + instanceId + '/logs';
+        if (timestamp) {
+            url = url + '?timestamp=' + timestamp;
+        }
+
+        timeout = setTimeout(function() {
+            $.get(url, function(data) {
+                var $modalBody = $instanceLogModalContainer.find('.logsArea')
+                if (clearData) {
+                    $modalBody.empty();
+                }
+                var $table = $('<table></table>');
+
+                for (var i = 0; i < data.length; i++) {
+                    var $rowDiv = $('<tr class="row rowSpacing"></tr>');
+                    var timeString = new Date().setTime(data[i].timestamp);
+                    var date = new Date(timeString).toLocaleString(); //converts to human readable strings
+                    if (data[i].err) {
+                        $rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:red;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + data[i].log + '</span>'));
+                    } else {
+                        $rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:DarkBlue;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + data[i].log + '</span>'));
+                    }
+
+                    $table.append($rowDiv);
+                }
+
+
+                if (data.length) {
+                    lastTimestamp = data[data.length - 1].timestamp;
+                    console.log(lastTimestamp);
+                    $modalBody.append($table);
+                    $modalBody.scrollTop($modalBody[0].scrollHeight + 100);
+                }
+
+
+                console.log('polling again');
+                if ($instanceLogModalContainer.data()['bs.modal'].isShown) {
+                    pollLogs(lastTimestamp, 1000, false);
+                } else {
+                    console.log('not polling again');
+                }
+            });
+        }, delay);
+    }
+    pollLogs(lastTimestamp, 0, true);
+};
 
 function foldTreeForSetting() {
     var list = $('#setting_tree').find('.fa-angle-down'),
@@ -1659,7 +1742,6 @@ checkandnavigatetotab();
 loadSettingsTree();
 foldTreeForSetting();
 
-//$('.dockerinstancestart').click(function(e) {
 function generateCompositeJsonfromtable() {
     var dockercompose = [];
     var dockerimages = {};
@@ -1676,7 +1758,6 @@ function generateCompositeJsonfromtable() {
     });
     return (dockercompose);
 }
-//var dockerData;
 function compositeDockerLaunch(data){
   var compositedockerimage = generateCompositeJsonfromtable();
   compositedockerimage = JSON.stringify(compositedockerimage);
@@ -1705,7 +1786,6 @@ function compositeDockerLaunch(data){
       $.post('../instances/dockercompositeimagepull/' + instid + '/' + repopath, {
           compositedockerimage: encodeURIComponent(compositedockerimage)
       }, function(dockerData) {
-        console.log("dc",dockerData);
           if (dockerData == "OK") {
               if (amoreinfo)
                   amoreinfo.trigger('click');
@@ -1721,7 +1801,6 @@ function compositeDockerLaunch(data){
               if ($instancecard.find('.dockerenabledinstacne').length <= 0) {
                   $instancecard.find('.componentlistContainer').first().append($dockericon);
               }
-             // loadContainersTable(); //Clearing and loading the containers again.
           } else {
               if (dockerData.indexOf('No Docker Found') >= 0) {
                   var $statmessage = $('.dockerspinner').parent();
@@ -1729,11 +1808,10 @@ function compositeDockerLaunch(data){
                   $td.find('.dockermessage').detach();
                   $statmessage.append('<span style="margin-left:5px;color:red" title="Docker not found"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
                   //Prompt user to execute the docker cookbook.
-                  alert('Docker was not found on the node : "' + instbpname + '". \n Kindly navigate to Workzone and run Chef Client Run');
-                      //Docker launcer popup had to be hidden due to overlap issue.
-                     // $('#launchDockerInstanceSelector').modal('hide');
-                      return false;
-                      //$('a.actionbuttonChefClientRun[data-instanceid="' + instid + '"]').first().trigger('click');
+                    bootbox.alert('Docker was not found on the node : "' + instbpname + '". \n Kindly navigate to Workzone and run Chef Client Run');
+                        //Docker launcer popup had to be hidden due to overlap issue.
+                        $('#launchDockerInstanceSelector').modal('hide');
+                        return false;
               } else {
                   var $statmessage = $('.dockerspinner').parent();
                   $('.dockerspinner').detach();
@@ -1779,7 +1857,6 @@ var $dockerWizard = $('#rootwizard').bootstrapWizard({
     'onPrevious': function(tab, navigation, index) {
         $('.dockerinstancestart').first().addClass('hidden');
     }
-
 });
 </script>
 

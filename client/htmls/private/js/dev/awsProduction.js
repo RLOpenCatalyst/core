@@ -3250,8 +3250,8 @@ function addBlueprintToDom(data) {
             $launchButton.attr('versions', '[]');
         }
 
-        var $selectVer = $('<select></select').addClass('blueprintVer');
-        var $liVersion = $('<li></li>').append($selectVer);
+        var $selectVer = $('<select></select>').addClass('blueprintVer');
+        var $liVersion = $('<li class="margin-top5">Version:&nbsp;</li>').append($selectVer);
 
         if (data.versions) {
 
@@ -3506,7 +3506,7 @@ function addBlueprintToDom(data) {
         }
         $selecteditBtnContainer.append($li);
 
-        $ul.append($linkVersions).append($launchButton);
+        $ul.append($launchButton).append($linkVersions);
         $itemBody.append($ul);
         $itemBody.append($selecteditBtnContainer);
         $itemContainer.append($itemBody);
