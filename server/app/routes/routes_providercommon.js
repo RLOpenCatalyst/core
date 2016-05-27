@@ -88,24 +88,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
-<<<<<<< HEAD
-		/*AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-=======
 		ApiUtils.paginationRequest(req.query,'managedInstances',function(err, paginationReq){
->>>>>>> topic-1636
 			if (err) {
 				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
 				return;
-<<<<<<< HEAD
-			}*/
-
-			instancesDao.getByProviderId(req.params.providerId, function(err, managedInstances) {
-=======
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='managedInstances';
 			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
->>>>>>> topic-1636
 				if (err) {
 					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
 					return;
@@ -134,12 +124,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 				});
 			});
-<<<<<<< HEAD
-		// });
-
-=======
 		});
->>>>>>> topic-1636
 	});
 
 	// @TODO To be refactored and API end point to be changed
