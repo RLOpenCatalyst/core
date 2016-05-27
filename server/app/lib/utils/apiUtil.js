@@ -9,6 +9,7 @@ var Cryptography = require('_pr/lib/utils/cryptography.js');
 var cryptoConfig = appConfig.cryptoSettings;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
 
+
 var ApiUtil = function() {
     this.errorResponse=function(code,field){
         var errObj={};
@@ -43,7 +44,6 @@ var ApiUtil = function() {
             pageSize:data.limit,
             page:data.page,
             totalPages:data.pages,
-
             sortBy:Object.keys(sortField)[0],
             sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
@@ -58,6 +58,11 @@ var ApiUtil = function() {
         var objAnd = {}
         var objOr=[];
         var databaseCall={};
+        for(var i = 0; i < commons.length; i++){
+            var keyField=commons[i];
+            if(jsonData[keyField])
+                objAnd[keyField] = jsonData[keyField];
+        }
         var columns=commons.common_field;
         var fields=commons.sort_field;
         var sortField=jsonData.mirrorSort;
@@ -107,10 +112,7 @@ var ApiUtil = function() {
         databaseCall['options']=options;
         callback(null, databaseCall);
         return;
-
-
     };
-
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {
@@ -174,8 +176,6 @@ var ApiUtil = function() {
             callback(null, request);
         }
     }
-
-
 }
 
 module.exports = new ApiUtil();

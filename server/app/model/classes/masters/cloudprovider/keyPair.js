@@ -259,6 +259,7 @@ awsKeyPairSchema.statics.removeAWSKeyPairById = function(keyPairId, callback) {
     });
 };
 
+
 var AWSKeyPair = mongoose.model('AWSKeyPair', awsKeyPairSchema);
 
 module.exports = AWSKeyPair;
