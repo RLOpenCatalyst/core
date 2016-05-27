@@ -177,6 +177,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 
 			};
 			if(depNewApp.newEnt.serverType === 'nexus'){
+				depNewApp.deploymentData.appData.appName=depNewApp.newEnt.artifact;
 				depNewApp.deploymentData.sourceData.nexus={
 					"repoURL":depNewApp.artifactsVersion[depNewApp.newEnt.artifact][depNewApp.newEnt.version].resourceURI,
 					"version": depNewApp.newEnt.version,
