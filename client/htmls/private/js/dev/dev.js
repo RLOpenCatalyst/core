@@ -2607,9 +2607,9 @@ function devCall() {
                                         console.log(urlParams.projid);
 
                                         var $blueprintReadContainerCFT = $(id);
-                                        $blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(orgName).show().parents('tr').show();
-                                        $blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(bgName).show().parents('tr').show();;
-                                        $blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(projName).show().parents('tr').show();
+                                        $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(orgName).show().parents('tr').show();
+                                        $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(bgName).show().parents('tr').show();;
+                                        $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(projName).show().parents('tr').show();
                                         //  alert(JSON.stringify(data));
 
                                         var $blueprintReadContainer = $(id);
@@ -2996,7 +2996,7 @@ function devCall() {
         };
 
         function addDockerTemplateToTable(title, repopath, tagname, reponame, launchparam) {
-            var $cdt = $('#compositedockertable');
+            var $cdt = $('#compositeDockerImagesTable');
             var uniqueid = (Math.floor(Math.random() * 9000) + 1000) + '-' + (Math.floor(Math.random() * 9000) + 1000); //$.now();
             var $dockertemplaterow = '<tr class="dockerimagesrow"><td >' + $cdt.find('tr').length + '</td><td paramtype="dockercontainerpathstitle">' + title + '</td><td  paramtype="dockercontainerpaths">' + repopath + '</td><td paramtype="dockerrepotags">' + tagname + '</td><td><input type="text" paramtype="dockerlaunchparameters" id="launchparam' + uniqueid + '" class="" value="' + launchparam + '"><a uniqueid="' + uniqueid + '"  class="lnktolaunchparam" href="javascript:void(0);"><i class="icon-append fa fa-list-alt fa-lg" title="Launch Parameters"></i></a><input type="hidden" paramtype="dockerreponame" id="dockerreponame' + uniqueid + '" class="" value="' + reponame + '"></td><td ><a class="dockerimageselectorup" id="dockerimageselectorup' + uniqueid + '" uniqueid="' + uniqueid + '"  href="javascript:void(0);"><i class="fa fa-chevron-circle-up fa-lg"></i></a><a class="dockerimageselectordown" id="dockerimageselectordown' + uniqueid + '" uniqueid="' + uniqueid + '" href="javascript:void(0);" style="padding-left:5px;"><i class="fa fa-chevron-circle-down fa-lg"></i></a><button class="btn btn-xs btn-danger pull-right hidden" value="Remove" title="Remove" id="dockerimageremove' + uniqueid + '" onClick="javascript:removeimage(\'dockerimageremove\',' + uniqueid + ');"><i class="ace-icon fa fa-trash-o fa-lg"></i></button></td></tr>';
             // var $dockertemplaterow = '<tr class="dockerimagesrow"><td  paramtype="order">' + $cdt.find('tr').length + '</td><td paramtype="repotitle">' + title + '</td><td  paramtype="repopath">' + repopath + '</td><td paramtype="repotag">' + tagname + '</td><td  paramtype="launchparams"><a onclick="loadLaunchParams(\'launchparamlink' + $cdt.find('tr').length  + '\');" href="javascript:void(0);"><input type="text" id="launchparam' +  + '" class="hidden"><i class="icon-append fa fa-list-alt fa-lg" title="Launch Parameters"></i></a></td><td  paramtype="move"><a class="dockerimageselectorup" id="dockerimageselectorup' + $cdt.find('tr').length + '"  href="javascript:movetablerow(\'dockerimageselectorup\',' + $cdt.find('tr').length + ');"><i class="fa fa-chevron-circle-up fa-lg"></i></a><a class="dockerimageselectordown" id="dockerimageselectordown' + $cdt.find('tr').length + '" href="javascript:movetablerow(\'dockerimageselectordown\',' + $cdt.find('tr').length + ');" style="padding-left:5px;"><i class="fa fa-chevron-circle-down fa-lg"></i></a><button class="btn btn-xs btn-danger pull-right" value="Remove" title="Remove" id="dockerimageremove' + $cdt.find('tr').length  + '" onClick="javascript:removeimage(\'dockerimageremove\',' + $cdt.find('tr').length + ');"><i class="ace-icon fa fa-trash-o fa-lg"></i></button></td></tr>';
@@ -3045,7 +3045,7 @@ function devCall() {
             }
 
             function renumberDockerImageTable() {
-                var $cdt = $('#compositedockertable').find('tr').each(function(i) {
+                var $cdt = $('#compositeDockerImagesTable').find('tr').each(function(i) {
                     $(this).find('td').first().html(i);
                 });
 
@@ -3154,7 +3154,7 @@ function devCall() {
 
                             $('#commentForm')[0].reset();
                             $('#Removeonexitfield').change();
-
+                            $dockerinstancesDatatable.clear().draw(false);
                             if ($selectedItems.attr('data-templateType') === 'desktopProvisioning') {
                                 var $modalDesktopProvisioning = $('#modalDesktopProvisioningLaunch');
                                 var blueprintId = $selectedItems.attr('data-blueprintId');
@@ -3194,7 +3194,7 @@ function devCall() {
                                     var dockercompose = blueprintData.blueprintConfig.dockerCompose;
 
                                     //alert('hit');
-                                    $('#compositedockertable tr.dockerimagesrow').detach(); //clearing previously loaded table.
+                                    $('#compositeDockerImagesTable tr.dockerimagesrow').detach(); //clearing previously loaded table.
                                     dockercompose.forEach(function(k, v) {
                                         // alert(dockercompose[v]["dockercontainerpaths"]);
                                         addDockerTemplateToTable(dockercompose[v]["dockercontainerpathstitle"], dockercompose[v]["dockercontainerpaths"], dockercompose[v]["dockerrepotags"], dockercompose[v]["dockerreponame"], dockercompose[v]["dockerlaunchparameters"]);
@@ -3242,27 +3242,10 @@ function devCall() {
 
                                     function loadInstancesContainerList() {
                                         $launchDockerInstanceSelector.modal('show');
-                                        $('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
+                                        $('#rootwizard').find("a[href*='dockerTab1']").trigger('click'); //showing first tab.
                                         $.get('../organizations/' + urlParams.org + '/businessgroups/' + urlParams['bg'] + '/projects/' + urlParams.projid + '/environments/' + urlParams.envid + '/', function(dataInstancesList) {
-                                            if (!$.fn.dataTable.isDataTable('#dockerinstancesTable')) {
-                                                var $dockerinstancesDatatable = $('#dockerinstancesTable').DataTable({
-                                                    "pagingType": "full_numbers",
-                                                    "aaSorting": [
-                                                        [0, "desc"]
-                                                    ],
-                                                    "aoColumns": [{
-                                                        "bSortable": false
-                                                    }, {
-                                                        "bSortable": true
-                                                    }, {
-                                                        "bSortable": true
-                                                    }, {
-                                                        "bSortable": false
-                                                    }]
-
-                                                });
-                                            }
-                                            $dockerinstancesDatatable.clear().draw(false);
+                                            
+                                            
                                             for (var i = 0; i < dataInstancesList.instances.length; i++) {
                                                 var imagePath;
                                                 if (dataInstancesList.instances[i].blueprintData.iconPath == undefined) {
@@ -3283,68 +3266,12 @@ function devCall() {
                                                         $tdinstanceip,
                                                         $moreinfo
                                                     ]);
+                                                    $dockerinstancesDatatable.on('click', '.dockerintsancesmoreInfo', instanceLogsHandler);
                                                 }
-
-                                                $dockerinstancesDatatable.on('click', '.dockerintsancesmoreInfo', instanceLogsHandler);
                                             }
                                         });
                                     }
                                 });
-                                /*$('#dockerinstancesselctorview').empty().append('<span><div class=\"modal-body\"><div><div class=\"row\"><div style=\"color:;\" class=\"col-lg-12 col-sm-12\ dockerinstances"></div></div></div></div></div></span>');
-								var $newinstancetable = $("<table></table>").append("<thead><tr><td>Instance Name</td><td>IP Address</td><td>Log Info</td><td class='hidden'>Add Docker Engine</td></tr></thead>");
-								var $newinstancetbody = $('<tbody></tbody>');
-								$newinstancetable.append($newinstancetbody);
-								var $instancetable = $('#tableinstanceview').clone();
-								$instancetable.find('tbody tr').each(function() {
-									var $newinstancetr = $("<tr><tr>");
-									$(this).find('td').each(function(k, v) {
-										$newinstancetr.append('<td>' + v + $(this).html() + '</td>');
-									});
-									$newinstancetbody.append($newinstancetr);
-								});
-
-								$instancetable.attr('id', 'dockerintsancestab');
-								$('.dockerinstances').first().append($instancetable);
-
-								$('#dockerintsancestab thead td').each(function(k, v) {
-									if (k > 2)
-										$(this).detach();
-								});
-								$('#dockerintsancestab thead').append('<td>Log Info</td>');
-								$('#dockerintsancestab thead tr').append('<td class="hidden" title="Select to add a docker engine">Add Engine</td>');
-								$('#dockerintsancestab tbody tr').each(function(k, v) {
-
-									$(this).removeClass('rowcustomselected');
-									$(this).click(function() {
-										$('#dockerintsancestab tbody tr').removeClass('rowcustomselected');
-										$(this).addClass('rowcustomselected');
-									});
-									$(this).find('td').each(function(k1, v1) {
-
-										if (k1 > 2)
-											$(this).detach();
-										//inserting a checkbox to select instance
-										if (k1 == 0) {
-											$(this).prepend('<input type="checkbox" class="instanceselectedfordocker">&nbsp;');
-										}
-									});
-									$(this).append('<td  class=""><a data-original-title="MoreInfo" data-placement="top" rel="tooltip" href="javascript:void(0)" data-instanceid="' + $(this).attr('data-instanceid') + '" class="tableMoreInfo moreInfo dockerLeft" stlye=></a></td>');
-									$(this).append('<td  class="hidden"><input type="checkbox"></td>');
-									$(this).find('.moreInfo').click(instanceLogsHandler);
-								});
-								$('.launchdockerinstance').click(function() {
-									$launchResultContainer.find('.modal-body').empty().append('<span><div class=\"modal-body\"><div><h3 class=\"alert alert-success\"><b>Congratulations!</b> Blueprint Launched Successfully !!!</h3>Instance Id : 5460690c6e5c99913e37d0e4<br>Instance Logs :- </div><div class=\"logsAreaBootstrap\"><div><div class=\"row\"><div style=\"color:white;\" class=\"col-lg-12 col-sm-12\"><span>Starting instance</span></div></div></div></div></div></span>');
-									$('#myModalLabel').first().html('Launching Blueprint');
-
-								});
-								$('#dockerInstanceSelectionTitle').empty().append('Select Instances to pull  "' + dockerreponame + '" into');
-								$launchDockerInstanceSelector.modal('show');
-								$('#rootwizard').find("a[href*='tab1']").trigger('click'); //showing first tab.
-								$('#dockerintsancestab thead').empty().append('<tr><td>Select Instance</td><td>Instance Name</td><td>IP Address</td><td>Log</td><td  class="hidden">Add Docker Engine</td></tr>');
-								$('#dockerintsancestab').dataTable({
-									"bPaginate": false
-								});*/
-
                                 return;
                             }
 
@@ -5707,13 +5634,6 @@ function devCall() {
             }
         }
 
-        //event for orchatration tab show
-        //   $(function() {
-
-
-        // });
-
-
         $('.createTaskLink').click(function(e) {
             var hasTasksPermission = false;
             if (haspermission("instancetasks", "execute")) {
@@ -5748,7 +5668,7 @@ function devCall() {
             function generateCompositeJsonfromtable() {
                 var dockercompose = [];
                 var dockerimages = {};
-                console.log($('#compositedockertable').find('.dockerimagesrow').length);
+                console.log($('#compositeDockerImagesTable').find('.dockerimagesrow').length);
                 $('.dockerimagesrow').each(function() {
                     dockerimages = {};
 
@@ -5794,16 +5714,9 @@ function devCall() {
                 $td.find('.dockermessage').detach();
                 $td.append('<img class="dockerspinner" style="margin-left:5px" src="img/select2-spinner.gif"></img>');
                 $td.attr('title', 'Pulling in Images');
-                // var imagename = $('.productdiv1.role-Selected1').first().attr('dockercontainerpaths');
-                // var repotag = $('.productdiv1.role-Selected1').find('.dockerrepotagselect').first().val();
-
-                //var repopath = $('.productdiv1.role-Selected1').first().attr('dockerreponame');
-
-
                 $.post('../instances/dockercompositeimagepull/' + instid + '/' + repopath, {
                     compositedockerimage: encodeURIComponent(compositedockerimage)
                 }, function(data) {
-                    //alert(JSON.stringify(data));
                     if (data == "OK") {
                         if (amoreinfo)
                             amoreinfo.trigger('click');
@@ -5848,73 +5761,6 @@ function devCall() {
                         }
                     }
                 });
-                //Replaced below code with Above....
-                /*if ($(this).is(':checked')) {
-					var repopath = "null"; //would be referenced from the json supplied.
-					var instid = $(this).closest('tr').attr('data-instanceid');
-					var instbpname = $(this).closest('tr').attr('data-blueprintname');
-					var amoreinfo = $(this).closest('tr').find('.moreInfo');
-					if (instid)
-						var $that = $(this);
-					var $td = $that.closest('td');
-					var tdtext = $td.text();
-					$td.find('.dockerspinner').detach();
-					$td.find('.dockermessage').detach();
-					$td.append('<img class="dockerspinner" style="margin-left:5px" src="img/select2-spinner.gif"></img>');
-					$td.attr('title', 'Pulling in Images');
-					// var imagename = $('.productdiv1.role-Selected1').first().attr('dockercontainerpaths');
-					// var repotag = $('.productdiv1.role-Selected1').find('.dockerrepotagselect').first().val();
-
-					//var repopath = $('.productdiv1.role-Selected1').first().attr('dockerreponame');
-
-					if (amoreinfo)
-						amoreinfo.trigger('click');
-
-					$.post('../instances/dockercompositeimagepull/' + instid + '/' + repopath, {
-						compositedockerimage: encodeURIComponent(compositedockerimage)
-					}, function(data) {
-						//alert(JSON.stringify(data));
-						if (data == "OK") {
-							var $statmessage = $td.find('.dockerspinner').parent();
-							$td.find('.moreInfo').first().click(); //showing the log window.
-
-
-							$td.find('.dockerspinner').detach();
-							$statmessage.append('<span style="margin-left:5px;text-decoration:none" class="dockermessage"></span>');
-
-							//Updating instance card to show the docker icon.
-							//$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:42px;height:42px;margin-left:32px;" class="dockerenabledinstacne"/>');
-							//Updated from above to move docker image out of circle.
-							$dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:auto;height:27px;margin-left:96px;margin-top:-105px" class="dockerenabledinstacne"/>');
-							//find the instance card - to do instance table view update
-							var $instancecard = $('div[data-instanceid="' + instid + '"]');
-							if ($instancecard.find('.dockerenabledinstacne').length <= 0) {
-								$instancecard.find('.componentlistContainer').first().append($dockericon);
-							}
-							//debugger;
-							loadContainersTable(); //Clearing and loading the containers again.
-						} else {
-							//alert(data);
-							if (data.indexOf('No Docker Found') >= 0) {
-								var $statmessage = $('.dockerspinner').parent();
-								$('.dockerspinner').detach();
-								$td.find('.dockermessage').detach();
-								$statmessage.append('<span style="margin-left:5px;color:red" title="Docker not found"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
-								//Prompt user to execute the docker cookbook.
-								if (confirm('Docker was not found on the node : "' + instbpname + '". \nDo you wish to install it?')) {
-									//Docker launcer popup had to be hidden due to overlap issue.
-									$('#launchDockerInstanceSelector').modal('hide');
-									$('a.actionbuttonChefClientRun[data-instanceid="' + instid + '"]').first().trigger('click');
-								}
-							} else {
-								var $statmessage = $('.dockerspinner').parent();
-								$('.dockerspinner').detach();
-								$td.find('.dockermessage').detach();
-								$statmessage.append('<span style="margin-left:5px;color:red" title="' + data + '"  class="dockermessage"><i class="fa  fa-exclamation"></i></span>');
-							}
-						}
-					});
-				}*/
             });
         });
 
@@ -6156,23 +6002,6 @@ function devCall() {
 
         //alert($('#accordion-2').find('a').first().html());
         $('.dockerrepotagselect').parent().prepend('Tags&nbsp;');
-
-        $('#rootwizard').bootstrapWizard({
-            'tabClass': 'nav nav-pills',
-            'onNext': function(tab, navigation, index) {
-
-                $('.dockerinstancestart').first().removeClass('hidden');
-                var $valid = $("#commentForm").valid();
-                if (!$valid) {
-                    $validator.focusInvalid();
-                    return false;
-                }
-            },
-            'onPrevious': function(tab, navigation, index) {
-                $('.dockerinstancestart').first().addClass('hidden');
-            }
-
-        });
 
         //Loading the containers table in Docker.
         function loadContainersTable() {
