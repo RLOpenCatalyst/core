@@ -50,10 +50,10 @@
 						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
 						'</span>'+
 						'</div>' ,cellTooltip: true},
-						{ name:'Execute', enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
-						{ name:'History', enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
+						{ name:'Execute',width: 90, enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
+						{ name:'History',width: 90, enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
 						{ name:'Last Run', cellTemplate:'<span>{{row.entity.lastRunTimestamp  | timestampToLocaleTime}}</span>', cellTooltip: true},
-						{ name:'Action', enableSorting: false , cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white marginleft10" ng-click="grid.appScope.createNewTask(row.entity)" ng-show="grid.appScope.perms.editTask;"></span>'+
+						{ name:'Action', width:120,enableSorting: false , cellTemplate:'<span title="Edit" class="fa fa-pencil btn btn-info pull-left tableactionbutton btnEditTask btn-sg white marginleft10" ng-click="grid.appScope.createNewTask(row.entity)" ng-show="grid.appScope.perms.editTask;"></span>'+
 						'<span  title="Delete" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10" ng-click="grid.appScope.deleteTask(row.entity)" ng-show="grid.appScope.perms.deleteTask;"></span>', cellTooltip: true}
 					],
 				});

@@ -16,7 +16,6 @@
                 scope.appName = scope.appName;
                 scope.envName = scope.envName;
                 scope.cardType=scope.cardType;
-                console.log(element);
             }
         };
     }]);
