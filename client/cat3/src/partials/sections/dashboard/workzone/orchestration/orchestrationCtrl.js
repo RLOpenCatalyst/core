@@ -103,7 +103,7 @@
 					$scope.paginationParams.sortBy = 'taskCreatedOn';
 					$scope.paginationParams.sortOrder = 'desc';
 					$scope.setFirstPageView();
-					if($scope.paginationParams.page == 1){
+					if($scope.paginationParams.page === 1){
 						$scope.taskListGridView();
 					}
 				},

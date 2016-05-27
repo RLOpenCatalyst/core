@@ -8,19 +8,20 @@
 (function(){
 "use strict";
 angular.module('workzone.application')
-	.controller('upgradeAppCtrl', ['items','$scope','$rootScope', '$modalInstance','workzoneServices','$modal',function(items,$scope,$rootScope, $modalInstance,wzService,$modal) {
+	.controller('upgradeAppCtrl', ['items','$scope','$rootScope', '$modalInstance','workzoneServices','$modal', '$timeout', function(items,$scope,$rootScope, $modalInstance,wzService,$modal,$timeout) {
 		var upgrdApp={
 			newEnt:[],
 			requestData:[],
 			artifactsVersion:[],
 			jobOptions:[]
-		}
+		};
 		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
 			},
 			init :function(){
-				wzService.getAppUpgrade(items).then(function (FrzData){
+				var version =(items.appName.version)?items.appName.version:items.version;
+				wzService.getAppUpgrade(items,version).then(function (FrzData){
 					var FrzData=FrzData.data;
 					if(FrzData && FrzData.nexus && FrzData.nexus.rowId){
 						upgrdApp.newEnt.serverType='nexus';
@@ -28,6 +29,7 @@ angular.module('workzone.application')
 						upgrdApp.newEnt.groupId=FrzData.nexus.groupId;
 						upgrdApp.rowid=FrzData.nexus.rowId;
 						upgrdApp.newEnt.taskId=FrzData.nexus.taskId;
+						upgrdApp.newEnt.repository =FrzData.nexus.repository;
 					} else if(FrzData && FrzData.docker && FrzData.docker.imageTag) {
 						upgrdApp.newEnt.serverType='docker';
 						upgrdApp.newEnt.ContNameId=FrzData.docker.containerName;
@@ -36,11 +38,10 @@ angular.module('workzone.application')
 						upgrdApp.newEnt.tag=FrzData.docker.imageTag;
 						upgrdApp.newEnt.taskId=FrzData.docker.taskId;
 						upgrdApp.rowid=FrzData.docker.rowId;
-						upgrdApp.newEnt.repositoryIMG=FrzData.docker.image;
+						upgrdApp.newEnt.repository =FrzData.docker.image;
 					}
 					upgrdApp.projectId=FrzData.projectId;
 					upgrdApp.envName=FrzData.envName;
-					upgrdApp.newEnt.repository =FrzData.nexus.repository;
 					upgrdApp.newEnt.version =(upgrdApp.newEnt.serverType === 'nexus')?FrzData.version :upgrdApp.newEnt.tag;
 					upgrdApp.getServer();
 					upgrdApp.getAllChefJobs();
@@ -55,7 +56,12 @@ angular.module('workzone.application')
 						upgrdApp.newEnt.serverName=(val.nexusservername)?val.nexusservername:val.dockerreponame;
 					}
 				});
-				upgrdApp.getArtifacts();
+				if(upgrdApp.newEnt.serverType === 'nexus'){
+					upgrdApp.getArtifacts();
+				} else {
+					upgrdApp.getTagDetails();
+				}
+
 			});
 		};
 		upgrdApp.getArtifacts= function(){
@@ -81,33 +87,40 @@ angular.module('workzone.application')
 			});
 		};
 		upgrdApp.getVersions= function(){
-			$scope.isLoadingNexusVersion = true;
-			upgrdApp.requestData.artifactId = upgrdApp.newEnt.artifact;
-			wzService.getNexusVersions(upgrdApp.requestData).then(function (versionsResult) {
-				upgrdApp.versionsOptions = versionsResult.data;
-				$scope.isLoadingNexusVersion = false;
-			});
-			angular.forEach(upgrdApp.jobOptions,function(val,key){
-				if(val._id === upgrdApp.newEnt.taskId){
-					upgrdApp.newEnt.jobInd=key;
-				}
-			});
+				$scope.isLoadingNexusVersion = true;
+				upgrdApp.requestData.artifactId = upgrdApp.newEnt.artifact;
+				wzService.getNexusVersions(upgrdApp.requestData).then(function (versionsResult) {
+					upgrdApp.versionsOptions = versionsResult.data;
+					$scope.isLoadingNexusVersion = false;
+				});
+				angular.forEach(upgrdApp.jobOptions, function (val, key) {
+					if (val._id === upgrdApp.newEnt.taskId) {
+						upgrdApp.newEnt.jobInd = key;
+					}
+				});
 		};
 		upgrdApp.getTagDetails = function () {
-			var repository=upgrdApp.newEnt.repositoryIMG.split('/');
-			upgrdApp.newEnt.repository=repository[0];
-			upgrdApp.newEnt.image=repository[1];
+			var repository=upgrdApp.newEnt.repository.split('/');
+			var dockerImage='';
+			var tagRep='';
+			if(upgrdApp.newEnt.repository && upgrdApp.newEnt.repository.indexOf('/') === -1){
+				tagRep='library';
+				dockerImage=upgrdApp.newEnt.repository;
+			} else {
+				tagRep=repository[0];
+				dockerImage=repository[1];
+			}
 			$scope.isLoadingDocTag=true;
 			var requestObject={
 				dockerId:upgrdApp.rowid,
-				repository:upgrdApp.newEnt.repository,
-				image:upgrdApp.newEnt.image
+				repository:tagRep,
+				image:dockerImage
 			};
 			wzService.getDockerImageTags(requestObject).then(function(tagResult){
 				upgrdApp.tagOptions = tagResult.data;
 				$scope.isLoadingDocTag=false;
 			});
-		}
+		};
 		upgrdApp.createNewJob = function (){
 			$rootScope.$emit("CREATE_NEW_JOB");
 			$rootScope.createChefJob=true;
@@ -124,7 +137,7 @@ angular.module('workzone.application')
 				};
 			} else{
 				var docker={
-					"image": upgrdApp.newEnt.repositoryIMG,
+					"image": upgrdApp.newEnt.repository,
 					"containerName": upgrdApp.newEnt.ContNameId,
 					"containerPort": upgrdApp.newEnt.contPort,
 					"hostPort": upgrdApp.newEnt.hostPort,

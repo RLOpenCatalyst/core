@@ -44,7 +44,7 @@
 			});
 			
 			$scope.cardPaginationArmChange = function() {
-				$scope.paginationParams.page = $scope.currentCardPage,
+				$scope.paginationParams.page = $scope.currentCardPage;
 				$scope.paginationParams.pageSize = $scope.cardsPerPage;
 				$scope.azureListCardView();
 			};

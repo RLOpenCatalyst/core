@@ -36,7 +36,7 @@
                         gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
                             if( sortColumns[0] &&  sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction){
                                 $scope.pagiOptionsHistory.sortBy = sortColumns[0].field;
-                                $scope.pagiOptionsHistory.sortOrder = sortColumns[0].sort.direction;git
+                                $scope.pagiOptionsHistory.sortOrder = sortColumns[0].sort.direction;
                                 getApplicationHistoryService(envParams, envNames ,$scope.pagiOptionsHistory);
                             }
 

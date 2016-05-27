@@ -14,8 +14,12 @@
 		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 importErrorMsg text-right error-padding" ng-show="!isSubmitLoading">
 			{{ chefRunErrorMessage }}
 		</div>
-		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
-		<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-disabled="isSubmitLoading">Ok</button>
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-disabled="isSubmitLoading">
+			<i class="fa fa-check white"></i> Ok
+		</button>
 		<loading size="small" name="isSubmitLoading" type="inline"></loading>
 	</div>
 </div>

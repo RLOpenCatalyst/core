@@ -3,6 +3,22 @@
     <loading size="large" name="isApplicationPageLoading" type="block"></loading>
     <div ng-show="!isApplicationPageLoading">
         <div class="panel-heading">
+            <span class="pull-left">
+                <span class="panel-title">
+                    <span>Application</span>
+                </span>
+                <button type="button" class="btn btn-xs btn-link {{!isAppActiveCardTab.icon ?'app-tab-active':''}}"
+                        ng-click="applicationPipelineTab('activeCards')"  >
+                    Pipeline Summary
+                </button>
+                <button type="button" class="btn btn-xs btn-link  {{!isAppallCardTab.icon ?'app-tab-active':''}}"
+                        ng-click="applicationPipelineTab('allCards')" >
+                    Pipeline View
+                </button>
+                 <button type="button" class="btn btn-xs btn-link  {{!isHistoryTab.icon ?'app-tab-active':''}}" title="History" ng-click="applicationPipelineTab('history')" >
+                    History
+                </button>
+            </span>
             <span class="pull-right">
                 <!--<span class="app-panel-heading-text">Application : </span>-->
                 <!--<span ng-show="isPipelineViewActive">{{orgName}}</span>-->
@@ -30,20 +46,6 @@
 
                     <button title="Configuration"  type="button" class="btn btn-xs cat-btn-update" ng-click="configureAppPipelineView()" >
                         &nbsp;<i class="fa fa-cogs white"></i>&nbsp;</button>
-
-            </span>
-            <span class="pull-left">
-                <button type="button" class="btn btn-xs btn-link {{!isAppActiveCardTab.icon ?'app-tab-active':''}}"
-                        ng-click="applicationPipelineTab('activeCards')"  >
-                    Pipeline Summary
-                </button>
-                <button type="button" class="btn btn-xs btn-link  {{!isAppallCardTab.icon ?'app-tab-active':''}}"
-                        ng-click="applicationPipelineTab('allCards')" >
-                    Pipeline View
-                </button>
-                 <button type="button" class="btn btn-xs btn-link  {{!isHistoryTab.icon ?'app-tab-active':''}}" title="History" ng-click="applicationPipelineTab('history')" >
-                    History
-                </button>
             </span>
         </div>
 
@@ -51,17 +53,15 @@
             <div ng-if="pipeGridOptions.data.length > 0">
                 <div ui-grid="pipeGridOptions"  ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
             </div>
-            <div ng-if="!pipeGridOptions.data.length > 0">
-                <div class="no-data-found"> No data found !</div>
+            <div class="alert alert-info text-center" ng-if="!pipeGridOptions.data.length > 0">
+                No Application Deployments Available
             </div>
-
         </section>
 
         <section  class=" {{!isHistoryTab.template? 'hide-grid':'show-grid'}}"  ng-controller="applicationHistoryCtrl">
-            <div ng-if="!historGgridData.length > 0">
-                <div class="no-data-found"> No data found !</div>
+            <div class="alert alert-info text-center" ng-if="!historGgridData.length > 0">
+                No Application Deployments Available
             </div>
-
             <div ng-if="historyGridOptions.data.length > 0">
                 <div  ui-grid="historyGridOptions" ui-grid-pagination  ui-grid-resize-columns ui-grid-move-columns ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
             </div>
@@ -69,11 +69,10 @@
 
         <section  class="pipelineView {{!isAppActiveCardTab.template? 'hide-grid':'show-grid'}}">
             <div ng-if="summaryGridOptions.data.length > 0">
-
                 <div ui-grid="summaryGridOptions" ui-grid-auto-resize class="grid" style="height:{{gridHeightSummary}}px"></div>
             </div>
-            <div ng-if="!summaryGridOptions.data.length > 0">
-                <div class="no-data-found"> No data found !</div>
+            <div class="alert alert-info text-center" ng-if="!summaryGridOptions.data.length > 0">
+                No Application Deployments Available
             </div>
         </section>
 

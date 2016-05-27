@@ -22,12 +22,18 @@
 
 		<div class="modal-footer" ng-show="!isBPLogsLoading">
 			<div ng-show="!showCFTInputs && !showARMInputs">
-				<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
-				<button type="button" class="btn cat-btn-update" ng-click="launchBP()">Ok</button>
+				<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+					<i class="fa fa-times black"></i> Cancel
+				</button>
+				<button type="button" class="btn cat-btn-update" ng-click="launchBP()">
+					<i class="fa fa-check white"></i> Ok
+				</button>
 			</div>
 			<div>
 				<div ng-show="showCFTInputs || showARMInputs">
-					<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
+					<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+						Cancel
+					</button>
 					<input type="submit" class="btn cat-btn-update" ng-disabled="cftForm.stackInpt.$dirty && cftForm.stackInpt.$invalid" ng-click="launchBP()" value="Ok" />
 				</div>
 			</div>

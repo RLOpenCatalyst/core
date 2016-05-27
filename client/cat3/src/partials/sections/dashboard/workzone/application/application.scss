@@ -38,8 +38,7 @@
     }
 
     .fa-cogs {
-        margin-right: 5px;
-        font-size: 18px;
+        font-size: 15px;
     }
 
     .scrollContent {
@@ -127,19 +126,26 @@
     .margintop20 {
         margin-top: 20px;
     }
+
     .modal-header {
         position: relative;
     }
+
     .imp-note{
         position: absolute;
         right: 16px;
         bottom: 0;
     }
+
     .modal-header .close {
         position: absolute;
         z-index: 11;
         right: 9px;
         top: 7px;
+    }
+
+    .create-new-job-button {
+        margin: 24px 0 0 0;
     }
 }
 

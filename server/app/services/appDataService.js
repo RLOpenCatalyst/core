@@ -36,8 +36,8 @@ appDataService.getAppDataByProjectAndEnv = function getAppDataByProjectAndEnv(pr
             }
             if (appdata.nexus && appdata.nexus.repoURL) {
                 appDataObj['nexus'] = appdata.nexus;
-            } else if (appdata.docker && appdata.docker.length && appdata.docker[0].image) {
-                appDataObj['docker'] = appdata.docker[0];
+            } else if (appdata.docker) {
+                appDataObj['docker'] = appdata.docker;
             } else {
                 appDataObj['s3Bucket'] = appdata.s3Bucket;
             }

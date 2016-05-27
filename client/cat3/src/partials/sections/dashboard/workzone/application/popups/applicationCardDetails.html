@@ -8,7 +8,7 @@
 
 	<div class="modal-body">
 		<section>
-			<div class="no-data-found" ng-if="!cardDetails.gridOptions.data.length > 0"> No data found !</div>
+			<div class="alert alert-info text-center" ng-if="!cardDetails.gridOptions.data.length > 0"> No data found !</div>
 			<div id="grid2" ng-if="cardDetails.gridOptions.data.length > 0"  ui-grid="cardDetails.gridOptions" ui-grid-pagination ui-grid-auto-resize ui-grid-resize-columns ui-grid-move-columns  class="grid"></div>
 		</section>
 	</div>

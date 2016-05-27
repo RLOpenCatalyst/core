@@ -73,9 +73,6 @@
 				return true;
 			}
 		},
-		isBootstrapped = function(inst) {
-			return inst.bootStrapStatus === 'success';
-		},
 		isRunning = function(inst) {
 			return inst.instanceState === 'running';
 		};
@@ -216,7 +213,7 @@
 			var _viewLogs = function(resolve, reject) {
 				var modalInstance = $modal.open({
 					animation: true,
-					templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instancelog.html',
+					templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceLogs.html',
 					controller: 'instanceLogsCtrl',
 					backdrop: 'static',
 					keyboard: false,
@@ -271,7 +268,7 @@
 							return{
 								instanceId:instance._id,
 								chefrunlist:instance.runlist
-							} 
+							}; 
 						}
 					}
 				});

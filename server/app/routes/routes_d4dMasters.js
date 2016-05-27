@@ -3540,6 +3540,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     // List image tags w.r.t. docker repo and image
+    // For community image send repository= library
     app.get('/d4dMasters/docker/:dockerId/repository/:repository/image/:image/tags', function(req, res) {
         masterUtil.getDockerById(req.params.dockerId, function(err, docker) {
             if (err) {

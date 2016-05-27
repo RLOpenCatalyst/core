@@ -120,6 +120,7 @@ var BlueprintSchema = new Schema({
         trim: true
     },
     nexus: {
+        rowId: String,
         repoId: String,
         url: String,
         version: String,
@@ -128,6 +129,7 @@ var BlueprintSchema = new Schema({
         artifactId: String
     },
     docker: {
+        rowId: String,
         repoId: String,
         image: String,
         containerId: String,
@@ -1104,6 +1106,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                             "appName": artifactId,
                             "version": actualVersion,
                             "nexus": {
+                                "rowId": blueprint.nexus.rowId,
                                 "repoURL": url,
                                 "artifactId": artifactId,
                                 "nodeIds": nodeIds,
@@ -1224,6 +1227,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                 return;
             }
             var docker = {
+                "rowId": blueprint.nexus.rowId,
                 "image": blueprint.docker.image,
                 "containerName": blueprint.docker.containerId,
                 "containerPort": blueprint.docker.containerPort,

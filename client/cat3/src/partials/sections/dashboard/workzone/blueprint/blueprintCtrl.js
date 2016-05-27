@@ -70,8 +70,7 @@
 			/*Initialising First Accordian-group open on load*/
 			$scope.isFirstOpen = true;
 
-			var envParams ;
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams, data) {
+			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
 				$scope.isBlueprintPageLoading = true;
 				$scope.envParams=requestParams;
 				$scope.blueprintListCards();
@@ -115,7 +114,7 @@
 								cardVersions.name = val.name;
 							}
 						}
-					})
+					});
 				},
 				launchInstance: function(blueprintObj) {
 				    $modal.open({

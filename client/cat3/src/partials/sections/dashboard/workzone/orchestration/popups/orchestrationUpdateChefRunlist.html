@@ -3,7 +3,7 @@
         <span class="close" ng-click="cancel()">×</span>
         <h4 class="modal-title">
             <i class="fa fa-pencil-square-o"></i>
-            Edit RunList
+            Edit Runlist
         </h4>
     </div>
 
@@ -80,7 +80,7 @@
             <accordion-group heading="Cookbook Attributes">
                 <div class="smart-form margin15">
                     <label class="marginbottom4">
-                        <strong>Cookbook Attributes Edit :</strong>
+                        <strong>Cookbook Attributes Edit:</strong>
                         <label> 
                             <input class="cookbook-attributes-edit-check" type="checkbox" ng-model="isAttributesEditable">
                         </label>
@@ -92,7 +92,7 @@
                             <table class="table table-bordered dataTable">
                                 <thead>
                                     <tr>
-                                        <th>CookBook Name</th>
+                                        <th>Cookbook Name</th>
                                         <th>Attributes</th>
                                         <th>Values</th>
                                     </tr>
@@ -117,7 +117,11 @@
     </div>
 
     <div class="modal-footer">
-        <button type="button" class="btn cat-btn-close" ng-click="cancel()">Close</button>
-        <button type="button" class="btn cat-btn-update" ng-click="ok()">Update Runlist</button>
+        <button type="button" class="btn cat-btn-close" ng-click="cancel()">
+            <i class="fa fa-times black"></i> Cancel
+        </button>
+        <button type="button" class="btn cat-btn-update" ng-click="ok()">
+            <i class="fa fa-check white"></i> Update Runlist
+        </button>
     </div>
 </div>

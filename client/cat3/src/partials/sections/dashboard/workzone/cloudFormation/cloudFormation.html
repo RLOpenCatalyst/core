@@ -14,8 +14,11 @@
 			</span>
 		</div>
 		<div class="scrollContent">
+			<div class="alert alert-info text-center" ng-show="stacks.length===0">
+                No CFT Stacks Available
+            </div>
 			<div class="productdiv4" ng-repeat="stack in stacks">
-				<div class="productdiv1 cardimage" data-stackid="561755a879f6f3154823ed09" data-stackname="{{stack.stackName}}">
+				<div class="productdiv1 cardimage">
 					<ul class="list-unstyled system-prop">
 						<li>
 							<img src="images/global/cf-icon.png" alt="stack" class="stackLogo" />
