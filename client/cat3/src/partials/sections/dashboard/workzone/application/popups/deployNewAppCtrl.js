@@ -161,25 +161,6 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			}
 		};
 		depNewApp.submitAppDeploy = function (){
-			if(depNewApp.newEnt.serverType === 'nexus'){
-				var nexus={
-					"repoURL":depNewApp.artifactsVersion[depNewApp.newEnt.artifact][depNewApp.newEnt.version].resourceURI,
-					"version": depNewApp.newEnt.version,
-					"artifactId":depNewApp.newEnt.artifact,
-					"groupId": depNewApp.newEnt.groupId,
-					"repository":depNewApp.newEnt.repository,
-					"rowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
-				};
-			} else{
-				var docker={
-					"image": depNewApp.newEnt.repositoryIMG,
-					"containerName": depNewApp.newEnt.ContNameId,
-					"containerPort": depNewApp.newEnt.contPort,
-					"hostPort": depNewApp.newEnt.hostPort,
-					"imageTag": depNewApp.newEnt.tag,
-					"rowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
-				};
-			}
 			depNewApp.deploymentData ={
 				"sourceData": {
 				},
@@ -196,9 +177,23 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 
 			};
 			if(depNewApp.newEnt.serverType === 'nexus'){
-				depNewApp.deploymentData.sourceData.nexus=nexus;
+				depNewApp.deploymentData.sourceData.nexus={
+					"repoURL":depNewApp.artifactsVersion[depNewApp.newEnt.artifact][depNewApp.newEnt.version].resourceURI,
+					"version": depNewApp.newEnt.version,
+					"artifactId":depNewApp.newEnt.artifact,
+					"groupId": depNewApp.newEnt.groupId,
+					"repository":depNewApp.newEnt.repository,
+					"rowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
+				};
 			}else{
-				depNewApp.deploymentData.sourceData.docker=docker;
+				depNewApp.deploymentData.sourceData.docker={
+					"image": depNewApp.newEnt.repositoryIMG,
+					"containerName": depNewApp.newEnt.ContNameId,
+					"containerPort": depNewApp.newEnt.contPort,
+					"hostPort": depNewApp.newEnt.hostPort,
+					"imageTag": depNewApp.newEnt.tag,
+					"rowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
+				};
 			}
 			$scope.isLoadingNewApp=true;
 			workSvs.postAppDeploy(depNewApp.deploymentData).then(function(deployResult){

@@ -9,10 +9,8 @@
 	"use strict";
 	angular.module('workzone.application', ['ui.bootstrap', 'apis.workzone', 'workzonePermission', 'filter.currentTime'])
 		.service('appDeployResponseFormatter', [function(){
-			var pipeLineConfig = {
-			};
 		}])
-		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'workzoneUIUtils', 'appDeployResponseFormatter','uiGridOptionsService', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, workzoneUIUtils, appDeployResponseFormatter,uiGridOptiSer) {
+		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'workzoneUIUtils', 'uiGridOptionsService', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, workzoneUIUtils, uiGridOptiSer) {
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
 			var gridBottomSpace = 60;
@@ -34,26 +32,25 @@
 				applicationPipelineTab : function(param) {
 					switch (param){
 						case 'allCards' :
+							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:false,template:true};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:true,template:false};
 							$scope.pipeLineActBarShow=false;
-							angular.element('.card').removeClass('selected-card');
 						break;
 						case 'activeCards' :
+							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab =  {icon:false,template:true};
 							$scope.isHistoryTab = {icon:true,template:false};
 							$scope.pipeLineActBarShow=false;
-							angular.element('.card').removeClass('selected-card');
 						break;
 						case 'history' :
+							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:false,template:true};
 							$scope.pipeLineActBarShow=false;
-							angular.element('.card').removeClass('selected-card');
-							//$scope.$emit('RENDER-HISTORY');
 						break;
 					}
 				},
@@ -338,7 +335,7 @@
 				workzoneUIUtils.makeTabScrollable('applicationPage');
 			}
 		);
-	}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'applicationPermission', 'appDeployResponseFormatter', function ($scope, $rootScope, applicationPerms,appDeployResponseFormatter) {
+	}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'applicationPermission',  function ($scope, $rootScope) {
 		var pipeLineData={
 			selectedCardClass:''
 		};
