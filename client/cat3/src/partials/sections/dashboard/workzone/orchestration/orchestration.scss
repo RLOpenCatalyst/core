@@ -232,6 +232,7 @@ $imagePath : "../../../../../../images";
 		overflow-y: auto;
 		margin-top: 5px;
 		margin-bottom: 10px;
+		padding: 5px;
 	}
 
 	.jobParam {
@@ -308,7 +309,11 @@ $imagePath : "../../../../../../images";
 	}
 
 	.name-width {
-		width:100px;
+		width:200px;
+	}
+
+	.ip-width {
+		width: 100px;
 	}
 
 	.header-font {

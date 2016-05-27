@@ -254,7 +254,7 @@
                 var _viewLogs = function(resolve, reject) {
                     var modalInstance = $modal.open({
                         animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instancelog.html',
+                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceLogs.html',
                         controller: 'dockerInstanceLogsCtrl',
                         backdrop: 'static',
                         keyboard: false,

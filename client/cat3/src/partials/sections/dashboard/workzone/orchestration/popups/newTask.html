@@ -291,6 +291,9 @@
 										<span class="red">*</span>
 									</label>
 									<div class="select-nodes">
+										<div class="alert alert-info text-center" ng-show="puppetInstanceList.length==0">
+											No Nodes Available
+										</div>
 										<ul>
 											<li ng-repeat="instance in puppetInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 												<label class="checkbox check-list">
