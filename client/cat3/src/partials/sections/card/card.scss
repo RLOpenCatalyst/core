@@ -149,7 +149,7 @@ $imagePath : "/cat3/images";
 }
 
 @media (min-width: 768px) {
-	#instancePage {
+	#instancePage, #controlPanelPage {
 		#cardView {
 			.card {
 				position: relative;
@@ -315,8 +315,13 @@ $imagePath : "/cat3/images";
 	}
 
 	.docker-image-text {
-		text-align: left;
-		margin-left: 15px;
+		text-align: center;
+	    margin-left: 5px;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    max-width: 120px;
+	    height: 15px;
+	    white-space: nowrap;
 	}
 
 	.docker-image-name {
@@ -378,6 +383,7 @@ $imagePath : "/cat3/images";
         font-size: 11px;
         color: blue;
         text-decoration: underline;
+        vertical-align: top;
     }
 
 	.blueprint-buttons {
