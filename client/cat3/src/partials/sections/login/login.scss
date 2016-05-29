@@ -1,11 +1,11 @@
 @import '../../theme';
 
-#loginContainer {
+#loginPage {
 	margin-top: 20px;
 }
 
 @media screen and (max-width: 320px) and (min-width: 0px) {
-	#loginContainer {
+	#loginPage {
 		.well {
 			padding: 19px 0;
 		}
@@ -45,7 +45,7 @@
 
 /*styles added based on cat2.0*/
 
-#loginContainer {
+#loginPage {
 	.login-header-big {
 		font-weight: 400;
 	}

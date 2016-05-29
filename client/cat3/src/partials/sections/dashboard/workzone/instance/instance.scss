@@ -55,7 +55,7 @@ $imagePath : "../../../../../../images";
 		}
 	}
 
-	#cpInfo {
+	#cpInfoPage {
 		.header-margin {
 		    margin-top: -3px;
 		    margin-right: -10px;
@@ -264,6 +264,14 @@ $imagePath : "../../../../../../images";
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
+	#instancePage {
+		#tableView {
+			.instance-grid-wrapper {
+
+			}
+		}
+	}
+
 	#assignJobPage {
 		#container {
 			.left-right-selection {
@@ -451,6 +459,12 @@ $imagePath : "../../../../../../images";
 	}
 }
 
+#viewRunListPage {
+	.cookbook-list {
+		line-height: 1.8;
+	}
+}
+
 #cookbookAttributesPage {
 	.margin {
 		margin-left: 15px;
@@ -602,8 +616,7 @@ $imagePath : "../../../../../../images";
 	} 
 }
 
-#cpInfo {
-	/*padding: 20px 0px;*/
+#cpInfoPage {
 	line-height: 1.8;
 	font-size: 12px;
 

@@ -1,80 +1,82 @@
-<nav class="navbar-inverse container-fluid" id="header" role="navigation">
-	<!-- Brand and toggle get grouped for better mobile display -->
-	<div class="navbar-header">
-		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-			<span class="sr-only">Toggle navigation</span>
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-		</button>
-	</div>
-	<div id="header-logo"><img class="header-logo-image" src="images/global/logo.png" /></div>
-	<!-- Collect the nav links, forms, and other content for toggling -->
-	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-		<ul class="nav navbar-nav header-content">
-			<li>
-				<div id="workzone" class="headNavigItem" ng-if="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
-                    <!--<a href="../../../../#ajax/Dev.html">-->
-                    	<i class="fa fa-credit-card"></i> WORKZONE
-                    <!--</a>-->
-				</div>
-			</li>
-			<li>
-				<div id="design" class="headNavigItem" ng-if="designBool" ui-sref-active='activeSection'>
-					<a href="../../../../#ajax/Aws-Production.html">
-						<i class="fa fa-puzzle-piece white"></i> DESIGN
-					</a>
-				</div>
-			</li>
-			<li>
-				<div id="track" class="headNavigItem" ng-if="trackBool" ui-sref-active='activeSection'>
-					<a href="../../../../#ajax/trackSettings.html">
-						<i class="fa fa-anchor white"></i> TRACK
-					</a>
-				</div>
-			</li>
-			<li class="header-right">
-				<div id="header-menu">
-					<div id="userInfo" class="headNavigItem" title="{{appDetails.roleId}}">
-						<i class="fa fa-user white"></i> 
-						{{appDetails.cn | uppercase}}
-						[{{appDetails.roleId}}]
+<div id='headerDashboardPage'>
+	<nav class="navbar-inverse container-fluid" id="header" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+		</div>
+		<div id="header-logo"><img class="header-logo-image" src="images/global/logo.png" /></div>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav header-content">
+				<li>
+					<div id="workzone" class="headNavigItem" ng-if="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
+	                    <!--<a href="../../../../#ajax/Dev.html">-->
+	                    	<i class="fa fa-credit-card"></i> WORKZONE
+	                    <!--</a>-->
 					</div>
-					<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
-						<a href="../../../../#ajax/Settings/Dashboard.html">
-                        	<i class="fa fa-cog white"></i> SETTINGS
-                        </a>
-					</div>
-					<div id="help" class="headNavigItem" ng-click="locate('help')">
-						<a href="http://help.relevancelab.com/dokuwiki" target="_blank">
-							<i class="fa fa-question white"></i> HELP
+				</li>
+				<li>
+					<div id="design" class="headNavigItem" ng-if="designBool" ui-sref-active='activeSection'>
+						<a href="../../../../#ajax/Aws-Production.html">
+							<i class="fa fa-puzzle-piece white"></i> DESIGN
 						</a>
 					</div>
-					<div id="logout" ng-click="logoutConfirmation();" class="headNavigItem" title="Logout">
-						<i class="fa fa-sign-out white"></i>
+				</li>
+				<li>
+					<div id="track" class="headNavigItem" ng-if="trackBool" ui-sref-active='activeSection'>
+						<a href="../../../../#ajax/trackSettings.html">
+							<i class="fa fa-anchor white"></i> TRACK
+						</a>
 					</div>
-				</div>
-			</li>
-		</ul>
-	</div>
-	<!-- /.navbar-collapse -->
-	<!--Logout wrapper starts here-->
-	<div class="divMessageBox animated fadeIn fast" ng-show="showLogoutConfirmationSection">
-		<div class="MessageBoxContainer animated fadeIn fast" id="Msg1">
-			<div class="MessageBoxMiddle">
-				<span class="MsgTitle">
-					<i class="fa fa-sign-out"></i> 
-					Logout 
-					<span class="txt-color-orangeDark"></span> 
-					?
-				</span>
-				<p class="pText"></p>
-				<div class="MessageBoxButtonSection">
-					<button type="button" class="btn cat-btn-close btn-sm botTempo" ng-click="closeLogoutPanel()"> No</button>
-					<button type="button" class="btn cat-btn-close btn-sm botTempo" ng-click="doLogout()"> Yes</button>
+				</li>
+				<li class="header-right">
+					<div id="header-menu">
+						<div id="userInfo" class="headNavigItem" title="{{appDetails.roleId}}">
+							<i class="fa fa-user white"></i> 
+							{{appDetails.cn | uppercase}}
+							[{{appDetails.roleId}}]
+						</div>
+						<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
+							<a href="../../../../#ajax/Settings/Dashboard.html">
+	                        	<i class="fa fa-cog white"></i> SETTINGS
+	                        </a>
+						</div>
+						<div id="help" class="headNavigItem" ng-click="locate('help')">
+							<a href="http://help.relevancelab.com/dokuwiki" target="_blank">
+								<i class="fa fa-question white"></i> HELP
+							</a>
+						</div>
+						<div id="logout" ng-click="logoutConfirmation();" class="headNavigItem" title="Logout">
+							<i class="fa fa-sign-out white"></i>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<!-- /.navbar-collapse -->
+		<!--Logout wrapper starts here-->
+		<div class="divMessageBox animated fadeIn fast" ng-show="showLogoutConfirmationSection">
+			<div class="MessageBoxContainer animated fadeIn fast" id="Msg1">
+				<div class="MessageBoxMiddle">
+					<span class="MsgTitle">
+						<i class="fa fa-sign-out"></i> 
+						Logout 
+						<span class="txt-color-orangeDark"></span> 
+						?
+					</span>
+					<p class="pText"></p>
+					<div class="MessageBoxButtonSection">
+						<button type="button" class="btn cat-btn-close btn-sm botTempo" ng-click="closeLogoutPanel()"> No</button>
+						<button type="button" class="btn cat-btn-close btn-sm botTempo" ng-click="doLogout()"> Yes</button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<!--Logout wrapper ends-->
-</nav>
+		<!--Logout wrapper ends-->
+	</nav>
+</div>

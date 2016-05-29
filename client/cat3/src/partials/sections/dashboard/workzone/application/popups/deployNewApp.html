@@ -1,14 +1,16 @@
 <div id='deployNewAppPage' >
-	<div class="save-loading" ng-show="isLoadingNewApp" ><loading size="large" name="isLoadingNewApp" type="inline"></loading></div>
+	<div class="save-loading" ng-show="isLoadingNewApp">
+		<loading size="large" name="isLoadingNewApp" type="inline"></loading>
+	</div>
 	<form name="DeploymentForm" novalidate>
 		<div class="modal-header">
 			<div class="imp-note red" ng-show="DeploymentForm.$invalid"><span class="red">*</span> are mandatory fields</div>
 			<span class="close" ng-click="cancel()">×</span>
-			<h4 class="modal-title" >
-				<i class="fa fa-plus"></i></i>&nbsp;
-				New App Deployment
+			<h4 class="modal-title">
+				<i class="fa fa-plus"></i> New App Deployment
 			</h4>
 		</div>
+
 		<div class="modal-body">
 			<div>
 				<fieldset class="repo-job-details-wrapper">
@@ -149,6 +151,7 @@
 				</fieldset>
 			</div>
 		</div>
+
 		<div class="modal-footer">
 			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
 				<i class="fa fa-times black"></i> Cancel
@@ -157,6 +160,5 @@
 				<i class="fa fa-location-arrow white"></i> Deploy
 				</button>
 		</div>
-		</div>
 	</form>
-	</div>
+</div>
