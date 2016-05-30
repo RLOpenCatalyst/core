@@ -1756,7 +1756,7 @@ var saveblueprint = function(tempType) {
 
 
                             var docker = {
-                                "rowId": rowId,
+                                rowId: rowId,
                                 repoId: nexusRepoId,
                                 image: dockerImage,
                                 containerId: containerId,
