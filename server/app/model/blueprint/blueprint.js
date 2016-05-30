@@ -1227,7 +1227,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                 return;
             }
             var docker = {
-                "rowId": blueprint.nexus.rowId,
+                "rowId": blueprint.docker.rowId,
                 "image": blueprint.docker.image,
                 "containerName": blueprint.docker.containerId,
                 "containerPort": blueprint.docker.containerPort,
