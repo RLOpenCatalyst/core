@@ -244,7 +244,7 @@
 							});
 						}
 					});
-					$scope.pipeGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>";
+					$scope.pipeGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row,1)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>";
 					//Api response is in array but it is only one object.
 					$scope.pipeGridOptions.columnDefs=createColUIGrid(configResult.data[0],'pipeline');
 					getApplicationCardService(envParams, $scope.pagiOptionsCard);
@@ -265,6 +265,7 @@
 					$scope.summaryGridOptions = angular.extend({enableColumnMenus: false}, {enableSorting: false},
 					//Api response is in array but it is only one object.
 						{columnDefs:createColUIGrid(config,'summary')});
+					$scope.summaryGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row,2)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>";
 				//});
 				getSummaryCardService(envParams, $scope.pagiOptionsSummary);
 			}
@@ -275,12 +276,12 @@
 					$scope.summaryGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 				});
 			}
-			$scope.selectRow = function (row) {
+			$scope.selectRow = function (row,flg) {
 				$scope.selectedGridRow=[];
 				$scope.selectedGridRow=row;
 				$scope.rowIndex = -1;
 				var hash = row.entity.$$hashKey;
-				var data = $scope.pipeGridOptions.data;     // original rows of data
+				var data =(flg==1)?$scope.pipeGridOptions.data:$scope.summaryGridOptions.data;     // original rows of data
 				for (var ndx = 0; ndx < data.length; ndx++) {
 					if (data[ndx].$$hashKey === hash) {
 						$scope.rowIndex = ndx;
