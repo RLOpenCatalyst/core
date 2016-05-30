@@ -142,6 +142,7 @@ angular.module('workzone.application')
 
 			};
 			if(upgrdApp.newEnt.serverType === 'nexus'){
+				upgrdApp.deploymentData.appData.appName=upgrdApp.newEnt.artifact;
 				upgrdApp.deploymentData.sourceData.nexus={
 					"repoURL":upgrdApp.artifactsVersion[upgrdApp.newEnt.artifact][upgrdApp.newEnt.version].resourceURI,
 					"version": upgrdApp.newEnt.version,
