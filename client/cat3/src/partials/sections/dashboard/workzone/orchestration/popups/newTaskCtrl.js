@@ -314,6 +314,7 @@
                             $scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(data), []);
                             $scope.isNewTaskPageLoading = false;
                             $scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), []);
+                            $scope.targetType="instance";
                         }
                     }
                     /*Identifying the Puppet nodes and adding a flag for identifying the selection in the angular checkbox selection*/
