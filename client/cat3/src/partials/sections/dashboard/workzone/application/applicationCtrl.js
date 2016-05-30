@@ -265,6 +265,7 @@
 					$scope.summaryGridOptions = angular.extend({enableColumnMenus: false}, {enableSorting: false},
 					//Api response is in array but it is only one object.
 						{columnDefs:createColUIGrid(config,'summary')});
+				$scope.pipeGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>";
 				//});
 				getSummaryCardService(envParams, $scope.pagiOptionsSummary);
 			}
