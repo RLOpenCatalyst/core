@@ -163,13 +163,13 @@
 					}
 				});
 				modalInstance.result.then(function() {
-						app.Status=$scope.dockerPopUpPages[action].action+" IN PROGRESS";
-						workzoneServices.checkDockerActions(app.instanceId, app.Id, action)
-							.then(function(response) {
-								if (response.data.ok) {
-									$scope.getContainerList();
-								}
-							});
+					app.Status=$scope.dockerPopUpPages[action].action+" IN PROGRESS";
+					workzoneServices.checkDockerActions(app.instanceId, app.Id, action)
+						.then(function(response) {
+							if (response.data.ok) {
+								$scope.getContainerList();
+							}
+						});
 					},
 					function() {
 						$scope.tabData[itemIdx].isActive = true;
@@ -180,7 +180,7 @@
 			$scope.dockerMoreInfo = function(app){
 				 var modalInstance = $modal.open({
 					animation:true,
-					templateUrl:'src/partials/sections/dashboard/workzone/container/popups/dockermoreinfo.html',
+					templateUrl:'src/partials/sections/dashboard/workzone/container/popups/dockerMoreInfo.html',
 					controller:'dockerMoreInfoCtrl',
 					backdrop : 'static',
 					keyboard: false,

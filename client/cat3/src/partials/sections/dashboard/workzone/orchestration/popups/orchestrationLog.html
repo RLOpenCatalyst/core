@@ -1,4 +1,4 @@
-<div id="orchestrationLogPage">
+<div id='orchestrationLogPage'>
     <div class="modal-header">
         <span class="close" ng-click="orchLogCtrl.cancelAll(orchLogCtrl.taskLogType)">×</span>
         <h4 class="modal-title">
@@ -6,7 +6,8 @@
             Execute Logs
         </h4>
     </div>
-    <div class="modal-body" >
+
+    <div class="modal-body">
         <fieldset>
             <div ng-switch="orchLogCtrl.taskLogType">
                 <div ng-switch-when="jenkins">
@@ -22,6 +23,7 @@
             </div>
         </fieldset>
     </div>
+    
     <div class="modal-footer">
         <button type="button" class="btn cat-btn-cancel" ng-click="orchLogCtrl.cancelAll(orchLogCtrl.taskLogType)">
             <i class="fa fa-times black"></i> Close

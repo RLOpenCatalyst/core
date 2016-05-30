@@ -3,10 +3,8 @@
 		<div class="modal-header">
 			<div class="imp-note red" ng-show="upgradeForm.$invalid"><span class="red">*</span> are mandatory fields</div>
 			<span class="close" ng-click="cancel()">×</span>
-
 			<h4 class="modal-title" >
-				<i class="fa fa-edit"></i></i>&nbsp;
-				Upgrade Application
+				<i class="fa fa-edit"></i> Upgrade Application
 			</h4>
 		</div>
 
@@ -15,7 +13,8 @@
 				<fieldset class="repo-job-details-wrapper">
 					<legend class="repo-job-details-wrapper-inner">Repository Details:</legend>
 					<div class="col-lg-6 col-md-6">
-						<label for="">Repository Server:<span class="red">*</span>
+						<label for="">Repository Server:
+							<span class="red">*</span>
 						</label>
 						<div class="input-groups">
 							<loading size="small" name="isLoadingServer" type="inline"></loading>
@@ -127,16 +126,15 @@
 					</div>
 				</fieldset>
 			</div>
+		</div>
 
 		<div class="modal-footer">
 			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
 				<i class="fa fa-times black"></i> Cancel
 			</button>
-
 			<button type="button" class="btn cat-btn-update " ng-disabled="upgradeForm.$invalid"  ng-click="upGrdApp.submitAppUpgrade()">
 				<i class="fa fa-save white"></i> Upgrade
 			</button>
 		</div>
-			</div>
 	</form>
 </div>
