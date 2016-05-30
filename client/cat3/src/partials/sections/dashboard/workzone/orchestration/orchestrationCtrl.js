@@ -14,6 +14,7 @@
 			};
 		}])
 		.controller('orchestrationCtrl', ['$scope', '$rootScope', '$modal', 'workzoneServices', 'confirmbox', 'arrayUtil', 'orchestrationPermission', 'workzoneUIUtils', 'paginationUtil', '$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, workzoneServices, confirmbox, arrayUtil, orchestrationPerms, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
+			$scope.isNewClickEnabled = true;
 			var _permSet = {
 				createTask: orchestrationPerms.createTask(),
 				editTask: orchestrationPerms.editTask(),
@@ -254,6 +255,7 @@
 					});
 				},
 				createNewTask: function(type) {
+					$scope.isNewClickEnabled = false;
 					$modal.open({
 						animation: true,
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/newTask.html',
@@ -267,7 +269,7 @@
 							}
 						}
 					}).result.then(function(taskData) {
-						console.log(taskData);
+						$scope.isNewClickEnabled = true;
 						if (type === 'new') {
 							$rootScope.globalSuccessMessage = 'New Job ' + taskData.name + ' created successfully';
 							helper.setPaginationDefaults();
@@ -283,7 +285,9 @@
 								top: '-70px'
 							}, 500);
 						}, 5000);
-					}, function() {});
+					}, function() {
+						$scope.isNewClickEnabled = true;
+					});
 				}
 			});
 			/*method being called to set the first page view*/

@@ -35,14 +35,14 @@
 					</a>
 				</span>
 			</li>
-			<li ng-click="operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
+			<li ng-click="isStartStopClickEnabled && operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
 			&& inst.instanceState === 'stopped' && inst.providerId">
 				<span>
 					<i class="fa fa-play dropdown-icon"></i>
 					Start Instance
 				</span>
 			</li>
-			<li ng-click="operationSet.changeInstanceStatus(inst)" ng-show="perms.stop && inst.instanceState === 'running' && inst.providerId">
+			<li ng-click="isStartStopClickEnabled && operationSet.changeInstanceStatus(inst)" ng-show="perms.stop && inst.instanceState === 'running' && inst.providerId">
 				<span>
 					<i class="fa fa-stop dropdown-icon"></i>
 					Stop Instance
