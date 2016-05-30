@@ -980,7 +980,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         });
         var url = blueprint.nexus.url;
         var repoName = blueprint.nexus.repoName;
-        var groupId = blueprint.nexus.groupId;
+        var groupId = blueprint.nexus.groupId.replace(/\./g,'/');
         var artifactId = blueprint.nexus.artifactId;
         var version = blueprint.nexus.version;
         objectArray.push({
@@ -1111,7 +1111,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                                 "artifactId": artifactId,
                                 "nodeIds": nodeIds,
                                 "repository": repoName,
-                                "groupId": groupId,
+                                "groupId": blueprint.nexus.groupId,
                                 "taskId": ""
                             }
                         };
