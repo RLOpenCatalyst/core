@@ -32,25 +32,22 @@
 				applicationPipelineTab : function(param) {
 					switch (param){
 						case 'allCards' :
-							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:false,template:true};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:true,template:false};
-							$scope.pipeLineActBarShow=false;
+							removeSelect();
 						break;
 						case 'activeCards' :
-							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab =  {icon:false,template:true};
 							$scope.isHistoryTab = {icon:true,template:false};
-							$scope.pipeLineActBarShow=false;
+							removeSelect();
 						break;
 						case 'history' :
-							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:false,template:true};
-							$scope.pipeLineActBarShow=false;
+							removeSelect();
 						break;
 					}
 				},
@@ -258,9 +255,7 @@
 				workzoneServices.getPipelineView(envParams,pagiOptionsCard).then(function(cardResult){
 					$scope.pipeGridOptions.data= cardResult.data.appDeploy;
 					$scope.isApplicationPageLoading=false;
-					$scope.pipeLineActBarShow=false;
-					$rootScope.selectedCardClass='';
-					angular.element('.card').removeClass('selected-card');
+					removeSelect();
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 
 				});
@@ -276,8 +271,8 @@
 			function getSummaryCardService(envParams){
 				workzoneServices.getSummaryCard(envParams).then(function(cardResult){
 					$scope.summaryGridOptions.data= cardResult.data.pipeLineView;
+					removeSelect();
 					$scope.summaryGridOptions.totalItems = cardResult.data.metaData.totalRecords;
-
 				});
 			}
 			$scope.selectRow = function (row) {
@@ -318,6 +313,11 @@
 					$scope.currentTargetId='';
 				}
 			});
+			function removeSelect(){
+				$rootScope.selectedCardClass='';
+				$scope.currentTargetId='';
+				angular.element('.card').removeClass('selected-card');
+			};
 			$rootScope.$on('VIEW-APP-LOGS',function($event,los){
 				$scope.appInfo(los);
 				$event.stopPropagation();
