@@ -55,7 +55,7 @@ $imagePath : "../../../../../../images";
 		}
 	}
 
-	#cpInfo {
+	#cpInfoPage {
 		.header-margin {
 		    margin-top: -3px;
 		    margin-right: -10px;
@@ -264,6 +264,14 @@ $imagePath : "../../../../../../images";
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
+	#instancePage {
+		#tableView {
+			.instance-grid-wrapper {
+
+			}
+		}
+	}
+
 	#assignJobPage {
 		#container {
 			.left-right-selection {
@@ -283,7 +291,7 @@ $imagePath : "../../../../../../images";
 
 @media (min-width: 768px) {
 	.dropdown-menu {
-		left: -131px;
+		left: -113px;
 	}
 
 	.edit-instance-bs {
@@ -311,6 +319,7 @@ $imagePath : "../../../../../../images";
 			border-width: 1px;
 			@include theme-border-color;
 			margin-bottom: 20px;
+			min-width: 140px;
 		}
 
 		.dropdown-icon {
@@ -319,7 +328,7 @@ $imagePath : "../../../../../../images";
 
 		.dropdown-menu > li > span {
 			display: inline-block;
-			padding: 3px 5px;
+			padding: 3px 0px;
 			clear: both;
 			font-weight: 400;
 			line-height: 1.42857143;
@@ -447,6 +456,12 @@ $imagePath : "../../../../../../images";
 #deleteInstancePage {
 	.font-normal {
 		font-weight: normal;
+	}
+}
+
+#viewRunListPage {
+	.cookbook-list {
+		line-height: 1.8;
 	}
 }
 
@@ -601,8 +616,7 @@ $imagePath : "../../../../../../images";
 	} 
 }
 
-#cpInfo {
-	/*padding: 20px 0px;*/
+#cpInfoPage {
 	line-height: 1.8;
 	font-size: 12px;
 

@@ -21,8 +21,8 @@ angular.module('workzone.application')
 			},
 			init :function(){
 				var version =(items.appName.version)?items.appName.version:items.version;
-				wzService.getAppUpgrade(items,version).then(function (FrzData){
-					var FrzData=FrzData.data;
+				wzService.getAppUpgrade(items,version).then(function (FrzResult){
+					var FrzData=FrzResult.data;
 					if(FrzData && FrzData.nexus && FrzData.nexus.rowId){
 						upgrdApp.newEnt.serverType='nexus';
 						upgrdApp.newEnt.artifact =FrzData.nexus.artifactId;
@@ -125,26 +125,7 @@ angular.module('workzone.application')
 			$rootScope.$emit("CREATE_NEW_JOB");
 			$rootScope.createChefJob=true;
 		};
-		upgrdApp.submitAppUpgrade = function (DeploymentForm){
-			if(upgrdApp.newEnt.serverType === 'nexus'){
-				var nexus={
-					"repoURL":upgrdApp.artifactsVersion[upgrdApp.newEnt.artifact][upgrdApp.newEnt.version].resourceURI,
-					"version": upgrdApp.newEnt.version,
-					"artifactId":upgrdApp.newEnt.artifact,
-					"groupId": upgrdApp.newEnt.groupId,
-					"repository":upgrdApp.newEnt.repository,
-					"rowId":upgrdApp.rowid
-				};
-			} else{
-				var docker={
-					"image": upgrdApp.newEnt.repository,
-					"containerName": upgrdApp.newEnt.ContNameId,
-					"containerPort": upgrdApp.newEnt.contPort,
-					"hostPort": upgrdApp.newEnt.hostPort,
-					"imageTag": upgrdApp.newEnt.tag,
-					"rowId":upgrdApp.rowid
-				};
-			}
+		upgrdApp.submitAppUpgrade = function (){
 			upgrdApp.deploymentData ={
 				"sourceData": {
 				},
@@ -161,9 +142,23 @@ angular.module('workzone.application')
 
 			};
 			if(upgrdApp.newEnt.serverType === 'nexus'){
-				upgrdApp.deploymentData.sourceData.nexus=nexus;
+				upgrdApp.deploymentData.sourceData.nexus={
+					"repoURL":upgrdApp.artifactsVersion[upgrdApp.newEnt.artifact][upgrdApp.newEnt.version].resourceURI,
+					"version": upgrdApp.newEnt.version,
+					"artifactId":upgrdApp.newEnt.artifact,
+					"groupId": upgrdApp.newEnt.groupId,
+					"repository":upgrdApp.newEnt.repository,
+					"rowId":upgrdApp.rowid
+				};
 			}else{
-				upgrdApp.deploymentData.sourceData.docker=docker;
+				upgrdApp.deploymentData.sourceData.docker={
+					"image": upgrdApp.newEnt.repository,
+					"containerName": upgrdApp.newEnt.ContNameId,
+					"containerPort": upgrdApp.newEnt.contPort,
+					"hostPort": upgrdApp.newEnt.hostPort,
+					"imageTag": upgrdApp.newEnt.tag,
+					"rowId":upgrdApp.rowid
+				};
 			}
 			$scope.isLoadingNewApp=true;
 			wzService.putAppDeploy(upgrdApp.deploymentData).then(function(deployResult){

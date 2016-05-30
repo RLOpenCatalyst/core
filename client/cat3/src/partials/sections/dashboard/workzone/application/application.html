@@ -1,4 +1,5 @@
 <link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/application/application.css">
+
 <div id='applicationPage' ng-controller="applicationCtrl">
     <loading size="large" name="isApplicationPageLoading" type="block"></loading>
     <div ng-show="!isApplicationPageLoading">
@@ -7,15 +8,13 @@
                 <span class="panel-title">
                     <span>Application</span>
                 </span>
-                <button type="button" class="btn btn-xs btn-link {{!isAppActiveCardTab.icon ?'app-tab-active':''}}"
-                        ng-click="applicationPipelineTab('activeCards')"  >
+                <button type="button" class="btn btn-xs btn-link {{!isAppActiveCardTab.icon ?'app-tab-active':''}}" ng-click="applicationPipelineTab('activeCards')">
                     Pipeline Summary
                 </button>
-                <button type="button" class="btn btn-xs btn-link  {{!isAppallCardTab.icon ?'app-tab-active':''}}"
-                        ng-click="applicationPipelineTab('allCards')" >
+                <button type="button" class="btn btn-xs btn-link  {{!isAppallCardTab.icon ?'app-tab-active':''}}" ng-click="applicationPipelineTab('allCards')">
                     Pipeline View
                 </button>
-                 <button type="button" class="btn btn-xs btn-link  {{!isHistoryTab.icon ?'app-tab-active':''}}" title="History" ng-click="applicationPipelineTab('history')" >
+                <button type="button" class="btn btn-xs btn-link  {{!isHistoryTab.icon ?'app-tab-active':''}}" title="History" ng-click="applicationPipelineTab('history')">
                     History
                 </button>
             </span>
@@ -23,29 +22,32 @@
                 <!--<span class="app-panel-heading-text">Application : </span>-->
                 <!--<span ng-show="isPipelineViewActive">{{orgName}}</span>-->
                 <!--<span ng-show="!isPipelineViewActive">{{selectedEnv}}</span>-->
-                 <span ng-show="pipeLineActBarShow">
+                <span ng-show="pipeLineActBarShow">
                     <button type="button" class="btn btn-xs cat-btn-update" ng-click="appCardDetail(pipeLineActBarData)">
-                        <i class="fa fa-tasks white"></i> Info </button>
+                        <i class="fa fa-tasks white"></i> Info 
+                    </button>
                     <button type="button" class="btn btn-xs cat-btn-update" ng-click="promoteApp(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
-                        <i class="fa fa-clone white"></i> Promote</button>
-                     <button type="button" class="btn btn-xs cat-btn-update" ng-click="appApprove(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
-                         <i class="fa fa-times white"></i> Revoke</button>
+                        <i class="fa fa-clone white"></i> Promote
+                    </button>
+                    <button type="button" class="btn btn-xs cat-btn-update" ng-click="appApprove(pipeLineActBarData)" ng-if="pipeLineActBarData.isApproved && !isLastEnv">
+                         <i class="fa fa-times white"></i> Revoke
+                    </button>
                     <button type="button" class="btn btn-xs cat-btn-update" ng-click="appApprove(pipeLineActBarData)" ng-if="!pipeLineActBarData.isApproved && !isLastEnv">
-                        <i class="fa fa-eye white"></i> Approve</button>
+                        <i class="fa fa-eye white"></i> Approve
+                    </button>
                     <button type="button" class="btn btn-xs cat-btn-update" ng-click="upgradeApp(pipeLineActBarData)">
-                        <i class="fa fa-edit white"></i> Upgrade</button>
-                 </span>
+                        <i class="fa fa-edit white"></i> Upgrade
+                    </button>
+                </span>
+                <span>
                     <button title="Deploy new app"  type="button" class="btn btn-xs cat-btn-update" ng-click="deployNewApp()" >
-                      <i class="fa fa-plus white"></i> New</button>
-                     <button title="Refresh" ng-show="isAppActiveCardTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appSummaryRefresh">
-                         &nbsp;<i class="fa fa-refresh white"></i>&nbsp;</button>
-                    <button title="Refresh" ng-show="isHistoryTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appHistoryRefresh()" >
-                        &nbsp;<i class="fa fa-refresh white"></i>&nbsp;</button>
-                     <button title="Refresh" ng-show="isAppallCardTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appCardRefresh()" >
-                         &nbsp; <i class="fa fa-refresh white"></i>&nbsp;</button>
-
-                    <button title="Configuration"  type="button" class="btn btn-xs cat-btn-update" ng-click="configureAppPipelineView()" >
-                        &nbsp;<i class="fa fa-cogs white"></i>&nbsp;</button>
+                        <i class="fa fa-plus white"></i> New
+                    </button>
+                    <button title="Refresh" ng-show="isAppActiveCardTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appSummaryRefresh()">&nbsp;<i class="fa fa-refresh white"></i>&nbsp;</button>
+                    <button title="Refresh" ng-show="isHistoryTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appHistoryRefresh()" >&nbsp;<i class="fa fa-refresh white"></i>&nbsp;</button>
+                    <button title="Refresh" ng-show="isAppallCardTab.template" type="button" class="btn btn-xs cat-btn-update" ng-click="appCardRefresh()" >&nbsp;<i class="fa fa-refresh white"></i>&nbsp;</button>
+                    <button title="Configuration"  type="button" class="btn btn-xs cat-btn-update" ng-click="configureAppPipelineView()" >&nbsp;<i class="fa fa-cogs white"></i>&nbsp;</button>
+                </span>
             </span>
         </div>
 
@@ -58,7 +60,7 @@
             </div>
         </section>
 
-        <section  class=" {{!isHistoryTab.template? 'hide-grid':'show-grid'}}"  ng-controller="applicationHistoryCtrl">
+        <section  class="{{!isHistoryTab.template? 'hide-grid':'show-grid'}}"  ng-controller="applicationHistoryCtrl">
             <div class="alert alert-info text-center" ng-if="!historGgridData.length > 0">
                 No Application Deployments Available
             </div>
@@ -75,6 +77,5 @@
                 No Application Deployments Available
             </div>
         </section>
-
     </div>
 </div>

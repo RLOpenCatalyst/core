@@ -27,7 +27,7 @@
 					{ name:'Timestamp', field: 'timeStarted', 
 					  cellTemplate:'<span title="{{row.entity.timeStarted  | timestampToLocaleTime}}">{{row.entity.timeStarted  | timestampToLocaleTime}}</span>'},
 					{ name:'Users',field:'user',cellTooltip: true},
-					{ name:'More Info',
+					{ name:'More Info',width: 120,
 					  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.moreInfo(row.entity)"></i></div>'}
 				];
 			};

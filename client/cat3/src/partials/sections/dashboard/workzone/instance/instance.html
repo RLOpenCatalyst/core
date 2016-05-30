@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
 <link rel="stylesheet" type="text/css" href="catalyst/partials/sections/card/card.css">
 
-<div class="instancePage" id="instancePage" ng-controller="instanceCtrl">
+<div class="instancePage" id='instancePage' ng-controller="instanceCtrl">
 	<loading size="large" name="isInstancePageLoading" type="block"></loading>
 	<div ng-show="!isInstancePageLoading">
 		<div class="panel-heading">
@@ -170,8 +170,10 @@
 			</div>
 		</section>
 		<section id="tableView" ng-show="!isCardViewActive">
-			<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>-->
-			<div id="grid2" ng-if="tabData.length >0"  ui-grid="instancesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid instance-status" style="height: {{gridHeight}}px"></div>
+			<div class="instance-grid-wrapper">
+				<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>-->
+				<div id="grid2" ng-if="tabData.length >0" ui-grid="instancesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid instance-status" style="height: {{gridHeight}}px"></div>
+			</div>
 		</section>
 	</div>
 </div>

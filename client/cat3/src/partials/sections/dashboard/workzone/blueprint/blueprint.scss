@@ -40,7 +40,7 @@
 
 /*All Popups CSS starts here*/
 
-#blueprintMoreInfoPage {
+#blueprintInfoPage {
 	.modal-body {
 		height: 360px;
 		overflow-y: auto;
@@ -62,7 +62,7 @@
 	}
 }
 
-#launchBlueprintPage {
+#blueprintLaunchParamsPage {
 	.CFTInputs-block {
 		height: 75px;
 	}
@@ -84,7 +84,7 @@
 	}
 }
 
-#blueprintInstanceLogsPage {
+#blueprintLaunchPage {
 	.alert-success, .alert-danger {
 		font-size: 16px;
 	}

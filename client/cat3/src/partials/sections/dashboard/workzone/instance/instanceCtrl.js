@@ -113,22 +113,22 @@
 			$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption,{
 			data:'tabData',
 				columnDefs : [
-					{ name:'Logo', enableSorting: false ,  cellTemplate:'<img class="instanceRoleLogo" src="{{grid.appScope.getRoleLogo(row.entity)}}" />'+
+					{ name:'Logo',width: 100, enableSorting: false ,  cellTemplate:'<img class="instanceRoleLogo" src="{{grid.appScope.getRoleLogo(row.entity)}}" />'+
 					'<img class="instanceRoleLogoDocker" src="images/global/docker.png" ng-show="row.entity.docker && row.entity.docker.dockerEngineStatus === \'success\'" ng-click="grid.appScope.openContainersTab()">', cellTooltip: true},
 					{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
 					'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
-					'<i title="Edit Instance Name" class="fa fa-pencil edit-instance-name cursor"></i>'+
+					'<i title="Edit Instance Name" class="pull-right fa fa-pencil edit-instance-name cursor"></i>'+
 					'</span>', cellTooltip: true},
 					{ name:'Ip Address', displayName:'IP Address', field:'instanceIP',cellTooltip: true},
 					{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
-					{ name:'Status', enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
-					{ name:'Log Info', enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
-					{ name:'Chef Run', enableSorting: false ,  cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'+
+					{ name:'Status', width: 90,enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
+					{ name:'Log Info', width: 90,enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
+					{ name:'Chef Run', width: 100,enableSorting: false ,  cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'+
 					'<div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>'+
 					'<div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>'+
 					'<div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled">'+
 					'</div>', cellTooltip: true},
-					{ name:'Action', enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}	
+					{ name:'Action',width: 140, enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}
 				],
 			});
 		};

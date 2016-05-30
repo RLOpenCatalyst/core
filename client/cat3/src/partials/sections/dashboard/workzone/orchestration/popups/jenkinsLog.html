@@ -1,4 +1,4 @@
-<div id="jenkinLogs" ng-controller="jenkinsLogCtrl">
+<div id="jenkinLogPage" ng-controller="jenkinsLogCtrl">
 	<loading size="large" name="isJenkinsLogLoading" type="block" align="center"></loading>
 	<div ng-show="!isJenkinsLogLoading">
 		<p ng-bind-html="logs.output"></p>

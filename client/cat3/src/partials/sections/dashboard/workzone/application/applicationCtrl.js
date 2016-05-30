@@ -9,10 +9,8 @@
 	"use strict";
 	angular.module('workzone.application', ['ui.bootstrap', 'apis.workzone', 'workzonePermission', 'filter.currentTime'])
 		.service('appDeployResponseFormatter', [function(){
-			var pipeLineConfig = {
-			};
 		}])
-		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'workzoneUIUtils', 'appDeployResponseFormatter','uiGridOptionsService', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, workzoneUIUtils, appDeployResponseFormatter,uiGridOptiSer) {
+		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'workzoneUIUtils', 'uiGridOptionsService', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, workzoneUIUtils, uiGridOptiSer) {
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
 			var gridBottomSpace = 60;
@@ -37,23 +35,19 @@
 							$scope.isAppallCardTab = {icon:false,template:true};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:true,template:false};
-							$scope.pipeLineActBarShow=false;
-							angular.element('.card').removeClass('selected-card');
+							removeSelect();
 						break;
 						case 'activeCards' :
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab =  {icon:false,template:true};
 							$scope.isHistoryTab = {icon:true,template:false};
-							$scope.pipeLineActBarShow=false;
-							angular.element('.card').removeClass('selected-card');
+							removeSelect();
 						break;
 						case 'history' :
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:false,template:true};
-							$scope.pipeLineActBarShow=false;
-							angular.element('.card').removeClass('selected-card');
-							//$scope.$emit('RENDER-HISTORY');
+							removeSelect();
 						break;
 					}
 				},
@@ -261,9 +255,7 @@
 				workzoneServices.getPipelineView(envParams,pagiOptionsCard).then(function(cardResult){
 					$scope.pipeGridOptions.data= cardResult.data.appDeploy;
 					$scope.isApplicationPageLoading=false;
-					$scope.pipeLineActBarShow=false;
-					$rootScope.selectedCardClass='';
-					angular.element('.card').removeClass('selected-card');
+					removeSelect();
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 
 				});
@@ -279,8 +271,8 @@
 			function getSummaryCardService(envParams){
 				workzoneServices.getSummaryCard(envParams).then(function(cardResult){
 					$scope.summaryGridOptions.data= cardResult.data.pipeLineView;
+					removeSelect();
 					$scope.summaryGridOptions.totalItems = cardResult.data.metaData.totalRecords;
-
 				});
 			}
 			$scope.selectRow = function (row) {
@@ -321,6 +313,11 @@
 					$scope.currentTargetId='';
 				}
 			});
+			function removeSelect(){
+				$rootScope.selectedCardClass='';
+				$scope.currentTargetId='';
+				angular.element('.card').removeClass('selected-card');
+			};
 			$rootScope.$on('VIEW-APP-LOGS',function($event,los){
 				$scope.appInfo(los);
 				$event.stopPropagation();
@@ -338,7 +335,7 @@
 				workzoneUIUtils.makeTabScrollable('applicationPage');
 			}
 		);
-	}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'applicationPermission', 'appDeployResponseFormatter', function ($scope, $rootScope, applicationPerms,appDeployResponseFormatter) {
+	}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'applicationPermission',  function ($scope, $rootScope) {
 		var pipeLineData={
 			selectedCardClass:''
 		};

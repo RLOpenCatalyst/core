@@ -113,7 +113,7 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 
 		$scope.hideTreeOverlay = function () {
 			$scope.showTree = false;
-			$(".panelRight").css("width", "calc(100% - 35px)");
+			$(".panelRight").css("width", "calc(100% - 39px)");
 			$("#navigPage").addClass("tree-close");
 			$(".minifyme").css("left", "0px");
 			$(".minifyme").css("border-radius", "0px");
@@ -122,9 +122,9 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 
 		$scope.showTreeOverlay = function () {
 			$scope.showTree = true;
-			$(".panelRight").css("width", "calc(100% - 254px)");
+			$(".panelRight").css("width", "calc(100% - 258px)");
 			$("#navigPage").removeClass("tree-close");
-			$(".minifyme").css("left", "222px");
+			$(".minifyme").css("left", "216px");
 			$(".minifyme").css("width", "38px");
 			$(".minifyme").css("border-radius", "5px 0 0 5px");
 		};
