@@ -24,7 +24,7 @@
 							<div class="col-md-6 col-sm-6 col-xs-6 margintop15">
 								<label class="control-label">Job Type
 									<span class="control-label red">&nbsp;*</span>
-									<span ng-show="newtaskForm.taskType.$touched && newtaskForm.taskType.$invalid" class="inputValidationMsg">required
+									<span ng-show="newTaskForm.taskType.$touched && newTaskForm.taskType.$invalid" class="inputValidationMsg">required
 									</span>
 								</label>
 								<br />
@@ -40,7 +40,7 @@
 							<div class="col-md-6 col-sm-6 col-xs-6 margintop15">
 								<label class="control-label">Job Name
 									<span class="control-label red">&nbsp;*</span>
-									<span ng-show="newtaskForm.taskName.$touched && newtaskForm.taskName.$invalid" class="inputValidationMsg">required
+									<span ng-show="newTaskForm.taskName.$touched && newTaskForm.taskName.$invalid" class="inputValidationMsg">required
 									</span>
 								</label>
 								<br />
@@ -51,7 +51,7 @@
 							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="taskType==='jenkins'">
 								<label class="control-label">Server
 									<span class="control-label red">&nbsp;*</span>
-									<span ng-show="newtaskForm.serverName.$touched && newtaskForm.serverName.$invalid" class="inputValidationMsg">required
+									<span ng-show="newTaskForm.serverName.$touched && newTaskForm.serverName.$invalid" class="inputValidationMsg">required
 									</span>
 								</label>
 								<br />
@@ -65,7 +65,7 @@
 							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="taskType==='jenkins'">
 								<label class="control-label">Job
 									<span class="control-label red">&nbsp;*</span>
-									<span ng-show="newtaskForm.jobName.$touched && newtaskForm.jobName.$invalid" class="inputValidationMsg">required
+									<span ng-show="newTaskForm.jobName.$touched && newTaskForm.jobName.$invalid" class="inputValidationMsg">required
 									</span>
 								</label>
 								<br />
@@ -333,10 +333,10 @@
 			<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
 				<i class="fa fa-times black"></i> Cancel
 			</button>
-			<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-if="!isEditMode" ng-disabled="newtaskForm.$invalid">
+			<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid">
 				<i class="fa fa-check white"></i> Save
 			</button>
-			<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-if="isEditMode" ng-disabled="newtaskForm.$invalid">
+			<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-if="isEditMode" ng-disabled="newTaskForm.$invalid">
 				<i class="fa fa-check white"></i> Update
 			</button>
 		</div>

@@ -46,7 +46,7 @@ var AppDeploySchema = new Schema({
         trim: true
     },
     applicationLastDeploy: {
-        type: String,
+        type: Number,
         required: true,
         trim: true
     },
@@ -393,6 +393,7 @@ AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion 
 
 // Save all AppDeploy informations.
 AppDeploySchema.statics.createNew = function createNew(appDeployData, callback) {
+    appDeployData['applicationLastDeploy'] = Date.parse(appDeployData['applicationLastDeploy']);
     var aDeploy = new this(appDeployData);
     aDeploy.save(function(err, appDeploy) {
         if (err) {
