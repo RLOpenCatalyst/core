@@ -47,7 +47,7 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',
                     $state.go('signin');
                 } else if ((toState.name === 'signin' || toState.name === 'signinDefault') && Auth.isLoggedIn()) {
                     event.preventDefault();
-                    $state.go('dashboard.workzone');
+                    $state.go('dashboard');
                 }
             }
 
