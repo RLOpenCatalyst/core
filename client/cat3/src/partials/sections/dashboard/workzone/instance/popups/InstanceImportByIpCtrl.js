@@ -80,7 +80,7 @@
                         $scope.importErrorMessage = response.data.message;
                     });
 				} else {
-					alert('Form Values are empty or incorrect');
+					
 				}
 			},
 			cancel: function() {
