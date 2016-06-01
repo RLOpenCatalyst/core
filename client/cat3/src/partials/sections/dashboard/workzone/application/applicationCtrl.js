@@ -315,6 +315,7 @@
 				}
 			});
 			function removeSelect(){
+				$scope.pipeLineActBarShow =false;
 				$rootScope.selectedCardClass='';
 				$scope.currentTargetId='';
 				angular.element('.card').removeClass('selected-card');
