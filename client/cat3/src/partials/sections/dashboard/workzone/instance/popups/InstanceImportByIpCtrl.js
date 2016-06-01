@@ -20,7 +20,7 @@
 			os: '',
 			pemfile: '',
 			username: '',
-			password: '',
+			passwordModel: '',
 			ipAddress: '',
 			appLinkSecondOption: false,
 			selectedConfig: configList[0].rowid,
@@ -43,7 +43,7 @@
 				}
 			},
 			ok: function() {
-				if (validate.isIPAddress($scope.ipAddress) && $scope.username && $scope.os && $scope.selectedConfig && ($scope.isPemActive === "password" ? $scope.password : $scope.pemfile)) {
+				if (validate.isIPAddress($scope.ipAddress) && $scope.username && $scope.os && $scope.selectedConfig && ($scope.isPemActive === "password" ? $scope.passwordModel : $scope.pemfile)) {
 					reqBody.fqdn = $scope.ipAddress;
 					reqBody.os = $scope.os;
 					reqBody.configManagmentId = $scope.selectedConfig;
@@ -51,7 +51,7 @@
 						username: $scope.username
 					};
 					if ($scope.isPemActive === "password") {
-						reqBody.credentials.password = $scope.password;
+						reqBody.credentials.password = $scope.passwordModel;
 					} else {
 						reqBody.credentials.pemFileData = $scope.pemfile;
 					}

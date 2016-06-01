@@ -79,14 +79,14 @@
 							</select>
 						</div>
 
-						<div class="col-lg-6 col-md-6 authPassword control-margin" ng-show="(isPemActive=='password')">
+						<div class="col-lg-6 col-md-6 authPassword control-margin" ng-if="(isPemActive=='password')">
 							<label for="">Password
 								<span class="control-label red">&nbsp;*</span>
 								<span ng-show="InstanceImportbyIPForm.authenticationPassword.$touched && InstanceImportbyIPForm.authenticationPassword.$error.required" class="inputValidationMsg">required
 								</span>
 							</label>
 							<div class="input-groups">
-								<input type="password" name="authenticationPassword" class="form-control" ng-model="password" required>
+								<input type="password" name="authenticationPassword" class="form-control" ng-model="$parent.passwordModel" required ng-init="passwordModel">
 							</div>
 						</div>
 						<div class="col-lg-6 col-md-6 authPemFile control-margin" ng-if="(isPemActive=='pemFile')">
@@ -96,7 +96,7 @@
 								</span>
 							</label>
 							<div class="input-groups">
-								<input type="file" name="autenticationPemfile" class="form-control form-controls" ngf-select="" ng-model="pemfile" name="file" accept=".pem" required="">
+								<input type="file" name="autenticationPemfile" class="form-control form-controls" ngf-select="" ng-model="$parent.pemfile" name="file" accept=".pem" required="">
 							</div>
 						</div>
 					</div>

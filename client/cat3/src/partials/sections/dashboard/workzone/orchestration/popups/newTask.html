@@ -62,7 +62,7 @@
 									</select>
 								</span>
 							</div>
-							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-show="taskType==='jenkins'">
+							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="taskType==='jenkins'">
 								<label class="control-label">Job
 									<span class="control-label red">&nbsp;*</span>
 									<span ng-show="newTaskForm.jobName.$touched && newTaskForm.jobName.$invalid" class="inputValidationMsg">required
@@ -70,7 +70,7 @@
 								</label>
 								<br />
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
-									<select class="form-control" name="jobName" ng-disabled="!jenkinsServerSelect" ng-change="changeJobURL();" ng-model="jenkinJobSelected" required>
+									<select class="form-control" name="jobName" ng-disabled="!jenkinsServerSelect" ng-change="changeJobURL();" ng-model="$parent.jenkinJobSelected" required>
 										<option value="">Select</option>
 									   	<option ng-repeat="job in jenkinServerJobList" value="{{job.name}}">{{job.name}}</option>
 									</select>
