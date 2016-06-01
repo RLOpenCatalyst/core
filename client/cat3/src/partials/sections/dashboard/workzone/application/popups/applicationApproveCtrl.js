@@ -17,7 +17,7 @@ angular.module('workzone.application')
 			init:function(){
 				var version =(items.appName.version)?items.appName.version:items.version;
 				wzService.getApprove(items,version).then(function(result){
-					$scope.approveAppCommt=result.data[0].comments;
+					$scope.approveAppCommt=result.data.comments;
 				});
 			},
 			items:items,
