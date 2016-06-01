@@ -496,7 +496,26 @@
 			$scope.instanceCardViewSelection = "instance-tab-active";
 			$scope.instanceTableViewSelection = "";
 		};
-
+		$scope.instanceExecute = function(task){
+			workzoneServices.runTask(task.id).then(function(response) {
+				$modal.open({
+					animation: true,
+					templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
+					controller: 'orchestrationLogCtrl as orchLogCtrl',
+					backdrop: 'static',
+					keyboard: false,
+					resolve: {
+						items: function() {
+							return {
+								taskId:task.id,
+								historyId: response.data.historyId,
+								taskType: task.taskType
+							};
+						}
+					}
+				});
+			});
+		};
 		$scope.instanceTableView = function() {
 			$scope.isCardViewActive = false;
 			$scope.instanceTableViewSelection = "instance-tab-active";
