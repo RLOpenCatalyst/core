@@ -116,6 +116,25 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
                         }]
                 }
             })
+             .state('dashboard.analytics', {
+                url: "/analytics",
+                templateUrl: "src/partials/sections/dashboard/analytics/analytics.html",
+                controller: "analyticsCtrl",
+                resolve: {
+                    auth: ["$q", function ($q) {
+                            var deferred = $q.defer();
+                            // instead, go to a different page
+                            if (modulePerms.analyticsAccess()) {
+                                // everything is fine, proceed
+                                deferred.resolve();
+                            } else {
+                                deferred.reject({redirectTo: 'dashboard'});
+                            }
+                            return deferred.promise;
+
+                        }]
+                }
+            })
             .state('dashboard.settings.organization', {
                 url: "/organizations",
                 templateUrl: "src/partials/sections/dashboard/setting/organization/organization.html",

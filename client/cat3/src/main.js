@@ -22,6 +22,7 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch',
     'dashboard.help',
     'dashboard.track',
     'dashboard.settings',
+    'dashboard.analytics',
     'dashboard.design',
     'directive.loading',
     'ngSanitize',
@@ -96,12 +97,13 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
                 workzone: modulePerms.workzoneAccess(),
                 design: modulePerms.designAccess(),
                 settings: modulePerms.settingsAccess(),
-                track: modulePerms.trackAccess()
+                track: modulePerms.trackAccess(),
+                analytics: modulePerms.analyticsAccess()
             };
             $rootScope.workZoneBool = _permSet.workzone;
             $rootScope.designBool = _permSet.design;
             $rootScope.settingsBool = _permSet.settings;
-            $rootScope.trackBool = _permSet.track;
+            $rootScope.analyticsBool = _permSet.analytics;
         });
         $rootScope.$emit('SET_HEADER', $rootScope.appDetails);
         $rootScope.locate = function (txt) {

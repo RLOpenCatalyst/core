@@ -22,5 +22,10 @@
 			//return uac.hasPermission('track','read','module');
 			return true;
 		};
+                this.analyticsAccess = function() {
+			//permission response not available in the api response.
+			//return uac.hasPermission('analytics','read','module');
+			return true;
+		};
 	}]);
 })(angular);
