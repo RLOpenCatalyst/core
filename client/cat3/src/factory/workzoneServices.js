@@ -506,7 +506,7 @@
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
                 getApprove:function(argument,version){
-                    var url ='/deploy-permission/project/'+argument.params.proj+'/env/'+argument.envName+'/application/'+argument.appName.name+'/permissionList?version='+version;
+                    var url ='/deploy-permission/project/'+argument.params.proj+'/env/'+argument.envName+'/permissionList?appName='+argument.appName.name+'&version='+version;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 }
             };

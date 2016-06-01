@@ -156,7 +156,7 @@
 											</span>
 										</li>
 										<ul class="paddingleft32 instanceTaskListUL">
-											<li class="cursor" ng-repeat="taskDetail in inst.tasks">{{taskDetail.taskName}}</li>
+											<li class="cursor" ng-click="instanceExecute(taskDetail)" ng-repeat="taskDetail in inst.tasks">{{taskDetail.taskName}}</li>
 										</ul>
 									</span>
 								</ul>

@@ -88,7 +88,7 @@
                   </span>
                </li>
                <ul class="paddingleft32 instanceTaskListUL">
-                  <li class="cursor" ng-repeat="taskDetail in row.entity.tasks">{{taskDetail.taskName}}</li>
+                  <li class="cursor" ng-click="grid.appScope.instanceExecute(taskDetail)" ng-repeat="taskDetail in row.entity.tasks">{{taskDetail.taskName}}</li>
                </ul>
             </span>
          </ul>
