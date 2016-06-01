@@ -1,6 +1,7 @@
-function routeConfig($stateProvider, $urlRouterProvider, $httpProvider) {
+function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
     'use strict';
     var val = window.localStorage.getItem('catAuthToken');
+    var modulePerms = modulePermissionProvider.$get();
     if (val) {
         var getAuthTokenDetails = JSON.parse(val);
         if (getAuthTokenDetails && getAuthTokenDetails.token) {
@@ -35,6 +36,20 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider) {
                 onEnter: function () {
                 },
                 onExit: function () {
+                },
+                resolve: {
+                    auth: ["$q", function ($q) {
+                            var deferred = $q.defer();
+                            // instead, go to a different page
+                            if (modulePerms.workzoneAccess()) {
+                                // everything is fine, proceed
+                                deferred.resolve();
+                            } else {
+                                deferred.reject({redirectTo: 'dashboard'});
+                            }
+                            return deferred.promise;
+
+                        }]
                 }
             })
 
@@ -43,20 +58,63 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider) {
             .state('dashboard.design', {
                 url: "/design",
                 templateUrl: "src/partials/sections/dashboard/design/design.html",
-                controller: "designCtrl"
+                controller: "designCtrl",
+                resolve: {
+                    auth: ["$q", function ($q) {
+                            var deferred = $q.defer();
+                            // instead, go to a different page
+                            if (modulePerms.designAccess()) {
+                                // everything is fine, proceed
+                                deferred.resolve();
+                            } else {
+                                deferred.reject({redirectTo: 'dashboard'});
+                            }
+                            return deferred.promise;
+
+                        }]
+                }
+                
             })
             .state('dashboard.settings', {
                 url: "/settings",
                 templateUrl: "src/partials/sections/dashboard/setting/setting.html",
                 controller: "settingCtrl",
                 params: {
-                    activeSection : 'activeSection'
+                    activeSection: 'activeSection'
+                },
+                resolve: {
+                    auth: ["$q", function ($q) {
+                            var deferred = $q.defer();
+                            // instead, go to a different page
+                            if (modulePerms.settingsAccess()) {
+                                // everything is fine, proceed
+                                deferred.resolve();
+                            } else {
+                                deferred.reject({redirectTo: 'dashboard'});
+                            }
+                            return deferred.promise;
+
+                        }]
                 }
             })
             .state('dashboard.track', {
                 url: "/track",
                 templateUrl: "src/partials/sections/dashboard/track/track.html",
-                controller: "trackCtrl"
+                controller: "trackCtrl",
+                resolve: {
+                    auth: ["$q", function ($q) {
+                            var deferred = $q.defer();
+                            // instead, go to a different page
+                            if (modulePerms.trackAccess()) {
+                                // everything is fine, proceed
+                                deferred.resolve();
+                            } else {
+                                deferred.reject({redirectTo: 'dashboard'});
+                            }
+                            return deferred.promise;
+
+                        }]
+                }
             })
             .state('dashboard.settings.organization', {
                 url: "/organizations",
@@ -78,9 +136,10 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider) {
                 templateUrl: "src/partials/sections/dashboard/setting/organization/organizationNew.html",
                 controller: "organizationNewCtrl"
             }).state('reset', {
-                url: "/reset",
-                controller: "resetCtrl"
-            });
+        url: "/reset",
+        controller: "resetCtrl"
+    });
+
 }
 
-angularApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', routeConfig]);
+angularApp.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', routeConfig]);

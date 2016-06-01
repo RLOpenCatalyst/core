@@ -2061,8 +2061,8 @@
  */
 
 /**
- * @api {get}/deploy-permission/project/:projectId/env/:envName/application/:appName/permissionList
- * @apiName /deploy-permission/project/:projectId/env/:envName/application/:appName/permissionList
+ * @api {get}/deploy-permission/project/:projectId/env/:envName/permissionList?appName="appName"&version=someversion
+ * @apiName /deploy-permission/project/:projectId/env/:envName/permissionList?appName="appName"&version=someversion
  * @apiGroup Get Deploy Permission Via Project ID
  *
  *
@@ -2071,7 +2071,7 @@
  * @apiParam {String} appName       Application Name.
  *
  * @apiParamExample {url} Request-Example:
- * http://localhost:3001/deploy/permission/project/b38ccedc-da2c-4e2c-a278-c66333564719/env/Dev/application/D4D/permissionList
+ * http://localhost:3001/deploy-permission/project/b38ccedc-da2c-4e2c-a278-c66333564719/env/DEV/permissionList?appName=petclinic&version=2.03.77
  *
  * @apiSuccess [JSONObject]
  *
@@ -2081,7 +2081,7 @@
  *  [{
  *	            "_id": "5714cd8f8bf7882c42968d4b",
  *              projectId: "b38ccedc-da2c-4e2c-a278-c66333564719",
- *              envId: "Dev",
+ *              envName: "Dev",
  *              appName:"D4D",
  *              version:"301.2.105",
  *              comments:"Approved",

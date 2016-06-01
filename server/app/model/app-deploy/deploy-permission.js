@@ -137,7 +137,7 @@ DeployPermissionSchema.statics.getDeployPermissionByProjectIdEnvNameAppNameVersi
 DeployPermissionSchema.statics.updateDeployPermission=function(deployPermission,callback){
     this.update({
         projectId: deployPermission.projectId,
-        envId: deployPermission.envId,
+        envName: deployPermission.envName,
         appName: deployPermission.appName,
         version: deployPermission.version
     }, {

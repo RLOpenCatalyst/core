@@ -7,7 +7,7 @@
 
 (function(angular) {
 	"use strict";
-	angular.module('workzone.instance', ['ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone','utility.array','workzonePermission', 'instanceServices', 'chefDataFormatter', 'utility.pagination'])
+	angular.module('workzone.instance', ['ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone','utility.array','workzonePermission', 'instanceServices', 'chefDataFormatter', 'utility.pagination','ngFileUpload'])
 	.controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices','arrayUtil', 'instancePermission', 
 		'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService' ,'confirmbox' ,function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices,arrayUtil, instancePerms, instanceActions, instanceOperations,workzoneEnvironment, $timeout, workzoneUIUtils,uiGridOptionsService,confirmbox) {
 		console.log('instanceCtrl');

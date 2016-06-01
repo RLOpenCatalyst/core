@@ -53,20 +53,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
     });*/
-    app.get('/deploy-permission/project/:projectId/env/:envName/application/:appName/permissionList',validate(appDeployValidator.getDeployPermission),getDeployPermissionByProjectIdEnvNameAppNameVersion);
+    app.get('/deploy-permission/project/:projectId/env/:envName/permissionList',validate(appDeployValidator.getDeployPermission),getDeployPermissionByProjectIdEnvNameAppNameVersion);
 
     function getDeployPermissionByProjectIdEnvNameAppNameVersion(req, res, next) {
         async.waterfall(
             [
                 function (next) {
-                    appDeployPermissionService.getDeployPermissionByProjectIdEnvNameAppNameVersion(req.params.projectId, req.params.envName,req.params.appName, req.query.version, next);
+                    appDeployPermissionService.getDeployPermissionByProjectIdEnvNameAppNameVersion(req.params.projectId, req.params.envName,req.query.appName, req.query.version, next);
                 }
             ],
             function (err, results) {
                 if (err) {
-                    return res.status(500).send({code: 500, errMessage: err});
+                    //return res.status(500).send({code: 500, errMessage: err});
+                    next(err);
                 } else {
-                    return res.status(200).send(results);
+                    return res.send(results);
                 }
             }
         );

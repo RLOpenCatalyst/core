@@ -58,7 +58,7 @@
 					<div class="instance-ip">
 						<strong>{{inst.instanceIP}}</strong>
 					</div>
-					<div class="instance-state">
+					<div class="provider-id" title="{{getPlatformId(inst.providerType,inst.platformId)}}">
 						{{getPlatformId(inst.providerType,inst.platformId)}}
 					</div>
 					<div class="card-btns" ng-hide="hoverEdit">
