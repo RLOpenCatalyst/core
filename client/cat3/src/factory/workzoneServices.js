@@ -505,8 +505,8 @@
                     var url='/d4dMasters/readmasterjsonnew/4';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
-                getApprove:function(argument){
-                    var url ='/deploy-permission/project/'+argument.params.proj+'/env/'+argument.envName+'/application/'+argument.appName.name+'/permissionList';
+                getApprove:function(argument,version){
+                    var url ='/deploy-permission/project/'+argument.params.proj+'/env/'+argument.envName+'/application/'+argument.appName.name+'/permissionList?version='+version;
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 }
             };
