@@ -139,7 +139,6 @@
                                     taskJSON.assignTasks.push(selectedList[i].data._id);
                                 }
                             } else {
-                                alert('please select atleast one job');
                                 return false;
                             }
                         }
