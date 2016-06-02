@@ -51,7 +51,7 @@ var S3 = function(awsSettings) {
                 callback(null, data.LastModified);
             });
         }else if(key === 'file'){
-            var file = fs.createWriteStream('rlBilling.zip');
+            var file = fs.createWriteStream('./app/temp/rlBilling.zip');
             var fileStream = s3.getObject(params).createReadStream();
             fileStream.pipe(file);
             file.on('finish',function(){

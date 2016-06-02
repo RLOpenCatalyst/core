@@ -17,7 +17,6 @@ limitations under the License.
 
 var logger = require('_pr/logger')(module);
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
-var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
@@ -32,7 +31,6 @@ var fileIo = require('_pr/lib/utils/fileio');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef');
 var Puppet = require('_pr/lib/puppet');
-var tagsDao = require('_pr/model/tags');
 var validate = require('express-validation');
 var tagsValidator = require('_pr/validators/tagsValidator');
 var instanceValidator = require('_pr/validators/instanceValidator');
@@ -95,33 +93,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='managedInstances';
-			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+			instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
 				if (err) {
-					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
+					res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
 					return;
 				}
-				if (!provider) {
-					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
-					return;
-				}
-				instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
+				ApiUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
 					if (err) {
-						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
+						res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
 						return;
 					}
-					ApiUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
-						if (err) {
-							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
-							return;
-						}
-						if (!paginationRes.managedInstances.length>0) {
-							res.status(200).send(paginationRes);
-							return;
-						}
-						res.status(200).send(paginationRes);
-					});
-
-
+					res.status(200).send(paginationRes);
 				});
 			});
 		});
@@ -136,18 +118,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='unmanagedInstances';
-			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
-				if (err) {
-					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
-					return;
-				}
-				if (!provider) {
-					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
-					return;
-				}
-				unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
+			unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
 					if (err) {
-						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
+						res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
 						return;
 					}
 					ApiUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
@@ -157,7 +130,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 						}
 						res.status(200).send(paginationRes);
 					});
-				});
 			});
 		});
 	});

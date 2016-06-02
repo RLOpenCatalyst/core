@@ -184,27 +184,32 @@ function sync() {
 																	for (var n = 0; n < instances.length; n++) {
 																		if (instances[n].platformId === awsInstances[m].InstanceId) {
 																			instances[n].instanceState = awsInstances[m].State.Name;
-																			if (instances[n].instanceState === 'running') {
-																				instances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+
+																			if (instances[n].instanceState === 'terminated') {
+																				instances[n].remove();
+																			} else {
+																				if (instances[n].instanceState === 'running') {
+																					instances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+																				}
+
+																				if (assignmentFound) {
+																					/*instances[n].projectId = catalystProjectId;
+																					 instances[n].projectName = catalystProjectName;
+																					 instances[n].envId = catalystEnvironmentId;*/
+																					instances[n].environmentName = catalystEnvironmentName;
+																				}
+
+																				instances[n].orgName = org.orgname;
+																				instances[n].tags = tagInfo;
+																				instances[n].save();
+																				found = true;
+
+																				//sending socket event
+																				socketCloudFormationAutoScate.to(instances[n].orgId + ':' + instances[n].bgId + ':' + instances[n].projectId + ':' + instances[n].envId).emit('instanceStateChanged', instances[n]);
+
+																				instances.splice(n, 1);
+																				break;
 																			}
-
-																			if (assignmentFound) {
-																				/*instances[n].projectId = catalystProjectId;
-																				instances[n].projectName = catalystProjectName;
-																				instances[n].envId = catalystEnvironmentId;*/
-																				instances[n].environmentName = catalystEnvironmentName;
-																			}
-
-																			instances[n].orgName = org.orgname;
-																			instances[n].tags = tagInfo;
-																			instances[n].save();
-																			found = true;
-
-																			//sending socket event
-																			socketCloudFormationAutoScate.to(instances[n].orgId + ':' + instances[n].bgId + ':' + instances[n].projectId + ':' + instances[n].envId).emit('instanceStateChanged', instances[n]);
-
-																			instances.splice(n, 1);
-																			break;
 																		}
 																	}
 

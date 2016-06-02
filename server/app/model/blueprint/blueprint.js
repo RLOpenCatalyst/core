@@ -234,30 +234,29 @@ BlueprintSchema.methods.launch = function(opts, callback) {
     masterUtil.getParticularProject(self.projectId,function(err,project){
         if (err) {
             callback({
-                message: "Failed to get project from project id"
+                message: "Failed to get project via project id"
             }, null);
             return;
-        }
+        };
         if (project.length === 0) {
             callback({
                 "message": "Unable to find Project Information from project id"
             });
             return;
-        }
-        console.log("Project Information >>>>"+project);
+        };
         configmgmtDao.getEnvNameFromEnvId(opts.envId, function(err, envName) {
             if (err) {
                 callback({
                 message: "Failed to get env name from env id"
                 }, null);
                 return;
-            }
+            };
             if (!envName) {
                 callback({
                 "message": "Unable to find environment name from environment id"
                 });
                 return;
-            }
+            };
             configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
                 if (err) {
                     logger.error("Failed to getChefServerDetails", err);
@@ -265,14 +264,14 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                         message: "Failed to getChefServerDetails"
                     }, null);
                     return;
-                }
+                };
                 if (!chefDetails) {
                     logger.error("No CHef Server Detailed available.", err);
                     callback({
                     message: "No Chef Server Detailed available"
                     }, null);
                     return;
-                }
+                };
                 var chef = new Chef({
                     userChefRepoLocation: chefDetails.chefRepoLocation,
                     chefUserName: chefDetails.loginname,
@@ -871,25 +870,22 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
             callback(err, null);
             return;
         }
-        callback(null, blueprints);
+        var blueprints1 = consolidateVersionOnBlueprint(blueprints);
+        callback(null, blueprints1);
+
     });
 };
 
-BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bgId, projId, filterBlueprintType, provider, callback) {
-    logger.debug("Enter getBlueprintsByOrgBgProjectProvider(%s,%s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType, provider);
+BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData, callback) {
     var options = [];
     options.push({
-        "blueprintConfig.cloudProviderType": provider
+        "blueprintConfig.cloudProviderType": jsonData.providerType
     });
-
-
-    //Handle cft, arm 
-
-    if (provider == 'aws') {
+    if (jsonData.providerType == 'aws') {
         options.push({
             "templateType": "cft"
         });
-    } else if (provider == 'azure') {
+    } else if (jsonData.providerType == 'azure') {
         options.push({
             "templateType": "arm"
         });
@@ -900,9 +896,9 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
     });
 
     var queryObj = {
-        orgId: orgId,
-        bgId: bgId,
-        projectId: projId,
+        orgId: jsonData.orgId,
+        bgId: jsonData.bgId,
+        projectId: jsonData.projectId,
         $or: options
     }
 
@@ -916,14 +912,8 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(orgId, bg
             callback(err, null);
             return;
         }
-
-        //function will cleanup the blueprint array and inject version object.
         var blueprints1 = consolidateVersionOnBlueprint(blueprints);
-
-        logger.debug("Exit getBlueprintsByOrgBgProject(%s,%s, %s, %s, %s,%s)", orgId, bgId, projId, filterBlueprintType, provider);
         callback(null, blueprints1);
-
-
 
     });
 };
