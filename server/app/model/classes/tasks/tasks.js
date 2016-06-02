@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 var logger = require('_pr/logger')(module);
@@ -29,7 +29,8 @@ var Jenkins = require('_pr/lib/jenkins');
 var CompositeTask = require('./taskTypeComposite');
 var PuppetTask = require('./taskTypePuppet');
 var ScriptTask = require('./taskTypeScript');
-
+var mongoosePaginate = require('mongoose-paginate');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 
 
 var Schema = mongoose.Schema;
@@ -96,8 +97,8 @@ var taskSchema = new Schema({
     timestampEnded: Number,
     blueprintIds: [String]
 });
+taskSchema.plugin(mongoosePaginate);
 
-// instance method :-  
 
 // Executes a task
 taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, callback, onComplete) {
@@ -338,7 +339,7 @@ var comparer = function compareObject(a, b) {
 }
 
 
-// Static methods :- 
+// Static methods :-
 
 // creates a new task
 taskSchema.statics.createNew = function(taskData, callback) {
@@ -407,26 +408,52 @@ taskSchema.statics.createNew = function(taskData, callback) {
     });
 };
 
-// creates a new task
-taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(orgId, bgId, projectId, envId, callback) {
-    var queryObj = {
-        orgId: orgId,
-        bgId: bgId,
-        projectId: projectId,
-        envId: envId
-    }
 
-    this.find(queryObj, function(err, data) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
+taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
+        if(jsonData.pageSize) {
+            var databaseReq = {};
+            jsonData['searchColumns'] = ['taskType', 'name'];
+            ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+                if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
+                else
+                    databaseReq = databaseCall;
+            });
+            this.paginate(databaseReq.queryObj, databaseReq.options, function (err, tasks) {
+                if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
+                else if (!tasks) {
+                    var err = new Error('Tasks are not found');
+                    err.status = 404;
+                    return callback(err);
+                }
+                callback(null, tasks);
+            });
         }
-        callback(null, data);
-    });
-};
+        else{
+            var queryObj = {
+                    orgId: jsonData.orgId,
+                    bgId: jsonData.bgId,
+                    projectId: jsonData.projectId,
+                    envId: jsonData.envId
+                }
+            this.find(queryObj, function(err, data) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
+        }
+}
 
-// get task by id
 taskSchema.statics.getTaskById = function(taskId, callback) {
     this.find({
         "_id": new ObjectId(taskId)

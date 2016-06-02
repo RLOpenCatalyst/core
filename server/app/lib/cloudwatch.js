@@ -145,20 +145,18 @@ var CW = function(awsSettings) {
     };
 
     // @TODO Try to reduce number of parameters
-    this.getUsageMetrics = function getUsageMetrics(metric, unit, instanceId, startTime, endTime, callback) {
+    this.getUsageMetrics = function getUsageMetrics(metric, unit,nameSpace, dimensions, startTime, endTime, callback) {
         var params = {
             EndTime: endTime,
             MetricName: metric,
-            Namespace: 'AWS/EC2',
+            Namespace: nameSpace,
             Period: 86400,
             StartTime: startTime,
             Statistics: ['Average', 'Minimum', 'Maximum'],
-            Dimensions: [{Name:'InstanceId',Value:instanceId}],
+            Dimensions: dimensions,
             Unit: unit
         };
-
         cloudwatch.getMetricStatistics(params,function(err, data) {
-            // console.log('inside cw api');
             if(err) {
                 callback(err,null);
             } else if(data.Datapoints.length > 0) {
@@ -177,7 +175,28 @@ var CW = function(awsSettings) {
                 callback(null, result);
             }
         });
-    }
+    };
+    
+    this.getTotalCost =function getTotalCost(startTime,endTime,statistics,dimensions,callback){
+        var params =
+        {
+            EndTime: endTime,
+            MetricName: 'EstimatedCharges',
+            Namespace: 'AWS/Billing',
+            Period: 86400,
+            StartTime: startTime,
+            Statistics: [statistics],
+            Dimensions:dimensions ,
+        };
+        cloudwatch.getMetricStatistics(params,function(err,data){
+            if(err){
+                logger.debug("Error occurred for cost metrics: ",err);
+                callback(err,null);
+            }else{
+                callback(null,data.Datapoints[0]);
+            }
+        });
+    };
 
 }
 

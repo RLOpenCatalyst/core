@@ -18,7 +18,10 @@ var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var errorResponses = require('./error_responses');
 var AppData = require('_pr/model/app-deploy/app-data');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instancesDao = require('../model/classes/instance/instance');
+var Task = require('../model/classes/tasks/tasks.js');
+var async = require('async');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/app/deploy/*', sessionVerificationFunc);
@@ -35,6 +38,41 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return;
             }
         });
+    });
+
+    app.get('/app/deploy/organization/:orgId/businessgroup/:bgId/project/:projectId/environment/:envId/newAppDeploy', function(req, res) {
+        var jsonData= {
+            orgId: req.params.orgId,
+            bgId: req.params.bgId,
+            projectId: req.params.projectId,
+            envId: req.params.envId,
+            nexusId:'26',
+            dockerId:'18'
+        };
+         async.parallel({
+                            tasks:function(callback) {
+                                Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback)
+                            },
+                            docker:function(callback) {
+                                masterUtil.getDockerServer(jsonData, callback)
+                            },
+                            nexus:function(callback) {
+                                masterUtil.getNexusServer(jsonData, callback)
+                            }
+                        },
+                        function(err, results){
+                            if(err)
+                                res.status(500).send({
+                                    code:500,
+                                    erroMessage:"Internal Server Error"});
+                            else if(!results)
+                                res.status(404).send({
+                                    code:404,
+                                    erroMessage:"Data is not available for Organization"+req.params.orgId});
+                            else
+                                res.status(200).send(results);
+                        }
+                    );
     });
 
     // Create AppDeploy
@@ -177,8 +215,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
+
+
+    /*app.get('/app/deploy/project/:projectId/appDeployList', getAppDeployListForProject);
+
+    function getAppDeployListForProject(req, res, next) {
+        async.waterfall(
+            [
+                function(next) {
+                    d4dModelNew.d4dModelMastersProjects.find
+                },
+                function(paginationReq,next){
+                    apiUtil.paginationRequest(req.query,'appDeploy',next);
+                },
+                providerService.getUnassignedInstancesByProvider,
+                providerService.createUnassignedInstancesList
+            ],
+            function(err, results) {
+                if(err) {
+                    next(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }*/
+
     // Get AppDeploy w.r.t. projectId
     app.get('/app/deploy/project/:projectId/list', function(req, res) {
+
         logger.debug("Filtered by projectId called..");
         masterUtil.getAppDeployListForProject(req.params.projectId, function(err, appDeploy) {
             if (err) {
@@ -194,22 +259,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
-    // Appdeploy api supported by pagination,search and sort
-    app.post('/app/deploy/list', function(req, res) {
-        logger.debug("req query: ", JSON.stringify(req.query));
-        var offset = req.query.offset;
-        var limit = req.query.limit;
-        var sortBy = req.body.sortBy;
-        var searchBy = req.body.searchBy;
-        AppDeploy.getAppDeployWithPage(offset, limit, sortBy, searchBy, function(err, appDeploy) {
-            if (err) {
-                res.status(500).send(errorResponses.db.error);
-                return;
-            }
-            res.status(200).send(appDeploy);
-            return;
-        });
-    });
+
 
     // Get  appData by Project and Env
     app.get('/app/deploy/project/:projectId/env/:envId/application/:appName', function(req, res) {

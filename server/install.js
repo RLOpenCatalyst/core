@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 //var logger = require('_pr/logger')(module);
@@ -84,7 +84,7 @@ function getDefaultsConfig() {
             },
             skip_Records : 1,
             max_record_limit : 200,
-            record_limit : 10,
+            record_limit : 10
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
@@ -179,6 +179,11 @@ function getDefaultsConfig() {
                 DiskWriteBytes: 'MB',
                 NetworkIn: 'MB',
                 NetworkOut: 'MB'
+            },
+            costData:{
+                regions:['us-east-1','us-west-2','us-west-1','eu-west-1','eu-central-1','ap-southeast-1','ap-northeast-1','ap-southeast-2','sa-east-1'],
+                productName1:['Amazon Elastic Compute Cloud','Amazon RDS Service','Amazon Redshift','Amazon ElastiCache'],
+                productName2:['Amazon CloudFront','Amazon Route 53','Amazon Simple Storage Service','Amazon Virtual Private Cloud']
             }
 
         },
@@ -200,7 +205,7 @@ function getDefaultsConfig() {
         },
         maxInstanceCount: 0,
 
-       // cronjobTimeDelay: '"* * * * * *"',
+        // cronjobTimeDelay: '"* * * * * *"',
 
         //getter methods
         get catalystHome() {
@@ -281,7 +286,7 @@ function parseArguments() {
 }
 
 function getConfig(config, options) {
-    //parsing arguments 
+    //parsing arguments
     if (options['catalyst-port']) {
         var catalystPort = parseInt(options['catalyst-port']);
         if (catalystPort) {
@@ -332,7 +337,7 @@ function restoreSeedData(config, callback) {
             return;
         }
         db.dropDatabase();
-        
+
         var procMongoRestore = spawn('mongorestore', ['--host', config.db.host, '--port', config.db.port, '--db', config.db.dbName, '--drop', '../seed/mongodump/devops_new/']);
         procMongoRestore.on('error', function(mongoRestoreError) {
             console.error("mongorestore error ==> ", mongoRestoreError);
@@ -438,11 +443,11 @@ proc.on('close', function(code) {
             fsExtra.emptydirSync(config.catalystDataDir);
             restoreSeedData(config, function() {
                 /*if (options['ldap-user']) {
-                    setupLdapUser(config, function() {
-                        createConfigFile(config);
-                        installPackageJson();
-                    });
-                } else {*/
+                 setupLdapUser(config, function() {
+                 createConfigFile(config);
+                 installPackageJson();
+                 });
+                 } else {*/
                 createConfigFile(config);
                 installPackageJson();
                 //}
