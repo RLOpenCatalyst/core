@@ -29,7 +29,7 @@ var async = require('async');
 var awsService = require('_pr/services/awsService');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
-AggregateAWSUsage.interval = '*/5 * * * *';
+AggregateAWSUsage.interval = '*/15 * * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
