@@ -65,7 +65,8 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
 function validateListInstancesQuery(orgs, filterQuery, callback) {
     var orgIds = [];
     var queryObjectAndCondition = filterQuery.queryObj['$and'][0];
-     if(('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
+    if(('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
+
         var validOrgs = queryObjectAndCondition['orgName']['$in'].filter(function(orgName) {
             return (orgName in orgs);
         });
@@ -379,7 +380,7 @@ function getTrackedInstancesForProvider(provider, next) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             unmanaged: function(callback) {
-                unManagedInstancesModel.getUnmanagedByProviderId(provider._id, callback);
+                unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
             }
         },
         function(err, results) {

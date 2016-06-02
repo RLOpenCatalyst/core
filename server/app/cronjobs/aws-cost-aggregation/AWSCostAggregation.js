@@ -9,7 +9,6 @@ var instancesModel = require('_pr/model/classes/instance/instance');
 var resourceCost = require('_pr/model/resource-costs');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var instanceService = require('_pr/services/instanceService');
-var resourceMetricsModel =require('_pr/model/resource-metrics');
 var awsService = require('_pr/services/awsService');
 var S3 = require('_pr/lib/s3.js');
 var AdmZip = require('adm-zip');
@@ -26,16 +25,16 @@ if (month < 10) {
 };
 var accountNumber = '549974527830';
 var fullKey = accountNumber + "-aws-billing-detailed-line-items-with-resources-and-tags-" + year + "-" + month + ".csv.zip";
-var csvFile = "./" + accountNumber + "-aws-billing-detailed-line-items-with-resources-and-tags-" + year + "-" + month + ".csv";
+var csvFile = "./app/temp/" + accountNumber + "-aws-billing-detailed-line-items-with-resources-and-tags-" + year + "-" + month + ".csv";
 
 
-var AggregateAWSCostAndUsage = Object.create(CatalystCronJob);
-AggregateAWSCostAndUsage.interval = '*/30 * * * *';
-AggregateAWSCostAndUsage.execute = aggregateAWSCostAndUsage;
+var AggregateAWSCost= Object.create(CatalystCronJob);
+AggregateAWSCost.interval = '*/5 * * * *';
+AggregateAWSCost.execute = aggregateAWSCost;
 
-module.exports = AggregateAWSCostAndUsage;
+module.exports = AggregateAWSCost;
 
-function aggregateAWSCostAndUsage() {
+function aggregateAWSCost() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
             logger.error(err);
@@ -93,31 +92,6 @@ function aggregateAWSCostForProvider(provider) {
                 },
                 instanceCostMetrics: function(callback) {
                     saveInstanceResourceCost(instanceObj,instanceCostMetrics,callback);
-                },
-                managedUsageMetrics: function(callback) {
-                    generateEC2UsageMetricsForProvider(provider, instanceObj.managed, callback);
-                },
-                unManagedUsageMetrics: function(callback) {
-                    generateEC2UsageMetricsForProvider(provider, instanceObj.unmanaged, callback);
-                },
-                s3BucketUsageMetrics: function(callback) {
-                    generateS3UsageMetricsForProvider(provider, callback);
-                }
-            }, function(err, results){
-                if(err) {
-                    next(err);
-                } else {
-                    next(null, results);
-                }
-            });
-        },
-        function(costUsageMetrics, next) {
-            async.parallel({
-                managedUsageMetrics: function(callback) {
-                    updateManagedInstanceUsage(costUsageMetrics.managedUsageMetrics, callback);
-                },
-                unManagedUsageMetrics: function(callback) {
-                    updateUnManagedInstanceUsage(costUsageMetrics.unManagedUsageMetrics, callback);
                 }
             }, function(err, results){
                 if(err) {
@@ -130,7 +104,7 @@ function aggregateAWSCostForProvider(provider) {
         if(err)
             logger.error(err);
         else if(results)
-            logger.debug('S3 Cost aggregation for provider: ' + provider._id + ' ended');
+            logger.debug('AWS Cost aggregation for provider: ' + provider._id + ' ended');
     });
 };
 
@@ -171,8 +145,8 @@ function downloadUpdatedCSVFile(provider, next) {
                 next(err);
             }else{
                 if(results) {
-                    var zip = new AdmZip("./rlBilling.zip");
-                    zip.extractAllTo('./', true);
+                    var zip = new AdmZip("./app/temp/rlBilling.zip");
+                    zip.extractAllTo('./app/temp/', true);
                     next(null, results);
                 }else{
                     next(null,false);
@@ -210,7 +184,7 @@ function saveInstanceResourceCost(instances,instanceCostMetrics,callback){
     if(instances.managed.length === 0 && instances.unmanaged.length === 0){
         callback(null,awsObjectList);
     }else{
-        var startTime = new Date(endTime.getTime() - 1000*60*60*24);
+        var startTime = new Date(date.getTime() - 1000*60*60*24);
         if(instances.managed.length > 0){
             for(var i = 0; i < instances.managed.length; i++){
                 var awsCostObject = {
@@ -312,7 +286,8 @@ function updateManagedInstanceCost(instances,instanceCostMetrics, callback) {
         for(var i = 0; i < instances.length; i++){
             var costMetrics = [];
             var costMetricsObj = {};
-            var totalCost = 0.0
+            var totalCost = 0.0;
+            var totalUsage= 0.0;
             for (var j = 0; j < instanceCostMetrics.length; j++) {
                 if (instanceCostMetrics[j].resourceId === instances[i].platformId) {
                     costMetricsObj['usageStartDate'] = instanceCostMetrics[j].usageStartDate;
@@ -321,13 +296,15 @@ function updateManagedInstanceCost(instances,instanceCostMetrics, callback) {
                     costMetricsObj['description'] = instanceCostMetrics[j].description;
                     costMetricsObj['usageCost'] = instanceCostMetrics[j].usageCost;
                     totalCost += Number(instanceCostMetrics[j].usageCost);
+                    totalUsage += Number(instanceCostMetrics[j].usageQuantity);
                     costMetrics.push(costMetricsObj);
                     costMetricsObj = {};
                 };
             };
             instanceCostObj['resourceId'] = instances[i].platformId;
             instanceCostObj['costMetrics'] = costMetrics;
-            instanceCostObj['totalResourceCost'] = totalCost;
+            instanceCostObj['totalInstanceCost'] = totalCost;
+            instanceCostObj['totalInstanceUsage'] = totalUsage;
             instancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
                     callback(err, null);
@@ -351,7 +328,8 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
         for (var i = 0; i < instances.length; i++) {
             var costMetrics = [];
             var costMetricsObj = {};
-            var totalCost = 0.0
+            var totalCost = 0.0;
+            var totalUsage= 0.0;
             for (var j = 0; j < instanceCostMetrics.length; j++) {
                 if (instanceCostMetrics[j].resourceId === instances[i].platformId) {
                     costMetricsObj['usageStartDate'] = instanceCostMetrics[j].usageStartDate;
@@ -360,13 +338,15 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
                     costMetricsObj['description'] = instanceCostMetrics[j].description;
                     costMetricsObj['usageCost'] = instanceCostMetrics[j].usageCost;
                     totalCost += Number(instanceCostMetrics[j].usageCost);
+                    totalUsage+= Number(instanceCostMetrics[j].usageQuantity);
                     costMetrics.push(costMetricsObj);
                     costMetricsObj = {};
                 };
             };
             instanceCostObj['resourceId'] = instances[i].platformId;
             instanceCostObj['costMetrics'] = costMetrics;
-            instanceCostObj['totalResourceCost'] = totalCost;
+            instanceCostObj['totalInstanceCost'] = totalCost;
+            instanceCostObj['totalInstanceUsage'] = totalUsage;
             unManagedInstancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
                     callback(err, null);
@@ -381,141 +361,4 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
     };
 };
 
-function generateEC2UsageMetricsForProvider(provider, instances, callback) {
-    async.waterfall([
-        function (next) {
-            awsService.getEC2InstanceUsageMetrics(provider, instances, next);
-        },
-        function (ec2UsageMetrics, next) {
-            saveResourceUsageMetrics(ec2UsageMetrics, next);
-        }
-    ], function(err, results) {
-        if(err) {
-            callback(err);
-        } else {
-            callback(null, results);
-        }
-    });
-};
 
-function generateS3UsageMetricsForProvider(provider, callback) {
-    async.waterfall([
-        function(next){
-            awsService.getBucketsInfo(provider,next);
-        },
-        function(bucketData,next){
-            awsService.getS3BucketsMetrics(provider,bucketData.Buckets,next);
-        },
-        function(bucketMetrics,next){
-            saveResourceUsageMetrics(bucketMetrics,next);
-        }
-    ], function(err, results) {
-        if(err) {
-            callback(err);
-        } else {
-            callback(null, results);
-        }
-    });
-}
-
-function saveResourceUsageMetrics (resourceMetrics, next) {
-    var results = [];
-
-    if(resourceMetrics.length == 0)
-        return next(null, results);
-
-    for(var i = 0; i < resourceMetrics.length; i++) {
-        (function(j) {
-            resourceMetricsModel.createNew(resourceMetrics[j],
-                function(err, resourceMetricsObj) {
-                    if(err)
-                        next(err);
-                    else
-                        results.push(resourceMetricsObj);
-                    if(results.length == resourceMetrics.length)
-                        next(null, results);
-                }
-            );
-        })(i);
-    };
-}
-
-function updateManagedInstanceUsage(instanceUsageMetrics, next) {
-    var results = [];
-
-    if(instanceUsageMetrics.length == 0)
-        return next(null, results);
-
-    // @TODO get rid of nesting
-    for(var i = 0; i < instanceUsageMetrics.length; i++) {
-        (function (j) {
-            formatUsageData(instanceUsageMetrics[j], function(err, formattedUsageMetrics) {
-                if (err) {
-                    next(err);
-                } else {
-                    instancesModel.updateInstanceUsage(formattedUsageMetrics.instanceId,
-                        formattedUsageMetrics.metrics, function (err, result) {
-                            if (err)
-                                next(err);
-                            else
-                                results.push(result);
-
-                            if (results.length == instanceUsageMetrics.length)
-                                next(null, results);
-                        }
-                    );
-                }
-            });
-        })(i);
-    };
-}
-
-
-function updateUnManagedInstanceUsage(instanceUsageMetrics, next) {
-    var results = [];
-
-    if(instanceUsageMetrics.length == 0)
-        return next(null, results);
-
-    // @TODO get rid of nesting
-    for(var i = 0; i < instanceUsageMetrics.length; i++) {
-        (function (j) {
-            formatUsageData(instanceUsageMetrics[j], function(err, formattedUsageMetrics) {
-                if(err) {
-                    next(err);
-                } else {
-                    unManagedInstancesModel.updateUsage(formattedUsageMetrics.instanceId,
-                        formattedUsageMetrics.metrics, function(err, result) {
-                            if(err)
-                                next(err);
-                            else
-                                results.push(result);
-
-                            if(results.length == instanceUsageMetrics.length)
-                                next(null, results);
-                        }
-                    );
-                }
-            });
-        })(i);
-    };
-}
-
-function formatUsageData(instanceUsageMetrics, next) {
-    var metricsDisplayUnits = appConfig.aws.cwMetricsDisplayUnits;
-
-    instanceUsageMetrics.metrics.CPUUtilization.unit = metricsDisplayUnits.CPUUtilization;
-    instanceUsageMetrics.metrics.DiskReadBytes.unit = metricsDisplayUnits.DiskReadBytes;
-    instanceUsageMetrics.metrics.DiskWriteBytes.unit = metricsDisplayUnits.DiskWriteBytes;
-    instanceUsageMetrics.metrics.NetworkIn.unit = metricsDisplayUnits.NetworkIn;
-    instanceUsageMetrics.metrics.NetworkOut.unit = metricsDisplayUnits.NetworkOut;
-
-    instanceUsageMetrics.metrics.CPUUtilization.average
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.average);
-    instanceUsageMetrics.metrics.CPUUtilization.minimum
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.minimum);
-    instanceUsageMetrics.metrics.CPUUtilization.maximum
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.maximum);
-
-    next(null, instanceUsageMetrics);
-}

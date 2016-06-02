@@ -962,38 +962,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instances', function(req, res) {
-		// ApiUtils.paginationRequest(req.query,'instances',function(err, paginationReq){
-		// 	if (err) {
-		// 		res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-		// 		return;
-		// 	}
-		// 	paginationReq['orgId']=req.params.orgId;
-		// 	paginationReq['bgId']=req.params.bgId;
-		// 	paginationReq['projectId']=req.params.projectId;
-		// 	paginationReq['envId']=req.params.envId;
-		// 	paginationReq['instanceType']=req.query.instanceType;
-		// 	paginationReq['userName']=req.session.user.cn;
-		// 	paginationReq['id']='instances';
-		// 	instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, function(err, instanceData) {
-		// 		if (err) {
-		// 			res.status(404).send(ApiUtils.errorResponse(404,'instances'));
-		// 			return;
-		// 		}
-		// 		ApiUtils.paginationResponse(instanceData,paginationReq,function(err, paginationRes){
-		// 			if (err) {
-		// 				res.status(400).send(ApiUtils.errorResponse(400,'instances'));
-		// 				return;
-		// 			}
-		// 			res.status(200).send(paginationRes);
-		// 		});
-		// 	});
-		// });
 		var jsonData = {};
-		jsonData['orgId']=req.params.orgId;
-		jsonData['bgId']=req.params.bgId;
-		jsonData['projectId']=req.params.projectId;
-		jsonData['envId']=req.params.envId;
-
+		jsonData['orgId'] = req.params.orgId;
+		jsonData['bgId'] = req.params.bgId;
+		jsonData['projectId'] = req.params.projectId;
+		jsonData['envId'] = req.params.envId;
+		jsonData['instanceType'] = req.query.instanceType;
+		jsonData['userName'] = req.session.user.cn;
 		instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function(err, instanceData) {
 			if (err) {
 				res.status(500).send({
@@ -1002,7 +977,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				return;
 			}
 			res.status(200).send(instanceData);
-
+			
 		});
 	});
 
@@ -1022,28 +997,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applications', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'applications',function(err, paginationReq){
+		var jsonData = {};
+		jsonData['orgId'] = req.params.orgId;
+		jsonData['bgId'] = req.params.bgId;
+		jsonData['projectId'] = req.params.projectId;
+		Application.getAppCardsByOrgBgAndProjectId(jsonData, function(err, applications) {
 			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				res.send(500);
 				return;
 			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['id']='applications';
-			Application.getAppCardsByOrgBgAndProjectId(paginationReq, function(err, applications) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'applications'));
-					return;
-				}
-				ApiUtils.paginationResponse(applications,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'applications'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
-			});
+			res.send(applications);
 		});
 	});
 
@@ -1240,46 +1203,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			});
 		});
 	});
-
-	function getContainerList(req, res, next) {
-		var pageReq={};
-		async.waterfall(
-			[
-				function(next) {
-					ApiUtils.paginationRequest(req.query,next)
-				},
-				function(paginationReq, next) {
-					paginationReq['orgId']=req.params.orgId;
-					paginationReq['bgId']=req.params.bgId;
-					paginationReq['projectId']=req.params.projectId;
-					paginationReq['envId']=req.params.envId;
-					paginationReq['id']='containerList';
-					pageReq=paginationReq;
-					containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq,next);
-				},
-				ApiUtils.paginationResponse(containerData,pageReq)
-			],
-			function(err, results) {
-				if(err) {
-					next(err);
-				} else {
-					return res.status(200).send(results);
-				}
-			}
-		);
-	}
-
-
-
-
-
-
-
-
-
-
-
-
 	app.get('/organizations/:orgId/chefserver', function(req, res) {
 		logger.debug("Enter get() for /organizations/%s/chefserver", req.params.orgId);
 		configmgmtDao.getChefServerDetailsByOrgname(req.params.orgId, function(err, chefDetails) {

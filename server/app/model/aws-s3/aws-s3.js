@@ -58,7 +58,9 @@ var s3Schema = new Schema({
         type:String,
         required:false,
         trim:true
-    }
+    },
+    tag:Schema.Schema.Types.Mixed
+
 
 });
 
