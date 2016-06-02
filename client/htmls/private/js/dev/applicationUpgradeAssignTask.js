@@ -392,7 +392,7 @@ $(document).ready(function() {
                     checked = true;
 
                 }
-                var $li = $('<li><label class="checkbox" style="margin: 5px;font-size:13px;"><input type="radio" name="deploymentRoleCheckBox" value="' + role + '"><i></i>' + role + '</label></li>');
+                var $li = $('<li><label class="radio" style="margin: 5px;font-size:13px;"><input type="radio" name="deploymentRoleCheckBox" value="' + role + '"><i></i>' + role + '</label></li>');
                 if (checked) {
                     $li.find('input').attr('checked','checked');
                 }
@@ -628,7 +628,8 @@ $(document).ready(function() {
             var nodesList = [];
             var blueprintList = [];
             var role
-            if (selectedType === 'Node') {
+            if (selectedType === 'Nodes') {
+                
                 var $selectedNodes = $('#selectedNodesChefTask input[type=checkbox]');
                 console.log($selectedNodes.length);
 

@@ -4795,8 +4795,10 @@ function devCall() {
 
                     //if job type is chef show runlists and nodes.
                     if (data[i].taskType === 'chef' || data[i].taskType === 'puppet') {
-
-                        var $tdNodeList = $('<td style="vertical-align:inherit;text-align:center;"></td>').append('<a class="assignedNodesList" rel="tooltip" data-placement="top" data-original-title="View Nodes" style="cursor:pointer;text-decoration:none;" data-toggle="modal"><i style="font-size:20px;color:#40baf1" class="ace-icon fa fa-sitemap"></i></a>');
+                        var $tdNodeList = $('<td style="vertical-align:inherit;text-align:center;"></td>');
+                        if (data[i].taskConfig.nodeIds && data[i].taskConfig.nodeIds.length) {
+                             $tdNodeList.append('<a class="assignedNodesList" rel="tooltip" data-placement="top" data-original-title="View Nodes" style="cursor:pointer;text-decoration:none;" data-toggle="modal"><i style="font-size:20px;color:#40baf1" class="ace-icon fa fa-sitemap"></i></a>');
+                        }
                         if (data[i].taskType === 'chef') {
                             $tdNodeList.append('<a class="assignedRunlistTable" rel="tooltip" data-placement="top" data-original-title="Assigned Runlists" data-toggle="modal" href="#assignedRunlist"><i style="font-size:20px;color:#40baf1;margin-left:5px;" class="ace-icon fa fa-list-ul"></i></a>');
                         }
@@ -6643,7 +6645,7 @@ function devCall() {
                             }
                         }
                         console.log(username);
-                        $.get('sshShell.html?id=' + instanceId+'&containerId='+containerId, function(data) {
+                        $.get('sshShell.html?id=' + instanceId + '&containerId=' + containerId, function(data) {
 
                             $sshModal.find('.modal-body').empty().append(data);
                             $sshModal.find('#ssh-instanceId').val(instanceId);
