@@ -582,6 +582,15 @@ var SettingTreeJson = [{
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-tags"
 
+        },{
+            "name": "organizations",
+            "text": "Environments",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/EnvironmentConceptList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-tint",
+            "parent": "devops",
+            "nodetype": "EnvironmentConceptList"
         }],
         "borderColor": "#000",
         "selectable": false,
@@ -598,24 +607,13 @@ var SettingTreeJson = [{
             "href": "#ajax/Settings/ConfigManagementList.html",
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-random"
-
-            }, {
-                "name": "organizations",
-                "text": "Puppet Server",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/PuppetServerList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-random"
-
-            }, {
-                "name": "organizations",
-                "text": "Environments",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/EnvironmentConceptList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-tint",
-                "parent": "devops",
-                "nodetype": "EnvironmentConceptList"
+        }, {
+            "name": "organizations",
+            "text": "Puppet Server",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/PuppetServerList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-random"
 
         }],
         "borderColor": "#000",
