@@ -71,18 +71,46 @@
 
             //method to get the names of the nodes associated to the job and add it to the nodeIdsWithActionLog object.
             chefLogData.createInstanceList = function(historyItem) {
-                workzoneServices.postRetrieveDetailsForInstanceNames(historyItem.nodeIds).then(function(response) {
+                var nodeIds = [];
+				var bluePrintJob = false;
+				var bluePrintActionLogs = [];
+				var nodeIdWithActionLogs = [];
+                if(historyItem.blueprintExecutionResults && historyItem.blueprintExecutionResults[0].result){
+					bluePrintJob = true;
+					bluePrintActionLogs = historyItem.blueprintExecutionResults[0].result;
+                    for (var j = 0; j < bluePrintActionLogs.length; j++) {
+						nodeIds.push(bluePrintActionLogs[j].instanceId);
+					}
+                }else{
+					nodeIds = historyItem.nodeIds
+				}
+                workzoneServices.postRetrieveDetailsForInstanceNames(nodeIds).then(function(response) {
                     var _jobInstances = response.data;
-                    for (var i = 0; i < historyItem.nodeIdsWithActionLog.length; i++) {
-                        for (var j = 0; j < _jobInstances.length; j++) {
-                            if (historyItem.nodeIdsWithActionLog[i].nodeId === _jobInstances[j]._id){
-                                historyItem.nodeIdsWithActionLog[i].uiNodeName = _jobInstances[j].name;
+                    if(bluePrintJob){
+                        for (var i = 0; i < bluePrintActionLogs.length; i++) {
+                            bluePrintActionLogs[i].nodeId = bluePrintActionLogs[i].instanceId;
+                            for (var j = 0; j < _jobInstances.length; j++) {
+                                if (bluePrintActionLogs[i].instanceId === _jobInstances[j]._id){
+                                    
+                                    bluePrintActionLogs[i].uiNodeName = _jobInstances[j].name;
+                                }
                             }
                         }
+                        nodeIdWithActionLogs = bluePrintActionLogs;
+                    }else{
+                        for (var i = 0; i < historyItem.nodeIdsWithActionLog.length; i++) {
+                            for (var j = 0; j < _jobInstances.length; j++) {
+                                if (historyItem.nodeIdsWithActionLog[i].nodeId === _jobInstances[j]._id){
+                                    historyItem.nodeIdsWithActionLog[i].uiNodeName = _jobInstances[j].name;
+                                }
+                            }
+                        }
+                        nodeIdWithActionLogs = historyItem.nodeIdsWithActionLog;
                     }
+                   
 
                     chefLogData.chefHistoryItem = historyItem; //saved as we need timestamps from the historyItem
-                    chefLogData.nodeIdsWithActionLog = historyItem.nodeIdsWithActionLog; //this can now be used to show instance dropdown
+                    chefLogData.nodeIdsWithActionLog = nodeIdWithActionLogs; //this can now be used to show instance dropdown
                     if (chefLogData.nodeIdsWithActionLog[0]) {
                         $scope.isInstanceListLoading = false;
                         selectFirstInstance(chefLogData.nodeIdsWithActionLog[0]);

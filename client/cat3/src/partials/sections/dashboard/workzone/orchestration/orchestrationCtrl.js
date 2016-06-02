@@ -164,22 +164,28 @@
 							console.log("Dismiss at " + new Date());
 						});
 					} else {
-						//This includes chef,composite and puppet
-						var modalOptions = {
-							closeButtonText: 'Cancel',
-							actionButtonText: 'Ok',
-							actionButtonStyle: 'cat-btn-update',
-							headerText: 'Confirmation',
-							bodyText: 'Are you sure you want to execute this Job?'
-						};
-							confirmbox.showModal({}, modalOptions).then(function() {
-								workzoneServices.runTask(task._id).then(function(response) {
-									helper.orchestrationLogModal(task._id,response.data.historyId,task.taskType);
-								});
-								$rootScope.$emit('WZ_REFRESH_ENV');
-							}, function(response) {
-								console.log('error:: ' + response.toString());
-							});
+                                            
+                                                $modal.open({
+							animation: true,
+							templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRun.html',
+							controller: 'confirmJobRunCtrl',
+							backdrop: 'static',
+							keyboard: false,
+							resolve: {
+								items: function() {
+									return task._id;
+								}
+							}
+						}).result.then(function(response) {
+							helper.orchestrationLogModal(task._id,response.historyId,task.taskType);
+                                                        if(response.blueprintMessage){
+                                                            $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
+                                                        }
+                                                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+						}, function() {
+							console.log("Dismiss at " + new Date());
+                                                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+						});
 						}
 					},
 				getHistory: function(task) {
