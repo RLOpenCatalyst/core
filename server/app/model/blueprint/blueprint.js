@@ -870,7 +870,9 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
             callback(err, null);
             return;
         }
-        callback(null, blueprints);
+        var blueprints1 = consolidateVersionOnBlueprint(blueprints);
+        callback(null, blueprints1);
+
     });
 };
 

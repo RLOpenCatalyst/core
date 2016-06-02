@@ -962,31 +962,47 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instances', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'instances',function(err, paginationReq){
+		// ApiUtils.paginationRequest(req.query,'instances',function(err, paginationReq){
+		// 	if (err) {
+		// 		res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+		// 		return;
+		// 	}
+		// 	paginationReq['orgId']=req.params.orgId;
+		// 	paginationReq['bgId']=req.params.bgId;
+		// 	paginationReq['projectId']=req.params.projectId;
+		// 	paginationReq['envId']=req.params.envId;
+		// 	paginationReq['instanceType']=req.query.instanceType;
+		// 	paginationReq['userName']=req.session.user.cn;
+		// 	paginationReq['id']='instances';
+		// 	instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, function(err, instanceData) {
+		// 		if (err) {
+		// 			res.status(404).send(ApiUtils.errorResponse(404,'instances'));
+		// 			return;
+		// 		}
+		// 		ApiUtils.paginationResponse(instanceData,paginationReq,function(err, paginationRes){
+		// 			if (err) {
+		// 				res.status(400).send(ApiUtils.errorResponse(400,'instances'));
+		// 				return;
+		// 			}
+		// 			res.status(200).send(paginationRes);
+		// 		});
+		// 	});
+		// });
+		var jsonData = {};
+		jsonData['orgId']=req.params.orgId;
+		jsonData['bgId']=req.params.bgId;
+		jsonData['projectId']=req.params.projectId;
+		jsonData['envId']=req.params.envId;
+
+		instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function(err, instanceData) {
 			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				res.status(500).send({
+					message:"Server Behaved Unexpectedly"
+				});
 				return;
 			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['instanceType']=req.query.instanceType;
-			paginationReq['userName']=req.session.user.cn;
-			paginationReq['id']='instances';
-			instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, function(err, instanceData) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'instances'));
-					return;
-				}
-				ApiUtils.paginationResponse(instanceData,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'instances'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
-			});
+			res.status(200).send(instanceData);
+
 		});
 	});
 
