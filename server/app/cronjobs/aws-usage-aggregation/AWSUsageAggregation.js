@@ -193,7 +193,6 @@ function saveResourceUsageMetrics (resourceMetrics, next) {
  */
 function updateManagedInstanceUsage(instanceUsageMetrics, next) {
     var results = [];
-
     if(instanceUsageMetrics.length == 0)
         return next(null, results);
 
@@ -228,7 +227,6 @@ function updateManagedInstanceUsage(instanceUsageMetrics, next) {
  */
 function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
     var results = [];
-
     if(instanceUsageMetrics.length == 0)
         return next(null, results);
 

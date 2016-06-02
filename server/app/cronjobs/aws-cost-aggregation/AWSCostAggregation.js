@@ -304,6 +304,7 @@ function updateManagedInstanceCost(instances,instanceCostMetrics, callback) {
             instanceCostObj['resourceId'] = instances[i].platformId;
             instanceCostObj['costMetrics'] = costMetrics;
             instanceCostObj['totalInstanceCost'] = totalCost;
+            instanceCostObj['totalInstanceUsage'] = totalUsage;
             instancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
                     callback(err, null);
