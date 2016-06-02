@@ -203,7 +203,7 @@ function updateManagedInstanceUsage(instanceUsageMetrics, next) {
                 if (err) {
                     next(err);
                 } else {
-                    instancesModel.updateInstanceUsage(formattedUsageMetrics.instanceId,
+                    instancesModel.updateInstanceUsage(formattedUsageMetrics.resourceId,
                         formattedUsageMetrics.metrics, function (err, result) {
                             if (err)
                                 next(err);
@@ -229,7 +229,6 @@ function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
     var results = [];
     if(instanceUsageMetrics.length == 0)
         return next(null, results);
-
     // @TODO get rid of nesting
     for(var i = 0; i < instanceUsageMetrics.length; i++) {
         (function (j) {
@@ -237,7 +236,7 @@ function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
                 if(err) {
                     next(err);
                 } else {
-                    unManagedInstancesModel.updateUsage(formattedUsageMetrics.instanceId,
+                    unManagedInstancesModel.updateUsage(formattedUsageMetrics.resourceId,
                         formattedUsageMetrics.metrics, function(err, result) {
                             if(err)
                                 next(err);
