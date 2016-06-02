@@ -489,7 +489,7 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
         instanceObj.bgId = ('bgId' in instance)?instance.bgId:null;
-        instanceObj.cost = (('cost' in instance) && instance.cost)?instance.cost:0;
+        instanceObj.cost = (('aggregateCost' in instance) && instance.aggregateCost)?parseFloat(instance.aggregateCost).toFixed(2):0;
 
         if(('hardware' in instance) && ('os' in instance.hardware))
             instanceObj.os = instance.hardware.os;
@@ -506,7 +506,7 @@ function createTrackedInstancesResponse(instances, callback) {
             instanceObj.ip = null;
 
         instanceObj.usage = ('usage' in instance)?instance.usage:null;
-        instanceObj.cost = ('cost' in instance)?instance.cost:null;
+        instanceObj.cost = (('aggregateCost' in instance) && instance.aggregateCost)?parseFloat(instance.aggregateCost).toFixed(2):0;
 
         return instanceObj;
     });
