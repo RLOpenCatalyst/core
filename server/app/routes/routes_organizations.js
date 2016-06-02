@@ -969,13 +969,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		jsonData['envId'] = req.params.envId;
 		jsonData['instanceType'] = req.query.instanceType;
 		jsonData['userName'] = req.session.user.cn;
-		jsonData['id'] = 'instances';
-		instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function(err, instancedata) {
+		instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function(err, instanceData) {
 			if (err) {
-				res.send(500);
+				res.status(500).send({
+					message:"Server Behaved Unexpectedly"
+				});
 				return;
 			}
-			res.send(instancedata);
+			res.status(200).send(instanceData);
+			
 		});
 	});
 
