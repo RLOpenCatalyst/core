@@ -51,7 +51,7 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
                 var err = new Error('Instance not found');
                 err.status = 404;
                 return callback(err);
-            } else if(instance && instance.providerId != provider._id) {
+            } else if(instance && instance.providerId != providerId) {
                 var err = new Error('Forbidden');
                 err.status = 403;
                 return callback(err);
@@ -65,8 +65,7 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
 function validateListInstancesQuery(orgs, filterQuery, callback) {
     var orgIds = [];
     var queryObjectAndCondition = filterQuery.queryObj['$and'][0];
-
-    if(('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
+     if(('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
         var validOrgs = queryObjectAndCondition['orgName']['$in'].filter(function(orgName) {
             return (orgName in orgs);
         });
@@ -98,8 +97,15 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
         delete filterQuery.queryObj['$and'][0].orgName;
 
     if(orgIds.length > 0) {
-        filterQuery.queryObj['$and'][0].orgId = {
-            '$in' : orgIds
+        if(queryObjectAndCondition.providerId) {
+            filterQuery.queryObj['$and'][0].orgId = {
+                '$in': orgIds
+            }
+        }else{
+            filterQuery.queryObj['$and'][0] = {
+                providerId:{'$ne':null},
+                orgId:{'$in': orgIds}
+            }
         }
     }
 
@@ -373,9 +379,7 @@ function getTrackedInstancesForProvider(provider, next) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             unmanaged: function(callback) {
-                unManagedInstancesModel.getByProviderId(
-                    {providerId: provider._id}, callback
-                );
+                unManagedInstancesModel.getUnmanagedByProviderId(provider._id, callback);
             }
         },
         function(err, results) {

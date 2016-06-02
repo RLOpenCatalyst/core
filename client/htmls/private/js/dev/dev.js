@@ -2671,9 +2671,11 @@ function devCall() {
 
 
                                 //ends here..
-                                (function(blueprint) {
-                                    // alert(JSON.stringify(blueprint));
-                                    $liRead.click(function(e) {
+
+                                // alert(JSON.stringify(blueprint));
+                                $liRead.click(function(e) {
+                                    var blueprintId = $(this).parents('.cardimage').find('.blueprintVer').val();
+                                    $.get('/blueprints/' + blueprintId, function(blueprint) {
                                         var $blueprintReadContainerCFT = $('#modalForReadCFT');
                                         $('.modal-title').html('Blueprint Information-Docker');
 
@@ -2684,11 +2686,16 @@ function devCall() {
                                         //for getting the blueprint name
                                         $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name).parents('tr').show();
                                         $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
+                                        if (!blueprint.version) {
+                                            blueprint.version = "1";
+                                        }
+                                        $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(blueprint.version);
 
                                         getOrgProjDetails($blueprintReadContainerCFT);
-
                                     });
-                                })(data[i]);
+
+                                });
+
                                 //alert(JSON.stringify(data[i]));
                             } else if (data[i].templateType == "cft" || data[i].templateType == 'arm') {
                                 $selectVerEdit.hide();
@@ -3185,7 +3192,7 @@ function devCall() {
 
                                     //var dockercompose = JSON.parse($selectedItems.attr('dockercompose'));
                                     var dockercompose = blueprintData.blueprintConfig.dockerCompose;
-                                    
+
                                     //alert('hit');
                                     $('#compositedockertable tr.dockerimagesrow').detach(); //clearing previously loaded table.
                                     dockercompose.forEach(function(k, v) {
@@ -4788,8 +4795,10 @@ function devCall() {
 
                     //if job type is chef show runlists and nodes.
                     if (data[i].taskType === 'chef' || data[i].taskType === 'puppet') {
-
-                        var $tdNodeList = $('<td style="vertical-align:inherit;text-align:center;"></td>').append('<a class="assignedNodesList" rel="tooltip" data-placement="top" data-original-title="View Nodes" style="cursor:pointer;text-decoration:none;" data-toggle="modal"><i style="font-size:20px;color:#40baf1" class="ace-icon fa fa-sitemap"></i></a>');
+                        var $tdNodeList = $('<td style="vertical-align:inherit;text-align:center;"></td>');
+                        if (data[i].taskConfig.nodeIds && data[i].taskConfig.nodeIds.length) {
+                             $tdNodeList.append('<a class="assignedNodesList" rel="tooltip" data-placement="top" data-original-title="View Nodes" style="cursor:pointer;text-decoration:none;" data-toggle="modal"><i style="font-size:20px;color:#40baf1" class="ace-icon fa fa-sitemap"></i></a>');
+                        }
                         if (data[i].taskType === 'chef') {
                             $tdNodeList.append('<a class="assignedRunlistTable" rel="tooltip" data-placement="top" data-original-title="Assigned Runlists" data-toggle="modal" href="#assignedRunlist"><i style="font-size:20px;color:#40baf1;margin-left:5px;" class="ace-icon fa fa-list-ul"></i></a>');
                         }
@@ -6400,6 +6409,13 @@ function devCall() {
 
 
             var $docctr = $('#dockercontainertabletemplatetr').clone().removeClass('hidden');
+
+            $docctr.find('.dockeractionSSHbutton').attr('data-instanceId', instanceid);
+            $docctr.find('.dockeractionSSHbutton').attr('data-containerId', dockerContainerItem.Id);
+
+
+
+
             $docctr.attr('id', 'trfordockercontainer_' + dockerContainerItem.Id);
             $docctr.find('.dockercontainerstatus').html(dockerContainerItem.Status).parent().append($cadvisor);
             var docdate = new Date(1000 * dockerContainerItem.Created);
@@ -6466,6 +6482,7 @@ function devCall() {
 
                 $docctr.find('.stop').removeClass('hidden');
                 $docctr.find('.start').addClass('hidden');
+                $docctr.find('.dockerSSHShell').removeClass('hidden');
 
 
                 if (dockerContainerItem.Status.indexOf('Paused') >= 0) {
@@ -6479,6 +6496,7 @@ function devCall() {
             } else if (dockerContainerItem.Status.indexOf('Exited') >= 0) {
                 $docctr.find('.stop').addClass('hidden');
                 $docctr.find('.start').removeClass('hidden');
+                $docctr.find('.dockerSSHShell').addClass('hidden');
                 $docctr.find('.pause').addClass('hidden');
                 $docctr.find('.unpause').addClass('hidden');
             } else if (dockerContainerItem.Status.indexOf('Paused') >= 0) {
@@ -6487,6 +6505,7 @@ function devCall() {
             } else {
                 $docctr.find('.stop').addClass('hidden');
                 $docctr.find('.start').removeClass('hidden');
+                $docctr.find('.dockerSSHShell').addClass('hidden');
             }
 
             $docctr.find('.dockeractionbutton').click(function() {
@@ -6589,6 +6608,52 @@ function devCall() {
                     performAction();
                 }
 
+
+            });
+
+            $docctr.find('.dockeractionSSHbutton').click(function() {
+
+
+                var hasConnectPermission = false;
+                if (haspermission("instanceconnect", "execute")) {
+                    hasConnectPermission = true;
+                }
+                if (!hasConnectPermission) {
+                    bootbox.alert('User has no permission to do SSH');
+                    return;
+                }
+
+                var $sshModal = $('#modalSSHShellContainer');
+
+                var instanceId = $(this).attr('data-instanceId');
+                var containerId = $(this).attr('data-containerId');
+
+                $sshModal.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+                $sshModal.modal('show');
+                $.ajax({
+
+                    type: "GET",
+                    url: "/d4dMasters/getuser",
+                    success: function(usrdata) {
+
+                        // alert(JSON.stringify(data));
+                        //$("#liuserinfo").html("<i class=\"fa fa-user\"></i>&nbsp;<b>" + usrdata[0]['loginname'] + "</b>&nbsp;[" + usrdata[0]['userrolename'] + "]");
+                        var username = '';
+                        if (usrdata.user && usrdata.user.length) {
+                            if (usrdata.user[0].username) {
+                                username = usrdata.user[0].username.cn;
+                            }
+                        }
+                        console.log(username);
+                        $.get('sshShell.html?id=' + instanceId + '&containerId=' + containerId, function(data) {
+
+                            $sshModal.find('.modal-body').empty().append(data);
+                            $sshModal.find('#ssh-instanceId').val(instanceId);
+                            $sshModal.find('#ssh-containerId').val(containerId);
+                            $sshModal.find('#ssh-sessionUser').val(username);
+                        });
+                    }
+                });
 
             });
 

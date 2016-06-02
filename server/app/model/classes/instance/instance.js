@@ -16,12 +16,15 @@ limitations under the License.
 
 
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('./../../dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var ChefClientExecution = require('./chefClientExecution/chefClientExecution');
 var textSearch = require('mongoose-text-search');
+var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+
 
 
 var Schema = mongoose.Schema;
@@ -129,6 +132,11 @@ var InstanceSchema = new Schema({
         trim: true,
         validate: schemaValidator.bgIdValidator
     },
+    bgName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     projectId: {
         type: String,
         required: true,
@@ -187,7 +195,7 @@ var InstanceSchema = new Schema({
     users: [{
         type: String,
         trim: true,
-       //required: true,
+        //required: true,
         validate: schemaValidator.catalystUsernameValidator
     }],
     hardware: {
@@ -261,11 +269,16 @@ var InstanceSchema = new Schema({
     cloudFormationId: String,
     armId: String,
     usage: Schema.Types.Mixed,
-    cost: Schema.Types.Mixed
+    cost: Schema.Types.Mixed,
+    region:{
+        type: String,
+        trim: true
+    }
 });
 
 InstanceSchema.plugin(uniqueValidator);
 InstanceSchema.plugin(textSearch);
+InstanceSchema.plugin(mongoosePaginate);
 InstanceSchema.index({
     "$**": "text"
 });
@@ -273,7 +286,7 @@ InstanceSchema.index({
 var Instances = mongoose.model('instances', InstanceSchema);
 
 var InstancesDao = function() {
-	
+
     this.searchInstances = function(searchquery, options, callback) {
         logger.debug("Enter searchInstances query - (%s)", searchquery);
         Instances.textSearch(searchquery, options, function(err, data) {
@@ -422,28 +435,90 @@ var InstancesDao = function() {
         });
     };
 
-    this.getInstancesByOrgBgProjectAndEnvId = function(orgId, bgId, projectId, envId, instanceType, userName, callback) {
-        logger.debug("Enter getInstancesByOrgBgProjectAndEnvId (%s,%s, %s, %s, %s, %s)", orgId, bgId, projectId, envId, instanceType, userName);
+   this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
+       if(jsonData.record_Limit) {
+           var databaseReq = {};
+           jsonData['searchColumns'] = ['instanceIP', 'instanceState'];
+           ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+               if (err) {
+                   var err = new Error('Internal server error');
+                   err.status = 500;
+                   return callback(err);
+               }
+               databaseReq = databaseCall;
+           });
+           Instances.paginate(databaseReq.queryObj, databaseReq.options, function (err, instances) {
+               if (err) {
+                   var err = new Error('Internal server error');
+                   err.status = 500;
+                   return callback(err);
+               }
+               else if (!instances) {
+                   var err = new Error('Instances are not found');
+                   err.status = 404;
+                   return callback(err);
+               }
+               else
+                   return callback(null, instances);
+           });
+       }
+       else{
+           var queryObj = {
+               orgId: jsonData.orgId,
+               bgId: jsonData.bgId,
+               projectId: jsonData.projectId,
+               envId: jsonData.envId
+           }
+           if (jsonData.instanceType) {
+               queryObj['blueprintData.templateType'] = jsonData.instanceType;
+           }
+           Instances.find(queryObj, {
+               'actionLogs': false
+           }, function(err, data) {
+               if (err) {
+                   callback(err, null);
+                   return;
+               }
+               callback(null, data);
+           });
+       }
+    };
+
+   /* this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
         var queryObj = {
-            orgId: orgId,
-            bgId: bgId,
-            projectId: projectId,
-            envId: envId
+            orgId: jsonData.orgId,
+            bgId: jsonData.bgId,
+            projectId: jsonData.projectId,
+            envId: jsonData.envId
         }
-        if (instanceType) {
-            queryObj['blueprintData.templateType'] = instanceType;
+        if (jsonData.instanceType) {
+            queryObj['blueprintData.templateType'] = jsonData.instanceType;
         }
         Instances.find(queryObj, {
             'actionLogs': false
         }, function(err, data) {
             if (err) {
-                logger.error("Failed to getInstancesByOrgBgProjectAndEnvId (%s,%s, %s, %s, %s, %s)", orgId, bgId, projectId, envId, instanceType, userName, err);
                 callback(err, null);
                 return;
             }
-
-            logger.debug("Exit getInstancesByOrgBgProjectAndEnvId (%s,%s, %s, %s, %s, %s)", orgId, bgId, projectId, envId, instanceType, userName);
             callback(null, data);
+        });
+    };*/
+
+    this.getInstancesByOrgBgProjectAndEnvIdForDocker = function(jsonData, callback) {
+        var queryObj = {
+            orgId: jsonData.orgId,
+            bgId: jsonData.bgId,
+            projectId: jsonData.projectId,
+            envId: jsonData.envId
+        }
+        Instances.find(queryObj, function(err, instances) {
+            if (err) {
+                logger.error("Failed to getInstancesByOrgBgProjectAndEnvIdForDocker", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, instances);
         });
     };
 
@@ -1578,34 +1653,30 @@ var InstancesDao = function() {
         });
     };
 
-    this.getByProviderId = function(providerId, callback) {
-        if (!providerId) {
-            process.nextTick(function() {
-                callback({
-                    message: "Invalid provider id"
+    this.getByProviderId = function(jsonData, callback) {
+        var databaseReq={};
+        jsonData['searchColumns']=['instanceIP','platformId'];
+        ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+            if(err){
+                process.nextTick(function() {
+                    callback(null, []);
                 });
-
-            });
-            return;
-        }
-
-        Instances.find({
-            "providerId": providerId
-        }, {
-            'actionLogs': false
-        }, function(err, instances) {
+                return;
+            }
+            databaseReq=databaseCall;
+        });
+        Instances.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
             if (err) {
-                logger.error("Failed getByOrgProviderId (%s)", opts, err);
+                logger.error("Failed getByOrgProviderId (%s)", err);
                 callback(err, null);
                 return;
             }
-
             callback(null, instances);
-
         });
     };
+//End By Durgesh
 
-    this.getInstanceByIPAndProject = function(instanceIp,projectId, callback) {
+    this.getInstanceByIPAndProject = function(instanceIp, projectId, callback) {
         instanceIp = instanceIp.trim();
         Instances.find({
             "instanceIP": instanceIp,
@@ -1631,17 +1702,17 @@ var InstancesDao = function() {
                     "instanceIP": instanceIp
                 }, function(err, data) {
                     count++;
-                    if(data && data.length){
+                    if (data && data.length) {
                         instanceIds.push(data[0]._id);
                     }
-                    if(count === instanceIps.length){
+                    if (count === instanceIps.length) {
                         callback(null, instanceIds);
                         return;
                     }
                 });
             }
-        }else{
-            callback(null,[]);
+        } else {
+            callback(null, []);
             return;
         }
     };
@@ -1650,7 +1721,9 @@ var InstancesDao = function() {
         Instances.update({
             _id: new ObjectId(instanceId)
         }, {
-            $set: {usage: usage}
+            $set: {
+                usage: usage
+            }
         }, {
             upsert: false
         }, function(err, data) {
@@ -1661,7 +1734,49 @@ var InstancesDao = function() {
             }
         });
     };
+
+
+    this.searchByChefServerAndNodeNames = function(chefServerId, nodesName, callback) {
+        logger.debug('chefServerId ==>', chefServerId);
+        logger.debug('nodesName ==>', nodesName);
+
+        Instances.find({
+            "chef.serverId": chefServerId,
+            "chef.chefNodeName": {
+                '$in': nodesName
+            }
+        }, function(err, instances) {
+            if (err) {
+                logger.error("Failed searchByChefServerAndNodeNames ", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, instances);
+
+        });
+
+    };
+    this.searchByChefServerNodeNamesAndEnvId = function(chefServerId, nodesName, envId, callback) {
+        logger.debug('chefServerId ==>', chefServerId);
+        logger.debug('nodesName ==>', nodesName);
+
+        Instances.find({
+            "envId":envId,
+            "chef.serverId": chefServerId,
+            "chef.chefNodeName": {
+                '$in': nodesName
+            }
+        }, function(err, instances) {
+            if (err) {
+                logger.error("Failed searchByChefServerAndNodeNames ", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, instances);
+
+        });
+
+    }
 };
 
 module.exports = new InstancesDao();
-

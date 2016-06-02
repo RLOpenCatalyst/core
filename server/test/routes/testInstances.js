@@ -22,7 +22,21 @@ before(function(done){
         });
 })
 
-/*describe("Check UnmanagedInstances List for Perticular Providers ",function(){
+describe("Blueprint Info ",function() {
+
+    it("Blueprint Information  ", function (done) {
+        server
+            .get('/blueprints/57026274ae7109e261266bd0')
+            .end(function (err, res) {
+                console.log(res.body);
+                console.log(res.status);
+                done();
+            });
+    });
+});
+
+/*
+describe("Check UnmanagedInstances List for Perticular Providers ",function(){
 
     it(" Unmanaged Instances List with Pagination ",function(done){
         server
@@ -56,18 +70,9 @@ before(function(done){
             });
     });
 
-});*/
+});
 
 describe("Check Import by IP  ",function(){
-
-   /* it(" Import By IP with without Request Body ",function(done){
-        server
-            .post('/organizations/46d1da9a-d927-41dc-8e9e-7e926d927537/businessgroups/7e3500f1-58f9-43e2-b9eb-347b2e4d129d/projects/b38ccedc-da2c-4e2c-a278-c66333564719/environments/b40330fc-c03c-44a2-97ec-b966733641e6/addInstance')
-            .end(function(err,res){
-                assert.equal(res.status, 400);
-                done();
-            });
-    });*/
     it(" Import By IP with with Request Body ",function(done){
         var obj = xlsx.parse(__dirname + '/data/dataSheets.xlsx');
         for(var i=0;i<(convertToJSON(obj[0].data)).length;i++) {
@@ -128,4 +133,5 @@ function convertToJSON(array) {
     }
     return jsonData;
 };
+*/
 

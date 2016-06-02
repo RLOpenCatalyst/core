@@ -20,7 +20,6 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 
-var intanceDao = require('../instance/instance');
 var instancesDao = require('../instance/instance');
 var logsDao = require('../../dao/logsdao.js');
 var credentialCryptography = require('../../../lib/credentialcryptography')
@@ -45,7 +44,8 @@ var chefTaskSchema = taskTypeSchema.extend({
     attributes: [{
         name: String,
         jsonObj: {}
-    }]
+    }],
+    role: String
 });
 
 //Instance Methods :- getNodes
@@ -57,6 +57,7 @@ chefTaskSchema.methods.getNodes = function() {
 // Instance Method :- run task
 chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
     var self = this;
+
     logger.debug("self: ", JSON.stringify(self));
     if (blueprintIds[0] != "" && blueprintIds.length) {
         var count = 0;
@@ -193,16 +194,99 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
         }
 
         var instanceIds = this.nodeIds;
-        if (!(instanceIds && instanceIds.length)) {
-            if (typeof onExecute === 'function') {
-                onExecute({
-                    message: "Empty Node List"
-                }, null);
-            }
-            return;
-        }
 
-        instancesDao.getInstances(instanceIds, function(err, instances) {
+
+        function getInstances(role, instanceIds, callback) {
+            if (role) {
+                configmgmtDao.getChefServerDetailsByOrgname(self.orgId, function(err, chefDetails) {
+                    if (err) {
+                        if (typeof onExecute === 'function') {
+                            onExecute(err, null);
+                        }
+                        return;;
+                    }
+                    logger.debug("chefdata", chefDetails);
+
+                    if (!chefDetails) {
+                        if (typeof onExecute === 'function') {
+                            onExecute(err, null);
+                        }
+                        return;;
+                    }
+
+                    var chef = new Chef({
+                        userChefRepoLocation: chefDetails.chefRepoLocation,
+                        chefUserName: chefDetails.loginname,
+                        chefUserPemFile: chefDetails.userpemfile,
+                        chefValidationPemFile: chefDetails.validatorpemfile,
+                        hostedChefUrl: chefDetails.url,
+                    });
+
+                    chef.search('node', 'role:' + role, function(err, result) {
+                        if (err) {
+                            if (typeof onExecute === 'function') {
+                                onExecute(err, null);
+                            }
+                            return;;
+                        }
+
+
+                        var chefNodes = result.rows;
+                        var nodeNames = [];
+                        for (var i = 0; i < chefNodes.length; i++) {
+                            nodeNames.push(chefNodes[i].name);
+                        }
+
+                        logger.debug('chef server -->', chefDetails);
+
+                        instancesDao.searchByChefServerNodeNamesAndEnvId(chefDetails.rowid, nodeNames, self.envId, function(err, instances) {
+                            if (err) {
+                                logger.error(err);
+                                if (typeof onExecute === 'function') {
+                                    onExecute(err, null);
+                                }
+                                return;
+                            }
+                            logger.debug('instances ==>', instances.length);
+                            if (!(instances && instances.length)) {
+                                if (typeof onExecute === 'function') {
+                                    onExecute({
+                                        message: "Nodes with role " + role + " not found"
+                                    }, null);
+                                }
+                                return;
+                            }
+                            callback(null, instances);
+                        });
+
+                    });
+                });
+
+            } else {
+
+                if (!(instanceIds && instanceIds.length)) {
+                    if (typeof onExecute === 'function') {
+                        onExecute({
+                            message: "Empty Node List"
+                        }, null);
+                    }
+                    return;
+                }
+                instancesDao.getInstances(instanceIds, function(err, instances) {
+                    if (err) {
+                        logger.error(err);
+                        if (typeof onExecute === 'function') {
+                            onExecute(err, null);
+                        }
+                        return;
+                    }
+                    callback(null, instances);
+                });
+            }
+
+        }
+        logger.debug('role ==>', self.role);
+        getInstances(self.role, instanceIds, function(err, instances) {
             if (err) {
                 logger.error(err);
                 if (typeof onExecute === 'function') {
