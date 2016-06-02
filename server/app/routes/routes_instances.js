@@ -220,15 +220,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.post('/instances', function(req, res) {
         logger.debug("Enter post() for /instances");
-        instancesDao.getInstances(req.body.instanceIds, function(err, data) {
-            if (err) {
-                logger.error("Instance creation Failed >> ", err);
-                res.send(500);
-                return;
-            }
-            res.send(data);
-            logger.debug("Exit post() for /instances");
-        });
+        if (req.body.instanceIds && req.body.instanceIds.length) {
+            instancesDao.getInstances(req.body.instanceIds, function(err, data) {
+                if (err) {
+                    logger.error("Instance creation Failed >> ", err);
+                    res.send(500);
+                    return;
+                }
+                res.send(data);
+                logger.debug("Exit post() for /instances");
+            });
+        } else {
+            res.status(400).send({
+                message:"invalid instance Ids"
+            });
+        }
     });
 
     app.delete('/instances/:instanceId', function(req, res) {
@@ -616,7 +622,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 break;
         }
 
-       var cmd = 'sudo docker ' + action + ' ' + req.params.containerid;
+        var cmd = 'sudo docker ' + action + ' ' + req.params.containerid;
         if (action == 'delete') {
             cmd = 'sudo docker stop ' + req.params.containerid + ' &&  sudo docker rm ' + req.params.containerid;
         }

@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 // This file act as a Controller which contains provider related all end points.
@@ -131,6 +131,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									id: 9,
 									providerName: aProvider.providerName,
 									providerType: aProvider.providerType,
+									s3BucketName: aProvider.s3BucketName,
 									orgId: aProvider.orgId,
 									orgName: orgs[0].orgname,
 									__v: aProvider.__v,
@@ -164,12 +165,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var vmwaredc = req.body.vmwaredc;
 		var providerName = req.body.providerName;
 		var providerType = req.body.providerType.toLowerCase();
-        var pemFileName = null;
-        if(req.files && req.files.azurepem)
-		   pemFileName = req.files.azurepem.originalFilename;
-        var keyFileName = null;
-        if(req.files && req.files.azurekey)
-		  keyFileName = req.files.azurekey.originalFilename;
+		var pemFileName = null;
+		if(req.files && req.files.azurepem)
+			pemFileName = req.files.azurepem.originalFilename;
+		var keyFileName = null;
+		if(req.files && req.files.azurekey)
+			keyFileName = req.files.azurekey.originalFilename;
 		var orgId = req.body.orgId;
 
 		if (typeof vmwareusername === 'undefined' || vmwareusername.length === 0) {
@@ -1116,11 +1117,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var providerName = req.body.providerName;
 		var providerType = req.body.providerType.toLowerCase();
 		var pemFileName = null;
-    	if(req.files && req.files.azurepem)
- 		   pemFileName = req.files.azurepem.originalFilename;
-        var keyFileName = null;
-        if(req.files && req.files.azurekey)
-		  keyFileName = req.files.azurekey.originalFilename;
+		if(req.files && req.files.azurepem)
+			pemFileName = req.files.azurepem.originalFilename;
+		var keyFileName = null;
+		if(req.files && req.files.azurekey)
+			keyFileName = req.files.azurekey.originalFilename;
 		var orgId = req.body.orgId;
 
 		if (typeof azureSubscriptionId === 'undefined' || azureSubscriptionId.length === 0) {
@@ -2084,6 +2085,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var providerName = req.body.providerName;
 		var providerType = req.body.providerType;
 		var orgId = req.body.orgId;
+		var s3BucketName=req.body.s3BucketName;
 		var isDefault = (req.body.isDefault === 'true') ? true : false;
 		var hasDefaultProvider = false;
 
@@ -2134,7 +2136,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					providerName: providerName,
 					providerType: providerType,
 					orgId: orgId,
-					isDefault: isDefault
+					isDefault: isDefault,
+					s3BucketName:s3BucketName
 				};
 				var ec2;
 				if (isDefault == true) {
@@ -2217,6 +2220,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 																		//secretKey: provider.secretKey,
 																		providerName: provider.providerName,
 																		providerType: provider.providerType,
+																		s3BucketName: provider.s3BucketName,
 																		orgId: orgs[0].rowid,
 																		orgName: orgs[0].orgname,
 																		__v: provider.__v,
@@ -2231,7 +2235,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 													logger.debug("Exit post() for /providers");
 												});
 											});
-										}
+									}
 								});
 							}
 						});
@@ -2277,18 +2281,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									}
 
 									/*var keys = [];
-									keys.push(providers[i].accessKey);
-									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-										cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-										if (err) {
-											res.status(500).send("Failed to decrypt accessKey or secretKey");
-											return;
-										}
-										providers[i].accessKey = decryptedKeys[0];
-										providers[i].secretKey = decryptedKeys[1];
+									 keys.push(providers[i].accessKey);
+									 keys.push(providers[i].secretKey);
+									 cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+									 cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+									 if (err) {
+									 res.status(500).send("Failed to decrypt accessKey or secretKey");
+									 return;
+									 }
+									 providers[i].accessKey = decryptedKeys[0];
+									 providers[i].secretKey = decryptedKeys[1];
 
-									});*/
+									 });*/
 								}
 							} else {
 								res.send(200, []);
@@ -2327,22 +2331,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 										return;
 									}
 									/*var keys = [];
-									keys.push(providers[i].accessKey);
-									keys.push(providers[i].secretKey);
-									cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-										cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-										if (err) {
-											res.sned(500, "Failed to decrypt accessKey or secretKey");
-											return;
-										}
-										//providers[i].accessKey = decryptedKeys[0];
-										//providers[i].secretKey = decryptedKeys[1];
-										providersList.push(providers[i]);
-										if (providers.length === providersList.length) {
-											res.send(providersList);
-											return;
-										}
-									});*/
+									 keys.push(providers[i].accessKey);
+									 keys.push(providers[i].secretKey);
+									 cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
+									 cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
+									 if (err) {
+									 res.sned(500, "Failed to decrypt accessKey or secretKey");
+									 return;
+									 }
+									 //providers[i].accessKey = decryptedKeys[0];
+									 //providers[i].secretKey = decryptedKeys[1];
+									 providersList.push(providers[i]);
+									 if (providers.length === providersList.length) {
+									 res.send(providersList);
+									 return;
+									 }
+									 });*/
 								}
 							} else {
 								res.send(providersList);
@@ -2364,15 +2368,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var user = req.session.user;
 		var category = configmgmtDao.getCategoryFromID("9");
 		var permissionto = 'modify';
-
 		if (req.body.accessKey != undefined)
-		var accessKey = req.body.accessKey.trim();
+			var accessKey = req.body.accessKey.trim();
 
-	 	if (req.body.secretKey != undefined)
-		var secretKey = req.body.secretKey.trim();
+		if (req.body.secretKey != undefined)
+			var secretKey = req.body.secretKey.trim();
 		var providerName = req.body.providerName.trim();
 		var providerId = req.params.providerId.trim();
 		var orgId = req.body.orgId;
+		var s3BucketName = req.body.s3BucketName;
 		if (typeof providerId === 'undefined' || providerId.length === 0) {
 			res.status(400).send("{Please Enter ProviderId.}");
 			return;
@@ -2401,9 +2405,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					accessKey: encryptedKeys[0],
 					secretKey: encryptedKeys[1],
 					providerName: providerName,
-					orgId: orgId
+					orgId: orgId,
+					s3BucketName:s3BucketName
 				};
-
 				updateInDb(providerData);
 			});
 		}
@@ -2469,6 +2473,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								id: 9,
 								accessKey: aProvider.accessKey,
 								secretKey: aProvider.secretKey,
+								s3BucketName: s3BucketName,
 								providerName: providerName,
 								orgId: orgId
 							};
@@ -3367,7 +3372,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/aws/dashboard/providers/:id', function(req, res) {
 		var client = new rc();
 		var id = req.params.id;
-		console.log(id);
 
 		var defaultProvider = (req.body.isDefault === 'true')?true:false;
 

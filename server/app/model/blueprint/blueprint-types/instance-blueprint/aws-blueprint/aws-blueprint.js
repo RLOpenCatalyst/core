@@ -294,7 +294,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 										referenceId: logsReferenceIds,
 										err: true,
 										log: "Instance ready state wait failed. Unable to bootstrap",
-										timestamp: timestampStarted
+										timestamp:  new Date().getTime()
 									});
 									logger.error("waitForInstanceRunnnigState returned an error  >>", err);
 									return;
@@ -330,9 +330,9 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 											referenceId: logsReferenceIds,
 											err: true,
 											log: "Instance ok state wait failed. Unable to bootstrap",
-											timestamp: timestampStarted
+											timestamp:  new Date().getTime()
 										});
-										logger.error('intance wait failed ==> ', openport, err);
+										logger.error('intance wait failed ==> ', err);
 										return;
 									}
 
