@@ -184,7 +184,7 @@ function saveInstanceResourceCost(instances,instanceCostMetrics,callback){
     if(instances.managed.length === 0 && instances.unmanaged.length === 0){
         callback(null,awsObjectList);
     }else{
-        var startTime = new Date(endTime.getTime() - 1000*60*60*24);
+        var startTime = new Date(date.getTime() - 1000*60*60*24);
         if(instances.managed.length > 0){
             for(var i = 0; i < instances.managed.length; i++){
                 var awsCostObject = {
@@ -286,7 +286,8 @@ function updateManagedInstanceCost(instances,instanceCostMetrics, callback) {
         for(var i = 0; i < instances.length; i++){
             var costMetrics = [];
             var costMetricsObj = {};
-            var totalCost = 0.0
+            var totalCost = 0.0;
+            var totalUsage= 0.0;
             for (var j = 0; j < instanceCostMetrics.length; j++) {
                 if (instanceCostMetrics[j].resourceId === instances[i].platformId) {
                     costMetricsObj['usageStartDate'] = instanceCostMetrics[j].usageStartDate;
@@ -295,13 +296,14 @@ function updateManagedInstanceCost(instances,instanceCostMetrics, callback) {
                     costMetricsObj['description'] = instanceCostMetrics[j].description;
                     costMetricsObj['usageCost'] = instanceCostMetrics[j].usageCost;
                     totalCost += Number(instanceCostMetrics[j].usageCost);
+                    totalUsage += Number(instanceCostMetrics[j].usageQuantity);
                     costMetrics.push(costMetricsObj);
                     costMetricsObj = {};
                 };
             };
             instanceCostObj['resourceId'] = instances[i].platformId;
             instanceCostObj['costMetrics'] = costMetrics;
-            instanceCostObj['totalResourceCost'] = totalCost;
+            instanceCostObj['totalInstanceCost'] = totalCost;
             instancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
                     callback(err, null);
@@ -325,7 +327,8 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
         for (var i = 0; i < instances.length; i++) {
             var costMetrics = [];
             var costMetricsObj = {};
-            var totalCost = 0.0
+            var totalCost = 0.0;
+            var totalUsage= 0.0;
             for (var j = 0; j < instanceCostMetrics.length; j++) {
                 if (instanceCostMetrics[j].resourceId === instances[i].platformId) {
                     costMetricsObj['usageStartDate'] = instanceCostMetrics[j].usageStartDate;
@@ -334,13 +337,15 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
                     costMetricsObj['description'] = instanceCostMetrics[j].description;
                     costMetricsObj['usageCost'] = instanceCostMetrics[j].usageCost;
                     totalCost += Number(instanceCostMetrics[j].usageCost);
+                    totalUsage+= Number(instanceCostMetrics[j].usageQuantity);
                     costMetrics.push(costMetricsObj);
                     costMetricsObj = {};
                 };
             };
             instanceCostObj['resourceId'] = instances[i].platformId;
             instanceCostObj['costMetrics'] = costMetrics;
-            instanceCostObj['totalResourceCost'] = totalCost;
+            instanceCostObj['totalInstanceCost'] = totalCost;
+            instanceCostObj['totalInstanceUsage'] = totalUsage;
             unManagedInstancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
                     callback(err, null);

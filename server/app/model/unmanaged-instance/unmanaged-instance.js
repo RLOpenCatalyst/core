@@ -33,7 +33,9 @@ var UnmanagedInstanceSchema = new Schema({
 	state: String,
 	tags: Schema.Types.Mixed,
 	usage: Schema.Types.Mixed,
-	cost: Schema.Types.Mixed
+	cost: Schema.Types.Mixed,
+	aggregateCost : String,
+	aggregateUsage : String
 });
 UnmanagedInstanceSchema.plugin(mongoosePaginate);
 
@@ -220,6 +222,26 @@ UnmanagedInstanceSchema.statics.updateUsage = function updateUsage(instanceId, u
 		}
 		if (typeof callBack == 'function') {
 			callBack(null, data);
+		}
+	});
+};
+
+UnmanagedInstanceSchema.statics.updateInstanceCost = function(instanceCostData, callback) {
+	this.update({
+		platformId: instanceCostData.resourceId
+	}, {
+		$set: {
+			cost: instanceCostData.costMetrics,
+			aggregateCost:instanceCostData.totalInstanceCost,
+			aggregateUsage:instanceCostData.totalInstanceUsage
+		}
+	}, {
+		upsert: false
+	}, function(err, data) {
+		if (err) {
+			return callback(err, null);
+		} else {
+			callback(null, data);
 		}
 	});
 };

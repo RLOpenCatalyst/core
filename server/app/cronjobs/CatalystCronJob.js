@@ -15,7 +15,7 @@
  */
 
 var CatalystCronJob = {
-    interval: '*/2 * * * *',
+    interval: '*/30 * * * *',
     getInterval: function() {
         return this.interval;
     },
