@@ -582,24 +582,6 @@ var SettingTreeJson = [{
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-tags"
 
-        }, {
-            "name": "organizations",
-            "text": "Chef Server",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/ConfigManagementList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-random"
-
-        }, {
-            "name": "organizations",
-            "text": "Environments",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/EnvironmentConceptList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-tint",
-            "parent": "devops",
-            "nodetype": "EnvironmentConceptList"
-
         }],
         "borderColor": "#000",
         "selectable": false,
@@ -607,11 +589,17 @@ var SettingTreeJson = [{
 
 
     }, {
-        "name": "devopssetup",
-        "text": "DevOps Setup",
-        "icon": "fa fa-lg fa-fw fa-qrcode",
-        "nodetype": "devops",
+        "name": "config setup",
+        "text": "Config Setup",
         "nodes": [{
+            "name": "organizations",
+            "text": "Chef Server",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ConfigManagementList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-random"
+
+            }, {
                 "name": "organizations",
                 "text": "Puppet Server",
                 "borderColor": "#000",
@@ -620,6 +608,26 @@ var SettingTreeJson = [{
                 "icon": "fa fa-lg fa-fw fa-random"
 
             }, {
+                "name": "organizations",
+                "text": "Environments",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/EnvironmentConceptList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-tint",
+                "parent": "devops",
+                "nodetype": "EnvironmentConceptList"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa-lg fa-fw fa fa-tachometer"
+    },  {
+        "name": "devopssetup",
+        "text": "DevOps Setup",
+        "icon": "fa fa-lg fa-fw fa-qrcode",
+        "nodetype": "devops",
+        "nodes": [{
                 "name": "organizations",
                 "text": "Nexus Server",
                 "borderColor": "#000",
