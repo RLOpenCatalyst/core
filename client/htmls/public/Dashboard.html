@@ -24,13 +24,13 @@
                   <span class="font-size11 marginright15">Total Provider</span>
 
                   <span class="totalAwsLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                  <span class="font-size11 marginright15">Aws</span>
+                  <span class="font-size11 marginright15">AWS</span>
 
                   <span class="totalAzureLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                   <span class="font-size11 marginright15">Azure</span>
 
                   <span class="totalVmwareLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                  <span class="font-size11 marginright15">VmWare</span>
+                  <span class="font-size11 marginright15">VMware</span>
 
                   <span class="totalOpenstackCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                   <span class="font-size11 marginright15">OpenStack</span>
@@ -100,8 +100,8 @@
               <div class="icon">
                 <i class="fa fa-external-link"></i>
               </div>
-              <span class="small-box-footer convertUnmanagedtoManaged footer-box-css">
-               <!-- Convert <i class="fa fa-arrow-circle-right"></i> -->
+              <span class="small-box-footer unmanagedInstSpecificMoreInfo footer-box-css">
+               More info <i class="fa fa-arrow-circle-right"></i>
               </span>
             </div>
           </div>
@@ -213,6 +213,35 @@
                </tr>
             </thead>
             <tbody class="managedInstance">
+            </tbody>
+         </table>
+      </div>
+    </div>
+    <div id="unmanagedTableContainer" style="display:none">
+      <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+          <h4 class="panel-title padding2">
+            <span class="panelh4spanCSS">Assigned Instances Details for the Provider :&nbsp;</span>
+            <span id="providerforunManagedInstId" class="panelh4spanCSS"></span>
+          </h4>
+          <a id="backfrmunManagedInstance" class="btn btn-primary panelh4aCSS">
+            <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+          </a>                                 
+        </div>     
+      </div>
+      <div  class="table-responsive table-responsiveCSS">
+         <table id="unmanagedinstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+            <thead>
+               <tr>
+                  <th class="text-center">InstanceId</th>
+                  <th class="text-center">OS</th>
+                  <th class="text-center">IP Address</th>
+                  <th class="text-center">Region</th>
+                  <th class="text-center">Status</th>
+                  <th class="text-center">Project Name</th>
+               </tr>
+            </thead>
+            <tbody class="unmanagedInstance">
             </tbody>
          </table>
       </div>
