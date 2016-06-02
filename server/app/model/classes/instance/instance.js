@@ -1683,10 +1683,31 @@ var InstancesDao = function() {
 
 
     this.searchByChefServerAndNodeNames = function(chefServerId, nodesName, callback) {
-        logger.debug('chefServerId ==>',chefServerId);
-        logger.debug('nodesName ==>',nodesName);
-        
+        logger.debug('chefServerId ==>', chefServerId);
+        logger.debug('nodesName ==>', nodesName);
+
         Instances.find({
+            "chef.serverId": chefServerId,
+            "chef.chefNodeName": {
+                '$in': nodesName
+            }
+        }, function(err, instances) {
+            if (err) {
+                logger.error("Failed searchByChefServerAndNodeNames ", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, instances);
+
+        });
+
+    };
+    this.searchByChefServerNodeNamesAndEnvId = function(chefServerId, nodesName, envId, callback) {
+        logger.debug('chefServerId ==>', chefServerId);
+        logger.debug('nodesName ==>', nodesName);
+
+        Instances.find({
+            "envId":envId,
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
                 '$in': nodesName
