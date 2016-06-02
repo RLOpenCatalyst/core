@@ -31,8 +31,6 @@ var PuppetTask = require('./taskTypePuppet');
 var ScriptTask = require('./taskTypeScript');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
-
-
 var Schema = mongoose.Schema;
 
 var TASK_TYPE = {

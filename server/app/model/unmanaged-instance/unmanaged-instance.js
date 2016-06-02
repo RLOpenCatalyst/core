@@ -143,7 +143,6 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 
 UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, callback) {
 	logger.debug("Enter getInstanceByProviderId (%s)", providerId);
-
 	this.find({
 		providerId: providerId
 	}, function(err, data) {
@@ -157,6 +156,7 @@ UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, c
 
 	});
 };
+
 
 UnmanagedInstanceSchema.statics.getInstanceTagByProviderId = function(providerIds, callback) {
 	if (!(providerIds && providerIds.length)) {

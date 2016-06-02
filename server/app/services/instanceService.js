@@ -51,7 +51,7 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
                 var err = new Error('Instance not found');
                 err.status = 404;
                 return callback(err);
-            } else if(instance && instance.providerId != provider._id) {
+            } else if(instance && instance.providerId != providerId) {
                 var err = new Error('Forbidden');
                 err.status = 403;
                 return callback(err);
@@ -66,6 +66,7 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
     var orgIds = [];
     var queryObjectAndCondition = filterQuery.queryObj['$and'][0];
     if(('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
+
         var validOrgs = queryObjectAndCondition['orgName']['$in'].filter(function(orgName) {
             return (orgName in orgs);
         });
