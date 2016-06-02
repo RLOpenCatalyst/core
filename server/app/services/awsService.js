@@ -38,17 +38,13 @@ function getCostForResources(updatedTime,provider,instanceIds,fileName, callback
     var ec2Cost = 0, totalCost = 0, rdCost = 0, rstCost = 0, elcCost = 0, cdfCost = 0, r53Cost = 0, s3Cost = 0 , vpcCost = 0;
     var regionOne = 0, regionTwo = 0, regionThree = 0, regionFour = 0, regionFive = 0, regionSix = 0, regionSeven = 0, regionEight = 0, regionNine = 0, regionTen = 0, catTagCost = 0, jjTagCost = 0;
     var stream = fs.createReadStream(fileName);
-    var costIndex = 18;
-    var zoneIndex = 11;
-    var usageIndex= 9;
-    var prodIndex=5;
-    var tagIndex =22;
+    var costIndex = 18,zoneIndex = 11,usageIndex= 9,prodIndex=5,tagIndex =22,totalCostIndex=3;
     var instanceCostMetrics = [];
     var endTime = new Date();
     var startTime = new Date(endTime.getTime() - 1000*60*60*24);
     csv.fromStream(stream, {headers : false}).on("data", function(data){
-        if(data[costIndex] !== 'BlendedCost' && data[prodIndex] !== ''){
-            totalCost += Number(data[costIndex]);
+        if(data[totalCostIndex] === 'StatementTotal'){
+            totalCost = Number(data[costIndex]);
         }
         if(data[prodIndex] === "Amazon Elastic Compute Cloud")
         {
@@ -406,13 +402,13 @@ function getCostForServices(provider,callback) {
         });
 }
 
-function getEC2InstanceUsageMetrics(provider, instances, next) {
+function getEC2InstanceUsageMetrics(provider, instances, callback) {
     var metricsUnits = appConfig.aws.cwMetricsUnits;
     var instanceUsageMetrics = [];
     var instnacesWithMetrics = instances.length;
 
     if(instances.length == 0)
-        next(null, instanceUsageMetrics);
+        callback(null, instanceUsageMetrics);
 
     // @TODO Create promise for creating cw client
     var cryptoConfig = appConfig.cryptoSettings;
@@ -453,16 +449,16 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
                             cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
                         },
                         NetworkOut: function (callback) {
-                            cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], instances[j].platformId, startTime, endTime, callback);
+                            cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
                         },
                         NetworkIn: function (callback) {
-                            cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], instances[j].platformId, startTime, endTime, callback);
+                            cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
                         },
                         DiskReadBytes: function (callback) {
-                            cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], instances[j].platformId, startTime, endTime, callback);
+                            cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
                         },
                         DiskWriteBytes: function (callback) {
-                            cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], instances[j].platformId, startTime, endTime, callback);
+                            cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
                         }
                     },
                     function (err, results) {
@@ -484,14 +480,15 @@ function getEC2InstanceUsageMetrics(provider, instances, next) {
                             });
                         }
 
-                        if(instanceUsageMetrics.length == instnacesWithMetrics)
-                            next(null, instanceUsageMetrics);
+                        if(instanceUsageMetrics.length == instnacesWithMetrics) {
+                            callback(null, instanceUsageMetrics);
+                        }
                     });
             } else {
                 instnacesWithMetrics -= 1;
 
                 if(instanceUsageMetrics.length == instnacesWithMetrics)
-                    next(null, instanceUsageMetrics);
+                    callback(null, instanceUsageMetrics);
             }
         })(i);
     }

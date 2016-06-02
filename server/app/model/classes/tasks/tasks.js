@@ -20,18 +20,14 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('../../dao/schema-validator');
-var uniqueValidator = require('mongoose-unique-validator');
 var ChefTask = require('./taskTypeChef');
 var JenkinsTask = require('./taskTypeJenkins');
 var TaskHistory = require('./taskHistory');
-var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
-var Jenkins = require('_pr/lib/jenkins');
 var CompositeTask = require('./taskTypeComposite');
 var PuppetTask = require('./taskTypePuppet');
 var ScriptTask = require('./taskTypeScript');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
-
 var Schema = mongoose.Schema;
 
 var TASK_TYPE = {
