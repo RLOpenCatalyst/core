@@ -62,6 +62,11 @@ var awsProviderSchema = new Schema({
 		type: [String],
 		required: true,
 		trim: true
+	},
+	s3BucketName:{
+		type: String,
+		required: false,
+		trim: true
 	}
 });
 
@@ -195,7 +200,8 @@ awsProviderSchema.statics.updateAWSProviderById = function(providerId, providerD
 			id: providerData.id,
 			providerName: providerData.providerName,
 			accessKey: providerData.accessKey,
-			secretKey: providerData.secretKey
+			secretKey: providerData.secretKey,
+			s3BucketName: providerData.s3BucketName
 		}
 	}, {
 		upsert: false

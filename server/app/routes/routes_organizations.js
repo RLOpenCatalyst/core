@@ -45,9 +45,28 @@ var AzureArm = require('_pr/model/azure-arm');
 var async = require('async');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
+var containerDao = require('../model/container');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
+
+	app.get('/containers',function(req,res){
+		logger.debug("Enter get() for all docker Containers");
+		containerDao.getAllContainers(function(err,containerList){
+			if(err){
+				logger.error(err);
+				res.send(err);
+				return;
+			}else if(containerList.length === 0){
+				logger.debug("Presently,there is not container in catalyst");
+				res.send(containerList);
+				return;
+			}else{
+				res.send(containerList);
+				return;
+			}
+		})
+	});
 
 	app.all('/organizations/*', sessionVerification);
 
