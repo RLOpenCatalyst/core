@@ -140,7 +140,23 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 			callback(null, instances);
 		});
 };
-//End By Durgesh
+
+UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, callback) {
+	logger.debug("Enter getInstanceByProviderId (%s)", providerId);
+
+	this.find({
+		providerId: providerId
+	}, function(err, data) {
+		if (err) {
+			logger.error("Failed getInstanceByProviderId (%s)", providerId, err);
+			callback(err, null);
+			return;
+		}
+		logger.debug("Exit getInstanceByProviderId (%s)", providerId);
+		callback(null, data);
+
+	});
+};
 
 UnmanagedInstanceSchema.statics.getInstanceTagByProviderId = function(providerIds, callback) {
 	if (!(providerIds && providerIds.length)) {

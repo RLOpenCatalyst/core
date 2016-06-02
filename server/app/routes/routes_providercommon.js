@@ -95,33 +95,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='managedInstances';
-			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+			instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
 				if (err) {
-					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
+					res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
 					return;
 				}
-				if (!provider) {
-					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
-					return;
-				}
-				instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
+				ApiUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
 					if (err) {
-						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
+						res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+							return;
+					}
+					if (!paginationRes.managedInstances.length>0) {
+						res.status(200).send(paginationRes);
 						return;
 					}
-					ApiUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
-						if (err) {
-							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
-							return;
-						}
-						if (!paginationRes.managedInstances.length>0) {
-							res.status(200).send(paginationRes);
-							return;
-						}
 						res.status(200).send(paginationRes);
-					});
-
-
 				});
 			});
 		});
@@ -136,27 +124,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='unmanagedInstances';
-			AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
+			unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
 				if (err) {
-					res.status(500).send(ApiUtils.errorResponse(500,'ProviderId'));
+					res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
 					return;
 				}
-				if (!provider) {
-					res.status(204).send(ApiUtils.errorResponse(204,'ProviderId'));
-					return;
-				}
-				unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
+				ApiUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
 					if (err) {
-						res.status(404).send(ApiUtils.errorResponse(404,'paginationRequest'));
+						res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
 						return;
 					}
-					ApiUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
-						if (err) {
-							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
-							return;
-						}
-						res.status(200).send(paginationRes);
-					});
+					res.status(200).send(paginationRes);
 				});
 			});
 		});
