@@ -29,7 +29,7 @@ var csvFile = "./app/temp/" + accountNumber + "-aws-billing-detailed-line-items-
 
 
 var AggregateAWSCost= Object.create(CatalystCronJob);
-AggregateAWSCost.interval = '*/5 * * * *';
+AggregateAWSCost.interval = '*/15 * * * *';
 AggregateAWSCost.execute = aggregateAWSCost;
 
 module.exports = AggregateAWSCost;
