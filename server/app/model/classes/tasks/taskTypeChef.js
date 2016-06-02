@@ -20,7 +20,6 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 
-var intanceDao = require('../instance/instance');
 var instancesDao = require('../instance/instance');
 var logsDao = require('../../dao/logsdao.js');
 var credentialCryptography = require('../../../lib/credentialcryptography')

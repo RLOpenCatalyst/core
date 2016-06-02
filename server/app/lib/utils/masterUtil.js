@@ -161,6 +161,48 @@ var MasterUtil = function() {
         });
     }
 
+    this.getBusinessGroupsByOrgId = function(orgId, callback) {
+        d4dModelNew.d4dModelMastersProductGroup.find({
+            orgname_rowid: orgId,
+            id:'2'
+         }, function(err, productGroupData) {
+            if(err) {
+                logger.debug("getBusinessGroupsByOrgId: "+err);
+                callback(err, null);
+            }
+            callback(null, productGroupData);
+
+        });
+    };
+
+    this.getProjectsBybgId = function(bgId, callback) {
+        d4dModelNew.d4dModelMastersProjects.find({
+            productgroupname_rowid: bgId,
+            id:'4'
+        }, function(err, projectData) {
+            if(err) {
+                logger.debug("getProjectsBybgId: "+err);
+                callback(err, null);
+            }
+            callback(null, projectData);
+
+        });
+    };
+
+    this.getEnvironmentsByprojectId = function(projectId, callback) {
+        d4dModelNew.d4dModelMastersEnvironments.find({
+            projectname_rowid: projectId,
+            id:'3'
+        }, function(err, environmentData) {
+            if(err) {
+                logger.debug("getEnvironmentsByprojectId: "+err);
+                callback(err, null);
+            }
+            callback(null, environmentData);
+
+        });
+    }
+
     // Return all Environments specific to User
     this.getEnvironments = function(orgList, callback) {
         var envList = [];
@@ -239,6 +281,47 @@ var MasterUtil = function() {
                 callback(null, projectList);
                 return;
             }
+        });
+    }
+    this.getBusinessGroupsByOrgId = function(orgId, callback) {
+        d4dModelNew.d4dModelMastersProductGroup.find({
+            orgname_rowid: orgId,
+            id:'2'
+        }, function(err, productGroupData) {
+            if(err) {
+                logger.debug("getBusinessGroupsByOrgId: "+err);
+                callback(err, null);
+            }
+            callback(null, productGroupData);
+
+        });
+    };
+
+    this.getProjectsBybgId = function(bgId, callback) {
+        d4dModelNew.d4dModelMastersProjects.find({
+            productgroupname_rowid: bgId,
+            id:'4'
+        }, function(err, projectData) {
+            if(err) {
+                logger.debug("getProjectsBybgId: "+err);
+                callback(err, null);
+            }
+            callback(null, projectData);
+
+        });
+    };
+
+    this.getEnvironmentsByprojectId = function(projectId, callback) {
+        d4dModelNew.d4dModelMastersEnvironments.find({
+            projectname_rowid: projectId,
+            id:'3'
+        }, function(err, environmentData) {
+            if(err) {
+                logger.debug("getEnvironmentsByprojectId: "+err);
+                callback(err, null);
+            }
+            callback(null, environmentData);
+
         });
     }
 
@@ -1504,6 +1587,35 @@ var MasterUtil = function() {
         });
     }
 
+    this.getDockerServer=function(jsonData,callBack){
+        d4dModelNew.d4dModelMastersDockerConfig.find({
+            orgname_rowid:jsonData.orgId,
+            id:jsonData.dockerId
+        },function(err,dockerData){
+            if(err){
+                callBack(err,null);
+                return;
+            }
+            callBack(null,dockerData);
+        })
+    }
+
+    this.getNexusServer=function(jsonData,callBack){
+        d4dModelNew.d4dModelMastersNexusServer.find({
+            orgname_rowid:jsonData.orgId,
+            id:jsonData.nexusId
+        },function(err,nexusData){
+            if(err){
+                callBack(err,null);
+                return;
+            }
+            callBack(null,nexusData);
+        })
+    }
+
+
+
+
     // Return all Nexus Servers specific to User
     this.getNexusServers = function(orgList, callback) {
         var congifMgmtList = [];
@@ -2034,6 +2146,7 @@ var MasterUtil = function() {
             }
         });
     };
+   
 }
 
 module.exports = new MasterUtil();

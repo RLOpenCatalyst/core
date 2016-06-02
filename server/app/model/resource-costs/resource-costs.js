@@ -34,7 +34,7 @@ var ResourceCostsSchema = new Schema({
         required: false,
         trim: true
     },
-    projectId: {
+    projectId:{
         type: String,
         required: false,
         trim: true
@@ -44,27 +44,54 @@ var ResourceCostsSchema = new Schema({
         required: false,
         trim: true
     },
-    platform: {
+    resourceId: {
         type: String,
         required: false,
         trim: true
     },
-    instanceId: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    startTime: {
-        type: Date,
+    updatedTime: {
+        type: Number,
         required: false
     },
-    endTime: {
-        type: String,
-        required: false,
-        trim: true
+    startTime:{
+        type: Number,
+        required: false
+    },
+    endTime:{
+        type: Number,
+        required: false
+    },
+    aggregateResourceCost:{
+        type:String,
+        required:false,
+        trim:true
     },
     costMetrics: Schema.Types.Mixed
 });
 
-var ResourceCosts = mongoose.model('ResourceCostsSchema', ResourceCostsSchema);
+ResourceCostsSchema.statics.saveResourceCost = function(resourceCostData, callback) {
+    var resourceCosts = new ResourceCosts(resourceCostData);
+    resourceCosts.save(function(err, data) {
+        if (err) {
+            logger.error("saveResourceCostByCSV Failed", err, resourceCostData);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+ResourceCostsSchema.statics.deleteResourceCostByResourceId = function(resourceId, callback) {
+    ResourceCosts.remove({
+        resourceId: resourceId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to deleteResourceCostByResourceId (%s)", resourceId, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+var ResourceCosts = mongoose.model('ResourceCost', ResourceCostsSchema);
 module.exports = ResourceCosts;

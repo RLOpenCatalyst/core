@@ -65,7 +65,11 @@
 		"async": "v1.5.2",
 		"multer": "1.1.0",
 		"joi": "8.0.5",
-		"lodash.topairs": "4.1.0"
+		"lodash.topairs": "4.1.0",
+		"adm-zip":"0.4.7",
+		"fast-csv":"2.0.0",
+		"fs":"0.0.2"
+
 	},
 	"devDependencies": {
 		"grunt": "0.4.5",
