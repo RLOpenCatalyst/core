@@ -240,7 +240,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
 
                         logger.debug('chef server -->', chefDetails);
 
-                        instancesDao.searchByChefServerAndNodeNames(chefDetails.rowid, nodeNames, function(err, instances) {
+                        instancesDao.searchByChefServerNodeNamesAndEnvId(chefDetails.rowid, nodeNames, self.envId, function(err, instances) {
                             if (err) {
                                 logger.error(err);
                                 if (typeof onExecute === 'function') {
@@ -252,7 +252,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusD
                             if (!(instances && instances.length)) {
                                 if (typeof onExecute === 'function') {
                                     onExecute({
-                                        message: "Empty Node List"
+                                        message: "Nodes with role " + role + " not found"
                                     }, null);
                                 }
                                 return;
