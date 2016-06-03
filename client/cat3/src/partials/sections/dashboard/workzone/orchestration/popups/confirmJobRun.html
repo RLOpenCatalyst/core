@@ -15,9 +15,9 @@
         <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
             <i class="fa fa-times black"></i> Cancel
         </button>      
-        <button type="button" class="btn cat-btn-update" ng-click="runJob()">
+        <button type="button" class="btn cat-btn-update" ng-disabled="isJobRunExecuting" ng-click="runJob()">
             <i class="fa fa-check white"></i> OK
         </button>
-        <loading size="small" name="isLoading" type="inline"/>
+        <loading size="small" name="isJobRunExecuting" type="inline"/>
     </div>
 </div>
