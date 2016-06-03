@@ -200,9 +200,9 @@
                     $scope.isDockerInstancesLoading = true;
                     $scope.dockerinstancesData = [];
                     //call made to get the instance details.(instance name,instanceIP)
-                    workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
+                    workzoneServices.getCurrentEnvInstances().then(function(response) {
                         $scope.isDockerInstancesLoading = false;
-                        $scope.dockerinstancesData = helper.filterRunningInstances(response.data.instances);
+                        $scope.dockerinstancesData = helper.filterRunningInstances(response.data);
                     }, function(){
                         $scope.errorMessage = "No Docker Instances Records found";
                     });

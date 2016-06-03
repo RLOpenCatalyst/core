@@ -1,6 +1,6 @@
 <div id='instanceActionGridTemplatePage'>
    <div class="ssh-rdp-wrapper">
-      <span class="sshIcon cursor" ng-click="grid.appScope.operationSet.instanceSSH(inst)" title="SSH" ng-show="grid.appScope.actionSet.isSSHEnabled(row.entity) &amp;&amp; grid.appScope.perms.ssh"></span>
+      <span class="sshIcon cursor" ng-click="grid.appScope.operationSet.instanceSSH(row.entity)" title="SSH" ng-show="grid.appScope.actionSet.isSSHEnabled(row.entity) &amp;&amp; grid.appScope.perms.ssh"></span>
       <span class="sshIcon-disabled ng-hide" ng-show="grid.appScope.actionSet.isSSHDisabled(row.entity) &amp;&amp; grid.appScope.perms.ssh"></span>
       <span class="rdpIcon ng-hide" ng-show="grid.appScope.actionSet.isRDPEnabled(row.entity) &amp;&amp; grid.appScope.perms.rdp">
       <a title="RDP" target="_self" href="" download=""></a>
