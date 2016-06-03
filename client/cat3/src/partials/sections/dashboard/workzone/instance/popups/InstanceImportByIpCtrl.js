@@ -29,7 +29,7 @@
 				if (FileReader) {
 					var fileContent = new FileReader();
 					fileContent.onload = function(e) {
-						$scope.postImport(e.target.result);
+						$scope.addPemText(e.target.result);
 					};
 
 					fileContent.onerror = function(e) {
@@ -83,7 +83,7 @@
 					} else {
 						$scope.pemFileSelection($scope.pemfile);
 					}
-					$scope.postImport = function(pemfileText){
+					$scope.addPemText = function(pemfileText){
 						reqBody.credentials.pemFileData = pemfileText;
 						$scope.postMethodImportByIp();
 					}
