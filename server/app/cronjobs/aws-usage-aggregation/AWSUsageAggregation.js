@@ -27,6 +27,7 @@ var resourceMetricsModel = require('_pr/model/resource-metrics');
 var instanceService = require('_pr/services/instanceService');
 var async = require('async');
 var awsService = require('_pr/services/awsService');
+var awsS3 = require('_pr/model/aws-s3');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
 AggregateAWSUsage.interval = '*/5 * * * *';
@@ -68,7 +69,7 @@ function aggregateUsageForProvidersOfOrg(org) {
 function aggregateEC2UsageForProvider(provider) {
     async.waterfall([
             function (next) {
-                logger.debug('EC2 usage aggregation for provider: ' + provider._id + ' started');
+                logger.debug('AWS Service usage aggregation for provider: ' + provider._id + ' started');
                 instanceService.getTrackedInstancesForProvider(provider, next);
             },
             function (provider, instances, next) {
@@ -97,6 +98,9 @@ function aggregateEC2UsageForProvider(provider) {
                     },
                     unmanaged: function(callback) {
                         updateUnmanagedInstanceUsage(usageMetrics.unmanaged, callback);
+                    },
+                    s3BucketUsageMetrics: function(callback) {
+                        updateS3BucketUsage(usageMetrics.s3BucketUsageMetrics, callback);
                     }
                 }, function(err, results){
                     if(err) {
@@ -111,7 +115,7 @@ function aggregateEC2UsageForProvider(provider) {
             if(err)
                 logger.error(err);
             else if(results)
-                logger.debug('EC2 usage aggregation for provider: ' + provider._id + ' ended');
+                logger.debug('AWS Service usage aggregation for provider: ' + provider._id + ' ended');
         });
 }
 
@@ -141,10 +145,10 @@ function generateEC2UsageMetricsForProvider(provider, instances, callback) {
 function generateS3UsageMetricsForProvider(provider, callback) {
     async.waterfall([
         function(next){
-            awsService.getBucketsInfo(provider,next);
+            awsS3.getAWSS3Buckets(next);
         },
         function(bucketData,next){
-            awsService.getS3BucketsMetrics(provider,bucketData.Buckets,next);
+            awsService.getS3BucketsMetrics(provider,bucketData,next);
         },
         function(bucketMetrics,next){
             saveResourceUsageMetrics(bucketMetrics,next);
@@ -253,21 +257,53 @@ function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
     };
 }
 
+function updateS3BucketUsage(s3UsageMetrics,next){
+    var results = [];
+    if(s3UsageMetrics.length == 0)
+        return next(null, results);
+    // @TODO get rid of nesting
+    for(var i = 0; i < s3UsageMetrics.length; i++) {
+        (function (j) {
+            formatUsageData(s3UsageMetrics[j], function(err, formattedUsageMetrics) {
+                if(err) {
+                    next(err);
+                } else {
+                    awsS3.updateS3Usage(formattedUsageMetrics.bucketName,
+                        formattedUsageMetrics.metrics, function(err, result) {
+                            if(err)
+                                next(err);
+                            else
+                                results.push(result);
+                            if(results.length == s3UsageMetrics.length)
+                                next(null, results);
+                        }
+                    );
+                }
+            });
+        })(i);
+    };
+}
+
 function formatUsageData(instanceUsageMetrics, next) {
     var metricsDisplayUnits = appConfig.aws.cwMetricsDisplayUnits;
+    if(instanceUsageMetrics.resourceType === 'EC2') {
+        instanceUsageMetrics.metrics.CPUUtilization.unit = metricsDisplayUnits.CPUUtilization;
+        instanceUsageMetrics.metrics.DiskReadBytes.unit = metricsDisplayUnits.DiskReadBytes;
+        instanceUsageMetrics.metrics.DiskWriteBytes.unit = metricsDisplayUnits.DiskWriteBytes;
+        instanceUsageMetrics.metrics.NetworkIn.unit = metricsDisplayUnits.NetworkIn;
+        instanceUsageMetrics.metrics.NetworkOut.unit = metricsDisplayUnits.NetworkOut;
 
-    instanceUsageMetrics.metrics.CPUUtilization.unit = metricsDisplayUnits.CPUUtilization;
-    instanceUsageMetrics.metrics.DiskReadBytes.unit = metricsDisplayUnits.DiskReadBytes;
-    instanceUsageMetrics.metrics.DiskWriteBytes.unit = metricsDisplayUnits.DiskWriteBytes;
-    instanceUsageMetrics.metrics.NetworkIn.unit = metricsDisplayUnits.NetworkIn;
-    instanceUsageMetrics.metrics.NetworkOut.unit = metricsDisplayUnits.NetworkOut;
+        instanceUsageMetrics.metrics.CPUUtilization.average
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.average);
+        instanceUsageMetrics.metrics.CPUUtilization.minimum
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.minimum);
+        instanceUsageMetrics.metrics.CPUUtilization.maximum
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.maximum);
 
-    instanceUsageMetrics.metrics.CPUUtilization.average
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.average);
-    instanceUsageMetrics.metrics.CPUUtilization.minimum
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.minimum);
-    instanceUsageMetrics.metrics.CPUUtilization.maximum
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.maximum);
-
-    next(null, instanceUsageMetrics);
+        next(null, instanceUsageMetrics);
+    }else if(instanceUsageMetrics.resourceType === 'S3') {
+        instanceUsageMetrics.metrics.BucketSizeBytes.unit = metricsDisplayUnits.BucketSizeBytes;
+        instanceUsageMetrics.metrics.NumberOfObjects.unit = metricsDisplayUnits.NumberOfObjects;
+        next(null, instanceUsageMetrics);
+    }
 }

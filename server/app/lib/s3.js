@@ -17,6 +17,7 @@
 var aws = require('aws-sdk');
 var logger = require('_pr/logger')(module);
 var fs = require('fs');
+var appConfig = require('_pr/config');
 
 if (process.env.http_proxy) {
     aws.config.update({
@@ -51,7 +52,9 @@ var S3 = function(awsSettings) {
                 callback(null, data.LastModified);
             });
         }else if(key === 'file'){
-            var file = fs.createWriteStream('./app/temp/rlBilling.zip');
+            var path=appConfig.aws.s3BucketDownloadFileLocation;
+            var fileName=appConfig.aws.s3BucketFileName;
+            var file = fs.createWriteStream(path+fileName);
             var fileStream = s3.getObject(params).createReadStream();
             fileStream.pipe(file);
             file.on('finish',function(){
@@ -80,20 +83,31 @@ var S3 = function(awsSettings) {
                 logger.error(err, err.stack);
                 callback(err,null);
             } else {
-
-                console.log("Object is >>"+JSON.stringify(data.Contents[81]));
-                console.log("Size is >>"+(data.Contents[81].Size)/1048576);
-                /*for(var i = 0; i < data.Contents.length; i++){
-                    count++;
-                    bucketSize += data.Contents[i].Size;
-                    if(data.Contents.length === count) {
-                        console.log("Size is >>"+bucketSize/1024);
-                        callback(null, bucketSize);
+                if(data.Contents.length === 0){
+                     callback(null, 0);
+                }else {
+                    for (var i = 0; i < data.Contents.length; i++) {
+                        count++;
+                        bucketSize += data.Contents[i].Size;
+                        if (data.Contents.length === count) {
+                            callback(null, bucketSize / 1048576);
+                        }
                     }
-                }*/
+                }
             };
         });
     };
+
+    this.getBucketTag =function(bucketName,callback){
+        s3.getBucketTagging({Bucket:bucketName}, function(err, data) {
+            if (err){
+                logger.error(err, err.stack);
+                callback(err,null);
+            }else{
+                callback(null, data);
+            };
+        });
+    }
 }
 
 module.exports = S3;

@@ -15,7 +15,6 @@
  */
 
 var mongoose = require('mongoose');
-var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
 
@@ -42,7 +41,7 @@ var s3Schema = new Schema({
     },
     bucketCreatedOn:{
         type:Date,
-        default:Data.now
+        default:Date.now
     },
     bucketSize: {
         type: Number,
@@ -59,10 +58,80 @@ var s3Schema = new Schema({
         required:false,
         trim:true
     },
-    tag:Schema.Schema.Types.Mixed
-
-
+    tags:[Schema.Types.Mixed],
+    usage:Schema.Types.Mixed
 });
+
+s3Schema.statics.saveAWSS3BucketData = function(bucketData, callback) {
+    var bucket = new awsS3(bucketData);
+    bucket.save(function(err, data) {
+        if (err) {
+            logger.error("saveAWSS3BucketData Failed", err, data);
+            return;
+        }
+        callback(null,data);
+    });
+};
+
+s3Schema.statics.getAWSS3BucketData = function(bucketName, callback) {
+    awsS3.find({
+        bucketName: bucketName
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to getAWSS3BucketData", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+s3Schema.statics.getAWSS3Buckets = function(callback) {
+    awsS3.find({}, function(err, data) {
+        if (err) {
+            logger.error("Failed to getAWSS3Buckets", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+s3Schema.statics.updateAWSS3BucketData = function(bucketData, callback) {
+    awsS3.update({
+        bucketName: bucketData.bucketName
+    }, {
+        $set: {
+            bucketSize: bucketData.bucketSize
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to updateAWSS3BucketData", err);
+            callback(err, null);
+        }
+        callback(null, data);
+    });
+};
+
+s3Schema.statics.updateS3Usage = function(bucketName, usage, callback) {
+    awsS3.update({
+        bucketName: bucketName
+    }, {
+        $set: {
+            usage: usage
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
 
 var awsS3 = mongoose.model('s3Data', s3Schema);
 module.exports = awsS3;

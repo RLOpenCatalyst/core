@@ -25,7 +25,7 @@ if (month < 10) {
 };
 var accountNumber = '549974527830';
 var fullKey = accountNumber + "-aws-billing-detailed-line-items-with-resources-and-tags-" + year + "-" + month + ".csv.zip";
-var csvFile = "./app/temp/" + accountNumber + "-aws-billing-detailed-line-items-with-resources-and-tags-" + year + "-" + month + ".csv";
+var csvFile = appConfig.aws.s3BucketDownloadFileLocation + accountNumber + "-aws-billing-detailed-line-items-with-resources-and-tags-" + year + "-" + month + ".csv";
 
 
 var AggregateAWSCost= Object.create(CatalystCronJob);
@@ -59,6 +59,7 @@ function aggregateAWSCostForProvider(provider) {
     var instanceObj={};
     async.waterfall([
         function(next){
+            logger.debug('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' started');
             awsService.getTotalCost(provider,next);
         },
         function(totalCost,next){
@@ -104,7 +105,7 @@ function aggregateAWSCostForProvider(provider) {
         if(err)
             logger.error(err);
         else if(results)
-            logger.debug('AWS Cost aggregation for provider: ' + provider._id + ' ended');
+            logger.debug('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
     });
 };
 
@@ -145,8 +146,10 @@ function downloadUpdatedCSVFile(provider, next) {
                 next(err);
             }else{
                 if(results) {
-                    var zip = new AdmZip("./app/temp/rlBilling.zip");
-                    zip.extractAllTo('./app/temp/', true);
+                    var path=appConfig.aws.s3BucketDownloadFileLocation;
+                    var fileName=appConfig.aws.s3BucketFileName;
+                    var zip = new AdmZip(path+fileName);
+                    zip.extractAllTo(path, true);
                     next(null, results);
                 }else{
                     next(null,false);

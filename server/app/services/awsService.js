@@ -532,10 +532,10 @@ function getS3BucketsMetrics(provider, buckets, callback) {
                 cw = new CW(amazonConfig);
                 async.parallel({
                         BucketSizeBytes: function (callback) {
-                            cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:buckets[j].Name},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, callback);
+                            cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:buckets[j].bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, callback);
                         },
                         NumberOfObjects: function (callback) {
-                            cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:buckets[j].Name},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, callback);
+                            cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:buckets[j].bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, callback);
                         }
                     },
                     function (err, results) {
@@ -546,9 +546,9 @@ function getS3BucketsMetrics(provider, buckets, callback) {
                                 providerId: provider._id,
                                 providerType: provider.providerType,
                                 orgId: provider.orgId[0],
-                                resourceId: buckets[j].Name,
+                                resourceId: buckets[j].bucketName,
                                 platform: 'AWS',
-                                platformId: buckets[j].Name,
+                                platformId: buckets[j].bucketName,
                                 resourceType: 'S3',
                                 startTime: startTime,
                                 endTime: endTime,
@@ -581,7 +581,46 @@ function getBucketsInfo(provider,callback) {
             logger.error(err);
             callback(err,null);
         }else{
-            callback(null,data);
+            var results=[];
+            var bucketObj={};
+            var count=0;
+            for(var i = 0; i < data.Buckets.length; i++){
+                (function(bucket) {
+                    bucketObj = {
+                        providerId: provider._id,
+                        providerType: provider.providerType,
+                        orgId: provider.orgId[0],
+                        bucketName: bucket.Name,
+                        bucketCreatedOn: bucket.CreationDate,
+                        bucketOwnerName: data.Owner.DisplayName,
+                        bucketOwnerID: data.Owner.ID
+                    };
+                    s3.getBucketSize('avi-bucket', function (err, bucketSize) {
+                        if (err) {
+                            logger.error(err);
+                            callback(err, null);
+                        } else {
+                            bucketObj['bucketSize'] = Math.round(bucketSize);
+                            /*s3.getBucketTag(bucket.Name, function (err, tagData) {
+                                if (err) {
+                                    logger.error(err);
+                                    callback(err, null);
+                                } else {
+                                    count++;
+                                    console.log("Bucket tag" + JSON.stringify(tagData));
+                                    console.log("Bucket Name" + bucket.Name);
+                                    console.log(count);
+                                    bucketObj['tags'] = tagData;*/
+                                    results.push(bucketObj);
+                                    if (results.length === data.Buckets.length) {
+                                        callback(null, results);
+                                    }
+                                }
+                            })
+                       // }
+                   // })
+                })(data.Buckets[i]);
+           }
         }
     })
 };

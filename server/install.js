@@ -96,6 +96,8 @@ function getDefaultsConfig() {
         },
         aws: {
             pemFileLocation: __dirname + '/app/config/',
+            s3BucketDownloadFileLocation: currentDirectory + '/app/temp/',
+            s3BucketFileName:'rlBilling.zip',
             pemFile: "catalyst.pem",
             instanceUserName: "root",
             virtualizationType: [{
@@ -164,6 +166,8 @@ function getDefaultsConfig() {
                 DiskWriteBytes: 'Megabytes',
                 NetworkIn: 'Megabytes',
                 NetworkOut: 'Megabytes',
+                BucketSizeBytes:"Bytes",
+                NumberOfObjects:"Count",
                 NetworkPacketsIn: 'Count',
                 NetworkPacketsOut: 'Count',
                 StatusCheckFailed: 'Count',

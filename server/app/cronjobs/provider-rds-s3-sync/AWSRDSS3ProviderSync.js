@@ -4,10 +4,8 @@ var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var async = require('async');
-var appConfig = require('_pr/config');
 var awsService = require('_pr/services/awsService');
-var S3 = require('_pr/lib/s3.js');
-var Cryptography = require('_pr/lib/utils/cryptography');
+var awsS3 = require('_pr/model/aws-s3');
 
 var AWSRDSS3ProviderSync = Object.create(CatalystCronJob);
 AWSRDSS3ProviderSync.interval = '*/2 * * * *';
@@ -40,38 +38,52 @@ function awsRDSS3ProviderSyncForProvider(provider) {
         function(next){
             awsService.getBucketsInfo(provider,next);
         },
-        function(bucketData,next){
-            awsService.getS3BucketsMetrics(provider,bucketData.Buckets,next);
-        },
-        function(bucketMetrics,next){
-            saveResourceUsageMetrics(bucketMetrics,next);
+        function(bucketsInfo,next){
+            saveBucketData(bucketsInfo,next);
         }
     ],function(err,results){
         if(err){
             logger.error(err);
             return;
         }else{
-            logger.debug("Done");
+            logger.debug("Bucket Data Successfully Added");
         }
     })
 };
-function saveResourceUsageMetrics (resourceMetrics, next) {
+function saveBucketData(bucketsInfo, callback) {
     var results = [];
-    if(resourceMetrics.length == 0)
-        return next(null, results);
-
-    for(var i = 0; i < resourceMetrics.length; i++) {
-        (function(j) {
-            resourceMetricsModel.createNew(resourceMetrics[j],
-                function(err, resourceMetricsObj) {
-                    if(err)
-                        next(err);
-                    else
-                        results.push(resourceMetricsObj);
-                    if(results.length == resourceMetrics.length)
-                        next(null, results);
+    if(bucketsInfo.length == 0)
+        return callback(null, results);
+    for(var i = 0; i < bucketsInfo.length; i++) {
+        (function(bucket) {
+            awsS3.getAWSS3BucketData(bucket.bucketName,function(err,responseBucketData){
+                if(err) {
+                    callback(err,null);
                 }
-            );
-        })(i);
+                if(responseBucketData.length === 0){
+                    awsS3.saveAWSS3BucketData(bucket,function(err, bucketSavedData) {
+                        if(err) {
+                            callback(err,null);
+                        } else {
+                            results.push(bucketSavedData);
+                        }
+                        if(results.length === bucketsInfo.length) {
+                            callback(null, results);
+                        }
+                    });
+                }else{
+                    awsS3.updateAWSS3BucketData(bucket,function(err, bucketUpdatedData) {
+                        if(err) {
+                            callback(err,null);
+                        } else {
+                            results.push(bucketUpdatedData);
+                        }
+                        if(results.length === bucketsInfo.length) {
+                            callback(null, results);
+                        }
+                    });
+                }
+            })
+        })(bucketsInfo[i]);
     };
 }
