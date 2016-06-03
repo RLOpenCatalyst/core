@@ -66,7 +66,6 @@
                             chefLogData.createInstanceList(response.data);
                         });
                     };
-
                     //method to get the names of the nodes associated to the job and add it to the nodeIdsWithActionLog object.
                     chefLogData.createInstanceList = function (historyItem) {
                         var nodeIds = [];
