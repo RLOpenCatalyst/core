@@ -38,12 +38,13 @@
     }
 
     #createProvider .row {
-        /*margin-bottom: 10px;*/
         margin-bottom: 0px;
     }
     .azureBlock{
-        /*margin-top: 26px;*/
         margin-top: 0px;
+    }
+    .tooltipMargin{
+      margin-top:2px; margin-left:2px;
     }
 </style>
 
@@ -107,7 +108,7 @@
                                                     Use IAM role
                                                 </label>
                                                 <span>
-                                                    <img style="margin-top:2px; margin-left:2px;" data-toggle="popover" data-placement="left"
+                                                    <img class="tooltipMargin" data-toggle="popover" data-placement="left"
                                                          title="Credentials are not required if catalyst instance is launched with an IAM role which has permissions to launch instances" src="img/help.png"/>
                                                 </span>
                                             </span>
@@ -270,17 +271,11 @@
                                                         </div>
                                                     </div>
                                                     <div class="row">
-                                                        <!-- <div class="col-lg-6 col-md-6 forazure">
-                                                           <div class="smart-forms">
-                                                              <label for="">Upload private key file:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                                              <label for="azurekey" class="field file">
-                                                                 <div class="imgdiv" value="1"></div>
-                                                                 <span class="button btn-primary">Browse</span><input name="azurekey" id="azurekey" keyfield="configname" type="file" class="gui-file"><input type="text" readonly="" class="gui-input fileAzureKey" name="fileName">
-                                                              </label>
-                                                           </div>
-                                                        </div> -->
                                                         <div class="col-lg-6 col-md-6 margintop20 foraws">
                                                             <label for="">S3 Bucket Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                                            <span>
+                                                              <img data-toggle="popover" data-html="true" data-placement="left" title="S3 bucket to which AWS bills are delivered. NOTE: Detailed billing has to be enabled in AWS." src="img/help.png"/>
+                                                            </span>
                                                             <input name="s3BucketName" id="s3BucketName" class="form-control" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the S3 Bucket Name">
                                                         </div>
 
