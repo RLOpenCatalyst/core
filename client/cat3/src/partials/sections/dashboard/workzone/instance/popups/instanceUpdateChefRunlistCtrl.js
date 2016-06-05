@@ -114,7 +114,9 @@
 				if (operationType === 'add') {
 					var data = [];
 					for (var i = 0; i < nodesList.length; i++) {
-						data.push(nodesList[i].value);
+						if (nodesList[i].className === "cookbook" || nodesList[i].className === "deploy") {
+							data.push(nodesList[i].value);
+						}
 					}
 					workzoneServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
 						var data;
