@@ -114,7 +114,7 @@
 				if (operationType === 'add') {
 					var data = [];
 					for (var i = 0; i < nodesList.length; i++) {
-						if (nodesList[i].className === "cookbook" || nodesList[i].className === "deploy" || nodesList[i].className === "role") {
+						if (nodesList[i].className === "cookbook" || nodesList[i].className === "deploy") {
 							data.push(nodesList[i].value);
 						}
 					}
