@@ -29,14 +29,14 @@
 				if (FileReader) {
 					var fileContent = new FileReader();
 					fileContent.onload = function(e) {
-						$scope.pemfile = e.target.result;
+						$scope.addPemText(e.target.result);
 					};
 
 					fileContent.onerror = function(e) {
 						alert(e);
 					};
 
-					fileContent.readAsText($event.files[0]);
+					fileContent.readAsText($event);
 
 				} else {
 					alert('HTMl5 File Reader is not Supported. Please upgrade your browser');
@@ -50,11 +50,6 @@
 					reqBody.credentials = {
 						username: $scope.username
 					};
-					if ($scope.isPemActive === "password") {
-						reqBody.credentials.password = $scope.passwordModel;
-					} else {
-						reqBody.credentials.pemFileData = $scope.pemfile;
-					}
 					var appUrls = [];
 					$.each($scope.app, function(index, element) {
 						if (element.name && element.url) {
@@ -69,16 +64,29 @@
 						reqBody.appUrls = appUrls;
 					}
 					$scope.isSubmitLoading = true;
-					workzoneServices.postImportByIP(workzoneEnvironment.getEnvParams(),reqBody)
-					.then(function(response) {
-						if(response.data){
-							$rootScope.$emit('WZ_REFRESH_ENV');
-							$modalInstance.close(response.data);
-						}
-					},function(response){
-                        $scope.isSubmitLoading = false;
-                        $scope.importErrorMessage = response.data.message;
-                    });
+					//post method for import by ip
+					$scope.postMethodImportByIp = function(){
+						workzoneServices.postImportByIP(workzoneEnvironment.getEnvParams(),reqBody)
+						.then(function(response) {
+							if(response.data){
+								$rootScope.$emit('WZ_REFRESH_ENV');
+								$modalInstance.close(response.data);
+							}
+						},function(response){
+					        $scope.isSubmitLoading = false;
+					        $scope.importErrorMessage = response.data.message;
+					    });
+					}
+					if ($scope.isPemActive === "password") {
+						reqBody.credentials.password = $scope.passwordModel;
+						$scope.postMethodImportByIp();	
+					} else {
+						$scope.pemFileSelection($scope.pemfile);
+					}
+					$scope.addPemText = function(pemfileText){
+						reqBody.credentials.pemFileData = pemfileText;
+						$scope.postMethodImportByIp();
+					}
 				} else {
 					
 				}

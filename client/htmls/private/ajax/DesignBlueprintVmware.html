@@ -1824,11 +1824,9 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                 alert('please choose a blueprint design');
                 return false;
             }
-            //Selection of Orgname from localstorage 
-            //   $('#orgnameSelect').val($('li[class*="orgSelected"]').text().trim());
-            $('#orgnameSelect').val(localStorage.getItem('selectedOrgId'));
+            //Selection of Orgname from the org selected.
+            $('#orgnameSelect').val($('#orgIDCheck').val());
             console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
-            //console.log("======================= "+$('.productdiv2.role-Selected').first().attr('templatetype'));
             if ($('.productdiv2.role-Selected').length > 0) {
                 //Setting controls connected to docker to hidden
                 $('.forDocker').hide();

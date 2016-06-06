@@ -1958,7 +1958,8 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
         alert('please choose a blueprint design');
         return false;
       }
-      $('#orgnameSelect').val(localStorage.getItem('selectedOrgId'));
+      //Selection of Orgname from the org selected.
+      $('#orgnameSelect').val($('#orgIDCheck').val());
       console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
       if ($('.productdiv2.role-Selected').length > 0) {
         //Setting controls connected to docker to hidden

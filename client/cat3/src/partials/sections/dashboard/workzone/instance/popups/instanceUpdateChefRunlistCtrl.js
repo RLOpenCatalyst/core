@@ -114,7 +114,9 @@
 				if (operationType === 'add') {
 					var data = [];
 					for (var i = 0; i < nodesList.length; i++) {
-						data.push(nodesList[i].value);
+						if (nodesList[i].className === "cookbook" || nodesList[i].className === "deploy") {
+							data.push(nodesList[i].value);
+						}
 					}
 					workzoneServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
 						var data;
@@ -125,7 +127,24 @@
 						}
 						/*Scope apply done to force refresh screen after receiving the AJAX response*/
 						$scope.$apply(function () {
-							$scope.allCBAttributes = $scope.allCBAttributes.concat(data);
+							if ($scope.editRunListAttributes) {
+								for (var j = 0; j < data.length; j++) {
+                                    for(var attrItem in data[j].attributes){
+                                        if ($scope.allCBAttributes  && $scope.allCBAttributes[attrItem]) {
+                                            data[j].attributes[attrItem].default = $scope.allCBAttributes[attrItem];
+                                        }
+                                    }
+                                }	
+                                //checking condition if the attribute length is > 0 and has been edited.
+								if($scope.allCBAttributes.length > 0){
+									$scope.allCBAttributes = angular.copy($scope.allCBAttributes,data);	
+								}else{
+									$scope.allCBAttributes = data;
+								}
+								$scope.editRunListAttributes = false;
+							} else {
+								$scope.allCBAttributes = $scope.allCBAttributes.concat(data);
+							}
 							if (updatedList.length > 1) {
 								var tmp = [];
 								for (var i = 0; i < updatedList.length; i++) {
