@@ -14,6 +14,12 @@ angular.module('workzone.application')
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
 			},
+			init:function(){
+				var version =(items.appName.version)?items.appName.version:items.version;
+				wzService.getApprove(items,version).then(function(result){
+					$scope.approveAppCommt=result.data.comments;
+				});
+			},
 			items:items,
 			approveAppCommt:'',
 			resultMsg:'',
@@ -37,5 +43,6 @@ angular.module('workzone.application')
 				});
 			}
 		});
+		$scope.init();
 	}]);
 })();

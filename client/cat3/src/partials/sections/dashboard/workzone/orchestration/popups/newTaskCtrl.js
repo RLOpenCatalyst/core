@@ -95,8 +95,8 @@
                         $scope.jenkinsParamsList.splice(idx,1);
                     },
                     removeJobLink: function (jobLink) {
-                        var idx = $scope.jobResultURLPattern.indexOf(jobLink);
-                        $scope.jobResultURLPattern.splice(idx,1);
+                        var idx = $scope.jobResultURL.indexOf(jobLink);
+                        $scope.jobResultURL.splice(idx,1);
                     },
                     openAddJobLink: function (type) {
                         $modal.open({
@@ -112,7 +112,7 @@
                             }
                         }).result.then(function (addJobLink) {
                             //adding the job link in the main list.
-                            $scope.jobResultURLPattern.push(addJobLink);
+                            $scope.jobResultURL.push(addJobLink);
 
                         }, function () {
                             console.log('Dismiss time is ' + new Date());
@@ -139,7 +139,6 @@
                                     taskJSON.assignTasks.push(selectedList[i].data._id);
                                 }
                             } else {
-                                alert('please select atleast one job');
                                 return false;
                             }
                         }
@@ -200,7 +199,9 @@
                                 return false;
                             }
                             taskJSON.isParameterized = $scope.isParameterized.flag;
-                            taskJSON.jobResultURL = $scope.jobResultURLPattern;
+                            taskJSON.jobResultURL = $scope.jobResultURL;
+                            //first time execute will get result from jobResultURLPattern.
+                            taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
                             taskJSON.parameterized = $scope.jenkinsParamsList;
                         }
                         /*making request body for post*/
@@ -241,7 +242,8 @@
                 };
                 /*in backend at the time of edit of task the jobResultUrlPattern 
                 was going as null. So there was in issue with the links disappearing.*/
-                $scope.jobResultURLPattern = [];
+                $scope.jobResultURLPattern;
+                $scope.jobResultURL = [];
                 $scope.jenkinsParamsList = [];
                 $scope.jenkinsServerSelect = '';
                 $scope.jenkinJobSelected = '';
@@ -357,7 +359,7 @@
                         $scope.jobUrl = items.taskConfig.jobURL;
                         $scope.autoSync.flag = items.taskConfig.autoSyncFlag === "false" ? false : true;
                         $scope.isParameterized.flag = items.taskConfig.isParameterized;
-                        $scope.jobResultURLPattern = items.taskConfig.jobResultURL;
+                        $scope.jobResultURL = items.taskConfig.jobResultURL;
                         $scope.jenkinsParamsList = items.taskConfig.parameterized;
                         $scope.jenkinJobSelected = items.taskConfig.jobName;
                     }

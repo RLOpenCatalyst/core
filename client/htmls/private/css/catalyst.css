@@ -2484,9 +2484,14 @@ hr {
     height: 118px;
     width: 140px;
 }
+.margin-top5{
+    margin-top: 5px;
+}
 .productdiv1 {
     position: relative;
     border-width: 1px;
+    border:1px solid #ccc;
+    border-radius: 4px;
 }
 .glowBox {
     background: none repeat scroll 0 0 #FFFFFF;
@@ -2835,7 +2840,6 @@ body {
     opacity: 1;
 }
 .cardimage {
-    background-image: url("../img/app-store-icons/box_ops.png");
     background-repeat: no-repeat;
     height: 163px;
     margin-left: 15px;
@@ -2849,7 +2853,7 @@ body {
     height: 52px;
     padding-top: 11px;
     margin-top: 20px;
-    margin-left: 15px;
+    margin-left: 36px;
 }
 .moreInfo {
     background-repeat: no-repeat;

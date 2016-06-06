@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
 
 <div id='instanceImportByIpPage'>
-	<form role="form" class="cmxform" id="addInstanceForm" autocomplete="off" novalidate="novalidate">
+	<form  name="InstanceImportbyIPForm" role="form" class="cmxform" autocomplete="off" novalidate>
 		<div class="modal-header">
 			<span class="close" ng-click="cancel()">×</span>
 			<h4 class="modal-title">
@@ -16,17 +16,26 @@
 					<div class="col-lg-12 col-md-12 no-padding">
 						<div class="col-lg-6 col-md-6">
 							<label for="instanceFQDN">Enter IP Address
-							<span class="red">*</span>
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.instanceFQDN.$touched && InstanceImportbyIPForm.instanceFQDN.$error.required" class="inputValidationMsg">required
+								</span>
+
+								<span ng-show="InstanceImportbyIPForm.instanceFQDN.$touched && InstanceImportbyIPForm.instanceFQDN.$error.pattern" class="inputValidationMsg">Invalid IP Address
+								</span>
 							</label>
 							<div class="input-groups">
-								<input type="text" name="instanceFQDN" class="form-control" id="instanceFQDN" autofocus="" ng-model="ipAddress" required>
-		                       {{addInstanceForm.instanceFQDN}}
+								<input type="text" name="instanceFQDN" class="form-control" id="instanceFQDN" ng-model="ipAddress" ng-pattern="/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/" required>
 							</div>
 						</div>
 						<div class="col-lg-6 col-md-6">
-							<label for="importinstanceOS">Choose Operating System<span class="red">&nbsp;*</span></label>
+							<label for="importinstanceOS">Choose Operating System
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.importinstanceOS.$touched && InstanceImportbyIPForm.importinstanceOS.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							
 							<div class="input-groups">
-								<select id="importinstanceOS" name="importinstanceOS" class="width-100 form-control" ng-model="os">
+								<select id="importinstanceOS" name="importinstanceOS" class="width-100 form-control" ng-model="os" required>
 									<option value="">Select OS</option>
 									<option ng-repeat="os in osList" value="{{os.osType}}">{{os.os_name}}</option>
 								</select>
@@ -35,14 +44,22 @@
 					</div>
 					<div class="col-lg-12 col-md-12 no-padding">
 						<div class="col-lg-6 col-md-6 control-margin">
-							<label>Username<span class="control-label red">&nbsp;*</span></label>
+							<label for="username">Username
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.username.$touched && InstanceImportbyIPForm.username.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
 							<div class="input-groups">
-								<input type="text" class="form-control" ng-model="username">
+								<input type="text" name="username" class="form-control" ng-model="username" required>
 							</div>
 						</div>
 						<div class="col-lg-6 col-md-6 control-margin">
-							<label for="configManagementDropdown">Config Management<span class="control-label red">&nbsp;*</span></label>
-							<select id="configManagementDropdown" class="width-100 form-control" ng-model="selectedConfig">
+							<label for="configManagementDropdown">Config Management
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.configManagementDropdown.$touched && InstanceImportbyIPForm.configManagementDropdown.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							<select id="configManagementDropdown" class="width-100 form-control" ng-model="selectedConfig" name="configManagementDropdown" required>
 								<option ng-repeat="config in configList" value="{{config.rowid}}">
 									{{config.configname}}
 								</option>
@@ -51,22 +68,35 @@
 					</div>
 					<div class="col-lg-12 col-md-12 no-padding">
 						<div class="col-lg-6 col-md-6 control-margin">
-							<label for="pemFileDropdown">Choose Authentication Type<span class="control-label red">&nbsp;*</span></label>
-							<select id="pemFileDropdown" class="authenticationType width-100 form-control" aria-invalid="false" ng-model="isPemActive">
+							<label for="pemFileDropdown">Choose Authentication Type
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.pemFileDropdown.$touched && InstanceImportbyIPForm.pemFileDropdown.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
+							<select id="pemFileDropdown" class="authenticationType width-100 form-control" aria-invalid="false" ng-model="isPemActive" required>
 								<option value="password">Password</option>
 								<option value="pemFile">Pem File</option>
 							</select>
 						</div>
-						<div class="col-lg-6 col-md-6 authPassword control-margin" ng-show="(isPemActive=='password')">
-							<label>Password<span class="control-label red">&nbsp;*</span></label>
+
+						<div class="col-lg-6 col-md-6 authPassword control-margin" ng-if="(isPemActive=='password')">
+							<label for="">Password
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.authenticationPassword.$touched && InstanceImportbyIPForm.authenticationPassword.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
 							<div class="input-groups">
-								<input type="password" class="form-control" ng-model="password">
+								<input type="password" name="authenticationPassword" class="form-control" ng-model="$parent.passwordModel" required ng-init="passwordModel">
 							</div>
 						</div>
-						<div class="col-lg-6 col-md-6 authPemFile control-margin" ng-show="(isPemActive=='pemFile')">
-							<label for="importPemfileInput">Pem File<span class="control-label red">&nbsp;*</span><span id="requiredPemFile" class="hidden red">&nbsp;Required</span></label>
+						<div class="col-lg-6 col-md-6 authPemFile control-margin" ng-if="(isPemActive=='pemFile')">
+							<label for="autenticationPemfile">Pem File
+								<span class="control-label red">&nbsp;*</span>
+								<span ng-show="InstanceImportbyIPForm.autenticationPemfile.$touched && InstanceImportbyIPForm.autenticationPemfile.$error.required" class="inputValidationMsg">required
+								</span>
+							</label>
 							<div class="input-groups">
-								<input id="importPemfileInput" class="required form-control form-controls" multiple="" extension="pem" name="importPemfileInput" type="file" aria-required="true" ng-model="pemfile" onchange="angular.element(this).scope().pemFileSelection(this);">
+								<input type="file" name="autenticationPemfile" class="form-control form-controls" ngf-select="" ng-model="$parent.pemfile" name="file" accept=".pem" required="">
 							</div>
 						</div>
 					</div>
@@ -115,7 +145,7 @@
 				<button type="button" class="btn cat-btn-cancel" ng-click="cancel();">
 					<i class="fa fa-times black"></i>&nbsp;Cancel
 				</button>
-				<button type="submit" class="btn cat-btn-update" id="addInstanceBtn" ng-click="ok();" ng-disabled="isSubmitLoading">
+				<button type="submit" class="btn cat-btn-update" id="addInstanceBtn" ng-click="ok();" ng-disabled="!InstanceImportbyIPForm.$valid || isSubmitLoading">
 					<i class="fa fa-download white"></i>&nbsp;Import
 				</button>
 				<loading size="small" name="isSubmitLoading" type="inline"></loading>

@@ -1,4 +1,3 @@
-
 /*
  Copyright [2016] [Relevance Lab]
 
@@ -23,50 +22,46 @@ const errorType = 'DeployPermission';
 
 var appDeployPermissionService = module.exports = {};
 
-appDeployPermissionService.getDeployPermissionByProjectIdEnvNameAppNameVersion=function getDeployPermissionByProjectIdEnvNameNodeIdVersion(projectId,envName,appName,version,callback){
+appDeployPermissionService.getDeployPermissionByProjectIdEnvNameAppNameVersion = function getDeployPermissionByProjectIdEnvNameNodeIdVersion(projectId, envName, appName, version, callback) {
     async.waterfall([
-        function(next){
-            deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(projectId,envName,appName,version,next);
+        function(next) {
+            deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(projectId, envName, appName, version, next);
         }
-    ],function(err,results){
+    ], function(err, results) {
         if (err) {
-            logger.error("Error while fetching Project Deploy Permission via projectId in App Deploy "+err);
-            callback(err,null);
+            logger.error("Error while fetching Project Deploy Permission via projectId in App Deploy " + err);
+            callback(err, null);
             return;
-        }else{
-            callback(null,results);
-            return;
+        } else if (results && results.length) {
+            return callback(null, results[0]);
+        } else {
+            var error = new Error("Permission not found.");
+            error.status = 404;
+            return callback(error, null);
         }
     });
 }
 
-appDeployPermissionService.saveAndUpdateDeployPermission=function saveAndUpdateDeployPermission(deployPermissionData,callback){
+appDeployPermissionService.saveAndUpdateDeployPermission = function saveAndUpdateDeployPermission(deployPermissionData, callback) {
     async.waterfall([
-        function(next){
-            deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(deployPermissionData.projectId,deployPermissionData.envName,deployPermissionData.appName,deployPermissionData.version,next);
+        function(next) {
+            deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(deployPermissionData.projectId, deployPermissionData.envName, deployPermissionData.appName, deployPermissionData.version, next);
         },
-        function(existPermissionData,next){
-            if(existPermissionData.length > 0){
-                deployPermission.updateDeployPermission(deployPermissionData,next);
-            }else{
+        function(existPermissionData, next) {
+            if (existPermissionData && existPermissionData.length) {
+                deployPermission.updateDeployPermission(deployPermissionData, next);
+            } else {
                 deployPermission.saveDeployPermission(deployPermissionData, next);
             }
         }
-    ],function(err,results){
-        if(err){
-            logger.error("Error in Save or Update App Deploy Permission "+err);
-            callback(err,null);
+    ], function(err, results) {
+        if (err) {
+            logger.error("Error in Save or Update App Deploy Permission " + err);
+            callback(err, null);
             return;
-        }else{
-            callback(null,results);
+        } else {
+            callback(null, results);
             return;
         }
     })
 }
-
-
-
-
-
-
-

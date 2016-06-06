@@ -70,8 +70,11 @@ appDeployValidator.getDeployPermission={
     options : { flatten : true },
     params: {
             projectId: Joi.string().min(1).max(40).required(),
-            envName:     Joi.string().max(10).required(),
-            appName:  Joi.string().max(40).required()
+            envName:     Joi.string().max(10).required()
+    },
+    query: {
+        appName:  Joi.string().max(40).required(),
+        version:  Joi.string().max(40).required()
     }
 };
 

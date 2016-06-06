@@ -23,11 +23,12 @@
 			});
 
 			appDetail.init = function () {
+				$scope.isPageLoading=true;
 				appDetail.gridOptions.useExternalPagination= false;
 				appDetail.gridOptions.useExternalSorting=false;
 				appDetail.gridOptions.columnDefs= [
 						{name: 'Node IP', field: 'applicationNodeIP', displayName: 'Node IP'},
-						{name: 'Last Deploy', field: 'applicationLastDeploy', displayName: 'Last Deploy'},
+						{name: 'Last Deploy', field: 'applicationLastDeploy',cellTemplate:'<span ng-bind-html="row.entity.applicationLastDeploy | timestampToLocaleTime"></span>', displayName: 'Last Deploy'},
 						{name: 'Status', field: 'applicationStatus', displayName: 'Status'},
 						{
 							name: 'Action',
@@ -40,6 +41,7 @@
 				var version =($scope.applicationsDetails.appName.version)?$scope.applicationsDetails.appName.version:$scope.applicationsDetails.version;
 				workzoneServices.getCardHistoryList($scope.applicationsDetails,version).then(function (response) {
 					appDetail.gridOptions.data = response.data;
+					$scope.isPageLoading=false;
 				});
 			};
 			appDetail.init();

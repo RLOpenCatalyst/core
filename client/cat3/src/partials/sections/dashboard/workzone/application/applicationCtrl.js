@@ -281,7 +281,7 @@
 				$scope.selectedGridRow=row;
 				$scope.rowIndex = -1;
 				var hash = row.entity.$$hashKey;
-				var data =(flg==1)?$scope.pipeGridOptions.data:$scope.summaryGridOptions.data;     // original rows of data
+				var data =(flg===1)?$scope.pipeGridOptions.data:$scope.summaryGridOptions.data;     // original rows of data
 				for (var ndx = 0; ndx < data.length; ndx++) {
 					if (data[ndx].$$hashKey === hash) {
 						$scope.rowIndex = ndx;
@@ -315,6 +315,7 @@
 				}
 			});
 			function removeSelect(){
+				$scope.pipeLineActBarShow =false;
 				$rootScope.selectedCardClass='';
 				$scope.currentTargetId='';
 				angular.element('.card').removeClass('selected-card');
