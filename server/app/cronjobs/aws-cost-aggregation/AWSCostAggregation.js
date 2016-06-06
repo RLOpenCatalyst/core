@@ -9,8 +9,9 @@ var instancesModel = require('_pr/model/classes/instance/instance');
 var resourceCost = require('_pr/model/resource-costs');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var instanceService = require('_pr/services/instanceService');
-var awsService = require('_pr/services/awsService');
+var resourceService = require('_pr/services/resourceService');
 var S3 = require('_pr/lib/s3.js');
+var resources = require('_pr/model/resources/resources');
 var AdmZip = require('adm-zip');
 var fs = require('fs');
 var Cryptography = require('_pr/lib/utils/cryptography');
@@ -55,44 +56,72 @@ function aggregateCostForProvidersOfOrg(org) {
 }
 
 function aggregateAWSCostForProvider(provider) {
-    var ids=[];
     var instanceObj={};
+    var resourceObj={};
     async.waterfall([
         function(next){
             logger.debug('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' started');
-            awsService.getTotalCost(provider,next);
+            resourceService.getTotalCost(provider,next);
         },
         function(totalCost,next){
-            awsService.getCostForServices(provider,next);
+            resourceService.getCostForServices(provider,next);
         },
         function (serviceCost,next){
-            instanceService.getTrackedInstancesForProvider(provider, next);
-        },
-        function (provider, instances, next) {
-            instanceObj=instances;
-            instanceIdList(instances,next);
-        },
-        function(instanceIds,next){
-            ids = instanceIds;
             downloadUpdatedCSVFile(provider,next);
         },
         function (downloadStatus,next) {
             if(downloadStatus){
-                awsService.getCostForResources(date,provider,ids,csvFile,next);
+                instanceService.getTrackedInstancesForProvider(provider, next);
             }else{
                 next(null,downloadStatus)
             }
         },
-        function(instanceCostMetrics, next) {
+        function (provider, instances, next) {
+            instanceObj=instances;
+            async.parallel({
+                instanceIds: function(callback) {
+                    instanceIdList(instances,callback);
+                },
+                bucketNames: function(callback) {
+                    bucketNameList(provider,callback);
+                },
+                rdsDBNames: function(callback) {
+                    rdsDBNameList(provider,callback);
+                },
+                bucketResource: function(callback){
+                    resources.getResourcesByProviderResourceType(provider._id,'S3',callback);
+                },
+                rdsResource: function(callback){
+                    resources.getResourcesByProviderResourceType(provider._id,'RDS',callback);
+                }
+            }, function(err, results){
+                if(err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            });
+        },
+        function(resources,next){
+            resourceObj=resources;
+            resourceService.getCostForResources(date,provider,resources.bucketNames,resources.instanceIds,resources.rdsDBNames,csvFile,next);
+        },
+        function(costMetrics, next) {
             async.parallel({
                 managedCostMetrics: function(callback) {
-                    updateManagedInstanceCost(instanceObj.managed,instanceCostMetrics, callback);
+                    updateManagedInstanceCost(instanceObj.managed,costMetrics.instanceCostMetrics, callback);
                 },
                 unManagedCostMetrics: function(callback) {
-                    updateUnManagedInstanceCost(instanceObj.unmanaged,instanceCostMetrics, callback);
+                    updateUnManagedInstanceCost(instanceObj.unmanaged,costMetrics.instanceCostMetrics, callback);
                 },
                 instanceCostMetrics: function(callback) {
-                    saveInstanceResourceCost(instanceObj,instanceCostMetrics,callback);
+                    saveInstanceResourceCost(instanceObj,costMetrics.instanceCostMetrics,callback);
+                },
+                bucketCostMetrics: function(callback) {
+                    updateResourceCost(resourceObj.bucketResource,costMetrics.bucketCostMetrics,callback);
+                },
+                rdsDBInstancesMetrics: function(callback) {
+                    updateResourceCost(resourceObj.rdsResource,costMetrics.dbInstanceCostMetrics,callback);
                 }
             }, function(err, results){
                 if(err) {
@@ -178,7 +207,44 @@ function instanceIdList(instances,callback){
             callback(null,instanceIds);
         }
     }
+};
+
+function bucketNameList(provider,callback){
+    var bucketNames=[];
+    resources.getResourcesByProviderResourceType(provider._id,'S3',function(err,buckets){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+        }else{
+            var length = buckets.length;
+            for(var i = 0; i < length; i++){
+                bucketNames.push(buckets[i].resourceDetails.bucketName);
+            }
+            if(bucketNames.length === length){
+                callback(null,bucketNames);
+            }
+        }
+    });
+};
+function rdsDBNameList(provider,callback){
+    var dbNames=[];
+    resources.getResourcesByProviderResourceType(provider._id,'RDS',function(err,dbInstances){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+        }else{
+            var length = dbInstances.length;
+            for(var i = 0; i < length; i++){
+                dbNames.push(dbInstances[i].resourceDetails.dbName);
+            }
+            if(dbNames.length === length){
+                callback(null,dbNames);
+            }
+        }
+    });
 }
+
+
 
 
 function saveInstanceResourceCost(instances,instanceCostMetrics,callback){
@@ -198,29 +264,20 @@ function saveInstanceResourceCost(instances,instanceCostMetrics,callback){
                     resourceType: 'managedInstance',
                     resourceId: instances.managed[i].platformId
                 };
-                var costMetrics = [];
-                var costMetricsObj = {};
                 var totalCost = 0.0;
-                var totalUsage = 0.0;
                 for (var j = 0; j < instanceCostMetrics.length; j++) {
                     if (instanceCostMetrics[j].resourceId === instances.managed[i].platformId) {
-                        costMetricsObj['usageStartDate'] = instanceCostMetrics[j].usageStartDate;
-                        costMetricsObj['usageEndDate'] = instanceCostMetrics[j].usageEndDate;
-                        costMetricsObj['usageQuantity'] = instanceCostMetrics[j].usageQuantity;
-                        costMetricsObj['description'] = instanceCostMetrics[j].description;
-                        costMetricsObj['usageCost'] = instanceCostMetrics[j].usageCost;
                         totalCost += Number(instanceCostMetrics[j].usageCost);
-                        totalUsage += Number(instanceCostMetrics[j].usageQuantity);
-                        costMetrics.push(costMetricsObj);
-                        costMetricsObj = {};
                     };
                 };
-                awsCostObject['costMetrics'] = costMetrics;
                 awsCostObject['updatedTime'] = Date.parse(date);
                 awsCostObject['startTime'] = Date.parse(startTime);
                 awsCostObject['endTime'] = Date.parse(date);
                 awsCostObject['aggregateResourceCost'] = totalCost;
-                awsCostObject['aggregateResourceUsage'] = totalUsage;
+                awsCostObject['costMetrics'] = {
+                    aggregateInstanceCost:totalCost,
+                    unit:'USD'
+                };
                 awsObjectList.push(awsCostObject);
                 awsCostObject={};
             }
@@ -235,29 +292,20 @@ function saveInstanceResourceCost(instances,instanceCostMetrics,callback){
                     resourceType: 'unassignedInstance',
                     resourceId: instances.unmanaged[i].platformId
                 };
-                var costMetrics = [];
-                var costMetricsObj = {};
                 var totalCost = 0.0;
-                var totalUsage = 0.0;
                 for (var j = 0; j < instanceCostMetrics.length; j++) {
                     if (instanceCostMetrics[j].resourceId === instances.unmanaged[i].platformId) {
-                        costMetricsObj['usageStartDate'] = instanceCostMetrics[j].usageStartDate;
-                        costMetricsObj['usageEndDate'] = instanceCostMetrics[j].usageEndDate;
-                        costMetricsObj['usageQuantity'] = instanceCostMetrics[j].usageQuantity;
-                        costMetricsObj['description'] = instanceCostMetrics[j].description;
-                        costMetricsObj['usageCost'] = instanceCostMetrics[j].usageCost;
                         totalCost  += Number(instanceCostMetrics[j].usageCost);
-                        totalUsage += Number(instanceCostMetrics[j].usageQuantity);
-                        costMetrics.push(costMetricsObj);
-                        costMetricsObj = {};
                     };
                 };
-                awsCostObject['costMetrics'] = costMetrics;
                 awsCostObject['updatedTime'] = Date.parse(date);
                 awsCostObject['startTime'] = Date.parse(startTime);
                 awsCostObject['endTime'] = Date.parse(date);
                 awsCostObject['aggregateResourceCost'] = totalCost;
-                awsCostObject['aggregateResourceUsage'] = totalUsage;
+                awsCostObject['costMetrics'] = {
+                    aggregateInstanceCost:totalCost,
+                    unit:'USD'
+                };
                 awsObjectList.push(awsCostObject);
                 awsCostObject={};
             }
@@ -287,27 +335,17 @@ function updateManagedInstanceCost(instances,instanceCostMetrics, callback) {
         callback(null, results);
     }else {
         for(var i = 0; i < instances.length; i++){
-            var costMetrics = [];
-            var costMetricsObj = {};
             var totalCost = 0.0;
-            var totalUsage= 0.0;
             for (var j = 0; j < instanceCostMetrics.length; j++) {
                 if (instanceCostMetrics[j].resourceId === instances[i].platformId) {
-                    costMetricsObj['usageStartDate'] = instanceCostMetrics[j].usageStartDate;
-                    costMetricsObj['usageEndDate'] = instanceCostMetrics[j].usageEndDate;
-                    costMetricsObj['usageQuantity'] = instanceCostMetrics[j].usageQuantity;
-                    costMetricsObj['description'] = instanceCostMetrics[j].description;
-                    costMetricsObj['usageCost'] = instanceCostMetrics[j].usageCost;
                     totalCost += Number(instanceCostMetrics[j].usageCost);
-                    totalUsage += Number(instanceCostMetrics[j].usageQuantity);
-                    costMetrics.push(costMetricsObj);
-                    costMetricsObj = {};
                 };
             };
             instanceCostObj['resourceId'] = instances[i].platformId;
-            instanceCostObj['costMetrics'] = costMetrics;
-            instanceCostObj['totalInstanceCost'] = totalCost;
-            instanceCostObj['totalInstanceUsage'] = totalUsage;
+            instanceCostObj['cost'] = {
+                aggregateInstanceCost:totalCost,
+                unit:'USD'
+            };
             instancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
                     callback(err, null);
@@ -329,27 +367,17 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
         callback(null, results);
     } else {
         for (var i = 0; i < instances.length; i++) {
-            var costMetrics = [];
-            var costMetricsObj = {};
             var totalCost = 0.0;
-            var totalUsage= 0.0;
             for (var j = 0; j < instanceCostMetrics.length; j++) {
                 if (instanceCostMetrics[j].resourceId === instances[i].platformId) {
-                    costMetricsObj['usageStartDate'] = instanceCostMetrics[j].usageStartDate;
-                    costMetricsObj['usageEndDate'] = instanceCostMetrics[j].usageEndDate;
-                    costMetricsObj['usageQuantity'] = instanceCostMetrics[j].usageQuantity;
-                    costMetricsObj['description'] = instanceCostMetrics[j].description;
-                    costMetricsObj['usageCost'] = instanceCostMetrics[j].usageCost;
                     totalCost += Number(instanceCostMetrics[j].usageCost);
-                    totalUsage+= Number(instanceCostMetrics[j].usageQuantity);
-                    costMetrics.push(costMetricsObj);
-                    costMetricsObj = {};
                 };
             };
             instanceCostObj['resourceId'] = instances[i].platformId;
-            instanceCostObj['costMetrics'] = costMetrics;
-            instanceCostObj['totalInstanceCost'] = totalCost;
-            instanceCostObj['totalInstanceUsage'] = totalUsage;
+            instanceCostObj['cost'] = {
+                aggregateInstanceCost:totalCost,
+                unit:'USD'
+            };
             unManagedInstancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
                     callback(err, null);
@@ -357,6 +385,41 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
                     results.push(result);
                 }
                 if (results.length == instances.length) {
+                    callback(null, results);
+                }
+            });
+        };
+    };
+};
+
+function updateResourceCost(resourceData,resourceCostMetrics,callback){
+    var results = [];
+    var bucketCostObj = {};
+    if (resourceData.length === 0) {
+        callback(null, results);
+    } else {
+        for (var i = 0; i < resourceData.length; i++) {
+            var totalCost = 0.0;
+            for (var j = 0; j < resourceCostMetrics.length; j++) {
+                if(resourceData[i].resourceType === 'S3' && resourceCostMetrics[j].resourceId === resourceData[i].resourceDetails.bucketName) {
+                    totalCost += Number(resourceCostMetrics[j].usageCost);
+                }else if (resourceData[i].resourceType === 'RDS'|| resourceCostMetrics[j].resourceId === resourceData[i].resourceDetails.dbName) {
+                    totalCost += Number(resourceCostMetrics[j].usageCost);
+                };
+            };
+            bucketCostObj['resourceId'] = resourceData[i]._id;
+            bucketCostObj['cost'] = {
+                aggregateBucketCost:totalCost,
+                currency:'USD',
+                symbol:"$"
+            };
+            resources.updateResourceCost(bucketCostObj.resourceId,bucketCostObj.cost, function (err, result) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    results.push(result);
+                }
+                if (results.length == resourceData.length) {
                     callback(null, results);
                 }
             });
