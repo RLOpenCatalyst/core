@@ -117,6 +117,12 @@
     <li>
         <a href="#instancesId" role="tab" data-toggle="tab" data-toggle="tooltip" title="Instances">Instances</a>
     </li>
+    <li>
+        <a href="#rdsId" role="tab" data-toggle="tab" data-toggle="tooltip" title="RDS">RDS</a>
+    </li>
+    <li>
+        <a href="#s3Id" role="tab" data-toggle="tab" data-toggle="tooltip" title="S3">S3</a>
+    </li>
 </ul>
 
 <!--tab content starts here-->
@@ -327,16 +333,76 @@
                             </div>
                         </div>
                     </footer>
-                    <!-- <div class="clearfix form-actions text-center col-lg-12 margin0">
-                        <div class="col-lg-6">
-                            <input type="button" id="unassignedSyncBtn" value="Update Tags" class="btn btn-primary pull-right">
-                        </div>
-                        <div id="spanunassignedformSaveId" class="colorGreen col-lg-6 text-left lineheight30"></div>
-                    </div> -->
                 </div>
             </div>
         </div>
     </div>
+    <!--rds data-->
+    <div  class="tab-pane rdsContainer" id="rdsId">
+        <div class="col-lg-6 col-md-6">
+            <label for="chooseCatalyst">Catalyst Status:</label>
+            <div class="input-groups">
+                <select id="chooseCatalystRDSId" name="" class="required width-100 form-control">
+                    <option val="Unasssigned" data-catalystStatus="rdsUnassigned">Unasssigned</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 margin-top10">
+            <div id="rdsUnassigned">
+                <div class="tab-pane unassignedRDSListContainer">
+                    <div class="tabContent table-responsive" id="unassignedRDSListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="unassignedRDSListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">DBInstance</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Region</th>
+                                <th class="text-center">Class</th>
+                                <th class="text-center">Multi-AZ</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unAssignedRDS">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--rds tab ends here-->
+    <!--s3 data-->
+    <div  class="tab-pane s3Container" id="s3Id">
+        <div class="col-lg-6 col-md-6">
+            <label for="chooseCatalyst">Catalyst Status:</label>
+            <div class="input-groups">
+                <select id="chooseCatalystS3Id" name="" class="required width-100 form-control">
+                    <option val="Unasssigned" data-catalystStatus="s3Unassigned">Unasssigned</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 margin-top10">
+            <div id="s3Unassigned">
+                <div class="tab-pane unassignedS3ListContainer">
+                    <div class="tabContent table-responsive" id="unassignedS3ListDiv" >
+                        <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="unassignedS3ListTable">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Bucket</th>
+                                <th class="text-center">Bucket Owner</th>
+                                <th class="text-center">Size(MB)</th>
+                                <th class="text-center">Created</th>
+                            </tr>
+                            </thead>
+                            <tbody class="unAssignedS3">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--s3 data tab ends here-->
 </div>
 
 <!--import instance modal-->
@@ -502,7 +568,7 @@
         });
     }
 
-    //initialising the datatable for Managed...
+    //initialising the datatable for Managed instances...
     if (!$.fn.dataTable.isDataTable('#instanceListTable')) {
         var $instanceManagedDatatable = $('#instanceListTable').DataTable({
             "pagingType": "full_numbers",
@@ -531,7 +597,7 @@
 
         });
     }
-    //initialising the datatable for Assigned...
+    //initialising the datatable for Assigned instances...
     if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
         var $instanceUnManagedDatatable = $('#unmanagedinstanceListTable').DataTable({
             "pagingType": "full_numbers",
@@ -560,7 +626,7 @@
 
         });
     }
-    //initialising the datatable for Assigned...
+    //initialising the datatable for UnAssigned instances...
     if (!$.fn.dataTable.isDataTable('#unassignedinstanceListTable')) {
         var $instanceUnAssignedDatatable = $('#unassignedinstanceListTable').DataTable({
             "pagingType": "full_numbers",
@@ -582,6 +648,52 @@
             }, {
                 "bSortable": false
             },{
+                "bSortable": false
+            }]
+
+        });
+    }
+
+    //initialising the datatable for UnAssigned RDS...
+    if (!$.fn.dataTable.isDataTable('#unassignedRDSListTable')) {
+        var $rdsUnAssignedDatatable = $('#unassignedRDSListTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
+            "aoColumns": [{
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }, {
+                "bSortable": false
+            }]
+
+        });
+    }
+
+    //initialising the datatable for S3 RDS...
+    if (!$.fn.dataTable.isDataTable('#unassignedS3ListTable')) {
+        var $s3UnAssignedDatatable = $('#unassignedS3ListTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
+            "aoColumns": [{
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }, {
                 "bSortable": false
             }]
 
@@ -612,8 +724,8 @@
         if(urlproviderId && urlproviderId.indexOf("#ajax") == -1){
             getTagsListData(urlproviderId);
             getManagedInstances();
-            //getUnmanagedInstances();
-            //getUnassignedInstances();
+            getUnassignedRDS();
+            getUnassignedS3();
         }
         //loading Managed Data
         function getTagsListData(providerId) {
@@ -779,39 +891,6 @@
                         //For environment catalystEntityType
                         if(objcatalystEntityType == catalystEntityEnvName){
                             $envtagsList.val(objtagName);
-                            /*//For Mapping tab.....
-                             //For environment catalystEntityType
-                             $mappingenvDatatable.clear().draw();
-                             var $tbody = $('#mappingenvTable tbody').empty();
-
-                             for(var m = 0; m < catalystEntityTypeListPassed.length; m++){
-                             //For Table
-                             //alert(catalystEntityTypeListPassed[m].environmentname);
-                             var $tr = $('<tr id="'+catalystEntityTypeListPassed[m].rowid+'" class=""></tr>');
-
-                             var $tdenvName = $('<td class="mappingenvName"></td>').append(catalystEntityTypeListPassed[m].environmentname);
-                             $tr.append($tdenvName);
-
-                             var $mappingenvSelectList= $('<select class="mappingenvSelectId"></select>');
-                             $mappingenvSelectList.empty();
-                             for(var n=0; n< tagValues.length; n++){
-                             $mappingenvSelectList.append($('<option></option>').val(tagValues[n]).html(tagValues[n]));
-                             }
-
-                             var $tdenvTagName = $('<td class="mappingenvTagName"></td>').append($mappingenvSelectList);
-                             $tr.append($tdenvTagName);
-
-
-                             $tbody.append($tr);
-                             $mappingenvDatatable.row.add($tr).draw();
-
-                             for(var p = 0; p < catalystEntityMapping.length; p++){
-                             if(catalystEntityTypeListPassed[m].rowid == catalystEntityMapping[p].catalystEntityId){
-                             //alert("Matched");
-                             $mappingenvSelectList.val(catalystEntityMapping[p].tagValue);
-                             }
-                             }
-                             }*/
                         }
                     }
                 },
@@ -986,16 +1065,6 @@
                             $('#spanprojectMappingSaveId').delay(2000).fadeOut();
                         },
                         error: function(jqxhr) {
-                            /*var msg = " ";
-                             if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                             msg = jxhr.responseJSON.message;
-                             } else if (jxhr.responseText) {
-                             msg = jxhr.responseText;
-                             }
-                             //bootbox.alert(msg);
-                             $('#spanprojectMappingSaveId').fadeIn();
-                             $('#spanprojectMappingSaveId').html(msg);
-                             $('#spanprojectMappingSaveId').delay(2000).fadeOut();*/
                         }
                     });
                 }
@@ -1227,7 +1296,6 @@
 
         });
 
-
         function loadManagedInstances(managnedData) {
             $instanceManagedDatatable.clear().draw();
             var $tbody = $('#managedInstance tbody').empty();
@@ -1403,7 +1471,63 @@
                 $instanceUnAssignedDatatable.row.add($tr).draw();
             }
         }
-        //loading Managed Data
+        //loading unAssigned RDS Data.
+        function loadUnassignedRDSData(unassignedRDSData){
+            $rdsUnAssignedDatatable.clear().draw();
+            for (var i = 0; i < unassignedRDSData.resources.length; i++) {
+                var $tbody = $('#unassignedRDSListTable tbody').empty();
+                var $tr = $('<tr></tr>').attr({"rdsId" : unassignedRDSData.resources[i]._id});
+                var $tdDbRDSName = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbName);
+                $tr.append($tdDbRDSName);
+
+                var $tdType = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbEngine);
+                $tr.append($tdType);
+
+                var $tdStatus = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbInstanceStatus);
+                $tr.append($tdStatus);
+
+                var $tdRegion = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.region);
+                $tr.append($tdRegion);
+
+                var $tdClass = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbInstanceClass);
+                $tr.append($tdClass);
+
+                var $tdMultiAZ = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.multiAZ);
+                $tr.append($tdMultiAZ);
+
+                $tbody.append($tr);
+                $rdsUnAssignedDatatable.row.add($tr).draw();
+            }
+        }
+
+        //loading unAssigned s3 data
+        function loadUnassignedS3Data(unassignedS3Data){
+            $s3UnAssignedDatatable.clear().draw();
+            for (var i = 0; i < unassignedS3Data.resources.length; i++) {
+                var $tbody = $('#unassignedS3ListTable tbody').empty();
+                var $tr = $('<tr></tr>').attr({"s3Id" : unassignedS3Data.resources[i]._id});
+                var $tdS3Bucket = $('<td></td>').append(unassignedS3Data.resources[i].resourceDetails.bucketName);
+                $tr.append($tdS3Bucket);
+
+                var $tdS3BucketOwner = $('<td></td>').append(unassignedS3Data.resources[i].resourceDetails.bucketOwnerName);
+                $tr.append($tdS3BucketOwner);
+
+                var $tdBucketSize = $('<td></td>').append(unassignedS3Data.resources[i].resourceDetails.bucketSize);
+                $tr.append($tdBucketSize);
+                var createdOn = unassignedS3Data.resources[i].resourceDetails.bucketCreatedOn;
+                var date = new Date().setTime(createdOn.timestamp);
+                var taskTimestamp = new Date(createdOn).toLocaleString(); //converts to human readable strings
+                var $tdBucketCreatedOn = $('<td></td>').append(taskTimestamp);
+                $tr.append($tdBucketCreatedOn);
+
+                $tbody.append($tr);
+                $s3UnAssignedDatatable.row.add($tr).draw();
+            }
+        }
+
+
+
+        //get Managed Instance Data
         function getManagedInstances() {
             $.get('/providers/' + urlproviderId + '/managedInstances', function(managedInstances) {
                 loadManagedInstances(managedInstances);
@@ -1418,7 +1542,7 @@
             });
         }
 
-        //loading Assigned Data
+        //get Assigned Instance Data
         function getUnmanagedInstances() {
             $.get('/providers/' + urlproviderId + '/unmanagedInstances', function(unmanagnedInstances) {
                 if(unmanagnedInstances){
@@ -1472,6 +1596,36 @@
             $.get('/providers/'+ urlproviderId +'/unassigned-instances', function(unassignedInstances) {
                 if(unassignedInstances){
                     loadUnassignedInstances(unassignedInstances,envprojMappingObject);
+                }
+            }).fail(function(jxhr) {
+                var msg = "Unassigned Instances Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+        function getUnassignedRDS(){
+            $.get('/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned', function(unassignedRDS) {
+                if(unassignedRDS){
+                    loadUnassignedRDSData(unassignedRDS);
+                }
+            }).fail(function(jxhr) {
+                var msg = "Unassigned Instances Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
+        function getUnassignedS3(){
+            $.get('/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned', function(unassignedS3) {
+                if(unassignedS3){
+                    loadUnassignedS3Data(unassignedS3);
                 }
             }).fail(function(jxhr) {
                 var msg = "Unassigned Instances Behaved Unexpectedly.";

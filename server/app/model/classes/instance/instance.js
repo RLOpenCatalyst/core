@@ -270,8 +270,6 @@ var InstanceSchema = new Schema({
     armId: String,
     usage: Schema.Types.Mixed,
     cost: Schema.Types.Mixed,
-    aggregateCost : String,
-    aggregateUsage : String,
     region:{
         type: String,
         trim: true
@@ -1742,9 +1740,7 @@ var InstancesDao = function() {
             platformId: instanceCostData.resourceId
         }, {
             $set: {
-                cost: instanceCostData.costMetrics,
-                aggregateCost:instanceCostData.totalInstanceCost,
-                aggregateUsage:instanceCostData.totalInstanceUsage
+                cost: instanceCostData.cost
             }
         }, {
             upsert: false

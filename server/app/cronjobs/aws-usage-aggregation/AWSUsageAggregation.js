@@ -15,18 +15,16 @@
  */
 var logger = require('_pr/logger')(module);
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
-var appConfig = require('_pr/config');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
-var Cryptography = require('_pr/lib/utils/cryptography');
-var CW = require('_pr/lib/cloudwatch.js');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var resourceMetricsModel = require('_pr/model/resource-metrics');
 var instanceService = require('_pr/services/instanceService');
 var async = require('async');
-var awsService = require('_pr/services/awsService');
+var resourceService = require('_pr/services/resourceService');
+var resources = require('_pr/model/resources/resources');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
 AggregateAWSUsage.interval = '*/5 * * * *';
@@ -68,7 +66,7 @@ function aggregateUsageForProvidersOfOrg(org) {
 function aggregateEC2UsageForProvider(provider) {
     async.waterfall([
             function (next) {
-                logger.debug('EC2 usage aggregation for provider: ' + provider._id + ' started');
+                logger.debug('AWS Service usage aggregation for provider: ' + provider._id + ' started');
                 instanceService.getTrackedInstancesForProvider(provider, next);
             },
             function (provider, instances, next) {
@@ -81,6 +79,9 @@ function aggregateEC2UsageForProvider(provider) {
                     },
                     s3BucketUsageMetrics: function(callback) {
                         generateS3UsageMetricsForProvider(provider, callback);
+                    },
+                    rdsUsageMetrics: function(callback) {
+                        generateRDSUsageMetricsForProvider(provider, callback);
                     }
                 }, function(err, results){
                     if(err) {
@@ -97,6 +98,12 @@ function aggregateEC2UsageForProvider(provider) {
                     },
                     unmanaged: function(callback) {
                         updateUnmanagedInstanceUsage(usageMetrics.unmanaged, callback);
+                    },
+                    s3BucketUsageMetrics: function(callback) {
+                        updateResourceUsage(usageMetrics.s3BucketUsageMetrics, callback);
+                    },
+                    rdsUsageMetrics: function(callback) {
+                        updateResourceUsage(usageMetrics.rdsUsageMetrics, callback);
                     }
                 }, function(err, results){
                     if(err) {
@@ -111,7 +118,7 @@ function aggregateEC2UsageForProvider(provider) {
             if(err)
                 logger.error(err);
             else if(results)
-                logger.debug('EC2 usage aggregation for provider: ' + provider._id + ' ended');
+                logger.debug('AWS Service usage aggregation for provider: ' + provider._id + ' ended');
         });
 }
 
@@ -124,7 +131,7 @@ function aggregateEC2UsageForProvider(provider) {
 function generateEC2UsageMetricsForProvider(provider, instances, callback) {
     async.waterfall([
         function (next) {
-            awsService.getEC2InstanceUsageMetrics(provider, instances, next);
+            resourceService.getEC2InstanceUsageMetrics(provider, instances, next);
         },
         function (ec2UsageMetrics, next) {
             saveResourceUsageMetrics(ec2UsageMetrics, next);
@@ -141,13 +148,33 @@ function generateEC2UsageMetricsForProvider(provider, instances, callback) {
 function generateS3UsageMetricsForProvider(provider, callback) {
     async.waterfall([
         function(next){
-            awsService.getBucketsInfo(provider,next);
+            resources.getResourcesByProviderResourceType(provider._id,'S3',next);
         },
         function(bucketData,next){
-            awsService.getS3BucketsMetrics(provider,bucketData.Buckets,next);
+            resourceService.getS3BucketsMetrics(provider,bucketData,next);
         },
         function(bucketMetrics,next){
             saveResourceUsageMetrics(bucketMetrics,next);
+        }
+    ], function(err, results) {
+        if(err) {
+            callback(err);
+        } else {
+            callback(null, results);
+        }
+    });
+}
+
+function generateRDSUsageMetricsForProvider(provider, callback) {
+    async.waterfall([
+        function(next){
+            resources.getResourcesByProviderResourceType(provider._id,'RDS',next);
+        },
+        function(dbInstances,next){
+            resourceService.getRDSDBInstanceMetrics(provider,dbInstances,next);
+        },
+        function(rdsUsageMetrics,next){
+            saveResourceUsageMetrics(rdsUsageMetrics,next);
         }
     ], function(err, results) {
         if(err) {
@@ -253,21 +280,82 @@ function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
     };
 }
 
+
+function updateResourceUsage(resourcesUsageMetrics,next){
+    var results = [];
+    if(resourcesUsageMetrics.length == 0)
+        return next(null, results);
+    // @TODO get rid of nesting
+    for(var i = 0; i < resourcesUsageMetrics.length; i++) {
+        (function (j) {
+            formatUsageData(resourcesUsageMetrics[j], function(err, formattedUsageMetrics) {
+                if(err) {
+                    next(err);
+                } else {
+                    resources.updateResourceUsage(formattedUsageMetrics.resourceId,
+                        formattedUsageMetrics.metrics, function(err, result) {
+                            if(err)
+                                next(err);
+                            else
+                                results.push(result);
+                            if(results.length == resourcesUsageMetrics.length)
+                                next(null, results);
+                        }
+                    );
+                }
+            });
+        })(i);
+    };
+};
+
+
 function formatUsageData(instanceUsageMetrics, next) {
     var metricsDisplayUnits = appConfig.aws.cwMetricsDisplayUnits;
+    if(instanceUsageMetrics.resourceType === 'EC2') {
+        instanceUsageMetrics.metrics.CPUUtilization.unit = metricsDisplayUnits.CPUUtilization;
+        instanceUsageMetrics.metrics.DiskReadBytes.unit = metricsDisplayUnits.DiskReadBytes;
+        instanceUsageMetrics.metrics.DiskWriteBytes.unit = metricsDisplayUnits.DiskWriteBytes;
+        instanceUsageMetrics.metrics.NetworkIn.unit = metricsDisplayUnits.NetworkIn;
+        instanceUsageMetrics.metrics.NetworkOut.unit = metricsDisplayUnits.NetworkOut;
 
-    instanceUsageMetrics.metrics.CPUUtilization.unit = metricsDisplayUnits.CPUUtilization;
-    instanceUsageMetrics.metrics.DiskReadBytes.unit = metricsDisplayUnits.DiskReadBytes;
-    instanceUsageMetrics.metrics.DiskWriteBytes.unit = metricsDisplayUnits.DiskWriteBytes;
-    instanceUsageMetrics.metrics.NetworkIn.unit = metricsDisplayUnits.NetworkIn;
-    instanceUsageMetrics.metrics.NetworkOut.unit = metricsDisplayUnits.NetworkOut;
+        instanceUsageMetrics.metrics.CPUUtilization.average
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.average);
+        instanceUsageMetrics.metrics.CPUUtilization.minimum
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.minimum);
+        instanceUsageMetrics.metrics.CPUUtilization.maximum
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.maximum);
 
-    instanceUsageMetrics.metrics.CPUUtilization.average
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.average);
-    instanceUsageMetrics.metrics.CPUUtilization.minimum
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.minimum);
-    instanceUsageMetrics.metrics.CPUUtilization.maximum
-        = Math.round(instanceUsageMetrics.metrics.CPUUtilization.maximum);
+        next(null, instanceUsageMetrics);
+    }else if(instanceUsageMetrics.resourceType === 'S3') {
+        instanceUsageMetrics.metrics.BucketSizeBytes.unit = metricsDisplayUnits.BucketSizeBytes;
+        instanceUsageMetrics.metrics.NumberOfObjects.unit = metricsDisplayUnits.NumberOfObjects;
+        next(null, instanceUsageMetrics);
+    }else if(instanceUsageMetrics.resourceType === 'RDS') {
+        instanceUsageMetrics.metrics.CPUUtilization.unit = metricsDisplayUnits.CPUUtilization;
+        instanceUsageMetrics.metrics.BinLogDiskUsage.unit = metricsDisplayUnits.BucketSizeBytes;
+        instanceUsageMetrics.metrics.CPUCreditUsage.unit = metricsDisplayUnits.NumberOfObjects;
+        instanceUsageMetrics.metrics.CPUCreditBalance.unit = metricsDisplayUnits.NumberOfObjects;
+        instanceUsageMetrics.metrics.DatabaseConnections.unit = metricsDisplayUnits.NumberOfObjects;
+        instanceUsageMetrics.metrics.DiskQueueDepth.unit = metricsDisplayUnits.NumberOfObjects;
+        instanceUsageMetrics.metrics.FreeableMemory.unit = metricsDisplayUnits.BucketSizeBytes;
+        instanceUsageMetrics.metrics.FreeStorageSpace.unit = metricsDisplayUnits.BucketSizeBytes;
+        instanceUsageMetrics.metrics.ReplicaLag.unit = 'Seconds';
+        instanceUsageMetrics.metrics.SwapUsage.unit = metricsDisplayUnits.BucketSizeBytes;
+        instanceUsageMetrics.metrics.ReadIOPS.unit = 'Count/Second';
+        instanceUsageMetrics.metrics.WriteIOPS.unit = 'Count/Second';
+        instanceUsageMetrics.metrics.ReadLatency.unit = 'Seconds';
+        instanceUsageMetrics.metrics.WriteLatency.unit = 'Seconds';
+        instanceUsageMetrics.metrics.ReadThroughput.unit = 'Bytes/Second';
+        instanceUsageMetrics.metrics.WriteThroughput.unit = 'Bytes/Second';
+        instanceUsageMetrics.metrics.NetworkReceiveThroughput.unit = 'Bytes/Second';
+        instanceUsageMetrics.metrics.NetworkTransmitThroughput.unit = 'Bytes/Second';
 
-    next(null, instanceUsageMetrics);
+        instanceUsageMetrics.metrics.CPUUtilization.average
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.average);
+        instanceUsageMetrics.metrics.CPUUtilization.minimum
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.minimum);
+        instanceUsageMetrics.metrics.CPUUtilization.maximum
+            = Math.round(instanceUsageMetrics.metrics.CPUUtilization.maximum);
+        next(null, instanceUsageMetrics);
+    }
 }

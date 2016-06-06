@@ -38,12 +38,12 @@ var ApiUtil = function() {
     this.paginationResponse=function(data,req, callback) {
         var response={};
         var sortField=req.sortBy;
-        response[req.id]=data.docs;
+        response[req.id]=data[0].docs;
         response['metaData']={
-            totalRecords:data.total,
-            pageSize:data.limit,
-            page:data.page,
-            totalPages:data.pages,
+            totalRecords:data[0].total,
+            pageSize:data[0].limit,
+            page:data[0].page,
+            totalPages:data[0].pages,
             sortBy:Object.keys(sortField)[0],
             sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
@@ -97,8 +97,9 @@ var ApiUtil = function() {
             queryArr.push({$or:objOr});
         }
         else{
-            if(jsonData.filterBy)
+            if(jsonData.filterBy) {
                 objAnd = jsonData.filterBy;
+            }
             queryArr.push(objAnd);
         }
         queryObj['$and']=queryArr;
@@ -154,10 +155,15 @@ var ApiUtil = function() {
 
                  else {*/
                 var c = b[1].split(",");
-                if (c.length > 1)
+                if (c.length > 1) {
                     filterBy[b[0]] = {'$in': c};
-                else
-                    filterBy[b[0]] = b[1];
+                } else {
+                    if(key === 'resources' && b[0] === 'providerId'){
+                        filterBy['providerDetails.id'] = b[1];
+                    }else {
+                        filterBy[b[0]] = b[1];
+                    }
+                }
                 //}
             }
             request['filterBy'] = filterBy;
