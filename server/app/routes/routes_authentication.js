@@ -217,17 +217,18 @@ module.exports.setRoutes = function(app) {
                             res.redirect('/public/login.html?o=try');
                         }
                     } else {
+                        req.session.destroy();
                         if (req.body.authType === 'token') {
                             return res.status(400).send({
                                 message: "Invalid username or password"
                             });
                         }
-                        req.session.destroy();
                         res.redirect('/public/login.html?o=try');
                     }
                 });
             }
         } else {
+            req.session.destroy();
             if (req.body.authType === 'token') {
                 return res.status(400).send({
                     message: "Invalid username or password"
