@@ -217,6 +217,11 @@ module.exports.setRoutes = function(app) {
                             res.redirect('/public/login.html?o=try');
                         }
                     } else {
+                        if (req.body.authType === 'token') {
+                            return res.status(400).send({
+                                message: "Invalid username or password"
+                            });
+                        }
                         req.session.destroy();
                         res.redirect('/public/login.html?o=try');
                     }
@@ -253,7 +258,7 @@ module.exports.setRoutes = function(app) {
                 });
             });
         } else {
-            res.redirect('/public/login.html');
+            res.redirect('/');
         }
 
     });
@@ -301,7 +306,7 @@ module.exports.setRoutes = function(app) {
         res.send(req.session.cuserrole);
     });
 
-    
+
 
     var verifySession = function verifySession(req, res, next) {
         if (req.session && req.session.user) {
@@ -346,7 +351,7 @@ module.exports.setRoutes = function(app) {
         }
     }
 
-    app.get('/auth/getpermissionset',verifySession, function(req, res) {
+    app.get('/auth/getpermissionset', verifySession, function(req, res) {
         logger.debug('hit permissionset ');
         if (req && req.session && req.session.user && req.session.user.password)
             delete req.session.user.password;
@@ -354,7 +359,7 @@ module.exports.setRoutes = function(app) {
             logger.debug("Return User from session:>>>> ", JSON.stringify(req.session.user));
             res.send(JSON.stringify(req.session.user));
             return;
-        }else{
+        } else {
             res.send({});
         }
     });
