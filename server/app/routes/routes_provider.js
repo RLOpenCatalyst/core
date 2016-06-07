@@ -2203,6 +2203,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 														return;
 													}
 													AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
+														if(err){
+															AWSProvider.removeAWSProviderById(provider._id,function(err,deleteCount){
+																if(err){
+																	logger.debug("Unable to delete Provider.");
+																}else{
+																	logger.debug("Provider deleted.");
+																}
+															});
+															res.status(500).send("Unable to save provider pem file.");
+														    return;
+														}
 														masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
 															if (err) {
 																res.status(500).send("Not able to fetch org.");

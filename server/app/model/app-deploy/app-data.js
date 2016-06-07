@@ -47,7 +47,7 @@ var AppDataSchema = new Schema({
         trim: true
     },
     nexus: {
-        rowId:{
+        rowId: {
             type: String,
             trim: true
         },
@@ -76,7 +76,7 @@ var AppDataSchema = new Schema({
         }
     },
     docker: {
-        rowId:{
+        rowId: {
             type: String,
             trim: true
         },
@@ -156,10 +156,10 @@ AppDataSchema.statics.createNewOrUpdate = function createNewOrUpdate(appData, ca
             //var existData = checkDuplicate(aData[0], appData);
             var setData = {};
             //if (existData) {
-                var keys = Object.keys(appData);
-                for (var i = 0; i < keys.length; i++) {
-                    setData[keys[i]] = appData[keys[i]];
-                }
+            var keys = Object.keys(appData);
+            for (var i = 0; i < keys.length; i++) {
+                setData[keys[i]] = appData[keys[i]];
+            }
             //}
 
             that.update({
@@ -178,7 +178,7 @@ AppDataSchema.statics.createNewOrUpdate = function createNewOrUpdate(appData, ca
                 return;
             });
         } else {
-            logger.debug("This is the appData going to save: ",JSON.stringify(appData));
+            logger.debug("This is the appData going to save: ", JSON.stringify(appData));
             var appDataObj = new that(appData);
             appDataObj.save(function(err, anAppData) {
                 if (err) {
@@ -239,10 +239,22 @@ AppDataSchema.statics.getAppDataByProjectAndEnv = function getAppDataByProjectAn
     }, function(err, anAppData) {
         if (err) {
             logger.debug("Got error while fetching appData: ", err);
-            callback(err, null);
+            return callback(err, null);
         }
         logger.debug("Got appData: ", JSON.stringify(anAppData));
-        callback(null, anAppData);
+        return callback(null, anAppData);
+    });
+};
+
+// Remove All AppData informations.
+AppDataSchema.statics.removeAll = function removeAll(callback) {
+    this.remove({}, function(err, appData) {
+        if (err) {
+            logger.debug("Got error while removing All appData: ", err);
+            return callback(err, null);
+        }
+        logger.debug("Remove Success....");
+        return callback(null, appData);
     });
 };
 
