@@ -63,6 +63,7 @@ var appData = require('./routes_appdata');
 var deployPermission = require('./routes_deploypermission');
 var trackedInstances = require('./routes_trackedInstances');
 var awsResources = require('./routes_resources');
+var serviceStatus = require('./routes_serviceStatus');
 
 module.exports.setRoutes = function(app) {
 
@@ -150,6 +151,8 @@ module.exports.setRoutes = function(app) {
 	trackedInstances.setRoutes(app, sessionVerificationFunc);
 
 	awsResources.setRoutes(app, sessionVerificationFunc);
+
+	serviceStatus.setRoutes(app, sessionVerificationFunc);
 
 	app.get('/', function(req, res) {
 		res.redirect('/private/index.html');
