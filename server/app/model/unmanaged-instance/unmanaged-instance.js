@@ -33,9 +33,7 @@ var UnmanagedInstanceSchema = new Schema({
 	state: String,
 	tags: Schema.Types.Mixed,
 	usage: Schema.Types.Mixed,
-	cost: Schema.Types.Mixed,
-	aggregateCost : String,
-	aggregateUsage : String
+	cost: Schema.Types.Mixed
 });
 UnmanagedInstanceSchema.plugin(mongoosePaginate);
 
@@ -231,9 +229,7 @@ UnmanagedInstanceSchema.statics.updateInstanceCost = function(instanceCostData, 
 		platformId: instanceCostData.resourceId
 	}, {
 		$set: {
-			cost: instanceCostData.costMetrics,
-			aggregateCost:instanceCostData.totalInstanceCost,
-			aggregateUsage:instanceCostData.totalInstanceUsage
+			cost: instanceCostData.cost
 		}
 	}, {
 		upsert: false

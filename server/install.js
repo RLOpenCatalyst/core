@@ -80,7 +80,8 @@ function getDefaultsConfig() {
                 "containerList" : "Status",
                 "cftList" : "status",
                 "appDeploy" : "envId",
-                "trackedInstances": "providerType"
+                "trackedInstances": "providerType",
+                "resources":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,
@@ -96,6 +97,8 @@ function getDefaultsConfig() {
         },
         aws: {
             pemFileLocation: __dirname + '/app/config/',
+            s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
+            s3BucketFileName:'rlBilling.zip',
             pemFile: "catalyst.pem",
             instanceUserName: "root",
             virtualizationType: [{
@@ -164,6 +167,8 @@ function getDefaultsConfig() {
                 DiskWriteBytes: 'Megabytes',
                 NetworkIn: 'Megabytes',
                 NetworkOut: 'Megabytes',
+                BucketSizeBytes:"Bytes",
+                NumberOfObjects:"Count",
                 NetworkPacketsIn: 'Count',
                 NetworkPacketsOut: 'Count',
                 StatusCheckFailed: 'Count',
