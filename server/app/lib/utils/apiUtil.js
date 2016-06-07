@@ -38,12 +38,12 @@ var ApiUtil = function() {
     this.paginationResponse=function(data,req, callback) {
         var response={};
         var sortField=req.sortBy;
-        response[req.id]=data[0].docs;
+        response[req.id]=data.docs;
         response['metaData']={
-            totalRecords:data[0].total,
-            pageSize:data[0].limit,
-            page:data[0].page,
-            totalPages:data[0].pages,
+            totalRecords:data.total,
+            pageSize:data.limit,
+            page:data.page,
+            totalPages:data.pages,
             sortBy:Object.keys(sortField)[0],
             sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
