@@ -73,7 +73,7 @@ function workzoneFunct($scope, $rootScope) {
 		/*If type comes, find a configured message for that type*/
 		switch(type){
 			case  'NO_ENV_CONFIGURED_CONFIGURE_SETTINGS':
-				message = 'Please configure your Chef Server & Environments. Check your <a href="../../../../#ajax/Settings/Dashboard.html">SETTINGS</a>';
+				message = 'Please configure your Chef Server & Environments. Check your <a href="/private/index.html#ajax/Settings/Dashboard.html">SETTINGS</a>';
 				break;
 			case 'NO_ENV_CONFIGURED_NO_SETTINGS_ACCESS':
 				message = 'There are no <b>WORKZONE</b> items to display';

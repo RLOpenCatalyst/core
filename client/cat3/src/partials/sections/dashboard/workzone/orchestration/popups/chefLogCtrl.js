@@ -60,6 +60,15 @@
                         $scope.selectedInstance = firstInstance;
                         chefLogData.instanceChange();
                     };
+                    
+                    var resetAll = function(){
+                        $scope.isInstanceListLoading = true;
+                        chefLogData.chefHistoryItem = {};
+                        chefLogData.nodeIdsWithActionLog = {};
+                        helper.stopPolling(); //Ensuring polling is stopped, eventhough the scope values for instance id and actionlog id are updated on change
+                        helper.lastTimeStamp = '';
+                    };
+                    
                     var init = function () {
                         //get the details of one chef history entry
                         workzoneServices.getTaskHistoryItem(items.taskId, items.historyId).then(function (response) {
@@ -167,6 +176,14 @@
                         }
                     };
                     init();
+
+                    // on task change event in the parent controller
+                    $scope.$on('parentChangeCompTask', function (event, args) {
+                        items = args;
+                        resetAll();
+                        init();
+                    });
+
                     return chefLogData;
                 }]);
 })();
