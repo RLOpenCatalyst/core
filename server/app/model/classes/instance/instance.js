@@ -278,7 +278,11 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
-
+    zone: {
+        type: String,
+        required: false,
+        trim: true
+    }
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -524,6 +528,23 @@ var InstancesDao = function() {
                 callback(null, data);
             });
         }
+    };
+
+    this.getInstancesByOrgBgProjectAndEnvIdForDocker = function(jsonData, callback) {
+        var queryObj = {
+            orgId: jsonData.orgId,
+            bgId: jsonData.bgId,
+            projectId: jsonData.projectId,
+            envId: jsonData.envId
+        }
+        Instances.find(queryObj, function(err, instances) {
+            if (err) {
+                logger.error("Failed to getInstancesByOrgBgProjectAndEnvIdForDocker", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, instances);
+        });
     };
 
     this.getInstancesByOrgEnvIdAndChefNodeName = function(orgId, envId, nodeName, callback) {
@@ -1759,6 +1780,24 @@ var InstancesDao = function() {
         });
     };
 
+    this.updateInstanceCost = function(instanceCostData, callback) {
+        Instances.update({
+            platformId: instanceCostData.resourceId
+        }, {
+            $set: {
+                cost: instanceCostData.cost
+            }
+        }, {
+            upsert: false
+        }, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
+
     this.NormalizedInstances=function(jsonData,fieldName,callback){
         var queryObj={};
         if(jsonData.filterBy){
@@ -1801,6 +1840,49 @@ var InstancesDao = function() {
             }
         })
     };
+
+    this.searchByChefServerAndNodeNames = function(chefServerId, nodesName, callback) {
+        logger.debug('chefServerId ==>', chefServerId);
+        logger.debug('nodesName ==>', nodesName);
+
+        Instances.find({
+            "chef.serverId": chefServerId,
+            "chef.chefNodeName": {
+                '$in': nodesName
+            }
+        }, function(err, instances) {
+            if (err) {
+                logger.error("Failed searchByChefServerAndNodeNames ", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, instances);
+
+        });
+
+    };
+
+    this.searchByChefServerNodeNamesAndEnvId = function(chefServerId, nodesName, envId, callback) {
+        logger.debug('chefServerId ==>', chefServerId);
+        logger.debug('nodesName ==>', nodesName);
+
+        Instances.find({
+            "envId":envId,
+            "chef.serverId": chefServerId,
+            "chef.chefNodeName": {
+                '$in': nodesName
+            }
+        }, function(err, instances) {
+            if (err) {
+                logger.error("Failed searchByChefServerAndNodeNames ", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, instances);
+
+        });
+
+    }
 };
 
 module.exports = new InstancesDao();
