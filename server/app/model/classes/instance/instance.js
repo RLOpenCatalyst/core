@@ -270,8 +270,14 @@ var InstanceSchema = new Schema({
     armId: String,
     usage: Schema.Types.Mixed,
     cost: Schema.Types.Mixed,
-    region:{
+    zone: {
         type: String,
+        required: false,
+        trim: true
+    },
+    region: {
+        type: String,
+        required: false,
         trim: true
     }
 });

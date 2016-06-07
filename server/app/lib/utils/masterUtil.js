@@ -1820,12 +1820,12 @@ var MasterUtil = function() {
     // Get all appData informations.
     this.getAppDataWithDeployList = function(envName, projectId, callback) {
         logger.debug("projectId: ", projectId);
-        AppDeploy.getAppDeployListByEnvId(projectId,envName, function(err, data) {
+        AppDeploy.getAppDeployListByEnvId(projectId, envName, function(err, data) {
             if (err) {
                 logger.debug("App deploy fetch error.", err);
             }
             logger.debug("App deploy: ", JSON.stringify(data));
-            callback(null,data);
+            callback(null, data);
         });
     };
 
@@ -2146,7 +2146,17 @@ var MasterUtil = function() {
             }
         });
     };
-   
+
+    this.getTemplateById = function(templateId, callback) {
+        d4dModelNew.d4dModelMastersTemplatesList.find({
+            rowid: templateId
+        }, function(err, templates) {
+            if(err) {
+                return callback(err);
+            }
+            return callback(null,templates);
+        });
+    };
 }
 
 module.exports = new MasterUtil();

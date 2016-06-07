@@ -29,6 +29,10 @@ function getDefaultsConfig() {
             express_sid_key: 'express.sid',
             sessionSecret: 'sessionSekret'
         },
+        jwt: {
+            secret: "jwtSecr3t",
+            expiresInSec: 604800
+        },
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
@@ -62,12 +66,18 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
-        constantData:  {
-            common_field:['envId','providerId','orgId','bgId','projectId'],
-            sort_field:['name','description'],
-            filterReferanceData : {
-                "unmanagedInstances" : [{"state" : "running"},{"os" : "linux"}],
-                "managedInstances" : [{"instanceState" : "running"}]
+        constantData: {
+            common_field: ['envId', 'providerId', 'orgId', 'bgId', 'projectId'],
+            sort_field: ['name', 'description'],
+            filterReferanceData: {
+                "unmanagedInstances": [{
+                    "state": "running"
+                }, {
+                    "os": "linux"
+                }],
+                "managedInstances": [{
+                    "instanceState": "running"
+                }]
             },
             sort_order : "desc",
             sortReferanceData : {
