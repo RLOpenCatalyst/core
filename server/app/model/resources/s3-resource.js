@@ -101,5 +101,5 @@ S3ResourcesSchema.statics.getS3BucketData = function(s3Data,callback){
 };
 
 
-var S3Resources = Resources.discriminator('resources', S3ResourcesSchema);
+var S3Resources = Resources.discriminator('s3Resources', S3ResourcesSchema);
 module.exports = S3Resources;
