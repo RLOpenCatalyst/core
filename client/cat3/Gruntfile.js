@@ -90,7 +90,9 @@ module.exports = function(grunt) {
 					{'catalyst/partials/sections/dashboard/workzone/container/container.css':'src/partials/sections/dashboard/workzone/container/container.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/orchestration/orchestration.css':'src/partials/sections/dashboard/workzone/orchestration/orchestration.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/application/application.css':'src/partials/sections/dashboard/workzone/application/application.scss'},
-					{'catalyst/partials/sections/dashboard/setting/setting.css':'src/partials/sections/dashboard/setting/setting.scss'}
+					{'catalyst/partials/sections/dashboard/setting/setting.css':'src/partials/sections/dashboard/setting/setting.scss'},
+                                        {'catalyst/partials/sections/dashboard/analytics/analytics.css':'src/partials/sections/dashboard/analytics/analytics.scss'},
+                                        {'catalyst/partials/sections/dashboard/analytics/analyticsTreeMenu/analyticsTreeMenu.css':'src/partials/sections/dashboard/analytics/analyticsTreeMenu/analyticsTreeMenu.scss'},
 				]
 			}
 		},

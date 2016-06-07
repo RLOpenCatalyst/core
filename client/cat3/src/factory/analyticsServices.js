@@ -22,7 +22,7 @@
                         getEnvParams: env.getParams
                     };
                 }]).service('analyticsServices', ['$http', 'session', 'analyticsEnvironment', 'paginationUtil',
-        function ($http, Auth, workzoneEnvironment, paginationUtil) {
+        function ($http, Auth, analyticsEnvironment, paginationUtil) {
             var baseAPIUrl = uiConfigs.serverUrl;
             function fullUrl(relUrl){
                 return baseAPIUrl + relUrl;
@@ -35,7 +35,7 @@
                      proj: list[2],
                      env: list[3]
                      * */
-                    var p = workzoneEnvironment.getEnvParams();
+                    var p = analyticsEnvironment.getEnvParams();
                     return serviceInterface.getInstanceBlueprintOrchestration(p.org, p.bg,
                             p.proj, p.env);
                 },
