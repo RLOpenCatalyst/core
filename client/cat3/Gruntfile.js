@@ -86,7 +86,6 @@ module.exports = function(grunt) {
 					{'catalyst/partials/sections/dashboard/workzone/instance/instance.css':'src/partials/sections/dashboard/workzone/instance/instance.scss'},			 
 					{'catalyst/partials/sections/dashboard/workzone/blueprint/blueprint.css':'src/partials/sections/dashboard/workzone/blueprint/blueprint.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/cloudFormation/cloudFormation.css':'src/partials/sections/dashboard/workzone/cloudFormation/cloudFormation.scss'},
-					{'catalyst/partials/sections/dashboard/workzone/azureARM/azureARM.css':'src/partials/sections/dashboard/workzone/azureARM/azureARM.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/container/container.css':'src/partials/sections/dashboard/workzone/container/container.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/orchestration/orchestration.css':'src/partials/sections/dashboard/workzone/orchestration/orchestration.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/application/application.css':'src/partials/sections/dashboard/workzone/application/application.scss'},

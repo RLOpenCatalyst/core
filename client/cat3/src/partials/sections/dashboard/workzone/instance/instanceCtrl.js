@@ -99,7 +99,7 @@
 
 		/*Setting the paginationParams*/
 		$scope.isInstancePageLoading = true;
-		var gridBottomSpace = 30;
+		var gridBottomSpace = 5;
 		var instanceUIGridDefaults = uiGridOptionsService.options();
 		$scope.paginationParams = instanceUIGridDefaults.pagination;
 		$scope.currentCardPage = instanceUIGridDefaults.pagination.page;
