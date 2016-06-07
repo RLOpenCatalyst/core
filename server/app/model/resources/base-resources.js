@@ -22,18 +22,7 @@ var AWSResourcesSchema = function AWSResources() {
     Schema.apply(this, arguments);
 
     this.add({
-        organizationDetails: {
-            id: {
-                type: String,
-                required: false,
-                trim: true
-            },
-            name: {
-                type: String,
-                required: false,
-                trim: true
-            }
-        },
+        masterDetails: Schema.Types.Mixed,
         providerDetails: {
             id: {
                 type: String,
@@ -62,7 +51,11 @@ var AWSResourcesSchema = function AWSResources() {
         },
         tags:[Schema.Types.Mixed],
         usage:Schema.Types.Mixed,
-        cost:Schema.Types.Mixed
+        cost:Schema.Types.Mixed,
+        isDeleted:{
+            type:Boolean,
+            default:false
+        }
     });
 };
 util.inherits(AWSResourcesSchema, Schema);

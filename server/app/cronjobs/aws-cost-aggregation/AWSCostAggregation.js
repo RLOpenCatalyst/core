@@ -276,7 +276,8 @@ function saveInstanceResourceCost(instances,instanceCostMetrics,callback){
                 awsCostObject['aggregateResourceCost'] = totalCost;
                 awsCostObject['costMetrics'] = {
                     aggregateInstanceCost:totalCost,
-                    unit:'USD'
+                    currency:'USD',
+                    symbol:"$"
                 };
                 awsObjectList.push(awsCostObject);
                 awsCostObject={};
@@ -304,7 +305,8 @@ function saveInstanceResourceCost(instances,instanceCostMetrics,callback){
                 awsCostObject['aggregateResourceCost'] = totalCost;
                 awsCostObject['costMetrics'] = {
                     aggregateInstanceCost:totalCost,
-                    unit:'USD'
+                    currency:'USD',
+                    symbol:"$"
                 };
                 awsObjectList.push(awsCostObject);
                 awsCostObject={};
@@ -344,7 +346,8 @@ function updateManagedInstanceCost(instances,instanceCostMetrics, callback) {
             instanceCostObj['resourceId'] = instances[i].platformId;
             instanceCostObj['cost'] = {
                 aggregateInstanceCost:totalCost,
-                unit:'USD'
+                currency:'USD',
+                symbol:"$"
             };
             instancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
@@ -376,7 +379,8 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
             instanceCostObj['resourceId'] = instances[i].platformId;
             instanceCostObj['cost'] = {
                 aggregateInstanceCost:totalCost,
-                unit:'USD'
+                currency:'USD',
+                symbol:"$"
             };
             unManagedInstancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
                 if (err) {
@@ -409,7 +413,7 @@ function updateResourceCost(resourceData,resourceCostMetrics,callback){
             };
             bucketCostObj['resourceId'] = resourceData[i]._id;
             bucketCostObj['cost'] = {
-                aggregateBucketCost:totalCost,
+                aggregateResourceCost:totalCost,
                 currency:'USD',
                 symbol:"$"
             };

@@ -327,20 +327,20 @@ function formatUsageData(instanceUsageMetrics, next) {
 
         next(null, instanceUsageMetrics);
     }else if(instanceUsageMetrics.resourceType === 'S3') {
-        instanceUsageMetrics.metrics.BucketSizeBytes.unit = metricsDisplayUnits.BucketSizeBytes;
-        instanceUsageMetrics.metrics.NumberOfObjects.unit = metricsDisplayUnits.NumberOfObjects;
+        instanceUsageMetrics.metrics.BucketSizeBytes.unit = 'Bytes';
+        instanceUsageMetrics.metrics.NumberOfObjects.unit = 'Count';
         next(null, instanceUsageMetrics);
     }else if(instanceUsageMetrics.resourceType === 'RDS') {
-        instanceUsageMetrics.metrics.CPUUtilization.unit = metricsDisplayUnits.CPUUtilization;
-        instanceUsageMetrics.metrics.BinLogDiskUsage.unit = metricsDisplayUnits.BucketSizeBytes;
-        instanceUsageMetrics.metrics.CPUCreditUsage.unit = metricsDisplayUnits.NumberOfObjects;
-        instanceUsageMetrics.metrics.CPUCreditBalance.unit = metricsDisplayUnits.NumberOfObjects;
-        instanceUsageMetrics.metrics.DatabaseConnections.unit = metricsDisplayUnits.NumberOfObjects;
-        instanceUsageMetrics.metrics.DiskQueueDepth.unit = metricsDisplayUnits.NumberOfObjects;
-        instanceUsageMetrics.metrics.FreeableMemory.unit = metricsDisplayUnits.BucketSizeBytes;
-        instanceUsageMetrics.metrics.FreeStorageSpace.unit = metricsDisplayUnits.BucketSizeBytes;
+        instanceUsageMetrics.metrics.CPUUtilization.unit = 'Percent';
+        instanceUsageMetrics.metrics.BinLogDiskUsage.unit = 'Bytes';
+        instanceUsageMetrics.metrics.CPUCreditUsage.unit = 'Count';
+        instanceUsageMetrics.metrics.CPUCreditBalance.unit = 'Count';
+        instanceUsageMetrics.metrics.DatabaseConnections.unit = 'Count';
+        instanceUsageMetrics.metrics.DiskQueueDepth.unit = 'Count';
+        instanceUsageMetrics.metrics.FreeableMemory.unit = 'Bytes';
+        instanceUsageMetrics.metrics.FreeStorageSpace.unit = 'Bytes';
         instanceUsageMetrics.metrics.ReplicaLag.unit = 'Seconds';
-        instanceUsageMetrics.metrics.SwapUsage.unit = metricsDisplayUnits.BucketSizeBytes;
+        instanceUsageMetrics.metrics.SwapUsage.unit = 'Bytes';
         instanceUsageMetrics.metrics.ReadIOPS.unit = 'Count/Second';
         instanceUsageMetrics.metrics.WriteIOPS.unit = 'Count/Second';
         instanceUsageMetrics.metrics.ReadLatency.unit = 'Seconds';

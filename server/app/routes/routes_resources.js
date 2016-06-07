@@ -46,8 +46,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     function(queryObj, next) {
                         resourceService.getResources(queryObj, next);
                     },
-                    function(awsServices, next) {
-                        apiUtil.paginationResponse(awsServices,reqData, next);
+                    function(resources, next) {
+                        apiUtil.paginationResponse(resources[0],reqData, next);
                     }
 
                 ], function(err, results) {
