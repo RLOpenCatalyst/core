@@ -54,7 +54,7 @@ var ResourceMetricsSchema = new Schema({
         required: false,
         trim: true
     },
-    instanceId: {
+    resourceId: {
         type: String,
         required: false,
         trim: true

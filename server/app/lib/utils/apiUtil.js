@@ -9,6 +9,7 @@ var Cryptography = require('_pr/lib/utils/cryptography.js');
 var cryptoConfig = appConfig.cryptoSettings;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
 
+
 var ApiUtil = function() {
     this.errorResponse=function(code,field){
         var errObj={};
@@ -37,13 +38,12 @@ var ApiUtil = function() {
     this.paginationResponse=function(data,req, callback) {
         var response={};
         var sortField=req.sortBy;
-        response[req.id]=data.docs;
+        response[req.id]=data[0].docs;
         response['metaData']={
-            totalRecords:data.total,
-            pageSize:data.limit,
-            page:data.page,
-            totalPages:data.pages,
-
+            totalRecords:data[0].total,
+            pageSize:data[0].limit,
+            page:data[0].page,
+            totalPages:data[0].pages,
             sortBy:Object.keys(sortField)[0],
             sortOrder:req.sortBy ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '',
             filterBy:req.filterBy
@@ -58,6 +58,11 @@ var ApiUtil = function() {
         var objAnd = {}
         var objOr=[];
         var databaseCall={};
+        for(var i = 0; i < commons.length; i++){
+            var keyField=commons[i];
+            if(jsonData[keyField])
+                objAnd[keyField] = jsonData[keyField];
+        }
         var columns=commons.common_field;
         var fields=commons.sort_field;
         var sortField=jsonData.mirrorSort;
@@ -92,8 +97,9 @@ var ApiUtil = function() {
             queryArr.push({$or:objOr});
         }
         else{
-            if(jsonData.filterBy)
+            if(jsonData.filterBy) {
                 objAnd = jsonData.filterBy;
+            }
             queryArr.push(objAnd);
         }
         queryObj['$and']=queryArr;
@@ -107,10 +113,7 @@ var ApiUtil = function() {
         databaseCall['options']=options;
         callback(null, databaseCall);
         return;
-
-
     };
-
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {
@@ -152,10 +155,15 @@ var ApiUtil = function() {
 
                  else {*/
                 var c = b[1].split(",");
-                if (c.length > 1)
+                if (c.length > 1) {
                     filterBy[b[0]] = {'$in': c};
-                else
-                    filterBy[b[0]] = b[1];
+                } else {
+                    if(key === 'resources' && b[0] === 'providerId'){
+                        filterBy['providerDetails.id'] = b[1];
+                    }else {
+                        filterBy[b[0]] = b[1];
+                    }
+                }
                 //}
             }
             request['filterBy'] = filterBy;
@@ -174,8 +182,6 @@ var ApiUtil = function() {
             callback(null, request);
         }
     }
-
-
 }
 
 module.exports = new ApiUtil();

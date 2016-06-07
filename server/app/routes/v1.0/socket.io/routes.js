@@ -41,7 +41,7 @@ module.exports.setRoutes = function(socketIo) {
         socketList.push[socket];
         //logger.debug('socket ==>',socket);
         socket.on('open', function(instanceData) {
-            logger.debug("instanceData:", instanceData);
+            
             instancesDao.getInstanceById(instanceData.id, function(err, instances) {
                 logger.debug(instanceData.id);
                 if (err) {
@@ -122,6 +122,7 @@ module.exports.setRoutes = function(socketIo) {
                         return;
                     }
                     socket.shellInstance = shell;
+                    
                     shell.on('data', function(data) {
                         socket.emit('out', {
                             res: data
@@ -174,9 +175,18 @@ module.exports.setRoutes = function(socketIo) {
                         }
                     });
 
-                    socket.emit('opened', {
-                        actionLogId: actionLog._id
-                    });
+                    if (instanceData.dockerContainerId) {
+                        shell.write('sudo docker exec -it '+instanceData.dockerContainerId+' /bin/bash \r'); 
+                        socket.emit('opened', {
+                            actionLogId: actionLog._id
+                        });
+
+                    } else {
+                        socket.emit('opened', {
+                            actionLogId: actionLog._id
+                        });
+                    }
+
                     logsDao.insertLog({
                         referenceId: logReferenceIds,
                         err: false,
@@ -191,6 +201,7 @@ module.exports.setRoutes = function(socketIo) {
         socket.on('cmd', function(data) {
 
             if (socket.shellInstance) {
+                
                 socket.shellInstance.write(data);
             }
         });
@@ -211,6 +222,6 @@ module.exports.setRoutes = function(socketIo) {
 
     });
 
-    
+
 
 };

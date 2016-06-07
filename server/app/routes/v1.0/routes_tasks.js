@@ -24,6 +24,13 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var logger = require('_pr/logger')(module);
 
+
+
+var appConfig = require('_pr/config');
+var uuid = require('node-uuid');
+var fileIo = require('_pr/lib/utils/fileio');
+
+
 module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
@@ -496,5 +503,39 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.send(404);
             }
         });
+
     });
+
+    app.post('/task/uploadScript', function(req, res) {
+
+        var fileName = uuid.v4();
+        if (!appConfig.scriptDir) {
+            res.send(500, {
+                message: "Unable to upload to scriptDir"
+            });
+            return;
+        }
+        if (req.files && req.files.file) {
+            console.log(req.files.file);
+
+            var destPath = appConfig.scriptDir + fileName;
+            console.log(destPath);
+            fileIo.copyFile(req.files.file.path, destPath, function(err) {
+                if (err) {
+                    res.status(500).send({
+                        message: "Unable to save file"
+                    });
+                    return;
+                }
+                res.status(201).send({
+                    filename: fileName
+                });
+            });
+        } else {
+            res.status(400).send({
+                message: "Bad Request"
+            });
+        }
+    });
+
 };

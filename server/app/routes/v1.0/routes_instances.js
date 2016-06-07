@@ -223,15 +223,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.post('/instances', function(req, res) {
         logger.debug("Enter post() for /instances");
-        instancesDao.getInstances(req.body.instanceIds, function(err, data) {
-            if (err) {
-                logger.error("Instance creation Failed >> ", err);
-                res.send(500);
-                return;
-            }
-            res.send(data);
-            logger.debug("Exit post() for /instances");
-        });
+        if (req.body.instanceIds && req.body.instanceIds.length) {
+            instancesDao.getInstances(req.body.instanceIds, function(err, data) {
+                if (err) {
+                    logger.error("Instance creation Failed >> ", err);
+                    res.send(500);
+                    return;
+                }
+                res.send(data);
+                logger.debug("Exit post() for /instances");
+            });
+        } else {
+            res.status(400).send({
+                message:"invalid instance Ids"
+            });
+        }
     });
 
     app.delete('/instances/:instanceId', function(req, res) {
@@ -467,7 +473,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var _docker = new Docker();
         var stdmessages = '';
         var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
-
+        console.log("Durgesh Sharma");
         logger.debug('cmd received: ', cmd);
         var stdOut = '';
         _docker.runDockerCommands(cmd, instanceid, function(err, retCode) {
@@ -507,8 +513,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     retCode: retCode
                 });
             }
-
-
         }, function(stdOutData) {
             stdOut += stdOutData;
         }, function(stdOutErr) {

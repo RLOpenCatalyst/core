@@ -72,6 +72,9 @@ providerService.getProvider = function getProvider(providerId, callback) {
                     return callback(null, gcpProvider);
                     break;
                 default:
+                    var err = new Error('Bad request');
+                    err.status = 400;
+                    return callback(err);
                     break;
             }
         }
@@ -121,6 +124,9 @@ providerService.createProvider = function createProvider(provider, callback) {
             });
             break;
         defaut:
+            var err = new Error('Bad request');
+            err.status = 400;
+            return callback(err);
             break;
     }
 };
@@ -150,6 +156,9 @@ providerService.updateProvider = function updateProvider(provider, updateFields,
                     fields.providerDetails.sshPrivateKey = updateFields.providerDetails.sshPublicKey;
                 break;
             default:
+                var err = new Error('Bad request');
+                err.status = 400;
+                return callback(err);
                 break;
         }
     }
@@ -210,6 +219,9 @@ providerService.createProviderResponseObject = function createProviderResponseOb
             providerResponseObject.providerDetails.projectId = gcpProvider.providerDetails.projectId;
             break;
         default:
+            var err = new Error('Bad request');
+            err.status = 400;
+            return callback(err);
             break;
     }
 

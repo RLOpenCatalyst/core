@@ -22,6 +22,9 @@ var errorResponses = require('./error_responses');
 var AppData = require('_pr/model/app-deploy/app-data');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var AppDeployPipeline = require('_pr/model/app-deploy/appdeploy-pipeline');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var async = require('async');
+
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -75,6 +78,41 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
+
+    app.get('/app/deploy/pipeline/project/:projectId/projectList', getAppDeployPipelineList);
+
+     function getAppDeployPipelineList(req, res, next) {
+         var reqData={};
+         async.waterfall(
+           [
+                function(next) {
+                    apiUtil.paginationRequest(req.query,'appDeploy',next);
+                },
+                function(paginationReq,next){
+                    paginationReq['projectId']=req.params.projectId;
+                    reqData=paginationReq;
+                    AppDeployPipeline.getAppDeployPipelineList(paginationReq,next);
+                },
+                function(appDeployData,next){
+                    if(appDeployData.docs.length)
+                        apiUtil.paginationResponse(appDeployData,reqData,next);
+                    else
+                        masterUtil.getParticularProject(req.params.projectId,next);
+                }
+
+           ], function(err, results) {
+                if(err)
+                        next(err);
+                 else
+                    return res.status(200).send(results);
+           });
+     }
+
+
+
+
+
+
     app.post('/app/deploy/data/pipeline/update/configure/project/:projectId', function(req, res) {
         AppDeployPipeline.updateConfigurePipeline(req.params.projectId, req.body.appDeployPipelineUpdateData, function(err, appDeployes) {
             if (err) {

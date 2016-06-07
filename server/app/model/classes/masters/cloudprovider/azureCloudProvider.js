@@ -220,7 +220,7 @@ azurecloudProviderSchema.statics.getAzureCloudProvidersForOrg = function(orgList
 };
 
 azurecloudProviderSchema.statics.getAzureCloudProviderById = function(providerId, callback) {
-	logger.debug("Enter getAzureCloudProviderById");
+	logger.debug("Enter getAzureCloudProviderById   "+providerId);
 	this.find({
 		"_id": new ObjectId(providerId)
 	}, function(err, aProvider) {
