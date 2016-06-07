@@ -27,7 +27,8 @@ var checkandupdateRunlistTable = function() {
             "bFilter": false,
             "aoColumns": [{
                 "bSortable": false
-            }]
+            }],
+            "bSort": false
         });
     }
 }
@@ -1690,7 +1691,6 @@ var saveblueprint = function(tempType) {
                     var nexusRepoUrl = "";
                     var repoId = $chooseRepository.find('option:selected').val();
                     var nexusRepoId = $nexusServer.find('option:selected').val();
-                    var rowId = $nexusServer.find('option:selected').val();
 
                     //alert($('.checkConfigApp').prop("checked"));
                     if ($('.checkConfigApp').prop("checked")) {
@@ -1717,13 +1717,12 @@ var saveblueprint = function(tempType) {
                                 }
                             }
                             var nexus = {
-                                "rowId": rowId,
                                 "repoId": nexusRepoId,
                                 "url": nexusRepoUrl,
                                 "version": appVersion,
                                 "repoName": repoId,
                                 "artifactId": artifactId,
-                                "groupId": $chooseGroupId.find('option:selected').val()
+                                "groupId": groupId
                             };
                             reqBody.nexus = nexus;
                         } else {
@@ -1756,7 +1755,6 @@ var saveblueprint = function(tempType) {
 
 
                             var docker = {
-                                rowId: rowId,
                                 repoId: nexusRepoId,
                                 image: dockerImage,
                                 containerId: containerId,
@@ -3640,7 +3638,7 @@ function addBlueprintToDom(data) {
         var $ul = $('<ul></ul>').addClass('list-unstyled system-prop').css({
             'text-align': 'center'
         });
-        var $liRead = $('<a style="float:right;margin:5px;cursor:pointer" class="readBtn"><div class="moreInfo"></div></a>').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'More Info');
+        var $liRead = $('<a style="float:right;margin:5px;cursor:pointer" class="readBtn"><div class="moreInfo moreInfoabsolute"></div></a>').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'More Info');
         $ul.append($liRead);
         var $img
         if (data.iconpath) {
