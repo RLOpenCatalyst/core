@@ -91,6 +91,7 @@ S3ResourcesSchema.statics.getS3BucketData = function(s3Data,callback){
     queryObj['providerDetails.id'] = s3Data.providerDetails.id;
     queryObj['resourceType'] = s3Data.resourceType;
     queryObj['resourceDetails.bucketName'] = s3Data.resourceDetails.bucketName;
+    queryObj['isDeleted']=false;
     S3Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getS3BucketData", err);
