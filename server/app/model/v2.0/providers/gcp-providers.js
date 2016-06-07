@@ -72,5 +72,20 @@ GCPProviderSchema.statics.createNew = function createNew(data, callback) {
     });
 };
 
+GCPProviderSchema.statics.updateById
+    = function updateById(providerId, fields, callback) {
+    this.update(
+        {_id: providerId},
+        fields,
+        function(err, result) {
+            if (err) {
+                return callback(err, null);
+            } else if(result.ok == 1 && result.n == 1)  {
+                return callback(null, true);
+            }
+        }
+    );
+};
+
 var GCPProvider = Providers.discriminator('Providers', GCPProviderSchema);
 module.exports = GCPProvider;

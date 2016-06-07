@@ -138,40 +138,39 @@ providerService.updateProvider = function updateProvider(provider, updateFields,
         provider.name = updateFields.name;
     }
 
-    if('providerDetails' in updateFields) {
-        switch(provider.type) {
-            case 'gcp':
-                if('projectId' in updateFields.providerDetails) {
-                    fields.providerDetails.projectId = updateFields.providerDetails.projectId;
+    switch (provider.type) {
+        case 'gcp':
+            if ('providerDetails' in updateFields) {
+                if ('projectId' in updateFields.providerDetails) {
+                    fields['providerDetails.projectId'] = updateFields.providerDetails.projectId;
                     provider.providerDetails.projectId = updateFields.providerDetails.projectId;
                 }
 
-                if('keyFile' in updateFields.providerDetails)
-                    fields.providerDetails.keyFile = updateFields.providerDetails.keyFile;
+                if ('keyFile' in updateFields.providerDetails)
+                    fields['providerDetails.keyFile'] = updateFields.providerDetails.keyFile;
 
-                if('sshPrivateKey' in updateFields.providerDetails)
-                    fields.providerDetails.sshPrivateKey = updateFields.providerDetails.sshPrivateKey;
+                if ('sshPrivateKey' in updateFields.providerDetails)
+                    fields['providerDetails.sshPrivateKey'] = updateFields.providerDetails.sshPrivateKey;
 
-                if('sshPublicKey' in updateFields.providerDetails)
-                    fields.providerDetails.sshPrivateKey = updateFields.providerDetails.sshPublicKey;
-                break;
-            default:
-                var err = new Error('Bad request');
-                err.status = 400;
-                return callback(err);
-                break;
-        }
+                if ('sshPublicKey' in updateFields.providerDetails)
+                    fields['providerDetails.sshPrivateKey'] = updateFields.providerDetails.sshPublicKey;
+            }
+            gcpProviderModel.updateById(provider._id, fields, function(err, result) {
+                if(err || !result) {
+                    var err = new Error('Internal Server Error');
+                    err.status = 500;
+                    callback(err);
+                } else if(result) {
+                    callback(null, provider);
+                }
+            });
+            break;
+        default:
+            var err = new Error('Bad request');
+            err.status = 400;
+            return callback(err);
+            break;
     }
-
-    providersModel.updateById(provider._id, fields, function(err, result) {
-        if(err || !result) {
-            var err = new Error('Internal Server Error');
-            err.status = 500;
-            callback(err);
-        } else if(result) {
-            callback(null, provider);
-        }
-    });
 };
 
 providerService.deleteProvider = function deleteProvider(providerId, callback) {
