@@ -378,7 +378,7 @@ AppDeploySchema.statics.getAppDeployHistoryListByProjectIdEnvNameAppNameVersion 
                 applicationType: 1,
                 containerId: 1,
                 lastAppDeployDate: 1,
-                applicationLastDeploy:1,
+                applicationLastDeploy: 1,
                 hostName: 1
             }
         }],
@@ -681,6 +681,18 @@ AppDeploySchema.statics.getAppDeployByProjectAndEnv = function getAppDeployByPro
         }
         logger.debug("Got appData: ", JSON.stringify(appData));
         callback(null, appData);
+    });
+};
+
+// Remove All AppDeploy informations.
+AppDeploySchema.statics.removeAll = function removeAll(callback) {
+    this.remove({}, function(err, appDeploy) {
+        if (err) {
+            logger.debug("Got error while removing All AppDeploy: ", err);
+            return callback(err, null);
+        }
+        logger.debug("Remove Success....");
+        return callback(null, appDeploy);
     });
 };
 

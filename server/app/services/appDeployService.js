@@ -140,9 +140,11 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                 var appDeployObj = {};
                 var environments = project[0].environmentname.split(",");
                 var applicationNames = distinctAppDeployApplicationNames.applicationNames;
+                var count =0;
                 if (applicationNames.length > 0) {
                     for (var i = 0; i < applicationNames.length; i++) {
                         (function(appName) {
+                            count++;
                             jsonData['appName'] = appName._id;
                             appDeploy.getDistinctAppDeployVersionByProjectId(jsonData, function(err, appDeployVersions) {
                                 if (err) {
@@ -194,6 +196,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                                     }
                                                 }
                                                 appDeployList.push(appDeployObj);
+                                                logger.debug("getAppDeployListByProjectId: ",distinctAppDeployApplicationNames.pageSize +"   "+ appDeployList.length);
                                                 if (distinctAppDeployApplicationNames.pageSize === appDeployList.length) {
                                                     var response = {};
                                                     response[jsonData.id] = appDeployList;

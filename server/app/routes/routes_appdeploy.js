@@ -244,7 +244,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     };
 
-    app.get('/app-deploy/project/:projectId/env/:envName/appDeployInstanceList',validate(appDeployValidator.appDeploy), getAppDeployHistoryForPipeLineList);
+    app.get('/app-deploy/project/:projectId/env/:envName/appDeployInstanceList', validate(appDeployValidator.appDeploy), getAppDeployHistoryForPipeLineList);
 
     function getAppDeployHistoryForPipeLineList(req, res, next) {
         async.waterfall(
@@ -464,5 +464,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
             }
         );
+    });
+
+    app.get('/app-deploy/promote', function(req, res) {
+        AppDeploy.getAppDeploy(function(err, data) {
+            if (err) {
+                logger.debug("error: ", err);
+            }
+            for (var i = 0; i < data.length; i++) {
+                (function(i) {
+                    data[i]['applicationLastDeploy'] = Date.parse(data[i]['applicationLastDeploy']);
+                    AppDeploy.updateAppDeploy(data[i]._id,data[i],function(err,updated){
+                        if(err){
+                            logger.debug("Update issue: ",err);
+                        }
+                        logger.debug("Update success..");
+                    });
+                })(i);
+            }
+        });
     });
 }
