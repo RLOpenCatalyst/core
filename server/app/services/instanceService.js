@@ -66,7 +66,7 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
                 var err = new Error('Instance not found');
                 err.status = 404;
                 return callback(err);
-            } else if (instance && instance.providerId != provider._id) {
+            } else if(instance && instance.providerId != providerId) {
                 var err = new Error('Forbidden');
                 err.status = 403;
                 return callback(err);
@@ -112,9 +112,16 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
     if ('orgName' in queryObjectAndCondition)
         delete filterQuery.queryObj['$and'][0].orgName;
 
-    if (orgIds.length > 0) {
-        filterQuery.queryObj['$and'][0].orgId = {
-            '$in': orgIds
+    if(orgIds.length > 0) {
+        if(queryObjectAndCondition.providerId) {
+            filterQuery.queryObj['$and'][0].orgId = {
+                '$in': orgIds
+            }
+        }else{
+            filterQuery.queryObj['$and'][0] = {
+                providerId:{'$ne':null},
+                orgId:{'$in': orgIds}
+            }
         }
     }
 
@@ -390,9 +397,8 @@ function getTrackedInstancesForProvider(provider, next) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
             },
             unmanaged: function(callback) {
-                unManagedInstancesModel.getByProviderId({
-                    providerId: provider._id
-                }, callback);
+                //@TODO Duplicate function of  getByProviderId, to be cleaned up
+                unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
             }
         },
         function(err, results) {
@@ -502,7 +508,6 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
         instanceObj.bgId = ('bgId' in instance) ? instance.bgId : null;
-        instanceObj.cost = (('cost' in instance) && instance.cost) ? instance.cost : 0;
 
         if (('hardware' in instance) && ('os' in instance.hardware))
             instanceObj.os = instance.hardware.os;
@@ -518,8 +523,8 @@ function createTrackedInstancesResponse(instances, callback) {
         else
             instanceObj.ip = null;
 
-        instanceObj.usage = ('usage' in instance) ? instance.usage : null;
-        instanceObj.cost = ('cost' in instance) ? instance.cost : null;
+        instanceObj.usage = ('usage' in instance)?instance.usage:null;
+        instanceObj.cost = (('cost' in instance) && instance.cost)?parseFloat(instance.cost.aggregateInstanceCost).toFixed(2):0;
 
         return instanceObj;
     });

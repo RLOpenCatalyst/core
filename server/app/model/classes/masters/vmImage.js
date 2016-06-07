@@ -245,6 +245,27 @@ imageSchema.statics.getImageByProviderId = function(providerId, callback) {
     });
 };
 
+imageSchema.statics.getImageNameById = function(imageId, callback) {
+    logger.debug("Enter getImageNameById");
+    this.find({
+        "_id": new ObjectId(imageId)},{name:1, _id:0}, function(err, imageName) {
+        if (err) {
+            logger.error(err);
+            logger.debug("Exit getImageNameById with error");
+            callback(err, null);
+            return;
+        }
+        if (imageName.length) {
+            logger.debug("Exit getImageNameById with Image present");
+            callback(null, imageName[0].name);
+        } else {
+            logger.debug("Exit getImageNameById with no Image present");
+            callback(null, null);
+        }
+
+    });
+};
+
 var VMImage = mongoose.model('VMImage', imageSchema);
 
 module.exports = VMImage;

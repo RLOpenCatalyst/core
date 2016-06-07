@@ -170,16 +170,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 	app.get('/blueprints/:blueprintId', function(req, res) {
-
 		Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
 			if (err) {
 				res.status(500).send({
-					message: "Blueprint fetch failed"
+					code:500,
+					errMessage: "Blueprint fetch failed"
 				});
 				return;
 			}
-
 			res.status(200).send(blueprint);
+		});
+
+	});
+	app.get('/blueprints/:blueprintId/blueprintInfo', function(req, res) {
+		Blueprints.getBlueprintInfoById(req.params.blueprintId, function(err, blueprintInfo) {
+			if (err) {
+				res.status(500).send({
+					code: 500,
+					errMessage: "Blueprint Info fetch failed"
+				});
+				return;
+			}
+			res.status(200).send(blueprintInfo);
 		});
 
 	});

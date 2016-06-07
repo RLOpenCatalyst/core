@@ -206,12 +206,17 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 						var instance = {
 							name: launchParams.blueprintName,
 							orgId: launchParams.orgId,
+							orgName:launchParams.orgName,
 							bgId: launchParams.bgId,
+							bgName: launchParams.bgName,
 							projectId: launchParams.projectId,
+							projectName: launchParams.projectName,
 							envId: launchParams.envId,
+							environmentName: launchParams.envName,
 							providerId: launchParams.cloudProviderId,
 							providerType: launchParams.cloudProviderType,
 							keyPairId: self.keyPairId,
+							region:aKeyPair.region,
 							chefNodeName: instanceData.InstanceId,
 							runlist: paramRunList,
 							attributes: paramAttributes,
@@ -289,7 +294,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 										referenceId: logsReferenceIds,
 										err: true,
 										log: "Instance ready state wait failed. Unable to bootstrap",
-										timestamp: timestampStarted
+										timestamp:  new Date().getTime()
 									});
 									logger.error("waitForInstanceRunnnigState returned an error  >>", err);
 									return;
@@ -325,9 +330,9 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 											referenceId: logsReferenceIds,
 											err: true,
 											log: "Instance ok state wait failed. Unable to bootstrap",
-											timestamp: timestampStarted
+											timestamp:  new Date().getTime()
 										});
-										logger.error('intance wait failed ==> ', openport, err);
+										logger.error('intance wait failed ==> ', err);
 										return;
 									}
 

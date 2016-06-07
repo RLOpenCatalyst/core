@@ -62,11 +62,11 @@ var dashboardProvider = require('./routes_dashboard');
 var appData = require('./routes_appdata');
 var deployPermission = require('./routes_deploypermission');
 var trackedInstances = require('./routes_trackedInstances');
+var resources = require('./routes_resources');
 /*
 * @TODO
 * Change app to router in internal routes files 
 */
-
 
 module.exports.setRoutes = function(router) {
 
@@ -148,7 +148,9 @@ module.exports.setRoutes = function(router) {
 
 	trackedInstances.setRoutes(router, sessionVerificationFunc);
 
-	router.get('/', function(req, res) {
+	resources.setRoutes(router, sessionVerificationFunc);
+
+	app.get('/', function(req, res) {
 		res.redirect('/private/index.html');
 	});
 
