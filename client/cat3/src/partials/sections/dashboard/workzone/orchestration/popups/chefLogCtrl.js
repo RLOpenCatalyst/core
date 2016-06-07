@@ -166,9 +166,7 @@
                             });
                         }
                     };
-
                     init();
-
                     return chefLogData;
                 }]);
 })();
