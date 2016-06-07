@@ -82,7 +82,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{bpInfo.blueprintConfig.cloudProviderData.subnetId}}
+								{{bpInfo.blueprintConfig.cloudProviderData.subnet}}
 							</td>
 						</tr>
 						<tr>
@@ -93,7 +93,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{bpInfo.blueprintConfig.cloudProviderData.securityGroupIds[0]}}
+								{{bpInfo.blueprintConfig.securityGroup}}
 							</td>
 						</tr>
 						<tr>
@@ -115,7 +115,29 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{bpInfo.blueprintConfig.cloudProviderData.instanceAmiid}}
+								{{bpInfo.blueprintConfig.cloudProviderData.imageId}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Network
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.network}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Flavour
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.flavor}}
 							</td>
 						</tr>
 					</tbody>
@@ -128,7 +150,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{bpInfo.blueprintConfig.dataStore}}
+								{{bpInfo.blueprintConfig.cloudProviderData.dataStore}}
 							</td>
 						</tr>
 						<tr>
@@ -150,7 +172,7 @@
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
 							<td>
-								{{bpInfo.blueprintConfig.cloudProviderData.instanceAmiid}}
+								{{bpInfo.blueprintConfig.cloudProviderData.imageId}}
 							</td>
 						</tr>
 					</tbody>

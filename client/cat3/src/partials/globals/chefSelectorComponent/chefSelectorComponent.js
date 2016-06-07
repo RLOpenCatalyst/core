@@ -54,11 +54,13 @@
 			var p = [];
 			var temp;
 			var x = list1;
-			temp = $.grep(list2, function(object, index) {
+                        var initialLength;
+                        temp = $.grep(list2, function(object, index) {
+                                initialLength = x.length;
 				x = ($.grep(x, function(o) {
 					return o.value === object.value && o.className === object.className;
 				}, true));
-				if (x.length) {
+				if (x.length < initialLength) {
 					p.push(list2[index]);
 				}
 				return !x.length;
