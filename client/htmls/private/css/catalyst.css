@@ -2487,6 +2487,7 @@ hr {
 .margin-top5{
     margin-top: 5px;
 }
+/*border added for productdiv1 in Dev Angular to sync with Blueprint Card Design*/
 .productdiv1 {
     position: relative;
     border-width: 1px;
@@ -2839,6 +2840,7 @@ body {
     filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
     opacity: 1;
 }
+/*Background Image removed for cardImage in Dev Angular to sync with Blueprint Card Design*/
 .cardimage {
     background-repeat: no-repeat;
     height: 163px;
@@ -2849,6 +2851,7 @@ body {
 .widget-main {
     overflow: hidden;
 }
+/*Margin left changed for cardLogo in Dev Angular to sync with Blueprint Card Design*/
 .cardLogo {
     height: 52px;
     padding-top: 11px;
@@ -4455,6 +4458,7 @@ form.cmxform .gray * {
     margin-top:-40px;
 }
 }
+/*Class added in Dev Angular to show the blue color for active classes.*/
 .custom-theme .left-projects-links > a.active i {
     color:#40baf1 !important;
 }
