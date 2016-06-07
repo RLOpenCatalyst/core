@@ -45,7 +45,6 @@ var AzureArm = require('_pr/model/azure-arm');
 var async = require('async');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
-var containerDao = require('../model/container');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
