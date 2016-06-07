@@ -580,7 +580,7 @@ $imagePath : "../../../../../../images";
 	}
 
 	.cp-container {
-		height: 350px;
+		height: 400px;
 		overflow-y: auto;
 	}
 
@@ -708,7 +708,7 @@ $imagePath : "../../../../../../images";
 
 #cpLogsPage {
 	.logsArea {
-		height: auto;
+		height: 400px;
 	}
 }
 
@@ -810,6 +810,7 @@ $imagePath : "../../../../../../images";
 .instanceRoleLogo{
 	height: 25px;
     margin-right: 10px;
+    max-width: 30px;
 }
 
 .instanceRoleLogoDocker{

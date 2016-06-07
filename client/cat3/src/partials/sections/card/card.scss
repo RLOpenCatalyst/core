@@ -89,7 +89,7 @@ $imagePath : "/cat3/images";
 				width: 100px;
 			}
 
-			.instance-state {
+			.provider-id {
 				display: none;
 			}
 
@@ -221,12 +221,17 @@ $imagePath : "/cat3/images";
 				    position: absolute;
 				}
 
-				.instance-ip, .instance-state {
+				.instance-ip, .provider-id {
 					font-size: 10px;
 				}
 
-				.instance-state {
+				.provider-id {
 					margin-top: 4px;
+					width: 155px;
+				    overflow: hidden;
+				    text-overflow: ellipsis;
+				    white-space: nowrap;
+				    margin-left: 5px;
 				}
 
 				.instance-ip {
@@ -554,6 +559,7 @@ $imagePath : "/cat3/images";
 		.card-title-role img {
 			height: 25px;
 			margin: 0 4px;
+			max-width: 30px;
 		}
 
 		.card-title-edit {
@@ -574,22 +580,6 @@ $imagePath : "/cat3/images";
 
 		.instance-state-stopped, .instance-state-terminated {
 			background: url("#{$imagePath}/instance-states/aws-stopped.png");
-		}
-
-		.instance-state-text-unknown, .instance-state-text-pending {
-			color: $color-gray;
-		}
-
-		.instance-state-text-paused {
-			color: $color-orange;
-		}
-
-		.instance-state-text-running {
-			color: $color-green;
-		}
-
-		.instance-state-text-stopped, .instance-state-text-terminated {
-			color: $color-red;
 		}
 
 		.icon-links {

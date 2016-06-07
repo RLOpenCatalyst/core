@@ -2054,9 +2054,8 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
         alert('please choose a blueprint design');
         return false;
       }
-      //Selection of Orgname from localstorage
-
-      $('#orgnameSelect').val(localStorage.getItem('selectedOrgId'));
+      //Selection of Orgname from the org selected. Fix for CAT -1885
+      $('#orgnameSelect').val($('#orgIDCheck').val());
       console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
 
       if ($('.productdiv2.role-Selected').length > 0) {

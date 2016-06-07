@@ -109,6 +109,12 @@
                         return $http.get(fullUrl(url), Auth.getHeaderObject());
                     }
                 },
+                getCurrentEnvInstances: function () {
+                    var p = workzoneEnvironment.getEnvParams();
+                    var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +
+                    '/projects/' + p.proj + '/environments/' + p.env + '/instances'
+                    return $http.get(fullUrl(url), Auth.getHeaderObject());
+                },
                 getBlueprints: function (envParams) {
                     var url = '/blueprints/organization/' + envParams.org + '/businessgroup/' + envParams.bg + 
                     '/project/' + envParams.proj;
@@ -505,6 +511,10 @@
                     var url='/d4dMasters/readmasterjsonnew/4';
                     return $http.get(fullUrl(url),Auth.getHeaderObject());
                 },
+                getApprove:function(argument,version){
+                    var url ='/deploy-permission/project/'+argument.params.proj+'/env/'+argument.envName+'/permissionList?appName='+argument.appName.name+'&version='+version;
+                    return $http.get(fullUrl(url),Auth.getHeaderObject());
+                }
             };
             return serviceInterface;
         }

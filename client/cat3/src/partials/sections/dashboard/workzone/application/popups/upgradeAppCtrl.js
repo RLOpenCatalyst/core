@@ -42,6 +42,7 @@ angular.module('workzone.application')
 					}
 					upgrdApp.projectId=FrzData.projectId;
 					upgrdApp.envName=FrzData.envName;
+					upgrdApp.appName=FrzData.appName;
 					upgrdApp.newEnt.version =(upgrdApp.newEnt.serverType === 'nexus')?FrzData.version :upgrdApp.newEnt.tag;
 					upgrdApp.getServer();
 					upgrdApp.getAllChefJobs();
@@ -132,7 +133,7 @@ angular.module('workzone.application')
 				"appData": {
 					"projectId":upgrdApp.projectId,
 					"envName":upgrdApp.envName,
-					"appName": upgrdApp.newEnt.repository,
+					"appName": upgrdApp.appName,
 					"version":(upgrdApp.newEnt.serverType === 'nexus')?upgrdApp.newEnt.version :upgrdApp.newEnt.tag
 				},
 				"task": {

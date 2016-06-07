@@ -32,25 +32,22 @@
 				applicationPipelineTab : function(param) {
 					switch (param){
 						case 'allCards' :
-							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:false,template:true};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:true,template:false};
-							$scope.pipeLineActBarShow=false;
+							removeSelect();
 						break;
 						case 'activeCards' :
-							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab =  {icon:false,template:true};
 							$scope.isHistoryTab = {icon:true,template:false};
-							$scope.pipeLineActBarShow=false;
+							removeSelect();
 						break;
 						case 'history' :
-							angular.element('.card').removeClass('selected-card');
 							$scope.isAppallCardTab = {icon:true,template:false};
 							$scope.isAppActiveCardTab = {icon:true,template:false};
 							$scope.isHistoryTab = {icon:false,template:true};
-							$scope.pipeLineActBarShow=false;
+							removeSelect();
 						break;
 					}
 				},
@@ -247,7 +244,7 @@
 							});
 						}
 					});
-					$scope.pipeGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>";
+					$scope.pipeGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row,1)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>";
 					//Api response is in array but it is only one object.
 					$scope.pipeGridOptions.columnDefs=createColUIGrid(configResult.data[0],'pipeline');
 					getApplicationCardService(envParams, $scope.pagiOptionsCard);
@@ -258,9 +255,7 @@
 				workzoneServices.getPipelineView(envParams,pagiOptionsCard).then(function(cardResult){
 					$scope.pipeGridOptions.data= cardResult.data.appDeploy;
 					$scope.isApplicationPageLoading=false;
-					$scope.pipeLineActBarShow=false;
-					$rootScope.selectedCardClass='';
-					angular.element('.card').removeClass('selected-card');
+					removeSelect();
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
 
 				});
@@ -270,22 +265,23 @@
 					$scope.summaryGridOptions = angular.extend({enableColumnMenus: false}, {enableSorting: false},
 					//Api response is in array but it is only one object.
 						{columnDefs:createColUIGrid(config,'summary')});
+					$scope.summaryGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row,2)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>";
 				//});
 				getSummaryCardService(envParams, $scope.pagiOptionsSummary);
 			}
 			function getSummaryCardService(envParams){
 				workzoneServices.getSummaryCard(envParams).then(function(cardResult){
 					$scope.summaryGridOptions.data= cardResult.data.pipeLineView;
+					removeSelect();
 					$scope.summaryGridOptions.totalItems = cardResult.data.metaData.totalRecords;
-
 				});
 			}
-			$scope.selectRow = function (row) {
+			$scope.selectRow = function (row,flg) {
 				$scope.selectedGridRow=[];
 				$scope.selectedGridRow=row;
 				$scope.rowIndex = -1;
 				var hash = row.entity.$$hashKey;
-				var data = $scope.pipeGridOptions.data;     // original rows of data
+				var data =(flg===1)?$scope.pipeGridOptions.data:$scope.summaryGridOptions.data;     // original rows of data
 				for (var ndx = 0; ndx < data.length; ndx++) {
 					if (data[ndx].$$hashKey === hash) {
 						$scope.rowIndex = ndx;
@@ -318,6 +314,12 @@
 					$scope.currentTargetId='';
 				}
 			});
+			function removeSelect(){
+				$scope.pipeLineActBarShow =false;
+				$rootScope.selectedCardClass='';
+				$scope.currentTargetId='';
+				angular.element('.card').removeClass('selected-card');
+			};
 			$rootScope.$on('VIEW-APP-LOGS',function($event,los){
 				$scope.appInfo(los);
 				$event.stopPropagation();

@@ -10,6 +10,7 @@
 		.controller('cpActionsCtrl', ['$scope', 'workzoneServices', 'workzoneEnvironment', 'arrayUtil', 'instancePermission', 'instanceActions', 'instanceOperations', '$timeout', function($scope, workzoneServices, workzoneEnvironment, arrayUtil, instancePerms, instanceActions, instanceOperations, $timeout) {
 			var cpInstance = $scope.$parent.cpInstance;
 			$scope.inst = cpInstance;
+			$scope.isStartStopClickEnabled = true;
 			var _permSet = {
 				chefClientRun : instancePerms.checkChef(),
 				puppet : instancePerms.checkPuppet(),
@@ -90,6 +91,7 @@
 				});
 			};
 			$scope.operationSet.changeInstanceStatus = function(inst) {
+			$scope.isStartStopClickEnabled = false;
 			var instObj = {_inst:inst, _id:inst._id, state:inst.instanceState, instIdx:$scope.inst._id};
 			workzoneServices.getInstanceData(inst).then(
 				function(response) {
@@ -98,8 +100,10 @@
 						stopPromise.then(function(){
 							$scope.operationSet.checkInstanceStatus(instObj, 2000);
 							$scope.operationSet.viewLogs(inst);
+							$scope.isStartStopClickEnabled = true;
 						}, function(rejectMessage){
 							$scope.instStartStopFlag = false;
+							$scope.isStartStopClickEnabled = true;
 							console.log("Promise rejected " + rejectMessage);
 						});
 					} else {						
@@ -107,8 +111,10 @@
 						startPromise.then(function(){
 							$scope.operationSet.checkInstanceStatus(instObj, 2000);
 							$scope.operationSet.viewLogs(inst);
+							$scope.isStartStopClickEnabled = true;
 						}, function(rejectMessage){
 							$scope.instStartStopFlag = false;
+							$scope.isStartStopClickEnabled = true;
 							console.log("Promise rejected " + rejectMessage);
 						});
 					}

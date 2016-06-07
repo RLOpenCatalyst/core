@@ -9,7 +9,7 @@
 			</span>
 			<span class="pull-right">
 				<button type="button" class="btn btn-xs cat-btn-update" 
-				ng-click="createNewTask('new')" ng-show="perms.createTask">
+				ng-click="isNewClickEnabled && createNewTask('new')" ng-show="perms.createTask">
 					<i class="fa fa-plus white"></i>
 					New
 				</button>

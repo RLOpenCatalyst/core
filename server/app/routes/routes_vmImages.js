@@ -317,7 +317,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var userName = req.body.userName.trim();
         var orgId = req.body.orgId;
         var providerType = req.body.providertype.toLowerCase().trim();
-        var password = req.body.password.trim(); //only for azure provider
+        var password; //only for azure provider
+
+        if (req.body.password) {
+            //encrypting password before save
+           // cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding
+           password = cryptography.encryptText(req.body.password.trim(),cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding)
+           // password = req.body.password.trim();
+        }
 
         if (typeof providerId === 'undefined' || providerId.length === 0) {
             res.status(400).send("{Please Enter ProviderId.}");

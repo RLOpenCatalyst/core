@@ -7,9 +7,9 @@
 
 (function(angular) {
 	"use strict";
-	angular.module('workzone.instance', ['ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone','utility.array','workzonePermission', 'instanceServices', 'chefDataFormatter', 'utility.pagination'])
+	angular.module('workzone.instance', ['ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone','utility.array','workzonePermission', 'instanceServices', 'chefDataFormatter', 'utility.pagination','ngFileUpload'])
 	.controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices','arrayUtil', 'instancePermission', 
-		'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService' , function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices,arrayUtil, instancePerms, instanceActions, instanceOperations,workzoneEnvironment, $timeout, workzoneUIUtils,uiGridOptionsService) {
+		'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService' ,'confirmbox' ,function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices,arrayUtil, instancePerms, instanceActions, instanceOperations,workzoneEnvironment, $timeout, workzoneUIUtils,uiGridOptionsService,confirmbox) {
 		console.log('instanceCtrl');
 		var helper = {
 			attachListOfTaskWithInstance: function(completeData) {
@@ -496,7 +496,35 @@
 			$scope.instanceCardViewSelection = "instance-tab-active";
 			$scope.instanceTableViewSelection = "";
 		};
-
+		$scope.instanceExecute = function(task){
+			var modalOptions = {
+				closeButtonText: 'Cancel',
+				actionButtonText: 'Ok',
+				actionButtonStyle: 'cat-btn-update',
+				headerText: 'Confirmation',
+				bodyText: 'Are you sure you want to execute this Job?'
+			};
+			confirmbox.showModal({}, modalOptions).then(function() {
+			workzoneServices.runTask(task.id).then(function(response) {
+				$modal.open({
+					animation: true,
+					templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
+					controller: 'orchestrationLogCtrl as orchLogCtrl',
+					backdrop: 'static',
+					keyboard: false,
+					resolve: {
+						items: function() {
+							return {
+								taskId:task.id,
+								historyId: response.data.historyId,
+								taskType: task.taskType
+							};
+						}
+					}
+				});
+			});
+			});
+		};
 		$scope.instanceTableView = function() {
 			$scope.isCardViewActive = false;
 			$scope.instanceTableViewSelection = "instance-tab-active";

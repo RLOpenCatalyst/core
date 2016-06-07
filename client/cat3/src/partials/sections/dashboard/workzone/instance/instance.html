@@ -58,7 +58,7 @@
 					<div class="instance-ip">
 						<strong>{{inst.instanceIP}}</strong>
 					</div>
-					<div class="instance-state">
+					<div class="provider-id" title="{{getPlatformId(inst.providerType,inst.platformId)}}">
 						{{getPlatformId(inst.providerType,inst.platformId)}}
 					</div>
 					<div class="card-btns" ng-hide="hoverEdit">
@@ -156,7 +156,7 @@
 											</span>
 										</li>
 										<ul class="paddingleft32 instanceTaskListUL">
-											<li class="cursor" ng-repeat="taskDetail in inst.tasks">{{taskDetail.taskName}}</li>
+											<li class="cursor" ng-click="instanceExecute(taskDetail)" ng-repeat="taskDetail in inst.tasks">{{taskDetail.taskName}}</li>
 										</ul>
 									</span>
 								</ul>
