@@ -36,7 +36,6 @@ var jenkins = require('./routes_jenkins');
 var openstack = require('./routes_openstack');
 var hppubliccloud = require('./routes_hppubliccloud');
 var azure = require('./routes_azure');
-var vmware = require('./routes_vmware.js');
 var application = require('./routes_application');
 var jira = require('./routes_jira');
 var provider = require('./routes_provider');
@@ -68,96 +67,96 @@ var resources = require('./routes_resources');
 * Change app to router in internal routes files 
 */
 
-module.exports.setRoutes = function(router) {
+module.exports.setRoutes = function(app) {
 
 	
-	var verificationFunctions = auth.setRoutes(router);
+	var verificationFunctions = auth.setRoutes(app);
 	var sessionVerificationFunc = verificationFunctions.sessionVerificationFunc;
 	var adminSessionVerificationFunc = verificationFunctions.adminSessionVerificationFunc;
 
-	d4dMasters.setRoutes(router, sessionVerificationFunc);
+	d4dMasters.setRoutes(app, sessionVerificationFunc);
 
-	organizations.setRoutes(router, sessionVerificationFunc);
+	organizations.setRoutes(app, sessionVerificationFunc);
 
-	projects.setRoutes(router, sessionVerificationFunc);
+	projects.setRoutes(app, sessionVerificationFunc);
 
-	blueprints.setRoutes(router, sessionVerificationFunc);
+	blueprints.setRoutes(app, sessionVerificationFunc);
 
-	instances.setRoutes(router, sessionVerificationFunc);
+	instances.setRoutes(app, sessionVerificationFunc);
 
-	chef.setRoutes(router, sessionVerificationFunc);
+	chef.setRoutes(app, sessionVerificationFunc);
 
-	users.setRoutes(router, sessionVerificationFunc);
+	users.setRoutes(app, sessionVerificationFunc);
 
-	tasks.setRoutes(router, sessionVerificationFunc);
+	tasks.setRoutes(app, sessionVerificationFunc);
 
-	taskStatus.setRoutes(router, sessionVerificationFunc);
+	taskStatus.setRoutes(app, sessionVerificationFunc);
 
-	ec2.setRoutes(router, sessionVerificationFunc);
+	ec2.setRoutes(app, sessionVerificationFunc);
 
-	jenkins.setRoutes(router, sessionVerificationFunc);
+	jenkins.setRoutes(app, sessionVerificationFunc);
 
-	openstack.setRoutes(router, sessionVerificationFunc);
+	openstack.setRoutes(app, sessionVerificationFunc);
 
-	hppubliccloud.setRoutes(router, sessionVerificationFunc);
+	hppubliccloud.setRoutes(app, sessionVerificationFunc);
 
-	azure.setRoutes(router, sessionVerificationFunc);
+	azure.setRoutes(app, sessionVerificationFunc);
 
-	vmware.setRoutes(router, sessionVerificationFunc);
+	vmware.setRoutes(app, sessionVerificationFunc);
 
-	application.setRoutes(router, sessionVerificationFunc);
+	application.setRoutes(app, sessionVerificationFunc);
 
-	jira.setRoutes(router, sessionVerificationFunc);
+	jira.setRoutes(app, sessionVerificationFunc);
 
-	provider.setRoutes(router, sessionVerificationFunc);
-	providerCommon.setRoutes(router, sessionVerificationFunc);
+	provider.setRoutes(app, sessionVerificationFunc);
+	providerCommon.setRoutes(app, sessionVerificationFunc);
 
-	vmimage.setRoutes(router, sessionVerificationFunc);
+	vmimage.setRoutes(app, sessionVerificationFunc);
 
-	chefClientExecution.setRoutes(router);
+	chefClientExecution.setRoutes(app);
 
-	cloudformation.setRoutes(router, sessionVerificationFunc);
+	cloudformation.setRoutes(app, sessionVerificationFunc);
 
-	globalsettings.setRoutes(router, sessionVerificationFunc);
+	globalsettings.setRoutes(app, sessionVerificationFunc);
 
-	tracks.setRoutes(router, sessionVerificationFunc);
+	tracks.setRoutes(app, sessionVerificationFunc);
 
-	trackType.setRoutes(router, sessionVerificationFunc);
+	trackType.setRoutes(app, sessionVerificationFunc);
 
-	puppet.setRoutes(router, sessionVerificationFunc);
+	puppet.setRoutes(app, sessionVerificationFunc);
 
-	appdeploy.setRoutes(router, sessionVerificationFunc);
+	appdeploy.setRoutes(app, sessionVerificationFunc);
 
-	nexus.setRoutes(router, sessionVerificationFunc);
+	nexus.setRoutes(app, sessionVerificationFunc);
 
-	servicenow.setRoutes(router, sessionVerificationFunc);
+	servicenow.setRoutes(app, sessionVerificationFunc);
 
-	appdeployPipeline.setRoutes(router, sessionVerificationFunc);
+	appdeployPipeline.setRoutes(app, sessionVerificationFunc);
 
-	chefFactory.setRoutes(router, sessionVerificationFunc);
+	chefFactory.setRoutes(app, sessionVerificationFunc);
 
-	dashboardProvider.setRoutes(router, sessionVerificationFunc);
+	dashboardProvider.setRoutes(app, sessionVerificationFunc);
 
-	arm.setRoutes(router, sessionVerificationFunc);
+	arm.setRoutes(app, sessionVerificationFunc);
 
-	dashboardProvider.setRoutes(router, sessionVerificationFunc);
+	dashboardProvider.setRoutes(app, sessionVerificationFunc);
 
-	appData.setRoutes(router, sessionVerificationFunc);
+	appData.setRoutes(app, sessionVerificationFunc);
 
-	deployPermission.setRoutes(router, sessionVerificationFunc);
+	deployPermission.setRoutes(app, sessionVerificationFunc);
 
-	trackedInstances.setRoutes(router, sessionVerificationFunc);
+	trackedInstances.setRoutes(app, sessionVerificationFunc);
 
-	resources.setRoutes(router, sessionVerificationFunc);
+	resources.setRoutes(app, sessionVerificationFunc);
 
 	app.get('/', function(req, res) {
 		res.redirect('/private/index.html');
 	});
 
 	//for public html files
-	router.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/public')));
+	app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/public')));
 
-	router.get('/public/login.html', function(req, res, next) {
+	app.get('/public/login.html', function(req, res, next) {
 		if (req.session && req.session.user) {
 			res.redirect('/');
 		} else {
@@ -166,7 +165,7 @@ module.exports.setRoutes = function(router) {
 	})
 
 	// for private html files
-	router.all('/private/*', function(req, res, next) {
+	app.all('/private/*', function(req, res, next) {
 		if (req.session && req.session.user) {
 			if (req.session.user.authorizedfiles) {
 				var authfiles = req.session.user.authorizedfiles.split(','); //To be moved to login page an hold a static variable.
@@ -188,12 +187,12 @@ module.exports.setRoutes = function(router) {
 			res.redirect('/public/login.html');
 		}
 	});
-	router.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/private')));
+	app.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/private')));
 
 
 	// for upload dir
 	if (appConfig.staticUploadDir) {
-		router.all('/uploads/*', function(req, res, next) {
+		app.all('/uploads/*', function(req, res, next) {
 			if (req.session && req.session.user) {
 				next();
 			} else {
@@ -202,12 +201,12 @@ module.exports.setRoutes = function(router) {
 			}
 		});
 
-		router.use('/uploads', expressServeStatic(appConfig.staticUploadDir));
+		app.use('/uploads', expressServeStatic(appConfig.staticUploadDir));
 	}
 	// for notification
-	notification.setRoutes(router);
+	notification.setRoutes(app);
 
-	router.use(errorHandler);
+	app.use(errorHandler);
 
 	function errorHandler(err, req, res, next) {
 		if(err) {
