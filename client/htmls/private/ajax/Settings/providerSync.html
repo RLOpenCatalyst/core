@@ -358,8 +358,9 @@
                                 <th class="text-center">Type</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Region</th>
-                                <th class="text-center">Class</th>
+                                <th class="text-center">Instance Class</th>
                                 <th class="text-center">Multi-AZ</th>
+                                <th class="text-center">Created</th>
                             </tr>
                             </thead>
                             <tbody class="unAssignedRDS">
@@ -388,8 +389,9 @@
                         <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="unassignedS3ListTable">
                             <thead>
                             <tr>
-                                <th class="text-center">Bucket</th>
+                                <th class="text-center">Bucket Name</th>
                                 <th class="text-center">Bucket Owner</th>
+                                <th class="text-center">Org Name</th>
                                 <th class="text-center">Size(MB)</th>
                                 <th class="text-center">Created</th>
                             </tr>
@@ -654,7 +656,7 @@
         });
     }
 
-    //initialising the datatable for UnAssigned RDS...
+    //initialising the datatable for UnAssigned RDS(unassigned)...
     if (!$.fn.dataTable.isDataTable('#unassignedRDSListTable')) {
         var $rdsUnAssignedDatatable = $('#unassignedRDSListTable').DataTable({
             "pagingType": "full_numbers",
@@ -663,15 +665,17 @@
             "paging": true,
             "bFilter": true,
             "aoColumns": [{
-                "bSortable": true
+                "bSortable": false
             }, {
-                "bSortable": true
+                "bSortable": false
             }, {
-                "bSortable": true
+                "bSortable": false
             }, {
-                "bSortable": true
+                "bSortable": false
             }, {
-                "bSortable": true
+                "bSortable": false
+            }, {
+                "bSortable": false
             }, {
                 "bSortable": false
             }]
@@ -679,7 +683,7 @@
         });
     }
 
-    //initialising the datatable for S3 RDS...
+    //initialising the datatable for S3 (unassigned)...
     if (!$.fn.dataTable.isDataTable('#unassignedS3ListTable')) {
         var $s3UnAssignedDatatable = $('#unassignedS3ListTable').DataTable({
             "pagingType": "full_numbers",
@@ -688,11 +692,14 @@
             "paging": true,
             "bFilter": true,
             "aoColumns": [{
-                "bSortable": true
+                "bSortable": false,
+                "sWidth": "250%"
             }, {
-                "bSortable": true
+                "bSortable": false
             }, {
-                "bSortable": true
+                "bSortable": false
+            }, {
+                "bSortable": false
             }, {
                 "bSortable": false
             }]
@@ -724,8 +731,9 @@
         if(urlproviderId && urlproviderId.indexOf("#ajax") == -1){
             getTagsListData(urlproviderId);
             getManagedInstances();
-            getUnassignedRDS();
-            getUnassignedS3();
+            //calling the rds and s3 unassigned function to extract the data.
+            getUnassignedRDSData();
+            getUnassignedS3Data();
         }
         //loading Managed Data
         function getTagsListData(providerId) {
@@ -953,7 +961,6 @@
                 for (var i = 0; i < projectist.length; i++) {
                     for(var j=0;j<projectist[i].orgname.length;j++){
                         if(orgId == projectist[i].orgname[j]){
-                            //alert("Hello");
                             projectListArr.push(projectist[i]);
                         }
                     }
@@ -1109,7 +1116,6 @@
                             } else if (jxhr.responseText) {
                                 msg = jxhr.responseText;
                             }
-                            //bootbox.alert(msg);
                             $('#spanenvMappingSaveId').fadeIn();
                             $('#spanenvMappingSaveId').html(msg);
                             $('#spanenvMappingSaveId').delay(2000).fadeOut();
@@ -1225,7 +1231,7 @@
                     d4ddata = JSON.parse(data);
                 },
                 failure: function(data) {
-                    alert(data.toString());
+                    bootbox.alert(data.toString());
                 }
             });
             return (d4ddata);
@@ -1477,30 +1483,43 @@
             for (var i = 0; i < unassignedRDSData.resources.length; i++) {
                 var $tbody = $('#unassignedRDSListTable tbody').empty();
                 var $tr = $('<tr></tr>').attr({"rdsId" : unassignedRDSData.resources[i]._id});
+                //creating td for RDS name..
                 var $tdDbRDSName = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbName);
                 $tr.append($tdDbRDSName);
-
+                //creating td for RDS Type..
                 var $tdType = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbEngine);
                 $tr.append($tdType);
-
+                //creating td for RDS Status..
                 var $tdStatus = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbInstanceStatus);
                 $tr.append($tdStatus);
-
+                //creating td for RDS Region..
                 var $tdRegion = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.region);
                 $tr.append($tdRegion);
+                //creating td for InstanceClass..
+                var $tdInstanceClass = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbInstanceClass);
+                $tr.append($tdInstanceClass);
 
-                var $tdClass = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbInstanceClass);
-                $tr.append($tdClass);
-
-                var $tdMultiAZ = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.multiAZ);
+                var $tdMultiAZ;
+                var multiAZ = unassignedRDSData.resources[i].resourceDetails.multiAZ
+                if(multiAZ === false){
+                    $tdMultiAZ = $('<td>false</td>');
+                }
+                else{
+                    $tdMultiAZ = $('<td></td>').append(multiAZ);
+                }
                 $tr.append($tdMultiAZ);
-
+                //creating td for Instance Created On
+                var createdOn = unassignedRDSData.resources[i].resourceDetails.dbInstanceCreatedOn;
+                var date = new Date().setTime(createdOn.timestamp);
+                var taskTimestamp = new Date(createdOn).toLocaleString(); //converts to human readable strings
+                var $tdInstanceCreatedOn = $('<td></td>').append(taskTimestamp);
+                $tr.append($tdInstanceCreatedOn);
                 $tbody.append($tr);
                 $rdsUnAssignedDatatable.row.add($tr).draw();
             }
         }
 
-        //loading unAssigned s3 data
+        //loading unAssigned S3 data
         function loadUnassignedS3Data(unassignedS3Data){
             $s3UnAssignedDatatable.clear().draw();
             for (var i = 0; i < unassignedS3Data.resources.length; i++) {
@@ -1512,6 +1531,8 @@
                 var $tdS3BucketOwner = $('<td></td>').append(unassignedS3Data.resources[i].resourceDetails.bucketOwnerName);
                 $tr.append($tdS3BucketOwner);
 
+                var $tdOrgName = $('<td></td>').append(unassignedS3Data.resources[i].organizationDetails.name);
+                $tr.append($tdOrgName);
                 var $tdBucketSize = $('<td></td>').append(unassignedS3Data.resources[i].resourceDetails.bucketSize);
                 $tr.append($tdBucketSize);
                 var createdOn = unassignedS3Data.resources[i].resourceDetails.bucketCreatedOn;
@@ -1607,7 +1628,7 @@
                 bootbox.alert(msg);
             });
         }
-        function getUnassignedRDS(){
+        function getUnassignedRDSData(){
             $.get('/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned', function(unassignedRDS) {
                 if(unassignedRDS){
                     loadUnassignedRDSData(unassignedRDS);
@@ -1622,7 +1643,7 @@
                 bootbox.alert(msg);
             });
         }
-        function getUnassignedS3(){
+        function getUnassignedS3Data(){
             $.get('/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned', function(unassignedS3) {
                 if(unassignedS3){
                     loadUnassignedS3Data(unassignedS3);
@@ -1692,7 +1713,7 @@
 
 
             if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
-                alert('Please Select a Business Group & Project');
+                bootbox.alert('Please Select a Business Group & Project');
                 return;
             }
 
@@ -1708,22 +1729,22 @@
             if (!($dropdown.val() === 'pemFile')) {
                 reqBody.credentials.password = $('#importPasswordInput').val();
                 if (!reqBody.credentials.username) {
-                    alert('Please Enter Username');
+                    bootbox.alert('Please Enter Username');
                     return;
                 }
                 if (!reqBody.credentials.password) {
-                    alert('Please Enter Password or Choose a Pem file');
+                    bootbox.alert('Please Enter Password or Choose a Pem file');
                     return;
                 }
                 makeRequest();
             } else {
                 var pemFileInput = $('#importPemfileInput').get(0);
                 if (!reqBody.credentials.username) {
-                    alert('Please Enter Username');
+                    bootbox.alert('Please Enter Username');
                     return;
                 }
                 if (!pemFileInput.files.length) {
-                    alert('Please Choose a Pem file');
+                    bootbox.alert('Please Choose a Pem file');
                     return;
                 }
                 var reader = new FileReader();
