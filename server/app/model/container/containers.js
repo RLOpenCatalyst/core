@@ -209,6 +209,7 @@ containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback
         callback(null, data);
     });
 };
+
 containerSchema.statics.deleteContainersByContainerIds=function(instanceId,containerIds,callback){
     logger.debug("Enter deleteContainersByContainerIds (%s)", instanceId);
     container.remove({
@@ -224,6 +225,19 @@ containerSchema.statics.deleteContainersByContainerIds=function(instanceId,conta
         callback(null, data);
     });
 };
+
+containerSchema.statics.getAllContainers=function(callback){
+    logger.debug("Enter getAllContainers");
+    container.find({},function(err, containers) {
+        if (err) {
+            logger.error("getAllContainers Failed", err);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit getAllContainers : ");
+        callback(null, containers);
+    });
+}
 
 var container = mongoose.model('containers', containerSchema);
 module.exports = container;
