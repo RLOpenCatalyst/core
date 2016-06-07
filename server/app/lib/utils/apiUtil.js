@@ -97,8 +97,9 @@ var ApiUtil = function() {
             queryArr.push({$or:objOr});
         }
         else{
-            if(jsonData.filterBy)
+            if(jsonData.filterBy) {
                 objAnd = jsonData.filterBy;
+            }
             queryArr.push(objAnd);
         }
         queryObj['$and']=queryArr;
@@ -154,10 +155,15 @@ var ApiUtil = function() {
 
                  else {*/
                 var c = b[1].split(",");
-                if (c.length > 1)
+                if (c.length > 1) {
                     filterBy[b[0]] = {'$in': c};
-                else
-                    filterBy[b[0]] = b[1];
+                } else {
+                    if(key === 'resources' && b[0] === 'providerId'){
+                        filterBy['providerDetails.id'] = b[1];
+                    }else {
+                        filterBy[b[0]] = b[1];
+                    }
+                }
                 //}
             }
             request['filterBy'] = filterBy;
