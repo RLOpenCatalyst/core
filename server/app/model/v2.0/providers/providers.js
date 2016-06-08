@@ -36,11 +36,13 @@ ProvidersSchema.statics.getAllByOrgs = function getAllByOrgs(orgIds, callback) {
     );
 };
 
+// Deprecated @TODO To be deleted
 ProvidersSchema.statics.updateById
     = function updateById(providerId, fields, callback) {
+    console.log(fields);
     this.update(
         {_id: providerId},
-        { $set: fields },
+        fields,
         function(err, result) {
             if (err) {
                 return callback(err, null);
