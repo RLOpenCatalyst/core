@@ -141,22 +141,21 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 	});
 };
 
-UnmanagedInstanceSchema.statics.getUnManagedInstanceByProviderId = function(providerId, callback) {
-	logger.debug("Enter getUnManagedInstanceByProviderId (%s)", providerId);
-	UnmanagedInstance.find({
+UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, callback) {
+	logger.debug("Enter getInstanceByProviderId (%s)", providerId);
+	this.find({
 		providerId: providerId
 	}, function(err, data) {
 		if (err) {
-			logger.error("Failed getUnManagedInstanceByProviderId (%s)", providerId,err);
+			logger.error("Failed getInstanceByProviderId (%s)", providerId, err);
 			callback(err, null);
 			return;
 		}
-		logger.debug("Exit getUnManagedInstanceByProviderId (%s)", providerId);
+		logger.debug("Exit getInstanceByProviderId (%s)", providerId);
 		callback(null, data);
+
 	});
 };
-
-//End By Durgesh
 
 UnmanagedInstanceSchema.statics.getInstanceTagByProviderId = function(providerIds, callback) {
 	if (!(providerIds && providerIds.length)) {
@@ -220,6 +219,24 @@ UnmanagedInstanceSchema.statics.updateUsage = function updateUsage(instanceId, u
 		}
 		if (typeof callBack == 'function') {
 			callBack(null, data);
+		}
+	});
+};
+
+UnmanagedInstanceSchema.statics.updateInstanceCost = function(instanceCostData, callback) {
+	this.update({
+		platformId: instanceCostData.resourceId
+	}, {
+		$set: {
+			cost: instanceCostData.cost
+		}
+	}, {
+		upsert: false
+	}, function(err, data) {
+		if (err) {
+			return callback(err, null);
+		} else {
+			callback(null, data);
 		}
 	});
 };

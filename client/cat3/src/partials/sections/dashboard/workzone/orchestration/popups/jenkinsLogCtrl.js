@@ -23,10 +23,19 @@
 					helper.stopPolling();
 				}
 			});
-			workzoneServices.getTaskHistoryItem(items.taskId, items.historyId).then(function(response) {
-				$scope.getJenkinsHistoryDetails = response.data; //to store the response so that the jenkinsServerID,jobName and buildNumber can be passed to fetch the logs.
-				$scope.getJenkinsLogDetails(response.data);
-			});
+                        
+                        var resetAll =  function(){
+                            $scope.getJenkinsHistoryDetails = {}; 
+                            helper.stopPolling();
+                        };
+                        
+                        var init = function(){
+                            workzoneServices.getTaskHistoryItem(items.taskId, items.historyId).then(function(response) {
+                                    $scope.getJenkinsHistoryDetails = response.data; //to store the response so that the jenkinsServerID,jobName and buildNumber can be passed to fetch the logs.
+                                    $scope.getJenkinsLogDetails(response.data);
+                            });
+                        };
+			
 			var helper = {
 				eventsPolling: function() {
 					$scope.timerObject = $interval(function() {
@@ -70,6 +79,15 @@
 					});
 				}, 10000);
 			};
+                        
+                        init();
+                        
+                        // on task change event in the parent controller
+                        $scope.$on('parentChangeCompTask', function (event, args) {
+                            items = args;
+                            resetAll();
+                            init();
+                        });
 
 			$scope.$on('$destroy', function() {
 				$interval.cancel($scope.timerObject);

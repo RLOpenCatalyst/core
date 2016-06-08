@@ -105,6 +105,7 @@
 				};
 				compLogData.taskType=compLogData.currentItemDetail.taskType;
 				$scope.parentItemDetail=compLogData.currentItemDetail;
+                                $scope.$broadcast ('parentChangeCompTask',$scope.parentItemDetail);
 				$scope.$broadcast ('closeWindow');
 				return  $scope.close;
 			} else {

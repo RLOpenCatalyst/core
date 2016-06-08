@@ -98,48 +98,50 @@
                                         data.push(nodesList[i].value);
                                     }
                                 }
-                                workzoneServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
-                                    var data;
-                                    if (response.data) {
-                                        data = response.data;
-                                    } else {
-                                        data = response;
-                                    }
-                                    /*Scope apply done to force refresh screen after receiving the AJAX response*/
-                                    $scope.$apply(function () {
-                                        if ($scope.editRunListAttributes) {
-                                            for (var j = 0; j < data.length; j++) {
-                                                for (var attrItem in data[j].attributes) {
-                                                    if ($scope.allCBAttributes && $scope.allCBAttributes[attrItem]) {
-                                                        data[j].attributes[attrItem].default = $scope.allCBAttributes[attrItem];
-                                                    }
-                                                }
-                                            }
-                                            //checking condition if the attribute length is > 0 and has been edited.
-                                            if ($scope.allCBAttributes.length > 0) {
-                                                $scope.allCBAttributes = angular.copy($scope.allCBAttributes, data);
-                                            } else {
-                                                $scope.allCBAttributes = data;
-                                            }
-                                            $scope.editRunListAttributes = false;
+                                if (data.length > 0) {
+                                    workzoneServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
+                                        var data;
+                                        if (response.data) {
+                                            data = response.data;
                                         } else {
-                                            $scope.allCBAttributes = $scope.allCBAttributes.concat(data);
+                                            data = response;
                                         }
-
-                                        if (updatedList.length > 1) {
-                                            var tmp = [];
-                                            for (var i = 0; i < updatedList.length; i++) {
-                                                for (var k = 0; k < $scope.allCBAttributes.length; k++) {
-                                                    if (updatedList[i].value === $scope.allCBAttributes[k].cookbookName) {
-                                                        tmp.push($scope.allCBAttributes[k]);
-                                                        break;
+                                        /*Scope apply done to force refresh screen after receiving the AJAX response*/
+                                        $scope.$apply(function () {
+                                            if ($scope.editRunListAttributes) {
+                                                for (var j = 0; j < data.length; j++) {
+                                                    for (var attrItem in data[j].attributes) {
+                                                        if ($scope.allCBAttributes && $scope.allCBAttributes[attrItem]) {
+                                                            data[j].attributes[attrItem].default = $scope.allCBAttributes[attrItem];
+                                                        }
                                                     }
                                                 }
+                                                //checking condition if the attribute length is > 0 and has been edited.
+                                                if ($scope.allCBAttributes.length > 0) {
+                                                    $scope.allCBAttributes = angular.copy($scope.allCBAttributes, data);
+                                                } else {
+                                                    $scope.allCBAttributes = data;
+                                                }
+                                                $scope.editRunListAttributes = false;
+                                            } else {
+                                                $scope.allCBAttributes = $scope.allCBAttributes.concat(data);
                                             }
-                                            $scope.allCBAttributes = tmp;
-                                        }
+
+                                            if (updatedList.length > 1) {
+                                                var tmp = [];
+                                                for (var i = 0; i < updatedList.length; i++) {
+                                                    for (var k = 0; k < $scope.allCBAttributes.length; k++) {
+                                                        if (updatedList[i].value === $scope.allCBAttributes[k].cookbookName) {
+                                                            tmp.push($scope.allCBAttributes[k]);
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                $scope.allCBAttributes = tmp;
+                                            }
+                                        });
                                     });
-                                });
+                                }
                             } else if (operationType === 'up' || operationType === 'down') {
                                 $scope.$apply(function () {
                                     var tmp = [];

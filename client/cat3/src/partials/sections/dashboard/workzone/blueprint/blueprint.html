@@ -225,7 +225,7 @@
                                     </ul>
                                     <div class="bp-version-dropdown-wrapper">
                                         <span class="bp-version-dropdown-text">Version: </span>
-                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(changeCardVersion(launcher, 'azureARM'));" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(changeCardVersion(launcher, 'azureARM'))">
+                                        <select class="bp-version-dropdown" ng-model="launcher.selectedVersionBpId" ng-change="changeCardVersion(changeCardVersion(launcher, 'azureARM'));" ng-options="bpVersion.id as bpVersion.version for bpVersion in launcher.cardVersions" ng-init="changeCardVersion(launcher, 'azureARM')">
                                         </select>
                                     </div>
                                     <div class="blueprint-buttons">

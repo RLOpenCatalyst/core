@@ -302,11 +302,6 @@
                     var url = '/tasks/' + taskId + '/history/' + historyId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getChefPuppetCompositeLogs: function (instanceId, actionId) {
-                    var url = "/instances/" + instanceId + '/actionLogs/' + actionId +
-                            '/logs';
-                    return $http.get(fullUrl(url), Auth.getHeaderObject);
-                },
                 getJenkinsServerList: function () {
                     var url = '/jenkins/';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());

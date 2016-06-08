@@ -18,15 +18,22 @@
 var fs = require('fs')
 var crontab = require('node-crontab');
 var logger = require('_pr/logger')(module);
-var costUsageAggregation = require('_pr/cronjobs/cost-usage-aggregation');
+var costAggregation = require('_pr/cronjobs/aws-cost-aggregation');
+var usageAggregation = require('_pr/cronjobs/aws-usage-aggregation');
 var providerSync = require('_pr/cronjobs/provider-sync');
 var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');
-var dockerContinerSync = require('_pr/cronjobs/docker-container-sync');
+var dockerContainerSync = require('_pr/cronjobs/docker-container-sync');
+var awsRDSS3ProviderSync = require('_pr/cronjobs/provider-rds-s3-sync');
 
 module.exports.start = function start() {
-	logger.info('Cost usage aggregation started with interval ==> '+ costUsageAggregation.getInterval());
-	var costUsageAggregationJobId
-		= crontab.scheduleJob(costUsageAggregation.getInterval(), costUsageAggregation.execute);
+	
+	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
+	var costAggregationJobId
+		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
+
+	logger.info('Usage aggregation started with interval ==> '+ usageAggregation.getInterval());
+	var usageAggregationJobId
+		= crontab.scheduleJob(usageAggregation.getInterval(), usageAggregation.execute);
 
 	logger.info('Provider Sync started with interval ==> '+ providerSync.getInterval());
 	var providerSyncJobId = crontab.scheduleJob(providerSync.getInterval(), providerSync.execute);
@@ -35,8 +42,11 @@ module.exports.start = function start() {
 	var providerTagsAggregationJobId
 		= crontab.scheduleJob(providerTagsAggregation.getInterval(), providerTagsAggregation.execute);
 
-	logger.info('Docker container sync started with interval ==> '+ dockerContinerSync.getInterval());
-	var dockerContinerSyncJobId
-		= crontab.scheduleJob(dockerContinerSync.getInterval(), dockerContinerSync.execute);
+	logger.info('Docker Container Sync started with interval ==> '+ dockerContainerSync.getInterval());
+	var dockerContainerSyncJobId
+		= crontab.scheduleJob(dockerContainerSync.getInterval(), dockerContainerSync.execute);
 
+	logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
+	var awsRDSS3ProviderSyncJobId
+		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);
 }

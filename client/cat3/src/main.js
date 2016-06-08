@@ -104,29 +104,6 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
             $rootScope.trackBool = _permSet.track;
         });
         $rootScope.$emit('SET_HEADER', $rootScope.appDetails);
-        $rootScope.locate = function (txt) {
-            /*var result = document.getElementsByClassName("headNavigItem");
-             var wrappedResult = angular.element(result);
-             wrappedResult.removeClass('activeSection');
-             var elem;*/
-            console.log(' in locate with ' + txt);
-            switch (txt) {
-                case 'workzone':
-                    $window.location.href = '../../../../#ajax/Dev.html';
-                    break;
-                case 'settings':
-                    //$location.path('dashboard/setting');
-                    break;
-                case 'track':
-                    // $location.path('dashboard/track');
-                    break;
-                case 'design':
-                    //  $location.path('dashboard/design');
-                    break;
-                case 'help':
-                    //  $location.path('/dashboard/help');
-            }
-        };
 
         $scope.showLogoutConfirmationSection = false;
         $scope.logoutConfirmation = function () {

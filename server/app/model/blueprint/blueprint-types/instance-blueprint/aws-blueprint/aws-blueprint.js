@@ -331,7 +331,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 											referenceId: logsReferenceIds,
 											err: true,
 											log: "Instance ok state wait failed. Unable to bootstrap",
-											timestamp: new Date().getTime()
+											timestamp:  new Date().getTime()
 										});
 										logger.error('intance wait failed ==> ', err);
 										return;
