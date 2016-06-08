@@ -20,6 +20,7 @@ function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
     async.waterfall([
             function(next){
+                logger.debug("Docker Container Cron Job started");
                 MasterUtils.getAllActiveOrg(next);
             },
             function(orgs,next) {
@@ -177,8 +178,9 @@ function sync() {
             if(err){
                 logger.error(err);
                 return;
+            }else{
+                logger.debug("Docker Container Cron Job ended");
             }
-
         });
 };
 function containerAction(containers,containerIds,instanceId){

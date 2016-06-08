@@ -143,6 +143,7 @@ RDSResourcesSchema.statics.getRDSData = function(rdsData,callback){
     queryObj['providerDetails.id'] = rdsData.providerDetails.id;
     queryObj['resourceType'] = rdsData.resourceType;
     queryObj['resourceDetails.dbName'] = rdsData.resourceDetails.dbName;
+    queryObj['isDeleted']=false;
     RDSResources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getRDSData", err);
