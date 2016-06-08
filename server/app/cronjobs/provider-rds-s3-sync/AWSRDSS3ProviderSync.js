@@ -7,6 +7,7 @@ var async = require('async');
 var resourceService = require('_pr/services/resourceService');
 var s3Model = require('_pr/model/resources/s3-resource');
 var rdsModel = require('_pr/model/resources/rds-resource');
+var resourceModel = require('_pr/model/resources/resources');
 var orgName='';
 
 var AWSRDSS3ProviderSync = Object.create(CatalystCronJob);
@@ -38,47 +39,57 @@ function awsRDSS3ProviderSyncForProvidersOfOrg(org) {
 
 function awsRDSS3ProviderSyncForProvider(provider) {
     logger.debug("S3/RDS Data Fetching started");
-    async.waterfall([
-        function(next){
-            async.parallel({
-                s3: function(callback) {
-                    resourceService.getBucketsInfo(provider,orgName,callback);
-                },
-                rds: function(callback) {
-                    resourceService.getRDSInstancesInfo(provider,orgName,callback);
-                }
-            }, function(err, results){
-                if(err) {
-                    next(err);
-                } else {
-                    next(null, results);
-                }
-            });
-        },
-        function(awsServices,next){
-            async.parallel({
-                s3: function(callback) {
-                    saveS3Data(awsServices.s3,callback);
-                },
-                rds: function(callback) {
-                    saveRDSData(awsServices.rds,callback);
-                }
-            }, function(err, results){
-                if(err) {
-                    next(err);
-                } else {
-                    next(null, results);
-                }
-            });
-        }
-    ],function(err,results){
-        if(err){
-            logger.error(err);
-            return;
-        }else{
-            logger.debug("S3/RDS Data Successfully Added");
-        }
-    })
+    if(provider._id) {
+        async.waterfall([
+            function (next) {
+                async.parallel({
+                    s3: function (callback) {
+                        resourceService.getBucketsInfo(provider, orgName, callback);
+                    },
+                    rds: function (callback) {
+                        resourceService.getRDSInstancesInfo(provider, orgName, callback);
+                    }
+                }, function (err, results) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, results);
+                    }
+                });
+            },
+            function (resources, next) {
+                async.parallel({
+                    s3: function (callback) {
+                        saveS3Data(resources.s3, callback);
+                    },
+                    rds: function (callback) {
+                        saveRDSData(resources.rds, callback);
+                    },
+                    s3Delete: function (callback) {
+                        deleteResourceData(resources.s3, provider._id, 'S3', callback);
+                    },
+                    rdsDelete: function (callback) {
+                        deleteResourceData(resources.rds, provider._id, 'RDS', callback);
+                    }
+                }, function (err, results) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, results);
+                    }
+                });
+            }
+        ], function (err, results) {
+            if (err) {
+                logger.error(err);
+                return;
+            } else {
+                logger.debug("S3/RDS Data Successfully Added");
+            }
+        })
+    }else{
+        logger.debug("Please configure Provider for S3/RDS Resources");
+    }
 };
 function saveS3Data(s3Info, callback) {
     var results = [];
@@ -154,4 +165,96 @@ function saveRDSData(rdsInfo, callback) {
             })
         })(rdsInfo[i]);
     };
+}
+
+function deleteResourceData(resourceInfo,providerId,resourceType, callback) {
+    var results = [];
+    if(resourceInfo.length === 0){
+        resourceModel.deleteResourcesByResourceType(resourceType,function(err,data){
+            if(err){
+                callback(err,null);
+            }else{
+                callback(null,data);
+            }
+        })
+    }else if(resourceType === 'S3'){
+        resourceModel.getResourcesByProviderResourceType(providerId,resourceType,function(err,s3data){
+            if(err){
+                callback(err,null);
+            }else {
+                var count = 0;
+                if (s3data.length === 0) {
+                    callback(null,[]);
+                } else {
+                    for (var i = 0; i < s3data.length; i++) {
+                        (function (s3) {
+                            for (var j = 0; j < resourceInfo.length; j++) {
+                                (function (resource) {
+                                    if (s3.resourceDetails.bucketName === resource.resourceDetails.bucketName) {
+                                        count++;
+                                        if (count === resourceInfo.length) {
+                                            callback(null, []);
+                                        }
+                                    } else {
+                                        resourceModel.deleteResourcesById(s3._id, function (err, data) {
+                                            if (err) {
+                                                callback(err, null);
+                                            } else {
+                                                count++;
+                                                if (count === resourceInfo.length) {
+                                                    callback(null, data);
+                                                }
+                                            }
+                                        })
+                                    }
+
+                                })(resourceInfo[j]);
+                            }
+
+                        })(s3data[i]);
+                    }
+                }
+            }
+        })
+    }else if(resourceType === 'RDS') {
+        resourceModel.getResourcesByProviderResourceType(providerId, resourceType, function (err, rdsdata) {
+            if (err) {
+                callback(err, null);
+            } else {
+                var count = 0;
+                if (rdsdata.length === 0) {
+                    callback(null, []);
+                } else {
+                    for (var i = 0; i < rdsdata.length; i++) {
+                        (function (rds) {
+                            for (var j = 0; j < resourceInfo.length; j++) {
+                                (function (resource) {
+                                    if (rds.resourceDetails.dbName === resource.resourceDetails.dbName) {
+                                        count++;
+                                        if (count === resourceInfo.length) {
+                                            callback(null, []);
+                                        }
+                                    } else {
+                                        resourceModel.deleteResourcesById(rds._id, function (err, data) {
+                                            if (err) {
+                                                callback(err, null);
+                                            } else {
+                                                count++;
+                                                if (count === resourceInfo.length) {
+                                                    callback(null, data);
+                                                }
+                                            }
+                                        })
+                                    }
+
+                                })(resourceInfo[j]);
+                            }
+
+                        })(rdsdata[i]);
+                    }
+                }
+            }
+        })
+    }
+
 }

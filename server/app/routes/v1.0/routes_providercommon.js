@@ -86,21 +86,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'managedInstances',function(err, paginationReq){
+		apiUtil.paginationRequest(req.query,'managedInstances',function(err, paginationReq){
 			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				res.status(400).send(apiUtil.errorResponse(400,'queryParams'));
 				return;
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='managedInstances';
 			instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
 				if (err) {
-					res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+					res.status(400).send(apiUtil.errorResponse(400,'paginationResponse'));
 					return;
 				}
-				ApiUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
+				apiUtil.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
 					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+						res.status(400).send(apiUtil.errorResponse(400,'paginationResponse'));
 						return;
 					}
 					res.status(200).send(paginationRes);
@@ -111,21 +111,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
+		apiUtil.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
 			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				res.status(400).send(apiUtil.errorResponse(400,'queryParams'));
 				return;
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='unmanagedInstances';
 			unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
 					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+						res.status(400).send(apiUtil.errorResponse(400,'paginationResponse'));
 						return;
 					}
-					ApiUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
+				apiUtil.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
 						if (err) {
-							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+							res.status(400).send(apiUtil.errorResponse(400,'paginationResponse'));
 							return;
 						}
 						res.status(200).send(paginationRes);
@@ -142,7 +142,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	                AWSProvider.getAWSProviderById(req.params.providerId,next);
 				},
 				function(next) {
-	                ApiUtils.paginationRequest(req.query,next);
+					apiUtil.paginationRequest(req.query,next);
 				},
 				function(paginationReq, next) {
 	                paginationReq['providerId']=req.params.providerId;

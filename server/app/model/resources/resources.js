@@ -27,6 +27,7 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
     queryObj['resourceType']=resourceType;
+    queryObj['isDeleted']=false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getResourcesByProviderResourceType", err);
@@ -34,6 +35,42 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
             return;
         }
         callback(null, data);
+    });
+};
+
+ResourceSchema.statics.deleteResourcesByResourceType = function(resourceType,callback) {
+    Resources.update({
+        resourceType: resourceType
+    }, {
+        $set: {
+            isDeleted: true
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+ResourceSchema.statics.deleteResourcesById = function(resourceId,callback) {
+    Resources.update({
+        _id: new ObjectId(resourceId)
+    }, {
+        $set: {
+            isDelete: true
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
     });
 };
 

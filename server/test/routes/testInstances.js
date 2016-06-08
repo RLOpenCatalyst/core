@@ -61,16 +61,22 @@ describe("Deploy Permission ",function(){
 
     it(" Save and Update deploy permission  ",function(done){
         var reqBody = {
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "envName": "Dev",
-            "appName": "D4D",
-            "version": "3.02.100",
-            "comments":"Durgesh Sharma",
-            "isApproved": true
-
+            "appDeployData": {
+            "applicationLastDeploy": "2016-05-30 09:54:56 +0000",
+                "appLogs": "NA",
+                "applicationName": "relevancelab/opensc-catalyst",
+                "applicationVersion": "3.0.5",
+                "applicationInstanceName": "opensc-catalyst",
+                "applicationNodeIP": "54.153.97.239",
+                "envId": "Dev",
+                "hostName": "ip-10-0-0-181.us-west-1.compute.internal",
+                "containerId": "DurgeshSharma",
+                "applicationType": "Container",
+                "applicationStatus": "Successful"
+        }
         };
             server
-            .post('/deploy-permission/save/permissionData')
+            .post('/app-deploy')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);
