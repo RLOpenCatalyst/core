@@ -297,7 +297,7 @@
                                         item.value = item.value.substring(indexOfBracketOpen + 1, indexOfBracketClose);
                                         var indexOfTemplateCheck = item.value.indexOf(':-:');
                                         if (indexOfTemplateCheck !== -1) {
-                                            var templateArr = item.value.split(':-:')
+                                            var templateArr = item.value.split(':-:');
                                             item.value = templateArr[0];
                                             item.data.value = {
                                                 templatescookbooks: templateArr[1]

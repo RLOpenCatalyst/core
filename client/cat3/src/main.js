@@ -73,9 +73,9 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',
             if (error.redirectTo) {
                 $state.go(error.redirectTo);
             } else {
-                $state.go('error', {status: error.status})
+                $state.go('error', {status: error.status});
             }
-        })
+        });
 
         $rootScope.state = $state;
         $rootScope.stateParams = $stateParams;
@@ -90,7 +90,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
         $rootScope.app.isDashboard = false;
         $rootScope.appDetails = $rootScope.appDetails || {};
 
-        $rootScope.$on('SET_HEADER', function (event, user) {
+        $rootScope.$on('SET_HEADER', function () {
             //permission set is included to show/hide modules.
             var _permSet = {
                 workzone: modulePerms.workzoneAccess(),

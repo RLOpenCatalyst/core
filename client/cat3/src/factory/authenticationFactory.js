@@ -41,7 +41,6 @@
                     
                     this.getToken = function () {
                         return session.getToken() !== null;
-                        return;
                     };
                     
                     this.isLoggedInFirst = function () {

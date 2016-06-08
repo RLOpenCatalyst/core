@@ -169,21 +169,9 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				var requestParamNames = getNames(node);
 				workzoneEnvironment.setEnvParams(requestParams);
 				$rootScope.$emit('WZ_ENV_CHANGE_START', requestParams, requestParamNames);
-				workzoneServices.getCurrentSelectedEnvInstanceList().then(function (response) {
-					$rootScope.$emit('WZ_ENV_CHANGE_END', requestParams, response.data, requestParamNames);
-					var treeNames = ['Workzone', requestParamNames.org, requestParamNames.bg, requestParamNames.proj, requestParamNames.env];
-					$rootScope.$emit('treeNameUpdate', treeNames);
-					$scope.showTreeOverlay();
-				}, function(){
-					var emptyData = {
-						instances: [],
-						blueprints:[],
-						stacks:[],
-						arms:[],
-						tasks:[]
-					};
-					$rootScope.$emit('WZ_ENV_CHANGE_END', requestParams, emptyData, requestParamNames);
-				});
+				var treeNames = ['Workzone', requestParamNames.org, requestParamNames.bg, requestParamNames.proj, requestParamNames.env];
+				$rootScope.$emit('treeNameUpdate', treeNames);
+				$scope.showTreeOverlay();
 			}
 		};
 
@@ -193,12 +181,5 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				$scope.relevancelab.selectNodeLabel(node);
 			}
 		};
-
-		$rootScope.$on('WZ_REFRESH_ENV', function () {
-			var requestParams = workzoneEnvironment.getEnvParams();
-			workzoneServices.getCurrentSelectedEnvInstanceList().then(function (response) {
-				$rootScope.$emit('WZ_ENV_CHANGE_END', requestParams, response.data);
-			});
-		});
 	}
 ]);
