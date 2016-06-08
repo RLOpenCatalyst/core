@@ -1691,6 +1691,7 @@ var saveblueprint = function(tempType) {
                     var nexusRepoUrl = "";
                     var repoId = $chooseRepository.find('option:selected').val();
                     var nexusRepoId = $nexusServer.find('option:selected').val();
+                    var rowId = $nexusServer.find('option:selected').val();
 
                     //alert($('.checkConfigApp').prop("checked"));
                     if ($('.checkConfigApp').prop("checked")) {
@@ -1717,6 +1718,7 @@ var saveblueprint = function(tempType) {
                                 }
                             }
                             var nexus = {
+                                "rowId": rowId,
                                 "repoId": nexusRepoId,
                                 "url": nexusRepoUrl,
                                 "version": appVersion,
@@ -1755,6 +1757,7 @@ var saveblueprint = function(tempType) {
 
 
                             var docker = {
+                                rowId: rowId,
                                 repoId: nexusRepoId,
                                 image: dockerImage,
                                 containerId: containerId,
