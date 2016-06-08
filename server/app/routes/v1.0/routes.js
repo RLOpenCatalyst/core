@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 // This file act as a request mapping i.e. it will decide which request will go to which routes.
@@ -64,18 +64,13 @@ var trackedInstances = require('./routes_trackedInstances');
 var resources = require('./routes_resources');
 var serviceStatus = require('./routes_serviceStatus');
 /*
-* @TODO
-* Change app to router in internal routes files 
-*/
+ * @TODO
+ * Change app to router in internal routes files
+ */
 
 module.exports.setRoutes = function(app) {
 
-    app.all('*', function(req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "X-Requested-With");
 
-        next();
-    });
     var verificationFunctions = auth.setRoutes(app);
     var sessionVerificationFunc = verificationFunctions.sessionVerificationFunc;
     var adminSessionVerificationFunc = verificationFunctions.adminSessionVerificationFunc;
@@ -153,12 +148,16 @@ module.exports.setRoutes = function(app) {
 
     trackedInstances.setRoutes(app, sessionVerificationFunc);
 
+    resources.setRoutes(app, sessionVerificationFunc);
+
+    serviceStatus.setRoutes(app, sessionVerificationFunc);
+
     app.get('/', function(req, res) {
-    	res.redirect('/cat3');
+        res.redirect('/private/index.html');
     });
 
     //for public html files
-    app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'client/htmls/public')));
+    app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/public')));
 
     app.get('/public/login.html', function(req, res, next) {
         if (req.session && req.session.user) {
@@ -182,6 +181,7 @@ module.exports.setRoutes = function(app) {
                     } else {
                         logger.debug('Authorized');
                     }
+
                 }
             }
             logger.debug('req received ' + req.originalUrl);
@@ -190,8 +190,8 @@ module.exports.setRoutes = function(app) {
             res.redirect('/public/login.html');
         }
     });
-    app.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'client/htmls/private')));
-    app.use('/cat3', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'client/cat3')));
+    app.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/private')));
+    app.use('/cat3', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/cat3')));
 
 
     // for upload dir
@@ -213,7 +213,7 @@ module.exports.setRoutes = function(app) {
     app.use(errorHandler);
 
     function errorHandler(err, req, res, next) {
-        if (err) {
+        if(err) {
             logger.error(err);
 
             var errorResponse = {
@@ -222,8 +222,8 @@ module.exports.setRoutes = function(app) {
                 'errors': []
             };
             if ('errors' in err) {
-                for (var i = 0; i < err.errors.length; i++) {
-                    if ('message' in err.errors[i])
+                for(var i = 0; i < err.errors.length; i++) {
+                    if('message' in err.errors[i])
                         errorResponse.errors.push(err.errors[i].messages);
                 }
             }

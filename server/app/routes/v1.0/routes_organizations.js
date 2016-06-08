@@ -43,29 +43,13 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var CloudFormation = require('_pr/model/cloud-formation');
 var AzureArm = require('_pr/model/azure-arm');
 var async = require('async');
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
-
+var orgValidator = require('_pr/validators/organizationValidator');
+var validate = require('express-validation');
+var taskService = require('_pr/services/taskService');
 
 module.exports.setRoutes = function(app, sessionVerification) {
-
-	app.get('/containers',function(req,res){
-		logger.debug("Enter get() for all docker Containers");
-		containerDao.getAllContainers(function(err,containerList){
-			if(err){
-				logger.error(err);
-				res.send(err);
-				return;
-			}else if(containerList.length === 0){
-				logger.debug("Presently,there is not container in catalyst");
-				res.send(containerList);
-				return;
-			}else{
-				res.send(containerList);
-				return;
-			}
-		})
-	});
 
 	app.all('/organizations/*', sessionVerification);
 
@@ -724,6 +708,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 		//validating if user has permission to save a blueprint
 		logger.debug('Verifying User permission set');
+		console.log(req.body);
+		console.log(JSON.stringify(req.body));
 		var user = req.session.user;
 		var category = 'blueprints';
 		var permissionto = 'create';
@@ -737,10 +723,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var templateType = req.body.blueprintData.templateType;
 		var users = req.body.blueprintData.users || [];
 		var blueprintType = req.body.blueprintData.blueprintType;
-        var nexus = req.body.blueprintData.nexus;
-        var docker = req.body.blueprintData.docker;
-        var region = req.body.blueprintData.region;
-        var blueprintId = req.body.blueprintData.blueprintId;
+		var nexus = req.body.blueprintData.nexus;
+		var docker = req.body.blueprintData.docker;
+		var region = req.body.blueprintData.region;
+		var blueprintId = req.body.blueprintData.blueprintId;
 
 		// a temp fix for invalid appurl data. will be removed in next iteration
 		var tempAppUrls = [];
@@ -787,7 +773,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				docker: docker
 			};
 			//adding bluerpintID if present (edit mode)
-			if(blueprintId)
+			if (blueprintId)
 				blueprintData.id = blueprintId;
 
 			logger.debug('req blueprintData:', blueprintData);
@@ -917,7 +903,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				}
 				blueprintData.cloudFormationData = cloudFormationData;
 			} else if (req.body.blueprintData.blueprintType === 'azure_arm') {
-				console.log('templateFile ==> ', req.body.blueprintData.cftTemplateFile);
 				armTemplateData = {
 					cloudProviderId: req.body.blueprintData.cftProviderId,
 					infraManagerType: 'chef',
@@ -937,7 +922,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 				});
 				return;
 			}
-  		    // if (!blueprintData.users || !blueprintData.users.length) {
+			// if (!blueprintData.users || !blueprintData.users.length) {
 			// 	res.status(400).send({
 			// 		message: "User is empty"
 			// 	});
@@ -960,6 +945,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 
+
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instances', function(req, res) {
 		var jsonData = {};
 		jsonData['orgId'] = req.params.orgId;
@@ -968,30 +954,29 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		jsonData['envId'] = req.params.envId;
 		jsonData['instanceType'] = req.query.instanceType;
 		jsonData['userName'] = req.session.user.cn;
-		instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function(err, instanceData) {
+		jsonData['id'] = 'instances';
+		instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function(err, instancedata) {
 			if (err) {
-				res.status(500).send({
-					message:"Server Behaved Unexpectedly"
-				});
+				res.send(500);
 				return;
 			}
-			res.status(200).send(instanceData);
-			
+			res.send(instancedata);
 		});
 	});
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/tasks', function(req, res) {
-		var jsonData={};
-		jsonData['orgId']=req.params.orgId;
-		jsonData['bgId']=req.params.bgId;
-		jsonData['projectId']=req.params.projectId;
-		jsonData['envId']=req.params.envId;
-		Task.getTasksByOrgBgProjectAndEnvId(jsonData, function(err, tasks) {
+
+		var jsonData = {};
+		jsonData['orgId'] = req.params.orgId;
+		jsonData['bgId'] = req.params.bgId;
+		jsonData['projectId'] = req.params.projectId;
+		jsonData['envId'] = req.params.envId;
+		Task.getTasksByOrgBgProjectAndEnvId(jsonData, function(err, taskdata) {
 			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				res.send(500);
 				return;
 			}
-			res.status(200).send(tasks);
+			res.send(taskdata);
 		});
 	});
 
@@ -1008,6 +993,121 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			res.send(applications);
 		});
 	});
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList', validate(orgValidator.get), getInstanceList);
+
+
+	function getInstanceList(req, res, next) {
+		var reqData = {};
+		async.waterfall(
+			[
+
+				function(next) {
+					apiUtil.paginationRequest(req.query, 'instances', next);
+				},
+				function(paginationReq, next) {
+					paginationReq['orgId'] = req.params.orgId;
+					paginationReq['bgId'] = req.params.bgId;
+					paginationReq['projectId'] = req.params.projectId;
+					paginationReq['envId'] = req.params.envId;
+					paginationReq['instanceType'] = req.query.instanceType;
+					paginationReq['userName'] = req.session.user.cn;
+					reqData = paginationReq;
+					instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, next);
+				},
+				function(instances, next) {
+					apiUtil.paginationResponse(instances, reqData, next);
+				}
+
+			], function(err, results) {
+				if (err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	}
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList', validate(orgValidator.get), getTaskList);
+
+
+	function getTaskList(req, res, next) {
+		var reqData = {};
+		async.waterfall(
+			[
+
+				function(next) {
+					apiUtil.paginationRequest(req.query, 'tasks', next);
+				},
+				function(paginationReq, next) {
+					paginationReq['orgId'] = req.params.orgId;
+					paginationReq['bgId'] = req.params.bgId;
+					paginationReq['projectId'] = req.params.projectId;
+					paginationReq['envId'] = req.params.envId;
+					reqData = paginationReq;
+					Task.getTasksByOrgBgProjectAndEnvId(paginationReq, next);
+				},
+				function(tasks, next) {
+					apiUtil.paginationResponse(tasks, reqData, next);
+				}
+
+			], function(err, results) {
+				if (err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	}
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks', validate(orgValidator.get), getChefTaskList);
+
+	function getChefTaskList(req, res, next) {
+		var jsonData = {};
+		jsonData['orgId'] = req.params.orgId;
+		jsonData['bgId'] = req.params.bgId;
+		jsonData['projectId'] = req.params.projectId;
+		jsonData['envId'] = req.params.envId;
+		taskService.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
+			if (err) {
+				logger.err(err);
+				res.send(500);
+				return;
+			}
+			res.send(chefTasks);
+		});
+	}
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applicationList', validate(orgValidator.applications), getApplicationList);
+
+	function getApplicationList(req, res, next) {
+		var reqData = {};
+		async.waterfall(
+			[
+
+				function(next) {
+					apiUtil.paginationRequest(req.query, 'applications', next);
+				},
+				function(paginationReq, next) {
+					paginationReq['orgId'] = req.params.orgId;
+					paginationReq['bgId'] = req.params.bgId;
+					paginationReq['projectId'] = req.params.projectId;
+					reqData = paginationReq;
+					Application.getAppCardsByOrgBgAndProjectId(paginationReq, next);
+				},
+				function(applications, next) {
+					apiUtil.paginationResponse(applications, reqData, next);
+				}
+
+			], function(err, results) {
+				if (err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	}
+
+
+
+
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/applications/:applicationId/build/:buildId', function(req, res) {
 		Application.getApplicationById(req.params.applicationId, function(err, application) {
@@ -1049,7 +1149,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/applications", req.params.orgId, req.params.bgId, req.params.projectId);
 	});
 
-	
+	//Duplicated with provider filter for BP Edit
 
 	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/', function(req, res) {
 		var jsonData = {};
@@ -1060,7 +1160,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		jsonData['instanceType'] = req.params.instanceType;
 		jsonData['userName'] = req.session.user.cn;
 		jsonData['blueprintType'] = req.query.blueprintType
-		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function (err, orgbuprojs) {
+
+
+		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
 			if (orgbuprojs.length === 0) {
 				res.send(401, "User not part of team to see project.");
 				return;
@@ -1068,34 +1170,40 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			if (!err) {
 				if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
 					async.parallel({
-							tasks: function (callback) {
-								Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback)
+							tasks: function(callback) {
+								Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback);
 							},
-							instances: function (callback) {
-								instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback)
+							instances: function(callback) {
+								instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback);
 							},
-							blueprints: function (callback) {
-								Blueprints.getBlueprintsByOrgBgProject(jsonData, callback)
+							blueprints: function(callback) {
+								Blueprints.getBlueprintsByOrgBgProject(jsonData, callback);
 							},
-							stacks: function (callback) {
-								CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback)
+							stacks: function(callback) {
+								CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback);
 							},
-							arms: function (callback) {
-								AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback)
-
+							arms: function(callback) {
+								AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
 							}
 						},
-						function (err, results) {
-							if (err)
+						function(err, results) {
+							if (err){
 								res.status(500).send("Internal Server Error");
-							else if (!results)
+							}else if (!results){
 								res.status(400).send("Data Not Found");
-							else
+							}else{
 								res.status(200).send(results);
+							}
 						}
-					)
+					);
+
+				} else {
+					res.status(401).send("User not part of team to see project");
+					return;
 				}
-				;
+			} else {
+				res.status(500).send("Internal Server Error");
+				return;
 			}
 		});
 	});
@@ -1120,88 +1228,162 @@ module.exports.setRoutes = function(app, sessionVerification) {
 	});
 
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'cftList',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-				return;
-			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='cftList';
-			CloudFormation.findByOrgBgProjectAndEnvId(paginationReq, function(err, cftData) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'cftList'));
-					return;
+
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', validate(orgValidator.get), getCftList);
+
+	function getCftList(req, res, next) {
+		var reqData = {};
+		async.waterfall(
+			[
+
+				function(next) {
+					apiUtil.paginationRequest(req.query, 'cftList', next);
+				},
+				function(paginationReq, next) {
+					paginationReq['orgId'] = req.params.orgId;
+					paginationReq['bgId'] = req.params.bgId;
+					paginationReq['projectId'] = req.params.projectId;
+					paginationReq['envId'] = req.params.envId;
+					reqData = paginationReq;
+					CloudFormation.findByOrgBgProjectAndEnvId(paginationReq, next);
+				},
+				function(cftData, next) {
+					apiUtil.paginationResponse(cftData, reqData, next);
 				}
-				ApiUtils.paginationResponse(cftData,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'cftList'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
-			});
-		});
-	});
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azurearms', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'azurearms',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
-				return;
-			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='azurearms';
-			AzureArm.findByOrgBgProjectAndEnvId(paginationReq, function(err, armsData) {
-				if (err) {
-					res.status(404).send(ApiUtils.errorResponse(404,'azurearms'));
-					return;
+			], function(err, results) {
+				if (err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	}
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azureArmList', validate(orgValidator.get), getAzureArmList);
+
+	function getAzureArmList(req, res, next) {
+		var reqData = {};
+		async.waterfall(
+			[
+
+				function(next) {
+					apiUtil.paginationRequest(req.query, 'azureArms', next);
+				},
+				function(paginationReq, next) {
+					paginationReq['orgId'] = req.params.orgId;
+					paginationReq['bgId'] = req.params.bgId;
+					paginationReq['projectId'] = req.params.projectId;
+					paginationReq['envId'] = req.params.envId;
+					reqData = paginationReq;
+					AzureArm.findByOrgBgProjectAndEnvId(paginationReq, next);
+				},
+				function(armsData, next) {
+					apiUtil.paginationResponse(armsData, reqData, next);
 				}
-				ApiUtils.paginationResponse(armsData,paginationReq,function(err, paginationRes){
-					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'azurearms'));
-						return;
-					}
-					res.status(200).send(paginationRes);
-				});
+
+			], function(err, results) {
+				if (err)
+					next(err);
+				else
+					return res.status(200).send(results);
 			});
-		});
-	});
+	}
+
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', validate(orgValidator.get), getContainerList);
+
+	function getContainerList(req, res, next) {
+		var reqData = {};
+		async.waterfall(
+			[
+
+				function(next) {
+					apiUtil.paginationRequest(req.query, 'containerList', next);
+				},
+				function(paginationReq, next) {
+					paginationReq['orgId'] = req.params.orgId;
+					paginationReq['bgId'] = req.params.bgId;
+					paginationReq['projectId'] = req.params.projectId;
+					paginationReq['envId'] = req.params.envId;
+					reqData = paginationReq;
+					containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq, next);
+				},
+				function(containerData, next) {
+					apiUtil.paginationResponse(containerData, reqData, next);
+				}
+
+			], function(err, results) {
+				if (err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	};
 
 
 
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'containerList',function(err, paginationReq){
-			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
+		var jsonData = {};
+		jsonData['orgId'] = req.params.orgId;
+		jsonData['bgId'] = req.params.bgId;
+		jsonData['projectId'] = req.params.projectId;
+		jsonData['envId'] = req.params.envId;
+		jsonData['instanceType'] = req.params.instanceType;
+		jsonData['userName'] = req.session.user.cn;
+		jsonData['blueprintType'] = req.query.blueprintType;
+		jsonData['providerType'] = req.params.provider;
+
+		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
+			if (orgbuprojs.length === 0) {
+				res.send(401, "User not part of team to see project.");
 				return;
 			}
-			paginationReq['orgId']=req.params.orgId;
-			paginationReq['bgId']=req.params.bgId;
-			paginationReq['projectId']=req.params.projectId;
-			paginationReq['envId']=req.params.envId;
-			paginationReq['id']='containerList';
-			containerDao.getContainerListByOrgBgProjectAndEnvId(paginationReq, function(err, containerList) {
-					if (err) {
-						res.status(404).send(ApiUtils.errorResponse(404,'containerList'));
-						return;
-					}
-					ApiUtils.paginationResponse(containerList,paginationReq,function(err, paginationRes){
-						if (err) {
-							res.status(400).send(ApiUtils.errorResponse(400,'containerList'));
-							return;
+			if (!err) {
+				if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
+					async.parallel({
+							tasks: function(callback) {
+								Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback);
+							},
+							instances: function(callback) {
+								instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback);
+							},
+							blueprints: function(callback) {
+								Blueprints.getBlueprintsByOrgBgProjectProvider(jsonData,callback);
+							},
+							stacks: function(callback) {
+								CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback);
+							},
+							arms: function(callback) {
+								AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
+							}
+						},
+						function(err, results) {
+							if (err){
+								res.status(500).send("Internal Server Error");
+							}else if (!results){
+								res.status(400).send("Data Not Found");
+							}else{
+								res.status(200).send(results);
+							}
 						}
-						res.status(200).send(paginationRes);
-					});
-			});
+					);
+
+				} else {
+					res.status(401).send("User not part of team to see project");
+					return;
+				}
+			} else {
+				res.status(500).send("Internal Server Error");
+				return;
+			}
 		});
 	});
+
+
+
+
+
+
 	app.get('/organizations/:orgId/chefserver', function(req, res) {
 		logger.debug("Enter get() for /organizations/%s/chefserver", req.params.orgId);
 		configmgmtDao.getChefServerDetailsByOrgname(req.params.orgId, function(err, chefDetails) {
@@ -1431,7 +1613,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					res.status(500).send(errorResponses.db.error);
 					return;
 				}
-				if (instances.length > 0 ) {
+				if (instances.length) {
 					res.status(400).send({
 						message: "An Instance with the same IP already exists."
 					});
@@ -1446,256 +1628,409 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					res.send(400);
 				}
 
-				masterUtil.getParticularProject(req.params.projectId,function(err,project) {
+				configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
 					if (err) {
-						logger.error("error occured while fetching Project by ProjectId", err);
-						res.status(500).send(errorResponses.db.error);
+						res.send(500);
 						return;
-					};
-					configmgmtDao.getEnvNameFromEnvId(req.params.envId, function (err, envName) {
+					}
+
+					function getCredentialsFromReq(callback) {
+						var credentials = req.body.credentials;
+						if (req.body.credentials.pemFileData) {
+							credentials.pemFileLocation = appConfig.tempDir + uuid.v4();
+							fileIo.writeFile(credentials.pemFileLocation, req.body.credentials.pemFileData, null, function(err) {
+								if (err) {
+									logger.error('unable to create pem file ', err);
+									callback(err, null);
+									return;
+								}
+								callback(null, credentials);
+							});
+						} else {
+							callback(null, credentials);
+						}
+					}
+
+					getCredentialsFromReq(function(err, credentials) {
 						if (err) {
 							res.send(500);
 							return;
 						}
-
-						function getCredentialsFromReq(callback) {
-							var credentials = req.body.credentials;
-							if (req.body.credentials.pemFileData) {
-								credentials.pemFileLocation = appConfig.tempDir + uuid.v4();
-								fileIo.writeFile(credentials.pemFileLocation, req.body.credentials.pemFileData, null, function (err) {
-									if (err) {
-										logger.error('unable to create pem file ', err);
-										callback(err, null);
-										return;
-									}
-									callback(null, credentials);
-								});
-							} else {
-								callback(null, credentials);
-							}
+						if (!req.body.configManagmentId) {
+							res.status(400).send({
+								message: "Invalid Config Management Id"
+							});
+							return;
 						}
-
-						getCredentialsFromReq(function (err, credentials) {
+						masterUtil.getCongifMgmtsById(req.body.configManagmentId, function(err, infraManagerDetails) {
 							if (err) {
 								res.send(500);
 								return;
 							}
-							if (!req.body.configManagmentId) {
-								res.status(400).send({
-									message: "Invalid Config Management Id"
-								});
+							logger.debug("infraManagerDetails", infraManagerDetails);
+							if (!infraManagerDetails) {
+								res.send(500);
 								return;
 							}
-							masterUtil.getCongifMgmtsById(req.body.configManagmentId, function (err, infraManagerDetails) {
+							//Verifying if the node is alive
+							var nodeAlive = 'running';
+							var openport = 22;
+							if (req.body.os === 'windows') {
+								openport = 5985;
+							}
+							waitForPort(req.body.fqdn, openport, function(err) {
 								if (err) {
-									res.send(500);
+									logger.debug(err);
+									res.status(400).send({
+										message: "Unable to SSH into instance"
+									});
 									return;
 								}
-								logger.debug("infraManagerDetails", infraManagerDetails);
-								if (!infraManagerDetails) {
-									res.send(500);
-									return;
-								}
-								//Verifying if the node is alive
-								var nodeAlive = 'running';
-								var openport = 22;
-								if (req.body.os === 'windows') {
-									openport = 5985;
-								}
-								waitForPort(req.body.fqdn, openport, function (err) {
+								credentialCryptography.encryptCredential(credentials, function(err, encryptedCredentials) {
 									if (err) {
-										logger.debug(err);
-										res.status(400).send({
-											message: "Unable to SSH into instance"
-										});
+										logger.error("unable to encrypt credentials", err);
+										res.send(500);
 										return;
 									}
-									credentialCryptography.encryptCredential(credentials, function (err, encryptedCredentials) {
+									if (!req.body.appUrls) {
+										req.body.appUrls = [];
+									}
+
+
+									var appUrls = req.body.appUrls;
+									if (appConfig.appUrls && appConfig.appUrls.length) {
+										appUrls = appUrls.concat(appConfig.appUrls);
+									}
+
+									var instance = {
+										name: req.body.fqdn,
+										orgId: req.params.orgId,
+										bgId: req.params.bgId,
+										projectId: req.params.projectId,
+										envId: req.params.envId,
+										instanceIP: req.body.fqdn,
+										instanceState: nodeAlive,
+										bootStrapStatus: 'waiting',
+										runlist: [],
+										appUrls: appUrls,
+										users: [req.session.user.cn], //need to change this
+										hardware: {
+											platform: 'unknown',
+											platformVersion: 'unknown',
+											architecture: 'unknown',
+											memory: {
+												total: 'unknown',
+												free: 'unknown',
+											},
+											os: req.body.os
+										},
+										credentials: encryptedCredentials,
+
+										blueprintData: {
+											blueprintName: req.body.fqdn,
+											templateId: "chef_import",
+											iconPath: "../private/img/templateicons/chef_import.png"
+										}
+									}
+									if (infraManagerDetails.configType === 'chef') {
+										instance.chef = {
+											serverId: infraManagerDetails.rowid,
+											chefNodeName: req.body.fqdn
+										}
+									} else {
+										instance.puppet = {
+											serverId: infraManagerDetails.rowid
+
+										}
+									}
+									instancesDao.createInstance(instance, function(err, data) {
 										if (err) {
-											logger.error("unable to encrypt credentials", err);
+											logger.error('Unable to create Instance ', err);
 											res.send(500);
 											return;
 										}
-										if (!req.body.appUrls) {
-											req.body.appUrls = [];
-										}
+										instance.id = data._id;
+										instance._id = data._id;
+										var timestampStarded = new Date().getTime();
+										var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarded);
+										var logsRefernceIds = [instance.id, actionLog._id];
+										logsDao.insertLog({
+											referenceId: logsRefernceIds,
+											err: false,
+											log: "Bootstrapping instance",
+											timestamp: timestampStarded
+										});
 
-
-										var appUrls = req.body.appUrls;
-										if (appConfig.appUrls && appConfig.appUrls.length) {
-											appUrls = appUrls.concat(appConfig.appUrls);
-										}
-
-										var instance = {
-											name: req.body.fqdn,
-											orgId: req.params.orgId,
-											orgName:project[0].orgname,
-											bgId: req.params.bgId,
-											bgName:project[0].productgroupname,
-											projectId: req.params.projectId,
-											projectName:project[0].projectname,
-											envId: req.params.envId,
-											environmentName: envName,
-											instanceIP: req.body.fqdn,
-											instanceState: nodeAlive,
-											bootStrapStatus: 'waiting',
-											runlist: [],
-											appUrls: appUrls,
-											users: [req.session.user.cn], //need to change this
-											hardware: {
-												platform: 'unknown',
-												platformVersion: 'unknown',
-												architecture: 'unknown',
-												memory: {
-													total: 'unknown',
-													free: 'unknown',
-												},
-												os: req.body.os
-											},
-											credentials: encryptedCredentials,
-
-											blueprintData: {
-												blueprintName: req.body.fqdn,
-												templateId: "chef_import",
-												iconPath: "../private/img/templateicons/chef_import.png"
-											}
-										}
-										if (infraManagerDetails.configType === 'chef') {
-											instance.chef = {
-												serverId: infraManagerDetails.rowid,
-												chefNodeName: req.body.fqdn
-											}
-										} else {
-											instance.puppet = {
-												serverId: infraManagerDetails.rowid
-
-											}
-										}
-										instancesDao.createInstance(instance, function (err, data) {
+										credentialCryptography.decryptCredential(encryptedCredentials, function(err, decryptedCredentials) {
 											if (err) {
-												logger.error('Unable to create Instance ', err);
+												logger.error("unable to decrypt credentials", err);
+												var timestampEnded = new Date().getTime();
+												logsDao.insertLog({
+													referenceId: logsRefernceIds,
+													err: true,
+													log: "Unable to decrypt credentials. Bootstrap Failed",
+													timestamp: timestampEnded
+												});
+												instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
 												res.send(500);
 												return;
 											}
-											instance.id = data._id;
-											instance._id = data._id;
-											var timestampStarded = new Date().getTime();
-											var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarded);
-											var logsRefernceIds = [instance.id, actionLog._id];
-											logsDao.insertLog({
-												referenceId: logsRefernceIds,
-												err: false,
-												log: "Bootstrapping instance",
-												timestamp: timestampStarded
-											});
-
-											credentialCryptography.decryptCredential(encryptedCredentials, function (err, decryptedCredentials) {
-												if (err) {
-													logger.error("unable to decrypt credentials", err);
-													var timestampEnded = new Date().getTime();
-													logsDao.insertLog({
-														referenceId: logsRefernceIds,
-														err: true,
-														log: "Unable to decrypt credentials. Bootstrap Failed",
-														timestamp: timestampEnded
-													});
-													instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-													res.send(500);
-													return;
+											var infraManager;
+											var bootstarpOption;
+											var deleteOptions;
+											if (infraManagerDetails.configType === 'chef') {
+												logger.debug('In chef ');
+												infraManager = new Chef({
+													userChefRepoLocation: infraManagerDetails.chefRepoLocation,
+													chefUserName: infraManagerDetails.loginname,
+													chefUserPemFile: infraManagerDetails.userpemfile,
+													chefValidationPemFile: infraManagerDetails.validatorpemfile,
+													hostedChefUrl: infraManagerDetails.url
+												});
+												bootstarpOption = {
+													instanceIp: instance.instanceIP,
+													pemFilePath: decryptedCredentials.pemFileLocation,
+													instancePassword: decryptedCredentials.password,
+													instanceUsername: instance.credentials.username,
+													nodeName: instance.chef.chefNodeName,
+													environment: envName,
+													instanceOS: instance.hardware.os
+												};
+												deleteOptions = {
+													privateKey: decryptedCredentials.pemFileLocation,
+													username: decryptedCredentials.username,
+													host: instance.instanceIP,
+													instanceOS: instance.hardware.os,
+													port: 22,
+													cmds: ["rm -rf /etc/chef/", "rm -rf /var/chef/"],
+													cmdswin: ["del "]
 												}
-												var infraManager;
-												var bootstarpOption;
-												var deleteOptions;
-												if (infraManagerDetails.configType === 'chef') {
-													logger.debug('In chef ');
-													infraManager = new Chef({
-														userChefRepoLocation: infraManagerDetails.chefRepoLocation,
-														chefUserName: infraManagerDetails.loginname,
-														chefUserPemFile: infraManagerDetails.userpemfile,
-														chefValidationPemFile: infraManagerDetails.validatorpemfile,
-														hostedChefUrl: infraManagerDetails.url
-													});
-													bootstarpOption = {
-														instanceIp: instance.instanceIP,
-														pemFilePath: decryptedCredentials.pemFileLocation,
-														instancePassword: decryptedCredentials.password,
-														instanceUsername: instance.credentials.username,
-														nodeName: instance.chef.chefNodeName,
-														environment: envName,
-														instanceOS: instance.hardware.os
-													};
-													deleteOptions = {
-														privateKey: decryptedCredentials.pemFileLocation,
-														username: decryptedCredentials.username,
-														host: instance.instanceIP,
-														instanceOS: instance.hardware.os,
-														port: 22,
-														cmds: ["rm -rf /etc/chef/", "rm -rf /var/chef/"],
-														cmdswin: ["del "]
-													}
-													if (decryptedCredentials.pemFileLocation) {
-														deleteOptions.privateKey = decryptedCredentials.pemFileLocation;
-													} else {
-														deleteOptions.password = decryptedCredentials.password;
-													}
-
+												if (decryptedCredentials.pemFileLocation) {
+													deleteOptions.privateKey = decryptedCredentials.pemFileLocation;
 												} else {
-													var puppetSettings = {
-														host: infraManagerDetails.hostname,
-														username: infraManagerDetails.username,
-													};
-													if (infraManagerDetails.pemFileLocation) {
-														puppetSettings.pemFileLocation = infraManagerDetails.pemFileLocation;
-													} else {
-														puppetSettings.password = infraManagerDetails.puppetpassword;
-													}
-													logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
-													bootstarpOption = {
-														host: instance.instanceIP,
-														username: instance.credentials.username,
-														pemFileLocation: decryptedCredentials.pemFileLocation,
-														password: decryptedCredentials.password,
-														environment: envName
-													};
-
-													var deleteOptions = {
-														username: decryptedCredentials.username,
-														host: instance.instanceIP,
-														port: 22,
-													}
-
-													if (decryptedCredentials.pemFileLocation) {
-														deleteOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
-													} else {
-														deleteOptions.password = decryptedCredentials.password;
-													}
-
-													infraManager = new Puppet(puppetSettings);
+													deleteOptions.password = decryptedCredentials.password;
 												}
 
+											} else {
+												var puppetSettings = {
+													host: infraManagerDetails.hostname,
+													username: infraManagerDetails.username,
+												};
+												if (infraManagerDetails.pemFileLocation) {
+													puppetSettings.pemFileLocation = infraManagerDetails.pemFileLocation;
+												} else {
+													puppetSettings.password = infraManagerDetails.puppetpassword;
+												}
+												logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
+												bootstarpOption = {
+													host: instance.instanceIP,
+													username: instance.credentials.username,
+													pemFileLocation: decryptedCredentials.pemFileLocation,
+													password: decryptedCredentials.password,
+													environment: envName
+												};
 
-												//removing files on node to facilitate re-bootstrap
-												logger.debug("Node OS : %s", instance.hardware.os);
-												logger.debug('Cleaning instance');
-												infraManager.cleanClient(deleteOptions, function (err, retCode) {
-													logger.debug("Entering chef.bootstarp");
-													infraManager.bootstrapInstance(bootstarpOption, function (err, code, bootstrapData) {
+												var deleteOptions = {
+													username: decryptedCredentials.username,
+													host: instance.instanceIP,
+													port: 22,
+												}
 
-														if (err) {
-															logger.error("knife launch err ==>", err);
-															instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+												if (decryptedCredentials.pemFileLocation) {
+													deleteOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
+												} else {
+													deleteOptions.password = decryptedCredentials.password;
+												}
 
+												infraManager = new Puppet(puppetSettings);
+											}
+
+
+											//removing files on node to facilitate re-bootstrap
+											logger.debug("Node OS : %s", instance.hardware.os);
+											logger.debug('Cleaning instance');
+											infraManager.cleanClient(deleteOptions, function(err, retCode) {
+												logger.debug("Entering chef.bootstarp");
+												infraManager.bootstrapInstance(bootstarpOption, function(err, code, bootstrapData) {
+
+													if (err) {
+														logger.error("knife launch err ==>", err);
+														instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
+
+														});
+														if (err.message) {
+															var timestampEnded = new Date().getTime();
+															logsDao.insertLog({
+																referenceId: logsRefernceIds,
+																err: true,
+																log: err.message,
+																timestamp: timestampEnded
 															});
-															if (err.message) {
-																var timestampEnded = new Date().getTime();
-																logsDao.insertLog({
-																	referenceId: logsRefernceIds,
-																	err: true,
-																	log: err.message,
-																	timestamp: timestampEnded
+
+														}
+														var timestampEnded = new Date().getTime();
+														logsDao.insertLog({
+															referenceId: logsRefernceIds,
+															err: true,
+															log: "Bootstrap Failed",
+															timestamp: timestampEnded
+														});
+														instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+
+													} else {
+														if (code == 0) {
+															instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function(err, updateData) {
+																if (err) {
+																	logger.error("Unable to set instance bootstarp status. code 0");
+																} else {
+																	logger.debug("Instance bootstrap status set to success");
+																}
+															});
+
+															// updating puppet node name
+															var nodeName;
+															if (bootstrapData && bootstrapData.puppetNodeName) {
+																instancesDao.updateInstancePuppetNodeName(instance.id, bootstrapData.puppetNodeName, function(err, updateData) {
+																	if (err) {
+																		logger.error("Unable to set puppet node name");
+																	} else {
+																		logger.debug("puppet node name updated successfully");
+																	}
+																});
+																nodeName = bootstrapData.puppetNodeName;
+															} else {
+																nodeName = instance.chef.chefNodeName;
+															}
+
+
+															var timestampEnded = new Date().getTime();
+															logsDao.insertLog({
+																referenceId: logsRefernceIds,
+																err: false,
+																log: "Instance Bootstrapped Successfully",
+																timestamp: timestampEnded
+															});
+															instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+															var hardwareData = {};
+															if (bootstrapData && bootstrapData.puppetNodeName) {
+																var runOptions = {
+																	username: decryptedCredentials.username,
+																	host: instance.instanceIP,
+																	port: 22,
+																}
+
+																if (decryptedCredentials.pemFileLocation) {
+																	runOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
+																} else {
+																	runOptions.password = decryptedCredentials.password;
+																}
+
+																infraManager.runClient(runOptions, function(err, retCode) {
+																	if (decryptedCredentials.pemFileLocation) {
+																		fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
+																			if (err) {
+																				logger.debug("Unable to delete temp pem file =>", err);
+																			} else {
+																				logger.debug("temp pem file deleted =>", err);
+																			}
+																		});
+																	}
+																	if (err) {
+																		logger.error("Unable to run puppet client", err);
+																		return;
+																	}
+																	// waiting for 30 sec to update node data
+																	setTimeout(function() {
+																		infraManager.getNode(nodeName, function(err, nodeData) {
+																			if (err) {
+																				logger.error(err);
+																				return;
+																			}
+																			// is puppet node
+																			hardwareData.architecture = nodeData.facts.values.hardwaremodel;
+																			hardwareData.platform = nodeData.facts.values.operatingsystem;
+																			hardwareData.platformVersion = nodeData.facts.values.operatingsystemrelease;
+																			hardwareData.memory = {
+																				total: 'unknown',
+																				free: 'unknown'
+																			};
+																			hardwareData.memory.total = nodeData.facts.values.memorysize;
+																			hardwareData.memory.free = nodeData.facts.values.memoryfree;
+																			hardwareData.os = instance.hardware.os;
+																			instancesDao.setHardwareDetails(instance.id, hardwareData, function(err, updateData) {
+																				if (err) {
+																					logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+																				} else {
+																					logger.debug("Instance hardware details set successessfully");
+																				}
+																			});
+																		});
+																	}, 30000);
 																});
 
+															} else {
+																infraManager.getNode(nodeName, function(err, nodeData) {
+																	if (err) {
+																		logger.error(err);
+																		return;
+																	}
+																	hardwareData.architecture = nodeData.automatic.kernel.machine;
+																	hardwareData.platform = nodeData.automatic.platform;
+																	hardwareData.platformVersion = nodeData.automatic.platform_version;
+																	hardwareData.memory = {
+																		total: 'unknown',
+																		free: 'unknown'
+																	};
+																	if (nodeData.automatic.memory) {
+																		hardwareData.memory.total = nodeData.automatic.memory.total;
+																		hardwareData.memory.free = nodeData.automatic.memory.free;
+																	}
+																	hardwareData.os = instance.hardware.os;
+																	instancesDao.setHardwareDetails(instance.id, hardwareData, function(err, updateData) {
+																		if (err) {
+																			logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+																		} else {
+																			logger.debug("Instance hardware details set successessfully");
+																		}
+																	});
+																	if (decryptedCredentials.pemFilePath) {
+																		fileIo.removeFile(decryptedCredentials.pemFilePath, function(err) {
+																			if (err) {
+																				logger.error("Unable to delete temp pem file =>", err);
+																			} else {
+																				logger.debug("temp pem file deleted");
+																			}
+																		});
+																	}
+																});
 															}
+
+															var _docker = new Docker();
+															_docker.checkDockerStatus(instance.id, function(err, retCode) {
+																if (err) {
+																	logger.error("Failed _docker.checkDockerStatus", err);
+																	return;
+																	//res.end('200');
+
+																}
+																logger.debug('Docker Check Returned:' + retCode);
+																if (retCode == '0') {
+																	instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
+																		logger.debug('Instance Docker Status set to Success');
+																	});
+
+																}
+															});
+
+														} else {
+															instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
+																if (err) {
+																	logger.error("Unable to set instance bootstarp status code != 0");
+																} else {
+																	logger.debug("Instance bootstrap status set to failed");
+																}
+															});
+
 															var timestampEnded = new Date().getTime();
 															logsDao.insertLog({
 																referenceId: logsRefernceIds,
@@ -1705,199 +2040,35 @@ module.exports.setRoutes = function(app, sessionVerification) {
 															});
 															instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
 
-														} else {
-															if (code == 0) {
-																instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
-																	if (err) {
-																		logger.error("Unable to set instance bootstarp status. code 0");
-																	} else {
-																		logger.debug("Instance bootstrap status set to success");
-																	}
-																});
-
-																// updating puppet node name
-																var nodeName;
-																if (bootstrapData && bootstrapData.puppetNodeName) {
-																	instancesDao.updateInstancePuppetNodeName(instance.id, bootstrapData.puppetNodeName, function (err, updateData) {
-																		if (err) {
-																			logger.error("Unable to set puppet node name");
-																		} else {
-																			logger.debug("puppet node name updated successfully");
-																		}
-																	});
-																	nodeName = bootstrapData.puppetNodeName;
-																} else {
-																	nodeName = instance.chef.chefNodeName;
-																}
-
-
-																var timestampEnded = new Date().getTime();
-																logsDao.insertLog({
-																	referenceId: logsRefernceIds,
-																	err: false,
-																	log: "Instance Bootstrapped Successfully",
-																	timestamp: timestampEnded
-																});
-																instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-																var hardwareData = {};
-																if (bootstrapData && bootstrapData.puppetNodeName) {
-																	var runOptions = {
-																		username: decryptedCredentials.username,
-																		host: instance.instanceIP,
-																		port: 22,
-																	}
-
-																	if (decryptedCredentials.pemFileLocation) {
-																		runOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
-																	} else {
-																		runOptions.password = decryptedCredentials.password;
-																	}
-
-																	infraManager.runClient(runOptions, function (err, retCode) {
-																		if (decryptedCredentials.pemFileLocation) {
-																			fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
-																				if (err) {
-																					logger.debug("Unable to delete temp pem file =>", err);
-																				} else {
-																					logger.debug("temp pem file deleted =>", err);
-																				}
-																			});
-																		}
-																		if (err) {
-																			logger.error("Unable to run puppet client", err);
-																			return;
-																		}
-																		// waiting for 30 sec to update node data
-																		setTimeout(function () {
-																			infraManager.getNode(nodeName, function (err, nodeData) {
-																				if (err) {
-																					logger.error(err);
-																					return;
-																				}
-																				// is puppet node
-																				hardwareData.architecture = nodeData.facts.values.hardwaremodel;
-																				hardwareData.platform = nodeData.facts.values.operatingsystem;
-																				hardwareData.platformVersion = nodeData.facts.values.operatingsystemrelease;
-																				hardwareData.memory = {
-																					total: 'unknown',
-																					free: 'unknown'
-																				};
-																				hardwareData.memory.total = nodeData.facts.values.memorysize;
-																				hardwareData.memory.free = nodeData.facts.values.memoryfree;
-																				hardwareData.os = instance.hardware.os;
-																				instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
-																					if (err) {
-																						logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
-																					} else {
-																						logger.debug("Instance hardware details set successessfully");
-																					}
-																				});
-																			});
-																		}, 30000);
-																	});
-
-																} else {
-																	infraManager.getNode(nodeName, function (err, nodeData) {
-																		if (err) {
-																			logger.error(err);
-																			return;
-																		}
-																		hardwareData.architecture = nodeData.automatic.kernel.machine;
-																		hardwareData.platform = nodeData.automatic.platform;
-																		hardwareData.platformVersion = nodeData.automatic.platform_version;
-																		hardwareData.memory = {
-																			total: 'unknown',
-																			free: 'unknown'
-																		};
-																		if (nodeData.automatic.memory) {
-																			hardwareData.memory.total = nodeData.automatic.memory.total;
-																			hardwareData.memory.free = nodeData.automatic.memory.free;
-																		}
-																		hardwareData.os = instance.hardware.os;
-																		instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
-																			if (err) {
-																				logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
-																			} else {
-																				logger.debug("Instance hardware details set successessfully");
-																			}
-																		});
-																		if (decryptedCredentials.pemFilePath) {
-																			fileIo.removeFile(decryptedCredentials.pemFilePath, function (err) {
-																				if (err) {
-																					logger.error("Unable to delete temp pem file =>", err);
-																				} else {
-																					logger.debug("temp pem file deleted");
-																				}
-																			});
-																		}
-																	});
-																}
-
-																var _docker = new Docker();
-																_docker.checkDockerStatus(instance.id, function (err, retCode) {
-																	if (err) {
-																		logger.error("Failed _docker.checkDockerStatus", err);
-																		return;
-																		//res.end('200');
-
-																	}
-																	logger.debug('Docker Check Returned:' + retCode);
-																	if (retCode == '0') {
-																		instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
-																			logger.debug('Instance Docker Status set to Success');
-																		});
-
-																	}
-																});
-
-															} else {
-																instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-																	if (err) {
-																		logger.error("Unable to set instance bootstarp status code != 0");
-																	} else {
-																		logger.debug("Instance bootstrap status set to failed");
-																	}
-																});
-
-																var timestampEnded = new Date().getTime();
-																logsDao.insertLog({
-																	referenceId: logsRefernceIds,
-																	err: true,
-																	log: "Bootstrap Failed",
-																	timestamp: timestampEnded
-																});
-																instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
-															}
 														}
+													}
 
-													}, function (stdOutData) {
+												}, function(stdOutData) {
 
-														logsDao.insertLog({
-															referenceId: logsRefernceIds,
-															err: false,
-															log: stdOutData.toString('ascii'),
-															timestamp: new Date().getTime()
-														});
-
-													}, function (stdErrData) {
-
-														logsDao.insertLog({
-															referenceId: logsRefernceIds,
-															err: true,
-															log: stdErrData.toString('ascii'),
-															timestamp: new Date().getTime()
-														});
+													logsDao.insertLog({
+														referenceId: logsRefernceIds,
+														err: false,
+														log: stdOutData.toString('ascii'),
+														timestamp: new Date().getTime()
 													});
-												}); //end of chefcleanup
 
-											});
-											res.send(instance);
-											logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+												}, function(stdErrData) {
+
+													logsDao.insertLog({
+														referenceId: logsRefernceIds,
+														err: true,
+														log: stdErrData.toString('ascii'),
+														timestamp: new Date().getTime()
+													});
+												});
+											}); //end of chefcleanup
+
 										});
+										res.send(instance);
+										logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
 									});
-
 								});
+
 							});
 						});
 					});
@@ -1977,64 +2148,4 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		});
 	});
 
-	//Duplicated with provider filter for BP Edit
-	app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
-		var jsonData = {};
-		jsonData['orgId'] = req.params.orgId;
-		jsonData['bgId'] = req.params.bgId;
-		jsonData['projectId'] = req.params.projectId;
-		jsonData['envId'] = req.params.envId;
-		jsonData['instanceType'] = req.params.instanceType;
-		jsonData['userName'] = req.session.user.cn;
-		jsonData['blueprintType'] = req.query.blueprintType;
-		jsonData['providerType'] = req.params.provider;
-
-		configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
-			if (orgbuprojs.length === 0) {
-				res.send(401, "User not part of team to see project.");
-				return;
-			}
-			if (!err) {
-				if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
-					async.parallel({
-							tasks: function(callback) {
-								Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback);
-							},
-							instances: function(callback) {
-								instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback);
-							},
-							blueprints: function(callback) {
-								Blueprints.getBlueprintsByOrgBgProjectProvider(jsonData,callback);
-							},
-							stacks: function(callback) {
-								CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback);
-							},
-							arms: function(callback) {
-								AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
-							}
-						},
-						function(err, results) {
-							if (err){
-								res.status(500).send("Internal Server Error");
-							}else if (!results){
-								res.status(400).send("Data Not Found");
-							}else{
-								res.status(200).send(results);
-							}
-						}
-					);
-
-				} else {
-					res.status(401).send("User not part of team to see project");
-					return;
-				}
-			} else {
-				res.status(500).send("Internal Server Error");
-				return;
-			}
-		});
-	});
-
-
 }
-
