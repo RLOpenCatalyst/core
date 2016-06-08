@@ -19,29 +19,32 @@ module.exports = DockerContainerSync;
 function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
     async.waterfall([
-        function(next){
+        function (next) {
             logger.debug("Docker Container Cron Job started");
             MasterUtils.getAllActiveOrg(next);
         },
-        function(orgs,next) {
+        function (orgs, next) {
             async.forEach(orgs, function (organization, next) {
                 MasterUtils.getBusinessGroupsByOrgId(organization.rowid, function (err, businessGroups) {
                     if (err) {
                         logger.error(err);
                         return;
-                    };
+                    }
+                    ;
                     async.forEach(businessGroups, function (businessGroup, next) {
                         MasterUtils.getProjectsBybgId(businessGroup.rowid, function (err, projects) {
                             if (err) {
                                 logger.error(err);
                                 return;
-                            };
+                            }
+                            ;
                             async.forEach(projects, function (project, next) {
                                 MasterUtils.getEnvironmentsByprojectId(project.rowid, function (err, environments) {
                                     if (err) {
                                         logger.error(err);
                                         return;
-                                    };
+                                    }
+                                    ;
                                     if (environments.length > 0) {
                                         async.forEach(environments, function (environment, next) {
                                             var jsonData = {
@@ -50,18 +53,20 @@ function sync() {
                                                 projectId: project.rowid,
                                                 envId: environment.rowid
                                             };
-                                            instancesDao.getInstancesByOrgBgProjectAndEnvIdForDocker(jsonData, function (err, instances) {
+                                            instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function (err, instances) {
                                                 if (err) {
                                                     logger.error(err);
                                                     return;
-                                                };
+                                                }
+                                                ;
                                                 if (instances.length > 0) {
                                                     async.forEach(instances, function (instance, next) {
                                                         credentialCrpto.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
                                                             if (err) {
                                                                 logger.error(err);
                                                                 return;
-                                                            };
+                                                            }
+                                                            ;
                                                             var options = {
                                                                 host: instance.instanceIP,
                                                                 port: '22',
@@ -88,18 +93,21 @@ function sync() {
                                                                 if (err) {
                                                                     logger.error(err);
                                                                     return;
-                                                                };
+                                                                }
+                                                                ;
                                                                 if (decryptedCredentials.pemFileLocation) {
                                                                     fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
                                                                         logger.debug('temp file deleted');
                                                                     });
-                                                                };
+                                                                }
+                                                                ;
                                                                 if (code === -5000) {
                                                                     containerDao.deleteContainerByInstanceId(instance._id, function (err, deleteContainer) {
                                                                         if (err) {
                                                                             logger.error(err);
                                                                             return;
-                                                                        };
+                                                                        }
+                                                                        ;
                                                                         return;
                                                                     });
                                                                 } else {
@@ -159,7 +167,7 @@ function sync() {
                                                         });
                                                     })
                                                 } else {
-                                                    logger.debug("No instance is Available in "+environment.environmentname+" Environment for Container Cron Job");
+                                                    logger.debug("No instance is Available in " + environment.environmentname + " Environment for Container Cron Job");
                                                     return;
                                                 }
                                             })
@@ -175,14 +183,15 @@ function sync() {
                 });
             });
         }], function (err, results) {
-        if(err){
+        if (err) {
             logger.error(err);
             return;
-        }else{
+        } else {
             logger.debug("Docker Container Cron Job ended");
         }
     });
-};
+}
+
 function containerAction(containers,containerIds,instanceId){
     async.waterfall([
             function(next){

@@ -241,5 +241,20 @@ UnmanagedInstanceSchema.statics.updateInstanceCost = function(instanceCostData, 
 	});
 };
 
+this.removeInstancebyId = function(instanceId, callback) {
+	logger.debug("Enter removeInstancebyId (%s)", instanceId);
+	Instances.remove({
+		"_id": ObjectId(instanceId)
+	}, function(err, data) {
+		if (err) {
+			logger.error("Failed to removeInstancebyId (%s)", instanceId, err);
+			callback(err, null);
+			return;
+		}
+		logger.debug("Exit removeInstancebyId (%s)", instanceId);
+		callback(null, data);
+	});
+};
+
 var UnmanagedInstance = mongoose.model('unmanagedinstances', UnmanagedInstanceSchema);
 module.exports = UnmanagedInstance;
