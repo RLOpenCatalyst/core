@@ -187,7 +187,6 @@ function sync() {
 
 																			if (instances[n].instanceState === 'terminated') {
 																				instances[n].remove();
-																				instancesDao.removeInstancebyId(instances[n]._id);
 																			} else {
 																				if (instances[n].instanceState === 'running') {
 																					instances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
@@ -223,7 +222,6 @@ function sync() {
 																				unManagedInstances[n].state = awsInstances[m].State.Name;
 																				if (unManagedInstances[n].state === 'terminated') {
 																					unManagedInstances[n].remove();
-																					instancesDao.removeInstancebyId(instances[n]._id);
 																				} else {
 																					if (unManagedInstances[n].state === 'running') {
 																						unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;

@@ -641,7 +641,9 @@ $(document).ready(function() {
       }else{
         var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
         $tr.append($tdproviderType);
-      }
+      };
+      var $tdstatus = $('<td></td>').append(allProviderData.trackedInstances[i].instanceState);
+      $tr.append($tdstatus);
 
       if(allProviderData.trackedInstances[i].cost)
         var $tdcost = $('<td></td>').append('$ '+allProviderData.trackedInstances[i].cost);
@@ -688,6 +690,8 @@ $(document).ready(function() {
       },{
         "bSortable": false
       },{
+        "bSortable": false
+      }, {
         "bSortable": false
       },{
         "bSortable": false
@@ -737,6 +741,9 @@ $(document).ready(function() {
       var $tdproviderType = $('<td></td>').append(specProviderData.trackedInstances[i].providerType.toUpperCase());
       $tr.append($tdproviderType);
 
+      var $tdstatus = $('<td></td>').append(specProviderData.trackedInstances[i].instanceState);
+      $tr.append($tdstatus);
+
       if(specProviderData.trackedInstances[i].cost)
         var $tdcost = $('<td></td>').append('$ '+specProviderData.trackedInstances[i].cost);
       else
@@ -776,6 +783,8 @@ $(document).ready(function() {
       }, {
         "bSortable": false
       }, {
+        "bSortable": false
+      },{
         "bSortable": false
       },{
         "bSortable": false

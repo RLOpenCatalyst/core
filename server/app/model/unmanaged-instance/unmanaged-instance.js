@@ -243,7 +243,7 @@ UnmanagedInstanceSchema.statics.updateInstanceCost = function(instanceCostData, 
 
 this.removeInstancebyId = function(instanceId, callback) {
 	logger.debug("Enter removeInstancebyId (%s)", instanceId);
-	Instances.remove({
+	UnmanagedInstance.remove({
 		"_id": ObjectId(instanceId)
 	}, function(err, data) {
 		if (err) {

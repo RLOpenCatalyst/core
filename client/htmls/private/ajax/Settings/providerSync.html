@@ -1316,7 +1316,12 @@
                 var $tdIpAddress = $('<td></td>').append(managnedData.managedInstances[i].instanceIP);
                 $tr.append($tdIpAddress);
 
-                var region  = managnedData.managedInstances[i].region;
+                var region = '';
+                if(managnedData.managedInstances[i].region){
+                    region = managnedData.managedInstances[i].region;
+                }else if (managnedData.managedInstances[i].providerData && managnedData.managedInstances[i].providerData.region) {
+                    region = managnedData.managedInstances[i].providerData.region;
+                }
                 var $tdRegion = $('<td></td>').append(region);
                 $tr.append($tdRegion);
                 var $tdStatus = $('<td></td>').append(managnedData.managedInstances[i].instanceState);
@@ -1389,7 +1394,9 @@
                 $tr.append($tdIpAddress);
 
                 var region = '';
-                if (unManagnedData.unmanagedInstances[i].providerData && unManagnedData.unmanagedInstances[i].providerData.region) {
+                if(unManagnedData.unmanagedInstances[i].region){
+                    region = unManagnedData.unmanagedInstances[i].region;
+                }else if (unManagnedData.unmanagedInstances[i].providerData && unManagnedData.unmanagedInstances[i].providerData.region) {
                     region = unManagnedData.unmanagedInstances[i].providerData.region;
                 }
                 var $tdRegion = $('<td></td>').append(region);

@@ -505,6 +505,7 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.providerId = instance.providerId;
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
+        instanceObj.instanceState = instance.instanceState ? instance.instanceState:instance.state;
         instanceObj.bgId = ('bgId' in instance) ? instance.bgId : null;
 
         if (('hardware' in instance) && ('os' in instance.hardware))
