@@ -28,25 +28,12 @@
                 return baseAPIUrl + relUrl;
             }
             var serviceInterface = {
-                getCurrentSelectedEnvInstanceList: function () {
-                    /*params format
-                     org: list[0],
-                     bg: list[1],
-                     proj: list[2],
-                     env: list[3]
-                     * */
-                    var p = workzoneEnvironment.getEnvParams();
-                    return serviceInterface.getInstanceBlueprintOrchestration(p.org, p.bg,
-                            p.proj, p.env);
-                },
                 getTree: function () {
                     var url = '/organizations/getTreeForbtv';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*applicationsCtrl*/
-                //getAppPipeLineForProj: function (projId) { /*need to use this when we get actual data from API*/
                 getAppPipeLineForProj: function () {
-                    //var url = '/app/deploy' + '/project/' + projId + '/list';
                     var url = '/cat3/data/app_deploy_env_application.json';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
@@ -54,7 +41,6 @@
                     var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
                     return $http.post(fullUrl(url), Auth.getHeaderObject());
                 },
-
                 getAppCardLogs: function(instanceNodeIp, projId) {
                     var url = '/instances/' + instanceNodeIp + '/project/' + projId + '/logs';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
@@ -73,7 +59,6 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 postEnvConfig: function(reqBody) {
-                    //var url = '/data/appDeployEnvList.json';
                     var url = '/app-deploy-pipeline/save/appConfigPipeLineData';
                     return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
                 },
@@ -93,31 +78,16 @@
                     return $http.delete(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*blueprintCtrl*/
-                getInstanceBlueprintOrchestration: function (orgId, bgId,
-                        projId, envId) {
-                    if (!orgId) {
-                        return $http.get(fullUrl('/cat3/data/json_for_divakar.json'), {
-                            cache: true
-                        });
-
-                    } else {
-                        /*return $http.get('/cat3/data/super_instanceAndBlueprintData.json', {
-                            cache: true
-                        });*/
-                        var url = '/organizations/' + orgId + '/businessgroups/' + bgId +
-                                '/projects/' + projId + '/environments/' + envId + '/';
-                        return $http.get(fullUrl(url), Auth.getHeaderObject());
-                    }
-                },
                 getCurrentEnvInstances: function () {
                     var p = workzoneEnvironment.getEnvParams();
                     var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +
-                    '/projects/' + p.proj + '/environments/' + p.env + '/instances'
+                    '/projects/' + p.proj + '/environments/' + p.env + '/instances';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
-                getBlueprints: function (envParams) {
-                    var url = '/blueprints/organization/' + envParams.org + '/businessgroup/' + envParams.bg + 
-                    '/project/' + envParams.proj;
+                getBlueprints: function () {
+                    var p = workzoneEnvironment.getEnvParams();
+                    var url = '/blueprints/organization/' + p.org + '/businessgroup/' + p.bg + 
+                    '/project/' + p.proj;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 blueprintInfo: function (blueprintID) {
@@ -145,12 +115,10 @@
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 getDockerMoreInfo: function (instanceId,containerId) {
-                    //var url = '/cat3/data/dockerMoreInfo.json';
                     var url = '/instances/dockercontainerdetails/' + instanceId + '/' + containerId;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 checkDockerActions: function (instanceId, containerId, action) { //serviceInterface.checkDockerActions = function (obj, action) {
-                    //var url = '/cat3/data/containerActionResult.json';
                     var url = '/instances/dockercontainerdetails/' + instanceId + '/' + containerId + '/' + action;
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
@@ -264,7 +232,6 @@
                 },
                 getInspectSoftware: function (instanceId) {
                     var url = '/instances/' + instanceId + '/inspect';
-                    //url = '/cat3/data/cpinstalledSoftware.json';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
                 },
                 /*orchestrationCtrl*/

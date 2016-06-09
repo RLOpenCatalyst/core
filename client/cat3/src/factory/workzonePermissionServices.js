@@ -35,6 +35,7 @@
 		};
 		
 	}]).service('orchestrationPermission', ['uac', function(uac){
+		console.log(uac);
 		this.createTask = function() {
 			return true;
 			//return uac.hasPermission('instancetasks','create');

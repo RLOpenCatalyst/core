@@ -8,8 +8,8 @@
 (function (angular) {
     'use strict';
     angular.module('workzone.orchestration')
-        .controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope',
-            function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope) {
+        .controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q',
+            function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
                 $scope.isNewTaskPageLoading = true;
                 $scope.chefrunlist = [];
                 $scope.cookbookAttributes = [];
@@ -139,6 +139,7 @@
                                     taskJSON.assignTasks.push(selectedList[i].data._id);
                                 }
                             } else {
+                                alert('please select atleast one job');
                                 return false;
                             }
                         }
@@ -212,14 +213,14 @@
                         if ($scope.isEditMode) {
                             workzoneServices.updateTask(reqBody, $scope.id).then(function () {
                                 items = reqBody.taskData;
-                                $rootScope.$emit('WZ_REFRESH_ENV');
+                                $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                                 $modalInstance.close(items);
                             });
                         } else {
                             workzoneServices.postNewTask(reqBody).then(function () {
                                 items = reqBody.taskData;
-                                $rootScope.$emit('WZ_REFRESH_ENV');
-                                $rootScope.$emit("GET_ALL_TASK");
+                                $rootScope.$emit('WZ_ORCHESTRATION_SHOW_LATEST');
+                                $rootScope.$emit('GET_ALL_TASK');
                                 $modalInstance.close(items);
                             });
                         }
@@ -230,7 +231,6 @@
                         $modalInstance.dismiss('cancel');
                     }
                 });
-                var completeNodeList = [];
                 $scope.name = "";
                 $scope.taskType = "chef";//default Task type selection;
                 $scope.isEditMode = false;//default edit mode is false;
@@ -242,7 +242,7 @@
                 };
                 /*in backend at the time of edit of task the jobResultUrlPattern 
                 was going as null. So there was in issue with the links disappearing.*/
-                $scope.jobResultURLPattern;
+                $scope.jobResultURLPattern = [];
                 $scope.jobResultURL = [];
                 $scope.jenkinsParamsList = [];
                 $scope.jenkinsServerSelect = '';
@@ -288,20 +288,16 @@
                     });
                     $scope.isNewTaskPageLoading = false;
                 });
-                workzoneServices.getCurrentSelectedEnvInstanceList().then(function(response) {
-                    var data;
-                    var blueprints;
-                    if (response.data) {
-                        data = response.data.instances;
-                        blueprints = response.data.blueprints;
-                    } else {
-                        data = response.instances;
-                    }
+                var allInstances = workzoneServices.getCurrentEnvInstances();
+                var allBlueprints = workzoneServices.getBlueprints();
+                $q.all([allInstances,allBlueprints]).then(function(promiseObjs) {
+                    var instances = promiseObjs[0].data;
+                    var blueprints = promiseObjs[1].data;
                     /*Identifying the chef nodes and adding a flag for identifying the selection in the angular checkbox selection*/
                     if ($scope.taskType === "chef") {
                         if($scope.isEditMode){
                             $scope.editRunListAttributes = true;
-                            $scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(data), items.taskConfig.nodeIds);
+                            $scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
                             $scope.isNewTaskPageLoading = false;
                             $scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
                             $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
@@ -313,7 +309,7 @@
                                 $scope.targetType="instance";
                             }
                         }else{
-                            $scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(data), []);
+                            $scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
                             $scope.isNewTaskPageLoading = false;
                             $scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), []);
                             $scope.targetType="instance";
@@ -322,13 +318,12 @@
                     /*Identifying the Puppet nodes and adding a flag for identifying the selection in the angular checkbox selection*/
                     if ($scope.isEditMode && $scope.taskType === "puppet") {
                         if ($scope.isEditMode) {
-                            $scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(data), items.taskConfig.nodeIds);
+                            $scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(instances), items.taskConfig.nodeIds);
                             $scope.isNewTaskPageLoading = false;
                         } else {
-                            $scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(data), []);
+                            $scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(instances), []);
                         }
                     }
-                    completeNodeList = data;
                 });
                 workzoneServices.getJenkinsServerList().then(function (response) {
                     var data;
