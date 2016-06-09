@@ -68,7 +68,8 @@
 		"lodash.topairs": "4.1.0",
 		"adm-zip":"0.4.7",
 		"fast-csv":"2.0.0",
-		"fs":"0.0.2"
+		"fs":"0.0.2",
+        "cors": "2.7.1"
     },
     "devDependencies": {
         "grunt": "0.4.5",

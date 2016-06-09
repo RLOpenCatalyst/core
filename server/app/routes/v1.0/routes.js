@@ -63,6 +63,7 @@ var deployPermission = require('./routes_deploypermission');
 var trackedInstances = require('./routes_trackedInstances');
 var resources = require('./routes_resources');
 var serviceStatus = require('./routes_serviceStatus');
+var cors = require('cors');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -70,6 +71,7 @@ var serviceStatus = require('./routes_serviceStatus');
 
 module.exports.setRoutes = function(app) {
 
+    app.use(cors());
 
     var verificationFunctions = auth.setRoutes(app);
     var sessionVerificationFunc = verificationFunctions.sessionVerificationFunc;
@@ -153,11 +155,12 @@ module.exports.setRoutes = function(app) {
     serviceStatus.setRoutes(app, sessionVerificationFunc);
 
     app.get('/', function(req, res) {
-        res.redirect('/private/index.html');
+        res.redirect('/cat3');
     });
 
     //for public html files
     app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/public')));
+    app.use('/cat3', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/cat3')));
 
     app.get('/public/login.html', function(req, res, next) {
         if (req.session && req.session.user) {
@@ -165,7 +168,7 @@ module.exports.setRoutes = function(app) {
         } else {
             next();
         }
-    })
+    });
 
     // for private html files
     app.all('/private/*', function(req, res, next) {
