@@ -1,0 +1,30 @@
+<div id='applicationLogsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-bar-chart-o"></i> Logs
+		</h4>
+	</div>
+
+	<div class="modal-body">			
+		<div class="logsArea">
+			<table>
+				<tbody>
+					<tr class="row rowSpacing">
+						<td class="col-lg-12 col-sm-12 {{logList.err ? 'logErrorMsg':'logMsg'}}">
+							<!--<span class="timeStamp">{{log.timestamp | timestampToLocaleTime}}</span>
+							&nbsp;&nbsp;&nbsp;-->
+							<span>{{logList}}</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

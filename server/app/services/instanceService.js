@@ -392,6 +392,7 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 }
 
 function getTrackedInstancesForProvider(provider, next) {
+    console.log("Provider is >>"+provider);
     async.parallel({
             managed: function(callback) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
@@ -407,9 +408,6 @@ function getTrackedInstancesForProvider(provider, next) {
                 err.status = 500;
                 next(err)
             } else {
-                /*var instances = results.reduce(function(a, b) {
-                 return a.concat(b);
-                 }, []);*/
                 next(null, provider, results);
             }
         }

@@ -104,6 +104,7 @@ app.set('sport', appConfig.app_run_secure_port);
 app.use(expressCompression());
 app.use(expressFavicon(__dirname + '/../../client/htmls/private/img/favicons/favicon.ico'));
 app.use(expressCookieParser());
+
 logger.debug("Initializing Session store in mongo");
 
 var sessionMiddleware = expressSession({

@@ -304,6 +304,17 @@ $(document).ready(function() {
     $('.artifactClass').hide();
     $('.versionClass').hide();
     $('#selectOrgName').trigger('change');
+    if (isAngularIntegration) {
+        $('#workZoneNew').attr('href', '#');
+        $('#workZoneNew').removeClass('active');
+        $('#Workspace1').addClass('hidden');
+        $('#designNew').addClass('active');
+        $('ul#blueprints').removeClass('hidden');
+        $("#ribbon ol.breadcrumb").empty();
+        var providerselected = $('#blueprints').attr('providerselected');
+        providerselected = providerselected.toUpperCase();
+        $("#ribbon ol.breadcrumb").append($("<li>Design</li>" + "<li>PROVIDERS</li>" + "<li>"+providerselected+"</li>"));
+    }
     var $addal = $("#addanotherlink"); //#ajax/Aws-Production.html?addnew
     if (window.url.indexOf('addnew') > 0) {
         $addal.attr('href', '#ajax/Aws-Production.html?addanother');
@@ -1680,6 +1691,7 @@ var saveblueprint = function(tempType) {
                     var nexusRepoUrl = "";
                     var repoId = $chooseRepository.find('option:selected').val();
                     var nexusRepoId = $nexusServer.find('option:selected').val();
+                    var rowId = $nexusServer.find('option:selected').val();
 
                     //alert($('.checkConfigApp').prop("checked"));
                     if ($('.checkConfigApp').prop("checked")) {
@@ -1706,6 +1718,7 @@ var saveblueprint = function(tempType) {
                                 }
                             }
                             var nexus = {
+                                "rowId": rowId,
                                 "repoId": nexusRepoId,
                                 "url": nexusRepoUrl,
                                 "version": appVersion,
@@ -1744,6 +1757,7 @@ var saveblueprint = function(tempType) {
 
 
                             var docker = {
+                                rowId: rowId,
                                 repoId: nexusRepoId,
                                 image: dockerImage,
                                 containerId: containerId,
@@ -3664,7 +3678,7 @@ function addBlueprintToDom(data) {
         }
 
         var $selectVer = $('<select></select').addClass('blueprintVer');
-        var $liVersion = $('<li></li>').append($selectVer);
+        var $liVersion = $('<li class="margin-top5">Version:&nbsp;</li>').append($selectVer);
 
         if (data.versions) {
 

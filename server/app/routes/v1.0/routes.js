@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 // This file act as a request mapping i.e. it will decide which request will go to which routes.
@@ -63,171 +63,175 @@ var deployPermission = require('./routes_deploypermission');
 var trackedInstances = require('./routes_trackedInstances');
 var resources = require('./routes_resources');
 var serviceStatus = require('./routes_serviceStatus');
+var cors = require('cors');
 /*
-* @TODO
-* Change app to router in internal routes files 
-*/
+ * @TODO
+ * Change app to router in internal routes files
+ */
 
 module.exports.setRoutes = function(app) {
 
-	
-	var verificationFunctions = auth.setRoutes(app);
-	var sessionVerificationFunc = verificationFunctions.sessionVerificationFunc;
-	var adminSessionVerificationFunc = verificationFunctions.adminSessionVerificationFunc;
+    app.use(cors());
 
-	d4dMasters.setRoutes(app, sessionVerificationFunc);
+    var verificationFunctions = auth.setRoutes(app);
+    var sessionVerificationFunc = verificationFunctions.sessionVerificationFunc;
+    var adminSessionVerificationFunc = verificationFunctions.adminSessionVerificationFunc;
 
-	organizations.setRoutes(app, sessionVerificationFunc);
+    d4dMasters.setRoutes(app, sessionVerificationFunc);
 
-	projects.setRoutes(app, sessionVerificationFunc);
+    organizations.setRoutes(app, sessionVerificationFunc);
 
-	blueprints.setRoutes(app, sessionVerificationFunc);
+    projects.setRoutes(app, sessionVerificationFunc);
 
-	instances.setRoutes(app, sessionVerificationFunc);
+    blueprints.setRoutes(app, sessionVerificationFunc);
 
-	chef.setRoutes(app, sessionVerificationFunc);
+    instances.setRoutes(app, sessionVerificationFunc);
 
-	users.setRoutes(app, sessionVerificationFunc);
+    chef.setRoutes(app, sessionVerificationFunc);
 
-	tasks.setRoutes(app, sessionVerificationFunc);
+    users.setRoutes(app, sessionVerificationFunc);
 
-	taskStatus.setRoutes(app, sessionVerificationFunc);
+    tasks.setRoutes(app, sessionVerificationFunc);
 
-	ec2.setRoutes(app, sessionVerificationFunc);
+    taskStatus.setRoutes(app, sessionVerificationFunc);
 
-	jenkins.setRoutes(app, sessionVerificationFunc);
+    ec2.setRoutes(app, sessionVerificationFunc);
 
-	openstack.setRoutes(app, sessionVerificationFunc);
+    jenkins.setRoutes(app, sessionVerificationFunc);
 
-	hppubliccloud.setRoutes(app, sessionVerificationFunc);
+    openstack.setRoutes(app, sessionVerificationFunc);
 
-	azure.setRoutes(app, sessionVerificationFunc);
+    hppubliccloud.setRoutes(app, sessionVerificationFunc);
 
-	vmware.setRoutes(app, sessionVerificationFunc);
+    azure.setRoutes(app, sessionVerificationFunc);
 
-	application.setRoutes(app, sessionVerificationFunc);
+    vmware.setRoutes(app, sessionVerificationFunc);
 
-	jira.setRoutes(app, sessionVerificationFunc);
+    application.setRoutes(app, sessionVerificationFunc);
 
-	provider.setRoutes(app, sessionVerificationFunc);
-	providerCommon.setRoutes(app, sessionVerificationFunc);
+    jira.setRoutes(app, sessionVerificationFunc);
 
-	vmimage.setRoutes(app, sessionVerificationFunc);
+    provider.setRoutes(app, sessionVerificationFunc);
+    providerCommon.setRoutes(app, sessionVerificationFunc);
 
-	chefClientExecution.setRoutes(app);
+    vmimage.setRoutes(app, sessionVerificationFunc);
 
-	cloudformation.setRoutes(app, sessionVerificationFunc);
+    chefClientExecution.setRoutes(app);
 
-	globalsettings.setRoutes(app, sessionVerificationFunc);
+    cloudformation.setRoutes(app, sessionVerificationFunc);
 
-	tracks.setRoutes(app, sessionVerificationFunc);
+    globalsettings.setRoutes(app, sessionVerificationFunc);
 
-	trackType.setRoutes(app, sessionVerificationFunc);
+    tracks.setRoutes(app, sessionVerificationFunc);
 
-	puppet.setRoutes(app, sessionVerificationFunc);
+    trackType.setRoutes(app, sessionVerificationFunc);
 
-	appdeploy.setRoutes(app, sessionVerificationFunc);
+    puppet.setRoutes(app, sessionVerificationFunc);
 
-	nexus.setRoutes(app, sessionVerificationFunc);
+    appdeploy.setRoutes(app, sessionVerificationFunc);
 
-	servicenow.setRoutes(app, sessionVerificationFunc);
+    nexus.setRoutes(app, sessionVerificationFunc);
 
-	appdeployPipeline.setRoutes(app, sessionVerificationFunc);
+    servicenow.setRoutes(app, sessionVerificationFunc);
 
-	chefFactory.setRoutes(app, sessionVerificationFunc);
+    appdeployPipeline.setRoutes(app, sessionVerificationFunc);
 
-	dashboardProvider.setRoutes(app, sessionVerificationFunc);
+    chefFactory.setRoutes(app, sessionVerificationFunc);
 
-	arm.setRoutes(app, sessionVerificationFunc);
+    dashboardProvider.setRoutes(app, sessionVerificationFunc);
 
-	dashboardProvider.setRoutes(app, sessionVerificationFunc);
+    arm.setRoutes(app, sessionVerificationFunc);
 
-	appData.setRoutes(app, sessionVerificationFunc);
+    dashboardProvider.setRoutes(app, sessionVerificationFunc);
 
-	deployPermission.setRoutes(app, sessionVerificationFunc);
+    appData.setRoutes(app, sessionVerificationFunc);
 
-	trackedInstances.setRoutes(app, sessionVerificationFunc);
+    deployPermission.setRoutes(app, sessionVerificationFunc);
 
-	resources.setRoutes(app, sessionVerificationFunc);
+    trackedInstances.setRoutes(app, sessionVerificationFunc);
 
-	serviceStatus.setRoutes(app, sessionVerificationFunc);
+    resources.setRoutes(app, sessionVerificationFunc);
 
-	app.get('/', function(req, res) {
-		res.redirect('/private/index.html');
-	});
+    serviceStatus.setRoutes(app, sessionVerificationFunc);
 
-	//for public html files
-	app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/public')));
+    app.get('/', function(req, res) {
+        res.redirect('/cat3');
+    });
 
-	app.get('/public/login.html', function(req, res, next) {
-		if (req.session && req.session.user) {
-			res.redirect('/');
-		} else {
-			next();
-		}
-	})
+    //for public html files
+    app.use('/public', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/public')));
+    app.use('/cat3', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/cat3')));
 
-	// for private html files
-	app.all('/private/*', function(req, res, next) {
-		if (req.session && req.session.user) {
-			if (req.session.user.authorizedfiles) {
-				var authfiles = req.session.user.authorizedfiles.split(','); //To be moved to login page an hold a static variable.
-				authfiles += ',index.html,settings.html,design.html,Tracker.html,noaccess.html'
-				if (req.originalUrl.indexOf('.html') > 0) //its a html file.
-				{
-					var urlpart = req.originalUrl.split('/');
-					if (authfiles.indexOf(urlpart[urlpart.length - 1]) < 0 && req.session.user.cn != 'sd1') {
-						logger.debug('not authorized');
-					} else {
-						logger.debug('Authorized');
-					}
+    app.get('/public/login.html', function(req, res, next) {
+        if (req.session && req.session.user) {
+            res.redirect('/');
+        } else {
+            next();
+        }
+    });
 
-				}
-			}
-			logger.debug('req received ' + req.originalUrl);
-			next();
-		} else {
-			res.redirect('/public/login.html');
-		}
-	});
-	app.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/private')));
+    // for private html files
+    app.all('/private/*', function(req, res, next) {
+        if (req.session && req.session.user) {
+            if (req.session.user.authorizedfiles) {
+                var authfiles = req.session.user.authorizedfiles.split(','); //To be moved to login page an hold a static variable.
+                authfiles += ',index.html,settings.html,design.html,Tracker.html,noaccess.html'
+                if (req.originalUrl.indexOf('.html') > 0) //its a html file.
+                {
+                    var urlpart = req.originalUrl.split('/');
+                    if (authfiles.indexOf(urlpart[urlpart.length - 1]) < 0 && req.session.user.cn != 'sd1') {
+                        logger.debug('not authorized');
+                    } else {
+                        logger.debug('Authorized');
+                    }
+
+                }
+            }
+            logger.debug('req received ' + req.originalUrl);
+            next();
+        } else {
+            res.redirect('/public/login.html');
+        }
+    });
+    app.use('/private', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/htmls/private')));
+    app.use('/cat3', expressServeStatic(path.join(path.dirname(path.dirname(path.dirname(path.dirname(__dirname)))), 'client/cat3')));
 
 
-	// for upload dir
-	if (appConfig.staticUploadDir) {
-		app.all('/uploads/*', function(req, res, next) {
-			if (req.session && req.session.user) {
-				next();
-			} else {
-				res.send(403);
+    // for upload dir
+    if (appConfig.staticUploadDir) {
+        app.all('/uploads/*', function(req, res, next) {
+            if (req.session && req.session.user) {
+                next();
+            } else {
+                res.send(403);
 
-			}
-		});
+            }
+        });
 
-		app.use('/uploads', expressServeStatic(appConfig.staticUploadDir));
-	}
-	// for notification
-	notification.setRoutes(app);
+        app.use('/uploads', expressServeStatic(appConfig.staticUploadDir));
+    }
+    // for notification
+    notification.setRoutes(app);
 
-	app.use(errorHandler);
+    app.use(errorHandler);
 
-	function errorHandler(err, req, res, next) {
-		if(err) {
-			logger.error(err);
+    function errorHandler(err, req, res, next) {
+        if(err) {
+            logger.error(err);
 
-			var errorResponse = {
-				'status': err.status,
-				'message': err.message,
-				'errors': []
-			};
-			if ('errors' in err) {
-				for(var i = 0; i < err.errors.length; i++) {
-					if('message' in err.errors[i])
-						errorResponse.errors.push(err.errors[i].messages);
-				}
-			}
+            var errorResponse = {
+                'status': err.status,
+                'message': err.message,
+                'errors': []
+            };
+            if ('errors' in err) {
+                for(var i = 0; i < err.errors.length; i++) {
+                    if('message' in err.errors[i])
+                        errorResponse.errors.push(err.errors[i].messages);
+                }
+            }
 
-			return res.status(err.status).send(errorResponse);
-		}
-	}
+            return res.status(err.status).send(errorResponse);
+        }
+    }
 }

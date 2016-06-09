@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 var mongoose = require('mongoose');
@@ -21,11 +21,8 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('./../../dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
-var ChefClientExecution = require('./chefClientExecution/chefClientExecution');
 var textSearch = require('mongoose-text-search');
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
-
-
+var apiUtils = require('_pr/lib/utils/apiUtil.js');
 
 var Schema = mongoose.Schema;
 
@@ -268,14 +265,20 @@ var InstanceSchema = new Schema({
     tempActionLogId: String,
     cloudFormationId: String,
     armId: String,
+    instanceCreatedOn: {
+        type: Date,
+        default: Date.now
+    },
+    tasks: [Schema.Types.Mixed],
     usage: Schema.Types.Mixed,
     cost: Schema.Types.Mixed,
-    zone: {
+    normalized: String,
+    region: {
         type: String,
         required: false,
         trim: true
     },
-    region: {
+    zone: {
         type: String,
         required: false,
         trim: true
@@ -441,75 +444,91 @@ var InstancesDao = function() {
         });
     };
 
-   this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
-       if(jsonData.record_Limit) {
-           var databaseReq = {};
-           jsonData['searchColumns'] = ['instanceIP', 'instanceState'];
-           ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
-               if (err) {
-                   var err = new Error('Internal server error');
-                   err.status = 500;
-                   return callback(err);
-               }
-               databaseReq = databaseCall;
-           });
-           Instances.paginate(databaseReq.queryObj, databaseReq.options, function (err, instances) {
-               if (err) {
-                   var err = new Error('Internal server error');
-                   err.status = 500;
-                   return callback(err);
-               }
-               else if (!instances) {
-                   var err = new Error('Instances are not found');
-                   err.status = 404;
-                   return callback(err);
-               }
-               else
-                   return callback(null, instances);
-           });
-       }
-       else{
-           var queryObj = {
-               orgId: jsonData.orgId,
-               bgId: jsonData.bgId,
-               projectId: jsonData.projectId,
-               envId: jsonData.envId
-           }
-           if (jsonData.instanceType) {
-               queryObj['blueprintData.templateType'] = jsonData.instanceType;
-           }
-           Instances.find(queryObj, {
-               'actionLogs': false
-           }, function(err, data) {
-               if (err) {
-                   callback(err, null);
-                   return;
-               }
-               callback(null, data);
-           });
-       }
-    };
+    this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
+        if (jsonData.pageSize) {
+            jsonData['searchColumns'] = ['instanceIP', 'instanceState'];
+            apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+                if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                } else {
+                    Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
+                        if (err) {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        } else if (instances.docs.length === 0) {
+                            return callback(null,instances);
+                        } else {
+                            // @TODO Workaround to avoid circular dependency to be addressed
+                            var tasks = require('_pr/model/classes/tasks/tasks.js');
+                            var instanceList = instances.docs;
+                            var count = 0;
+                            for (var i = 0; i < instanceList.length; i++) {
+                                (function(instance) {
+                                    if (instance.taskIds.length > 0) {
+                                        tasks.getTaskByIds(instance.taskIds, function(err, tasks) {
+                                            if (err) {
+                                                var err = new Error('Internal server error');
+                                                err.status = 500;
+                                                return callback(err);
+                                            } else if (tasks.length === 0) {
+                                                return callback(null, instances);
+                                            } else {
+                                                count++;
+                                                var taskObj = {};
+                                                var taskList = [];
+                                                for (var j = 0; j < tasks.length; j++) {
+                                                    taskObj['id'] = tasks[j]._id;
+                                                    taskObj['taskName'] = tasks[j].name;
+                                                    taskObj['taskType'] = tasks[j].taskType;
+                                                    taskObj['taskConfig'] = tasks[j].taskConfig;
+                                                    taskList.push(taskObj);
+                                                    taskObj = {};
+                                                };
+                                                instance['tasks'] = taskList;
+                                                if (instanceList.length === count) {
+                                                    instances.docs = instanceList;
+                                                    return callback(null, instances);
+                                                }
+                                            }
+                                        })
+                                    } else {
+                                        count++;
+                                        if (instanceList.length === count) {
+                                            instances.docs = instanceList;
+                                            return callback(null, instances);
+                                        }
+                                    }
+                                })(instanceList[i]);
+                            }
 
-   /* this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
-        var queryObj = {
-            orgId: jsonData.orgId,
-            bgId: jsonData.bgId,
-            projectId: jsonData.projectId,
-            envId: jsonData.envId
-        }
-        if (jsonData.instanceType) {
-            queryObj['blueprintData.templateType'] = jsonData.instanceType;
-        }
-        Instances.find(queryObj, {
-            'actionLogs': false
-        }, function(err, data) {
-            if (err) {
-                callback(err, null);
-                return;
+                        }
+                    });
+                }
+            });
+        } else {
+            var queryObj = {
+                orgId: jsonData.orgId,
+                bgId: jsonData.bgId,
+                projectId: jsonData.projectId,
+                envId: jsonData.envId
             }
-            callback(null, data);
-        });
-    };*/
+            if (jsonData.instanceType) {
+                queryObj['blueprintData.templateType'] = jsonData.instanceType;
+            }
+            Instances.find(queryObj, {
+                'actionLogs': false
+            }, function(err, data) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
+        }
+    };
 
     this.getInstancesByOrgBgProjectAndEnvIdForDocker = function(jsonData, callback) {
         var queryObj = {
@@ -1255,7 +1274,7 @@ var InstancesDao = function() {
     };
 
 
-    //action logs 
+    //action logs
     function insertActionLog(instanceId, logData, callback) {
         var actionLog = new ActionLog(logData);
         Instances.update({
@@ -1660,27 +1679,26 @@ var InstancesDao = function() {
     };
 
     this.getByProviderId = function(jsonData, callback) {
-        var databaseReq={};
-        jsonData['searchColumns']=['instanceIP','platformId'];
-        ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
-            if(err){
+        jsonData['searchColumns'] = ['instanceIP', 'platformId'];
+        apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+            if (err) {
                 process.nextTick(function() {
                     callback(null, []);
                 });
                 return;
+            } else {
+                Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
+                    if (err) {
+                        logger.error("Failed getByProviderId (%s)", err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, instances);
+                });
             }
-            databaseReq=databaseCall;
-        });
-        Instances.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
-            if (err) {
-                logger.error("Failed getByOrgProviderId (%s)", err);
-                callback(err, null);
-                return;
-            }
-            callback(null, instances);
         });
     };
-//End By Durgesh
+    //End By Durgesh
 
     this.getInstanceByIPAndProject = function(instanceIp, projectId, callback) {
         instanceIp = instanceIp.trim();
@@ -1723,6 +1741,27 @@ var InstancesDao = function() {
         }
     };
 
+    this.getInstancesByIDs = function(instanceIds, callback) {
+        if (instanceIds.length) {
+            Instances.find({
+                "_id": {
+                    $in: instanceIds
+                },
+            }, function(err, instances) {
+                if (err) {
+                    logger.error("Failed getInstancesByIDs " + err);
+                    callback(err, null);
+                    return;
+                }
+                callback(null, instances);
+
+            })
+        } else {
+            callback(null, []);
+            return;
+        }
+    };
+
     this.updateInstanceUsage = function(instanceId, usage, callback) {
         Instances.update({
             _id: new ObjectId(instanceId)
@@ -1759,6 +1798,48 @@ var InstancesDao = function() {
         });
     };
 
+    this.NormalizedInstances=function(jsonData,fieldName,callback){
+        var queryObj={};
+        if(jsonData.filterBy){
+            queryObj = jsonData.filterBy;
+        }
+        queryObj['orgId']= jsonData.orgId;
+        queryObj['bgId']= jsonData.bgId;
+        queryObj['projectId']= jsonData.projectId;
+        queryObj['envId']= jsonData.envId;
+        Instances.find(queryObj,function(err,instances){
+            if(err){
+                logger.error(err);
+                callback(err, null);
+                return;
+            }
+            var count=0;
+            for(var i =0;i < instances.length;i++) {
+                (function(instance){
+                    count++;
+                    var normalized=instance[fieldName];
+                    Instances.update({
+                        "_id": new ObjectId(instance._id)
+                    }, {
+                        $set: {
+                            normalized: normalized.toLowerCase()
+                        }
+                    }, {
+                        upsert: false
+                    },function(err,updatedInstance){
+                        if(err){
+                            logger.error(err);
+                            callback(err, null);
+                            return;
+                        }
+                        if(instances.length === count){
+                            callback(null,updatedInstance);
+                        }
+                    });
+                })(instances[i]);
+            }
+        })
+    };
 
     this.searchByChefServerAndNodeNames = function(chefServerId, nodesName, callback) {
         logger.debug('chefServerId ==>', chefServerId);
@@ -1780,6 +1861,7 @@ var InstancesDao = function() {
         });
 
     };
+
     this.searchByChefServerNodeNamesAndEnvId = function(chefServerId, nodesName, envId, callback) {
         logger.debug('chefServerId ==>', chefServerId);
         logger.debug('nodesName ==>', nodesName);
