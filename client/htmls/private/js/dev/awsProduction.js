@@ -1724,7 +1724,7 @@ var saveblueprint = function(tempType) {
                                 "version": appVersion,
                                 "repoName": repoId,
                                 "artifactId": artifactId,
-                                "groupId": groupId
+                                "groupId": $chooseGroupId.find('option:selected').val()
                             };
                             reqBody.nexus = nexus;
                         } else {
