@@ -18,6 +18,10 @@
 				<i class="fa fa-history"></i>&nbsp;
 				Puppet History For - {{task.name}} 
 			</span>
+			<span ng-show="task.taskType=='script'">
+				<i class="fa fa-history"></i>&nbsp;
+				Script History For - {{task.name}} 
+			</span>
 			<span></span>
 		</h4>
 	</div>
@@ -44,7 +48,12 @@
 			<div ng-show="!iscompositeTaskHistoryPageLoading">
 				<div id="grid8" ng-if="taskHistoryCompositeData.length >0 && task.taskType=='composite'" ui-grid="taskHistoryCompositeGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
 			</div>
-			<div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !ispuppetTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !iscompositeTaskHistoryPageLoading" ng-if="taskHistoryChefData.length == 0 && taskHistoryPuppetData.length == 0 && taskHistoryJenkinsData.length == 0 && taskHistoryCompositeData.length == 0" align="center">No Data Found</div>
+			<!--This table will get use when job type will be script -->
+			<loading size="large" name="isscriptTaskHistoryPageLoading" type="block" align="center"></loading>
+			<div ng-show="!isscriptTaskHistoryPageLoading">
+				<div id="grid5" ng-if="taskHistoryScriptData.length >0 && task.taskType=='script'" ui-grid="taskHistoryScriptGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+			</div>
+			<div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !ispuppetTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !iscompositeTaskHistoryPageLoading && !isscriptTaskHistoryPageLoading" ng-if="taskHistoryChefData.length == 0 && taskHistoryPuppetData.length == 0 && taskHistoryJenkinsData.length == 0 && taskHistoryCompositeData.length == 0 && taskHistoryScriptData == 0" align="center">No Data Found</div>
 		</section>
 	</div>
 
