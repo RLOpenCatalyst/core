@@ -5,7 +5,7 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
    "use strict";
 	angular.module('workzone.instance')
 		.controller('cpLogsCtrl', ['$scope', 'workzoneServices', 'instanceLogs', function($scope, workzoneServices, instanceLogs) {
@@ -31,4 +31,4 @@
 			});
 		}
 	]);
-})();
+})(angular);

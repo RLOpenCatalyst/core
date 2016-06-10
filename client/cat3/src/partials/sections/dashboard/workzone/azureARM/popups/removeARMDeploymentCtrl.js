@@ -5,7 +5,7 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
 	"use strict";
 	angular.module('workzone.azureARM')
 	.controller('removeARMDeploymentCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'items', function($scope, $modalInstance, workzoneServices, items) {
@@ -13,11 +13,9 @@
 			$modalInstance.dismiss('cancel');
 		};
 		$scope.ok = function() {
-			workzoneServices.removeARMDeployment(items._id).then(
-				function() {
-					$modalInstance.close(items);
-				}
-			);
+			workzoneServices.removeARMDeployment(items._id).then(function() {
+				$modalInstance.close(items);
+			});
 		};
 	}]);
-})();
+})(angular);
