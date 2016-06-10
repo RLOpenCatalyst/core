@@ -9,7 +9,11 @@
 	'use strict';
 	angular.module('workzone.orchestration')
 		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
-			$scope.isNewTaskPageLoading = true;
+			
+            $scope.role={
+             name : ''   
+            };
+            $scope.isNewTaskPageLoading = true;
 			$scope.chefrunlist = [];
 			$scope.cookbookAttributes = [];
 			//default values for new task
@@ -146,6 +150,7 @@
 					if ($scope.taskType === "chef") {
 						taskJSON.nodeIds = [];
 						taskJSON.blueprintIds = [];
+                        taskJSON.role = $scope.role.name;
 						for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
 							if ($scope.chefInstanceList[ci]._isNodeSelected) {
 								taskJSON.nodeIds.push($scope.chefInstanceList[ci]._id);
@@ -156,14 +161,25 @@
 								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
 							}
 						}
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length) {
-							alert('Please select a node or blueprint');
+
+						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
+							alert('Please select a node or blueprint or role');
 							return false;
 						}
 						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
-							alert('Please choose either nodes or blueprints, not both');
+							alert('Please choose either nodes or blueprints or role, not all');
 							return false;
 						}
+
+                        if (taskJSON.nodeIds.length && taskJSON.role) {
+                            alert('Please choose either nodes or blueprints or role, not all');
+                            return false;
+                        }
+
+                        if (taskJSON.blueprintIds.length && taskJSON.role) {
+                            alert('Please choose either nodes or blueprints or role, not all');
+                            return false;
+                        }
 						
 						taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
 						taskJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
@@ -289,12 +305,22 @@
 			});
 			var allInstances = workzoneServices.getCurrentEnvInstances();
 			var allBlueprints = workzoneServices.getBlueprints();
-			$q.all([allInstances,allBlueprints]).then(function(promiseObjs) {
+            var allRunlist = workzoneServices.getCookBookListForOrg();
+			$q.all([allInstances,allBlueprints,allRunlist]).then(function(promiseObjs) {
 				var instances = promiseObjs[0].data;
 				var blueprints = promiseObjs[1].data;
+                var roles = Object.keys(promiseObjs[2].data.roles);
+                console.log(roles);
 				/*Identifying the chef nodes and adding a flag for identifying the selection in the angular checkbox selection*/
 				if ($scope.taskType === "chef") {
 					if($scope.isEditMode){
+
+                        if(items.taskConfig && items.taskConfig.role) {
+                            $scope.role.name = items.taskConfig.role;
+                        }
+
+
+
 						$scope.editRunListAttributes = true;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
 						$scope.isNewTaskPageLoading = false;
@@ -302,16 +328,23 @@
 						$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
 						$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
 						$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
-						if (items.blueprintIds.length){
+						
+                        $scope.chefRoleList = roles;
+
+                       
+                        if (items.blueprintIds.length){
 							$scope.targetType="blueprint";
-						}else{
+						}else if(items.taskConfig && items.taskConfig.nodeIds && items.taskConfig.nodeIds.length){
 							$scope.targetType="instance";
-						}
+						} else {
+                            $scope.targetType="role";
+                        }
 					}else{
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
 						$scope.isNewTaskPageLoading = false;
 						$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), []);
-						$scope.targetType="instance";
+						$scope.chefRoleList = roles;
+                        $scope.targetType="instance";
 					}
 				}
 				/*Identifying the Puppet nodes and adding a flag for identifying the selection in the angular checkbox selection*/
