@@ -5,27 +5,28 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
 	"use strict";
 	angular.module('workzone.cloudFormation')
-	.controller('removeCFTCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
-		$scope.cancel = function() {
-			$modalInstance.dismiss('cancel');
-		};
-		$scope.removeCFT = function() {
-			workzoneServices.deleteCloudFormation(items._id).then(
-				function() {
-					$modalInstance.close(items);
-				},
-				function(error) {
-					error = error.responseText || error;
-					if (error.message) {
-						alert(error.message);
-					} else {
-						alert(error);
+		.controller('removeCFTCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
+			$scope.cancel = function() {
+				$modalInstance.dismiss('cancel');
+			};
+			$scope.removeCFT = function() {
+				workzoneServices.deleteCloudFormation(items._id).then(
+					function() {
+						$modalInstance.close(items);
+					},
+					function(error) {
+						error = error.responseText || error;
+						if (error.message) {
+							alert(error.message);
+						} else {
+							alert(error);
+						}
 					}
-				}
-			);
-		};
-	}]);
-})();
+				);
+			};
+		}
+	]);
+})(angular);

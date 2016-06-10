@@ -63,7 +63,6 @@
 			for server side(external) pagination.*/
 			$scope.orcheGridOptions = angular.extend(orchestrationUIGridDefaults.gridOption, {
 				onRegisterApi :function(gridApi) {
-
 					$scope.gridApi = gridApi;
 					gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
 						if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
@@ -165,8 +164,7 @@
 							console.log("Dismiss at " + new Date());
 						});
 					} else {
-                                            
-                                                $modal.open({
+						$modal.open({
 							animation: true,
 							templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRun.html',
 							controller: 'confirmJobRunCtrl',
@@ -179,16 +177,16 @@
 							}
 						}).result.then(function(response) {
 							helper.orchestrationLogModal(task._id,response.historyId,task.taskType);
-                                                        if(response.blueprintMessage){
-                                                            $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
-                                                        }
-                                                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+							if(response.blueprintMessage){
+								$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
+							}
+							$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
 						}, function() {
 							console.log("Dismiss at " + new Date());
-                                                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+							$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
 						});
-						}
-					},
+					}
+				},
 				getHistory: function(task) {
 					$modal.open({
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
@@ -299,15 +297,12 @@
 			$scope.setFirstPageView = function(){
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
 			};
-
 			$scope.refreshCurrentPage = function(){
 				$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');    
 			};
-
 			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(){
 				$scope.taskListGridView();
 			});
-
 			$rootScope.$on("CREATE_NEW_JOB", function(){
 				$scope.createNewTask('new');
 			});
@@ -322,5 +317,6 @@
 			$rootScope.$on('WZ_ORCHESTRATION_SHOW_LATEST', function(){
 				helper.setPaginationDefaults();
 			});
-		}]);
+		}
+	]);
 })(angular);

@@ -5,11 +5,10 @@
  * Aug 2016
  */
 
-(function(){
+(function(angular){
 "use strict";
 angular.module('workzone.application')
 	.controller('applicationApproveCtrl', ['items','$scope', '$modalInstance','workzoneServices', function(items,$scope, $modalInstance,wzService) {
-
 		angular.extend($scope, {
 			cancel: function() {
 				$modalInstance.dismiss('cancel');
@@ -45,4 +44,4 @@ angular.module('workzone.application')
 		});
 		$scope.init();
 	}]);
-})();
+})(angular);

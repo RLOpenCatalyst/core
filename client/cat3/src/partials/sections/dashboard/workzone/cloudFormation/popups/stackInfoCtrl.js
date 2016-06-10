@@ -5,10 +5,10 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
 	"use strict";
 	angular.module('workzone.cloudFormation')
-	.controller('stackInfoCtrl', ['$scope', '$modalInstance', 'items', 'CftSetting', 'workzoneServices', '$interval',
+		.controller('stackInfoCtrl', ['$scope', '$modalInstance', 'items', 'CftSetting', 'workzoneServices', '$interval',
 		function($scope, $modalInstance, items, CftSetting, workzoneServices, $interval) {
 			$scope.isStackInfoLoading = true;
 			angular.extend($scope, {
@@ -59,4 +59,4 @@
 			});
 		}
 	]);
-})();
+})(angular);
