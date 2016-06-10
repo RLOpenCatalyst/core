@@ -15,7 +15,6 @@
 			$scope.paginationParams = containerUIGridDefaults.pagination;
 			$scope.tabData = [];
 			$scope.truncateImageIDLimit = 12;
-			
 			var helper = {
 				setPaginationDefaults: function() {
 					$scope.paginationParams.sortBy = 'Created';
@@ -79,22 +78,18 @@
 					$scope.errorMessage = "No Records found";
 				});
 			};
-
 			$scope.setFirstPageView = function() {
 				$scope.paginationParams.page = 1;
 			};
-
 			$scope.refreshCurrentPage = function(){
 				$scope.getContainerList();
 			};
-
 			$scope.stopDockerFunction = function(actionType){
 				return (actionType)? "fa fa-power-off" : "fa fa-play";
 			};
 			$scope.getImageId = function(imageId){
 				return imageId.substring(0,$scope.truncateImageIDLimit);
 			};
-			
 			$scope.dockerPopUpPages= {
 				1:{ page:'dockerstart', ctrl:'dockerControllers',action:'START'},
 				2:{ page:'dockerstopplay', ctrl:'dockerControllers', action:'STOP'},
@@ -103,10 +98,8 @@
 				5:{ page:'dockerplaypause', ctrl:'dockerControllers', action:'UNPAUSE'},
 				6:{ page:'dockerterminate', ctrl:'dockerControllers', action:'TERMINATE'}
 			};
-
-			
 			$scope.checkEdited = function(_app){
-				    return (_app.containerStatus === 'STOP' ) ? true : false;
+					return (_app.containerStatus === 'STOP' ) ? true : false;
 			};
 			$scope.checkProgress=function(_app){
 				if(_app.Status.indexOf('PROGRESS') >=0) {
@@ -119,7 +112,6 @@
 			$scope.checkcAdvisor = function(_app){
 				return (_app.Image.indexOf('cadvisor') >=0 ) ? true : false;
 			};
-
 			$scope.checkPausePlay = function(_app){
 				return (_app.containerStatus==='PAUSE') ? true : false;
 			};
@@ -199,11 +191,9 @@
 					}
 				);
 			};
-
 			$rootScope.$on('WZ_CONTAINER_SHOW_LATEST', function(){
 				helper.setPaginationDefaults();
 			});
-			
 			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams){
 				$scope.envParams = requestParams;
 				$scope.initGrids();
@@ -247,7 +237,6 @@
 				}
 			});
 		}])
-
 		.controller('dockerControllers',  ['itemsName', '$scope', '$modalInstance', function (itemsName, $scope, $modalInstance) {
 			angular.extend($scope,{
 				itemsNameList: itemsName,
