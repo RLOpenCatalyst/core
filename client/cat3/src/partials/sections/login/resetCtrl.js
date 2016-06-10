@@ -5,18 +5,17 @@
  * May 2016
  */
 
-(function(){
+(function(angular){
 	"use strict";
 	function resetApplication($rootScope, $location, session, $timeout) {
 		function changeAddress(){
 			$location.path('/signin');
 		}
 		$rootScope.app.isDashboard = false;
-  		$rootScope.$emit('HIDE_BREADCRUMB');
+		$rootScope.$emit('HIDE_BREADCRUMB');
 		session.destroy();
 		$timeout(changeAddress,0);
 	}
-	
 	angular.module('global.login')
 		.controller('resetCtrl', ['$rootScope', '$location','session', '$timeout', resetApplication]);
-})();
+})(angular);

@@ -12,7 +12,6 @@
 		function fullUrl(relUrl){
 			return baseAPIUrl + relUrl;
 		}
-
 		var serviceInterface={};
 		serviceInterface.postAuth=function(params){
 			var url = '/auth/signin';
@@ -27,7 +26,6 @@
 			return $http.get(fullUrl(url),session.getHeaderObject());
 		};
 		serviceInterface.getUserPermissions=function(){
-			//var url = 'data/userActionAccess.json';
 			var url = '/auth/getpermissionset';
 			return $http.get(fullUrl(url),session.getHeaderObject());
 		};

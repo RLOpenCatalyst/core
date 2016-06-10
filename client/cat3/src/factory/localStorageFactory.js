@@ -5,7 +5,7 @@
  * Apr 2016
  */
 
-(function () {
+(function (angular) {
 	'use strict';
 	angular.module('authentication')
 		.factory('localStorage', ['$window', function ($window) {
@@ -15,4 +15,4 @@
 			throw new Error('Browser does not support HTML5 local storage');
 		}
 	]);
-})();
+})(angular);

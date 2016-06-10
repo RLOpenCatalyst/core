@@ -54,9 +54,9 @@
 			var p = [];
 			var temp;
 			var x = list1;
-                        var initialLength;
-                        temp = $.grep(list2, function(object, index) {
-                                initialLength = x.length;
+						var initialLength;
+						temp = $.grep(list2, function(object, index) {
+								initialLength = x.length;
 				x = ($.grep(x, function(o) {
 					return o.value === object.value && o.className === object.className;
 				}, true));
@@ -120,10 +120,8 @@
 		}
 	};
 
-
 	window.chefSelectorComponent = window.chefSelectorComponent || function(
 		options) {
-
 		var lastFilterClass = '';
 		var defaultOptions = {
 			scopeElement: "body", //parent element which restrict the dom search scope
@@ -149,32 +147,24 @@
 			isPriorityEnable: true //opt this option if you want to enable priority buttons these can be hide by providing false values
 		};
 		var eventCallBackList = [];
-
 		var opt = $.extend(defaultOptions, options);
-
 		var $scopeElement = $(opt.scopeElement);
-
 		if (!$scopeElement.length) {
 			throw "Scope Element is not found";
 		}
-
-
 		if (opt.isOverrideHtmlTemplate) {
 			$scopeElement.html(htmlTemplate);
 		}
-
 		if (opt.isExcludeDataFromOption) {
 			var p = helper.getExcludeList(opt.optionList, opt.selectorList);
 			opt.optionList = p.exclude;
 			opt.selectorList = p.update; 
 		}
-
 		var combineList = [];
 		for (var i = 0; i < opt.optionList.length; i++) {
 			opt.optionList[i].isShow = true;
 			combineList.push(opt.optionList[i]);
 		}
-
 		for (i = 0; i < opt.selectorList.length; i++) {
 			opt.selectorList[i].isShow = false;
 			combineList.push(opt.selectorList[i]);
