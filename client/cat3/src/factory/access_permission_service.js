@@ -5,7 +5,6 @@
  * Aug 2015
  */
 
-
 //This is a global service and will be cache 
 angular.module('factory.appPermission', []).factory('uac', ['$http', '$log', '$q', 'session', function ($http, $log, $q, session) {
 	'use strict';

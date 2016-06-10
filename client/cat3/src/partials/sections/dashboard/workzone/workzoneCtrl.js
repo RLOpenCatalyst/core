@@ -54,20 +54,16 @@ function workzoneFunct($scope, $rootScope) {
 	$scope.removeActive = function () {
 		$('.InfrastructureLocalStorage').removeClass('active');
 	};
-
 	$scope.addActive = function () {
 		$('.InfrastructureLocalStorage').addClass('active');
 	};
-
 	$scope.$watch('tab.tab', function () {
 		$rootScope.$emit('RIGHT_PANEL_NAVIGATION', $scope.tab.tab, 0);
 	});
 	$rootScope.$emit('HEADER_NAV_CHANGE', 'WORKZONE');
-
 	$scope.activateTab = function (tabName) {
-        $scope.tab.setTab(tabName);
-    };
-
+		$scope.tab.setTab(tabName);
+	};
 	$scope.setWorkZoneMessage = function(type, msg) {
 		var message;
 		/*If type comes, find a configured message for that type*/
@@ -99,7 +95,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 		function getParams(str) {
 			var l = str.split('&');
 			var list = [];
-
 			for (var i = 0; i < l.length; i++) {
 				list.push(l[i].split('=')[1]);
 			}
@@ -110,7 +105,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				env: list[3]
 			};
 		}
-
 		$scope.hideTreeOverlay = function () {
 			$scope.showTree = false;
 			$(".panelRight").css("width", "calc(100% - 39px)");
@@ -119,7 +113,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 			$(".minifyme").css("border-radius", "0px");
 			$(".minifyme").css("width", "35px");
 		};
-
 		$scope.showTreeOverlay = function () {
 			$scope.showTree = true;
 			$(".panelRight").css("width", "calc(100% - 258px)");
@@ -128,7 +121,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 			$(".minifyme").css("width", "38px");
 			$(".minifyme").css("border-radius", "5px 0 0 5px");
 		};
-
 		//this function is applicable only if enviornments are only selectable items.
 		function getNames(node) {
 			return {
@@ -138,7 +130,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				env: node.text
 			};
 		}
-
 		function treeDefaultSelection() {
 			if($('[data-nodetype="env"]').length){
 				$('[data-nodetype="env"]').eq(0).click();	
@@ -151,7 +142,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				}
 			}
 		}
-
 		workzoneServices.getTree().then(function (response) {
 			$scope.isLoading = false;
 			$scope.roleList = response.data;
@@ -159,7 +149,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 		}, function() {
 			$rootScope.$emit("USER_LOGOUT");
 		});
-
 		$scope.relevancelab = {};
 		$scope.relevancelab.selectNodeLabelCallback = function (node) {
 			if (node.selectable === false) {
@@ -174,7 +163,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				$scope.showTreeOverlay();
 			}
 		};
-
 		$scope.relevancelab.selectNodeHeadCallback = function (node) {
 			//this will need to implement when you wants to add events on node parents
 			if (node.selectable !== false) {

@@ -4,7 +4,8 @@
  * Written by Relevance UI Team,
  * Aug 2015
  */
-(function(){
+ 
+(function(angular){
    "use strict";
 	angular.module('workzone.application')
 		.controller('configurePipelineViewCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'chefSelectorComponent', 'responseFormatter', 'items', '$q', 
@@ -40,11 +41,11 @@
 				for(var i=0; i<allEnvListLeft.length; i++) {
 					var item = {
 						"className": "environment",
-					    "value": allEnvListLeft[i],
-					    "data": {
-					    	"key": allEnvListLeft[i],
-					    	"value": allEnvListLeft[i]
-					    }
+						"value": allEnvListLeft[i],
+						"data": {
+							"key": allEnvListLeft[i],
+							"value": allEnvListLeft[i]
+						}
 					};
 					list.push(item);
 				}
@@ -52,11 +53,11 @@
 				for(var j=0; j<activeEnvList.length; j++) {
 					var items = {
 						"className": "environment",
-					    "value": activeEnvList[j],
-					    "data": {
-					    	"key": activeEnvList[j],
-					    	"value": activeEnvList[j]
-					    }
+						"value": activeEnvList[j],
+						"data": {
+							"key": activeEnvList[j],
+							"value": activeEnvList[j]
+						}
 					};
 					selectedElements.push(items);
 				}
@@ -73,35 +74,35 @@
 				});
 			});
 			angular.extend($scope, {
-			    ok:function(){
-			    	var newEnv=[];
-			    	var envListLeft=[];
-			    	var envSequence=[];
-			    	//To get the right side list
-			    	angular.forEach(compositeSelector.getSelectorList(),function(val){
-				    	newEnv.push(val.value);
-				    });
-				    //To get the left side list
-				    angular.forEach(compositeSelector.getOptionList(),function(val){
-				    	envListLeft.push(val.value);
-				    });
-				    envSequence = envListLeft.concat(newEnv);
-				    var envList = {
+				ok:function(){
+					var newEnv=[];
+					var envListLeft=[];
+					var envSequence=[];
+					//To get the right side list
+					angular.forEach(compositeSelector.getSelectorList(),function(val){
+						newEnv.push(val.value);
+					});
+					//To get the left side list
+					angular.forEach(compositeSelector.getOptionList(),function(val){
+						envListLeft.push(val.value);
+					});
+					envSequence = envListLeft.concat(newEnv);
+					var envList = {
 							"projectId": projectID,
 							"envId": newEnv,
 							"envSequence": envSequence
 						};
 
-			    	workzoneServices.postEnvConfig(envList).then(function (envListResult) {
+					workzoneServices.postEnvConfig(envList).then(function (envListResult) {
 						$modalInstance.close(envListResult.data[0]);
 					},function(error){
 						console.log(error);
 					});
-			    },
+				},
 				cancel: function() {
 					$modalInstance.dismiss('cancel');
 				}
 			});
 		}
 	]);
-})();
+})(angular);

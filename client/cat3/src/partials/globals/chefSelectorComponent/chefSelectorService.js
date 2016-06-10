@@ -7,8 +7,8 @@
 
 (function(){
 "use strict";
-    angular.module('rl.ui.component.library',[])
-        .service('chefSelectorComponent',[function(){
-        	this.getComponent=window.chefSelectorComponent;
-        }]);
+	angular.module('rl.ui.component.library',[])
+		.service('chefSelectorComponent',[function(){
+			this.getComponent=window.chefSelectorComponent;
+		}]);
 })();

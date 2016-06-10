@@ -5,36 +5,36 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
 	"use strict";
 	angular.module('workzone.orchestration')
-	.controller('addJenkinsParamsCtrl',['$scope', '$modalInstance',function($scope, $modalInstance){
-		//default selection type
-		$scope.params={
-			defaultValue:"",
-			name:"",
-			description:""
-		};
-	   $scope.selectionType='';
-
-		$scope.cancel = function() {
-			$modalInstance.dismiss('cancel');
-		};
-		$scope.ok=function(){
-			var v=$scope.params;
-			if($scope.selectionType && v.defaultValue && v.name && v.description){
-				$scope.params.parameterName=$scope.selectionType;
-				if($scope.params.parameterName === "Choice"){
-					$scope.params.defaultValue = $scope.params.defaultValue.split(',');	
-				}else{
-					$scope.params.defaultValue=$scope.params.defaultValue;	
+		.controller('addJenkinsParamsCtrl',['$scope', '$modalInstance',function($scope, $modalInstance){
+			//default selection type
+			$scope.params={
+				defaultValue:"",
+				name:"",
+				description:""
+			};
+		   $scope.selectionType='';
+			$scope.cancel = function() {
+				$modalInstance.dismiss('cancel');
+			};
+			$scope.ok=function(){
+				var v=$scope.params;
+				if($scope.selectionType && v.defaultValue && v.name && v.description){
+					$scope.params.parameterName=$scope.selectionType;
+					if($scope.params.parameterName === "Choice"){
+						$scope.params.defaultValue = $scope.params.defaultValue.split(',');	
+					}else{
+						$scope.params.defaultValue=$scope.params.defaultValue;	
+					}
+					$modalInstance.close($scope.params);
 				}
-				$modalInstance.close($scope.params);
-			}
-			else{
-				alert('Please fill appropriate values.');
-			}
-		};
-	}]);
-})();
+				else{
+					alert('Please fill appropriate values.');
+				}
+			};
+		}
+	]);
+})(angular);
 

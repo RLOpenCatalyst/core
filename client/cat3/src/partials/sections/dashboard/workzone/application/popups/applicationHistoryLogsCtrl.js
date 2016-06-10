@@ -5,17 +5,15 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
    "use strict";
 	angular.module('workzone.application')
 		.controller('applicationHistoryLogsCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'workzoneEnvironment', 'items', function($scope, $modalInstance, workzoneServices, workzoneEnvironment, items) {
-			
 			angular.extend($scope, {
 				cancel: function() {
 					$modalInstance.dismiss('cancel');
 				},
 			});
-
 			workzoneServices.getApplicationHistoryLogs(items._id).then(function(response) {
 				$scope.logList = response.data;
 			}, function(response) {
@@ -23,4 +21,4 @@
 			});
 		}
 	]);
-})();
+})(angular);

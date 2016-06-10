@@ -5,13 +5,12 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
    "use strict";
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchCtrl', ['$scope', '$rootScope', '$modalInstance', 'bpItem', 'workzoneServices', 'workzoneEnvironment', 'instanceLogs', function($scope, $rootScope, $modalInstance, bpItem, workzoneServices, workzoneEnvironment, instanceLogs) {
 			$scope.isBPLogsLoading = true;
 			$scope.isNewInstanceLogsPromise = false;
-			
 			var helper = {
 				showNewInstanceLogs: function(newInstanceId){
 					var promise = instanceLogs.showInstanceLogs(newInstanceId);
@@ -52,7 +51,6 @@
 							msgStr += '. You can monitor logs from the Launched Instances.';
 						}
 					}
-
 					return {
 						message: msgStr,
 						isSuccess:isSuccess
@@ -124,4 +122,4 @@
 			});
 		}
 	]);
-})();
+})(angular);

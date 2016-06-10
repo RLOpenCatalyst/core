@@ -30,8 +30,6 @@
 					'<i class="expand-collapse click-collapse fa fa-angle-down collapse-spacing" data-ng-show="node.' + nodeChildren + '.length && !node.collapsed" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
 					'<i class="fa fa-fw collapse-spacing" data-ng-hide="node.' + nodeChildren + '.length"></i>' +
 					'<i class="{{getClass(node)}}" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>'+
-					
-					/*'<i class="normal" data-ng-hide="node.' + nodeChildren + '.length" data-ng-click="' + treeId + '.selectNodeHead(node)"></i> ' +*/
 					'<span data-ng-class="node.selected" data-nodetype="{{getNodeType(node)}}" data-ng-click="' + treeId + '.selectNodeLabel(node)" id="{{node.rowid}}">{{node.' + nodeLabel + '}}</span>' +
 					'<i class="caret-spacing fa fa-caret-left pull-right" data-ng-show="node.selected"></i>' +
 					'<div data-ng-hide="node.collapsed" data-tree-id="' + treeId + '" data-tree-model="node.' + nodeChildren + '" data-node-id=' + nodeId + ' data-node-label=' + nodeLabel + ' data-node-children=' + nodeChildren + '></div>' +
@@ -39,19 +37,15 @@
 					'</li>' +
 					'</ul>';
 
-
 				//check tree id, tree model
 				if (treeId && treeModel1) {
 
 					//root node
 					if (attrs.angularTreeview) {
-
 						//create tree object if not exists
 						scope[treeId] = scope[treeId] || {};
-
 						//if node head clicks,
 						scope[treeId].selectNodeHead = scope[treeId].selectNodeHead || function(selectedNode) {
-
 							//Collapse or Expand
 							selectedNode.collapsed = !selectedNode.collapsed;
 							scope[treeId].selectNodeHeadCallback(selectedNode);
