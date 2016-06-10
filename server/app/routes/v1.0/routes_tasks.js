@@ -23,6 +23,7 @@ var Application = require('_pr/model/classes/application/application');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var logger = require('_pr/logger')(module);
+var taskService = require('_pr/services/taskService.js')
 
 
 
@@ -91,11 +92,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.post('/tasks/:taskId/run', function(req, res) {
+        var taskId = req.params.taskId;
+        var user = req.session.user.cn;
+        var hostProtocol = req.protocol + '://' + req.get('host');
         var choiceParam = req.body.choiceParam;
-        logger.debug("Choice Param::: ", choiceParam);
-        var nexusData = req.body.nexusData;
-        logger.debug("nexusData: ", JSON.stringify(nexusData));
-        Tasks.getTaskById(req.params.taskId, function(err, task) {
+        var appData = req.body.appData;
+        /*Tasks.getTaskById(req.params.taskId, function(err, task) {
 
             if (err) {
                 logger.error(err);
@@ -119,7 +121,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.send(taskRes);
             });
         });
-
+        */
+        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, function(err, historyData) {
+            if (err === 404) {
+                res.status(404).send("Task not found.");
+                return;
+            } else if(err) {
+                logger.error("Failed to execute task.", err);
+                res.status(500).send("Failed to execute task.");
+                return;
+            }
+            logger.debug("Returned historyData: ", JSON.stringify(historyData));
+            historyData['taskId'] = taskId;
+            res.status(200).send(historyData);
+        });
     });
 
     app.delete('/tasks/:taskId', function(req, res) {

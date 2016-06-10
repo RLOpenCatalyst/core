@@ -22,7 +22,6 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var instancesDao = require('_pr/model/classes/instance/instance');
 var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var waitForPort = require('wait-for-port');
 var uuid = require('node-uuid');
 var taskStatusModule = require('_pr/model/taskstatus');
@@ -34,10 +33,11 @@ var Puppet = require('_pr/lib/puppet');
 var validate = require('express-validation');
 var tagsValidator = require('_pr/validators/tagsValidator');
 var instanceValidator = require('_pr/validators/instanceValidator');
-var	providerService = require('_pr/services/providerService');
+var providerService = require('_pr/services/providerService');
 var instanceService = require('_pr/services/instanceService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 
 
@@ -86,21 +86,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/managedInstances', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'managedInstances',function(err, paginationReq){
+		apiUtil.paginationRequest(req.query,'managedInstances',function(err, paginationReq){
 			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				res.status(400).send(apiUtil.errorResponse(400,'queryParams'));
 				return;
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='managedInstances';
 			instancesDao.getByProviderId(paginationReq, function(err, managedInstances) {
 				if (err) {
-					res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+					res.status(400).send(apiUtil.errorResponse(400,'paginationResponse'));
 					return;
 				}
-				ApiUtils.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
+				apiUtil.paginationResponse(managedInstances,paginationReq,function(err, paginationRes){
 					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+						res.status(400).send(apiUtil.errorResponse(400,'paginationResponse'));
 						return;
 					}
 					res.status(200).send(paginationRes);
@@ -111,21 +111,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	// @TODO To be refactored and API end point to be changed
 	app.get('/providers/:providerId/unmanagedInstances', function(req, res) {
-		ApiUtils.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
+		apiUtil.paginationRequest(req.query,'unmanagedInstances',function(err, paginationReq){
 			if (err) {
-				res.status(400).send(ApiUtils.errorResponse(400,'queryParams'));
+				res.status(400).send(apiUtil.errorResponse(400,'queryParams'));
 				return;
 			}
 			paginationReq['providerId']=req.params.providerId;
 			paginationReq['id']='unmanagedInstances';
 			unManagedInstancesDao.getByProviderId(paginationReq, function(err, unmanagedInstances) {
 					if (err) {
-						res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+						res.status(400).send(apiUtil.errorResponse(400,'paginationResponse'));
 						return;
 					}
-					ApiUtils.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
+					apiUtil.paginationResponse(unmanagedInstances,paginationReq,function(err, paginationRes){
 						if (err) {
-							res.status(400).send(ApiUtils.errorResponse(400,'paginationResponse'));
+							res.status(400).send(apiUtil.errorResponse(400,'paginationResponse'));
 							return;
 						}
 						res.status(200).send(paginationRes);
@@ -142,7 +142,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	                AWSProvider.getAWSProviderById(req.params.providerId,next);
 				},
 				function(next) {
-	                ApiUtils.paginationRequest(req.query,next);
+	                apiUtil.paginationRequest(req.query,next);
 				},
 				function(paginationReq, next) {
 	                paginationReq['providerId']=req.params.providerId;
@@ -1587,5 +1587,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 		);
 	}
-
 };

@@ -47,7 +47,9 @@ var SCPClient = require('_pr/lib/utils/scp');
 var shellEscape = require('shell-escape');
 var Puppet = require('_pr/lib/puppet.js');
 var masterUtil = require('_pr/lib/utils/masterUtil');
+var containerService = require('_pr/services/containerService');
 var fs = require('fs');
+var containerDao = require('_pr/model/container');
 var providerService = require('_pr/services/providerService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
@@ -358,14 +360,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
+            containerDao.deleteContainerByInstanceId(req.params.instanceId,function(err,container){
                 if (err) {
-                    logger.error("Instance deletion Failed >> ", err);
+                    logger.error("Container deletion Failed >> ", err);
                     res.status(500).send(errorResponses.db.error);
                     return;
+                }else{
+                    instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
+                        if (err) {
+                            logger.error("Instance deletion Failed >> ", err);
+                            res.status(500).send(errorResponses.db.error);
+                            return;
+                        }
+                        logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
+                        res.send(200);
+                    });
                 }
-                logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
-                res.send(200);
             });
         }
     });
@@ -473,7 +483,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var _docker = new Docker();
         var stdmessages = '';
         var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
-        console.log("Durgesh Sharma");
         logger.debug('cmd received: ', cmd);
         var stdOut = '';
         _docker.runDockerCommands(cmd, instanceid, function(err, retCode) {
@@ -515,10 +524,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         }, function(stdOutData) {
             stdOut += stdOutData;
+
         }, function(stdOutErr) {
             logger.error("Error hits to fetch docker details", stdOutErr);
             res.send(500);
         });
+        console.log(stdOut);
         logger.debug("Exit get() for /instances/dockercontainerdetails/%s", req.params.instanceid);
 
     });
@@ -592,96 +603,56 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
     app.get('/instances/dockercontainerdetails/:instanceid/:containerid/:action', function(req, res) {
-        logger.debug("Enter get() for /instances/dockercontainerdetails/%s/%s/%s", req.params.instanceid, req.params.containerid, req.params.action);
-        var instanceid = req.params.instanceid;
-        var _docker = new Docker();
-        var stdmessages = '';
-        //Command mapping for security
-        var action = 'start';
-        var action1 = action;
-        switch (req.params.action) {
-            case "1":
+        var actionId = parseInt(req.params.action);
+        var action, action1;
+        switch (actionId) {
+            case 1:
                 action = 'start';
                 action1 = 'start';
                 break;
-            case "2":
+            case 2:
                 action = 'stop';
+                action1 = 'start';
                 break;
-            case "3":
+            case 3:
                 action = 'restart';
                 action1 = 'start';
                 break;
-            case "4":
+            case 4:
                 action = 'pause';
                 action1 = 'start';
                 break;
-            case "5":
+            case 5:
                 action = 'unpause';
                 action1 = 'start';
                 break;
-            case "6":
+            case 6:
                 action = 'delete';
                 action1 = 'terminate';
                 break;
+            default:
+                action = 'start';
+                action1 = 'start';
+                break;
         }
 
-        var cmd = 'sudo docker ' + action + ' ' + req.params.containerid;
-        if (action == 'delete') {
-            cmd = 'sudo docker stop ' + req.params.containerid + ' &&  sudo docker rm ' + req.params.containerid;
-        }
+        var jsonData = {
+            instanceId: req.params.instanceid,
+            containerId: req.params.containerid,
+            action: action,
+            action1: action1,
+            user: req.session.user,
+            permissionSet: req.session.user.permissionset,
+        };
+        containerService.executeActionOnContainer(jsonData, function(err, containerResponse) {
+            if (err) {
+                logger.error("Failed to Execute Docker command: ", err);
+                res.send(500);
+                return;
+            }
+            res.status(200).send(containerResponse);
 
-        logger.debug('cmd received: ', cmd);
-        var stdOut = '';
-        logger.debug('Verifying User permission set for execute.');
-        var user = req.session.user;
-        var category = 'dockercontainer' + action1;
-        var permissionto = 'execute';
-        usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
-            if (!err) {
-                logger.debug('Returned from haspermission :  launch ' + data + ' , Condition State : ' + (data == false));
-                if (data == false) {
-                    logger.debug('No permission to ' + permissionto + ' on ' + category);
-                    res.send(401);
-                    return;
-                } else {
-                    _docker.runDockerCommands(cmd, instanceid, function(err, retCode) {
-                        if (!err) {
-                            logsDao.insertLog({
-                                referenceId: instanceid,
-                                err: false,
-                                log: "Container  " + req.params.containerid + " Action :" + action,
-                                timestamp: new Date().getTime()
-                            });
-                            logger.debug("Exit get() for /instances/dockercontainerdetails/%s/%s/%s", req.params.instanceid, req.params.containerid, req.params.action);
-                            res.send(200);
-                        } else {
-                            logger.error("Action Error : ", err);
-                            logsDao.insertLog({
-                                referenceId: instanceid,
-                                err: true,
-                                log: "Action Error : " + err,
-                                timestamp: new Date().getTime()
-                            });
-                            logger.error("Error hits while running Docker Command: ", err);
-                            res.send(500);
-                        }
-
-                    }, function(stdOutData) {
-                        stdOut += stdOutData;
-                        logsDao.insertLog({
-                            referenceId: instanceid,
-                            err: false,
-                            log: "Container  " + req.params.containerid + ":" + stdOutData,
-                            timestamp: new Date().getTime()
-                        });
-                    }, function(stdOutErr) {
-                        logger.error("Error hits while running Docker Command: ", err);
-                        res.send(500);
-                    });
-                } //else haspermission
-            } //if !err
-        }); //haspermission
-
+        });
     });
     app.get('/instances/checkfordocker/:instanceid', function(req, res) {
         logger.debug("Enter get() for /instances/checkfordocker/%s", req.params.instanceid);
@@ -3361,11 +3332,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         instancesDao.getInstanceIdsByIPs(req.body.ipAddress, function(err, instanceIds) {
             if (err) {
                 logger.error("Failed to fetch ActionLogs: ", err);
-                res.send(500);
+                res.status(500).send(err);
                 return;
             }
             res.send(instanceIds);
         });
 
     });
+
+    app.get('/instances/instanceIds/list', function(req, res) {
+        var instanceIds = (req.query.ids).split(",");
+        instancesDao.getInstancesByIDs(instanceIds, function(err, instances) {
+            if (err) {
+                logger.error("Failed to fetch Instance  via Ids: ", err);
+                res.status(500).send(err);
+                return;
+            }
+            res.send(instances);
+        });
+
+    });
+
 };

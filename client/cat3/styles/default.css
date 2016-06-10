@@ -1,0 +1,85 @@
+/*===== OVERRIDING BOOTSTRAP CSS ==========*/
+.main-container {
+	padding: 12px 12px 42px 12px;
+	border: 1px solid #ccc;
+	margin-top: 3px;
+	margin-bottom: 5px;
+}
+
+.container-fluid, .container {
+	padding-right: 0px;
+	padding-left: 0px;
+}
+
+.row {
+	margin-right: 0px; 
+	margin-left: 0px;
+}
+
+ul li {
+	list-style-type: none;
+}
+
+/*===== OVERRIDING BOOTSTRAP CSS ==========*/
+
+body {
+	font-family: "Helvetica Neue", Helvetica,Arial,sans-serif; 
+	font-size: 14px; 
+	line-height: 1.42857; 
+	color: #333;
+	overflow-y: hidden;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+	float: right;
+	text-align: right;
+	padding-top: 0.25em;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+	border: 1px solid rgb(202, 202, 202);
+	border-image-source: initial;
+	border-image-slice: initial;
+	border-image-width: initial;
+	border-image-outset: initial;
+	border-image-repeat: initial;
+	background: linear-gradient(white 0%, rgb(220, 220, 220) 100%);
+	color: rgb(51, 51, 51);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+	box-sizing: border-box;
+	display: inline-block;
+	min-width: 1.5em;
+	padding: 0.5em 1em;
+	margin-left: 2px;
+	text-align: center;
+	cursor: pointer;
+	border: 1px solid transparent;
+	font-size: 14px;
+}
+
+.form-control, .input-lg, .input-sm, .input-xs {
+	border-radius: 0 !important;
+}
+
+form.cmxform label {
+	color: #333;
+}
+
+form.cmxform {
+	font-size: 0.9em;
+}
+
+.modal-content { 
+	border-radius: 0px !important;
+}
+
+.appDesignNew {
+	margin-top: 10px;
+	margin-right: 12px;
+}
+
+.table-bordered {
+	width: 100% !important;
+ }

@@ -270,11 +270,17 @@ module.exports.setRoutes = function(app) {
                         }
                     } else {
                         req.session.destroy();
+                        if (req.body.authType === 'token') {
+                            return res.status(400).send({
+                                message: "Invalid username or password"
+                            });
+                        }
                         res.redirect('/public/login.html?o=try');
                     }
                 });
             }
         } else {
+            req.session.destroy();
             if (req.body.authType === 'token') {
                 return res.status(400).send({
                     message: "Invalid username or password"
@@ -305,7 +311,7 @@ module.exports.setRoutes = function(app) {
                 });
             });
         } else {
-            res.redirect('/public/login.html');
+            res.redirect('/');
         }
 
     });
@@ -353,15 +359,9 @@ module.exports.setRoutes = function(app) {
         res.send(req.session.cuserrole);
     });
 
-    app.get('/auth/getpermissionset', function(req, res) {
-        logger.debug('hit permissionset ' + req.session.user.cn);
-        if (req.session.user.password)
-            delete req.session.user.password;
-        logger.debug("Return User from session:>>>> ", JSON.stringify(req.session.user));
-        res.send(JSON.stringify(req.session.user));
-    });
 
-    var verifySession = function(req, res, next) {
+
+    var verifySession = function verifySession(req, res, next) {
         if (req.session && req.session.user) {
             next();
         } else {
@@ -403,6 +403,19 @@ module.exports.setRoutes = function(app) {
             res.send(403);
         }
     }
+
+    app.get('/auth/getpermissionset', verifySession, function(req, res) {
+        logger.debug('hit permissionset ');
+        if (req && req.session && req.session.user && req.session.user.password)
+            delete req.session.user.password;
+        if (req && req.session && req.session.user) {
+            logger.debug("Return User from session:>>>> ", JSON.stringify(req.session.user));
+            res.send(JSON.stringify(req.session.user));
+            return;
+        } else {
+            res.send({});
+        }
+    });
 
     return {
         sessionVerificationFunc: verifySession,
