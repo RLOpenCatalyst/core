@@ -8,25 +8,26 @@
 (function(angular) {
 	"use strict";
 	angular.module('workzone.instance')
-	.controller('updateChefRunlistConfirmationCtrl', ['$scope', '$modalInstance', 'workzoneServices', '$rootScope', 'items', function($scope, $modalInstance, workzoneServices, $rootScope, items) {
-		var instance_id = items.instanceId;
-		angular.extend($scope,{
-			ok: function () {
-				var reqBody = items.taskJSON;
-				$scope.isSubmitLoading = true;
-				workzoneServices.updateChefRunlist(instance_id, reqBody).then(function () {
-					$scope.isSubmitLoading = false;
-					$modalInstance.close();
-				}, function(error){
-					$scope.isSubmitLoading = false;
-					if(error.responseText){
-						$scope.chefRunErrorMessage = error.responseText;
-					}
-				});
-			},
-			cancel: function() {
-				$modalInstance.dismiss('cancel');
-			}
-		});
-	}]);
+		.controller('updateChefRunlistConfirmationCtrl', ['$scope', '$modalInstance', 'workzoneServices', '$rootScope', 'items', function($scope, $modalInstance, workzoneServices, $rootScope, items) {
+			var instance_id = items.instanceId;
+			angular.extend($scope,{
+				ok: function () {
+					var reqBody = items.taskJSON;
+					$scope.isSubmitLoading = true;
+					workzoneServices.updateChefRunlist(instance_id, reqBody).then(function () {
+						$scope.isSubmitLoading = false;
+						$modalInstance.close();
+					}, function(error){
+						$scope.isSubmitLoading = false;
+						if(error.responseText){
+							$scope.chefRunErrorMessage = error.responseText;
+						}
+					});
+				},
+				cancel: function() {
+					$modalInstance.dismiss('cancel');
+				}
+			});
+		}
+	]);
  })(angular);

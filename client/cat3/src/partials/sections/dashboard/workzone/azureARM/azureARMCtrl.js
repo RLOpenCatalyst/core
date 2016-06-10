@@ -85,7 +85,6 @@
 							}
 						}
 					});
-
 					modalInstance.result.then(function(){                                
 						$scope.arms.splice(index,1);
 					},function(){

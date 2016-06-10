@@ -5,7 +5,7 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
    "use strict";
 	angular.module('workzone.blueprint')
 		.controller('removeBlueprintCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
@@ -30,4 +30,4 @@
 			};
 		}
 	]);
-})();
+})(angular);
