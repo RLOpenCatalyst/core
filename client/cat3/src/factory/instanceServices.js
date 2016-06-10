@@ -8,7 +8,6 @@
 (function(angular) {
 	"use strict";
 	angular.module('instanceServices', [
-
 	]).service('instanceLogs', ['$modal', '$q', 'workzoneServices', '$timeout', 'instanceSetting', function($modal, $q, workzoneServices, $timeout, instanceSetting) {
 		var instanceId;
 		var serviceInterface = {};
@@ -68,7 +67,6 @@
 		serviceInterface.scrollBottom = function (selector) {
 			selector = selector ? selector : ".logsArea";
 			$timeout(function () {
-				console.log(selector);
 				var elm = angular.element(selector);
 				elm.scrollTop(elm[0].scrollHeight);
 			}, 100);
@@ -84,7 +82,6 @@
 		isRunning = function(inst) {
 			return inst.instanceState === 'running';
 		};
-
 		//condition check for RDP
 		var isRDPSupportOS = function(inst) {
 			if ((inst.hardware.os === 'windows')) {
