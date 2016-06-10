@@ -20,6 +20,10 @@
 					helper.stopPolling();
 				}
 			});
+			// broadcast the cancel function to the parent controller
+			$scope.$on('closeWindow', function() {
+				$scope.$parent.close = $scope.cancel();
+			});
 			var chefLogData = {
 				chefHistoryItem: {},
 				nodeIdsWithActionLog: {}
@@ -33,6 +37,12 @@
 						return lastTime;
 					}
 				},
+				scrollBottom : function () {
+					$timeout(function () {
+						var elm = angular.element(".logsArea");
+						elm.scrollTop(elm[0].scrollHeight);
+					}, 100);
+				},
 				logsPolling: function () {
 					timerObject = $timeout(function () {
 						workzoneServices.getChefJobLogs($scope.selectedInstance.nodeId, $scope.selectedInstance.actionLogId, helper.lastTimeStamp).then(function (resp) {
@@ -43,6 +53,7 @@
 								};
 								helper.lastTimeStamp = helper.getlastTimeStamp(logData.logs);
 								$scope.logListDelta.push.apply($scope.logListDelta, logData.logs);
+								helper.scrollBottom();
 							}
 							helper.logsPolling();
 						});
@@ -141,6 +152,7 @@
 							fullLogs: true
 						};
 						$scope.logListInitial = logData.logs;
+						helper.scrollBottom();
 					}, function (error) {
 						$scope.isLogsLoading = false;
 						console.log(error);
@@ -161,6 +173,7 @@
 							fullLogs: true
 						};
 						$scope.logListInitial = logData.logs;
+						helper.scrollBottom();
 					}, function (error) {
 						$scope.isLogsLoading = false;
 						console.log(error);

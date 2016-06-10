@@ -34,13 +34,14 @@
 						{ name:'Job Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="task-type-img" />'+
 						'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="task-type-img" />'+
 						'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="task-type-img" />'+
+						'<img src="images/orchestration/script.jpg" ng-show="row.entity.taskType==\'script\'" alt="{{row.entity.taskType}}" class="task-type-img" />'+
 						'<img src="images/global/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="task-type-img">',cellTooltip: true},
 						{ name:'Name',field:'name',cellTooltip: true},
 						{ name:'Job Description',field:'description',cellTooltip: true},
 						{ name:'Job Links',width:100, enableSorting: false , cellTemplate:'<div>'+
 						'<span ng-show="row.entity.taskType===\'chef\'">'+
 						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
-						'<span title="Assigned Runlists" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
+						'<span title="Assigned Runlists" class="fa fa-list-ul assigned-runlists cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
 						'</span>'+
 						'<span ng-show="row.entity.taskType===\'jenkins\'">'+
 						'<a target="_blank" title="Jenkins" ng-href="{{row.entity.taskConfig.jobURL}}">'+
@@ -50,6 +51,7 @@
 						'<span ng-show="row.entity.taskType==\'puppet\'">'+
 						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
 						'</span>'+
+						'<span ng-show="row.entity.taskType===\'script\'"> NA </span>'+
 						'</div>' ,cellTooltip: true},
 						{ name:'Execute',width: 90, enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
 						{ name:'History',width: 90, enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},

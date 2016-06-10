@@ -29,6 +29,7 @@
 								$scope.logListDelta.push.apply($scope.logListDelta, notifyMessage.logs);
 							}
 						}
+						instanceLogs.scrollBottom();
 					});
 				}
 			};

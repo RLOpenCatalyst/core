@@ -175,8 +175,7 @@
 					return $http.get(fullUrl(url), Auth.getHeaderObject);
 				},
 				getActionHistoryLogs: function (instanceId, actionId) {
-					var url = "/instances/" + instanceId + '/actionLogs/' + actionId +
-							'/logs';
+					var url = "/instances/" + instanceId + '/actionLogs/' + actionId + '/logs';
 					return $http.get(fullUrl(url), Auth.getHeaderObject);
 				},
 				getInstanceDetails: function (instanceId) {
@@ -207,8 +206,7 @@
 					return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
 				},
 				updateAppUrl: function (instanceId, appUrlId, reqBody) {
-					var url = '/instances/' + instanceId + '/appUrl/' + appUrlId +
-							'/update';
+					var url = '/instances/' + instanceId + '/appUrl/' + appUrlId + '/update';
 					return $http.post(fullUrl(url), reqBody, appUrlId, Auth.getHeaderObject());
 				},
 				deleteAppUrl: function (instanceId, appUrlId) {
@@ -223,8 +221,7 @@
 					return $http.post(fullUrl(url), reqBody, Auth.getHeaderObject());
 				},
 				getDoServiceActionOnInstance: function (instanceId, serviceRowId, actionType) {
-					var url = '/instances/' + instanceId + '/services/' + serviceRowId +
-							'/' + actionType;
+					var url = '/instances/' + instanceId + '/services/' + serviceRowId + '/' + actionType;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				deleteServiceOnInstance: function (instanceId, serviceRowId) {
@@ -304,6 +301,10 @@
 					var url = '/organizations/' + p.org + '/businessgroups/' + p.bg +
 							'/projects/' + p.proj + '/environments/' + p.env + '/tasks';
 					return $http.post(fullUrl(url), data, Auth.getHeaderObject());
+				},
+				postFileUpload: function(data,postFormat) {
+					var url = '/task/uploadScript';
+					return $http.post(fullUrl(url), data, postFormat, Auth.getHeaderObject());
 				},
 				updateTask: function (data, id) {
 					var url = '/tasks/' + id + '/update';
