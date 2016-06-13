@@ -12,7 +12,10 @@
 		$scope.isViewNodesLoading = true;
 		var historyItem = items.taskConfig;
 		$scope.taskInstanceList = [];
-		workzoneServices.postRetrieveDetailsForInstanceNames(historyItem.nodeIds).then(function(response) {
+		var requestObj = {
+            "instanceIds": historyItem.nodeIds
+        };
+		workzoneServices.postRetrieveDetailsForInstanceNames(requestObj).then(function(response) {
 			var _allInstances = response.data;
 			var _taskInstanceList = [];
 			//This API is now returning all instances & not the list of instances which are requested in input. 

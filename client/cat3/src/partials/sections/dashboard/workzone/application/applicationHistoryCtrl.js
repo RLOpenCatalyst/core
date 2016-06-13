@@ -9,7 +9,7 @@
     "use strict";
     angular.module('workzone.application').controller('applicationHistoryCtrl', ['$scope', '$rootScope', 'workzoneServices','uiGridOptionsServices', 'workzoneUIUtils', function ($scope, $rootScope, workzoneServices, uiGridOptiSer, workzoneUIUtils) {
         var gridOpt=uiGridOptiSer.options();
-        var gridBottomSpace = 30;
+        var gridBottomSpace = 5;
             angular.extend($scope, {
                 pagiOptionsHistory :gridOpt.pagination,
                 historGgridData:[],

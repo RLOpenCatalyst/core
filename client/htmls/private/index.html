@@ -480,8 +480,9 @@ function locationClick(){
 function setleftnavigation(toplink, breadcrumbHeader) {
     var TabID = $(toplink).attr('id');
     if (TabID === "workZoneNew") {
-        locationClick();
+        
         if(isAngularIntegration){
+		  locationClick();
           return false;
         }
         loadTreeFuncNew();
@@ -596,15 +597,7 @@ var SettingTreeJson = [{
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-tags"
 
-        }, {
-            "name": "organizations",
-            "text": "Chef Server",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/ConfigManagementList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-random"
-
-        }, {
+        },{
             "name": "organizations",
             "text": "Environments",
             "borderColor": "#000",
@@ -613,7 +606,6 @@ var SettingTreeJson = [{
             "icon": "fa fa-lg fa-fw fa-tint",
             "parent": "devops",
             "nodetype": "EnvironmentConceptList"
-
         }],
         "borderColor": "#000",
         "selectable": false,
@@ -621,19 +613,34 @@ var SettingTreeJson = [{
 
 
     }, {
+        "name": "config setup",
+        "text": "Config Setup",
+        "nodes": [{
+            "name": "organizations",
+            "text": "Chef Server",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ConfigManagementList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-random"
+        }, {
+            "name": "organizations",
+            "text": "Puppet Server",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/PuppetServerList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-random"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa-lg fa-fw fa fa-tachometer"
+    },  {
         "name": "devopssetup",
         "text": "DevOps Setup",
         "icon": "fa fa-lg fa-fw fa-qrcode",
         "nodetype": "devops",
         "nodes": [{
-                "name": "organizations",
-                "text": "Puppet Server",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/PuppetServerList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-random"
-
-            }, {
                 "name": "organizations",
                 "text": "Nexus Server",
                 "borderColor": "#000",
@@ -1111,12 +1118,17 @@ checkandnavigatetotab = function() {
 //Commented for angular integration
 if (isAngularIntegration) {
 //Angular Change - condition added for manual refresh error when the user is in some settings page and refreshes it.
-  var tabSelected = $('#settingsNew').attr('id');
-  if (tabSelected) {
-      var url = window.location.href;
-      if (url.indexOf('#ajax/Settings/') !== -1) {
-          window.location = '#ajax/Settings/Dashboard.html';
-      }
+  var tabSelected;
+  var url = window.location.href;
+  if (tabSelected = $('#settingsNew').attr('id')) {
+    if (url.indexOf('#ajax/Settings/') !== -1) {
+        window.location = '#ajax/Settings/Dashboard.html';
+    }
+  }
+  if(tabSelected = $('#designNew').attr('id')) {
+    if (url.indexOf('#ajax/DesignBlueprintAzure.html') !== -1 || url.indexOf('#ajax/DesignBlueprint.html')!== -1 || url.indexOf('#ajax/DesignBlueprintVmware.html') !== -1) {
+        window.location = '#ajax/Aws-Production.html';
+    } 
   }
 } else{
   checkandnavigatetotab();

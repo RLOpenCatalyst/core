@@ -240,10 +240,10 @@ BlueprintSchema.methods.launch = function(opts, callback) {
     masterUtil.getParticularProject(self.projectId,function(err,project){
         if (err) {
             callback({
-                message: "Failed to get project from project id"
+                message: "Failed to get project via project id"
             }, null);
             return;
-        }
+        };
         if (project.length === 0) {
             callback({
                 "message": "Unable to find Project Information from project id"
@@ -256,13 +256,13 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                     message: "Failed to get env name from env id"
                 }, null);
                 return;
-            }
+            };
             if (!envName) {
                 callback({
                     "message": "Unable to find environment name from environment id"
                 });
                 return;
-            }
+            };
             configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
                 if (err) {
                     logger.error("Failed to getChefServerDetails", err);
@@ -270,14 +270,14 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                         message: "Failed to getChefServerDetails"
                     }, null);
                     return;
-                }
+                };
                 if (!chefDetails) {
                     logger.error("No CHef Server Detailed available.", err);
                     callback({
                         message: "No Chef Server Detailed available"
                     }, null);
                     return;
-                }
+                };
                 var chef = new Chef({
                     userChefRepoLocation: chefDetails.chefRepoLocation,
                     chefUserName: chefDetails.loginname,
@@ -900,10 +900,8 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
             callback(err, null);
             return;
         }
-
         //function will cleanup the blueprint array and inject version object.
         var blueprints1 = consolidateVersionOnBlueprint(blueprints);
-
         callback(null, blueprints1);
 
     });

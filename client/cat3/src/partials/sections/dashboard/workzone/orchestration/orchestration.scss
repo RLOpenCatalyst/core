@@ -139,8 +139,8 @@ $imagePath : "../../../../../../images";
 		height: 20px;
 	}
 
-	.jenkins-img {
-		width: 31px;
+	.task-type-img {
+		width: 27px;
 	}
 
 	.task-section {
@@ -153,11 +153,16 @@ $imagePath : "../../../../../../images";
 
 	.chef-assign-nodes {
 		font-size: 20px;
-		margin-left: 5px;
+		margin-left: 10px;
 	}
 
 	.panel-title{
 		margin-right: 15px;
+	}
+
+	.tableactionbutton {
+		border-radius: 50%;
+		padding: 2px 8px;
 	}
 }
 
@@ -373,6 +378,10 @@ $imagePath : "../../../../../../images";
 	.marginbottomright3 {
 		margin: 0 3px 3px 0;
 	}
+
+	.tableactionbutton {
+		border-radius: 50%;
+	}
 }
 
 #jenkinLogPage {
@@ -392,10 +401,6 @@ $imagePath : "../../../../../../images";
 .control-label {
 	font-size: 12px;
 	font-weight: normal;
-}
-
-.tableactionbutton {
-	border-radius: 50%;
 }
 
 .marginleft10 {

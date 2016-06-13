@@ -59,8 +59,7 @@ AuthTokenSchema.statics.createNew = function(sessionData, callback) {
         sessionData: sessionData
     });
 
-    logger.debug('auth == > ', authToken);
-
+   
     authToken.save(function(err, data) {
         if (err) {
             logger.error(err);

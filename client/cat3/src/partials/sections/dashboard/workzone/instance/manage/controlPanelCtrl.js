@@ -19,7 +19,10 @@
             tab : 'none',
             setTab : function (tabId) {
                 $scope.tileView = false;
-                _tab.tab = tabId;     
+                _tab.tab = tabId;
+                if(tabId==='Logs') {
+                    instanceLogs.scrollBottom();
+                }     
             },
             isSet : function (tabId) {
                 return _tab.tab === tabId;

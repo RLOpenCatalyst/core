@@ -1,5 +1,4 @@
 {
-
     "name": "Catalyst",
     "version": "0.0.1",
     "description": "DevOps Platform for DevOps",
@@ -64,7 +63,13 @@
         "apidoc": "0.15.1",
         "async": "v1.5.2",
         "joi": "8.0.5",
-        "lodash.topairs": "4.1.0"
+        "jsonwebtoken": "6.2.0",
+        "gcloud": "0.34.0",
+		"lodash.topairs": "4.1.0",
+		"adm-zip":"0.4.7",
+		"fast-csv":"2.0.0",
+		"fs":"0.0.2",
+        "cors": "2.7.1"
     },
     "devDependencies": {
         "grunt": "0.4.5",
@@ -85,4 +90,3 @@
         "url": "https://github.com/RLOpenCatalyst/core"
     }
 }
-

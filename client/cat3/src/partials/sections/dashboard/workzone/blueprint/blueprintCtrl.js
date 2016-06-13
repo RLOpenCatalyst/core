@@ -70,9 +70,8 @@
 			/*Initialising First Accordian-group open on load*/
 			$scope.isFirstOpen = true;
 
-			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
+			$rootScope.$on('WZ_ENV_CHANGE_START', function() {
 				$scope.isBlueprintPageLoading = true;
-				$scope.envParams=requestParams;
 				$scope.blueprintListCards();
 			});
 			
@@ -81,7 +80,7 @@
 					$scope.isBlueprintPageLoading = true;
 					$scope.blueprints = [];
 					// service to get the list of blueprints
-					workzoneServices.getBlueprints($scope.envParams).then(function(result) {
+					workzoneServices.getBlueprints().then(function(result) {
 						var blueprint = result.data;
 						$scope.blueprints = formatData.getFormattedCollection(blueprint);
 						$scope.isBlueprintPageLoading = false;

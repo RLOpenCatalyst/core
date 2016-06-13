@@ -13,8 +13,8 @@
 		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'workzoneUIUtils', 'uiGridOptionsService', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, workzoneUIUtils, uiGridOptiSer) {
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
-			var gridBottomSpace = 60;
-			var gridBottomSpaceSummary = 30;
+			var gridBottomSpace = 5;
+			var gridBottomSpaceSummary = 5;
 			angular.extend($scope, {
 				cardGridData:[],
 				selectedGridRow:[],
@@ -315,10 +315,11 @@
 				}
 			});
 			function removeSelect(){
+				$scope.pipeLineActBarShow =false;
 				$rootScope.selectedCardClass='';
 				$scope.currentTargetId='';
 				angular.element('.card').removeClass('selected-card');
-			};
+			}
 			$rootScope.$on('VIEW-APP-LOGS',function($event,los){
 				$scope.appInfo(los);
 				$event.stopPropagation();

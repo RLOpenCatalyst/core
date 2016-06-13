@@ -73,7 +73,110 @@
 							</td>
 						</tr>
 					</tbody>
-					<tbody ng-show="bpInfo.templateType=='chef' || bpInfo.templateType=='docker'|| bpInfo.templateType=='ami'">
+					<tbody ng-show="(bpInfo.templateType=='chef' || bpInfo.templateType=='docker'|| bpInfo.templateType=='ami') && bpInfo.blueprintConfig.cloudProviderType == 'openstack'">
+						<tr>
+							<td>
+								Subnet ID
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.subnet}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Security Group
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.securityGroup}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Name
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.imageName}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Identifier
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.imageId}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Network
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.network}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Flavour
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.flavor}}
+							</td>
+						</tr>
+					</tbody>
+					<tbody ng-show="(bpInfo.templateType=='chef' || bpInfo.templateType=='docker'|| bpInfo.templateType=='ami') &&bpInfo.blueprintConfig.cloudProviderType == 'vmware'">
+						<tr>
+							<td>
+								Data Store
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.dataStore}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Name
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.imageName}}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Image Identifier
+							</td>
+							<td>
+								&nbsp;&nbsp;:&nbsp;&nbsp;
+							</td>
+							<td>
+								{{bpInfo.blueprintConfig.cloudProviderData.imageId}}
+							</td>
+						</tr>
+					</tbody>
+					<tbody ng-show="(bpInfo.templateType=='chef' || bpInfo.templateType=='docker'|| bpInfo.templateType=='ami') && !(bpInfo.blueprintConfig.cloudProviderType == 'openstack' || bpInfo.blueprintConfig.cloudProviderType == 'vmware')">
 						<tr>
 							<td>
 								Instance Size
@@ -151,7 +254,7 @@
 								{{bpInfo.blueprintConfig.cloudProviderData.instanceAmiid}}
 							</td>
 						</tr>
-						<tr>
+						<tr ng-hide="bpInfo.providerType=='azure'">
 							<td>
 								Keypair Name
 							</td>

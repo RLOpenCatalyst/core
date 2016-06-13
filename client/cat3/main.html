@@ -5,12 +5,12 @@
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 		<meta http-equiv="X-UA-compatible" content="IE=edge">
+		<!-- Library stylesheets -->
 		<link rel="stylesheet" type="text/css" href="styles/font-awesome.css" />
 		<link rel="stylesheet" type="text/css" href="styles/bootstrap.min.css" />
-		<!-- Library stylesheets -->
 		<link rel="stylesheet" type="text/css" href="lib/angular-ui-grid/ui-grid.css" />
-		<link rel="stylesheet" type="text/css" href="styles/default.css" />
 		<!-- Application stylesheets -->
+		<link rel="stylesheet" type="text/css" href="styles/default.css" />
 		<link rel="stylesheet" type="text/css" href="catalyst/partials/global.css" />
 		<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/header/header.css" />
 		<!-- Library scripts -->
@@ -28,7 +28,7 @@
 		<script src="lib/lodash/lodash/lodash.min.js"></script>
 		<script src="lib/ng-file-upload/ng-file-upload.min.js"></script>
 		<!-- Application configuration -->
-		 <script src="uiConfig.js"></script>
+		<script src="uiConfig.js"></script>
 	</head>
 	<body>
 		<div class="globalPopup" id="globalSuccessMessage">
@@ -50,7 +50,7 @@
 				</div>
 				<div id="breadcrumb-nav" class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
 					<ul>
-						<li ng-cloak ng-repeat="item in breadcrumbData">{{ item }}  {{$last ? "" : " > "}}</li>
+						<li ng-cloak ng-repeat="item in breadcrumbData">{{item}} {{$last ? "" : " > "}}</li>
 					</ul>
 				</div>
 			</div>
@@ -135,8 +135,8 @@
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/addJobLinksCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/assignNodesCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/chefLogCtrl.js"></script>
-		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/chefPuppetCompositeLogsCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/compositeLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRunCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/jenkinsLogCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/newTaskCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistoryCtrl.js"></script>
@@ -159,6 +159,5 @@
 		<!-- build:remove:dev,prod,dist-->
 		<script src="catalyst/concatjs/catalyst.js"></script>
 		<!-- /build-->
-	
 	</body>
 </html>

@@ -65,6 +65,14 @@
 			helper.stopPolling();
 			deferred.resolve("Resolved Logs notifier will stop now");
 		};
+		serviceInterface.scrollBottom = function (selector) {
+			selector = selector ? selector : ".logsArea";
+			$timeout(function () {
+				console.log(selector);
+				var elm = angular.element(selector);
+				elm.scrollTop(elm[0].scrollHeight);
+			}, 100);
+		};
 		return serviceInterface;
 	}]).service('instanceActions', [function() {
 		//condition check for SSH

@@ -64,7 +64,9 @@
 				logListInitial: [],
 				logListDelta: [],
 				cancel: function() {
-					$scope.isNewInstanceLogsPromise && instanceLogs.stopLogsPolling();
+					if($scope.isNewInstanceLogsPromise){
+						instanceLogs.stopLogsPolling();
+					}
 					$modalInstance.dismiss('cancel');
 				}
 			});

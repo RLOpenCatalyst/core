@@ -143,13 +143,15 @@ function SSHShell(connectionParamsObj) {
     }
 
     try {
+        logger.debug("connectErr: ",JSON.stringify(connectionParamsObj));
         connection.connect(connectionParamsObj);
     } catch (connectErr) {
+        logger.debug("connectErr-----: ",JSON.stringify(connectErr));
         var errObj = null;
         if (connectErr.message === 'Cannot parse privateKey: Unsupported key format') {
-            errObj = getErrorObj(err, INVALID_CREDENTIALS);
+            errObj = getErrorObj(connectErr, INVALID_CREDENTIALS);
         } else {
-            errObj = getErrorObj(err, UNKOWN_EXCEPTION);
+            errObj = getErrorObj(connectErr, UNKOWN_EXCEPTION);
         }
         process.nextTick(function() {
             self.emit(EVENTS.ERROR, errObj);

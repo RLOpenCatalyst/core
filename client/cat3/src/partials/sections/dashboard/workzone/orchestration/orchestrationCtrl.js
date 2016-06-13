@@ -22,7 +22,7 @@
 			};
 			$scope.perms = _permSet;
 			$scope.isOrchestrationPageLoading = true;
-			var gridBottomSpace = 30;
+			var gridBottomSpace = 5;
 			var orchestrationUIGridDefaults = uiGridOptionsService.options();
 			$scope.paginationParams = orchestrationUIGridDefaults.pagination;
 			$scope.tabData = [];
@@ -31,16 +31,16 @@
 				$scope.orcheGridOptions=angular.extend(orchestrationUIGridDefaults.gridOption,{
 					data : 'tabData',
 					columnDefs : [
-						{ name:'Job Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="jenkins-img" />'+
-						'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="jenkins-img" />'+
-						'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="jenkins-img" />'+
-						'<img src="images/global/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="jenkins-img">',cellTooltip: true},
+						{ name:'Job Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="task-type-img" />'+
+						'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="task-type-img" />'+
+						'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="task-type-img" />'+
+						'<img src="images/global/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="task-type-img">',cellTooltip: true},
 						{ name:'Name',field:'name',cellTooltip: true},
 						{ name:'Job Description',field:'description',cellTooltip: true},
 						{ name:'Job Links',width:100, enableSorting: false , cellTemplate:'<div>'+
 						'<span ng-show="row.entity.taskType===\'chef\'">'+
 						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
-						'<span title="Assign Nodes" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
+						'<span title="Assigned Runlists" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
 						'</span>'+
 						'<span ng-show="row.entity.taskType===\'jenkins\'">'+
 						'<a target="_blank" title="Jenkins" ng-href="{{row.entity.taskConfig.jobURL}}">'+
@@ -103,8 +103,9 @@
 				setPaginationDefaults: function() {
 					$scope.paginationParams.sortBy = 'taskCreatedOn';
 					$scope.paginationParams.sortOrder = 'desc';
-					$scope.setFirstPageView();
-					if($scope.paginationParams.page === 1){
+					if($scope.paginationParams.page !== 1){
+						$scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
+					}else{
 						$scope.taskListGridView();
 					}
 				},
@@ -158,28 +159,34 @@
 								"choiceParam": choiceParam
 							}).then(function(response) {
 								helper.orchestrationLogModal(task._id, response.data.historyId, task.taskType);
-								$rootScope.$emit('WZ_REFRESH_ENV');
+								$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
 							});
 						}, function() {
 							console.log("Dismiss at " + new Date());
 						});
 					} else {
-						//This includes chef,composite and puppet
-						var modalOptions = {
-							closeButtonText: 'Cancel',
-							actionButtonText: 'Ok',
-							actionButtonStyle: 'cat-btn-update',
-							headerText: 'Confirmation',
-							bodyText: 'Are you sure you want to execute this Job?'
-						};
-							confirmbox.showModal({}, modalOptions).then(function() {
-								workzoneServices.runTask(task._id).then(function(response) {
-									helper.orchestrationLogModal(task._id,response.data.historyId,task.taskType);
-								});
-								$rootScope.$emit('WZ_REFRESH_ENV');
-							}, function(response) {
-								console.log('error:: ' + response.toString());
-							});
+                                            
+                                                $modal.open({
+							animation: true,
+							templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRun.html',
+							controller: 'confirmJobRunCtrl',
+							backdrop: 'static',
+							keyboard: false,
+							resolve: {
+								items: function() {
+									return task._id;
+								}
+							}
+						}).result.then(function(response) {
+							helper.orchestrationLogModal(task._id,response.historyId,task.taskType);
+                                                        if(response.blueprintMessage){
+                                                            $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
+                                                        }
+                                                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+						}, function() {
+							console.log("Dismiss at " + new Date());
+                                                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+						});
 						}
 					},
 				getHistory: function(task) {
@@ -272,10 +279,8 @@
 						$scope.isNewClickEnabled = true;
 						if (type === 'new') {
 							$rootScope.globalSuccessMessage = 'New Job ' + taskData.name + ' created successfully';
-							helper.setPaginationDefaults();
 						} else {
 							$rootScope.globalSuccessMessage = taskData.name + ' has been updated successfully';
-							$scope.taskListGridView();
 						}
 						$('#globalSuccessMessage').animate({
 							top: '0'

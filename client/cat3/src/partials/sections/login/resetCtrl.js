@@ -11,13 +11,6 @@
 		function changeAddress(){
 			$location.path('/signin');
 		}
-		function resetRootScope(){
-			for (var prop in $rootScope) {
-				if (prop.substring(0,1) !== '$') {
-					delete $rootScope[prop];
-				}
-			}
-		}
 		$rootScope.app.isDashboard = false;
   		$rootScope.$emit('HIDE_BREADCRUMB');
 		session.destroy();

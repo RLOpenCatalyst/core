@@ -52,7 +52,6 @@
 			setPaginationDefaults: function(){
 				$scope.paginationParams.sortBy = 'instanceCreatedOn';
 				$scope.paginationParams.sortOrder = 'desc';
-				$scope.setFirstPageView();
 				if($scope.paginationParams.page !== 1){
 					$scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
 				}else{
@@ -99,7 +98,7 @@
 
 		/*Setting the paginationParams*/
 		$scope.isInstancePageLoading = true;
-		var gridBottomSpace = 30;
+		var gridBottomSpace = 5;
 		var instanceUIGridDefaults = uiGridOptionsService.options();
 		$scope.paginationParams = instanceUIGridDefaults.pagination;
 		$scope.currentCardPage = instanceUIGridDefaults.pagination.page;
