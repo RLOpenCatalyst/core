@@ -2,7 +2,7 @@
 function getOrgProjBUComparison(data, id) {
     data = JSON.parse(JSON.stringify(data));
     //clearing the select box.
-    $('#envSelect').empty();
+    $('#envSelect').html('');
     $.get("/d4dMasters/readmasterjsonnew/4", function(tdata) {
         var $blueprintReadContainer = $(id);
         var $blueprintLaunch = $(id);
@@ -25,7 +25,8 @@ function getOrgProjBUComparison(data, id) {
             }
             var envNames = tdata[i].environmentname.split(',');
             var envIds = tdata[i].environmentname_rowid.split(',');
-
+            var $spinnerEnv = $('#spinnerForEnv');
+            $spinnerEnv.removeClass('hidden');
             if (envNames.length === envIds.length) {
                 for (var j = 0; j < envNames.length; j++) {
                     if (data.bgId == tdata[i].productgroupname_rowid) {
@@ -35,6 +36,7 @@ function getOrgProjBUComparison(data, id) {
                         }
                     }
                 }
+                $spinnerEnv.addClass('hidden');
             }
         }
     });
@@ -255,7 +257,7 @@ function dockerBlueprintLaunch(data) {
 
                             var $launchDockerInstanceSelector = $('#launchDockerInstanceSelector');
                             var blueprintId = data._id;
-                            var dockerreponame = data.blueprintConfig.dockerRepoName;
+                            //var dockerreponame = data.blueprintConfig.dockerRepoName;
                             $launchDockerInstanceSelector.data('blueprintId', blueprintId);
                             loadInstancesContainerList();
 
@@ -387,7 +389,7 @@ function compositeDockerLaunch(data) {
         var instbpname = $(this).closest('tr').find('.dockerinstanceClass').attr('data-blueprintname');
         var amoreinfo = $(this).closest('tr').find('.moreInfo');
         if (instid)
-            var $that = $(this);
+        var $that = $(this);
         var $td = $that.closest('td');
 
         var tdtext = $td.text();
@@ -406,13 +408,6 @@ function compositeDockerLaunch(data) {
                 $td.find('.moreInfo').first().click(); //showing the log window.
                 $td.find('.dockerspinner').detach();
                 $statmessage.append('<span style="margin-left:5px;text-decoration:none" class="dockermessage"></span>');
-                //Updated from above to move docker image out of circle.
-                $dockericon = $('<img src="img/galleryIcons/Docker.png" alt="Docker" style="width:auto;height:27px;margin-left:96px;margin-top:-105px" class="dockerenabledinstacne"/>');
-                //find the instance card - to do instance table view update
-                var $instancecard = $('div[data-instanceid="' + instid + '"]');
-                if ($instancecard.find('.dockerenabledinstacne').length <= 0) {
-                    $instancecard.find('.componentlistContainer').first().append($dockericon);
-                }
             } else {
                 if (dockerData.indexOf('No Docker Found') >= 0) {
                     var $statmessage = $('.dockerspinner').parent();
