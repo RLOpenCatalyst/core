@@ -842,7 +842,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					instanceImageID: req.body.blueprintData.imageIdentifier,
 					flavor: req.body.blueprintData.openstackflavor,
 					network: req.body.blueprintData.openstacknetwork,
-					securityGroupIds: req.body.blueprintData.openstacksecurityGroupIds,
+					securityGroupIds: [req.body.blueprintData.openstacksecurityGroupIds],
 					subnet: req.body.blueprintData.openstacksubnet,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount,
