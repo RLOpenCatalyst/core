@@ -56,7 +56,6 @@ function blueprintLaunchDesign(data) {
                 var envId = $('#envSelect').val();
                 //setting the blueprint version.(different versions)
                 var blueprintId = $('#modalSelectEnvironment').find('#selectedVersion').val();
-                console.log("bpId>>>>",blueprintId);
                 if (blueprintType === 'chef' || blueprintType === 'ami') {
                     var version = data.blueprintConfig.infraManagerData.latestVersion;
                 }

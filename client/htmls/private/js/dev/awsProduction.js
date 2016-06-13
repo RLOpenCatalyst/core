@@ -3363,7 +3363,6 @@ function addBlueprintToDom(data) {
             if (typeof data.blueprintConfig.dockerCompose != 'undefined') {
                 data.blueprintConfig.dockerCompose.forEach(function(k, v) {
                     var $liDockerRepoName = $('<li title="Docker Repo Name" class="dockerimagetext" style="text-align:left;margin-left:15px" ><i class="fa fa-check-square" style="padding-right:5px"/>' + data.blueprintConfig.dockerCompose[v]["dockercontainerpathstitle"] + '</li>');
-                    //$ul.append($liDockerRepoName);
                 });
             }
             if (data.dockerrepotags && data.dockerrepotags != '') {
@@ -3488,31 +3487,7 @@ function addBlueprintToDom(data) {
                             blueprint.version = "1";
                         }
                         $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(blueprint.version);
-                        $.ajax({
-                            type: "get",
-                            dataType: "json",
-                            async: false,
-                            url: "../organizations/getTreeNew",
-                            success: function(dataTree) {
-                                console.log(data);
-                                data = JSON.parse(JSON.stringify(data));
-                                for (var j = 0; j < dataTree.length; j++) {
-                                    (function(j) {
-                                        $blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(dataTree[j].name);
-                                        for (var p = 0; p < dataTree[j].businessGroups.length; p++) {
-                                            (function(p) {
-                                                $blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(dataTree[j].businessGroups[p].name);
-                                                for (var x = 0; x < dataTree[j].businessGroups[p].projects.length; x++) {
-                                                    $blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(dataTree[j].businessGroups[p].projects[x].name);
-                                                }
-                                            })
-                                            (p);
-                                        }
-                                    })
-                                    (j);
-                                }
-                            }
-                        });
+                        getOrgProjDetails($blueprintReadContainerCFT);
                     });
                 });
             }
