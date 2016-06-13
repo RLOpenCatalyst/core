@@ -145,12 +145,12 @@
 			$scope.initPuppetGrids = function(){
 				$scope.taskHistoryPuppetGridOptions.data='taskHistoryPuppetData';
 				$scope.taskHistoryPuppetGridOptions.columnDefs = [
-				{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
-				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
-				{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
-				{ name:'Message', field: 'message', cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
-				{ name:'User',field:'user',cellTooltip: true},
-				{ name:'Logs',width: 70, cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'}
+					{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+					{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
+					{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
+					{ name:'Message', field: 'message', cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
+					{ name:'User',field:'user',cellTooltip: true},
+					{ name:'Logs',width: 70, cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'}
 				];
 			};
 			angular.extend($scope, {
@@ -177,6 +177,50 @@
 				$scope.taskHistoryPuppetListView();
 			};
 			//UI Grid for puppet Task ends
+
+			//UI Grid for script Task starts
+			$scope.taskHistoryScriptData = [];
+			var gridOptionsScript = uiGridOptionsClient.options().gridOption;
+			$scope.taskHistoryScriptGridOptions = gridOptionsScript;
+
+			$scope.initScriptGrids = function(){
+				$scope.taskHistoryScriptGridOptions.data='taskHistoryScriptData';
+				$scope.taskHistoryScriptGridOptions.columnDefs = [
+				{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
+				{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
+				{ name:'Message', field: 'message', 
+				  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
+				{ name:'User',field:'user',cellTooltip: true},
+				{ name:'Logs',width: 70,
+				  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'}
+				];
+			};
+			angular.extend($scope, {
+				taskHistoryScriptListView: function() {
+					$scope.taskHistoryScriptData = [];
+					workzoneServices.getHistory(items._id).then(function(response) {
+						$timeout(function() {
+							if(response.data){
+								$scope.taskHistoryScriptData = response.data;
+								$scope.isscriptTaskHistoryPageLoading = false;
+							}else if(response){
+								$scope.taskHistoryScriptData = response;
+								$scope.isscriptTaskHistoryPageLoading = false;
+							}
+						},100);
+					}, function(){
+						$scope.errorMessage = "No Script History Records found";
+						$scope.isscriptTaskHistoryPageLoading = false;
+					});
+				},
+			});
+			$scope.initscript = function(){
+				$scope.initScriptGrids();
+				$scope.taskHistoryScriptListView();
+			};
+			//UI Grid for script Task ends
+
 			$scope.task=items;
 			switch ($scope.task.taskType){
 				case 'chef' :
@@ -184,29 +228,41 @@
 					$scope.isjenkinsTaskHistoryPageLoading = false;
 					$scope.iscompositeTaskHistoryPageLoading = false;
 					$scope.ispuppetTaskHistoryPageLoading = false;
+					$scope.isscriptTaskHistoryPageLoading = false;
 					$scope.initchef();
-				break;
+					break;
 				case 'jenkins' :
 					$scope.ischefTaskHistoryPageLoading = false;
 					$scope.isjenkinsTaskHistoryPageLoading = true;
 					$scope.iscompositeTaskHistoryPageLoading = false;
 					$scope.ispuppetTaskHistoryPageLoading = false;
+					$scope.isscriptTaskHistoryPageLoading = false;
 					$scope.initjenkins();
-				break;
+					break;
 				case 'composite' :
 					$scope.ischefTaskHistoryPageLoading = false;
 					$scope.isjenkinsTaskHistoryPageLoading = false;
 					$scope.iscompositeTaskHistoryPageLoading = true;
 					$scope.ispuppetTaskHistoryPageLoading = false;
+					$scope.isscriptTaskHistoryPageLoading = false;
 					$scope.initcomposite();
-				break;
+					break;
 				case 'puppet':
 					$scope.ischefTaskHistoryPageLoading = false;
 					$scope.isjenkinsTaskHistoryPageLoading = false;
 					$scope.iscompositeTaskHistoryPageLoading = false;
 					$scope.ispuppetTaskHistoryPageLoading = true;
+					$scope.isscriptTaskHistoryPageLoading = false;
 					$scope.initpuppet();
-				break;
+					break;
+				case 'script':
+					$scope.isscriptTaskHistoryPageLoading = true;
+					$scope.ischefTaskHistoryPageLoading = false;
+					$scope.isjenkinsTaskHistoryPageLoading = false;
+					$scope.iscompositeTaskHistoryPageLoading = false;
+					$scope.ispuppetTaskHistoryPageLoading = false;
+					$scope.initscript();
+					break;
 			}
 
 			$scope.historyLogs=function(hist) {

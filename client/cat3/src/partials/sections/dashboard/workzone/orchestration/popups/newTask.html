@@ -4,11 +4,11 @@
 			<span class="close" ng-click="cancel()">×</span>
 			<h4 class="modal-title" ng-if="!isEditMode">
 				<i class="fa fa-plus"></i>&nbsp;
-				Create {{taskType}} job
+				Create {{taskTypes[taskType].name}} Job
 			</h4>
 			<h4 class="modal-title" ng-if="isEditMode">
 				<i class="fa fa-edit"></i>&nbsp;
-				Edit {{taskType}} job - {{name}}
+				Edit {{taskTypes[taskType].name}} Job - {{name}}
 			</h4>
 		</div>
 
@@ -30,10 +30,11 @@
 								<br />
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
 									<select name="taskType" class="form-control" ng-model="taskType" ng-disabled="isEditMode" required>
-									   <option selected="selected" value="chef">Chef</option>
-									   <option ng-show="!createChefJob" value="jenkins">Jenkins</option>
-									   <option ng-show="!createChefJob" value="composite">Composite</option>
-									   <option ng-show="!createChefJob" value="puppet">Puppet</option>
+									   <option selected="selected" value="chef">{{taskTypes['chef'].name}}</option>
+									   <option ng-show="!createChefJob" value="jenkins">{{taskTypes['jenkins'].name}}</option>
+									   <option ng-show="!createChefJob" value="composite">{{taskTypes['composite'].name}}</option>
+									   <option ng-show="!createChefJob" value="puppet">{{taskTypes['puppet'].name}}</option>
+									   <option ng-show="!createChefJob" value="script">{{taskTypes['script'].name}}</option>
 									</select>
 								</span>
 							</div>
@@ -334,6 +335,47 @@
 													</label>
 												</li>
 											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</section>
+					</div>
+					<!--second column script-->
+					<div class="col-md-12 col-sm-12 col-xs-12 border no-padding" ng-if="taskType==='script'">
+						<section class="Script">
+							<header class="jobDetailsHeader">
+								<h5>Script Details</h5>
+							</header>
+							<div class="jobDetailsContent">
+								<div class="chef-details-top">
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+										<div class="row margin0">
+			                                <div class="radio-instances col-lg-6 no-padding">
+			                                    <input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
+			                                    <label for="rdInstance" class="lable-align">Nodes</label>
+			                                </div>                  
+				                        </div>
+										<div class="select-nodes">
+											<ul ng-show="targetType==='instance'">
+												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
+													<label class="checkbox check-list">
+														<input type="checkbox" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
+													</label>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 authScriptFile control-margin">
+										<label class="script-file">Script File
+											<span class="control-label red">&nbsp;*</span>
+										</label>
+										<div class="input-groups">
+											<input type="file" name="scriptFileInput" id="scriptFileInput" class="form-control form-controls" ngf-select="" ng-model="$parent.scriptFile" accept=".sh" required="" onchange="angular.element(this).scope().setFile(this)">
+											<span class="pull-left">
+												<label title="Please choose a script file" class="choose-file cursor" for="scriptFileInput">Choose File</label>
+											</span>
+											<div title="{{currentFileMetadata.name || scriptFileNameEdit}}" class="file-name">&nbsp;&nbsp;&nbsp;{{currentFileMetadata.name || scriptFileNameEdit}}</div>
 										</div>
 									</div>
 								</div>

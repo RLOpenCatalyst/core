@@ -19,6 +19,13 @@
 			$scope.cookbookAttributes = [];
 			//default values for new task
 			angular.extend($scope, {
+				taskTypes: {
+					'chef':{name:'Chef'},
+					'jenkins':{name:'Jenkins'},
+					'puppet':{name:'Puppet'},
+					'composite':{name:'Composite'},
+					'script':{name:'Script'}
+				},
 				parentItems:items,
 				updateCookbook: function () {
 					if ($scope.chefInstanceList.length || $scope.chefBluePrintList.length) {
@@ -122,6 +129,34 @@
 						console.log('Dismiss time is ' + new Date());
 					});
 				},
+				postNewTask : function(taskObj){
+				//new task creation.
+					var reqBody = {
+						taskData: taskObj
+					};
+					workzoneServices.postNewTask(reqBody).then(function () {
+						items = reqBody.taskData;
+						$rootScope.$emit('WZ_ORCHESTRATION_SHOW_LATEST');
+						$rootScope.$emit('GET_ALL_TASK');
+						$modalInstance.close(items);
+					});
+				},
+				updateTask : function(taskObj){
+					//update task.
+					var reqBody = {
+						taskData: taskObj
+					};
+					workzoneServices.updateTask(reqBody, $scope.id).then(function () {
+						items = reqBody.taskData;
+						$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+						$modalInstance.close(items);
+					});
+				},
+				setFile : function(element) {
+					$scope.$apply(function($scope) {
+						$scope.currentFileMetadata = element.files[0];
+					});
+				},
 				ok: function () {
 					//these values are common across all task types
 					var taskJSON = {
@@ -181,7 +216,7 @@
                             alert('Please choose either nodes or blueprints or role, not all');
                             return false;
                         }
-						
+
 						taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
 						taskJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
 					}
@@ -221,24 +256,46 @@
 						taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
 						taskJSON.parameterized = $scope.jenkinsParamsList;
 					}
-					/*making request body for post*/
-					var reqBody = {
-						taskData: taskJSON
-					};
+					//if task type is script
+					if ($scope.taskType === "script") {
+						taskJSON.nodeIds = [];
+						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
+							if ($scope.chefInstanceList[si]._isNodeSelected) {
+								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
+							}
+						}
+						if (!taskJSON.nodeIds.length) {
+							alert('Please select a node');
+							return false;
+						}
+						if($scope.scriptFile){//will be true if a file chosen by user 
+							var formdata = new FormData();
+							formdata.append('file',  $scope.scriptFile);
+							workzoneServices.postFileUpload(formdata,{transformRequest: angular.identity,headers: {'Content-Type': undefined}}).then(function(response){
+								var scriptFile = response.data;
+								taskJSON.scriptFileName = scriptFile.filename;//wrong name field in api, it contains generated file id.
+								if ($scope.isEditMode) {
+									$scope.updateTask(taskJSON);            
+								}else{
+									$scope.postNewTask(taskJSON);             
+								}
+							});
+						}
+						else{
+							if ($scope.isEditMode) {
+								taskJSON.scriptFileName = items.taskConfig.scriptFileName;
+								$scope.updateTask(taskJSON);            
+							}
+						}
+					}
 					//checking whether its a update or a new task creation
-					if ($scope.isEditMode) {
-						workzoneServices.updateTask(reqBody, $scope.id).then(function () {
-							items = reqBody.taskData;
-							$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-							$modalInstance.close(items);
-						});
-					} else {
-						workzoneServices.postNewTask(reqBody).then(function () {
-							items = reqBody.taskData;
-							$rootScope.$emit('WZ_ORCHESTRATION_SHOW_LATEST');
-							$rootScope.$emit('GET_ALL_TASK');
-							$modalInstance.close(items);
-						});
+					var type = $scope.taskType;
+					if(type === "chef" || type === "jenkins" || type === "puppet" || type === "composite"){
+						if ($scope.isEditMode) {
+							$scope.updateTask(taskJSON);
+						} else {
+							$scope.postNewTask(taskJSON);
+						}
 					}
 					$rootScope.createChefJob=false;
 				},
@@ -279,7 +336,6 @@
 				} else {
 					data = response;
 				}
-
 				if (items.taskType && items.taskType === "composite") {
 					for (var j = 0; j < items.taskConfig.assignTasks.length; j++) {
 						for (var i = 0; i < data.length; i++) {    
@@ -357,6 +413,19 @@
 						$scope.isNewTaskPageLoading = false;
 					} else {
 						$scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(instances), []);
+					}
+				}
+				/*Identifying the nodes and checking for task type to be script*/
+				if ($scope.taskType === "script") {
+					if($scope.isEditMode){
+						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
+						$scope.isNewTaskPageLoading = false;
+						$scope.targetType="instance";
+						$scope.scriptFileNameEdit = items.taskConfig.scriptFileName.split('_')[1] || 'invalid filename';
+					}else{
+						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
+						$scope.isNewTaskPageLoading = false;
+						$scope.targetType="instance";
 					}
 				}
 			});
