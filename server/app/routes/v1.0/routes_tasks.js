@@ -128,7 +128,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             } else if(err) {
                 logger.error("Failed to execute task.", err);
-                res.status(500).send("Failed to execute task.");
+                res.status(500).send(err);
                 return;
             }
             logger.debug("Returned historyData: ", JSON.stringify(historyData));

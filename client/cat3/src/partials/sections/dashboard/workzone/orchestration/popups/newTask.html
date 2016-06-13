@@ -94,15 +94,20 @@
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
 									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-										<div class="row margin0">
+									<loading name="isTargetTypesLoading" size="medium" type="block" align="left"></loading>
+										<div ng-show="!isTargetTypesLoading" class="row margin0">
 				                            
-				                                <div class="radio-instances col-lg-6 no-padding">
+				                                <div class="radio-instances col-lg-4 no-padding">
 				                                    <input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
 				                                    <label for="rdInstance" class="lable-align">Nodes</label>
 				                                </div>
-				                                <div class="radio-blueprints col-lg-6 no-padding">
+				                                <div class="radio-blueprints col-lg-5 no-padding">
 				                                    <input type="radio" name="nodesSpecification" value="blueprint" ng-model="targetType" id="rdBlueprint"/>
 				                                    <label for="rdBlueprint" class="lable-align">Blueprints</label>
+				                                </div>
+				                                <div class="radio-roles col-lg-3 no-padding">
+				                                    <input type="radio" name="nodesSpecification" value="role" ng-model="targetType" id="rdRole"/>
+				                                    <label for="rdRole" class="lable-align">Roles</label>
 				                                </div>
 				                            
 				                        </div>
@@ -121,6 +126,16 @@
 													</label>
 												</li>
 											</ul>
+
+											<ul ng-show="targetType==='role'">
+												<li ng-repeat="r in chefRoleList">
+													<label class="checkbox check-list">
+														<input name="roleRadioBtn" type="radio" ng-checked="role.name === r " ng-model="role.name" class="checkbox-list" value="{{r}}">{{r}}
+													</label>
+												</li>
+											</ul>
+
+
 										</div>
 									</div>
 									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
