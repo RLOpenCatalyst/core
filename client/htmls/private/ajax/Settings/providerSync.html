@@ -572,36 +572,9 @@
     }
 
 
-    //initialising the datatable for UnAssigned instances...
-    if (!$.fn.dataTable.isDataTable('#unassignedinstanceListTable')) {
-        var $instanceUnAssignedDatatable = $('#unassignedinstanceListTable').DataTable({
-            "pagingType": "full_numbers",
-            "bInfo": true,
-            "bLengthChange": true,
-            "paging": true,
-            "bFilter": true,
-            "aaSorting": [[ 4, "asc" ]],
-            "aoColumns": [{
-                "bSortable": true
-            }, {
-                "bSortable": true
-            }, {
-                "bSortable": true
-            }, {
-                "bSortable": true
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            },{
-                "bSortable": false
-            }]
-
-        });
-    }
-
 
     $(document).ready(function(e) {
+
         var urlParams = {};
         (window.onpopstate = function() {
             var url = window.location.href;
@@ -681,12 +654,14 @@
             ]
         } );
 
-
-
         $('#instanceListTable').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": '/providers/' + urlproviderId + '/managedInstances',
+            "destroy":true,
+            "createdRow": function( row, data ) {
+                $( row ).attr({"data-id" : data._id})
+            },
+            "ajax": '/providers/' + urlproviderId + '/managedInstanceList',
             "columns": [
                 {"data": "platformId","orderable" : true },
                 {"data": "hardware.os","orderable" : false  },
@@ -707,16 +682,19 @@
                 {"data": "environmentName","orderable" : false  },
                 {"data": "","orderable" : false,
                     "render":function(data,type,full,meta){
-                     var state=full.instanceState;
-                     if (state === 'terminate') {
-                         return '<div class="btn-group marginleft14"><button id="instanceRemove" class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete" ><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>';
-                     }else{
-                         return '';
-                     }
-                   }
+                        var state=full.instanceState;
+                        if (state === 'terminate') {
+                            return '<div class="btn-group marginleft14"><button id="instanceRemove" class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete" ><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>';
+                        }else{
+                            return '';
+                        }
+                    }
                 }
             ]
         });
+
+
+
 
 
         //loading Managed Data
@@ -1126,7 +1104,11 @@
                 $('#unmanagedinstanceListTable').DataTable( {
                     "processing": true,
                     "serverSide": true,
-                    "ajax": '/providers/' + urlproviderId + '/unmanagedInstances',
+                    "destroy":true,
+                    "createdRow": function( row, data ) {
+                        $( row ).attr({"instanceId" : data._id})
+                    },
+                    "ajax": '/providers/' + urlproviderId + '/unmanagedInstanceList',
                     "columns": [
                         {"data": "platformId","orderable" : true  },
                         {"data": "os","orderable" : false  },
@@ -1327,70 +1309,6 @@
 
 
 
-        function loadUnassignedInstances(unassignedData, envprojMappingObject){
-            $instanceUnAssignedDatatable.clear().draw();
-            for (var i = 0; i < unassignedData.unassignedInstances.length; i++) {
-                var $tbody = $('#unassignedinstanceListTable tbody').empty();
-                var $tr = $('<tr></tr>').attr({ "instanceid" : unassignedData.unassignedInstances[i].id, "projecttagsmapname" : envprojMappingObject.project, "envtagsmapname" : envprojMappingObject.environment });
-
-                var $tdId = $('<td></td>').append(unassignedData.unassignedInstances[i].platformId);
-                $tr.append($tdId);
-
-                var $tdOs = $('<td></td>').append(unassignedData.unassignedInstances[i].os);
-                $tr.append($tdOs);
-
-                var $tdIpAddress = $('<td></td>').append(unassignedData.unassignedInstances[i].ip);
-                $tr.append($tdIpAddress);
-
-                var $tdStatus = $('<td></td>').append(unassignedData.unassignedInstances[i].state);
-                $tr.append($tdStatus);
-
-                //Loop to append the project from the tags
-                if(unassignedData.unassignedInstances[i].tags){
-                    if(envprojMappingObject.project in unassignedData.unassignedInstances[i].tags){
-                        var projectTagName = unassignedData.unassignedInstances[i].tags[envprojMappingObject.project];
-                        var $inputTextProject = $('<input type="text" class="form-control projectTagName" value="'+projectTagName+'"></input>');
-
-                        var $tdProjectTag = $('<td></td>').append($inputTextProject);
-                        $tr.append($tdProjectTag);
-                    }else{
-                        var $inputTextProject = $('<input type="text" class="form-control projectTagName" value=""></input>');
-                        var $tdProjectTag = $('<td></td>').append($inputTextProject);
-                        $tr.append($tdProjectTag);
-                    }
-
-                    if(envprojMappingObject.environment in unassignedData.unassignedInstances[i].tags){
-                        var environmentTagName = unassignedData.unassignedInstances[i].tags[envprojMappingObject.environment];
-                        var $inputTextEnv = $('<input type="text" class="form-control envTagName" value="'+environmentTagName+'"></input>');
-                        var $tdEnvTag = $('<td></td>').append($inputTextEnv);
-                        $tr.append($tdEnvTag);
-                    }else{
-                        var $inputTextEnv = $('<input type="text" class="form-control envTagName" value=""></input>');
-                        var $tdEnvTag = $('<td></td>').append($inputTextEnv);
-                        $tr.append($tdEnvTag);
-                    }
-                }
-                if(unassignedData.unassignedInstances[i].tags == "undefined" || unassignedData.unassignedInstances[i].tags == null){
-                    var $inputTextProject = $('<input type="text" class="form-control projectTagName" value=""></input>');
-                    var $tdProjectTag = $('<td></td>').append($inputTextProject);
-                    $tr.append($tdProjectTag);
-
-                    var $inputTextEnv = $('<input type="text" class="form-control envTagName" value=""></input>');
-                    var $tdEnvTag = $('<td></td>').append($inputTextEnv);
-                    $tr.append($tdEnvTag);
-                }
-
-                $inputCheckbox = $('<input class="nodeCheckBox" type="checkbox">');
-                var $tdActionCheckbox = $('<td></td>').append($inputCheckbox);
-                $tr.append($tdActionCheckbox);
-
-                $tbody.append($tr);
-                $instanceUnAssignedDatatable.row.add($tr).draw();
-            }
-        }
-
-
-
 
 
 
@@ -1433,20 +1351,62 @@
                 bootbox.alert(msg);
             });
         }
+
+
         function getunassignedInstanceswithProjectandEnv(envprojMappingObject){
-            $.get('/providers/'+ urlproviderId +'/unassigned-instances', function(unassignedInstances) {
-                if(unassignedInstances){
-                    loadUnassignedInstances(unassignedInstances,envprojMappingObject);
-                }
-            }).fail(function(jxhr) {
-                var msg = "Unassigned Instances Behaved Unexpectedly.";
-                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                    msg = jxhr.responseJSON.message;
-                } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
-                }
-                bootbox.alert(msg);
-            });
+            $('#unassignedinstanceListTable').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "destroy":true,
+                "ajax": '/providers/' + urlproviderId + '/unassigned-instances',
+                "createdRow": function( row, data ) {
+                    $( row ).attr({"instanceid" : data._id, "projecttagsmapname" : envprojMappingObject.project, "envtagsmapname" : envprojMappingObject.environment})
+                },
+                "columns": [
+                    {"data": "platformId","orderable" : true  },
+                    {"data": "os","orderable" : false  },
+                    {"data": "ip","orderable" : true  },
+                    {"data": "state","orderable" : true  },
+                    {"data": "tags" ,"orderable" : false,
+                        "render":function(data, type, full, meta) {
+                            var tagName='';
+                            if(full.tags) {
+                                if (envprojMappingObject.project in full.tags) {
+                                    tagName = full.tags[envprojMappingObject.project];
+                                    return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
+                                } else {
+                                    return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
+                                }
+                            }else{
+                                return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
+                            }
+                        }
+                    },
+                    {"data": "tags" ,"orderable" : false,
+                        "render":function(data, type, full, meta) {
+                            var environmentTagName='';
+                            if(full.tags){
+                                if(envprojMappingObject.environment in full.tags){
+                                    environmentTagName=full.tags[envprojMappingObject.environment];
+                                    return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
+                                } else{
+                                return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
+                                }
+                            }else{
+                                return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
+                            }
+                        }
+                    },
+                    {"data": "platformId","orderable" : false,
+                       "render":function(data,type,full,meta){
+                          if(full.platformId){
+                              return '<input class="nodeCheckBox" type="checkbox" val=""/>';
+                          }
+                        }
+                    }
+                ]
+            } );
+
         }
 
 
@@ -1459,15 +1419,12 @@
                 var instanceid = $(this).attr("instanceid");
                 var projecttagsmapname = $(this).attr("projecttagsmapname");
                 var envtagsmapname = $(this).attr("envtagsmapname");
-
                 var projectTagName = $(this).find('.projectTagName').val();
                 var envTagName = $(this).find('.envTagName').val();
-
                 updateUniqueInstanceTagsObj["id"] = instanceid;
                 updateUniqueInstanceTagsObj["tags"] = {};
                 updateUniqueInstanceTagsObj["tags"][projecttagsmapname] = projectTagName;
                 updateUniqueInstanceTagsObj["tags"][envtagsmapname] = envTagName;
-
                 updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
             });
             updateInstanceTagsObj["instances"] = updateInstanceTagsArr;

@@ -84,7 +84,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 	
-	app.get('/providers/:providerId/managedInstances', validate(instanceValidator.get), getManagedInstancesList);
+	app.get('/providers/:providerId/managedInstanceList', validate(instanceValidator.get), getManagedInstancesList);
 
 	function getManagedInstancesList(req,res,next) {
 		var reqData = {};
@@ -105,9 +105,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				function (queryObj, next) {
 					instancesDao.getByProviderId(queryObj, next);
 				},
-				/*function (managedInstances, next) {
-				 apiUtil.paginationResponse(managedInstances, reqData, next);
-				 }*/
 				function (managedInstances, next) {
 					apiUtil.changeResponseForJqueryPagination(managedInstances, reqData, next);
 				},
@@ -119,9 +116,70 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					return res.status(200).send(results);
 			});
 	}
+
+
+	app.get('/providers/:providerId/managedInstances', validate(instanceValidator.get), getManagedInstances);
+
+	function getManagedInstances(req,res,next) {
+		var reqData = {};
+		async.waterfall(
+			[
+				function (next) {
+					apiUtil.paginationRequest(req.query, 'managedInstances', next);
+				},
+				function (paginationReq, next) {
+					paginationReq['providerId'] = req.params.providerId;
+					paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
+					reqData = paginationReq;
+					apiUtil.databaseUtil(paginationReq, next);
+				},
+				function (queryObj, next) {
+					instancesDao.getByProviderId(queryObj, next);
+				},
+				function (managedInstances, next) {
+					apiUtil.paginationResponse(managedInstances, reqData, next);
+				}
+
+			], function (err, results) {
+				if (err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	}
 				
 
-	app.get('/providers/:providerId/unmanagedInstances', validate(instanceValidator.get), getUnManagedInstancesList);
+	app.get('/providers/:providerId/unmanagedInstances', validate(instanceValidator.get), getUnManagedInstances);
+
+	function getUnManagedInstances(req, res,next) {
+		var reqData = {};
+		async.waterfall(
+			[
+				function(next){
+					apiUtil.paginationRequest(req.query, 'unmanagedInstances', next);
+				},
+				function(paginationReq, next) {
+					paginationReq['providerId'] = req.params.providerId;
+					paginationReq['searchColumns']=['ip', 'platformId'];
+					reqData = paginationReq;
+					apiUtil.databaseUtil(paginationReq, next);
+				},
+				function(queryObj, next) {
+					unManagedInstancesDao.getByProviderId(queryObj, next);
+				},
+				function(unmanagedInstances, next) {
+					apiUtil.paginationResponse(unmanagedInstances,reqData, next);
+				}
+
+			], function(err, results) {
+				if (err)
+					next(err);
+				else
+					return res.status(200).send(results);
+			});
+	};
+
+	app.get('/providers/:providerId/unmanagedInstanceList', validate(instanceValidator.get), getUnManagedInstancesList);
 
 	function getUnManagedInstancesList(req, res,next) {
 		var reqData = {};
@@ -142,12 +200,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				function(queryObj, next) {
 					unManagedInstancesDao.getByProviderId(queryObj, next);
 				},
-				/*function(unmanagedInstances, next) {
-					apiUtil.paginationResponse(unmanagedInstances,reqData, next);
-				}*/
 				function(unmanagedInstances,next){
 					apiUtil.changeResponseForJqueryPagination(unmanagedInstances,reqData,next);
-				},
+				}
 
 			], function(err, results) {
 				if (err)
@@ -1290,23 +1345,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var reqData = {};
 		async.waterfall(
 			[
-				function(next) {
-					providerService.checkIfProviderExists(req.params.providerId, next);
+				function(next){
+					apiUtil.changeRequestForJqueryPagination(req.query,next);
 				},
-				function(provider,next) {
-					apiUtil.paginationRequest(req.query, 'unassignedInstances', next);
+				function(reqData,next) {
+					apiUtil.paginationRequest(reqData, 'unassignedInstances', next);
 				},
 				function(paginationReq, next) {
 					paginationReq['providerId'] = req.params.providerId;
-					paginationReq['searchColumns']=['ip','platformId'];
+					paginationReq['searchColumns']=['ip', 'platformId'];
 					reqData = paginationReq;
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function(queryObj, next) {
 					instanceService.getUnassignedInstancesByProvider(queryObj, next);
 				},
-				function(unAssignedInstances, next) {
-					apiUtil.paginationResponse(unAssignedInstances,reqData, next);
+				function(unAssignedInstances,next){
+					apiUtil.changeResponseForJqueryPagination(unAssignedInstances,reqData,next);
 				}
 
 			], function(err, results) {
@@ -1315,7 +1370,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				else
 					return res.status(200).send(results);
 			});
-	}
+	};
+
+
 
 	function getTag(req, res, next) {
 		async.waterfall(

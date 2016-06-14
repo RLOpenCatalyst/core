@@ -3,6 +3,7 @@ $(document).ready(function() {
       unmanagedTotal = 0,
       managedunmanagedTotal = 0;
 
+
   function updateTotalCount(type, id, count) {
     if (type === "managed") {
       managedTotal += count;
@@ -90,10 +91,10 @@ $(document).ready(function() {
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(awsSpecificProvName);
               //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loadManagedInstances(providerid);
             });
 
-            $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
+            $.get('../providers/' + providerid + '/unmanagedInstanceList', function(dataUnmanaged) {
               var unmanagedData = dataUnmanaged.unmanagedInstances.length;
               $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
 
@@ -260,6 +261,10 @@ $(document).ready(function() {
           var $childTotalInstanceTemplate = $('.childTotalInstanceTemplate').clone();
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-blue');
+
+
+
+
 
           $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
             var managedInstancesLength = dataManaged.managedInstances.length;
@@ -464,42 +469,32 @@ $(document).ready(function() {
     $('#managedTableContainer').hide();
   });
 
-  function loadManagedInstances(managnedData) {
-    $instanceManagedDatatable.clear().draw();
-    var $tbody = $('#managedInstance tbody').empty();
-    for (var i = 0; i < managnedData.length; i++) {
-      var $tr = $('<tr class="managedInstance"></tr>').attr('data-id', managnedData[i]._id);
-      var $tdId = $('<td></td>').append(managnedData[i].platformId);
-      $tr.append($tdId);
-
-      if(managnedData[i].hardware.os){
-        var $tdOs = $('<td></td>').append(managnedData[i].hardware.os);
-        $tr.append($tdOs);
-      }else{
-        var $tdOs = $('<td></td>').append('');
-        $tr.append($tdOs);
-      }
-
-      var $tdIpAddress = $('<td></td>').append(managnedData[i].instanceIP);
-      $tr.append($tdIpAddress);
-
-      var region = '';
-      if (managnedData[i].providerData && managnedData[i].providerData.region) {
-        region = managnedData[i].providerData.region;
-      }else{
-        region = managnedData[i].region;
-      }
-      var $tdRegion = $('<td></td>').append(region);
-      $tr.append($tdRegion);
-      var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
-      $tr.append($tdStatus);
-
-      var $tdProjectName = $('<td></td>').append(managnedData[i].projectName);
-      $tr.append($tdProjectName);
-
-      $tbody.append($tr);
-      $instanceManagedDatatable.row.add($tr).draw();
-    }
+  function loadManagedInstances(providerId) {
+    $('#managedinstanceListTable').DataTable( {
+      "processing": true,
+      "serverSide": true,
+      "destroy": true,
+      "ajax": '/providers/' + providerId + '/managedInstanceList',
+      "columns": [
+        {"data": "platformId","orderable" : true  },
+        {"data": "os","orderable" : false  },
+        {"data": "instanceIP","orderable" : true  },
+        {"data": "","orderable" : true,
+          "render":function(data, type, full, meta) {
+            var region =full.region;
+            if(region){
+              region = full.region;
+            }else{
+              region = full.providerData.region;
+            }
+            return region;
+          }
+        },
+        {"data": "instanceState","orderable" : true  },
+        {"data": "projectName" ,"orderable" : false },
+        {"data": "environmentName","orderable" : true  }
+      ]
+    } );
   }
 
   if (!$.fn.dataTable.isDataTable('#managedinstanceListTable')) {
@@ -536,6 +531,9 @@ $(document).ready(function() {
     $('#mainPanelId').show();
     $('#unmanagedTableContainer').hide();
   });
+
+
+
 
   function loadunManagedInstances(unmanagnedData) {
     $instanceunManagedDatatable.clear().draw();
