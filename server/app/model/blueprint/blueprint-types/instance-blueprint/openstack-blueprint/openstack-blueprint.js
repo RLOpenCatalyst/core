@@ -553,6 +553,7 @@ openstackInstanceBlueprintSchema.statics.createNew = function(awsData) {
         imageId: awsData.instanceImageID,
         network: awsData.network,
         subnet: awsData.subnet,
+        securityGroupIds: awsData.securityGroupIds,
 
         //dataStore: awsData.dataStore,
         cloudProviderType: awsData.cloudProviderType

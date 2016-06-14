@@ -20,18 +20,14 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('../../dao/schema-validator');
-var uniqueValidator = require('mongoose-unique-validator');
 var ChefTask = require('./taskTypeChef');
 var JenkinsTask = require('./taskTypeJenkins');
 var TaskHistory = require('./taskHistory');
-var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
-var Jenkins = require('_pr/lib/jenkins');
 var CompositeTask = require('./taskTypeComposite');
 var PuppetTask = require('./taskTypePuppet');
 var ScriptTask = require('./taskTypeScript');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
-
 var Schema = mongoose.Schema;
 
 var TASK_TYPE = {
@@ -92,15 +88,22 @@ var taskSchema = new Schema({
     },
     taskConfig: Schema.Types.Mixed,
     lastTaskStatus: String,
+    normalized: String,
     lastRunTimestamp: Number,
     timestampEnded: Number,
-    blueprintIds: [String]
+    blueprintIds: [String],
+    taskCreatedOn: {
+        type: Date,
+        default: Date.now
+    }
 });
 taskSchema.plugin(mongoosePaginate);
 
+// instance method :-
+
 
 // Executes a task
-taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, callback, onComplete) {
+taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, callback, onComplete) {
     logger.debug('Executing');
     var task;
     var self = this;
@@ -150,7 +153,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData,
     var taskHistory = null;
     task.orgId = this.orgId;
     task.envId = this.envId;
-    task.execute(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
+    task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
         if (err) {
             callback(err, null);
             return;
@@ -409,48 +412,41 @@ taskSchema.statics.createNew = function(taskData, callback) {
 
 
 taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
-        if(jsonData.pageSize) {
-            var databaseReq = {};
-            jsonData['searchColumns'] = ['taskType', 'name'];
-            ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
-                if (err) {
-                    var err = new Error('Internal server error');
-                    err.status = 500;
-                    return callback(err);
-                }
-                else
-                    databaseReq = databaseCall;
-            });
-            this.paginate(databaseReq.queryObj, databaseReq.options, function (err, tasks) {
-                if (err) {
-                    var err = new Error('Internal server error');
-                    err.status = 500;
-                    return callback(err);
-                }
-                else if (!tasks) {
-                    var err = new Error('Tasks are not found');
-                    err.status = 404;
-                    return callback(err);
-                }
-                callback(null, tasks);
-            });
+    if (jsonData.pageSize) {
+        jsonData['searchColumns'] = ['taskType', 'name'];
+        ApiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else {
+                Tasks.paginate(databaseCall.queryObj, databaseCall.options, function(err, tasks) {
+                    if (err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    }
+                    callback(null, tasks);
+                });
+            }
+        });
+    } else {
+        var queryObj = {
+            orgId: jsonData.orgId,
+            bgId: jsonData.bgId,
+            projectId: jsonData.projectId,
+            envId: jsonData.envId
         }
-        else{
-            var queryObj = {
-                    orgId: jsonData.orgId,
-                    bgId: jsonData.bgId,
-                    projectId: jsonData.projectId,
-                    envId: jsonData.envId
-                }
-            this.find(queryObj, function(err, data) {
-                if (err) {
-                    logger.error(err);
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-            });
-        }
+
+        this.find(queryObj, function(err, data) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    }
 }
 
 taskSchema.statics.getTaskById = function(taskId, callback) {
@@ -630,6 +626,86 @@ taskSchema.statics.listTasks = function(callback) {
             return;
         }
         callback(null, tasks);
+    });
+};
+taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
+    this.find(jsonData, { _id: 1, taskType: 1, name: 1, taskConfig: 1, blueprintIds: 1 }, function(err, chefTasks) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        callback(null, chefTasks);
+    });
+};
+taskSchema.statics.getDistinctTaskTypeByIds = function(ids, callback) {
+    this.distinct("taskType", { _id: { $in: ids } }, function(err, distinctTaskTypes) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        callback(null, distinctTaskTypes);
+    });
+};
+
+taskSchema.statics.NormalizedTasks = function(jsonData, fieldName, callback) {
+    var queryObj = {
+        orgId: jsonData.orgId,
+        bgId: jsonData.bgId,
+        projectId: jsonData.projectId,
+        envId: jsonData.envId
+    };
+    this.find(queryObj, function(err, tasks) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        var count = 0;
+        for (var i = 0; i < tasks.length; i++) {
+            (function(task) {
+                count++;
+                var normalized = task[fieldName];
+                Tasks.update({
+                    "_id": new ObjectId(task._id)
+                }, {
+                    $set: {
+                        normalized: normalized.toLowerCase()
+                    }
+                }, {
+                    upsert: false
+                }, function(err, updatedTask) {
+                    if (err) {
+                        logger.error(err);
+                        callback(err, null);
+                        return;
+                    }
+                    if (tasks.length === count) {
+                        callback(null, updatedTask);
+                    }
+                });
+            })(tasks[i]);
+        }
+    })
+};
+
+taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConfig, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId)
+    }, {
+        $set: {
+            taskConfig: taskConfig
+        }
+    }, {
+        upsert: false
+    }, function(err, updateCount) {
+        if (err) {
+            return callback(err, null);
+        }
+        logger.debug('Updated task:' + updateCount);
+        return callback(null, updateCount);
+
     });
 };
 

@@ -1,0 +1,45 @@
+ <div id='pipelineCardPage'>
+     <div ng-if="cardDetails.name" class="text-center">
+        <div class="cardView">
+            <div class="card app-details app-card" title="{{cardDetails.name}}">
+                <div class="card-title app-card-title">
+                    <div class="card-title-name"> 
+                        <strong>{{cardDetails.name}}</strong>
+                    </div>
+                </div>
+                <div class="card-status-state">
+                    <div class="app-icon">
+                        <i class="fa fa-cube"></i>
+                    </div>
+                </div>
+                <div class="instance-ip">
+                    <span>{{cardDetails.version}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="!cardDetails.name" class="env-card-wrapper text-center">
+        <div class="cardView">
+            <div id="{{cardDetails.id}}{{cardType}}" ng-style="(cardDetails && cardDetails.applicationNodeIP) ? {} : {'opacity': '0.4','filter':'alpha(opacity=40)','-webkit-filter': 'grayscale(1)'}" class="card {{(cardDetails.applicationNodeIP)?'cursor':''}} {{pipeCtrl.selectedCardClass}}" title="{{cardDetails.applicationNodeIP}}" ng-click="pipeCtrl.selectedCard(cardDetails,appName,envName,cardDetails.id,cardType)">
+                <div class="card-title">
+                    <div class="card-title-name"> 
+                        <strong>{{cardDetails.applicationNodeIP}}</strong>
+                    </div>
+                    <hr/>
+                </div>
+                <div class="card-status-state">
+                    <div class="status-state">
+                        <div class="{{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'image')}}">
+                            <i class="fa fa-th fa-database {{pipeCtrl.getAppCardStatus(cardDetails.applicationStatus,'text')}}" title="App Details"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="instance-ip">
+                    <span ng-bind-html="(cardDetails.version)?cardDetails.version:(cardDetails.applicationLastDeploy | timestampToLocaleTime)">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

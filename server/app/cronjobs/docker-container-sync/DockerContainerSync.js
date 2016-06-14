@@ -49,7 +49,7 @@ function sync() {
                                                     projectId: project.rowid,
                                                     envId: environment.rowid
                                                 };
-                                                instancesDao.getInstancesByOrgBgProjectAndEnvIdForDocker(jsonData, function (err, instances) {
+                                                instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function (err, instances) {
                                                     if (err) {
                                                         logger.error(err);
                                                         return;
@@ -158,7 +158,7 @@ function sync() {
                                                             });
                                                         })
                                                     } else {
-                                                        logger.debug("No instance is Available for Container Cron Job");
+                                                        logger.debug("No instance is Available in "+environment.environmentname +" Environment for Container Cron Job");
                                                         return;
                                                     }
                                                 })
@@ -172,8 +172,10 @@ function sync() {
                             })
                         });
                     });
-                });
-            }], function (err, results) {
+                })
+            }
+        ],
+        function (err, results) {
             if(err){
                 logger.error(err);
                 return;
@@ -228,9 +230,9 @@ function dockerContainerStatus(status){
 
 function deleteContainerByInstanceId(instanceId){
     async.waterfall([
-        function(next){
-            containerDao.deleteContainerByInstanceId(instanceId,next);
-        }],
+            function(next){
+                containerDao.deleteContainerByInstanceId(instanceId,next);
+            }],
         function (err, results) {
             if(err){
                 logger.error(err);

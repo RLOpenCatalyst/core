@@ -1,0 +1,41 @@
+<div id='dockerImagePage'>
+	<table align="left" class="docker-table">
+		<thead>
+			<tr class="tr-line-height">
+				<th scope="col"><u></u></th>
+				<th scope="col"> <u></u></th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<tr>
+				<td>ImageID :</td>
+				<td> {{ dockerInfoResponse.Image }} </td>
+			</tr>
+			<tr>
+				<td>Storage Driver :</td>
+				<td>{{ }}</td>
+			</tr>
+			<tr>
+				<td>Execution Driver :</td>
+				<td>{{ dockerInfoResponse.ExecDriver }}</td>
+			</tr>
+			<tr>
+				<td>Kernel Version :</td>
+				<td> {{ }}</td>
+			</tr>
+			<tr>
+				<td>Operating System :</td>
+				<td> {{ }}</td>
+			</tr>
+			<tr>
+				<td>Pool Name :</td>
+				<td> {{ }} </td>
+			</tr>
+			<tr>
+				<td>Pool Block Size :</td>
+				<td>{{ }}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

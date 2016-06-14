@@ -1,0 +1,21 @@
+<div id='removeCFTPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+	    <h4 class="modal-title">
+	    	<i class="fa fa-trash-o"></i> Delete Stack
+	    </h4>
+	</div>
+
+	<div class="modal-body">
+		Are you sure you would like to remove this stack? This will remove all the instances related to this stack.
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn btn-danger" ng-click="removeCFT()">
+			<i class="fa fa-trash-o white"></i> Delete
+		</button>
+	</div>
+</div>

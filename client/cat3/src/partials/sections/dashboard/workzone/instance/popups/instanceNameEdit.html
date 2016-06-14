@@ -1,0 +1,35 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
+
+<div id='instanceNameEditPage'>
+	<form name="InstanceEditForm" novalidate>
+		<div class="modal-header">
+			<span class="close" ng-click="cancel()">×</span>
+			<h4 class="modal-title"> 
+				<i class="fa fa-pencil"></i>&nbsp;
+				Edit Instance Name
+			</h4>
+		</div>
+
+		<div class="modal-body">
+			<fieldset>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<label for="editInstanceName">Name
+						<span class="red">*</span>
+						<span ng-show="InstanceEditForm.editInstanceName.$touched && InstanceEditForm.editInstanceName.$invalid" class="inputValidationMsg">Please enter the Instance Name
+						</span>
+					</label>
+					<input type="text" ng-model="instanceName" name="editInstanceName" class="form-control" required/>
+				</div>
+			</fieldset>
+		</div>
+
+		<div class="modal-footer">
+			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+				<i class="fa fa-times black"></i> Cancel
+			</button>
+			<button type="button" class="btn cat-btn-save" ng-disabled="InstanceEditForm.$invalid" ng-click="ok()">
+				<i class="fa fa-check white"></i> Save
+			</button>		
+		</div>
+	</form>
+</div>

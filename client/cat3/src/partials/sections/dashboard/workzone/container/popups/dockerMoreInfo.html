@@ -1,0 +1,32 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/container/container.css">
+
+<div id='dockerMoreInfoPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			<i class="fa fa-th-list"></i> Details of Container
+		</h4>
+	</div>
+
+	<div class="modal-body no-padding">
+		<form novalidate="novalidate" id="login-form" class="smart-form">
+			<fieldset class="fieldset-padding">
+				<section>
+					<div class="widget-body">
+						<div bs-active-pane="tabs.activeTab" bs-tabs>
+							<div ng-repeat="tab in tabs" title="{{ tab.title }}" name="{{ tab.title }}" bs-pane>
+								<div ng-include="tab.template"></div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</fieldset>
+		</form>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

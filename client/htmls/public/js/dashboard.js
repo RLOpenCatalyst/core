@@ -642,9 +642,9 @@ $(document).ready(function() {
         var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
         $tr.append($tdproviderType);
       }
-      
+
       if(allProviderData.trackedInstances[i].cost)
-        var $tdcost = $('<td></td>').append(allProviderData.trackedInstances[i].cost);
+        var $tdcost = $('<td></td>').append('$ '+allProviderData.trackedInstances[i].cost);
       else
         var $tdcost = $('<td></td>').append('-');
       $tr.append($tdcost);
@@ -738,7 +738,7 @@ $(document).ready(function() {
       $tr.append($tdproviderType);
 
       if(specProviderData.trackedInstances[i].cost)
-        var $tdcost = $('<td></td>').append(specProviderData.trackedInstances[i].cost);
+        var $tdcost = $('<td></td>').append('$ '+specProviderData.trackedInstances[i].cost);
       else
         var $tdcost = $('<td></td>').append('-');
       $tr.append($tdcost);
