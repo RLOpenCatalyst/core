@@ -120,20 +120,9 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 
 
 UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
-	var databaseReq={};
-	jsonData['searchColumns']=['ip','platformId'];
-	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
-		if(err){
-			process.nextTick(function() {
-				callback(null, []);
-			});
-			return;
-		}
-		databaseReq=databaseCall;
-	});
-		this.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
+	this.paginate(jsonData.queryObj, jsonData.options, function(err, instances) {
 			if (err) {
-				logger.error("Failed getByOrgProviderId (%s)", err);
+				logger.error("Failed getByProviderId (%s)", err);
 				callback(err, null);
 				return;
 			}
@@ -239,6 +228,22 @@ UnmanagedInstanceSchema.statics.updateInstanceCost = function(instanceCostData, 
 		} else {
 			callback(null, data);
 		}
+	});
+};
+
+
+UnmanagedInstanceSchema.statics.removeInstanceById = function(instanceId, callback) {
+	logger.debug("Enter removeInstanceById (%s)", instanceId);
+	UnmanagedInstance.remove({
+		"_id": ObjectId(instanceId)
+	}, function(err, data) {
+		if (err) {
+			logger.error("Failed to removeInstanceById (%s)", instanceId, err);
+			callback(err, null);
+			return;
+		}
+		logger.debug("Exit removeInstanceById (%s)", instanceId);
+		callback(null, data);
 	});
 };
 

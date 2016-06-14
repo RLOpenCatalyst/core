@@ -79,7 +79,7 @@ function getDefaultsConfig() {
                     "instanceState": "running"
                 }]
             },
-            sort_order : "desc",
+            sort_order : "asc",
             sortReferanceData : {
                 "unmanagedInstances" : "state",
                 "managedInstances" : "instanceState",
@@ -91,7 +91,8 @@ function getDefaultsConfig() {
                 "cftList" : "status",
                 "appDeploy" : "envId",
                 "trackedInstances": "providerType",
-                "resources":"createdOn"
+                "resources":"createdOn",
+                "unassignedInstances":"state"
             },
             skip_Records : 1,
             max_record_limit : 200,

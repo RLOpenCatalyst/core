@@ -51,6 +51,7 @@ var fs = require('fs');
 var providerService = require('_pr/services/providerService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
+var instanceService=require('_pr/services/instanceService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -358,7 +359,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
+            instanceService.removeInstanceById(req.params.instanceId, function(err, data) {
                 if (err) {
                     logger.error("Instance deletion Failed >> ", err);
                     res.status(500).send(errorResponses.db.error);

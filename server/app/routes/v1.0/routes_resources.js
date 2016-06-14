@@ -35,20 +35,30 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             var reqData = {};
             async.waterfall(
                 [
-
-                    function(next) {
-                        apiUtil.paginationRequest(req.query, 'resources', next);
+                    function(next){
+                        apiUtil.changeRequestForJqueryPagination(req.query,next);
+                    },
+                    function(reqData,next) {
+                        apiUtil.paginationRequest(reqData, 'resources', next);
                     },
                     function(paginationReq, next) {
                         reqData = paginationReq;
+                        if(paginationReq.filterBy.resourceType === 'S3'){
+                            paginationReq['searchColumns'] = ['resourceDetails.bucketName'];
+                        }else if(paginationReq.filterBy.resourceType === 'RDS') {
+                            paginationReq['searchColumns'] = ['resourceDetails.dbName','resourceDetails.dbEngine'];
+                        }
                         apiUtil.databaseUtil(paginationReq, next);
                     },
                     function(queryObj, next) {
                         resourceService.getResources(queryObj, next);
                     },
-                    function(resources, next) {
+                    /*function(resources, next) {
                         apiUtil.paginationResponse(resources[0],reqData, next);
-                    }
+                    },*/
+                    function(resources,next){
+                        apiUtil.changeResponseForJqueryPagination(resources[0],reqData,next);
+                    },
 
                 ], function(err, results) {
                     if (err)

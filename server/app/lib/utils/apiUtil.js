@@ -52,6 +52,16 @@ var ApiUtil = function() {
         return;
     };
 
+    this.changeResponseForJqueryPagination=function(data,req,callback){
+        var resObj= {
+            "draw": req.draw,
+            "recordsTotal": data.total,
+            "recordsFiltered": data.total,
+            "data":data.docs
+        };
+        callback(null,resObj);
+    };
+
     this.databaseUtil=function(jsonData,callback){
         var queryObj={};
         var queryArr=[];
@@ -114,6 +124,24 @@ var ApiUtil = function() {
         callback(null, databaseCall);
         return;
     };
+
+    this.changeRequestForJqueryPagination=function(req,callback){
+        var columnIndex = parseInt(req.order[0].column);
+        var reqObj={
+            'pageSize': req.length,
+            'page' : req.start === 0 ? 1 : Math.ceil(req.start/req.length)+1,
+            'draw' : req.draw,
+            'filterBy' : req.filterBy,
+            'sortOrder':req.order[0].dir,
+            'sortBy':req.columns[columnIndex].data
+        }
+        if(req.search.value !== ''){
+         reqObj['search'] =   req.search.value;
+        }
+        callback(null,reqObj);
+    };
+
+
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {

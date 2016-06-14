@@ -355,7 +355,7 @@
                             <thead>
                             <tr>
                                 <th class="text-center">DBInstance</th>
-                                <th class="text-center">Type</th>
+                                <th class="text-center">DB Type</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Region</th>
                                 <th class="text-center">Instance Class</th>
@@ -392,6 +392,7 @@
                                 <th class="text-center">Bucket Name</th>
                                 <th class="text-center">Bucket Owner</th>
                                 <th class="text-center">Org Name</th>
+                                <th class="text-center">Provider Type</th>
                                 <th class="text-center">Size(MB)</th>
                                 <th class="text-center">Created</th>
                             </tr>
@@ -570,64 +571,7 @@
         });
     }
 
-    //initialising the datatable for Managed instances...
-    if (!$.fn.dataTable.isDataTable('#instanceListTable')) {
-        var $instanceManagedDatatable = $('#instanceListTable').DataTable({
-            "pagingType": "full_numbers",
-            "bInfo": true,
-            "bLengthChange": true,
-            "paging": true,
-            "bFilter": true,
-            "aaSorting": [[ 4, "asc" ]],
-            "aoColumns": [{
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            },{
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }]
 
-        });
-    }
-    //initialising the datatable for Assigned instances...
-    if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
-        var $instanceUnManagedDatatable = $('#unmanagedinstanceListTable').DataTable({
-            "pagingType": "full_numbers",
-            "bInfo": true,
-            "bLengthChange": true,
-            "paging": true,
-            "bFilter": true,
-            "aaSorting": [[ 4, "asc" ]],
-            "aoColumns": [{
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            },{
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }]
-
-        });
-    }
     //initialising the datatable for UnAssigned instances...
     if (!$.fn.dataTable.isDataTable('#unassignedinstanceListTable')) {
         var $instanceUnAssignedDatatable = $('#unassignedinstanceListTable').DataTable({
@@ -656,56 +600,6 @@
         });
     }
 
-    //initialising the datatable for UnAssigned RDS(unassigned)...
-    if (!$.fn.dataTable.isDataTable('#unassignedRDSListTable')) {
-        var $rdsUnAssignedDatatable = $('#unassignedRDSListTable').DataTable({
-            "pagingType": "full_numbers",
-            "bInfo": true,
-            "bLengthChange": true,
-            "paging": true,
-            "bFilter": true,
-            "aoColumns": [{
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }]
-
-        });
-    }
-
-    //initialising the datatable for S3 (unassigned)...
-    if (!$.fn.dataTable.isDataTable('#unassignedS3ListTable')) {
-        var $s3UnAssignedDatatable = $('#unassignedS3ListTable').DataTable({
-            "pagingType": "full_numbers",
-            "bInfo": true,
-            "bLengthChange": true,
-            "paging": true,
-            "bFilter": true,
-            "aoColumns": [{
-                "bSortable": false,
-                "sWidth": "250%"
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }, {
-                "bSortable": false
-            }]
-
-        });
-    }
 
     $(document).ready(function(e) {
         var urlParams = {};
@@ -730,11 +624,101 @@
         }
         if(urlproviderId && urlproviderId.indexOf("#ajax") == -1){
             getTagsListData(urlproviderId);
-            getManagedInstances();
+            //getManagedInstances();
             //calling the rds and s3 unassigned function to extract the data.
-            getUnassignedRDSData();
-            getUnassignedS3Data();
+            //getUnassignedRDSData();
+            //getUnassignedS3Data();
         }
+
+        $('#unassignedS3ListTable').DataTable( {
+            "processing": true,
+            "serverSide": true,
+            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
+            "columns": [
+                {"data": "resourceDetails.bucketName", "orderable" : true},
+                {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
+                {"data": "masterDetails.orgName","orderable" : false  },
+                {"data": "providerDetails.type" ,"orderable" : false },
+                {"data": "resourceDetails.bucketSize","orderable" : true  },
+                {"data": "resourceDetails.bucketCreatedOn","orderable" : true,
+                    "render": function (data) {
+                        var date = new Date().setTime(data.timestamp);
+                        var taskTimestamp = new Date(data).toLocaleString();
+                        return taskTimestamp;
+                    }
+                }
+            ]
+        } );
+
+
+        $('#unassignedRDSListTable').DataTable( {
+            "processing": true,
+            "serverSide": true,
+            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
+            "columns": [
+                {"data": "resourceDetails.dbName",  "orderable" : true},
+                {"data": "resourceDetails.dbEngine","orderable" : true  },
+                {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
+                {"data": "resourceDetails.region","orderable" : false  },
+                {"data": "resourceDetails.dbInstanceClass","orderable" : false  },
+                {"data": "resourceDetails.multiAZ","orderable" : false,
+                    "render": function (data) {
+                        if(data === false){
+                            return 'false';
+                        }
+                        else{
+                            return 'true';
+                        }
+                    }
+                },
+                {"data": "resourceDetails.dbInstanceCreatedOn","orderable" : true,
+                    "render": function (data) {
+                        var date = new Date().setTime(data.timestamp);
+                        var taskTimestamp = new Date(data).toLocaleString();
+                        return taskTimestamp;
+                    }
+                }
+            ]
+        } );
+
+
+
+        $('#instanceListTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": '/providers/' + urlproviderId + '/managedInstances',
+            "columns": [
+                {"data": "platformId","orderable" : true },
+                {"data": "hardware.os","orderable" : false  },
+                {"data": "instanceIP","orderable" : true  },
+                {"data": "",
+                    "render":function(data, type, full, meta) {
+                        var region =full.region;
+                        if(region){
+                            region = full.region;
+                        }else{
+                            region = full.providerData.region;
+                        }
+                        return region;
+                    }
+                },
+                {"data": "instanceState","orderable" : true },
+                {"data": "projectName","orderable" : false  },
+                {"data": "environmentName","orderable" : false  },
+                {"data": "","orderable" : false,
+                    "render":function(data,type,full,meta){
+                     var state=full.instanceState;
+                     if (state === 'terminate') {
+                         return '<div class="btn-group marginleft14"><button id="instanceRemove" class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete" ><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>';
+                     }else{
+                         return '';
+                     }
+                   }
+                }
+            ]
+        });
+
+
         //loading Managed Data
         function getTagsListData(providerId) {
             $.get('/providers/' + providerId + '/tags', function(tagsList) {
@@ -748,7 +732,9 @@
                 }
                 bootbox.alert(msg);
             });
-        }
+        };
+
+
 
         function loadTagsTabData(tagsListData,providerId) {
             var $projecttagsList = $('#tagsProjectSelect');
@@ -1137,7 +1123,41 @@
                 $('#Managed').hide();
                 $('#Assigned').show();
                 $('#Unassigned').hide();
-                getUnmanagedInstances();
+                $('#unmanagedinstanceListTable').DataTable( {
+                    "processing": true,
+                    "serverSide": true,
+                    "ajax": '/providers/' + urlproviderId + '/unmanagedInstances',
+                    "columns": [
+                        {"data": "platformId","orderable" : true  },
+                        {"data": "os","orderable" : false  },
+                        {"data": "ip","orderable" : true  },
+                        {"data": "","orderable" : true,
+                            "render":function(data, type, full, meta) {
+                                var region =full.region;
+                                if(region){
+                                    region = full.region;
+                                }else{
+                                    region = full.providerData.region;
+                                }
+                                return region;
+                            }
+                        },
+                        {"data": "state","orderable" : true  },
+                        {"data": "projectName" ,"orderable" : false },
+                        {"data": "environmentName","orderable" : true  },
+                        {"data": "","orderable" : false,
+                            "render":function(data, type, full, meta) {
+                                var state = full.state;
+                                var id=full._id;
+                                if (state === 'running') {
+                                    return '<input class="nodeCheckBox" type="checkbox" val = ' +id+ '/>';
+                                }else{
+                                    return '';
+                                }
+                            }
+                        }
+                    ]
+                } );
             } else {
                 $('#Managed').hide();
                 $('#Assigned').hide();
@@ -1302,142 +1322,33 @@
 
         });
 
-        function loadManagedInstances(managnedData) {
-            $instanceManagedDatatable.clear().draw();
-            var $tbody = $('#managedInstance tbody').empty();
-            for (var i = 0; i < managnedData.managedInstances.length; i++) {
-                var $tr = $('<tr class="managedInstance"></tr>').attr('data-id',managnedData.managedInstances[i]._id);
-                var $tdId = $('<td></td>').append(managnedData.managedInstances[i].platformId);
-                $tr.append($tdId);
-
-                var $tdOs = $('<td></td>').append(managnedData.managedInstances[i].hardware.os);
-                $tr.append($tdOs);
-
-                var $tdIpAddress = $('<td></td>').append(managnedData.managedInstances[i].instanceIP);
-                $tr.append($tdIpAddress);
-
-                var region  = managnedData.managedInstances[i].region;
-                var $tdRegion = $('<td></td>').append(region);
-                $tr.append($tdRegion);
-                var $tdStatus = $('<td></td>').append(managnedData.managedInstances[i].instanceState);
-                $tr.append($tdStatus);
-
-                var $projectName = $('<td></td>').append(managnedData.managedInstances[i].projectName);
-                $tr.append($projectName);
-                var $environmentName = $('<td></td>').append(managnedData.managedInstances[i].environmentName);
-                $tr.append($environmentName);
-
-                var $button = '';
-
-                if (managnedData.managedInstances[i].instanceState === 'terminated') {
-
-                    $button = $('<div class="btn-group marginleft14"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
-                    $button.click(function() {
-                        var $this = $(this);
-                        var $tr = $this.parents('tr.managedInstance');
-                        var id = $this.parents('tr').attr('data-id');
-                        bootbox.confirm({
-                            message: 'Are you sure you want to Delete Managed Instance -&nbsp;',
-                            title: "Warning",
-                            callback: function(result) {
-                                if (result) {
-                                    $.ajax({
-                                        url: '/instances/' + id,
-                                        method: 'DELETE',
-                                        success: function() {
-                                            $instanceManagedDatatable.row($tr).remove().draw(false);
-                                        },
-                                        error: function(jxhr) {
-                                            bootbox.alert(result);
-                                            var msg = "Unable to Delete Managed Instances please try again later";
-                                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                                msg = jxhr.responseJSON.message;
-                                            } else if (jxhr.responseText) {
-                                                msg = jxhr.responseText;
-                                            }
-                                            bootbox.alert(msg);
-                                        }
-                                    });
-                                } else {
-                                    return;
-                                }
-                            }
-                        });
-                        return false;
-                    });
-                }
-                var $tdAction = $('<td></td>').append($button);
-                $tr.append($tdAction);
-                $tbody.append($tr);
-                $instanceManagedDatatable.row.add($tr).draw();
-            }
-        }
 
 
-        function loadUnmanagedInstances(unManagnedData) {
-            $instanceUnManagedDatatable.clear().draw();
-            var $tbody = $('#unManagedInstance tbody').empty();
-            for (var i = 0; i < unManagnedData.unmanagedInstances.length; i++) {
-                var $tr = $('<tr></tr>').attr('instanceId', unManagnedData.unmanagedInstances[i]._id);
-                var $tdId = $('<td></td>').append(unManagnedData.unmanagedInstances[i].platformId);
-                $tr.append($tdId);
 
-                var $tdOs = $('<td></td>').append(unManagnedData.unmanagedInstances[i].os);
-                $tr.append($tdOs);
-
-                var $tdIpAddress = $('<td></td>').append(unManagnedData.unmanagedInstances[i].ip);
-                $tr.append($tdIpAddress);
-
-                var region = '';
-                if (unManagnedData.unmanagedInstances[i].providerData && unManagnedData.unmanagedInstances[i].providerData.region) {
-                    region = unManagnedData.unmanagedInstances[i].providerData.region;
-                }
-                var $tdRegion = $('<td></td>').append(region);
-                $tr.append($tdRegion);
-                var $tdStatus = $('<td></td>').append(unManagnedData.unmanagedInstances[i].state);
-                $tr.append($tdStatus);
-
-
-                var $projectName = $('<td></td>').append(unManagnedData.unmanagedInstances[i].projectName);
-                $tr.append($projectName);
-                var $environmentName = $('<td></td>').append(unManagnedData.unmanagedInstances[i].environmentName);
-                $tr.append($environmentName);
-
-
-                var $input = '';
-                if (unManagnedData.unmanagedInstances[i].state === 'running') {
-                    $input = $('<input class="nodeCheckBox" type="checkbox">').val(unManagnedData.unmanagedInstances[i]._id);
-                }
-                var $tdAction = $('<td></td>').append($input);
-                $tr.append($tdAction);
-                $tbody.append($tr);
-                $instanceUnManagedDatatable.row.add($tr).draw();
-            }
-        }
 
 
         function loadUnassignedInstances(unassignedData, envprojMappingObject){
             $instanceUnAssignedDatatable.clear().draw();
-            for (var i = 0; i < unassignedData.instances.length; i++) {
+            for (var i = 0; i < unassignedData.unassignedInstances.length; i++) {
                 var $tbody = $('#unassignedinstanceListTable tbody').empty();
-                var $tr = $('<tr></tr>').attr({ "instanceid" : unassignedData.instances[i].id, "projecttagsmapname" : envprojMappingObject.project, "envtagsmapname" : envprojMappingObject.environment });
+                var $tr = $('<tr></tr>').attr({ "instanceid" : unassignedData.unassignedInstances[i].id, "projecttagsmapname" : envprojMappingObject.project, "envtagsmapname" : envprojMappingObject.environment });
 
-                var $tdId = $('<td></td>').append(unassignedData.instances[i].platformId);
+                var $tdId = $('<td></td>').append(unassignedData.unassignedInstances[i].platformId);
                 $tr.append($tdId);
 
-                var $tdOs = $('<td></td>').append(unassignedData.instances[i].os);
+                var $tdOs = $('<td></td>').append(unassignedData.unassignedInstances[i].os);
                 $tr.append($tdOs);
 
-                var $tdIpAddress = $('<td></td>').append(unassignedData.instances[i].ip);
+                var $tdIpAddress = $('<td></td>').append(unassignedData.unassignedInstances[i].ip);
                 $tr.append($tdIpAddress);
 
-                var $tdStatus = $('<td></td>').append(unassignedData.instances[i].state);
+                var $tdStatus = $('<td></td>').append(unassignedData.unassignedInstances[i].state);
                 $tr.append($tdStatus);
 
                 //Loop to append the project from the tags
-                if(unassignedData.instances[i].tags){
-                    if(envprojMappingObject.project in unassignedData.instances[i].tags){
-                        var projectTagName = unassignedData.instances[i].tags[envprojMappingObject.project];
+                if(unassignedData.unassignedInstances[i].tags){
+                    if(envprojMappingObject.project in unassignedData.unassignedInstances[i].tags){
+                        var projectTagName = unassignedData.unassignedInstances[i].tags[envprojMappingObject.project];
                         var $inputTextProject = $('<input type="text" class="form-control projectTagName" value="'+projectTagName+'"></input>');
 
                         var $tdProjectTag = $('<td></td>').append($inputTextProject);
@@ -1448,8 +1359,8 @@
                         $tr.append($tdProjectTag);
                     }
 
-                    if(envprojMappingObject.environment in unassignedData.instances[i].tags){
-                        var environmentTagName = unassignedData.instances[i].tags[envprojMappingObject.environment];
+                    if(envprojMappingObject.environment in unassignedData.unassignedInstances[i].tags){
+                        var environmentTagName = unassignedData.unassignedInstances[i].tags[envprojMappingObject.environment];
                         var $inputTextEnv = $('<input type="text" class="form-control envTagName" value="'+environmentTagName+'"></input>');
                         var $tdEnvTag = $('<td></td>').append($inputTextEnv);
                         $tr.append($tdEnvTag);
@@ -1459,7 +1370,7 @@
                         $tr.append($tdEnvTag);
                     }
                 }
-                if(unassignedData.instances[i].tags == "undefined" || unassignedData.instances[i].tags == null){
+                if(unassignedData.unassignedInstances[i].tags == "undefined" || unassignedData.unassignedInstances[i].tags == null){
                     var $inputTextProject = $('<input type="text" class="form-control projectTagName" value=""></input>');
                     var $tdProjectTag = $('<td></td>').append($inputTextProject);
                     $tr.append($tdProjectTag);
@@ -1477,108 +1388,17 @@
                 $instanceUnAssignedDatatable.row.add($tr).draw();
             }
         }
-        //loading unAssigned RDS Data.
-        function loadUnassignedRDSData(unassignedRDSData){
-            $rdsUnAssignedDatatable.clear().draw();
-            for (var i = 0; i < unassignedRDSData.resources.length; i++) {
-                var $tbody = $('#unassignedRDSListTable tbody').empty();
-                var $tr = $('<tr></tr>').attr({"rdsId" : unassignedRDSData.resources[i]._id});
-                //creating td for RDS name..
-                var $tdDbRDSName = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbName);
-                $tr.append($tdDbRDSName);
-                //creating td for RDS Type..
-                var $tdType = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbEngine);
-                $tr.append($tdType);
-                //creating td for RDS Status..
-                var $tdStatus = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbInstanceStatus);
-                $tr.append($tdStatus);
-                //creating td for RDS Region..
-                var $tdRegion = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.region);
-                $tr.append($tdRegion);
-                //creating td for InstanceClass..
-                var $tdInstanceClass = $('<td></td>').append(unassignedRDSData.resources[i].resourceDetails.dbInstanceClass);
-                $tr.append($tdInstanceClass);
-
-                var $tdMultiAZ;
-                var multiAZ = unassignedRDSData.resources[i].resourceDetails.multiAZ
-                if(multiAZ === false){
-                    $tdMultiAZ = $('<td>false</td>');
-                }
-                else{
-                    $tdMultiAZ = $('<td></td>').append(multiAZ);
-                }
-                $tr.append($tdMultiAZ);
-                //creating td for Instance Created On
-                var createdOn = unassignedRDSData.resources[i].resourceDetails.dbInstanceCreatedOn;
-                var date = new Date().setTime(createdOn.timestamp);
-                var taskTimestamp = new Date(createdOn).toLocaleString(); //converts to human readable strings
-                var $tdInstanceCreatedOn = $('<td></td>').append(taskTimestamp);
-                $tr.append($tdInstanceCreatedOn);
-                $tbody.append($tr);
-                $rdsUnAssignedDatatable.row.add($tr).draw();
-            }
-        }
-
-        //loading unAssigned S3 data
-        function loadUnassignedS3Data(unassignedS3Data){
-            $s3UnAssignedDatatable.clear().draw();
-            for (var i = 0; i < unassignedS3Data.resources.length; i++) {
-                var $tbody = $('#unassignedS3ListTable tbody').empty();
-                var $tr = $('<tr></tr>').attr({"s3Id" : unassignedS3Data.resources[i]._id});
-                var $tdS3Bucket = $('<td></td>').append(unassignedS3Data.resources[i].resourceDetails.bucketName);
-                $tr.append($tdS3Bucket);
-
-                var $tdS3BucketOwner = $('<td></td>').append(unassignedS3Data.resources[i].resourceDetails.bucketOwnerName);
-                $tr.append($tdS3BucketOwner);
-
-                var $tdOrgName = $('<td></td>').append(unassignedS3Data.resources[i].masterDetails.orgName);
-                $tr.append($tdOrgName);
-                var $tdBucketSize = $('<td></td>').append(unassignedS3Data.resources[i].resourceDetails.bucketSize);
-                $tr.append($tdBucketSize);
-                var createdOn = unassignedS3Data.resources[i].resourceDetails.bucketCreatedOn;
-                var date = new Date().setTime(createdOn.timestamp);
-                var taskTimestamp = new Date(createdOn).toLocaleString(); //converts to human readable strings
-                var $tdBucketCreatedOn = $('<td></td>').append(taskTimestamp);
-                $tr.append($tdBucketCreatedOn);
-
-                $tbody.append($tr);
-                $s3UnAssignedDatatable.row.add($tr).draw();
-            }
-        }
 
 
 
-        //get Managed Instance Data
-        function getManagedInstances() {
-            $.get('/providers/' + urlproviderId + '/managedInstances', function(managedInstances) {
-                loadManagedInstances(managedInstances);
-            }).fail(function(jxhr) {
-                var msg = "Provider Sync Behaved Unexpectedly.";
-                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                    msg = jxhr.responseJSON.message;
-                } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
-                }
-                bootbox.alert(msg);
-            });
-        }
 
-        //get Assigned Instance Data
-        function getUnmanagedInstances() {
-            $.get('/providers/' + urlproviderId + '/unmanagedInstances', function(unmanagnedInstances) {
-                if(unmanagnedInstances){
-                    loadUnmanagedInstances(unmanagnedInstances);
-                }
-            }).fail(function(jxhr) {
-                var msg = "Provider Sync unmanaged instances Behaved Unexpectedly.";
-                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                    msg = jxhr.responseJSON.message;
-                } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
-                }
-                bootbox.alert(msg);
-            });
-        }
+
+
+
+
+
+
+
 
         //loading UnAssigned Data
         function getUnassignedInstances() {
@@ -1628,36 +1448,7 @@
                 bootbox.alert(msg);
             });
         }
-        function getUnassignedRDSData(){
-            $.get('/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned', function(unassignedRDS) {
-                if(unassignedRDS){
-                    loadUnassignedRDSData(unassignedRDS);
-                }
-            }).fail(function(jxhr) {
-                var msg = "Unassigned Instances Behaved Unexpectedly.";
-                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                    msg = jxhr.responseJSON.message;
-                } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
-                }
-                bootbox.alert(msg);
-            });
-        }
-        function getUnassignedS3Data(){
-            $.get('/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned', function(unassignedS3) {
-                if(unassignedS3){
-                    loadUnassignedS3Data(unassignedS3);
-                }
-            }).fail(function(jxhr) {
-                var msg = "Unassigned Instances Behaved Unexpectedly.";
-                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                    msg = jxhr.responseJSON.message;
-                } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
-                }
-                bootbox.alert(msg);
-            });
-        }
+
 
         $('#unassignedSyncBtn').on('click', function(e) {
             var updateInstanceTagsObj = {};

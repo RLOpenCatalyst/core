@@ -18,6 +18,7 @@ var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
+var mongoosePaginate = require('mongoose-paginate');
 
 var UnassignedInstancesSchema = new Schema({
     orgId: {
@@ -54,6 +55,7 @@ var UnassignedInstancesSchema = new Schema({
     state: String,
     tags: Schema.Types.Mixed
 });
+UnassignedInstancesSchema.plugin(mongoosePaginate);
 UnassignedInstancesSchema.index({platformId: 1, providerId: 1}, {unique: true});
 
 UnassignedInstancesSchema.statics.createNew = function createNew(data, callback) {
@@ -63,41 +65,24 @@ UnassignedInstancesSchema.statics.createNew = function createNew(data, callback)
         if (err) {
             logger.error("Failed to create unassigned instance", err);
             if (typeof callback == 'function') {
-                callBack(err, null);
+                callback(err, null);
             }
             return;
         } else if (typeof callback == 'function') {
-            return callBack(null, instance);
+            return callback(null, instance);
         }
     });
 };
 
-UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(providerId, callback) {
-    this.find(
-        {'providerId': providerId},
-        function(err, instances) {
-            if (err) {
-                logger.error("Failed getByProviderId (%s)", providerId, err);
-                return callback(err, null);
-            } else {
-                return callback(null, instances);
-            }
+UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(databaseReq, callback) {
+    this.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
+        if (err) {
+            logger.error("Failed getByProviderId (%s)", err);
+            callback(err, null);
+            return;
         }
-    );
-};
-
-UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(providerId, callback) {
-    this.find(
-        {'providerId': providerId},
-        function(err, instances) {
-            if (err) {
-                logger.error("Failed getByProviderId (%s)", providerId, err);
-                return callback(err, null);
-            } else {
-                return callback(null, instances);
-            }
-        }
-    );
+        callback(null, instances);
+    });
 };
 
 UnassignedInstancesSchema.statics.getById = function getByProviderId(instanceId, callback) {
@@ -130,8 +115,7 @@ UnassignedInstancesSchema.statics.getAllByIds = function getByProviderId(instanc
     });
 };
 
-UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
-    = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
+UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
     var params = {
         'providerId': providerId,
         'platformId': platformId
@@ -165,8 +149,24 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
     });
 };
 
-UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId
-    = function deleteByPlatformAndProviderId(providerId, platformId, callback) {
+UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instance,callback) {
+    this.update({
+        "platformId": instance.platformId,
+    }, {
+        $set: {
+            state:instance.state
+        }
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to update Unassigned Instance status data", err);
+            callback(err,null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId = function deleteByPlatformAndProviderId(providerId, platformId, callback) {
     this.remove({
         providerId: providerId,
         platformId: platformId
