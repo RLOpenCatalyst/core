@@ -1,0 +1,80 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/card/card.css">
+
+<div id='cpActionsPage' ng-controller="cpActionsCtrl">
+	<div class="options-menu-wrapper">
+		<ul class="dropdown-menu">
+			<li class="EditInstance-bs">
+				<span ng-click="operationSet.editInstanceName(inst);">
+					<i class="fa fa-pencil dropdown-icon"></i>
+					Edit Instance Name
+				</span>
+			</li>
+			<li class="chef-bs">
+				<span ng-click="operationSet.updateCookbook(inst);" ng-show="actionSet.isChefEnabled(inst) &amp;&amp; perms.chefClientRun">
+					<i class="fa fa-gg dropdown-icon"></i>
+					Chef Client Run
+				</span>
+			</li>
+			<li class="puppet-bs" ng-show="actionSet.isPuppetEnabled(inst) &amp;&amp; perms.puppet">
+				<span ng-click="operationSet.puppetRunClient(inst);">
+					<i class="fa fa-puzzle-piece dropdown-icon"></i>
+					Puppet Client Run
+				</span>
+			</li>
+			<li class="ssh-bs">
+				<span ng-click="operationSet.instanceSSH(inst)" data-instanceid={{ inst._id }} data-actiontype="SSH" ng-show="inst.hardware.os==='linux' || inst.hardware.os==='centos'">
+					<i class="fa fa-briefcase dropdown-icon"></i>
+					SSH
+				</span>
+			</li>
+			<li class="rdp-bs" ng-show="actionSet.isRDPEnabled(inst) &amp;&amp; perms.rdp">
+				<span>
+					<a class="rdp-anchor" data-instanceid={{ inst._id }} target="_self" href="{{rdpFileLink(inst)}}" download="{{rdpFileName(inst)}}">
+						<i class="fa fa-stack-overflow dropdown-icon"></i>
+						RDP
+					</a>
+				</span>
+			</li>
+			<li ng-click="isStartStopClickEnabled && operationSet.changeInstanceStatus(inst)" ng-show="perms.start 
+			&& inst.instanceState === 'stopped' && inst.providerId">
+				<span>
+					<i class="fa fa-play dropdown-icon"></i>
+					Start Instance
+				</span>
+			</li>
+			<li ng-click="isStartStopClickEnabled && operationSet.changeInstanceStatus(inst)" ng-show="perms.stop && inst.instanceState === 'running' && inst.providerId">
+				<span>
+					<i class="fa fa-stop dropdown-icon"></i>
+					Stop Instance
+				</span>
+			</li>
+			<li class="divider" ng-hide="inst.appUrls.length==0 && inst.tasks.length==0"></li>
+			<span ng-hide="inst.appUrls.length==0">
+				<li class="no-action">
+				   <span>
+					  <i class="fa fa-list-alt dropdown-icon"></i>
+					  App Links
+				   </span>
+				</li>
+				<ul class="paddingleft32 instanceTaskListUL">
+				   <li ng-repeat="applink in inst.appUrls">
+					  <a class="app-url cursor" target="_blank" ng-href="{{applink.url}}">
+						 {{applink.name}}
+					  </a>
+				   </li>
+				</ul>
+			</span>
+			<span ng-hide="inst.tasks.length==0">
+				<li class="no-action">
+				   <span class="menuTaskSpan">
+					  <i class="fa fa-outdent dropdown-icon"></i>
+					  Task Links
+				   </span>
+				</li>
+				<ul class="paddingleft32 instanceTaskListUL">
+				   <li class="cursor" ng-repeat="taskDetail in inst.tasks">{{taskDetail.taskName}}</li>
+				</ul>
+			</span>
+		</ul>
+	</div>
+</div>

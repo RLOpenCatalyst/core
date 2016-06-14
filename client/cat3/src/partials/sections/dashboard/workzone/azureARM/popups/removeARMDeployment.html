@@ -1,0 +1,22 @@
+<div id='removeARMDeploymentPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+	    <h4 class="modal-title">
+	    	<i class="fa fa-trash-o"></i>
+	    	Delete ARM Deploymant
+	    </h4>
+	</div>
+
+	<div class="modal-body">
+		Are you sure you would like to remove this arm deployment? This will remove all the instances related to this deployment.
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn btn-danger" ng-click="ok()">
+			<i class="fa fa-trash-o white"></i> Delete
+		</button>
+	</div>
+</div>

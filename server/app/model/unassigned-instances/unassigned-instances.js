@@ -74,8 +74,9 @@ UnassignedInstancesSchema.statics.createNew = function createNew(data, callback)
     });
 };
 
+
 UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(databaseReq, callback) {
-    this.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
+    this.paginate(databaseReq.queryObj, databaseReq.options, function (err, instances) {
         if (err) {
             logger.error("Failed getByProviderId (%s)", err);
             callback(err, null);
@@ -84,6 +85,7 @@ UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(dat
         callback(null, instances);
     });
 };
+
 
 UnassignedInstancesSchema.statics.getById = function getByProviderId(instanceId, callback) {
     this.findById(instanceId,

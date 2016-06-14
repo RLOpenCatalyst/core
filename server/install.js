@@ -201,7 +201,6 @@ function getDefaultsConfig() {
                 productName1:['Amazon Elastic Compute Cloud','Amazon RDS Service','Amazon Redshift','Amazon ElastiCache'],
                 productName2:['Amazon CloudFront','Amazon Route 53','Amazon Simple Storage Service','Amazon Virtual Private Cloud']
             }
-
         },
         vmware: {
             serviceHost: "http://localhost:3000"
@@ -338,7 +337,7 @@ function installPackageJson() {
             console.log("Installation Successfull.");
             process.exit(0);
         } else {
-            console.log("Error occured while installing packages from package.json");
+            console.log("Error occured while installing packages from apidoc.json");
             process.exit(1);
         }
     });

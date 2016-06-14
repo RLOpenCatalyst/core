@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 
 var UnmanagedInstanceSchema = new Schema({
@@ -145,7 +144,6 @@ UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, c
 
 	});
 };
-
 
 UnmanagedInstanceSchema.statics.getInstanceTagByProviderId = function(providerIds, callback) {
 	if (!(providerIds && providerIds.length)) {

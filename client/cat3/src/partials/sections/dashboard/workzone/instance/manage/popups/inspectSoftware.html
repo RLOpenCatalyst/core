@@ -1,0 +1,29 @@
+<div id='inspectSoftwarePage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> 
+			<i class="fa fa-bar-chart-o"></i> Inspect Installed Software
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<loading name="isInspectSoftwareLoading" size="large" type="block"></loading>
+		<div ng-show="!isInspectSoftwareLoading">
+			<div ng-show="error">Error : {{error}}</div>
+			<div  class="inspect-software-content" ng-show="!error">
+			<label>Search: <input ng-model="searchSoftware.$"></label>
+				<p ng-repeat="software in installedSoftware | filter:searchSoftware">
+					<i class="fa fa-chevron-right txt-color-blue"></i>
+					&nbsp;{{software.trim()}}
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>
+

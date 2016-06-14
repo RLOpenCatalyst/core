@@ -1,0 +1,37 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/orchestration/orchestration.css">
+
+<div id='viewNodesPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> 
+			<i class="fa fa-sitemap"></i> Assigned Nodes
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<loading name="isViewNodesLoading" size="large" type="block" align="center"></loading>
+		<table ng-if="!isViewNodesLoading">
+			<thead>
+				<tr class="header-lineheight">
+					<th class="name-width" scope="col"><u class="header-font">Name</u>
+					</th>
+					<th class="ip-width" scope="col"> <u class="header-font">IP Address</u></th>
+					<th class="ip-width" scope="col"> <u class="header-font">Status</u></th>
+				</tr>
+			</thead>
+			<tbody class="taskNodeListContainer">
+				<tr class="header-lineheight" ng-repeat="instance in taskInstanceList">
+					<td class="name-width">{{instance.name}}</td>
+					<td class="ip-width">{{instance.instanceIP}}</td>
+					<td class="ip-width">{{instance.instanceState}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

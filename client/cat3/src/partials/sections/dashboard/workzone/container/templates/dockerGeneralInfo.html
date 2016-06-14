@@ -1,0 +1,45 @@
+<div id="dockerGeneralInfoPage">
+	<table align="left" class="docker-table">
+		<thead>
+			<tr class="tr-line-height">
+				<th scope="col"><u></u></th>
+				<th scope="col"><u></u></th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<tr>
+				<td>Name :</td>
+				<td>{{ dockerInfoResponse.Config.Hostname }}</td>
+			</tr>
+			<tr>
+				<td>ContainerID :</td>
+				<td>{{ dockerInfoResponse.Id }}</td>
+			</tr>
+			<tr>
+				<td>Created :</td>
+				<td>{{ dockerInfoResponse.Created | timestampToLocaleTime}}</td>
+			</tr>
+			<tr>
+				<td>Docker Repo :</td>
+				<td>{{ }}</td>
+			</tr>
+			<tr>
+				<td>Working Dir :</td>
+				<td>{{ dockerInfoResponse.Config.WorkingDir }}</td>
+			</tr>
+			<tr>
+				<td>Entry Point :</td>
+				<td>{{ dockerInfoResponse.Config.Entrypoint }}</td>
+			</tr>
+			<tr>
+				<td>Virtual Size :</td>
+				<td>{{ dockerInfoResponse.Config.Memory }}</td>
+			</tr>
+			<tr>
+				<td>Port Specs :</td>
+				<td>{{ dockerInfoResponse.Config.PortSpecs }}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

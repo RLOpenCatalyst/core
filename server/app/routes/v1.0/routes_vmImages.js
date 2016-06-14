@@ -330,11 +330,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var userName = req.body.userName.trim();
         var orgId = req.body.orgId;
         var providerType = req.body.providertype.toLowerCase().trim();
-        var password="";
-        if(req.body.password){
-            password = req.body.password.trim(); //only for azure provider
-        } else if(req.body.instancePassword){
-            password = req.body.instancePassword.trim();
+        var password; //only for azure provider
+
+        if (req.body.password) {
+            //encrypting password before save
+           // cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding
+           password = cryptography.encryptText(req.body.password.trim(),cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding)
+           // password = req.body.password.trim();
         }
 
         if (typeof providerId === 'undefined' || providerId.length === 0) {

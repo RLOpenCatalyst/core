@@ -22,7 +22,6 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var instancesDao = require('_pr/model/classes/instance/instance');
 var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
-var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var waitForPort = require('wait-for-port');
 var uuid = require('node-uuid');
 var taskStatusModule = require('_pr/model/taskstatus');
@@ -34,10 +33,11 @@ var Puppet = require('_pr/lib/puppet');
 var validate = require('express-validation');
 var tagsValidator = require('_pr/validators/tagsValidator');
 var instanceValidator = require('_pr/validators/instanceValidator');
-var	providerService = require('_pr/services/providerService');
+var providerService = require('_pr/services/providerService');
 var instanceService = require('_pr/services/instanceService');
 var apiErrorUtil = require('_pr/lib/utils/apiErrorUtil');
 var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 
 
@@ -83,17 +83,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 		});
 	});
-
+	
 	app.get('/providers/:providerId/managedInstances', validate(instanceValidator.get), getManagedInstancesList);
 
 	function getManagedInstancesList(req,res,next) {
 		var reqData = {};
 		async.waterfall(
 			[
-				function(next){
-					apiUtil.changeRequestForJqueryPagination(req.query,next);
+				function (next) {
+					apiUtil.changeRequestForJqueryPagination(req.query, next);
 				},
-				function(reqData,next) {
+				function (reqData, next) {
 					apiUtil.paginationRequest(reqData, 'managedInstances', next);
 				},
 				function (paginationReq, next) {
@@ -106,10 +106,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					instancesDao.getByProviderId(queryObj, next);
 				},
 				/*function (managedInstances, next) {
-					apiUtil.paginationResponse(managedInstances, reqData, next);
-				}*/
-				function(managedInstances,next){
-					apiUtil.changeResponseForJqueryPagination(managedInstances,reqData,next);
+				 apiUtil.paginationResponse(managedInstances, reqData, next);
+				 }*/
+				function (managedInstances, next) {
+					apiUtil.changeResponseForJqueryPagination(managedInstances, reqData, next);
 				},
 
 			], function (err, results) {
@@ -118,7 +118,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				else
 					return res.status(200).send(results);
 			});
-	};
+	}
+				
 
 	app.get('/providers/:providerId/unmanagedInstances', validate(instanceValidator.get), getUnManagedInstancesList);
 
@@ -1592,5 +1593,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 		);
 	}
-
 };
