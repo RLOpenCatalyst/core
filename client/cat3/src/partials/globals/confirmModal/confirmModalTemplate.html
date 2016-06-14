@@ -1,0 +1,21 @@
+<div id='confirmModalTemplatePage'>
+	<div class="modal-header">
+		<span class="close" data-ng-click="modalOptions.close();">×</span>
+		<h4 class="modal-title">
+			{{modalOptions.headerText}}
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		{{modalOptions.bodyText}}
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" data-ng-click="modalOptions.close();">
+			{{modalOptions.closeButtonText}}
+		</button>
+		<button type="button" class="btn ng-class:modalOptions.actionButtonStyle" data-ng-click="modalOptions.ok();">
+			{{modalOptions.actionButtonText}}
+		</button>
+	</div>
+</div>

@@ -75,8 +75,8 @@ var containerSchema = new Schema({
         trim: true,
     },
     containerStatus: {
-        type: String,
-        enum: ["START", "STOP" , "PAUSE","UNPAUSE","RESTART"]
+            type: String,
+            enum: ["START", "STOP" , "PAUSE","UNPAUSE","RESTART"]
     },
     HostConfig:Schema.Types.Mixed
 
@@ -209,6 +209,7 @@ containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback
         callback(null, data);
     });
 };
+
 containerSchema.statics.deleteContainersByContainerIds=function(instanceId,containerIds,callback){
     logger.debug("Enter deleteContainersByContainerIds (%s)", instanceId);
     container.remove({

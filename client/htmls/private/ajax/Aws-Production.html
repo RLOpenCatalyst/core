@@ -621,6 +621,7 @@
                                       <button class="btn btn-primary">
                                       <a style="color:white;text-decoration:none" href="#ajax/Aws-Production.html?addnew" id="addanotherlink">&nbsp;&nbsp;Add New Blueprint</a>
                                       </button>
+                                      <a style="color:white;text-decoration:none" id="blueprintLaunch" href="#modalSelectEnvironment" class="btn btn-primary blueprintNameLaunch" data-backdrop="false" data-toggle="modal"></a>
                                     </div>
                                   </div>
                                 </div>
@@ -954,94 +955,4 @@
     </div>
   </div>
 </div>
-<div class="modal fade bs-example-modal-lg" id="myModalLabelDockerContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="DockerLaunch">Launch Parameters-Docker Blueprints</h4>
-      </div>
-      <div class="modal-body dockerModalHeight">
-        <section>
-          <form id="dockerparamsform" action="">
-            <div style="margin:0px;">
-              <div class="col-lg-6 col-md-6">
-                <label for="category">Container Name<span style="color:red">*</span><span class="dockerparamrequired hidden" style="color:red">&nbsp;Required</span>
-                </label>
-                <input type="text" id="Containernamefield" name="namefield" class="required form-control" placeholder="" dockerparamkey="--name" onclick="$('.dockerparamrequired').addClass('hidden')">
-              </div>
-              <div class="col-lg-6 col-md-6">
-                <label for="category">Port Mappings
-                </label>
-                <input type="text" id="Portmappingfield" name="Portmappingfield" class=" form-control" placeholder="Map host ports to container ports" dockerparamkey="-p">
-              </div>
-              <div class="col-lg-6 col-md-6 dockerModal">
-                <label for="category">Volumes
-                </label>
-                <input type="text" id="Volumesfield" name="Volumesfield" class=" form-control" placeholder="Map host folders to container folders" dockerparamkey="-v">
-              </div>
-              <div class="col-lg-6 col-md-6 dockerModal">
-                <label for="category">Volumes-from
-                </label>
-                <input type="text" id="Volumes-fromfield" name="Volumes-fromfield" class=" form-control" placeholder="Comma separated container names" dockerparamkey="--volumes-from">
-              </div>
-              <div class="col-lg-6 col-md-6 dockerModal">
-                <label for="category">Linked Container
-                </label>
-                <input type="text" id="Linkedcontainerfield" name="Linkedcontainerfield" class=" form-control" placeholder="The name of a container this one links to" dockerparamkey="--link">
-              </div>
-              <div class="col-lg-6 col-md-6 dockerModal">
-                <label for="category">Environment Variables
-                </label>
-                <input type="text" id="Environmentvariablesfield" name="Environmentvariablesfield" class=" form-control" placeholder="" dockerparamkey="-e">
-              </div>
-              <div class="col-lg-6 col-md-6 dockerModal">
-                <label for="category">Startup Command
-                </label>
-                <input type="text" id="Startupcommandfield" name="Startupcommandfield" class=" form-control" placeholder="Optional startup command for the container" dockerparamkey="-c">
-              </div>
-              <div class="col-lg-6 col-md-6 dockerModal">
-                <label for="category">Additional Startup
-                </label>
-                <input type="text" id="additionalStartupcommandfield" name="additionalStartupcommandfield" class=" form-control" placeholder="Additional startup command for the container" dockerparamkey="-exec">
-              </div>
-              <div class="col-lg-6 hidden">
-                <label for="category">Removed Linked Containers on Exit
-                </label>
-                <select class="chooseSelect width-100 form-control" id="Removelinkedcontainersonexitfield" placeholder="Should this & linked containers be removed on exit">
-                  <option>False</option>
-                  <option>True</option>
-                </select>
-              </div>
-              <div class="col-lg-6 dockerModal hidden">
-                <label for="category">Remove on Exit
-                </label>
-                <select class="chooseSelectExit width-100 form-control" id="Removeonexitfield" placeholder="Should this container be removed when it exits">
-                  <option>False</option>
-                  <option>True</option>
-                </select>
-              </div>
-              <div class="col-lg-6 hidden">
-                <label for="">Startup Script</label>
-                <label class="input input-file" for="file">
-                  <div class="button">
-                    <input type="file" id="Startupscriptfield" name="Startupscriptfield">Browse
-                  </div>
-                  <input type="text" readonly="">
-                </label>
-              </div>
-            </div>
-          </form>
-        </section>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default btn-primary" onclick="if(generateDockerLaunchParams()!=''){$('#myModalLabelDockerContainer').modal('hide');}else{return(false);}">
-        <i class="fa fa-save fa-1x"></i>&nbsp;Add</button>
-        <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">
-        <i class="fa fa-undo fa-1x"></i>&nbsp;Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script type="text/javascript" src="js/dev/awsProduction.js"></script>

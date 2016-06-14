@@ -33,9 +33,7 @@ var UnmanagedInstanceSchema = new Schema({
 	state: String,
 	tags: Schema.Types.Mixed,
 	usage: Schema.Types.Mixed,
-	cost: Schema.Types.Mixed,
-	aggregateCost : String,
-	aggregateUsage : String
+	cost: Schema.Types.Mixed
 });
 UnmanagedInstanceSchema.plugin(mongoosePaginate);
 
@@ -122,7 +120,6 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 
 
 UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
-	var databaseReq={};
 	jsonData['searchColumns']=['ip','platformId'];
 	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
 		if(err){
@@ -131,16 +128,17 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 			});
 			return;
 		}
-		databaseReq=databaseCall;
+		else {
+			UnmanagedInstance.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
+				if (err) {
+					logger.error("Failed getByOrgProviderId (%s)", err);
+					callback(err, null);
+					return;
+				}
+				callback(null, instances);
+			});
+		}
 	});
-		this.paginate(databaseReq.queryObj, databaseReq.options, function(err, instances) {
-			if (err) {
-				logger.error("Failed getByOrgProviderId (%s)", err);
-				callback(err, null);
-				return;
-			}
-			callback(null, instances);
-		});
 };
 
 UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, callback) {
@@ -158,7 +156,6 @@ UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, c
 
 	});
 };
-
 
 UnmanagedInstanceSchema.statics.getInstanceTagByProviderId = function(providerIds, callback) {
 	if (!(providerIds && providerIds.length)) {
@@ -231,9 +228,7 @@ UnmanagedInstanceSchema.statics.updateInstanceCost = function(instanceCostData, 
 		platformId: instanceCostData.resourceId
 	}, {
 		$set: {
-			cost: instanceCostData.costMetrics,
-			aggregateCost:instanceCostData.totalInstanceCost,
-			aggregateUsage:instanceCostData.totalInstanceUsage
+			cost: instanceCostData.cost
 		}
 	}, {
 		upsert: false

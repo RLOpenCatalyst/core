@@ -1,0 +1,16 @@
+<div id='dockerplaypausePage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+	    <h4 class="modal-title">Confirmation</h4>
+	</div>
+
+	<div class="modal-body">
+		Are you sure you would like to play/pause container : <span ng-bind-html="itemsNameList"></span> <br />
+		This action could have an impact on other containers.
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">Cancel</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">Ok</button>
+	</div>
+</div>

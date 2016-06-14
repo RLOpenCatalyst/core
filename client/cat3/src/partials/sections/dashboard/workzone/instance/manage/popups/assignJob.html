@@ -1,0 +1,35 @@
+<div id='assignJobPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"> 
+			<i class="fa fa-list-ol"></i>
+			List Of Tasks
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<fieldset>
+			<div class="section-headings">
+				<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+					<span>Available Tasks</span>
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+					<span>Selected Tasks</span>
+				</div>
+			</div>
+	        <div id="assign_job_component">
+	            <!-- Here HTML snippet will be append through chef component-->
+	        </div>
+	    </fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn cat-btn-save" ng-click="ok()">
+			<i class="fa fa-check white"></i> Save
+		</button>
+	</div>
+</div>
+

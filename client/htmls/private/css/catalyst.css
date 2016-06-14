@@ -2484,9 +2484,15 @@ hr {
     height: 118px;
     width: 140px;
 }
+.margin-top5{
+    margin-top: 5px;
+}
+/*border added for productdiv1 in Dev Angular to sync with Blueprint Card Design*/
 .productdiv1 {
     position: relative;
     border-width: 1px;
+    border:1px solid #ccc;
+    border-radius: 4px;
 }
 .glowBox {
     background: none repeat scroll 0 0 #FFFFFF;
@@ -2834,8 +2840,8 @@ body {
     filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
     opacity: 1;
 }
+/*Background Image removed for cardImage in Dev Angular to sync with Blueprint Card Design*/
 .cardimage {
-    background-image: url("../img/app-store-icons/box_ops.png");
     background-repeat: no-repeat;
     height: 163px;
     margin-left: 15px;
@@ -2845,11 +2851,12 @@ body {
 .widget-main {
     overflow: hidden;
 }
+/*Margin left changed for cardLogo in Dev Angular to sync with Blueprint Card Design*/
 .cardLogo {
     height: 52px;
     padding-top: 11px;
     margin-top: 20px;
-    margin-left: 15px;
+    margin-left: 8px;
 }
 .moreInfo {
     background-repeat: no-repeat;
@@ -3894,11 +3901,20 @@ span.icon {
     margin-left: -29px;
 }
 .bpvicon{
-    border-radius: 50%;
-    height:29px;
-    width:29px;
+    border-radius: 11px;
+    height:25px;
+    width:25px;
+    margin-left: 10px;
+    margin-top: 15px;
+    padding:3px 5px;
+ }
+ .launchIcon{
+    border-radius: 11px;
+    height:25px;
+    width:25px;
     margin-left: 0px;
     margin-top: 15px;
+    padding:3px 5px;
 }
 .cbbpselect{
     border-radius: 50%;
@@ -4450,4 +4466,8 @@ form.cmxform .gray * {
     width:26%;
     margin-top:-40px;
 }
+}
+/*Class added in Dev Angular to show the blue color for active classes.*/
+.custom-theme .left-projects-links > a.active i {
+    color:#40baf1 !important;
 }

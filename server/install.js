@@ -29,6 +29,10 @@ function getDefaultsConfig() {
             express_sid_key: 'express.sid',
             sessionSecret: 'sessionSekret'
         },
+        jwt: {
+            secret: "jwtSecr3t",
+            expiresInSec: 604800
+        },
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
@@ -62,12 +66,18 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
-        constantData:  {
-            common_field:['envId','providerId','orgId','bgId','projectId'],
-            sort_field:['name','description'],
-            filterReferanceData : {
-                "unmanagedInstances" : [{"state" : "running"},{"os" : "linux"}],
-                "managedInstances" : [{"instanceState" : "running"}]
+        constantData: {
+            common_field: ['envId', 'providerId', 'orgId', 'bgId', 'projectId'],
+            sort_field: ['name', 'description'],
+            filterReferanceData: {
+                "unmanagedInstances": [{
+                    "state": "running"
+                }, {
+                    "os": "linux"
+                }],
+                "managedInstances": [{
+                    "instanceState": "running"
+                }]
             },
             sort_order : "desc",
             sortReferanceData : {
@@ -80,11 +90,12 @@ function getDefaultsConfig() {
                 "containerList" : "Status",
                 "cftList" : "status",
                 "appDeploy" : "envId",
-                "trackedInstances": "providerType"
+                "trackedInstances": "providerType",
+                "resources":"createdOn"
             },
             skip_Records : 1,
-            max_record_limit : 200,
-            record_limit : 10
+            max_record_limit : 100000,
+            record_limit : 100000
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
@@ -96,6 +107,8 @@ function getDefaultsConfig() {
         },
         aws: {
             pemFileLocation: __dirname + '/app/config/',
+            s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
+            s3BucketFileName:'rlBilling.zip',
             pemFile: "catalyst.pem",
             instanceUserName: "root",
             virtualizationType: [{
@@ -164,6 +177,8 @@ function getDefaultsConfig() {
                 DiskWriteBytes: 'Megabytes',
                 NetworkIn: 'Megabytes',
                 NetworkOut: 'Megabytes',
+                BucketSizeBytes:"Bytes",
+                NumberOfObjects:"Count",
                 NetworkPacketsIn: 'Count',
                 NetworkPacketsOut: 'Count',
                 StatusCheckFailed: 'Count',
@@ -185,7 +200,6 @@ function getDefaultsConfig() {
                 productName1:['Amazon Elastic Compute Cloud','Amazon RDS Service','Amazon Redshift','Amazon ElastiCache'],
                 productName2:['Amazon CloudFront','Amazon Route 53','Amazon Simple Storage Service','Amazon Virtual Private Cloud']
             }
-
         },
         vmware: {
             serviceHost: "http://localhost:3000"
@@ -322,7 +336,7 @@ function installPackageJson() {
             console.log("Installation Successfull.");
             process.exit(0);
         } else {
-            console.log("Error occured while installing packages from package.json");
+            console.log("Error occured while installing packages from apidoc.json");
             process.exit(1);
         }
     });
