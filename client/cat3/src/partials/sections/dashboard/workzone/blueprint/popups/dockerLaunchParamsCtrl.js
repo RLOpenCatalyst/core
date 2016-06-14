@@ -107,7 +107,7 @@
 				{name:"Name",cellTemplate:'<div>{{row.entity.dockercontainerpathstitle}}</div>',cellTooltip: true},
 				{name:"Image Path",cellTemplate:'<div>{{row.entity.dockercontainerpaths}}</div>',cellTooltip: true},
 				{name:"Tag",cellTemplate:'<div>{{row.entity.dockerrepotags}}</div>',cellTooltip: true},
-				{name:"Launch Params",cellTemplate:'<input type="text" ng-model="row.entity.dockerlaunchparameters"><i class="btn icon-append fa fa-list-alt fa-lg" title="Launch Parameters" ng-click="grid.appScope.launchParam(row.entity, rowRenderIndex)"></i>',cellTooltip: true},
+				{name:"Launch Params", width:300, cellTemplate:'<input type="text" class="widthInputClass" ng-model="row.entity.dockerlaunchparameters"><i class="btn icon-append fa fa-list-alt fa-lg" title="Launch Parameters" ng-click="grid.appScope.launchParam(row.entity, rowRenderIndex)"></i>',cellTooltip: true},
 				{name:"Re-Order",cellTemplate:'<i class="fa fa-chevron-circle-up fa-lg" ng-click="grid.appScope.moveUpChoice(grid.appScope.dockerDetails, this.rowRenderIndex)"></i><i class="fa fa-chevron-circle-down fa-lg marginleft5" ng-click="grid.appScope.moveDownChoice(grid.appScope.dockerDetails, this.rowRenderIndex)"></i>',cellTooltip: true}
 				];
 			};
