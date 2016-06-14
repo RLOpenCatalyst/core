@@ -22,7 +22,8 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			versionsOptions:[],
 			tagOptions:[],
 			deployResult:[],
-			artifactsVersion:[]
+			artifactsVersion:[],
+			errorMsg:{}
 		};
 		depNewApp.init =function(){
 			$scope.isLoadingServer=true;
@@ -30,7 +31,17 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 			workSvs.repositoryServerList().then(function (serverResult) {
 				$scope.isLoadingServer=false;
 				depNewApp.serverOptions = serverResult.data.server;
+				if(serverResult.data.server.length == 0){
+					depNewApp.errorMsg= {
+						text:"Server is not defined <br /> Repository is not defined",
+						type: "warning",
+						server:true,
+						role:"tooltip",
+						positions:"bottom"
+					}
+				}
 			});
+
 			depNewApp.getAllChefJobs();
 		};
 		depNewApp.getAllChefJobs =function () {
@@ -54,11 +65,29 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				workSvs.getNexusRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
 					depNewApp.repositoryOptions = repositoryResult.data;
 					$scope.isLoadingNexus = false;
+					if(repositoryResult.data.length == 0){
+						depNewApp.errorMsg= {
+							text: "Repository is not defined",
+							type: "warning",
+							repository:true,
+							role:"tooltip",
+							positions:"bottom"
+						}
+					}
 				});
 			} else if(depNewApp.newEnt.serverType === 'docker'){
 				workSvs.getDockerRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
 					$scope.isLoadingNexus = false;
 					depNewApp.repositoryOptions = repositoryResult.data[0].repositories.docker;
+					if(depNewApp.repositoryOptions.length == 0){
+						depNewApp.errorMsg= {
+							text: "Repository is not defined",
+							type: "warning",
+							repository:true,
+							role:"tooltip",
+							positions:"bottom"
+						}
+					}
 				});
 			}
 			depNewApp.clearChildField('serverType');

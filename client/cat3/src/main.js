@@ -30,7 +30,8 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch',
     'ui.grid.pagination',
     'ui.grid.autoResize',
     'ui.grid.resizeColumns',
-    'global.uiGridOptions'
+    'global.uiGridOptions',
+    'global.messages'
 ]);
 
 angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',
