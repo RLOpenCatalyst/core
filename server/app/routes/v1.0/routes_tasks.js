@@ -128,7 +128,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             } else if(err) {
                 logger.error("Failed to execute task.", err);
-                res.status(500).send("Failed to execute task.");
+                res.status(500).send(err);
                 return;
             }
             logger.debug("Returned historyData: ", JSON.stringify(historyData));
@@ -532,7 +532,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         }
         if (req.files && req.files.file) {
             console.log(req.files.file);
-
+            fileName = fileName + '_' + req.files.file.originalFilename;
             var destPath = appConfig.scriptDir + fileName;
             console.log(destPath);
             fileIo.copyFile(req.files.file.path, destPath, function(err) {

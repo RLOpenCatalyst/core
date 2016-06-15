@@ -34,13 +34,14 @@
 						{ name:'Job Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="task-type-img" />'+
 						'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="task-type-img" />'+
 						'<img src="images/orchestration/composite.jpg" ng-show="row.entity.taskType==\'composite\'" alt="{{row.entity.taskType}}" class="task-type-img" />'+
+						'<img src="images/orchestration/script.jpg" ng-show="row.entity.taskType==\'script\'" alt="{{row.entity.taskType}}" class="task-type-img" />'+
 						'<img src="images/global/puppet.png" ng-show="row.entity.taskType==\'puppet\' " alt="{{row.entity.taskType}}" class="task-type-img">',cellTooltip: true},
 						{ name:'Name',field:'name',cellTooltip: true},
 						{ name:'Job Description',field:'description',cellTooltip: true},
 						{ name:'Job Links',width:100, enableSorting: false , cellTemplate:'<div>'+
 						'<span ng-show="row.entity.taskType===\'chef\'">'+
 						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
-						'<span title="Assigned Runlists" class="fa fa-list-ul chef-assign-nodes cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
+						'<span title="Assigned Runlists" class="fa fa-list-ul assigned-runlists cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
 						'</span>'+
 						'<span ng-show="row.entity.taskType===\'jenkins\'">'+
 						'<a target="_blank" title="Jenkins" ng-href="{{row.entity.taskConfig.jobURL}}">'+
@@ -50,6 +51,7 @@
 						'<span ng-show="row.entity.taskType==\'puppet\'">'+
 						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
 						'</span>'+
+						'<span ng-show="row.entity.taskType===\'script\'"> NA </span>'+
 						'</div>' ,cellTooltip: true},
 						{ name:'Execute',width: 90, enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
 						{ name:'History',width: 90, enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},
@@ -63,7 +65,6 @@
 			for server side(external) pagination.*/
 			$scope.orcheGridOptions = angular.extend(orchestrationUIGridDefaults.gridOption, {
 				onRegisterApi :function(gridApi) {
-
 					$scope.gridApi = gridApi;
 					gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
 						if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
@@ -165,8 +166,7 @@
 							console.log("Dismiss at " + new Date());
 						});
 					} else {
-                                            
-                                                $modal.open({
+						$modal.open({
 							animation: true,
 							templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRun.html',
 							controller: 'confirmJobRunCtrl',
@@ -179,16 +179,16 @@
 							}
 						}).result.then(function(response) {
 							helper.orchestrationLogModal(task._id,response.historyId,task.taskType);
-                                                        if(response.blueprintMessage){
-                                                            $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
-                                                        }
-                                                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+							if(response.blueprintMessage){
+								$rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
+							}
+							$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
 						}, function() {
 							console.log("Dismiss at " + new Date());
-                                                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+							$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
 						});
-						}
-					},
+					}
+				},
 				getHistory: function(task) {
 					$modal.open({
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
@@ -299,15 +299,12 @@
 			$scope.setFirstPageView = function(){
 				$scope.orcheGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
 			};
-
 			$scope.refreshCurrentPage = function(){
 				$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');    
 			};
-
 			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(){
 				$scope.taskListGridView();
 			});
-
 			$rootScope.$on("CREATE_NEW_JOB", function(){
 				$scope.createNewTask('new');
 			});
@@ -322,5 +319,6 @@
 			$rootScope.$on('WZ_ORCHESTRATION_SHOW_LATEST', function(){
 				helper.setPaginationDefaults();
 			});
-		}]);
+		}
+	]);
 })(angular);

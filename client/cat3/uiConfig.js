@@ -1,3 +1,3 @@
 var uiConfigs = {
-    'serverUrl' : ''
+	'serverUrl' : ''
 };

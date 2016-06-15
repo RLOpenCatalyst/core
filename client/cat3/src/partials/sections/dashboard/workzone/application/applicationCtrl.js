@@ -8,8 +8,7 @@
 (function (angular) {
 	"use strict";
 	angular.module('workzone.application', ['ui.bootstrap', 'apis.workzone', 'workzonePermission', 'filter.currentTime'])
-		.service('appDeployResponseFormatter', [function(){
-		}])
+	.service('appDeployResponseFormatter', [function(){}])
 		.controller('applicationCtrl', ['$scope', '$rootScope', 'workzoneServices', 'applicationPermission', '$modal', 'workzoneUIUtils', 'uiGridOptionsService', function ($scope, $rootScope, workzoneServices, applicationPerms, $modal, workzoneUIUtils, uiGridOptiSer) {
 			var gridOpt=uiGridOptiSer.options();
 			$rootScope.selectedCardClass='';
@@ -69,7 +68,6 @@
 					}, function() {
 
 					});
-
 				},
 				deployNewApp: function() {
 					$modal.open({
@@ -335,42 +333,42 @@
 				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('applicationPage')-gridBottomSpace;
 				$scope.gridHeightSummary = workzoneUIUtils.makeTabScrollable('applicationPage')-gridBottomSpaceSummary;
 				workzoneUIUtils.makeTabScrollable('applicationPage');
-			}
-		);
-	}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'applicationPermission',  function ($scope, $rootScope) {
-		var pipeLineData={
-			selectedCardClass:''
-		};
-		pipeLineData.getAppCardStatus = function(appCardStatus,type) {
-			var colorSuffix = '';
-			var appCardStateImagePrefix='instance-state-';
-			var instanceStateTextPrefix='instance-state-text-';
-			switch(appCardStatus) {
-				case 'SUCCESSFUL':
-				case 'SUCCESSFULL':
-				case 'SUCCESS':
-				case 'Successful':
-					colorSuffix = 'running';
-					break;
-				case 'stopped':
-					colorSuffix = 'stopped';
-					break;
-				case 'Failure':
-					colorSuffix = 'failure';
-					break;
-				default:
-					colorSuffix = 'unknown';
-					break;
-			}
-			return type==="image" ? appCardStateImagePrefix + colorSuffix : instanceStateTextPrefix + colorSuffix;
-		};
-		pipeLineData.selectedCard = function(cardDetails,appName,envName,id,cardType){
-			$scope.$emit('SELECTED-CARD',cardDetails,appName,envName);
-			angular.element('.card').removeClass('selected-card');
-			if($rootScope.selectedCardClass){
-				angular.element('#'+id+cardType).addClass('selected-card');
-			}
-		};
-		return pipeLineData;
-	}]);
+			});
+		}]).controller('PipeLineViewCtrl', ['$scope', '$rootScope', 'applicationPermission',  function ($scope, $rootScope) {
+			var pipeLineData={
+				selectedCardClass:''
+			};
+			pipeLineData.getAppCardStatus = function(appCardStatus,type) {
+				var colorSuffix = '';
+				var appCardStateImagePrefix='instance-state-';
+				var instanceStateTextPrefix='instance-state-text-';
+				switch(appCardStatus) {
+					case 'SUCCESSFUL':
+					case 'SUCCESSFULL':
+					case 'SUCCESS':
+					case 'Successful':
+						colorSuffix = 'running';
+						break;
+					case 'stopped':
+						colorSuffix = 'stopped';
+						break;
+					case 'Failure':
+						colorSuffix = 'failure';
+						break;
+					default:
+						colorSuffix = 'unknown';
+						break;
+				}
+				return type==="image" ? appCardStateImagePrefix + colorSuffix : instanceStateTextPrefix + colorSuffix;
+			};
+			pipeLineData.selectedCard = function(cardDetails,appName,envName,id,cardType){
+				$scope.$emit('SELECTED-CARD',cardDetails,appName,envName);
+				angular.element('.card').removeClass('selected-card');
+				if($rootScope.selectedCardClass){
+					angular.element('#'+id+cardType).addClass('selected-card');
+				}
+			};
+			return pipeLineData;
+		}
+	]);
 })(angular);

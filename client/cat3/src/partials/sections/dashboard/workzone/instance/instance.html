@@ -37,14 +37,14 @@
 				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
 					<div class="card-title">
 						<div class="card-title-role">
-							<img class="instanceRoleLogo" src="{{getRoleLogo(inst)}}" />
+							<img class="instanceRoleLogo" ng-src="{{getRoleLogo(inst)}}" />
 						</div>
 						<div title="{{inst.name}}" class="card-title-name pull-left">{{inst.name}}</div>
 						<div class='card-title-edit'>
 							<span><i class="fa fa-pencil edit-instance-name cursor" ng-click="operationSet.editInstanceName(inst);" title="Edit Instance Name"></i></span>
 						</div>
 						<div class="card-title-osIcon">
-							<img src="{{getOSLogo(inst)}}" />
+							<img ng-src="{{getOSLogo(inst)}}" />
 						</div>
 						<hr/>
 					</div>

@@ -91,7 +91,6 @@
 					}
 					return colorRepresentationClass;
 				},
-
 				getInfo: function(stack) {
 					var modalInstance = $modal.open({
 						animation: true,
@@ -112,7 +111,6 @@
 						
 					});
 				},
-
 				removeCftStack: function(stack) {
 					var modalInstance=$modal.open({
 						animation:true,
@@ -126,7 +124,6 @@
 							}
 						}
 					});
-
 					modalInstance.result.then(function(){                                
 						$scope.stacks=arrayUtil.deleteObjectById($scope.stacks,stack._id);
 					},function(){

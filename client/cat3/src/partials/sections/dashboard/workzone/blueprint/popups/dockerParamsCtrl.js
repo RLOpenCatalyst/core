@@ -4,6 +4,7 @@
  * Written by Relevance UI Team,
  * April 2016
  */
+ 
 (function(angular) {
 	"use strict";
 	angular.module('workzone.blueprint')
@@ -47,9 +48,7 @@
 					}
 				}
 			}
-
 			var params = fullParams.split(' -');
-
 			//for obtaining the data from the string and showing in the modal.
 			angular.forEach(params, function(value, key) {
 				var subparam = params[key].split(' ');
@@ -107,5 +106,6 @@
 				helper.dockerParamsString();
 				$modalInstance.close(items);
 			};
-		}]);
+		}
+	]);
 })(angular);

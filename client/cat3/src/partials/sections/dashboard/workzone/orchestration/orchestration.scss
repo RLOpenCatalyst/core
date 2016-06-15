@@ -151,7 +151,7 @@ $imagePath : "../../../../../../images";
 		font-size: 20px;
 	}
 
-	.chef-assign-nodes {
+	.assigned-runlists {
 		font-size: 20px;
 		margin-left: 10px;
 	}
@@ -303,6 +303,35 @@ $imagePath : "../../../../../../images";
 
 	.paddingtopbottom10 {
 		padding: 10px 0;
+	}
+
+	.authScriptFile {
+		margin-top: 4px;
+	}
+
+	.script-file {
+		margin-bottom: 9px;
+	}
+
+	.choose-file {
+		padding: 4px 8px;
+	    background: #f1f1f1;
+	    border-radius: 5px;
+	    font-weight: normal;
+	    border: 1px solid gray;
+	}
+
+	.file-name {
+		max-width: 160px;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    white-space: nowrap;
+	    float: left;
+	    margin-top: 5px;
+	}
+
+	input[type="file"] { 
+		display: none; 
 	}
 }
 

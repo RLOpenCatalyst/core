@@ -5,7 +5,7 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
    "use strict";
 	angular.module('workzone.application')
 		.controller('applicationCardLogsCtrl', ['$scope', '$modalInstance', 'workzoneServices', 'workzoneEnvironment', 'items', function($scope, $modalInstance, workzoneServices, workzoneEnvironment, items) {
@@ -54,4 +54,4 @@
 			});
 		}
 	]);
-})();
+})(angular);

@@ -264,7 +264,7 @@ $imagePath : "../../../../../../cat3/images";
 	padding: 0 0 17px 0;
 }
 
-option.jenkins, option.chef, option.composite, option.puppet {
+option.jenkins, option.chef, option.composite, option.puppet , option.script {
 	background-repeat: no-repeat !important;
 	height: 26px;
 	padding-left: 36px;
@@ -288,6 +288,10 @@ option.composite {
 
 option.puppet {
 	background: url("#{$imagePath}/global/puppet.png");
+}
+
+option.script {
+	background: url("#{$imagePath}/orchestration/script.jpg");	
 }
 /*CSS for Composite Component ends*/
 

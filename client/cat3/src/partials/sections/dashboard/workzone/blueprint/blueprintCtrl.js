@@ -84,7 +84,7 @@
 						var blueprint = result.data;
 						$scope.blueprints = formatData.getFormattedCollection(blueprint);
 						$scope.isBlueprintPageLoading = false;
-		                workzoneUIUtils.makeTabScrollable('blueprintPage');
+						workzoneUIUtils.makeTabScrollable('blueprintPage');
 					},function(error) {
 						$scope.isBlueprintPageLoading = false;
 						console.log(error);
@@ -116,7 +116,7 @@
 					});
 				},
 				launchInstance: function(blueprintObj) {
-				    $modal.open({
+					$modal.open({
 						animate: true,
 						templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParams.html",
 						controller: "blueprintLaunchParamsCtrl",

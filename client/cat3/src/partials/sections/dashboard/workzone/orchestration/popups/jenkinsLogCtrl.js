@@ -5,7 +5,7 @@
  * Aug 2015
  */
 
-(function() {
+(function(angular) {
 	"use strict";
 	angular.module('workzone.orchestration')
 		.service('orchestrationSetting', [function() {
@@ -22,20 +22,17 @@
 				cancel: function() {
 					helper.stopPolling();
 				}
-			});
-                        
-                        var resetAll =  function(){
-                            $scope.getJenkinsHistoryDetails = {}; 
-                            helper.stopPolling();
-                        };
-                        
-                        var init = function(){
-                            workzoneServices.getTaskHistoryItem(items.taskId, items.historyId).then(function(response) {
-                                    $scope.getJenkinsHistoryDetails = response.data; //to store the response so that the jenkinsServerID,jobName and buildNumber can be passed to fetch the logs.
-                                    $scope.getJenkinsLogDetails(response.data);
-                            });
-                        };
-			
+			});      
+			var resetAll =  function(){
+				$scope.getJenkinsHistoryDetails = {}; 
+				helper.stopPolling();
+			};
+			var init = function(){
+				workzoneServices.getTaskHistoryItem(items.taskId, items.historyId).then(function(response) {
+						$scope.getJenkinsHistoryDetails = response.data; //to store the response so that the jenkinsServerID,jobName and buildNumber can be passed to fetch the logs.
+						$scope.getJenkinsLogDetails(response.data);
+				});
+			};
 			var helper = {
 				eventsPolling: function() {
 					$scope.timerObject = $interval(function() {
@@ -59,7 +56,6 @@
 					return str.replace(/\r?\n/g, "<br />");
 				}
 			};
-
 			$scope.getJenkinsLogDetails = function(historyItem) {
 				$scope.isJenkinsLogLoading = true;
 				$timeout(function(){
@@ -79,16 +75,13 @@
 					});
 				}, 10000);
 			};
-                        
-                        init();
-                        
-                        // on task change event in the parent controller
-                        $scope.$on('parentChangeCompTask', function (event, args) {
-                            items = args;
-                            resetAll();
-                            init();
-                        });
-
+			init();
+			// on task change event in the parent controller
+			$scope.$on('parentChangeCompTask', function (event, args) {
+				items = args;
+				resetAll();
+				init();
+			});
 			$scope.$on('$destroy', function() {
 				$interval.cancel($scope.timerObject);
 			});
@@ -96,6 +89,6 @@
 			$scope.$on('closeWindow', function() {
 				$scope.$parent.close = $scope.cancel();
 			});
-		}]);
-
-})();
+		}
+	]);
+})(angular);

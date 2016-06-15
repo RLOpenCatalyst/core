@@ -5,7 +5,7 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
 	"use strict";
 	function loginFunct($scope, $location, auth, $timeout) {
 		function changeAddress(){
@@ -28,7 +28,6 @@
 			});
 		};
 	}
-	
 	angular.module('global.login', [])
 		.controller('loginCtrl', ['$scope', '$location','auth', '$timeout', loginFunct]);
-})();
+})(angular);

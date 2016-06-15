@@ -5,18 +5,17 @@
  * Aug 2015
  */
 
-(function(){
+(function(angular){
    "use strict";
 	angular.module('workzone.instance')
 		.controller('cpActionHistoryCtrl', ['$scope', '$rootScope', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', function($scope, $rootScope, $modal, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices) {
 			var cpInstance = $scope.$parent.cpInstance;
 			$scope.instInfo = cpInstance;
 			$scope.tabData = [];
-
 			var gridOptions = uiGridOptionsClient.options().gridOption;
 			$scope.cpActionHistoryGridOptions = gridOptions;
 			$scope.isActionHistoryPageLoading = true;
-
+			
 			$scope.initGrids = function(){
 				$scope.cpActionHistoryGridOptions.data='tabData';
 				$scope.cpActionHistoryGridOptions.columnDefs = [
@@ -75,7 +74,6 @@
 				$scope.initGrids();
 				$scope.cpActionHistoryListView();
 			};
-			
 			$scope.init();
 		}]).controller('cpActionHistoryLogCtrl',['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval',function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval){
 			var _instance = items.cpInstance;
@@ -125,4 +123,4 @@
 			});
 		}
 	]);
-})();
+})(angular);

@@ -51,6 +51,28 @@ var taskService = require('_pr/services/taskService');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
+	/*
+	 * API without authentication provider to support telemetry.
+	 * @TODO To be moved to routes specific to containers.
+	 */
+	app.get('/containers',function(req,res){
+		logger.debug("Enter get() for all docker Containers");
+		containerDao.getAllContainers(function(err,containerList){
+			if(err){
+				logger.error(err);
+				res.send(err);
+				return;
+			}else if(containerList.length === 0){
+				logger.debug("Presently,there is not container in catalyst");
+				res.send(containerList);
+				return;
+			}else{
+				res.send(containerList);
+				return;
+			}
+		})
+	});
+
 	app.all('/organizations/*', sessionVerification);
 
 	app.get('/organizations/getTreeNew', function(req, res) {
@@ -820,7 +842,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					instanceImageID: req.body.blueprintData.imageIdentifier,
 					flavor: req.body.blueprintData.openstackflavor,
 					network: req.body.blueprintData.openstacknetwork,
-					securityGroupIds: req.body.blueprintData.openstacksecurityGroupIds,
+					securityGroupIds: [req.body.blueprintData.openstacksecurityGroupIds],
 					subnet: req.body.blueprintData.openstacksubnet,
 					instanceOS: req.body.blueprintData.instanceOS,
 					instanceCount: req.body.blueprintData.instanceCount,
