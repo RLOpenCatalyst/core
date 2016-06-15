@@ -33,7 +33,7 @@ angular.module('workzone.application').controller('deployNewAppCtrl', ['items','
 				depNewApp.serverOptions = serverResult.data.server;
 				if(serverResult.data.server.length == 0){
 					depNewApp.errorMsg= {
-						text:"Server is not defined <br /> Repository is not defined",
+						text:"Server is not defined",
 						type: "warning",
 						server:true,
 						role:"tooltip",

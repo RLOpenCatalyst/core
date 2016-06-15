@@ -370,7 +370,6 @@
 			if($rootScope.selectedCardClass){
 				angular.element('#'+id+cardType).addClass('selected-card');
 			}
-
 		};
 		return pipeLineData;
 	}]);

@@ -26,12 +26,12 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch',
     'directive.loading',
     'ngSanitize',
     'global.cache',
+    'global.messages',
     'ui.grid',
     'ui.grid.pagination',
     'ui.grid.autoResize',
     'ui.grid.resizeColumns',
-    'global.uiGridOptions',
-    'global.messages'
+    'global.uiGridOptions'
 ]);
 
 angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',
