@@ -11,12 +11,11 @@
 				cardType:'@'
 			},
 			controller: 'PipeLineViewCtrl as pipeCtrl',
-			link: function (scope, element) {
+			link: function (scope) {
 				scope.cardDetails = scope.cardDetails;
 				scope.appName = scope.appName;
 				scope.envName = scope.envName;
-				scope.cardType=scope.cardType;
-				console.log(element);
+				scope.cardType = scope.cardType;
 			}
 		};
 	}]);
