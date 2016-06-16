@@ -20,7 +20,7 @@
 			$scope.cardsPerPage = cftPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
-			$scope.isCloudFormationPaginationShow = false;
+			$scope.isCloudFormationPaginationShow = true;
 
 			$scope.setFirstPageView = function() {
 				$scope.currentCardPage = $scope.paginationParams.page = 1;
