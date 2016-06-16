@@ -15,7 +15,7 @@
 			$scope.paginationParams.sortBy = 'created';
 			$scope.paginationParams.sortOrder = 'desc';
 			$scope.currentCardPage = armPaginationDefault.pagination.page;
-			$scope.cardsPerPage = armPaginationDefault.pagination.pageSize;
+			$scope.cardsPerPage = 30;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
 			$scope.isAzureARMPaginationShow = true;
