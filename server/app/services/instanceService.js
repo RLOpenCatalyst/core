@@ -146,7 +146,6 @@ function getUnassignedInstancesByProvider(jsonData, callback) {
 
 function bulkUpdateInstanceProviderTags(provider, instances, callback) {
     var providerTypes = appConfig.providerTypes;
-
     if (instances.length > 10) {
         var err = new Error("Invalid request");
         err.status = 400;
@@ -394,7 +393,6 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 }
 
 function getTrackedInstancesForProvider(provider, next) {
-    console.log("Provider is >>"+provider);
     async.parallel({
             managed: function(callback) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);

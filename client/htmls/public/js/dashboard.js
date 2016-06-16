@@ -94,7 +94,7 @@ $(document).ready(function() {
               loadManagedInstances(providerid);
             });
 
-            $.get('../providers/' + providerid + '/unmanagedInstanceList', function(dataUnmanaged) {
+            $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
               var unmanagedData = dataUnmanaged.unmanagedInstances.length;
               $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
 

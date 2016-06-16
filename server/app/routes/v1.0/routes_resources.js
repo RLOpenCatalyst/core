@@ -15,6 +15,7 @@
  */
 
 var resourceService = require('_pr/services/resourceService');
+var providerService = require('_pr/services/providerService');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
@@ -23,14 +24,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.get('/resources', getAWSResources);
 
-    /**
-     * Lists all tracked(managed+unmanaged) instances.
-     * Pagination not supported. Only search and filterBy supported.
-     *
-     * @param req
-     * @param res
-     * @param next
-     */
     function getAWSResources(req, res, next) {
             var reqData = {};
             async.waterfall(
@@ -53,9 +46,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     function(queryObj, next) {
                         resourceService.getResources(queryObj, next);
                     },
-                    /*function(resources, next) {
-                        apiUtil.paginationResponse(resources[0],reqData, next);
-                    },*/
                     function(resources,next){
                         apiUtil.changeResponseForJqueryPagination(resources[0],reqData,next);
                     },
@@ -66,5 +56,38 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     else
                         return res.status(200).send(results);
                 });
-        }
+        };
+
+    app.patch('resources/', updateUnassignedResourcesTags);
+    
+    function updateUnassignedResourcesTags(req,res,next){
+        console.log("Welcome");
+        async.waterfall(
+            [
+                function (next) {
+                    providerService.checkIfProviderExists(req.query.providerId, next);
+                },
+                function(provider, next) {
+                    if('resources' in req.body) {
+                        resourceService.bulkUpdateResourceProviderTags(provider, req.body.resources, next);
+                    } else {
+                        var err = new Error("Malformed request");
+                        err.status = 400;
+                        next(err);
+                    }
+                },
+                function(resources, next) {
+                    console.log("Welcome 1234");
+                    resourceService.bulkUpdateUnassignedResourceTags(resources, next);
+                }
+            ],
+            function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
 };

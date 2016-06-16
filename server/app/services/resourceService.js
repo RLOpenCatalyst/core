@@ -36,6 +36,9 @@ resourceService.getBucketsInfo=getBucketsInfo;
 resourceService.getResources=getResources;
 resourceService.getRDSInstancesInfo=getRDSInstancesInfo;
 resourceService.getRDSDBInstanceMetrics=getRDSDBInstanceMetrics;
+resourceService.bulkUpdateResourceProviderTags=bulkUpdateResourceProviderTags;
+resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTags;
+resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 
 
 function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
@@ -190,8 +193,8 @@ function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInst
             providerId: provider._id,
             providerType: provider.providerType,
             providerName: provider.providerName,
-            resourceType: "ResourceCost",
-            resourceId: "ResourceCost",
+            resourceType: "csv",
+            resourceId: "RLBilling",
             aggregateResourceCost:totalCost,
             costMetrics : {
                 serviceCost: {
@@ -225,7 +228,7 @@ function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInst
                 currency:'USD',
                 symbol:"$"
             },
-            updatedTime : Date.parse(updatedTime),
+            updatedTime : updatedTime,
             startTime: Date.parse(startTime),
             endTime: Date.parse(endTime)
         };
@@ -807,6 +810,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                             },
                             resourceType:"RDS",
                             category:"unassigned",
+                            isDeleted:false,
                             resourceDetails: {
                                 dbName: dbInstance.DBName,
                                 dbInstanceClass: dbInstance.DBInstanceClass,
@@ -833,14 +837,27 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                                 storageType: dbInstance.StorageType,
                                 storageEncrypted: dbInstance.StorageEncrypted,
                                 dbiResourceId: dbInstance.DbiResourceId,
+                                accountNumber: 549974527830,
                                 caCertificateIdentifier: dbInstance.CACertificateIdentifier
                             }
                         };
-                        results.push(rdsDbInstanceObj);
-                        rdsDbInstanceObj={};
-                        if(dbInstances.length === results.length){
-                            callback(null,results);
-                        }
+                        var params ={
+                            ResourceName:'arn:aws:rds:us-west-1:549974527830:db:'+dbInstance.DBName
+                        };
+                        rds.getRDSDBInstanceTag(params,function(err,rdsTags){
+                            if(err){
+                                logger.error(err);
+                                callback(err,null);
+                            }else{
+                                rdsDbInstanceObj['tags'] = rdsTags;
+                                results.push(rdsDbInstanceObj);
+                                rdsDbInstanceObj={};
+                                if(dbInstances.length === results.length){
+                                    callback(null,results);
+                                }
+                            }
+                        })
+
                     })(dbInstances[i]);
                 }
             }
@@ -864,4 +881,146 @@ function getResources(query, next) {
             }
         }
     );
+}
+
+function bulkUpdateResourceProviderTags(provider, bulkResources, callback){
+    console.log(1);
+    var providerTypes = appConfig.providerTypes;
+    if (bulkResources.length > 10) {
+        var err = new Error("Invalid request");
+        err.status = 400;
+        return callback(err);
+    } else {
+        var unassignedResources = [];
+        for (var i = 0; i < bulkResources.length; i++) {
+            (function(j) {
+                resources.getResourceById(bulkResources[j].id, function(err, unassignedResource) {
+                    if (err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    } else if (unassignedResource.length === 0) {
+                        var err = new Error('Resource not found');
+                        err.status = 404;
+                        return callback(err);
+                    } else if (unassignedResource) {
+                        logger.debug('Update tags for resource ', unassignedResource._id);
+                        for (tagName in bulkResources[j].tags) {
+                            unassignedResource.tags[tagName] = bulkResources[j].tags[tagName];
+                        }
+                        unassignedResources.push(unassignedResource);
+                    }
+
+                    if (j == bulkResources.length - 1) {
+                        switch (provider.providerType) {
+                            case providerTypes.AWS:
+                                logger.debug('Update aws resource tags ', unassignedResources.length);
+                                bulkUpdateAWSResourcesTags(provider, unassignedResources, callback);
+                                break;
+                            default:
+                                var err = new Error('Invalid request');
+                                err.status = 400;
+                                return callback(err);
+                                break;
+                        }
+                    }
+                })
+            })(i);
+        }
+    }
+}
+
+function bulkUpdateUnassignedResourceTags(bulkResources, callback){
+    console.log(2);
+   for (var i = 0; i < bulkResources.length; i++) {
+        (function(j) {
+            var params = {
+                '_id': bulkResources[j]._id
+            }
+            var fields = {
+                'tags': bulkResources[j].tags
+            }
+            resources.updateResourceTag(params, fields,
+                function(err, resourceUpdated) {
+                    if (err) {
+                        logger.error(err);
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    } else if (j == bulkResources.length - 1) {
+                        return callback(null, bulkResources);
+                    }
+                }
+            );
+        })(i);
+    }
+};
+
+function bulkUpdateAWSResourcesTags(provider, resources, callback) {
+    console.log(3);
+    if(resources.length > 0) {
+        if(resources[0].resourceType === 'S3') {
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+            var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var s3Config = {
+                access_key: decryptedAccessKey,
+                secret_key: decryptedSecretKey,
+                region: "us-east-1"
+            };
+            var s3 = new S3(s3Config);
+            for (var i = 0; i < resources.length; i++) {
+                (function (j) {
+                    logger.debug('Updating tags for resource ', resources[j]._id);
+                    s3.addBucketTag(resources[j].bucketName, resources[j].tags,
+                        function (err, data) {
+                            if (err) {
+                                logger.error(err);
+                                var err = new Error('Internal server error');
+                                err.status = 500;
+                                return callback(err);
+                            } else if (j == resources.length - 1) {
+                                return callback(null, resources);
+                            }
+                        });
+                })(i);
+            }
+        }else if(resources[0].resourceType === 'RDS') {
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+            var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+                cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var s3Config = {
+                access_key: decryptedAccessKey,
+                secret_key: decryptedSecretKey,
+                region: "us-west-1"
+            };
+            var rds = new RDS(s3Config);
+            for (var i = 0; i < resources.length; i++) {
+                (function (j) {
+                    logger.debug('Updating tags for resource ', resources[j]._id);
+                    rds.addRDSDBInstanceTag(resources[j].dbName, resources[j].tags,
+                        function (err, data) {
+                            if (err) {
+                                logger.error(err);
+                                var err = new Error('Internal server error');
+                                err.status = 500;
+                                return callback(err);
+                            } else if (j == resources.length - 1) {
+                                return callback(null, resources);
+                            }
+                        });
+                })(i);
+            }
+        }else{
+            return callback(null, resources);
+        }
+    }else{
+        return callback(null, resources);
+    }
 }

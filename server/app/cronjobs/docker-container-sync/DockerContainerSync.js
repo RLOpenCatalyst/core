@@ -86,8 +86,15 @@ function sync() {
                                                                 var stdOut = '';
                                                                 sshConnection.exec(cmd, function (err, code) {
                                                                     if (err) {
-                                                                        logger.error(err);
-                                                                        return;
+                                                                        logger.error("Error while ssh connection in machine "+instance.instanceIP+"  "+err);
+                                                                        if (decryptedCredentials.pemFileLocation) {
+                                                                            fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
+                                                                                logger.debug('temp file deleted');
+                                                                                return;
+                                                                            });
+                                                                        }else{
+                                                                            return;
+                                                                        }
                                                                     };
                                                                     if (decryptedCredentials.pemFileLocation) {
                                                                         fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {

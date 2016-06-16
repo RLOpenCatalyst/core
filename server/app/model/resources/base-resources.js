@@ -49,6 +49,18 @@ var AWSResourcesSchema = function AWSResources() {
             type:String,
             default:Date.now
         },
+        projectTag: {
+            type: String,
+            required: false,
+            trim: true,
+            default: null
+        },
+        environmentTag: {
+            type: String,
+            required: false,
+            trim: true,
+            default: null
+        },
         tags:[Schema.Types.Mixed],
         usage:Schema.Types.Mixed,
         cost:Schema.Types.Mixed,

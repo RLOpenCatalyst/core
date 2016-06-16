@@ -40,15 +40,71 @@ var RDS = function(awsSettings) {
     }
     var rds = new aws.RDS(params);
 
-    this.getRDSDBInstances=function(callback){
-        rds.describeDBInstances(function(err, data)
-        {
+    this.getRDSDBInstances = function(callback){
+        rds.describeDBInstances(function(err, data) {
             if(err){
                 logger.error(err);
                 callback(err,null);
             } else{
                 callback(null,data.DBInstances);
             }
+        });
+    };
+
+    this.getRDSDBInstanceTag = function(params,callback){
+        rds.listTagsForResource(params, function(err, data) {
+            if (err){
+                logger.error(err, err.stack);
+                callback(err,null);
+            } else{
+                var rdsTag={};
+                if(data.TagList.length === 0){
+                    callback(null,rdsTag);
+                }else {
+                    var count = 0;
+                    for(var i = 0; i < data.TagList.length; i++){
+                        count++;
+                        rdsTag[data.TagList[i].Key] = data.TagList[i].Value;
+                        if(data.TagList.length === count){
+                            callback(null, rdsTag);
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    this.addRDSDBInstanceTag = function(dbName,tags,callback){
+        var tagsArray = [];
+        for(var key in tags) {
+            tagsArray.push({
+                Key: key,
+                Value: tags[key]
+            });
+        }
+        console.log(tagsArray);
+        var params = {
+            ResourceName: dbName,
+            Tags: tagsArray
+        };
+        rds.addTagsToResource(params, function(err, data) {
+            if (err){
+                logger.error(err, err.stack);
+                callback(err,null);
+            }else{
+                callback(null, data);
+            };
+        });
+    };
+
+    this.removeRDSDBInstanceTag =  function(params,callback){
+        rds.removeTagsFromResource(params, function(err, data) {
+            if (err){
+                logger.error(err, err.stack);
+                callback(err,null);
+            }else{
+                callback(null, data);
+            };
         });
     }
 }

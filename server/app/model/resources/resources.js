@@ -38,6 +38,17 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
     });
 };
 
+ResourceSchema.statics.getResourceById = function(resourceId,callback) {
+    Resources.findById(resourceId, function(err, data) {
+        if (err) {
+            logger.error("Failed to getResourceById", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 ResourceSchema.statics.deleteResourcesByResourceType = function(resourceType,callback) {
     Resources.update({
         resourceType: resourceType
@@ -104,6 +115,17 @@ ResourceSchema.statics.updateResourceCost = function(resourceId, cost, callback)
         upsert: false
     }, function(err, data) {
         if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+ResourceSchema.statics.updateResourceTag = function(params, fields, callback) {
+    Resources.update(params, fields, function(err, data) {
+        if (err) {
+            logger.error("Failed to update unassigned resource data", err);
             return callback(err, null);
         } else {
             callback(null, data);

@@ -101,6 +101,10 @@ var RDSResourcesSchema = new BaseResourcesSchema({
             type: String,
             required: true,
             trim: true
+        },
+        accountNumber:{
+            type: Number,
+            required: false
         }
     }
 });
