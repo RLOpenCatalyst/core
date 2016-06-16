@@ -17,7 +17,7 @@
 			var cftPaginationDefault = uiGridOptionsService.options();
 			$scope.paginationParams = cftPaginationDefault.pagination;
 			$scope.currentCardPage = cftPaginationDefault.pagination.page;
-			$scope.cardsPerPage = cftPaginationDefault.pagination.pageSize;
+			$scope.cardsPerPage = 30;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
 			$scope.isCloudFormationPaginationShow = true;

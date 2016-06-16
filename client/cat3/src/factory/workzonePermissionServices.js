@@ -33,7 +33,7 @@
 		this.launch = function(){
 			return uac.hasPermission('instancelaunch','execute');
 		};
-	}]).service('orchestrationPermission', ['uac', function(){
+	}]).service('orchestrationPermission', [function(){
 		this.createTask = function() {
 			return true;
 			//return uac.hasPermission('instancetasks','create');
