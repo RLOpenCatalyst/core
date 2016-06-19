@@ -42,18 +42,18 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
         },
         function (permission,next){
             if(permission){
-                 containerDao.getContainerByIdInstanceId(jsonData.containerId,jsonData.instanceId,next);
+                containerDao.getContainerByIdInstanceId(jsonData.containerId,jsonData.instanceId,next);
             }else{
-                 callBackReturn(permission,next)
+                callBackReturn(permission,next)
             }
         },
         function (container,next){
             if(container.length > 0){
-                 status=container[0].Status;
-                 enumStatus = container[0].containerStatus;
-                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" IN PROGRESS",dockerContainerStatus(jsonData.action)+" IN PROGRESS",next);
+                status=container[0].Status;
+                enumStatus = container[0].containerStatus;
+                containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" IN PROGRESS",dockerContainerStatus(jsonData.action)+" IN PROGRESS",next);
             }else{
-                 callBackReturn(container,next);
+                callBackReturn(container,next);
             }
         },
         function(updateContainer,next){
@@ -67,13 +67,20 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             logger.debug("Code     "+retCode);
             logger.debug("stdOut     "+stdOut);
             if(retCode === 0){
-                if(stdOut.trim().length === jsonData.containerId.length || stdOut.trim().length ===0){
+                var strArr = stdOut.split(" ");
+                var count = 0;
+                for(var i = 0; i < strArr.length; i++){
+                    if(strArr[i].indexOf(jsonData.containerId) > -1){
+                        count++;
+                    }
+                };
+                if(count === 1){
                     containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action),dockerContainerStatus(jsonData.action),next);
                 }else{
                     containerDao.deleteContainerById(jsonData.containerId,next);
                 }
             }else {
-                 containerDao.updateContainerStatus(jsonData.containerId,status,enumStatus,next);
+                containerDao.updateContainerStatus(jsonData.containerId,status,enumStatus,next);
             }
         }
 
