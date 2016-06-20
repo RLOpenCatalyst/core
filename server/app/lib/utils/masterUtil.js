@@ -313,7 +313,7 @@ var MasterUtil = function() {
 
     this.getEnvironmentsByprojectId = function(projectId, callback) {
         d4dModelNew.d4dModelMastersEnvironments.find({
-            projectname_rowid: projectId,
+            projectname_rowid: /projectId/,
             id:'3'
         }, function(err, environmentData) {
             if(err) {
