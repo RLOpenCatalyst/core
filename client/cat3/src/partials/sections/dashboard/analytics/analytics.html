@@ -7,9 +7,10 @@
         </div>
         <div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 panelRight'>
             <div id='rightPanel' class='container-fluid'>
-                <div ui-view></div>
-
-              Analytics Dashboard
+                <div ui-view>
+                    <div>Analytics Dashboard</div>
+                    <nvd3 options="options" data="data"></nvd3>
+                </div>
             </div>
         </div>
     </div>

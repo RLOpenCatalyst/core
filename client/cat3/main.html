@@ -9,6 +9,7 @@
         <link rel="stylesheet" type="text/css" href="styles/font-awesome.css" />
         <link rel="stylesheet" type="text/css" href="styles/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="lib/angular-ui-grid/ui-grid.css" />
+        <link rel="stylesheet" type="text/css" href="lib/nvd3/nv.d3.css" />
         <!-- Application stylesheets -->
         <link rel="stylesheet" type="text/css" href="styles/default.css" />
         <link rel="stylesheet" type="text/css" href="catalyst/partials/global.css" />
@@ -27,6 +28,9 @@
         <script src="customlib/angular-messages.js"></script>
         <script src="lib/lodash/lodash/lodash.min.js"></script>
         <script src="lib/ng-file-upload/ng-file-upload.min.js"></script>
+        <script src="lib/d3/d3.js"></script>
+        <script src="lib/nvd3/nv.d3.js"></script>
+        <script src="lib/angular-nvd3/angular-nvd3.js"></script>
         <!-- Application configuration -->
         <script src="uiConfig.js"></script>
     </head>
@@ -80,8 +84,13 @@
         <script src="src/partials/globals/chefSelectorComponent/chefSelectorService.js"></script>
         <script src="src/partials/globals/confirmModal/confirmModalService.js"></script>
         <script src="src/partials/globals/loader/loaderModule.js"></script>
+        <script src="src/partials/globals/treeComponent/analyticsTreeDirective.js"></script>
         <script src="src/partials/globals/treeComponent/treeDirective.js"></script>
         <script src="src/partials/globals/ui-gridOptions/uiGridOptionsServices.js"></script>
+        <script src="src/partials/sections/dashboard/analytics/businessUnit/businessUnitCtrl.js"></script>
+        <script src="src/partials/sections/dashboard/analytics/enivronment/enivronmentCtrl.js"></script>
+        <script src="src/partials/sections/dashboard/analytics/organization/organizationCtrl.js"></script>
+        <script src="src/partials/sections/dashboard/analytics/project/projectCtrl.js"></script>
         <script src="src/partials/sections/dashboard/analytics/analyticsCtrl.js"></script>
         <script src="src/partials/sections/dashboard/design/designCtrl.js"></script>
         <script src="src/partials/sections/dashboard/help/helpCtrl.js"></script>

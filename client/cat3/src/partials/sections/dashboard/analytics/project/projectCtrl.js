@@ -7,9 +7,8 @@
 
 (function (angular) {
 	"use strict";
-	angular.module('settings.organization')
-		.controller('organizationListCtrl', ['$scope', function($scope){
-			$scope.Texts = "Organization Listing controller";
-		}]);
-	
+	angular.module('analytics.project',[])
+	.controller('projectCtrl', ['$http', function(){
+		console.log('project dashboard controller');
+	}]);
 })(angular);

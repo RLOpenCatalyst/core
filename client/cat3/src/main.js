@@ -93,6 +93,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
         $rootScope.workZoneBool = _permSet.workzone;
         $rootScope.designBool = _permSet.design;
         $rootScope.settingsBool = _permSet.settings;
+        $rootScope.tracksBool = _permSet.track;
         $rootScope.analyticsBool = _permSet.analytics;
     });
     $rootScope.$emit('SET_HEADER', $rootScope.appDetails);

@@ -126,6 +126,82 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
                 }]
         }
     })
+    .state('dashboard.analytics.org', {
+        url: "/org/:id",
+        templateUrl: "src/partials/sections/dashboard/analytics/organization/organization.html",
+        controller: "organizationCtrl",
+        resolve: {
+            auth: ["$q", function ($q) {
+                    var deferred = $q.defer();
+                    // instead, go to a different page
+                    if (modulePerms.analyticsAccess()) {
+                        // everything is fine, proceed
+                        deferred.resolve();
+                    } else {
+                        deferred.reject({redirectTo: 'dashboard'});
+                    }
+                    return deferred.promise;
+
+                }]
+        }
+    })
+    .state('dashboard.analytics.bg', {
+        url: "/bg/:id",
+        templateUrl: "src/partials/sections/dashboard/analytics/businessUnit/businessUnit.html",
+        controller: "businessUnitCtrl",
+        resolve: {
+            auth: ["$q", function ($q) {
+                    var deferred = $q.defer();
+                    // instead, go to a different page
+                    if (modulePerms.analyticsAccess()) {
+                        // everything is fine, proceed
+                        deferred.resolve();
+                    } else {
+                        deferred.reject({redirectTo: 'dashboard'});
+                    }
+                    return deferred.promise;
+
+                }]
+        }
+    })
+    .state('dashboard.analytics.proj', {
+        url: "/proj/:id",
+        templateUrl: "src/partials/sections/dashboard/analytics/project/project.html",
+        controller: "projectCtrl",
+        resolve: {
+            auth: ["$q", function ($q) {
+                    var deferred = $q.defer();
+                    // instead, go to a different page
+                    if (modulePerms.analyticsAccess()) {
+                        // everything is fine, proceed
+                        deferred.resolve();
+                    } else {
+                        deferred.reject({redirectTo: 'dashboard'});
+                    }
+                    return deferred.promise;
+
+                }]
+        }
+    })
+    .state('dashboard.analytics.env', {
+        url: "/env/:id",
+        templateUrl: "src/partials/sections/dashboard/analytics/enivronment/enivronment.html",
+        controller: "enivronmentCtrl",
+        resolve: {
+            auth: ["$q", function ($q) {
+                    var deferred = $q.defer();
+                    // instead, go to a different page
+                    if (modulePerms.analyticsAccess()) {
+                        // everything is fine, proceed
+                        deferred.resolve();
+                    } else {
+                        deferred.reject({redirectTo: 'dashboard'});
+                    }
+                    return deferred.promise;
+
+                }]
+        }
+    })
         .state('dashboard.settings.organization', {
             url: "/organizations",
             templateUrl: "src/partials/sections/dashboard/setting/organization/organization.html",

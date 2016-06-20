@@ -42,7 +42,7 @@
                 getTree: function () {
                     var url = '/organizations/getTreeForbtv';
                     return $http.get(fullUrl(url), Auth.getHeaderObject());
-                },
+                }
                 
             };
             return serviceInterface;
