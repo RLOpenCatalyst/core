@@ -39,7 +39,7 @@
 						if (error.message) {
 							alert(error.message);
 						} else {
-							alert(error);
+							alert("Unexpected Behaviour");
 						}
 					});
 				}
