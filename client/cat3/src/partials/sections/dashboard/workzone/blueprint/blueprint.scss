@@ -26,7 +26,7 @@
 	}
 
 	.role-Selected1 {
-		border: 2px solid $color-blue;
+		border: 1px solid $color-gray;
 		border-radius: 4px;
 	}
 
@@ -96,4 +96,10 @@
 
 .docker-repo-list-span {
 	line-height: 2;
+}
+
+#dockerLaunchParamsPage {
+	.widthInputClass {
+		width: 70%;
+	}
 }
