@@ -129,7 +129,10 @@ RDSResourcesSchema.statics.updateRDSData = function(rdsData,callback){
     queryObj['resourceDetails.dbName'] = rdsData.resourceDetails.dbName;
     RDSResources.update(queryObj, {
         $set: {
-            resourceDetails: rdsData.resourceDetails
+            resourceDetails: rdsData.resourceDetails,
+            tags: rdsData.tags,
+            projectTag: rdsData.projectTag,
+            environmentTag: rdsData.environmentTag
         }
     }, {
         upsert: false

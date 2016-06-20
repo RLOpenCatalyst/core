@@ -136,6 +136,20 @@ UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId = function getByP
     );
 };
 
+UnassignedInstancesSchema.statics.getUnAssignedInstancesByProviderId = function getByProviderId(providerId, callback) {
+    var params = {
+        providerId: providerId
+    };
+    this.find(params, function (err, instances) {
+        if (err) {
+            logger.error("Failed getUnAssignedInstancesByProviderId (%s)", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, instances);
+    });
+};
+
 UnassignedInstancesSchema.statics.updateInstance = function updateInstance(params, fields ,callback) {
     this.update(params, fields,
         function(err, data) {

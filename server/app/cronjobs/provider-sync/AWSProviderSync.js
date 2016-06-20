@@ -211,7 +211,7 @@ function sync() {
 																					break;
 																				}
 																			} else if (instances[n].instanceState === 'terminated') {
-																				removeTerminateInstance(instances[n]._id, 'managed');
+																				removeTerminateInstance(instances[n]._id,unManagedInstances[n].state, 'managed');
 																			}
 																		}
 
@@ -241,7 +241,7 @@ function sync() {
 																					unManagedInstances.splice(n, 1);
 																					break;
 																				} else if (unManagedInstances[n].state === 'terminated') {
-																					removeTerminateInstance(unManagedInstances[n]._id, 'assigned');
+																					removeTerminateInstance(unManagedInstances[n]._id,unManagedInstances[n].state, 'assigned');
 																				}
 																			}
 																		}
@@ -374,9 +374,9 @@ function sync() {
 		}
 	});
 }
-function removeTerminateInstance(instanceId,key) {
+function removeTerminateInstance(instanceId,instanceState,key) {
 	if(key === 'managed') {
-		instanceService.removeInstanceById(instanceId, function (err, data) {
+		instanceService.removeInstanceById(instanceId,instanceState, function (err, data) {
 			if (err) {
 				logger.error(key+" Instance deletion Failed >> ", err);
 				return;

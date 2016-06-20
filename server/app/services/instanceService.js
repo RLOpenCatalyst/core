@@ -1159,22 +1159,22 @@ function getCookBookAttributes(instance, callback) {
     }
 };
 
-function removeInstanceById(instanceId,callback){
-    containerModel.deleteContainerByInstanceId(instanceId,function(err,container){
-        if (err) {
-            logger.error("Container deletion Failed >> ", err);
-            callback(err,null);
-            return;
-        }else{
-            instancesModel.removeInstancebyId(instanceId, function(err, data) {
-                if (err) {
-                    logger.error("Instance deletion Failed >> ", err);
-                    callback(err,null);
-                    return;
-                }
-                logger.debug("Exit delete() for /instances/%s",instanceId);
-                callback(err,data);
-            });
-        }
-    });
+function removeInstanceById(instanceId,instanceState,callback){
+        containerModel.deleteContainerByInstanceId(instanceId, function (err, container) {
+            if (err) {
+                logger.error("Container deletion Failed >> ", err);
+                callback(err, null);
+                return;
+            } else {
+                instancesModel.removeInstanceById(instanceId,instanceState, function (err, data) {
+                    if (err) {
+                        logger.error("Instance deletion Failed >> ", err);
+                        callback(err, null);
+                        return;
+                    }
+                    logger.debug("Exit delete() for /instances/%s", instanceId);
+                    callback(err, data);
+                });
+            }
+        });
 }

@@ -98,26 +98,37 @@ var S3 = function(awsSettings) {
         });
     };
 
-    this.getBucketTag = function(params,callback){
-        s3.getBucketTagging(params, function(err, data) {
+    this.getBucketTag = function(bucketName,callback){
+        s3.getBucketTagging({Bucket:bucketName}, function(err, data) {
             if (err){
-                logger.error(err, err.stack);
-                callback(err,null);
+                callback(null,{});
             }else{
-                callback(null, data);
-            };
+                var tags = data.TagSet;
+                var tagObj={};
+                if(tags.length > 0){
+                    for(var i = 0; i < tags.length; i++){
+                        tagObj[tags[i].Key] = tags[i].Value;
+                        if(i === tags.length-1){
+                            callback(null,tagObj);
+                        }
+                    }
+                }else{
+                    callback(null,{});
+                }
+            }
         });
     };
 
     this.addBucketTag = function(bucketName,tags,callback){
         var tagsArray = [];
         for(var key in tags) {
-            tagsArray.push({
-                Key: key,
-                Value: tags[key]
-            });
+            if(key !== '_schema') {
+                tagsArray.push({
+                    Key: key,
+                    Value: tags[key]
+                });
+            }
         }
-        console.log(tagsArray);
         var params = {
             Bucket: bucketName,
             Tagging: {

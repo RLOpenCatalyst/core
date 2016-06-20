@@ -61,7 +61,7 @@ var AWSResourcesSchema = function AWSResources() {
             trim: true,
             default: null
         },
-        tags:[Schema.Types.Mixed],
+        tags:Schema.Types.Mixed,
         usage:Schema.Types.Mixed,
         cost:Schema.Types.Mixed,
         isDeleted:{

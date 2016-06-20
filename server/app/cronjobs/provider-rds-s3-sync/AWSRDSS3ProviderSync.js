@@ -11,7 +11,7 @@ var resourceModel = require('_pr/model/resources/resources');
 var orgName='';
 
 var AWSRDSS3ProviderSync = Object.create(CatalystCronJob);
-AWSRDSS3ProviderSync.interval = '*/2 * * * *';
+AWSRDSS3ProviderSync.interval = '* * * * *';
 AWSRDSS3ProviderSync.execute = awsRDSS3ProviderSync;
 
 module.exports = AWSRDSS3ProviderSync;
@@ -38,7 +38,7 @@ function awsRDSS3ProviderSyncForProvidersOfOrg(org) {
 }
 
 function awsRDSS3ProviderSyncForProvider(provider) {
-    logger.debug("S3/RDS Data Fetching started");
+    logger.info("S3/RDS Data Fetching started");
     if(provider._id) {
         async.waterfall([
             function (next) {
@@ -84,11 +84,11 @@ function awsRDSS3ProviderSyncForProvider(provider) {
                 logger.error(err);
                 return;
             } else {
-                logger.debug("S3/RDS Data Successfully Added");
+                logger.info("S3/RDS Data Successfully Added");
             }
         })
     }else{
-        logger.debug("Please configure Provider for S3/RDS Resources");
+        logger.info("Please configure Provider for S3/RDS Resources");
     }
 };
 function saveS3Data(s3Info, callback) {

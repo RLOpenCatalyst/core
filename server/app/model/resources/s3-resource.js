@@ -73,7 +73,10 @@ S3ResourcesSchema.statics.updateS3BucketData = function(s3Data,callback){
     queryObj['resourceDetails.bucketName'] = s3Data.resourceDetails.bucketName;
     S3Resources.update(queryObj, {
         $set: {
-            resourceDetails: s3Data.resourceDetails
+            resourceDetails: s3Data.resourceDetails,
+            tags: s3Data.tags,
+            projectTag: s3Data.projectTag,
+            environmentTag: s3Data.environmentTag
         }
     }, {
         upsert: false

@@ -1351,21 +1351,6 @@
             });
 
         });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         //loading UnAssigned Data
         function getUnassignedData(key) {
             $.get('/providers/'+ urlproviderId +'/tag-mappings', function(tagsListSelected) {
@@ -1460,33 +1445,21 @@
                    {"data": "resourceDetails.dbName",  "orderable" : true},
                    {"data": "resourceDetails.dbEngine","orderable" : true  },
                    {"data": "resourceDetails.region","orderable" : false  },
-                   {"data": "tags" ,"orderable" : false,
-                       "render":function(data, type, full, meta) {
-                           var tagName='';
-                           if(full.tags) {
-                               if (envProjectMappingObject.project in full.tags) {
-                                   tagName = full.tags[envProjectMappingObject.project];
-                                   return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
-                               } else {
-                                   return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
-                               }
+                   {"data": "projectTag" ,"orderable" : false,
+                       "render": function(data, type, full) {
+                           if(data !== null) {
+                               return '<input class="form-control projectTag" type="text" value="' + data + '"/>';
                            }else{
-                               return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
+                               return '<input class="form-control projectTag" type="text" value=""/>';
                            }
                        }
                    },
-                   {"data": "tags" ,"orderable" : false,
-                       "render":function(data, type, full, meta) {
-                           var environmentTagName='';
-                           if(full.tags){
-                               if(envProjectMappingObject.environment in full.tags){
-                                   environmentTagName=full.tags[envProjectMappingObject.environment];
-                                   return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
-                               } else{
-                                   return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
-                               }
+                   {"data": "environmentTag" ,"orderable" : false,
+                       "render": function(data, type, full) {
+                           if(data !== null) {
+                               return '<input class="form-control envTagName" type="text" value="' + data + '"/>';
                            }else{
-                               return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
+                               return '<input class="form-control envTagName" type="text" value=""/>';
                            }
                        }
                    },
@@ -1516,33 +1489,21 @@
                     {"data": "resourceDetails.bucketName", "orderable" : true},
                     {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
                     {"data": "resourceDetails.bucketSize","orderable" : true  },
-                    {"data": "tags" ,"orderable" : false,
-                        "render":function(data, type, full, meta) {
-                            var tagName='';
-                            if(full.tags) {
-                                if (envProjectMappingObject.project in full.tags) {
-                                    tagName = full.tags[envProjectMappingObject.project];
-                                    return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
-                                } else {
-                                    return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
-                                }
-                            }else{
-                                return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
-                            }
-                        }
+                    {"data": "projectTag" ,"orderable" : false,
+                         "render": function(data, type, full) {
+                             if(data !== null) {
+                                 return '<input class="form-control projectTag" type="text" value="' + data + '"/>';
+                             }else{
+                                 return '<input class="form-control projectTag" type="text" value=""/>';
+                             }
+                         }
                     },
-                    {"data": "tags" ,"orderable" : false,
-                        "render":function(data, type, full, meta) {
-                            var environmentTagName='';
-                            if(full.tags){
-                                if(envProjectMappingObject.environment in full.tags){
-                                    environmentTagName=full.tags[envProjectMappingObject.environment];
-                                    return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
-                                } else{
-                                    return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
-                                }
+                    {"data": "environmentTag" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(data !== null) {
+                                return '<input class="form-control envTagName" type="text" value="' + data + '"/>';
                             }else{
-                                return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
+                                return '<input class="form-control envTagName" type="text" value=""/>';
                             }
                         }
                     },
@@ -1574,33 +1535,21 @@
                     {"data": "os","orderable" : false  },
                     {"data": "ip","orderable" : true  },
                     {"data": "state","orderable" : true  },
-                    {"data": "tags" ,"orderable" : false,
-                        "render":function(data, type, full, meta) {
-                            var tagName='';
-                            if(full.tags) {
-                                if (envProjectMappingObject.project in full.tags) {
-                                    tagName = full.tags[envProjectMappingObject.project];
-                                    return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
-                                } else {
-                                    return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
-                                }
+                    {"data": "projectTag" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(data !== null) {
+                                return '<input class="form-control projectTag" type="text" value="' + data + '"/>';
                             }else{
-                                return '<input class="form-control projectTagName" type="text" val = ' + tagName + '/>';
+                                return '<input class="form-control projectTag" type="text" value=""/>';
                             }
                         }
                     },
-                    {"data": "tags" ,"orderable" : false,
-                        "render":function(data, type, full, meta) {
-                            var environmentTagName='';
-                            if(full.tags){
-                                if(envProjectMappingObject.environment in full.tags){
-                                    environmentTagName=full.tags[envProjectMappingObject.environment];
-                                    return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
-                                } else{
-                                return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
-                                }
+                    {"data": "environmentTag" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(data !== null) {
+                                return '<input class="form-control envTagName" type="text" value="' + data + '"/>';
                             }else{
-                                return '<input class="form-control envTagName" type="text" val = ' +environmentTagName+ '/>';
+                                return '<input class="form-control envTagName" type="text" value=""/>';
                             }
                         }
                     },

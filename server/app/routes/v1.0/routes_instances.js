@@ -361,13 +361,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            instanceService.removeInstanceById(req.params.instanceId, function(err, data) {
+            instanceService.removeInstanceById(req.params.instanceId,'state', function(err, data) {
                         if (err) {
                             logger.error("Instance deletion Failed >> ", err);
                             res.status(500).send(errorResponses.db.error);
                             return;
                         }
-                        logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
+                        logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
                         res.send(200);
                     });
                 }

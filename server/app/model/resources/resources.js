@@ -38,6 +38,20 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
     });
 };
 
+ResourceSchema.statics.getResourcesByProviderId = function(providerId,callback) {
+    var queryObj={};
+    queryObj['providerDetails.id'] =providerId;
+    queryObj['isDeleted']=false;
+    Resources.find(queryObj, function(err, data) {
+        if (err) {
+            logger.error("Failed to getResourcesByProviderId", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 ResourceSchema.statics.getResourceById = function(resourceId,callback) {
     Resources.findById(resourceId, function(err, data) {
         if (err) {

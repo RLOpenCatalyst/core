@@ -58,10 +58,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 });
         };
 
-    app.patch('resources/', updateUnassignedResourcesTags);
+    app.patch('/resources', updateUnassignedResourcesTags);
     
     function updateUnassignedResourcesTags(req,res,next){
-        console.log("Welcome");
         async.waterfall(
             [
                 function (next) {
@@ -77,8 +76,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     }
                 },
                 function(resources, next) {
-                    console.log("Welcome 1234");
-                    resourceService.bulkUpdateUnassignedResourceTags(resources, next);
+                    resourceService.bulkUpdateUnassignedResourceTags(req.body.resources, next);
                 }
             ],
             function (err, results) {

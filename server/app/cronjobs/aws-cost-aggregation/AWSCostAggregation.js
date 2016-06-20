@@ -56,12 +56,12 @@ function aggregateCostForProvidersOfOrg(org) {
 }
 
 function aggregateAWSCostForProvider(provider) {
+    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' started');
     if(provider._id) {
         var instanceObj = {};
         var resourceObj = {};
         async.waterfall([
             function (next) {
-                logger.debug('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' started');
                 resourceService.getTotalCost(provider, next);
             },
             function (totalCost, next) {
@@ -147,15 +147,15 @@ function aggregateAWSCostForProvider(provider) {
                     logger.error(err);
                 } else {
                     if (results === false) {
-                        logger.debug("File updated time is same as DB updated time");
+                        logger.info("File updated time is same as DB updated time");
                     } else {
-                        logger.debug('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
+                        logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
                     }
                 }
 
             });
     }else{
-        logger.debug("Please configure Provider for Resources Cost");
+        logger.info("Please configure Provider for Resources Cost");
     }
 };
 

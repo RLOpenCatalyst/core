@@ -761,11 +761,21 @@ function getBucketsInfo(provider,orgName,callback) {
                                 callback(err, null);
                             } else {
                                 bucketObj.resourceDetails.bucketSize = Math.round(bucketSize);
-                                results.push(bucketObj);
-                                bucketObj={};
-                                if (results.length === data.Buckets.length) {
-                                    callback(null, results);
-                                }
+                                s3.getBucketTag(bucket.Name, function(err,bucketTag){
+                                    if (err) {
+                                        logger.error(err);
+                                        callback(err, null);
+                                    } else {
+                                        bucketObj.tags = bucketTag;
+                                        bucketObj.projectTag = bucketTag['Owner'];
+                                        bucketObj.environmentTag = bucketTag['Environment'];
+                                        results.push(bucketObj);
+                                        bucketObj={};
+                                        if (results.length === data.Buckets.length) {
+                                            callback(null, results);
+                                        }
+                                    }
+                                })
                             }
                         })
                     })(data.Buckets[i]);
@@ -849,7 +859,9 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                                 logger.error(err);
                                 callback(err,null);
                             }else{
-                                rdsDbInstanceObj['tags'] = rdsTags;
+                                rdsDbInstanceObj.tags = rdsTags;
+                                rdsDbInstanceObj.projectTag = rdsTags['Owner'];
+                                rdsDbInstanceObj.environmentTag = rdsTags['Environment'];
                                 results.push(rdsDbInstanceObj);
                                 rdsDbInstanceObj={};
                                 if(dbInstances.length === results.length){
@@ -884,7 +896,6 @@ function getResources(query, next) {
 }
 
 function bulkUpdateResourceProviderTags(provider, bulkResources, callback){
-    console.log(1);
     var providerTypes = appConfig.providerTypes;
     if (bulkResources.length > 10) {
         var err = new Error("Invalid request");
@@ -931,14 +942,15 @@ function bulkUpdateResourceProviderTags(provider, bulkResources, callback){
 }
 
 function bulkUpdateUnassignedResourceTags(bulkResources, callback){
-    console.log(2);
    for (var i = 0; i < bulkResources.length; i++) {
         (function(j) {
             var params = {
-                '_id': bulkResources[j]._id
+                '_id': bulkResources[j].id
             }
             var fields = {
-                'tags': bulkResources[j].tags
+                'tags': bulkResources[j].tags,
+                'projectTag' : bulkResources[j].tags['Owner'],
+                'environmentTag' :  bulkResources[j].tags['Environment']
             }
             resources.updateResourceTag(params, fields,
                 function(err, resourceUpdated) {
@@ -957,7 +969,6 @@ function bulkUpdateUnassignedResourceTags(bulkResources, callback){
 };
 
 function bulkUpdateAWSResourcesTags(provider, resources, callback) {
-    console.log(3);
     if(resources.length > 0) {
         if(resources[0].resourceType === 'S3') {
             var cryptoConfig = appConfig.cryptoSettings;
@@ -975,7 +986,7 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
             for (var i = 0; i < resources.length; i++) {
                 (function (j) {
                     logger.debug('Updating tags for resource ', resources[j]._id);
-                    s3.addBucketTag(resources[j].bucketName, resources[j].tags,
+                    s3.addBucketTag(resources[j].resourceDetails.bucketName, resources[j].tags,
                         function (err, data) {
                             if (err) {
                                 logger.error(err);
@@ -1004,7 +1015,7 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
             for (var i = 0; i < resources.length; i++) {
                 (function (j) {
                     logger.debug('Updating tags for resource ', resources[j]._id);
-                    rds.addRDSDBInstanceTag(resources[j].dbName, resources[j].tags,
+                    rds.addRDSDBInstanceTag(resources[j].resourceDetails.dbName, resources[j].tags,
                         function (err, data) {
                             if (err) {
                                 logger.error(err);

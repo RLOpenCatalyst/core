@@ -67,7 +67,7 @@ function aggregateEC2UsageForProvider(provider) {
     if(provider._id) {
         async.waterfall([
                 function (next) {
-                    logger.debug('AWS Service usage aggregation for provider: ' + provider._id + ' started');
+                    logger.info('AWS Service usage aggregation for provider: ' + provider._id + ' started');
                     instanceService.getTrackedInstancesForProvider(provider, next);
                 },
                 function (provider, instances, next) {
@@ -119,10 +119,10 @@ function aggregateEC2UsageForProvider(provider) {
                 if (err)
                     logger.error(err);
                 else if (results)
-                    logger.debug('AWS Service usage aggregation for provider: ' + provider._id + ' ended');
+                    logger.info('AWS Service usage aggregation for provider: ' + provider._id + ' ended');
             });
     }else{
-        logger.debug("Please configure Provider for Resources Usage");
+        logger.info("Please configure Provider for Resources Usage");
     }
 }
 
