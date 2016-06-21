@@ -17,7 +17,8 @@
 			var cftPaginationDefault = uiGridOptionsService.options();
 			$scope.paginationParams = cftPaginationDefault.pagination;
 			$scope.currentCardPage = cftPaginationDefault.pagination.page;
-			$scope.cardsPerPage = 30;
+			cftPaginationDefault.pagination.pageSize = 12;
+			$scope.cardsPerPage = cftPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
 			$scope.isCloudFormationPaginationShow = true;
@@ -62,7 +63,9 @@
 					// service to get the list of containers.
 					workzoneServices.getPaginatedCFT($scope.envParams, $scope.paginationParams).then(function(result) {
 						$scope.totalCards = result.data.metaData.totalRecords;
-						if($scope.totalCards < $scope.paginationParams.pageSize) {
+						if($scope.totalCards > $scope.paginationParams.pageSize) {
+							$scope.isCloudFormationPaginationShow = true;
+						} else {
 							$scope.isCloudFormationPaginationShow = false;
 						}
 						$scope.isCloudFormationPageLoading = false;
@@ -124,7 +127,9 @@
 							}
 						}
 					});
-					modalInstance.result.then(function(){                                
+					modalInstance.result.then(function(){
+						//refreshes the list once the cft is deleted.
+						$scope.cftListCardView();                                
 						$scope.stacks=arrayUtil.deleteObjectById($scope.stacks,stack._id);
 					},function(){
 						
