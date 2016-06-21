@@ -191,7 +191,7 @@ var MasterUtil = function() {
 
     this.getEnvironmentsByprojectId = function(projectId, callback) {
         d4dModelNew.d4dModelMastersEnvironments.find({
-            projectname_rowid: projectId,
+            projectname_rowid: {$regex: projectId},
             id:'3'
         }, function(err, environmentData) {
             if(err) {
@@ -201,7 +201,7 @@ var MasterUtil = function() {
             callback(null, environmentData);
 
         });
-    }
+    };
 
     // Return all Environments specific to User
     this.getEnvironments = function(orgList, callback) {
@@ -310,20 +310,6 @@ var MasterUtil = function() {
 
         });
     };
-
-    this.getEnvironmentsByprojectId = function(projectId, callback) {
-        d4dModelNew.d4dModelMastersEnvironments.find({
-            projectname_rowid: /projectId/,
-            id:'3'
-        }, function(err, environmentData) {
-            if(err) {
-                logger.debug("getEnvironmentsByprojectId: "+err);
-                callback(err, null);
-            }
-            callback(null, environmentData);
-
-        });
-    }
 
     // Return all ConfigManagement specific to User
     this.getCongifMgmts = function(orgList, callback) {
@@ -1481,20 +1467,6 @@ var MasterUtil = function() {
                 callback(err, null);
             }
             callback(null, projectData);
-
-        });
-    };
-
-    this.getEnvironmentsByprojectId = function(projectId, callback) {
-        d4dModelNew.d4dModelMastersEnvironments.find({
-            projectname_rowid: projectId,
-            id:'3'
-        }, function(err, environmentData) {
-            if(err) {
-                logger.debug("getEnvironmentsByprojectId: "+err);
-                callback(err, null);
-            }
-            callback(null, environmentData);
 
         });
     };
