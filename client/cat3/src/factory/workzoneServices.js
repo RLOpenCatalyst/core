@@ -311,12 +311,9 @@
 					return $http.post(fullUrl(url), data, Auth.getHeaderObject());
 				},
 				deleteInstance: function (instanceID) {
-                    return $http({
-						method: "delete",
-						url: fullUrl('/instances/' + instanceID),
-						async: false
-					});
-				},
+                    var url = '/instances/' + instanceID;
+                    return $http.delete(fullUrl(url), Auth.getHeaderObject());
+                },
 				startInstance: function (instanceID) {
 					var url = '/instances/' + instanceID + '/startInstance';
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
