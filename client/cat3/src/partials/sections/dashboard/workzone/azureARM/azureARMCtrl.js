@@ -15,10 +15,10 @@
 			$scope.paginationParams.sortBy = 'created';
 			$scope.paginationParams.sortOrder = 'desc';
 			$scope.currentCardPage = armPaginationDefault.pagination.page;
-			$scope.cardsPerPage = 30;
+			armPaginationDefault.pagination.pageSize = 12;
+			$scope.cardsPerPage = armPaginationDefault.pagination.pageSize;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
-			$scope.isAzureARMPaginationShow = true;
 
 			$scope.setFirstPageView = function() {
 				$scope.paginationParams.page = 1;
@@ -60,7 +60,9 @@
 					// service to get the list of azureArm
 					workzoneServices.getPaginatedARM($scope.envParams, $scope.paginationParams).then(function(result) {
 						$scope.totalCards = result.data.metaData.totalRecords;
-						if($scope.totalCards < $scope.paginationParams.pageSize) {
+						if($scope.totalCards > $scope.paginationParams.pageSize) {
+							$scope.isAzureARMPaginationShow = true;
+						} else {
 							$scope.isAzureARMPaginationShow = false;
 						}
 						$scope.isAzureARMPageLoading = false;
@@ -87,6 +89,8 @@
 					});
 					modalInstance.result.then(function(){                                
 						$scope.arms.splice(index,1);
+						//refreshes the arm list once the arm is deleted.
+						$scope.azureListCardView();
 					},function(){
 						
 					});

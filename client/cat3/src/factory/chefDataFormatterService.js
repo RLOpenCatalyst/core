@@ -293,6 +293,10 @@
 							var indexOfBracketClose = item.value.indexOf(']');
 							if (indexOfBracketClose !== -1) {
 								item.value = item.value.substring(indexOfBracketOpen + 1, indexOfBracketClose);
+								var indexOfDeployCheck = item.value.indexOf('deploy');
+								if (indexOfDeployCheck !== -1) {
+									item.className = 'deploy';
+								}
 								var indexOfTemplateCheck = item.value.indexOf(':-:');
 								if (indexOfTemplateCheck !== -1) {
 									var templateArr = item.value.split(':-:');
