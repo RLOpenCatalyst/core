@@ -311,8 +311,8 @@
 					return $http.post(fullUrl(url), data, Auth.getHeaderObject());
 				},
 				deleteInstance: function (instanceID) {
-					return $.ajax({
-						type: 'delete',
+                    return $http({
+						method: "delete",
 						url: fullUrl('/instances/' + instanceID),
 						async: false
 					});

@@ -14,14 +14,14 @@
 					if ($scope.isChefChecked) {
 						urlParams = urlParams + '?chefRemove=true';
 					}
-					workzoneServices.deleteInstance(urlParams).then(function(data) {
-						if (data==="OK") {
+					workzoneServices.deleteInstance(urlParams).then(function(response) {
+						if (response.data==="OK") {
 							$modalInstance.close(items);
 						} else {
 							alert('Unexpected Behaviour');
 						}
 					}, function(error) {
-						error = error.responseText || error;
+						error = error.data || error;
 						if (error.message) {
 							alert(error.message);
 						} else {
