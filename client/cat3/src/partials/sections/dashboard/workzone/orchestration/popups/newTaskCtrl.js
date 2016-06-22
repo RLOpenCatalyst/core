@@ -13,6 +13,7 @@
             $scope.role={
              name : ''   
             };
+            var taskSaving = false;
 
             $scope.isNewTaskPageLoading = true;
 			$scope.chefrunlist = [];
@@ -138,6 +139,7 @@
 						items = reqBody.taskData;
 						$rootScope.$emit('WZ_ORCHESTRATION_SHOW_LATEST');
 						$rootScope.$emit('GET_ALL_TASK');
+                        taskSaving = false;
 						$modalInstance.close(items);
 					});
 				},
@@ -149,6 +151,7 @@
 					workzoneServices.updateTask(reqBody, $scope.id).then(function () {
 						items = reqBody.taskData;
 						$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                        taskSaving = false;
 						$modalInstance.close(items);
 					});
 				},
@@ -158,146 +161,162 @@
 					});
 				},
 				ok: function () {
-					//these values are common across all task types
-					var taskJSON = {
-						taskType: $scope.taskType,
-						name: $scope.name,
-						description: $scope.description,
-					};
-					//checking for name of the task
-					if (!taskJSON.name.trim()) {
-						alert('Please enter the name of the task.');
-						return false;
-					}
-					//validating the task selections values and taking selected values from chef components
-					if ($scope.taskType === "composite") {
-						taskJSON.assignTasks = [];
-						var selectedList = compositeSelector.getSelectorList();
-						if (selectedList && selectedList.length) {
-							for (var i = 0; i < selectedList.length; i++) {
-								taskJSON.assignTasks.push(selectedList[i].data._id);
-							}
-						} else {
-							alert('please select atleast one job');
-							return false;
-						}
-					}
-					/*This will get the values in order to create chef type task and check for any chef node selections*/
-					if ($scope.taskType === "chef") {
-						taskJSON.nodeIds = [];
-						taskJSON.blueprintIds = [];
-                        taskJSON.role = $scope.role.name;
-						for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
-							if ($scope.chefInstanceList[ci]._isNodeSelected) {
-								taskJSON.nodeIds.push($scope.chefInstanceList[ci]._id);
-							}
-						}
-						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
-							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
-								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
-							}
-						}
-
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
-							alert('Please select a node or blueprint or role');
-							return false;
-						}
-						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
-							alert('Please choose either nodes or blueprints or role, not all');
-							return false;
-						}
-
-                        if (taskJSON.nodeIds.length && taskJSON.role) {
-                            alert('Please choose either nodes or blueprints or role, not all');
+                    if(!taskSaving){
+                        // need to find solution to set flag in angular
+                        taskSaving = true;
+                        //these values are common across all task types
+                        var taskJSON = {
+                            taskType: $scope.taskType,
+                            name: $scope.name,
+                            description: $scope.description,
+                        };
+                        //checking for name of the task
+                        if (!taskJSON.name.trim()) {
+                            alert('Please enter the name of the task.');
+                            taskSaving = false;
                             return false;
                         }
-
-                        if (taskJSON.blueprintIds.length && taskJSON.role) {
-                            alert('Please choose either nodes or blueprints or role, not all');
-                            return false;
+                        //validating the task selections values and taking selected values from chef components
+                        if ($scope.taskType === "composite") {
+                            taskJSON.assignTasks = [];
+                            var selectedList = compositeSelector.getSelectorList();
+                            if (selectedList && selectedList.length) {
+                                for (var i = 0; i < selectedList.length; i++) {
+                                    taskJSON.assignTasks.push(selectedList[i].data._id);
+                                }
+                            } else {
+                                alert('please select atleast one job');
+                                taskSaving = false;
+                                return false;
+                            }
                         }
+                        /*This will get the values in order to create chef type task and check for any chef node selections*/
+                        if ($scope.taskType === "chef") {
+                            taskJSON.nodeIds = [];
+                            taskJSON.blueprintIds = [];
+                            taskJSON.role = $scope.role.name;
+                            for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
+                                if ($scope.chefInstanceList[ci]._isNodeSelected) {
+                                    taskJSON.nodeIds.push($scope.chefInstanceList[ci]._id);
+                                }
+                            }
+                            for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
+                                if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
+                                    taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
+                                }
+                            }
 
-						taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
-						taskJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
-					}
-					/*This will get the values in order to create puppet type task and check for any puppet node selections*/
-					if ($scope.taskType === "puppet") {
-						taskJSON.nodeIds = [];
-						for (var pi = 0; pi < $scope.puppetInstanceList.length; pi++) {
-							if ($scope.puppetInstanceList[pi]._isNodeSelected) {
-								taskJSON.nodeIds.push($scope.puppetInstanceList[pi]._id);
-							}
-						}
-						if (!taskJSON.nodeIds.length) {
-							alert('Please select atleast one puppet node');
-							return false;
-						}
-					}
-					if ($scope.taskType === "jenkins") {
-						taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
-						if (!taskJSON.jenkinsServerId.length) {
-							alert('Please select the Jenkins Server');
-							return false;
-						}
-						taskJSON.autoSyncFlag = $scope.autoSync.flag;
-						taskJSON.jobName = $scope.jenkinJobSelected;
-						if (!taskJSON.jobName.length) {
-							alert('Please select one Job');
-							return false;
-						}
-						taskJSON.jobURL = $scope.jobUrl;
-						if (!taskJSON.jobURL.length) {
-							alert('No Job Url');
-							return false;
-						}
-						taskJSON.isParameterized = $scope.isParameterized.flag;
-						taskJSON.jobResultURL = $scope.jobResultURL;
-						//first time execute will get result from jobResultURLPattern.
-						taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
-						taskJSON.parameterized = $scope.jenkinsParamsList;
-					}
-					//if task type is script
-					if ($scope.taskType === "script") {
-						taskJSON.nodeIds = [];
-						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
-							if ($scope.chefInstanceList[si]._isNodeSelected) {
-								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
-							}
-						}
-						if (!taskJSON.nodeIds.length) {
-							alert('Please select a node');
-							return false;
-						}
-						if($scope.scriptFile){//will be true if a file chosen by user 
-							var formdata = new FormData();
-							formdata.append('file',  $scope.scriptFile);
-							workzoneServices.postFileUpload(formdata,{transformRequest: angular.identity,headers: {'Content-Type': undefined}}).then(function(response){
-								var scriptFile = response.data;
-								taskJSON.scriptFileName = scriptFile.filename;//wrong name field in api, it contains generated file id.
-								if ($scope.isEditMode) {
-									$scope.updateTask(taskJSON);            
-								}else{
-									$scope.postNewTask(taskJSON);             
-								}
-							});
-						}
-						else{
-							if ($scope.isEditMode) {
-								taskJSON.scriptFileName = items.taskConfig.scriptFileName;
-								$scope.updateTask(taskJSON);            
-							}
-						}
-					}
-					//checking whether its a update or a new task creation
-					var type = $scope.taskType;
-					if(type === "chef" || type === "jenkins" || type === "puppet" || type === "composite"){
-						if ($scope.isEditMode) {
-							$scope.updateTask(taskJSON);
-						} else {
-							$scope.postNewTask(taskJSON);
-						}
-					}
-					$rootScope.createChefJob=false;
+                            if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
+                                alert('Please select a node or blueprint or role');
+                                taskSaving = false;
+                                return false;
+                            }
+                            if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
+                                alert('Please choose either nodes or blueprints or role, not all');
+                                taskSaving = false;
+                                return false;
+                            }
+
+                            if (taskJSON.nodeIds.length && taskJSON.role) {
+                                alert('Please choose either nodes or blueprints or role, not all');
+                                taskSaving = false;
+                                return false;
+                            }
+
+                            if (taskJSON.blueprintIds.length && taskJSON.role) {
+                                alert('Please choose either nodes or blueprints or role, not all');
+                                taskSaving = false;
+                                return false;
+                            }
+
+                            taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
+                            taskJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
+                        }
+                        /*This will get the values in order to create puppet type task and check for any puppet node selections*/
+                        if ($scope.taskType === "puppet") {
+                            taskJSON.nodeIds = [];
+                            for (var pi = 0; pi < $scope.puppetInstanceList.length; pi++) {
+                                if ($scope.puppetInstanceList[pi]._isNodeSelected) {
+                                    taskJSON.nodeIds.push($scope.puppetInstanceList[pi]._id);
+                                }
+                            }
+                            if (!taskJSON.nodeIds.length) {
+                                alert('Please select atleast one puppet node');
+                                taskSaving = false;
+                                return false;
+                            }
+                        }
+                        if ($scope.taskType === "jenkins") {
+                            taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
+                            if (!taskJSON.jenkinsServerId.length) {
+                                alert('Please select the Jenkins Server');
+                                taskSaving = false;
+                                return false;
+                            }
+                            taskJSON.autoSyncFlag = $scope.autoSync.flag;
+                            taskJSON.jobName = $scope.jenkinJobSelected;
+                            if (!taskJSON.jobName.length) {
+                                alert('Please select one Job');
+                                taskSaving = false;
+                                return false;
+                            }
+                            taskJSON.jobURL = $scope.jobUrl;
+                            if (!taskJSON.jobURL.length) {
+                                alert('No Job Url');
+                                taskSaving = false;
+                                return false;
+                            }
+                            taskJSON.isParameterized = $scope.isParameterized.flag;
+                            taskJSON.jobResultURL = $scope.jobResultURL;
+                            //first time execute will get result from jobResultURLPattern.
+                            taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
+                            taskJSON.parameterized = $scope.jenkinsParamsList;
+                        }
+                        //if task type is script
+                        if ($scope.taskType === "script") {
+                            taskJSON.nodeIds = [];
+                            for (var si = 0; si < $scope.chefInstanceList.length; si++) {
+                                if ($scope.chefInstanceList[si]._isNodeSelected) {
+                                    taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
+                                }
+                            }
+                            if (!taskJSON.nodeIds.length) {
+                                alert('Please select a node');
+                                taskSaving = false;
+                                return false;
+                            }
+                            if($scope.scriptFile){//will be true if a file chosen by user 
+                                var formdata = new FormData();
+                                formdata.append('file',  $scope.scriptFile);
+                                workzoneServices.postFileUpload(formdata,{transformRequest: angular.identity,headers: {'Content-Type': undefined}}).then(function(response){
+                                    var scriptFile = response.data;
+                                    taskJSON.scriptFileName = scriptFile.filename;//wrong name field in api, it contains generated file id.
+                                    if ($scope.isEditMode) {
+                                        $scope.updateTask(taskJSON);            
+                                    }else{
+                                        $scope.postNewTask(taskJSON);             
+                                    }
+                                });
+                            }
+                            else{
+                                if ($scope.isEditMode) {
+                                    taskJSON.scriptFileName = items.taskConfig.scriptFileName;
+                                    $scope.updateTask(taskJSON);            
+                                }
+                            }
+                        }
+                        //checking whether its a update or a new task creation
+                        var type = $scope.taskType;
+                        if(type === "chef" || type === "jenkins" || type === "puppet" || type === "composite"){
+                            if ($scope.isEditMode) {
+                                $scope.updateTask(taskJSON);
+                            } else {
+                                $scope.postNewTask(taskJSON);
+                            }
+                        }
+                        taskSaving = false;
+                        $rootScope.createChefJob=false;
+                    }
 				},
 				cancel: function () {
 					$rootScope.createChefJob=false;
@@ -307,6 +326,7 @@
 			$scope.name = "";
 			$scope.taskType = "chef";//default Task type selection;
 			$scope.isEditMode = false;//default edit mode is false;
+            $scope.taskSavig = false;
 			$scope.autoSync = {
 				flag: false
 			};
