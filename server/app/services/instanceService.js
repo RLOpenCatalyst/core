@@ -392,6 +392,7 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 }
 
 function getTrackedInstancesForProvider(provider, next) {
+    console.log("Provider is >>"+provider);
     async.parallel({
             managed: function(callback) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
