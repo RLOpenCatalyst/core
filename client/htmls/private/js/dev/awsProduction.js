@@ -2988,6 +2988,7 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 }
 
 function closeblueprintedit(blueprintId) {
+    linkClick = false;
     $('#myTab3 li').removeClass('hidden');
     $('#myTab3 li.blueprintEditbutton').addClass('hidden');
     $('#myTab3 a[href="#viewCreate"]').tab('show');
@@ -3084,7 +3085,7 @@ function initializeBlueprintAreaNew(data) {
     //Expanding the fist Accordion.
 
 };
-
+var linkClick = false;
 function addBlueprintToDom(data) {
     //Find a panel-body with the template type class
     var $currRolePanel = $('#accordion-2').find('.' + data.templateType);
@@ -3153,19 +3154,22 @@ function addBlueprintToDom(data) {
 
         $ul.append($liCardName).append($liVersion);
 
+        
         $linkVersions.click(function(e) {
-            //Get the lastest version
-            var lastversion = $(this).parents('.cardimage').find('.blueprintVer').val(); //default version
-
-
-            //load the edit screen. Currently loaded from popup. Call that funcction.
-            if (lastversion) {
-                loadblueprintedit(lastversion, $(this).attr('blueprintId')); //base version required for UI
-            } else {
-                bootbox.alert({
-                    message: 'Blueprint data error. Could not read.',
-                    title: 'Warning'
-                });
+            if(!linkClick){
+                //Get the lastest version
+                var lastversion = $(this).parents('.cardimage').find('.blueprintVer').val(); //default version
+                //load the edit screen. Currently loaded from popup. Call that funcction.
+                if (lastversion) {
+                    loadblueprintedit(lastversion, $(this).attr('blueprintId')); //base version required for UI
+                } else {
+                    bootbox.alert({
+                        message: 'Blueprint data error. Could not read.',
+                        title: 'Warning'
+                    });
+                }
+                e.preventDefault();
+                linkClick = true;
             }
         });
 
