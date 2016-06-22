@@ -211,7 +211,7 @@ function sync() {
 																					break;
 																				}
 																			} else if (instances[n].instanceState === 'terminated') {
-																				removeTerminateInstance(instances[n]._id,unManagedInstances[n].state, 'managed');
+																				removeTerminateInstance(instances[n]._id,instances[n].instanceState, 'managed');
 																			}
 																		}
 

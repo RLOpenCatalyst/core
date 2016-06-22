@@ -98,6 +98,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
                 function(filterQuery, next) {
+                    console.log(JSON.stringify(filterQuery));
                     // @TODO Modify to work without sessions as well
                     userService.getUserOrgs(req.session.user, function(err, orgs) {
                         if(err) {
