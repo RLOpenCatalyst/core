@@ -807,6 +807,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
             if(dbInstances.length === 0){
                 callback(null,results);
             }else{
+                var sysDate=new Date();
                 for(var i = 0; i < dbInstances.length; i++){
                     (function(dbInstance) {
                         var rdsDbInstanceObj = {
@@ -829,7 +830,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                                 dbMasterUserName: dbInstance.MasterUsername,
                                 dbEndpoint: dbInstance.Endpoint,
                                 dbAllocatedStorage: dbInstance.AllocatedStorage,
-                                dbInstanceCreatedOn: Date.parse(dbInstance.InstanceCreateTime),
+                                dbInstanceCreatedOn: dbInstance.InstanceCreateTime ? Date.parse(dbInstance.InstanceCreateTime) : Date.parse(sysDate),
                                 preferredBackupWindow: dbInstance.PreferredBackupWindow,
                                 backupRetentionPeriod: dbInstance.BackupRetentionPeriod,
                                 vpcSecurityGroups: dbInstance.VpcSecurityGroups,
@@ -837,7 +838,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                                 preferredMaintenanceWindow: dbInstance.PreferredMaintenanceWindow,
                                 region: dbInstance.AvailabilityZone,
                                 dbSubnetGroup: dbInstance.DBSubnetGroup,
-                                latestRestorableTime: Date.parse(dbInstance.LatestRestorableTime),
+                                latestRestorableTime: dbInstance.LatestRestorableTime ? Date.parse(dbInstance.LatestRestorableTime) : Date.parse(sysDate),
                                 multiAZ: dbInstance.MultiAZ,
                                 engineVersion: dbInstance.EngineVersion,
                                 autoMinorVersionUpgrade: dbInstance.AutoMinorVersionUpgrade,

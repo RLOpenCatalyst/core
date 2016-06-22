@@ -12,7 +12,6 @@ var tagsModel = require('_pr/model/tags');
 var orgName='';
 
 var AWSRDSS3ProviderSync = Object.create(CatalystCronJob);
-AWSRDSS3ProviderSync.interval = '* * * * *';
 AWSRDSS3ProviderSync.execute = awsRDSS3ProviderSync;
 
 module.exports = AWSRDSS3ProviderSync;
