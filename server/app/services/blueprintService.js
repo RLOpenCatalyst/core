@@ -28,6 +28,8 @@ var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 
 var networkProfileService = require('_pr/services/networkProfileService.js');
 var vmImageDao = require('_pr/model/classes/masters/vmImage.js');
+var Blueprints = require('_pr/model/blueprint');
+var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 
 
 
@@ -422,6 +424,37 @@ blueprintService.deleteBlueprint = function deleteBlueprint(blueprintId, callbac
         } else {
             // @TODO response to be decided
             return callback(null, {});
+        }
+    });
+};
+
+blueprintService.getById = function getById(id, callback) {
+    logger.debug('finding blueprint by id ===>' + id);
+    Blueprints.findById(id, function(err, blueprint) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        if(blueprint){
+            var providerData = blueprint.blueprintConfig.cloudProviderData;
+            if(providerData && providerData.keyPairId && !providerData.region){
+                AWSKeyPair.getAWSKeyPairById(providerData.keyPairId,function(err,keyPairData){
+                    if(err){
+                        logger.error("Error while fetching keyPair: ",err);
+                        return callback(null,blueprint);
+                    }
+                    if(keyPairData){
+                        blueprint.blueprintConfig.cloudProviderData['region'] = keyPairData.region;
+                        return callback(null,blueprint);
+                    }else{
+                        return callback(null,blueprint);
+                    }
+                });
+            }else{
+                return callback(null,blueprint);
+            }
+        }else{
+            return callback(404, null);
         }
     });
 };
