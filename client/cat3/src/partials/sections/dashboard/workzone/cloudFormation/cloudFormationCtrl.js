@@ -13,15 +13,14 @@
 				stackEventsPollerTime: 200
 			};
 		}])
-		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', '$timeout','uiGridOptionsService', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, $timeout,uiGridOptionsService) {
+		.controller('cloudFormationCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', 'arrayUtil', '$timeout','uiGridOptionsService', 'workzoneUIUtils', function($scope, workzoneServices, $modal, $rootScope, arrayUtil, $timeout, uiGridOptionsService, workzoneUIUtils) {
+			var gridBottomSpace = 5;
 			var cftPaginationDefault = uiGridOptionsService.options();
 			$scope.paginationParams = cftPaginationDefault.pagination;
 			$scope.currentCardPage = cftPaginationDefault.pagination.page;
-			cftPaginationDefault.pagination.pageSize = 12;
-			$scope.cardsPerPage = cftPaginationDefault.pagination.pageSize;
+			$scope.cardsPerPage = cftPaginationDefault.pagination.pageSize = 30;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
-			$scope.isCloudFormationPaginationShow = true;
 
 			$scope.setFirstPageView = function() {
 				$scope.currentCardPage = $scope.paginationParams.page = 1;
@@ -32,6 +31,7 @@
 				$scope.setFirstPageView();
 				$scope.envParams=requestParams;
 				$scope.cftListCardView();
+				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('cloudFormationPage')-gridBottomSpace;
 			});
 
 			$rootScope.$on('WZ_CFT_SHOW_LATEST', function(){

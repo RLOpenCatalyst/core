@@ -47,12 +47,16 @@
 					});
 				}
 			});
+			$scope.pagiOptionsHistory.page=1;
 			getApplicationHistoryService(envParams, envNames,$scope.pagiOptionsHistory);
 		}});
 		function getApplicationHistoryService(envParams, envNames,pagiOptionsHistory){
 			workzoneServices.getApplicationHistoryForEnv(envNames.env, envParams.proj,pagiOptionsHistory).then(function (response) {
 				$scope.historyGridOptions.data= response.data.appDeploy;
 				$scope.historGgridData=response.data.appDeploy;
+				if(pagiOptionsHistory.page === 1){
+					$scope.historyGridOptions.paginationCurrentPage = 1;
+				}
 				$scope.historyGridOptions.totalItems = response.data.metaData.totalRecords;
 			});
 		}

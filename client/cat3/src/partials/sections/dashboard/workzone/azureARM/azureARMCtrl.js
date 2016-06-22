@@ -8,15 +8,15 @@
 (function(angular) {
 	'use strict';
 	angular.module('workzone.azureARM', ['apis.workzone', 'ui.bootstrap','utility.array'])
-		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', '$timeout', 'uiGridOptionsService', function($scope, workzoneServices, $modal, $rootScope, $timeout, uiGridOptionsService) {
+		.controller('AzureARMCtrl', ['$scope', 'workzoneServices', '$modal', '$rootScope', '$timeout', 'uiGridOptionsService', 'workzoneUIUtils', function($scope, workzoneServices, $modal, $rootScope, $timeout, uiGridOptionsService, workzoneUIUtils) {
 			$scope.isAzureARMPageLoading = true;
+			var gridBottomSpace = 5;
 			var armPaginationDefault = uiGridOptionsService.options();
 			$scope.paginationParams = armPaginationDefault.pagination;
 			$scope.paginationParams.sortBy = 'created';
 			$scope.paginationParams.sortOrder = 'desc';
 			$scope.currentCardPage = armPaginationDefault.pagination.page;
-			armPaginationDefault.pagination.pageSize = 12;
-			$scope.cardsPerPage = armPaginationDefault.pagination.pageSize;
+			$scope.cardsPerPage = armPaginationDefault.pagination.pageSize = 30;
 			$scope.numofCardPages = 0; //Have to calculate from totalItems/cardsPerPage
 			$scope.totalCards = 0;
 
@@ -29,6 +29,7 @@
 				$scope.currentCardPage = $scope.paginationParams.page = 1;
 				$scope.envParams=requestParams;
 				$scope.azureListCardView();
+				$scope.gridHeight = workzoneUIUtils.makeTabScrollable('azureARMPage')-gridBottomSpace;
 			});
 
 			$rootScope.$on('WZ_AzureARM_SHOW_LATEST', function(){
