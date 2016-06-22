@@ -1,0 +1,72 @@
+<div class="col-lg-12 awsExisting">
+        <div class="col-lg-4 col-md-4">
+            <label for="">Organization <!-- <span style="color:red">*</span> --></label>
+            <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100 form-control">
+                <option value="ca8a9158-0426-4a14-9401-a5539a9dda87">RL</option></select>
+        </div>
+        <div class="col-lg-4 col-md-4">
+            <label for="">Business Group</label>
+            <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control">
+                <option value="f8075f04-d224-4940-afea-967b1b8dc951">Product</option><option value="658c2fec-2099-43f5-92dd-7cf31d217e42">Demo</option></select>
+        </div>
+        <div class="col-lg-4 col-md-4">
+            <label for="category">Project
+            </label>
+            <select id="projectListInputExisting" class="chooseProjectExisting width-100 form-control"><option value="4c839a5f-053e-427e-83a6-af896bb2e833">JAVA</option><option value="a3df7617-66aa-45e7-a35d-c77120ae27d1">DOT_NET</option><option value="db30c395-e112-44b1-8d32-f778fb21ea71">AZURE</option></select>
+        </div>
+        <div class="col-lg-4 col-md-4 hidden">
+            <label for="category">Environment</label>
+            <select id="envListExisting" class="chooseEnvExisting hidden width-100 form-control">
+                <option value="ffcee46d-3faf-4dd4-a63d-9fcdcbd505dd">RL_EVL</option><option value="1a0b66a1-2a02-40f9-bd49-3d31b2bdaf6d">RL_QA</option><option value="5c332369-a357-4d5e-8847-4d9cd277d68d">RL_Prod</option><option value="33edeb34-b685-4567-b4fd-a4340180b443">RL_Devops</option><option value="c0dc77da-c177-42f9-a07e-11be22e1a0ce">RL_Security</option><option value="aa20c605-b493-4993-8167-756efa7ccfa7">RL_Customer</option><option value="e0f14774-edbe-4e7e-97fb-62bd62f237bd">Azure</option><option value="b158a208-2925-4b47-997f-da58f79440dd">RL_Azure_Dev</option><option value="1273493a-76ab-4118-8ff4-f7411f05cee8">RL_CatalystOS</option><option value="3daaa669-5069-46d1-9891-04cb008d728d">Production</option></select>
+        </div>
+    </div>
+<div style="clear: both;"></div>
+<div class="section-headings "  >
+    <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+        <span>SoftwareStack Blueprint</span>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+        <span>Selected Blueprint</span>
+    </div>
+</div>
+<div id="compsiteBlueprint"  >
+    <div id="compsiteBlueprintSelecter" >
+        <!-- Here HTML snippet will be append through chef component-->
+    </div>
+</div>
+
+<script type="application/javascript">
+    var selectedElements=[{
+        "className": "environment",
+        "value":"BlueptintA1",
+        "data": {
+            "key": "BlueptintA1",
+            "value":"BlueptaaaaintA1"
+        }}];
+    var list=[{
+        "className": "environment",
+        "value":"BlueptintA3",
+        "data": {
+            "key": "BlueptintA3",
+            "value":"BlueptintsssA3"
+        }},
+        {
+            "className": "environment",
+            "value":"BlueptintA2",
+            "data": {
+                "key": "BlueptintA2",
+                "value":"BlueptissntA2"
+            }}];
+   var compsiteBlueprint= window.chefSelectorComponent({
+        scopeElement: '#compsiteBlueprintSelecter',
+        optionList: list,
+        selectorList: selectedElements,
+        isSortList: true,
+        isSearchBoxEnable: false,
+        isOverrideHtmlTemplate: true,
+        isPriorityEnable: true,
+        isExcludeDataFromOption: false,
+    });
+    // select blueprint for edit
+
+</script>

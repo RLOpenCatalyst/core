@@ -2433,6 +2433,9 @@ hr {
     width: 64%;
     cursor: pointer;
 }
+.blueprintdiv-aws {
+    width: 77% !important;
+}
 /*Added for padding top in the li*/
 
 .Padded {
@@ -4470,4 +4473,35 @@ form.cmxform .gray * {
 /*Class added in Dev Angular to show the blue color for active classes.*/
 .custom-theme .left-projects-links > a.active i {
     color:#40baf1 !important;
+}
+/* compsiteBlueprint*/
+#compsiteBlueprint{
+    margin: 0 auto;
+    width: 65%;
+}
+#optionSelector, #selectorList {
+    width: 100%;
+    height: 250px;
+}
+.selectCookbooksandRecipesdivLeft {
+    margin: 0 0 0 10px;
+}
+.selectCookbooksandRecipesdivLeft, .selectCookbooksandRecipesdivRight {
+    width: 80%;
+}
+.environment {
+    background-repeat: no-repeat;
+    height: 24px;
+    padding-left: 34px;
+    padding-top: 6px;
+    background-position: 4px 2px !important;
+    font-size: 12px;
+    background: url("../img/environment.png") no-repeat;
+
+}
+.section-headings{
+    background: rgba(241, 241, 241, 0.77);
+    height: 29px;
+    padding: 0 16%;
+    font-weight: 700;
 }
