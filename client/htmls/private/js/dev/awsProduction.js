@@ -1230,14 +1230,27 @@ $(document).ready(function() {
         var sortbyid = function SortByID(x, y) {
             return x.position - y.position;
         }
+
         $.get('/d4dMasters/readmasterjsonnew/16', function(data) {
             data = JSON.parse(data);
+            data.push({
+                _id: "54bde11187f86fa0130c7563",
+                templatetypename: "Composite",
+                designtemplateicon_filename: "Docker.png",
+                rowid: "b02de7dd-6101-4f0e-a95e-68d74cec86c0",
+                id: "16",
+                __v: 0,
+                active: true,
+                templatetype: "composite",
+                orgname_rowid: ["46d1da9a-d927-41dc-8e9e-7e926d927537"],
+                orgname: ["Phoenix"]
+            });
             var rowLength = data.length;
             var containerTemp = "";
             var selectedrow = false;
             var getDesignTypeImg;
             var getDesignTypeRowID;
-
+            console.log(rowLength);
             for (var i = 0; i < rowLength; i += 1) {
                 switch (data[i]['templatetype']) {
                     case "chef":
@@ -1251,6 +1264,9 @@ $(document).ready(function() {
                         break;
                     case "docker":
                         data[i]['position'] = 3;
+                        break;
+                    case "composite":
+                        data[i]['position'] = 4;
                         break;
                 }
             }
@@ -1276,20 +1292,23 @@ $(document).ready(function() {
                         case "cft":
                             getDesignTypeImg = '/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png';
                             break;
+                        case "composite":
+                            getDesignTypeImg = 'img/composite.png';
+                            break;
                     }
                     getDesignTypeRowID = data[i]['rowid'];
                     if (getDesignTypeImg) {
                         if (getDesignTypeImg.indexOf('/d4dMasters/image') === -1) {
-                            getDesignTypeImg = "/d4dMasters/image/" + getDesignTypeRowID + "__designtemplateicon__" + getDesignTypeImg;
+                           // getDesignTypeImg = "/d4dMasters/image/" + getDesignTypeRowID + "__designtemplateicon__" + getDesignTypeImg;
                         }
-                        containerTemp += '<div class="" style="width:222px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv appfactory" data-' + 'templateType="' + data[i]
+                        containerTemp += '<div class="" style="width:200px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv blueprintdiv-aws appfactory" data-' + 'templateType="' + data[i]
                         ['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
                             '<img  style="height:25px;padding:2px" alt="" src="img/app-store-' + 'icons/Logoheader.png"><span style="padding-top:4px;position:absolute;' +
                             'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' +
                             '<div style="padding-top:10px;padding-left:0px;text-align:center;">' + '<img alt="Template Icon" ' + 'src="' + getDesignTypeImg +
                             '" style="height:60px;width:auto;">' + '</div></div></div>';
                     } else {
-                        containerTemp += '<div class="" style="width:222px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv appfactory" data-' + 'templateType="' + data[i]
+                        containerTemp += '<div class="" style="width:200px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv blueprintdiv-aws appfactory" data-' + 'templateType="' + data[i]
                         ['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
                             '<img  style="height:25px;padding:2px" alt="" src="img/app-store-' + 'icons/Logoheader.png"><span style="padding-top:4px;position:absolute;' +
                             'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' + '<div style="padding-top:10px;padding-left:27px;">' +
@@ -2071,7 +2090,7 @@ var saveblueprint = function(tempType) {
 var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
     'tabClass': 'form-wizard',
     'onNext': function(tab, navigation, index) {
-        console.log(navigation, index)
+        console.log(tab,navigation, index)
         if (index === 1) {
             $('#viewCreateNew').addClass('hidden');
             $('#selectOrgName').attr('disabled', true);
@@ -2090,6 +2109,10 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
             var templateurl = "/d4dMasters/readmasterjsonnew/17";
             if (gallerytype == 'ami') {
                 templateurl = '/vmimages';
+            }
+            if(gallerytype === 'composite'){
+                $("#compsiteBluprintDiv").load("ajax/compositeBlieprint.html");
+                return true;
             }
             $.ajax({
                 url: templateurl,
@@ -2207,6 +2230,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
         }
     },
     'onPrevious': function(tab, navigation, index) {
+        $('#nextSpecificValue').show();
         if (index === 0) {
             //$("#tabheader").html('Choose Template Type');
             $('#viewCreateNew').removeClass('hidden');
