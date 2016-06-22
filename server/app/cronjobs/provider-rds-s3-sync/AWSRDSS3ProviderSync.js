@@ -8,6 +8,7 @@ var resourceService = require('_pr/services/resourceService');
 var s3Model = require('_pr/model/resources/s3-resource');
 var rdsModel = require('_pr/model/resources/rds-resource');
 var resourceModel = require('_pr/model/resources/resources');
+var tagsModel = require('_pr/model/tags');
 var orgName='';
 
 var AWSRDSS3ProviderSync = Object.create(CatalystCronJob);
@@ -78,6 +79,12 @@ function awsRDSS3ProviderSyncForProvider(provider) {
                         next(null, results);
                     }
                 });
+            },
+            function(resourcesDetails,next){
+                resourceModel.getAllUnassignedResources(provider._id,next);
+            },
+            function(resources,next){
+                tagMappingForResources(resources,provider,next);
             }
         ], function (err, results) {
             if (err) {
@@ -257,4 +264,85 @@ function deleteResourceData(resourceInfo,providerId,resourceType, callback) {
         })
     }
 
+}
+
+function tagMappingForResources(resources,provider,next){
+    tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
+        if (err) {
+            logger.error("Unable to get tags", err);
+            next(err);
+        }
+        var projectTag = null;
+        var environmentTag = null;
+        if(tagDetails.length > 0) {
+            for (var i = 0; i < tagDetails.length; i++) {
+                if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
+                    projectTag = tagDetails[i];
+                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
+                    environmentTag = tagDetails[i];
+                }
+            }
+        }else{
+            next(null,tagDetails);
+        }
+        var count = 0;
+        if(resources.length > 0) {
+            for (var j = 0; j < resources.length; j++) {
+                var catalystProjectId = null;
+                var catalystProjectName = null;
+                var catalystEnvironmentId = null;
+                var catalystEnvironmentName = null;
+                var assignmentFound = false;
+                if (projectTag && environmentTag && (resources[j].isDeleted === false)
+                    && (resources[j].projectTag) && (resources[j].environmentTag)) {
+                    for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
+                        if (projectTag.catalystEntityMapping[y].tagValue == resources[j].projectTag) {
+                            catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+                            catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                            break;
+                        }
+                    }
+                    for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                        if (environmentTag.catalystEntityMapping[y].tagValue == resources[j].environmentTag) {
+                            catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+                            catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                            break;
+                        }
+                    }
+                    if (catalystProjectId && catalystEnvironmentId) {
+                        assignmentFound = true;
+                    }
+                    if(assignmentFound === true){
+                        count++;
+                        var masterDetails={
+                            orgId:resources[j].masterDetails.orgId,
+                            orgName:resources[j].masterDetails.orgName,
+                            projectId:catalystProjectId,
+                            projectName:catalystProjectName,
+                            envId:catalystEnvironmentId,
+                            envName:catalystEnvironmentName
+                        }
+                        resourceModel.updateResourcesForAssigned(resources[j]._id,masterDetails,function(err,data){
+                            if(err){
+                                logger.error(err);
+                                return;
+                            }else{
+                                masterDetails={};
+                            }
+                        })
+                    }else{
+                        count++;
+                    }
+                } else{
+                    count++;
+                }
+                if(count === resources.length){
+                    next(null,resources);
+                }
+            }
+        }else{
+            logger.info("Please configure Resources for Tag Mapping");
+            next(null,resources);
+        }
+    });
 }

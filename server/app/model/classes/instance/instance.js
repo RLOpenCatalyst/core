@@ -1004,7 +1004,7 @@ var InstancesDao = function() {
 
     this.removeInstanceById = function(instanceId,instanceState, callback) {
         logger.debug("Enter removeInstanceById (%s)", instanceId);
-        if (instanceId === 'terminated') {
+        if (instanceState === 'terminated') {
             Instances.update({
                 "_id": ObjectId(instanceId)
             }, {

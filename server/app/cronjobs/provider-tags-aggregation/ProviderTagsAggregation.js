@@ -106,7 +106,7 @@ function getResourcesForTagAggregation(provider,next){
         if(err){
             next(err);
         }else{
-           next(null,results);
+            next(null,results);
         }
 
     })

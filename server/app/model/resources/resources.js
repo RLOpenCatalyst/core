@@ -158,6 +158,40 @@ ResourceSchema.statics.getResources=function(dataBaseQueryObj,callback){
     });
 };
 
+ResourceSchema.statics.updateResourcesForAssigned =  function(resourceId,masterDetails,callback){
+    Resources.update({
+        _id: new ObjectId(resourceId)
+    }, {
+        $set: {
+            category: 'assigned',
+            masterDetails:masterDetails
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+ResourceSchema.statics.getAllUnassignedResources=function(providerId,callback){
+    var queryObj={};
+    queryObj['providerDetails.id'] =providerId;
+    queryObj['category'] ='unassigned';
+    queryObj['isDeleted']=false;
+    Resources.find(queryObj, function(err, data) {
+        if (err) {
+            logger.error("Failed to getAllUnassignedResources", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 var Resources = mongoose.model('resources', ResourceSchema);
 module.exports = Resources;
 

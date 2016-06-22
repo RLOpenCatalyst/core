@@ -667,7 +667,8 @@
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
                 {"data": "masterDetails.orgName","orderable" : false  },
-                {"data": "providerDetails.type" ,"orderable" : false },
+                {"data": "masterDetails.projectName" ,"orderable" : false },
+                {"data": "masterDetails.envName" ,"orderable" : false },
                 {"data": "resourceDetails.bucketSize","orderable" : true  },
                 {"data": "resourceDetails.bucketCreatedOn","orderable" : true,
                     "render": function (data) {
@@ -1403,7 +1404,15 @@
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
-                    {"data": "ip","orderable" : true  },
+                    {"data": "ip","orderable" : true,
+                        "render": function(data){
+                            if(data){
+                                return data;
+                            }else{
+                                return '';
+                            }
+                        }
+                    },
                     {"data": "","orderable" : true,
                         "render":function(data, type, full, meta) {
                             var region =full.region;
@@ -1432,48 +1441,48 @@
                 ]
             } );
         }
-       function getUnassignedDBInstancesWithProjectAndEnv(envProjectMappingObject){
-           $('#unassignedRDSListTable').DataTable( {
-               "processing": true,
-               "serverSide": true,
-               "destroy":true,
-               "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
-               "createdRow": function( row, data ) {
-                   $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
-               },
-               "columns": [
-                   {"data": "resourceDetails.dbName",  "orderable" : true},
-                   {"data": "resourceDetails.dbEngine","orderable" : true  },
-                   {"data": "resourceDetails.region","orderable" : false  },
-                   {"data": "projectTag" ,"orderable" : false,
-                       "render": function(data, type, full) {
-                           if(data !== null) {
-                               return '<input class="form-control projectTag" type="text" value="' + data + '"/>';
-                           }else{
-                               return '<input class="form-control projectTag" type="text" value=""/>';
-                           }
-                       }
-                   },
-                   {"data": "environmentTag" ,"orderable" : false,
-                       "render": function(data, type, full) {
-                           if(data !== null) {
-                               return '<input class="form-control envTagName" type="text" value="' + data + '"/>';
-                           }else{
-                               return '<input class="form-control envTagName" type="text" value=""/>';
-                           }
-                       }
-                   },
-                   {"data": "","orderable" : false,
-                       "render":function(data,type,full,meta){
-                           if(full.resourceDetails.dbName){
-                               return '<input class="nodeCheckBox" type="checkbox" val=""/>';
-                           }else{
-                               return '';
-                           }
-                       }
-                   }
-               ]
-           });
+        function getUnassignedDBInstancesWithProjectAndEnv(envProjectMappingObject){
+            $('#unassignedRDSListTable').DataTable( {
+                "processing": true,
+                "serverSide": true,
+                "destroy":true,
+                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
+                "createdRow": function( row, data ) {
+                    $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
+                },
+                "columns": [
+                    {"data": "resourceDetails.dbName",  "orderable" : true},
+                    {"data": "resourceDetails.dbEngine","orderable" : true  },
+                    {"data": "resourceDetails.region","orderable" : false  },
+                    {"data": "projectTag" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(data !== null) {
+                                return '<input class="form-control projectTagName" type="text" value="' + data + '"/>';
+                            }else{
+                                return '<input class="form-control projectTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "environmentTag" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(data !== null) {
+                                return '<input class="form-control envTagName" type="text" value="' + data + '"/>';
+                            }else{
+                                return '<input class="form-control envTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "","orderable" : false,
+                        "render":function(data,type,full,meta){
+                            if(full.resourceDetails.dbName){
+                                return '<input class="nodeCheckBox" type="checkbox" val=""/>';
+                            }else{
+                                return '';
+                            }
+                        }
+                    }
+                ]
+            });
         }
 
         function getUnassignedS3BucketsWithProjectAndEnv(envProjectMappingObject)  {
@@ -1490,13 +1499,13 @@
                     {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
                     {"data": "resourceDetails.bucketSize","orderable" : true  },
                     {"data": "projectTag" ,"orderable" : false,
-                         "render": function(data, type, full) {
-                             if(data !== null) {
-                                 return '<input class="form-control projectTag" type="text" value="' + data + '"/>';
-                             }else{
-                                 return '<input class="form-control projectTag" type="text" value=""/>';
-                             }
-                         }
+                        "render": function(data, type, full) {
+                            if(data !== null) {
+                                return '<input class="form-control projectTagName" type="text" value="' + data + '"/>';
+                            }else{
+                                return '<input class="form-control projectTagName" type="text" value=""/>';
+                            }
+                        }
                     },
                     {"data": "environmentTag" ,"orderable" : false,
                         "render": function(data, type, full) {
@@ -1533,14 +1542,22 @@
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
-                    {"data": "ip","orderable" : true  },
+                    {"data": "ip","orderable" : true,
+                        "render": function(data){
+                            if(data){
+                                return data;
+                            }else{
+                                return '';
+                            }
+                        }
+                    },
                     {"data": "state","orderable" : true  },
                     {"data": "projectTag" ,"orderable" : false,
                         "render": function(data, type, full) {
                             if(data !== null) {
-                                return '<input class="form-control projectTag" type="text" value="' + data + '"/>';
+                                return '<input class="form-control projectTagName" type="text" value="' + data + '"/>';
                             }else{
-                                return '<input class="form-control projectTag" type="text" value=""/>';
+                                return '<input class="form-control projectTagName" type="text" value=""/>';
                             }
                         }
                     },
@@ -1554,10 +1571,10 @@
                         }
                     },
                     {"data": "platformId","orderable" : false,
-                       "render":function(data,type,full,meta){
-                          if(full.platformId){
-                              return '<input class="nodeCheckBox" type="checkbox" val=""/>';
-                          }
+                        "render":function(data,type,full,meta){
+                            if(full.platformId){
+                                return '<input class="nodeCheckBox" type="checkbox" val=""/>';
+                            }
                         }
                     }
                 ]
@@ -1583,7 +1600,6 @@
                 updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
                 updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
             });
-            alert(JSON.stringify(updateInstanceTagsArr));
             updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
             $.ajax({
                 url: '/providers/'+urlproviderId+'/unassigned-instances',
@@ -1632,7 +1648,6 @@
                     $('.margintop-25left250').delay(2000).fadeOut();
                 },
                 error: function(jqxhr) {
-
                 }
             });
         });
