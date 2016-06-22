@@ -130,7 +130,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
             callback(null, []);
             return;
         } else {
-            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function (err, distinctAppDeployApplicationNames) {
+            appDeploy.getDistinctAppDeployAppNameVersionByProjectId(jsonData, function (err, appDeployResults) {
                 if (err) {
                     logger.debug("Failed to fetch App Deploy Versions");
                     callback(err, null);
@@ -139,90 +139,71 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                 var appDeployList = [];
                 var appDeployObj = {};
                 var environments = project[0].environmentname.split(",");
-                var applicationNames = distinctAppDeployApplicationNames.applicationNames;
-                if (applicationNames.length > 0) {
-                    for (var i = 0; i < applicationNames.length; i++) {
-                        (function(appName) {
-                            jsonData['appName'] = appName._id;
-                            appDeploy.getDistinctAppDeployVersionByProjectId(jsonData, function(err, appDeployVersions) {
+                var distinctAppDeployAppNameVersion = appDeployResults.data;
+                if (distinctAppDeployAppNameVersion.length > 0) {
+                    for (var i = 0; i < distinctAppDeployAppNameVersion.length; i++) {
+                        (function (appNameVersion) {
+                            appDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId, appNameVersion, function (err, appDeploys) {
                                 if (err) {
-                                    logger.debug("Failed to fetch App Deploy Versions");
+                                    logger.debug("Failed to fetch App Deploy");
                                     callback(err, null);
                                     return;
                                 }
-                                if (appDeployVersions.length === 0) {
-                                    logger.debug("There is no App Deploy Versions configured.");
+                                if (appDeploys.length === 0) {
+                                    logger.debug("There is no App Deploy configured.");
                                     callback(null, []);
                                     return;
-                                } else {
-                                    for (var j = 0; j < appDeployVersions.length; j++) {
-                                        (function(version) {
-                                            appDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId, appName._id, version._id, function(err, appDeploys) {
-
-                                                if (err) {
-                                                    logger.debug("Failed to fetch App Deploy");
-                                                    callback(err, null);
-                                                    return;
-                                                }
-                                                if (appDeploys.length === 0) {
-                                                    logger.debug("There is no App Deploy configured.");
-                                                    callback(null, []);
-                                                    return;
-                                                }
-                                                appDeployObj['appName'] = {
-                                                    "name": appDeploys[0].applicationName,
-                                                    "version": appDeploys[0].applicationVersion
-                                                };
-                                                for (var k = 0; k < appDeploys.length; k++) {
-                                                    (function(appDeploy) {
-                                                        appDeployObj[appDeploy.envName] = {
-                                                            "id": appDeploy.id,
-                                                            "applicationInstanceName": appDeploy.applicationInstanceName,
-                                                            "applicationNodeIP": appDeploy.applicationNodeIP,
-                                                            "applicationLastDeploy": appDeploy.lastAppDeployDate,
-                                                            "applicationStatus": appDeploy.applicationStatus,
-                                                            "applicationType": appDeploy.applicationType,
-                                                            "containerId": appDeploy.containerId,
-                                                            "hostName": appDeploy.hostName,
-                                                            "isApproved": appDeploy.isApproved
-                                                        }
-                                                    })(appDeploys[k]);
-                                                }
-                                                for (var l = 0; l < environments.length; l++) {
-                                                    if (!appDeployObj[environments[l]]) {
-                                                        appDeployObj[environments[l]] = {};
-                                                    }
-                                                }
-                                                appDeployList.push(appDeployObj);
-                                                if (distinctAppDeployApplicationNames.pageSize === appDeployList.length) {
-                                                    var response = {};
-                                                    response[jsonData.id] = appDeployList;
-                                                    response['metaData'] = {
-                                                        totalRecords: distinctAppDeployApplicationNames.pageSize,
-                                                        pageSize: jsonData.pageSize,
-                                                        page: jsonData.page,
-                                                        totalPages: Math.ceil(distinctAppDeployApplicationNames.pageSize / jsonData.pageSize),
-                                                        sortBy: Object.keys(jsonData.sortBy)[0],
-                                                        sortOrder: jsonData.sortBy ? (jsonData[Object.keys(jsonData.sortBy)] == 1 ? 'asc' : "desc") : '',
-                                                    };
-                                                    callback(null, response);
-                                                }
-                                                appDeployObj = {};
-                                            });
-                                        })(appDeployVersions[j]);
+                                }
+                                appDeployObj['appName'] = {
+                                    "name": appDeploys[0].applicationName,
+                                    "version": appDeploys[0].applicationVersion
+                                };
+                                for (var k = 0; k < appDeploys.length; k++) {
+                                    (function (appDeploy) {
+                                        appDeployObj[appDeploy.envName] = {
+                                            "id": appDeploy.id,
+                                            "applicationInstanceName": appDeploy.applicationInstanceName,
+                                            "applicationNodeIP": appDeploy.applicationNodeIP,
+                                            "applicationLastDeploy": appDeploy.lastAppDeployDate,
+                                            "applicationStatus": appDeploy.applicationStatus,
+                                            "applicationType": appDeploy.applicationType,
+                                            "containerId": appDeploy.containerId,
+                                            "hostName": appDeploy.hostName,
+                                            "isApproved": appDeploy.isApproved
+                                        }
+                                    })(appDeploys[k]);
+                                }
+                                for (var l = 0; l < environments.length; l++) {
+                                    if (!appDeployObj[environments[l]]) {
+                                        appDeployObj[environments[l]] = {};
                                     }
                                 }
-                            });
-                        })(applicationNames[i]);
+                                appDeployList.push(appDeployObj);
+                                if (distinctAppDeployAppNameVersion.length === appDeployList.length) {
+                                    var response = {};
+                                    response[jsonData.id] = appDeployList.sort(function(a, b){return a.applicationInstanceName-b.applicationInstanceName});
+                                    response['metaData'] = {
+                                        totalRecords: appDeployResults.totalRecords,
+                                        pageSize: jsonData.pageSize,
+                                        page: jsonData.page,
+                                        totalPages: Math.ceil(appDeployResults.totalRecords / jsonData.pageSize),
+                                        sortBy: Object.keys(jsonData.sortBy)[0],
+                                        sortOrder: jsonData.sortBy ? (jsonData[Object.keys(jsonData.sortBy)] == 1 ? 'asc' : "desc") : '',
+                                    };
+                                    callback(null, response);
+                                }
+                                appDeployObj = {};
+                            })
+                        })(distinctAppDeployAppNameVersion[i]);
                     }
                 } else {
                     var response = {};
                     response[jsonData.id] = [];
                     response['metaData'] = {
-                        totalRecords: 0,
+                        totalRecords: appDeployResults.totalRecords,
                         pageSize: jsonData.pageSize,
                         page: jsonData.page,
-                        totalPages: 0,
+                        totalPages: Math.ceil(appDeployResults.totalRecords / jsonData.pageSize),
                         sortBy: Object.keys(jsonData.sortBy)[0],
                         sortOrder: jsonData.sortBy ? (jsonData[Object.keys(jsonData.sortBy)] == 1 ? 'asc' : "desc") : '',
                     };
@@ -307,11 +288,11 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                 var pipeLineViewList = [];
                 var pipeLineViewObj = {};
                 var environments = project[0].environmentname.split(",");
-                var applicationNames = distinctAppDeployApplicationNames.applicationNames;
+                var applicationNames = distinctAppDeployApplicationNames.data;
                 if (applicationNames.length > 0) {
                     for (var i = 0; i < applicationNames.length; i++) {
                         (function(appName) {
-                            appDeploy.getPipeLineViewListByProjectIdAppName(jsonData.projectId, appName._id, function(err, appDeploys) {
+                            appDeploy.getPipeLineViewListByProjectIdAppName(jsonData.projectId, appName.name, function(err, appDeploys) {
                                 if (err) {
                                     logger.debug("Failed to fetch App Deploy");
                                     callback(err, null);
@@ -347,9 +328,9 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                                     }
                                 }
                                 pipeLineViewList.push(pipeLineViewObj);
-                                if (pipeLineViewList.length === distinctAppDeployApplicationNames.applicationNamesLength) {
+                                if (pipeLineViewList.length === applicationNames.length) {
                                     var response = {};
-                                    response['pipeLineView'] = pipeLineViewList;
+                                    response['pipeLineView'] = pipeLineViewList.sort(function(a, b){return a-b});
                                     response['metaData'] = {
                                         totalRecords: distinctAppDeployApplicationNames.totalRecords,
                                         pageSize: jsonData.pageSize,
@@ -368,10 +349,10 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                     var response = {};
                     response['pipeLineView'] = [];
                     response['metaData'] = {
-                        totalRecords: 0,
+                        totalRecords: distinctAppDeployApplicationNames.totalRecords,
                         pageSize: jsonData.pageSize,
                         page: jsonData.page,
-                        totalPages: 0,
+                        totalPages: Math.ceil(distinctAppDeployApplicationNames.totalRecords / jsonData.pageSize),
                         sortBy: Object.keys(jsonData.sortBy)[0],
                         sortOrder: jsonData.sortBy ? (jsonData[Object.keys(jsonData.sortBy)] == 1 ? 'asc' : "desc") : '',
                     };
