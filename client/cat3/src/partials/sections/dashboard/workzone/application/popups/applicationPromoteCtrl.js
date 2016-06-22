@@ -14,6 +14,7 @@
 			}
 		});
 		var promApp={
+            errorMsg: false,
 			newEnt:[],
 			envOptions:[],
 			jobOptions:[]
@@ -61,11 +62,15 @@
 					"nodeIds": promApp.jobOptions[promApp.newEnt.jobInd].taskConfig.nodeIds
 				}
 			};
-			workSvs.putAppPromote(promApp.submitData).then(function(promAppResult){
+			workSvs.putAppPromote(promApp.submitData).success(function(promAppResult){
 				promApp.taskLog(promAppResult.data);
 				$modalInstance.close(angular.extend(promApp.newEnt, $scope.currentCardDetails));
 				$scope.isLoadingPromApp=false;
-			});
+			}).error(function(data) {
+                $scope.isLoadingPromApp=false;
+                promApp.msgText=data.message;
+                promApp.errorMsg=true;
+            });
 		};
 		promApp.taskLog=function(promAppResult){
 			$modal.open({
