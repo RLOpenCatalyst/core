@@ -326,8 +326,7 @@
 			$scope.name = "";
 			$scope.taskType = "chef";//default Task type selection;
 			$scope.isEditMode = false;//default edit mode is false;
-            $scope.taskSavig = false;
-			$scope.autoSync = {
+            $scope.autoSync = {
 				flag: false
 			};
 			$scope.isParameterized = {

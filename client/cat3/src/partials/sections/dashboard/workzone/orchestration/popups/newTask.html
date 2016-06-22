@@ -1,5 +1,5 @@
 <div id='newTaskPage'>
-	<form name="newTaskForm" novalidate ng-submit="ok()">
+	<form name="newTaskForm" novalidate ng-submit="newTaskForm.$valid && ok()">
 		<div class="modal-header">
 			<span class="close" ng-click="cancel()">×</span>
 			<h4 class="modal-title" ng-if="!isEditMode">
