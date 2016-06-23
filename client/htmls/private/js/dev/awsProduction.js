@@ -3157,6 +3157,7 @@ function addBlueprintToDom(data) {
         
         $linkVersions.click(function(e) {
             if(!linkClick){
+                linkClick = true;
                 //Get the lastest version
                 var lastversion = $(this).parents('.cardimage').find('.blueprintVer').val(); //default version
                 //load the edit screen. Currently loaded from popup. Call that funcction.
@@ -3169,7 +3170,6 @@ function addBlueprintToDom(data) {
                     });
                 }
                 e.preventDefault();
-                linkClick = true;
             }
         });
 
