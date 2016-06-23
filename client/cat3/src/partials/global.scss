@@ -538,6 +538,12 @@ option.script {
 		text-overflow: ellipsis;
 		overflow: hidden;
 	}
+
+	div.ng-binding.ng-scope {
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
 	
 	.ui-grid-cell {
 		text-overflow: ellipsis;
