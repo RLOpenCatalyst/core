@@ -209,7 +209,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['projectId'] = req.params.projectId;
-                    paginationReq['id'] = 'appDeploy';
                     appDeployService.getAppDeployListByProjectId(paginationReq, next);
                 }
             ],
@@ -231,7 +230,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['projectId'] = req.params.projectId;
-                    paginationReq['id'] = 'appDeploy';
                     appDeployService.getPipeLineViewListByProjectId(paginationReq, next);
                 }
             ],
