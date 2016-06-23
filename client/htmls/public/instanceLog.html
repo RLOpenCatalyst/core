@@ -34,44 +34,44 @@
         </table>
     </div>
     <script>
-    $(document).ready(function(e) {
-        if (!$.fn.dataTable.isDataTable('#instanceLogTable')) {
-            var $instanceLogDatatable = $('#instanceLogTable').DataTable({
-                "pagingType": "full_numbers",
-                "bInfo": true,
-                "bLengthChange": true,
-                "paging": true,
-                "bFilter": true,
-                "aoColumns": [{
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }, {
-                    "bSortable": false
-                }]
+    if (!$.fn.dataTable.isDataTable('#instanceLogTable')) {
+        var $instanceLogDatatable = $('#instanceLogTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
 
-            });
-        }
+        });
+    }
+    $(document).ready(function(e) {
         getInstances();
     });
 
@@ -82,23 +82,34 @@
             var $tr = $('<tr class="instanceLogTrail"></tr>').attr('data-id', managnedData[i]._id);
             var $tdId = $('<td></td>').append(managnedData[i].platformId);
             $tr.append($tdId);
-
-            var $tdOs = $('<td></td>').append(managnedData.managedInstances[i].hardware.os);
+            var $tdProvider = $('<td></td>').append(managnedData[i].providerId);
+            $tr.append($tdProvider);
+            var $tdOs = $('<td></td>').append(managnedData[i].hardware.os);
             $tr.append($tdOs);
-
-            var $tdIpAddress = $('<td></td>').append(managnedData.managedInstances[i].instanceIP);
-            $tr.append($tdIpAddress);
-
-            var region = managnedData.managedInstances[i].region;
-            var $tdRegion = $('<td></td>').append(region);
-            $tr.append($tdRegion);
-            var $tdStatus = $('<td></td>').append(managnedData.managedInstances[i].instanceState);
+            var createdOn = managnedData[i].createdOn;
+            var $tdCreatedOn = $('<td></td>').append(createdOn);
+            $tr.append($tdCreatedOn);
+            var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
             $tr.append($tdStatus);
 
-            var $projectName = $('<td></td>').append(managnedData.managedInstances[i].projectName);
+            var $tdSize = $('<td></td>').append(managnedData[i].instanceType);
+            $tr.append($tdSize);
+            var $tdUser = $('<td></td>').append(managnedData[i].catUser);
+            $tr.append($tdUser);
+            var $tdOrg = $('<td></td>').append(managnedData[i].orgName);
+            $tr.append($tdOrg);
+            var $tdBG = $('<td></td>').append(managnedData[i].bgName);
+            $tr.append($tdBG);
+
+            var $projectName = $('<td></td>').append(managnedData[i].projectName);
             $tr.append($projectName);
-            var $environmentName = $('<td></td>').append(managnedData.managedInstances[i].environmentName);
+            var $environmentName = $('<td></td>').append(managnedData[i].environmentName);
             $tr.append($environmentName);
+
+            var $tdData = $('<td></td>').append(managnedData[i].runlist);
+            $tr.append($tdData);
+            var $tdLog = $('<td></td>').append(managnedData[i].instanceState);
+            $tr.append($tdLog);
 
             //var $button = '';
 
@@ -139,8 +150,8 @@
                     return false;
                 });
             }*/
-            var $tdAction = $('<td></td>').append($button);
-            $tr.append($tdAction);
+            //var $tdAction = $('<td></td>').append($button);
+            //$tr.append($tdAction);
             $tbody.append($tr);
             $instanceLogDatatable.row.add($tr).draw();
         }
