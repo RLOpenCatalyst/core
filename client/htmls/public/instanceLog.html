@@ -1,0 +1,165 @@
+<html>
+
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+</head>
+
+<body>
+    <div class="tabContent table-responsive" id="instanceListDiv">
+        <table class="table table-hover table-bordered text-center" id="instanceLogTable">
+            <thead>
+                <tr>
+                    <th class="text-center">InstanceId</th>
+                    <th class="text-center">Provider</th>
+                    <th class="text-center">OS</th>
+                    <th class="text-center">Time</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Size</th>
+                    <th class="text-center">User</th>
+                    <th class="text-center">Org</th>
+                    <th class="text-center">BU</th>
+                    <th class="text-center">Project</th>
+                    <th class="text-center">Environment</th>
+                    <th class="text-center">Data</th>
+                    <th class="text-center">Log</th>
+                </tr>
+            </thead>
+            <tbody class="instanceLogTrail">
+            </tbody>
+        </table>
+    </div>
+    <script>
+    $(document).ready(function(e) {
+        if (!$.fn.dataTable.isDataTable('#instanceLogTable')) {
+            var $instanceLogDatatable = $('#instanceLogTable').DataTable({
+                "pagingType": "full_numbers",
+                "bInfo": true,
+                "bLengthChange": true,
+                "paging": true,
+                "bFilter": true,
+                "aoColumns": [{
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }, {
+                    "bSortable": false
+                }]
+
+            });
+        }
+        getInstances();
+    });
+
+    function createInstanceLogTable(managnedData) {
+        $instanceLogDatatable.clear().draw();
+        var $tbody = $('#instanceLogTrail tbody').empty();
+        for (var i = 0; i < managnedData.length; i++) {
+            var $tr = $('<tr class="instanceLogTrail"></tr>').attr('data-id', managnedData[i]._id);
+            var $tdId = $('<td></td>').append(managnedData[i].platformId);
+            $tr.append($tdId);
+
+            var $tdOs = $('<td></td>').append(managnedData.managedInstances[i].hardware.os);
+            $tr.append($tdOs);
+
+            var $tdIpAddress = $('<td></td>').append(managnedData.managedInstances[i].instanceIP);
+            $tr.append($tdIpAddress);
+
+            var region = managnedData.managedInstances[i].region;
+            var $tdRegion = $('<td></td>').append(region);
+            $tr.append($tdRegion);
+            var $tdStatus = $('<td></td>').append(managnedData.managedInstances[i].instanceState);
+            $tr.append($tdStatus);
+
+            var $projectName = $('<td></td>').append(managnedData.managedInstances[i].projectName);
+            $tr.append($projectName);
+            var $environmentName = $('<td></td>').append(managnedData.managedInstances[i].environmentName);
+            $tr.append($environmentName);
+
+            //var $button = '';
+
+            /*if (managnedData.managedInstances[i].instanceState === 'terminated') {
+
+                $button = $('<div class="btn-group marginleft14"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+                $button.click(function() {
+                    var $this = $(this);
+                    var $tr = $this.parents('tr.managedInstance');
+                    var id = $this.parents('tr').attr('data-id');
+                    bootbox.confirm({
+                        message: 'Are you sure you want to Delete Managed Instance -&nbsp;',
+                        title: "Warning",
+                        callback: function(result) {
+                            if (result) {
+                                $.ajax({
+                                    url: '/instances/' + id,
+                                    method: 'DELETE',
+                                    success: function() {
+                                        $instanceManagedDatatable.row($tr).remove().draw(false);
+                                    },
+                                    error: function(jxhr) {
+                                        bootbox.alert(result);
+                                        var msg = "Unable to Delete Managed Instances please try again later";
+                                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                            msg = jxhr.responseJSON.message;
+                                        } else if (jxhr.responseText) {
+                                            msg = jxhr.responseText;
+                                        }
+                                        bootbox.alert(msg);
+                                    }
+                                });
+                            } else {
+                                return;
+                            }
+                        }
+                    });
+                    return false;
+                });
+            }*/
+            var $tdAction = $('<td></td>').append($button);
+            $tr.append($tdAction);
+            $tbody.append($tr);
+            $instanceLogDatatable.row.add($tr).draw();
+        }
+    }
+
+    function getInstances() {
+        $.get('/instances', function(instances) {
+            createInstanceLogTable(instances);
+        }).fail(function(jxhr) {
+            var msg = "Unable to fetch Instances.";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+        });
+    }
+    </script>
+</body>
+
+</html>
