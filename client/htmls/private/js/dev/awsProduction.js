@@ -2112,7 +2112,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
             }
             if(gallerytype === 'composite'){
                 $("#compsiteBluprintDiv").show();
-                $("#compsiteBluprintDiv").load("ajax/compositeBlieprint.html");
+                $("#compsiteBluprintDiv").load("ajax/compositeBlueprint.html");
                 $('#nextSpecificValue').hide();
                 $('#saveCompBlup').show();
                 return true;
