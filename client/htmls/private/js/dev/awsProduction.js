@@ -2988,7 +2988,7 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 }
 
 function closeblueprintedit(blueprintId) {
-    linkClick = false;
+    isEditingBP = false;
     $('#myTab3 li').removeClass('hidden');
     $('#myTab3 li.blueprintEditbutton').addClass('hidden');
     $('#myTab3 a[href="#viewCreate"]').tab('show');
@@ -3085,7 +3085,7 @@ function initializeBlueprintAreaNew(data) {
     //Expanding the fist Accordion.
 
 };
-var linkClick = false;
+var isEditingBP = false;
 function addBlueprintToDom(data) {
     //Find a panel-body with the template type class
     var $currRolePanel = $('#accordion-2').find('.' + data.templateType);
@@ -3156,8 +3156,8 @@ function addBlueprintToDom(data) {
 
         
         $linkVersions.click(function(e) {
-            if(!linkClick){
-                linkClick = true;
+            if(!isEditingBP){
+                isEditingBP = true;
                 //Get the lastest version
                 var lastversion = $(this).parents('.cardimage').find('.blueprintVer').val(); //default version
                 //load the edit screen. Currently loaded from popup. Call that funcction.
