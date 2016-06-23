@@ -136,80 +136,84 @@ AppDeploySchema.statics.getDistinctAppDeployVersionByProjectId = function getDis
         });
 };
 
-AppDeploySchema.statics.getDistinctAppDeployApplicationNameByProjectId = function getDistinctAppDeployApplicationNameByProjectId(jsonData, callback) {
-    var responseObj = {};
+AppDeploySchema.statics.getDistinctAppDeployAppNameVersionByProjectId = function getDistinctAppDeployAppNameVersionByProjectId(jsonData, callback) {
+    var responseList = [];
     this.aggregate(
-        [{
-            $match: {
-                projectId: jsonData.projectId
-            }
-        }, {
-            $group: {
-                _id: "$applicationName"
-            }
-        }, {
-            $sort: jsonData.sortBy
-        }, {
-            $skip: (jsonData.page - 1) * jsonData.pageSize
-        }, {
-            $limit: jsonData.pageSize
-        }],
-        function(err, distinctAppDeployApplicationNames) {
+        [
+            { $match: { projectId: jsonData.projectId } },
+            { $group: { "_id": { name: "$applicationName", version: "$applicationVersion" } } }
+        ],function(err,appNameVersion) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
                 return callback(err);
-            }
-            if (distinctAppDeployApplicationNames.length > 0) {
-                var appNames = [];
-                for (var i = 0; i < distinctAppDeployApplicationNames.length; i++) {
-                    appNames.push(distinctAppDeployApplicationNames[i]._id);
-                }
+            } else {
                 AppDeploy.aggregate(
                     [
-                        { $match: { applicationName: { $in: appNames } } },
-                        { $group: { "_id": { name: "$applicationName", version: "$applicationVersion" } } }, {
-                            $group: {
-                                "_id": { version: "$applicationVersion" },
-                                "count": { "$sum": 1 }
-                            }
-                        }
+                        {$match: {projectId: jsonData.projectId}},
+                        {$group: {"_id": {name: "$applicationName", version: "$applicationVersion"}}},
+                        {$skip: (jsonData.page - 1) * jsonData.pageSize},
+                        {$limit: jsonData.pageSize}
                     ],
-                    function(err, pageSize) {
+                    function (err, appDeployData) {
                         if (err) {
                             var err = new Error('Internal server error');
                             err.status = 500;
                             return callback(err);
                         }
-                        AppDeploy.aggregate(
-                            [
-                                { $group: { "_id": { name: "$applicationName" } } }, {
-                                    $group: {
-                                        "_id": { version: "$applicationVersion" },
-                                        "count": { "$sum": 1 }
-                                    }
-                                }
-                            ],
-                            function(err, totalRecords) {
-                                if (err) {
-                                    var err = new Error('Internal server error');
-                                    err.status = 500;
-                                    return callback(err);
-                                }
-                                responseObj['applicationNames'] = distinctAppDeployApplicationNames;
-                                responseObj['applicationNamesLength'] = distinctAppDeployApplicationNames.length;
-                                responseObj['totalRecords'] = totalRecords[0].count;
-                                responseObj['pageSize'] = pageSize[0].count;
-                                callback(null, responseObj);
-                            });
+                        for (var i = 0; i < appDeployData.length; i++) {
+                            responseList.push(appDeployData[i]._id);
+                        }
+                        var results = {
+                            data: responseList,
+                            totalRecords: appNameVersion.length
+                        }
+                        callback(null, results);
                     });
-            } else {
-                responseObj['applicationNames'] = [];
-                callback(null, responseObj);
             }
-
-        });
+        })
 };
+
+AppDeploySchema.statics.getDistinctAppDeployApplicationNameByProjectId = function getDistinctAppDeployApplicationNameByProjectId(jsonData, callback) {
+    var responseList = [];
+    this.aggregate(
+        [
+            { $match: { projectId: jsonData.projectId } },
+            { $group: { "_id": { name: "$applicationName"} } }
+        ],function(err,distinctAppNames) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else {
+                AppDeploy.aggregate(
+                    [
+                        {$match: {projectId: jsonData.projectId}},
+                        {$group: {"_id": {name: "$applicationName"}}},
+                        {$skip: (jsonData.page - 1) * jsonData.pageSize},
+                        {$limit: jsonData.pageSize}
+                    ],
+                    function (err, appDeployData) {
+                        if (err) {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        }
+                        for (var i = 0; i < appDeployData.length; i++) {
+                            responseList.push(appDeployData[i]._id);
+                        }
+                        var results = {
+                            data: responseList,
+                            totalRecords: distinctAppNames.length
+                        }
+                        callback(null, results);
+                    });
+            }
+        })
+};
+
+
+
 
 AppDeploySchema.statics.getAppDeployHistoryListByProjectId = function getAppDeployHistoryListByProjectId(queryObj, options, callback) {
     AppDeploy.paginate(queryObj, options, function(err, appDeployHistoryData) {
@@ -223,13 +227,13 @@ AppDeploySchema.statics.getAppDeployHistoryListByProjectId = function getAppDepl
     });
 };
 
-AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId = function getLatestAppDeployListByProjectIdAppNameVersionId(projectId, appName, versionId, callback) {
+AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId = function getLatestAppDeployListByProjectIdAppNameVersionId(projectId, appNameVersion, callback) {
     this.aggregate(
         [{
             $match: {
                 projectId: projectId,
-                applicationVersion: versionId,
-                applicationName: appName
+                applicationVersion: appNameVersion.version,
+                applicationName: appNameVersion.name
             }
         }, {
             $sort: {
@@ -266,7 +270,7 @@ AppDeploySchema.statics.getLatestAppDeployListByProjectIdAppNameVersionId = func
                 var deployPermission = require('_pr/model/app-deploy/deploy-permission');
                 for (var i = 0; i < appDeploys.length; i++) {
                     (function(appDeploy) {
-                        deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(projectId, appDeploy.envName, appName, versionId, function(err, permission) {
+                        deployPermission.getDeployPermissionByProjectIdEnvNameAppNameVersion(projectId, appDeploy.envName, appNameVersion.name, appNameVersion.version, function(err, permission) {
                             if (err) {
                                 logger.debug("Got error while fetching Deploy Permission: ", err);
                                 callback(err, null);

@@ -10,7 +10,7 @@
 	angular.module('workzone.container', ['ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'factory.appPermission', 'mgcrea.ngStrap', 'ngSanitize', 'utility.pagination'])
 		.controller('containerCtrl', ['$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'workzoneUIUtils', 'paginationUtil','$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, $q, workzoneServices, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
 			$scope.isContainerPageLoading = true;
-			var gridBottomSpace = 30;
+			var gridBottomSpace = 5;
 			var containerUIGridDefaults = uiGridOptionsService.options();
 			$scope.paginationParams = containerUIGridDefaults.pagination;
 			$scope.tabData = [];
@@ -29,7 +29,7 @@
 				$scope.containerGridOptions=angular.extend(containerUIGridDefaults.gridOption,{
 				data : 'tabData',
 					columnDefs : [
-						{ name:'Actions',enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="!grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)" title="Stop"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
+						{ name:'Actions',width:250,enableSorting: false ,cellTemplate:'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,2)" id="power-off"  ng-show="!grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)" title="Stop"><i class="white {{grid.appScope.stopDockerFunction(row.entity)}}"></i></span>'+
 						'<span class="containerIcon greenBg" ng-click="grid.appScope.containerAction(row.entity,1)" id="start"  title="Start" ng-show="grid.appScope.checkEdited(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="fa fa-play white"></i></span>'+
 						'<span class="marginleft5 containerIcon yellowBg white" ng-click="grid.appScope.containerAction(row.entity,3)" id="undo"  title="Restart" ng-show="!grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-undo"></i></span>'+
 						'<span class="marginleft5 containerIcon grayBg white" ng-click="grid.appScope.containerAction(row.entity,4)" id="pause" title="Pause" ng-show="!grid.appScope.checkEdited(row.entity) && !grid.appScope.checkPausePlay(row.entity) && grid.appScope.checkProgress(row.entity)"><i class="white fa fa-pause"></i></span>'+
@@ -41,7 +41,7 @@
 						{ name:'Instance IP',field:'instanceIP','displayName':'Instance IP',cellTooltip: true},
 						{ name:'Container ID',enableSorting: false ,'displayName':'Container ID', cellTemplate:'<div class=""><span title="{{row.entity.Id}}">{{grid.appScope.getImageId(row.entity.Id)}}</span></div>', cellTooltip:true},
 						{ name:'Image',field:'Image',cellTooltip: true},
-						{ name:'More Info',enableSorting: false ,cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.dockerMoreInfo(row.entity)"></i></div>', cellTooltip: true}
+						{ name:'More Info',width: 120,enableSorting: false ,cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.dockerMoreInfo(row.entity)"></i></div>', cellTooltip: true}
 					],
 				});
 			};

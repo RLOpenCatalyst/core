@@ -50,6 +50,7 @@ var AwsAutoScaleInstance = require('_pr/model/aws-auto-scale-instance');
 var ARM = require('_pr/lib/azure-arm.js');
 var fs = require('fs');
 var AzureARM = require('_pr/model/azure-arm');
+var blueprintService = require('_pr/services/blueprintService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/blueprints/*', sessionVerificationFunc);
@@ -170,8 +171,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	});
 	app.get('/blueprints/:blueprintId', function(req, res) {
 
-		Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
-			if (err) {
+		blueprintService.getById(req.params.blueprintId, function(err, blueprint) {
+			if(err == 404){
+				res.status(404).send({
+					message: "Blueprint not found."
+				});
+				return;
+			}else if (err) {
 				res.status(500).send({
 					message: "Blueprint fetch failed"
 				});
