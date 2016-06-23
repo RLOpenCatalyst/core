@@ -245,6 +245,7 @@
 					$scope.pipeGridOptions.rowTemplate = "<div ng-click=\"grid.appScope.selectRow(row,1)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell dbl-click-row></div>";
 					//Api response is in array but it is only one object.
 					$scope.pipeGridOptions.columnDefs=createColUIGrid(configResult.data[0],'pipeline');
+					$scope.pagiOptionsCard.page=1;
 					getApplicationCardService(envParams, $scope.pagiOptionsCard);
 					getApplicationSummary(envParams,configResult.data[0]);
 				});
@@ -252,6 +253,9 @@
 			function getApplicationCardService(envParams,pagiOptionsCard){
 				workzoneServices.getPipelineView(envParams,pagiOptionsCard).then(function(cardResult){
 					$scope.pipeGridOptions.data= cardResult.data.appDeploy;
+					if(pagiOptionsCard.page === 1){
+						$scope.pipeGridOptions.paginationCurrentPage = 1;
+					}
 					$scope.isApplicationPageLoading=false;
 					removeSelect();
 					$scope.pipeGridOptions.totalItems = cardResult.data.metaData.totalRecords;
