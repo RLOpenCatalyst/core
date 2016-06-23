@@ -298,6 +298,9 @@ var ARM = function(options) {
 				}
 
 				logger.debug("response.statusCode: ", response.statusCode);
+				if(response.statusCode == '404'){
+					return callback(404,null);
+				}
 
 				if (response.statusCode == '200' || response.statusCode ==
 					'202') {
