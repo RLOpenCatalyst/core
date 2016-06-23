@@ -2111,8 +2111,15 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                 templateurl = '/vmimages';
             }
             if(gallerytype === 'composite'){
+                $("#compsiteBluprintDiv").show();
                 $("#compsiteBluprintDiv").load("ajax/compositeBlieprint.html");
+                $('#nextSpecificValue').hide();
+                $('#saveCompBlup').show();
                 return true;
+            } else {
+                $('#saveCompBlup').hide();
+                $("#compsiteBluprintDiv").hide();
+                $('#nextSpecificValue').show();
             }
             $.ajax({
                 url: templateurl,

@@ -14,28 +14,31 @@
         '<div class="btn-group selectCookbooksandRecipesdivLeft">' +
         '<select id="optionSelector" size="10" multiple="multiple" class="btn-group selectCookbooksandRecipes"></select>' +
         '</div>' +
-        '<div class="btn-group left-right-selection">' +
-        '<button id="btnaddToRunlist" type="button" class="btn cat-btn-update anchorAdd">' +
+        '<div class="btn-group left-right-selection marginleft5">' +
+        '<button id="btnaddToRunlist" type="button" class="btn btn-default btn-primary anchorAdd">' +
         '' +
         '<i class="fa fa-chevron-right anchorAddi"></i>' +
         '</button>' +
         '<div class="clearfix"></div>' +
-        '<button id="btnremoveFromRunlist" type="button" class="btn cat-btn-update anchorRemove">' +
+        '<button id="btnremoveFromRunlist" type="button" class="btn btn-default btn-primary anchorRemove">' +
         '' +
         '<i class="fa fa-chevron-left anchorRemovei"></i></button>' +
         '</div>' +
         '</div>' +
         '<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 no-padding">' +
         '<label></label>' +
-        '<div class="btn-group selectCookbooksandRecipesdivRight">' +
+        '<div class="btn-group selectCookbooksandRecipesdivRight marginleft5" >' +
         '<select id="selectorList" size="10" multiple="multiple" class="btn-group selectCookbooksandRecipes"></select>' +
         '</div>' +
-        '<div class="btn-group left-right-selection">' +
-        '<button id="btnRunlistItemUp" type="button" class="btn cat-btn-update anchorUp">' +
+        '<div class="btn-group left-right-selection marginleft5">' +
+        '<button id="ediAattributeBlue" type="button" class="btn btn-default btn-primary anchorUp" style="display: none;">' +
+        '<i class="fa fa-pencil anchorUpi"></i></button>' +
+        '<div class="clearfix"></div>' +
+        '<button id="btnRunlistItemUp" type="button" class="btn btn-default btn-primary anchorUp">' +
         '' +
         '<i class="fa fa-chevron-up anchorUpi"></i></button>' +
         '<div class="clearfix"></div>' +
-        '<button id="btnRunlistItemDown" type="button" class="btn cat-btn-update anchorDown">' +
+        '<button id="btnRunlistItemDown" type="button" class="btn btn-default btn-primary anchorDown">' +
         '' +
         '<i class="fa fa-chevron-down anchorDowni"></i></button>' +
         '</div>' +
@@ -250,6 +253,8 @@
 
             //Remove Selected from SelectorList
             function removeDblClickListener() {
+                $('#ediAattributeBlue').hide();
+                $('#attributeBlue').hide();
                 var $this = $(event.target),
                     value = $this.val(),
                     classlist = $this[0].classList.toString(),
@@ -309,6 +314,8 @@
 
             //Remove Button Listener
             function removeBtnListener() {
+                $('#ediAattributeBlue').hide();
+                $('#attributeBlue').hide();
                 var currentValue = [],
                     obj = {};
                 $selectorList.find("option:selected").each(function() {
