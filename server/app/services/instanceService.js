@@ -1172,7 +1172,6 @@ function removeInstanceById(instanceId,instanceState,callback){
                         callback(err, null);
                         return;
                     }
-                    logger.debug("Exit delete() for /instances/%s", instanceId);
                     callback(err, data);
                 });
             }

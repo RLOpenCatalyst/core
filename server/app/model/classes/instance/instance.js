@@ -1003,7 +1003,6 @@ var InstancesDao = function() {
 
 
     this.removeInstanceById = function(instanceId,instanceState, callback) {
-        logger.debug("Enter removeInstanceById (%s)", instanceId);
         if (instanceState === 'terminated') {
             Instances.update({
                 "_id": ObjectId(instanceId)
@@ -1019,7 +1018,6 @@ var InstancesDao = function() {
                     callback(err, null);
                     return;
                 }
-                logger.debug("Exit removeInstanceById (%s)", instanceId);
                 callback(null, data);
             });
         } else
@@ -1031,7 +1029,6 @@ var InstancesDao = function() {
                     callback(err, null);
                     return;
                 }
-                logger.debug("Exit removeInstanceById (%s)", instanceId);
                 callback(null, data);
             });
     };
@@ -1708,12 +1705,7 @@ var InstancesDao = function() {
     };
 
     this.getByOrgProviderId = function(opts, callback) {
-
-        Instances.find({
-            "orgId": opts.orgId,
-            "providerId": opts.providerId,
-            isDeleted:false
-        }, {
+        Instances.find(opts, {
             'actionLogs': false
         }, function(err, instances) {
             if (err) {

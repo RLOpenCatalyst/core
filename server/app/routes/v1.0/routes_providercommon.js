@@ -115,7 +115,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				else
 					return res.status(200).send(results);
 			});
-	}
+	};
 
 
 	app.get('/providers/:providerId/managedInstances', validate(instanceValidator.get), getManagedInstances);

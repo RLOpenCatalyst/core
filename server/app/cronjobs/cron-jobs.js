@@ -26,16 +26,16 @@ var dockerContainerSync = require('_pr/cronjobs/docker-container-sync');
 var awsRDSS3ProviderSync = require('_pr/cronjobs/provider-rds-s3-sync');
 
 module.exports.start = function start() {
-	
+	/*
 	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
 
 	logger.info('Usage aggregation started with interval ==> '+ usageAggregation.getInterval());
 	var usageAggregationJobId
-		= crontab.scheduleJob(usageAggregation.getInterval(), usageAggregation.execute);
+		= crontab.scheduleJob(usageAggregation.getInterval(), usageAggregation.execute);*/
 
-	logger.info('Provider Sync started with interval ==> '+ providerSync.getInterval());
+	/*logger.info('Provider Sync started with interval ==> '+ providerSync.getInterval());
 	var providerSyncJobId = crontab.scheduleJob(providerSync.getInterval(), providerSync.execute);
 
 	logger.info('Tags aggregation started with interval ==> '+ providerTagsAggregation.getInterval());
@@ -48,5 +48,5 @@ module.exports.start = function start() {
 
 	logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
 	var awsRDSS3ProviderSyncJobId
-		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);
+		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);*/
 }

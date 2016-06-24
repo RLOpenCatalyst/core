@@ -45,7 +45,6 @@ $(document).ready(function() {
         $.get('../tracked-instances', function(data) {
           loadtrackedallProviderInstances(data);
         }).fail(function() {
-          //TO DO
           alert("Tracked Instances not properly Loaded");
         });
       });
@@ -89,8 +88,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(awsSpecificProvName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loanManagedInstances(providerid);
             });
 
             $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
@@ -111,7 +109,7 @@ $(document).ready(function() {
                 $('#unmanagedTableContainer').show();
                 $('#providerforunManagedInstId').empty().append(awsSpecificProvName);
                 //Managned data passed to loadManagedInstances function to populate data in table.
-                loadunManagedInstances(dataUnmanaged.unmanagedInstances);
+                loanUnManagedInstances(providerid);
               });
             });
           });
@@ -189,8 +187,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(azureProvidersName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loanManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -204,11 +201,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(azureProvidersName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              //There is no API call for unmanagedInstances so creating the dummyArray.
-              var dummyArray = [];
-              loadunManagedInstances(dummyArray);
-              //loadunManagedInstances(dataUnmanaged.unmanagedInstances);
+              loanUnManagedInstances(providerid);
             });
           });
 
@@ -273,8 +266,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(vmwareProvidersName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loanManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -288,11 +280,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(vmwareProvidersName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              //There is no API call for unmanagedInstances so creating the dummyArray.
-              var dummyArray = [];
-              loadunManagedInstances(dummyArray);
-              //loadunManagedInstances(dataUnmanaged.unmanagedInstances);
+              loanUnManagedInstances(providerid);
             });
           });
 
@@ -405,8 +393,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(openstackSpecificProvName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loanManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -420,12 +407,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(openstackSpecificProvName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-
-              //There is no API call for unmanagedInstances so creating the dummyArray.
-              var dummyArray = [];
-              loadunManagedInstances(dummyArray);
-              //loadunManagedInstances(dataUnmanaged.unmanagedInstances);
+              loanUnManagedInstances(providerid);
             });
           });
 
@@ -464,72 +446,7 @@ $(document).ready(function() {
     $('#managedTableContainer').hide();
   });
 
-  function loadManagedInstances(managnedData) {
-    $instanceManagedDatatable.clear().draw();
-    var $tbody = $('#managedInstance tbody').empty();
-    for (var i = 0; i < managnedData.length; i++) {
-      var $tr = $('<tr class="managedInstance"></tr>').attr('data-id', managnedData[i]._id);
-      var $tdId = $('<td></td>').append(managnedData[i].platformId);
-      $tr.append($tdId);
 
-      if(managnedData[i].hardware.os){
-        var $tdOs = $('<td></td>').append(managnedData[i].hardware.os);
-        $tr.append($tdOs);
-      }else{
-        var $tdOs = $('<td></td>').append('');
-        $tr.append($tdOs);
-      }
-
-      var $tdIpAddress = $('<td></td>').append(managnedData[i].instanceIP);
-      $tr.append($tdIpAddress);
-
-      var region = '';
-      if (managnedData[i].providerData && managnedData[i].providerData.region) {
-        region = managnedData[i].providerData.region;
-      }else{
-        region = managnedData[i].region;
-      }
-      var $tdRegion = $('<td></td>').append(region);
-      $tr.append($tdRegion);
-      var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
-      $tr.append($tdStatus);
-
-      var $tdProjectName = $('<td></td>').append(managnedData[i].projectName);
-      $tr.append($tdProjectName);
-
-      $tbody.append($tr);
-      $instanceManagedDatatable.row.add($tr).draw();
-    }
-  }
-
-  if (!$.fn.dataTable.isDataTable('#managedinstanceListTable')) {
-    var $instanceManagedDatatable = $('#managedinstanceListTable').DataTable({
-      "pagingType": "full_numbers",
-      "bInfo": true,
-      "bLengthChange": true,
-      "paging": true,
-      "bFilter": true,
-      "aaSorting": [
-        [4, "asc"]
-      ],
-      "aoColumns": [{
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      },{
-        "bSortable": false
-      }]
-
-    });
-  }
-  $('#managedinstanceListTable_info').addClass('font-size12');
-  $('#managedinstanceListTable_paginate').addClass('font-size12');
 
   //From unmanaged instances
   $('#backfrmunManagedInstance').click(function() {
@@ -537,70 +454,92 @@ $(document).ready(function() {
     $('#unmanagedTableContainer').hide();
   });
 
-  function loadunManagedInstances(unmanagnedData) {
-    $instanceunManagedDatatable.clear().draw();
-    var $tbody = $('#unmanagedInstance tbody').empty();
-    for (var i = 0; i < unmanagnedData.length; i++) {
-      var $tr = $('<tr class="unmanagedInstance"></tr>').attr('data-id', unmanagnedData[i]._id);
-      var $tdId = $('<td></td>').append(unmanagnedData[i].platformId);
-      $tr.append($tdId);
 
-      if(unmanagnedData[i].os){
-        var $tdOs = $('<td></td>').append(unmanagnedData[i].os);
-        $tr.append($tdOs);
-      }else{
-        var $tdOs = $('<td></td>').append('');
-        $tr.append($tdOs);
-      }
-
-      var $tdIpAddress = $('<td></td>').append(unmanagnedData[i].ip);
-      $tr.append($tdIpAddress);
-
-      var region = '';
-      if (unmanagnedData[i].providerData && unmanagnedData[i].providerData.region) {
-        region = unmanagnedData[i].providerData.region;
-      }
-      var $tdRegion = $('<td></td>').append(region);
-      $tr.append($tdRegion);
-      var $tdStatus = $('<td></td>').append(unmanagnedData[i].state);
-      $tr.append($tdStatus);
-
-      var $tdProjectName = $('<td></td>').append(unmanagnedData[i].projectName);
-      $tr.append($tdProjectName);
-
-      $tbody.append($tr);
-      $instanceunManagedDatatable.row.add($tr).draw();
-    }
-  }
-
-  if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
-    var $instanceunManagedDatatable = $('#unmanagedinstanceListTable').DataTable({
-      "pagingType": "full_numbers",
-      "bInfo": true,
-      "bLengthChange": true,
-      "paging": true,
-      "bFilter": true,
-      "aaSorting": [
-        [4, "asc"]
+  function loanManagedInstances(providerId){
+    $('#managedinstanceListTable').DataTable({
+      "processing": true,
+      "serverSide": true,
+      "destroy":true,
+      "ajax": '/providers/' + providerId + '/managedInstanceList',
+      "columns": [
+        {"data": "platformId","orderable" : true},
+        {"data": "orgName" ,"orderable" : false },
+        {"data": "projectName" ,"orderable" : false },
+        {"data": "environmentName","orderable" : true  },
+        {"data": "hardware.os","orderable" : false,
+          "render": function(data){
+            if(data){
+              return data;
+            }else{
+              return '';
+            }
+          }
+        },
+        {"data": "instanceIP","orderable" : true},
+        {"data": "","orderable" : true,
+          "render":function(data, type, full, meta) {
+            if(full.region){
+              return full.region;
+            }else{
+              return full.providerData.region;
+            }
+          }
+        },
+        {"data": "instanceState","orderable" : true  }
       ],
-      "aoColumns": [{
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      },{
-        "bSortable": false
-      }]
-
+      "initComplete": function(settings, json){
+        var info = this.api().page.info();
+        alert(info.recordsTotal);
+        alert(info.recordsDisplay);
+      }
     });
   }
-  $('#unmanagedinstanceListTable_info').addClass('font-size12');
-  $('#unmanagedinstanceListTable_paginate').addClass('font-size12');
+
+  function loanUnManagedInstances(providerId){
+    $('#unmanagedinstanceListTable').DataTable( {
+      "processing": true,
+      "serverSide": true,
+      "destroy":true,
+      "createdRow": function( row, data ) {
+        $( row ).attr({"data-id" : data._id})
+      },
+      "ajax": '/providers/' + providerId + '/unmanagedInstanceList',
+      "columns": [
+        {"data": "platformId","orderable" : true  },
+        {"data": "orgName" ,"orderable" : false },
+        {"data": "projectName" ,"orderable" : false },
+        {"data": "environmentName","orderable" : true  },
+        {"data": "os","orderable" : false,
+          "render": function(data){
+            if(data){
+              return data;
+            }else{
+              return '';
+            }
+          }
+        },
+        {"data": "ip","orderable" : true  },
+        {"data": "","orderable" : true,
+          "render":function(data, type, full, meta) {
+            var region =full.region;
+            if(region){
+              region = full.region;
+            }else{
+              region = full.providerData.region;
+            }
+            return region;
+          }
+        },
+        {"data": "state","orderable" : true  }
+      ],
+      "initComplete": function(settings, json){
+        var info = this.api().page.info();
+        alert(info.recordsTotal);
+        alert(info.recordsDisplay);
+      }
+    });
+  }
+
 
   //For all provider tracked instances.
   $('#backfrmallprovidertrackedInstance').click(function() {
