@@ -177,7 +177,6 @@ awsKeyPairSchema.statics.getAWSKeyPairById = function(keyPairId, callback) {
 
 awsKeyPairSchema.statics.getAWSKeyPairByProviderId = function(providerId, callback) {
     logger.debug("Enter getAWSKeyPairByProviderId");
-    console.log(providerId);
     this.find({
         "providerId": new ObjectId(providerId)
     }, function(err, aKeyPair) {
