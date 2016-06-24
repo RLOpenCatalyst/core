@@ -1,5 +1,5 @@
 <div id='newTaskPage'>
-	<form name="newTaskForm" novalidate>
+	<form name="newTaskForm" novalidate ng-submit="newTaskForm.$valid && ok()">
 		<div class="modal-header">
 			<span class="close" ng-click="cancel()">×</span>
 			<h4 class="modal-title" ng-if="!isEditMode">
@@ -387,15 +387,15 @@
 		</div>
 
 		<div class="modal-footer">
-			<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+            <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
 				<i class="fa fa-times black"></i> Cancel
 			</button>
-			<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid">
+			<button type="submit" class="btn cat-btn-update" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid">
 				<i class="fa fa-check white"></i> Save
 			</button>
-			<button type="button" class="btn cat-btn-update" ng-click="ok()" ng-if="isEditMode">
+			<button type="submit" class="btn cat-btn-update" ng-if="isEditMode">
 				<i class="fa fa-check white"></i> Update
 			</button>
 		</div>
-	</form>
+    </form>
 </div>
