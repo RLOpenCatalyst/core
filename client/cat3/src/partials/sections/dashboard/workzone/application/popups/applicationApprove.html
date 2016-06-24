@@ -1,0 +1,46 @@
+<div id='deployNewAppPage' ng-switch="resultMsg">
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title" ng-show="!items.isApproved">
+			<i class="fa fa-eye"></i> Approve Application
+		</h4>
+		<h4 class="modal-title" ng-show="items.isApproved">
+			<i class="fa fa-times"></i> Revoke Application
+		</h4>
+	</div>
+	<div ng-switch-when="success">
+		<div class="alert alert-success fade in">
+			<strong>Success!</strong> Application has been {{msgText}} successfully.
+		</div>
+	</div>
+	<div ng-switch-when="error">
+		<div class="alert alert-danger fade in">
+			<strong>Error!</strong> Some {{msgText}} has been occurred while submitting your data.
+		</div>
+	</div>
+	<div ng-switch-default >
+		<div class="modal-body" >
+			<div>
+				<fieldset class="repo-job-details-wrapper">
+					<legend class="repo-job-details-wrapper-inner">Comments:</legend>
+					<div class="col-lg-12 col-md-12">
+						<div class="input-groups">
+							<textarea  class="form-control" ng-model="$parent.approveAppCommt"></textarea>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+				<i class="fa fa-times black"></i> Cancel
+			</button>
+			<button type="button" class="btn cat-btn-update"  ng-show="!items.isApproved"  ng-click="submitAppApprove(true)">
+				<i class="fa fa-check white"></i>  Approve
+			</button>
+			<button class="btn btn-danger revokeSave marginleft10" ng-show="items.isApproved" ng-click="submitAppApprove(false)">
+				<i class="ace-icon fa fa-times-circle white"></i> Revoke
+			</button>
+		</div>
+	</div>
+</div>

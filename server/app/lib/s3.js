@@ -98,8 +98,55 @@ var S3 = function(awsSettings) {
         });
     };
 
-    this.getBucketTag =function(bucketName,callback){
+    this.getBucketTag = function(bucketName,callback){
         s3.getBucketTagging({Bucket:bucketName}, function(err, data) {
+            if (err){
+                callback(null,{});
+            }else{
+                var tags = data.TagSet;
+                var tagObj={};
+                if(tags.length > 0){
+                    for(var i = 0; i < tags.length; i++){
+                        tagObj[tags[i].Key] = tags[i].Value;
+                        if(i === tags.length-1){
+                            callback(null,tagObj);
+                        }
+                    }
+                }else{
+                    callback(null,{});
+                }
+            }
+        });
+    };
+
+    this.addBucketTag = function(bucketName,tags,callback){
+        var tagsArray = [];
+        for(var key in tags) {
+            if(key !== '_schema') {
+                tagsArray.push({
+                    Key: key,
+                    Value: tags[key]
+                });
+            }
+        }
+        var params = {
+            Bucket: bucketName,
+            Tagging: {
+                TagSet: tagsArray
+            }
+        };
+        s3.putBucketTagging(params, function(err, data) {
+            if (err){
+                logger.error(err, err.stack);
+                callback(err,null);
+            }else{
+                callback(null, data);
+            };
+        });
+    };
+
+    this.removeBucketTag = function(params,callback){
+        s3.deleteBucketTagging(params, function(err, data) {
             if (err){
                 logger.error(err, err.stack);
                 callback(err,null);

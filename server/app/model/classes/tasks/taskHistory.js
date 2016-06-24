@@ -102,7 +102,7 @@ taskHistorySchema.statics.getHistoryByTaskId = function(taskId, callback) {
 	this.find({
 		taskId: taskId
 	}).sort({
-		"buildNumber": 'asc'
+		"buildNumber": 'desc'
 	}).exec(function(err, tHistories) {
 		if (err) {
 			logger.debug('err', err);

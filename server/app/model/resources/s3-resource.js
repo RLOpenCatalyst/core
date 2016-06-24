@@ -73,7 +73,10 @@ S3ResourcesSchema.statics.updateS3BucketData = function(s3Data,callback){
     queryObj['resourceDetails.bucketName'] = s3Data.resourceDetails.bucketName;
     S3Resources.update(queryObj, {
         $set: {
-            resourceDetails: s3Data.resourceDetails
+            resourceDetails: s3Data.resourceDetails,
+            tags: s3Data.tags,
+            projectTag: s3Data.projectTag,
+            environmentTag: s3Data.environmentTag
         }
     }, {
         upsert: false
@@ -91,6 +94,7 @@ S3ResourcesSchema.statics.getS3BucketData = function(s3Data,callback){
     queryObj['providerDetails.id'] = s3Data.providerDetails.id;
     queryObj['resourceType'] = s3Data.resourceType;
     queryObj['resourceDetails.bucketName'] = s3Data.resourceDetails.bucketName;
+    queryObj['isDeleted']=false;
     S3Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getS3BucketData", err);

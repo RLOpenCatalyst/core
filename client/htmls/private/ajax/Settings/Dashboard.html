@@ -170,6 +170,18 @@
 </div>
 
 <script type="text/javascript">
+//added for v3.0 - when navigating from v2.0 workzone to settings-
+$(document).ready(function() {
+	if(isAngularIntegration){
+	    $('#workZoneNew').attr('href','#');
+	    $('#workZoneNew').removeClass('active');
+	    $('#Workspace1').addClass('hidden');
+		$('#Settings_nav').show();
+		$('#settingsNew').addClass('active');
+		$("#ribbon ol.breadcrumb").empty();
+		$("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
+	}
+});
  var serviceURL = "/d4dMasters/";
  window.selectedOrgName = 'Settings'; 
 

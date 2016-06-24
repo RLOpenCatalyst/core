@@ -17,7 +17,6 @@
 "use strict"
 var fs = require('fs')
 var crontab = require('node-crontab');
-var appConfig = require('_pr/config');
 var logger = require('_pr/logger')(module);
 var costAggregation = require('_pr/cronjobs/aws-cost-aggregation');
 var usageAggregation = require('_pr/cronjobs/aws-usage-aggregation');

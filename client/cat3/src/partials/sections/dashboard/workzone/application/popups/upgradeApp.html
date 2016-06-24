@@ -1,0 +1,140 @@
+<div id='deployNewAppPage'>
+	<form name="upgradeForm" novalidate>
+		<div class="modal-header">
+			<div class="imp-note red" ng-show="upgradeForm.$invalid"><span class="red">*</span> are mandatory fields</div>
+			<span class="close" ng-click="cancel()">×</span>
+			<h4 class="modal-title" >
+				<i class="fa fa-edit"></i> Upgrade Application
+			</h4>
+		</div>
+
+		<div class="modal-body" >
+			<div>
+				<fieldset class="repo-job-details-wrapper">
+					<legend class="repo-job-details-wrapper-inner">Repository Details:</legend>
+					<div class="col-lg-6 col-md-6">
+						<label for="">Repository Server:
+							<span class="red">*</span>
+						</label>
+						<div class="input-groups">
+							<loading size="small" name="isLoadingServer" type="inline"></loading>
+							<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.serverName">
+						</div>
+					</div>
+					<div ng-if="upGrdApp.newEnt.serverType==='docker'">
+						<div class="col-lg-6 col-md-6">
+							<label >Repository:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.repository">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label>Tags:<span class="red">*</span>
+								<loading size="small" name="isLoadingDocTag" type="inline"></loading>
+							</label>
+							<select class="form-control" ng-model="upGrdApp.newEnt.tag"  required>
+								<option value="">Choose Tag</option>
+								<option ng-repeat="tagOption in upGrdApp.tagOptions" value="{{tagOption.name}}">{{tagOption.name}}</option>
+							</select>
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label>Container Port:<span class="red">*</span>
+								<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+							</label>
+							<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.contPort">
+						</div>
+						<div class="col-lg-6 col-md-6 margintop15" >
+							<label ng-click="showHideLoader()">Host Port:<span class="red">*</span></label>
+							<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+							<input type="text" class="form-control" name="hostPort" ng-model="upGrdApp.newEnt.hostPort" disabled="">
+						</div>
+						<div class="col-lg-12 col-md-12 margintop15" >
+							<label ng-click="showHideLoader()">Container Name/ID:</label>
+							<!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+							<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.ContNameId">
+						</div>
+
+					</div>
+					<div  ng-if="upGrdApp.newEnt.serverType==='nexus'">
+						<div class="col-lg-6 col-md-6">
+							<label >Repository:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.repository">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6" >
+							<label>Group ID:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexus" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.groupId">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label>Artifacts:<span class="red">*</span>
+								<loading size="small" name="isLoadingArtifacts" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.artifact">
+							</div>
+						</div>
+						<div class="col-lg-6 col-md-6" >
+							<label for="">Versions:<span class="red">*</span>
+								<loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
+							</label>
+							<div class="input-groups">
+								<select class="form-control" ng-model="upGrdApp.newEnt.version" required>
+									<option value="">Choose Versions</option>
+									<option ng-repeat="(key , values) in upGrdApp.versionsOptions" value="{{values}}">{{values}}</option>
+								</select>
+							</div>
+						</div>
+						<!--<div class="col-lg-12 col-md-12">-->
+							<!--<label>Repository URL:<span class="red">*</span>-->
+								<!--&lt;!&ndash;<loading size="small" name="isLoadingNexus" type="inline"></loading>&ndash;&gt;-->
+							<!--</label>-->
+							<!--<input type="text" class="form-control" disabled="" ng-model="upGrdApp.newEnt.repositoryURL">-->
+						<!--</div>-->
+					</div>
+				</fieldset>
+				<fieldset class="repo-job-details-wrapper margintop20">
+					<legend class="repo-job-details-wrapper-inner">Job Details:</legend>
+					<div class="col-lg-6 col-md-6 col-sm-6">
+						<label>Jobs:<span class="red">*</span>
+							<!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+						</label>
+						<div class="input-groups">
+							<loading size="small" name="isLoadingJob" type="inline"></loading>
+							<select id="chooseJobType" name="jobInd" ng-model="upGrdApp.newEnt.jobInd"  ng-options="upGrdApp.jobOptions.indexOf(jobOption) as jobOption.name for jobOption in upGrdApp.jobOptions" class="form-control" required>
+								<option value="">Choose Job</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-lg-6 col-md-6">
+						<label>
+							<span></span>
+						</label>
+						<div class="input-groups">
+							<button type="button" class="btn cat-btn-update"  ng-click="upGrdApp.createNewJob()">
+								<i class="fa fa-plus white"></i> Create New Job {{}}
+							</button>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+
+		<div class="modal-footer">
+			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+				<i class="fa fa-times black"></i> Cancel
+			</button>
+			<button type="button" class="btn cat-btn-update " ng-disabled="upgradeForm.$invalid"  ng-click="upGrdApp.submitAppUpgrade()">
+				<i class="fa fa-save white"></i> Upgrade
+			</button>
+		</div>
+	</form>
+</div>

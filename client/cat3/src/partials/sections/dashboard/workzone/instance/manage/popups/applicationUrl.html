@@ -1,0 +1,39 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/workzone/instance/instance.css">
+
+<div id='applicationUrlPage'>
+	<form name="AppurlForm" novalidate>
+		<div class="modal-header">
+			<span class="close" ng-click="cancel()">×</span>
+			<h4 class="modal-title"> Add Application Url</h4>
+		</div>
+
+		<div class="modal-body">
+			<fieldset>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<label for="appName">App Name
+						<span class="control-label red">&nbsp;*</span>
+						<span ng-show="AppurlForm.appName.$touched && AppurlForm.appName.$invalid" class="inputValidationMsg">App name is not valid
+						</span>
+					</label>
+					<input placeholder="App Name" type="text" ng-model="appUrlItem.name" name="appName" class="form-control" required/>
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<label for="appUrl">App Url
+						<span class="control-label red">&nbsp;*</span>
+						<span ng-show="AppurlForm.appUrl.$touched && AppurlForm.appUrl.$invalid" class="inputValidationMsg">App url is not valid
+						</span>
+					</label>
+					<input placeholder="http://$host[:port]/appname" type="url" ng-model="appUrlItem.url" name="appUrl" class="form-control" required/>
+				</div>
+			</fieldset>
+		</div>
+
+		<div class="modal-footer">
+			<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+				<i class="fa fa-times black"></i> Close</button>
+			<button type="button" class="btn cat-btn-save" ng-disabled="AppurlForm.$invalid" ng-click="ok()">
+				<i class="fa fa-check white"></i> Save
+			</button>
+		</div>
+	</form>
+</div>

@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 
@@ -32,12 +32,12 @@ winston.emitErrs = true;
 /**
  * Custom logger hat will append the current module name in front of each log
  */
-var CatLogger = function(logger, calling_module){    
+var CatLogger = function(logger, calling_module){
     var exports = {};
     var methods = ["info", "debug", "warn", "error", "log"];
 
     events.EventEmitter.call(this);
-    
+
     // We will modify the args we send to logger's log methods.
     // We want the file name as part of the logs !!
     function change_args(args){
@@ -97,25 +97,25 @@ var logger = new winston.Logger({
 
 /**
  * The logger by express
- */ 
+ */
 var express_logger = new winston.Logger({
-        transports: [
-            new winston.transports.DailyRotateFile({
-                level: 'debug',
-                datePattern: '.yyyy-MM-dd',
-                filename: 'access.log',
-                dirname:log_folder,
-                handleExceptions: true,
-                json: true,
-                maxsize: 5242880, //5MB
-                maxFiles: 5,
-                colorize: true,
-                timestamp:true,
-                name:'express-file-log'
-            })
-        ],
-        exitOnError: false
-    });
+    transports: [
+        new winston.transports.DailyRotateFile({
+            level: 'debug',
+            datePattern: '.yyyy-MM-dd',
+            filename: 'access.log',
+            dirname:log_folder,
+            handleExceptions: true,
+            json: true,
+            maxsize: 5242880, //5MB
+            maxFiles: 5,
+            colorize: true,
+            timestamp:true,
+            name:'express-file-log'
+        })
+    ],
+    exitOnError: false
+});
 
 /**
  * This is how application level loggers are created in a specific module.
@@ -126,7 +126,7 @@ var express_logger = new winston.Logger({
  * @param module - The the calling module.
  */
 function create_logger(calling_module){
-    return new CatLogger(logger, calling_module);    
+    return new CatLogger(logger, calling_module);
 };// end create_logger
 
 /**

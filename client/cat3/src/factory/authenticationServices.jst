@@ -1,0 +1,30 @@
+/* Copyright (C) Relevance Lab Private Limited- All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Relevance UI Team,
+ * Aug 2015
+ */
+
+(function(angular){
+	"use strict";
+	angular.module('apis.authentication', ['authenticationModel']).service('authServices', ['$http','Auth', function($http,Auth) {
+		var baseAPIUrl = uiConfigs.serverUrl;
+		function fullUrl(relUrl){
+			return baseAPIUrl + relUrl;
+		}
+		var serviceInterface={};
+		serviceInterface.postAuth=function(params){
+			var url = '/auth/signin';
+			return $http.post(fullUrl(url),params);
+		};
+		 serviceInterface.isTokenValid=function(token){
+			var url = '/auth/istokenvalid/'+token;
+			return $http.post(fullUrl(url));
+		};
+		serviceInterface.logout=function(){
+			var url = '/auth/signout';
+			return $http.get(fullUrl(url),Auth.getHeaderObject());
+		};
+		return serviceInterface;
+	}]);
+})(angular);

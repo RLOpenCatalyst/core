@@ -1,0 +1,82 @@
+$font-serif: Helvetica, sans-serif;
+$font-verdana: verdana;
+$head-color: #232323;
+$primary-color: #40BAF1;
+$color-green: #008000;
+$color-blue: #40baf1;
+$color-darkBlue: darkblue;
+$color-red: #B80000;
+$color-yellow: #FFCC00;
+$color-lightBlack: #363636;
+$color-gray: #ccc;
+$color-orange: orange;
+$color-crimson: #B80000;
+$color-white: #FFFFFF;
+$selected-color: #3b4142;
+
+/* ================================================
+ * To try a different colour scheme, 
+ * Substitute the hex code of the theme colour 
+ * with your chosen theme colour from below list
+ * 
+ * Default light blue theme  	: $primary-color
+ * Green theme					: $color-green
+ * Orange theme 				: $color-orange
+ * Gray theme 					: $color-gray
+ * Red theme 					: $color-red
+ * Crimson theme 				: $color-crimson
+ * ================================================ */
+
+$theme-color: $primary-color;
+
+@mixin theme-bg-color {
+	$header-bg-color: $theme-color;
+    background: $header-bg-color;
+}
+
+@mixin theme-border-color {
+	$border-color: $theme-color;
+    border-color: $border-color;
+}
+
+@mixin theme-text-color {
+	$text-color: $theme-color;
+    color: $text-color;
+}
+
+$off-wht: rgba(white,.4);
+
+@mixin btn-theme {
+	border-color: darken($theme-color, 20%);
+	background-color: $theme-color;
+	&:hover {
+		background-color: darken($theme-color, 10%);
+		color: #fff;
+		/*box-shadow: 0 .125em $off-wht, inset 0 .063em $off-wht, inset 0 -.188em lighten($theme-color, 2%);*/
+	}
+	&:focus {
+		background-color: $theme-color;
+		/*box-shadow: 0 .063em $off-wht, inset 0 0 1.094em darken($theme-color, 40%), inset 0 .063em darken($theme-color, 20%),inset 0 -0.188em darken($theme-color, 20%);
+		border-color: darken($theme-color, 20%);*/
+		color: #fff; 
+		outline: none;
+	}
+}
+
+@mixin border-radius($radius) {
+	-webkit-border-radius: $radius;
+	-moz-border-radius: $radius;
+	-ms-border-radius: $radius;
+	border-radius: $radius;
+}
+
+@mixin transition($trans) {
+	-webkit-transition: border-color .3s;
+	transition: border-color .3s;
+}
+
+@mixin box-sizing($box) {
+	-webkit-box-sizing: $box;
+	box-sizing: $box;
+	-moz-box-sizing: $box;
+}

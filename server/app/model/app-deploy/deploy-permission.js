@@ -26,12 +26,34 @@ var schemaValidator = require('_pr/model/utils/schema-validator');
 var Schema = mongoose.Schema;
 
 var DeployPermissionSchema = new Schema({
-    projectId: String,
-    envId: String,
-    appName: String,
-    version: String,
-    comments: String,
-    isApproved: String
+    projectId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    envName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    appName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    version: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    comments: {
+        type: String,
+        trim: true
+    },
+    isApproved: {
+        type: Boolean,
+        required: true
+    }
 });
 
 
@@ -40,7 +62,7 @@ DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback
     var that = this;
     this.find({
         projectId: permission.projectId,
-        envId: permission.envId,
+        envName: permission.envName,
         appName: permission.appName,
         version: permission.version
     }, function(err, aPermission) {
@@ -48,37 +70,33 @@ DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback
             logger.debug("Error fetching record.", err);
             callback(err, null);
         }
-        
-        if (aPermission.length) {
-            var setData = {};
-            var keys = Object.keys(permission);
-            for (var i = 0; i < keys.length; i++) {
-                setData[keys[i]] = permission[keys[i]];
-            }
+        if (aPermission.length > 0) {
             that.update({
                 projectId: permission.projectId,
-                envId: permission.envId,
+                envName: permission.envName,
                 appName: permission.appName,
                 version: permission.version
             }, {
-                $set: setData
+                $set: permission
             }, {
                 upsert: false
-            }, function(err, updatedData) {
+            }, function (err, updatedData) {
                 if (err) {
                     logger.debug("Failed to update: ", err);
                     callback(err, null);
                 }
+                logger.debug("Deploy Permission is successfully updated.");
                 callback(null, updatedData);
             });
-        } else {
+        }
+        else {
             var appPermission = new that(permission);
             appPermission.save(function(err, aPermission) {
                 if (err) {
                     logger.debug("Got error while creating a Permission: ", err);
                     callback(err, null);
                 }
-                logger.debug("Creating a Permission: ", JSON.stringify(aPermission));
+                logger.debug("Deploy Permission is successfully saved.");
                 callback(null, aPermission);
             });
         }
@@ -86,10 +104,10 @@ DeployPermissionSchema.statics.createNewOrUpdate = function(permission, callback
 };
 
 // Get AppData by ip,project,env.
-DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(projectId, envId, appName, version, callback) {
+DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(projectId, envName, appName, version, callback) {
     this.find({
         projectId: projectId,
-        envId: envId,
+        envName: envName,
         appName: appName,
         version: version
     }, function(err, permission) {
@@ -97,10 +115,53 @@ DeployPermissionSchema.statics.getDeployPermissionByProjectAndEnv = function(pro
             logger.debug("Got error while fetching permission: ", err);
             callback(err, null);
         }
-        logger.debug("Got permission: ", JSON.stringify(permission));
         callback(null, permission);
     });
 };
 
+DeployPermissionSchema.statics.getDeployPermissionByProjectIdEnvNameAppNameVersion=function(projectId, envName, appName, version, callback) {
+    this.find({
+        projectId: projectId,
+        envName: envName,
+        appName: appName,
+        version: version
+    }, function(err, aPermission) {
+        if (err) {
+            logger.debug("Got error while fetching permission: ", err);
+            callback(err, null);
+        }
+        callback(null, aPermission);
+    });
+};
+
+DeployPermissionSchema.statics.updateDeployPermission=function(deployPermission,callback){
+    this.update({
+        projectId: deployPermission.projectId,
+        envName: deployPermission.envName,
+        appName: deployPermission.appName,
+        version: deployPermission.version
+    }, {
+        $set: deployPermission
+    }, {
+        upsert: false
+    }, function (err, updatedDeployPermission) {
+        if (err) {
+            logger.debug("Failed to update: ", err);
+            callback(err, null);
+        }
+        callback(null, updatedDeployPermission);
+    });
+
+};
+DeployPermissionSchema.statics.saveDeployPermission=function(deployPermission,callback){
+    var appPermission = new this(deployPermission);
+    appPermission.save(function(err, permission) {
+        if (err) {
+            logger.debug("Got error while creating a Permission: ", err);
+            callback(err, null);
+        }
+        callback(null, permission);
+    });
+};
 var DeployPermission = mongoose.model("deployPermission", DeployPermissionSchema);
 module.exports = DeployPermission;
