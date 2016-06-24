@@ -2237,6 +2237,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
         }
     },
     'onPrevious': function(tab, navigation, index) {
+        $('#saveCompBlup').hide();
         $('#nextSpecificValue').show();
         if (index === 0) {
             //$("#tabheader").html('Choose Template Type');
