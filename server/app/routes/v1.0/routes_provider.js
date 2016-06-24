@@ -2232,14 +2232,40 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							res.status(500).send("Failed to create Provider.");
 							return;
 						}
-						AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
+						if(req.body.region) {
+							AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
+								masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
+									if (err) {
+										res.status(500).send("Not able to fetch org.");
+										return;
+									}
+									if (orgs.length > 0) {
+										if (keyPair) {
+											var dummyProvider = {
+												_id: provider._id,
+												id: 9,
+												providerName: provider.providerName,
+												providerType: provider.providerType,
+												s3BucketName: provider.s3BucketName,
+												orgId: orgs[0].rowid,
+												orgName: orgs[0].orgname,
+												__v: provider.__v,
+												keyPairs: keyPair
+											};
+											res.send(dummyProvider);
+											return;
+										}
+									}
+								})
+							});
+							logger.debug("Exit post() for /providers");
+						}else{
 							masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
 								if (err) {
 									res.status(500).send("Not able to fetch org.");
 									return;
 								}
 								if (orgs.length > 0) {
-									if (keyPair) {
 										var dummyProvider = {
 											_id: provider._id,
 											id: 9,
@@ -2248,16 +2274,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 											s3BucketName: provider.s3BucketName,
 											orgId: orgs[0].rowid,
 											orgName: orgs[0].orgname,
-											__v: provider.__v,
-											keyPairs: keyPair
+											__v: provider.__v
 										};
 										res.send(dummyProvider);
 										return;
-									}
 								}
 							})
-						});
-						logger.debug("Exit post() for /providers");
+						}
 					});
 				});
 		}
@@ -2309,7 +2332,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 												orgId: provider.orgId,
 												isDefault:provider.isDefault,
 												__v: provider.__v,
-												region: keyPair[0].region ? keyPair[0].region : null
+												region: keyPair.length > 0 ? keyPair[0].region : null
 											};
 											providersList.push(providerObj);
 											providerObj = {};
@@ -2348,31 +2371,36 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								res.send(providersList);
 								return;
 							}
-							if (providers.length > 0) {
+							var providersList = [];
+							var providerObj={};
+							if (providers && providers.length  > 0) {
 								for (var i = 0; i < providers.length; i++) {
-
-									providersList.push(providers[i]);
-									if (providers.length === providersList.length) {
-										res.send(providersList);
-										return;
-									}
-									/*var keys = [];
-									 keys.push(providers[i].accessKey);
-									 keys.push(providers[i].secretKey);
-									 cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-									 cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-									 if (err) {
-									 res.sned(500, "Failed to decrypt accessKey or secretKey");
-									 return;
-									 }
-									 //providers[i].accessKey = decryptedKeys[0];
-									 //providers[i].secretKey = decryptedKeys[1];
-									 providersList.push(providers[i]);
-									 if (providers.length === providersList.length) {
-									 res.send(providersList);
-									 return;
-									 }
-									 });*/
+									(function (provider) {
+										AWSKeyPair.getAWSKeyPairByProviderId(provider._id, function (err, keyPair) {
+											if (err) {
+												logger.error(err);
+												res.status(500).send(errorResponses.db.error);
+												return;
+											}
+											providerObj = {
+												_id: provider._id,
+												id: provider.id,
+												providerName: provider.providerName,
+												providerType: provider.providerType,
+												s3BucketName: provider.s3BucketName,
+												orgId: provider.orgId,
+												isDefault:provider.isDefault,
+												__v: provider.__v,
+												region: keyPair.length > 0 ? keyPair[0].region : null
+											};
+											providersList.push(providerObj);
+											providerObj = {};
+											if (providers.length === providersList.length) {
+												res.send(providersList);
+												return;
+											}
+										});
+									})(providers[i]);
 								}
 							} else {
 								res.send(providersList);
