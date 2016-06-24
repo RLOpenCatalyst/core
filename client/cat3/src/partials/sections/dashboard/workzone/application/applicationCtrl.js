@@ -356,6 +356,9 @@
 					case 'stopped':
 						colorSuffix = 'stopped';
 						break;
+					case 'Failure':
+						colorSuffix = 'failure';
+						break;
 					default:
 						colorSuffix = 'unknown';
 						break;

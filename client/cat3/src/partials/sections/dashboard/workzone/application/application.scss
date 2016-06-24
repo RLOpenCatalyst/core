@@ -190,6 +190,9 @@
     .instance-state-text-stopped{
         color: #E3200B;
     }
+    .instance-state-text-failure{
+        color: #e3c10c;
+    }
     .app-instance-image.instance-state-unknown{
         opacity: 0.4;
         filter: alpha(opacity=40);
@@ -224,7 +227,6 @@
     }
 
 }
-
 .save-loading{
     position: absolute;
     z-index: 1;
