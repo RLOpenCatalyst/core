@@ -20,82 +20,85 @@ function awsRDSS3ProviderSync() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
             logger.error(err);
-        } else {
-            awsRDSS3ProviderSyncForProvidersOfOrg.apply(awsRDSS3ProviderSyncForProvidersOfOrg, orgs);
-        }
-    });
-}
-
-function awsRDSS3ProviderSyncForProvidersOfOrg(org) {
-    orgName =org.orgname;
-    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
-        if(err) {
-            logger.error(err);
-        } else {
-            awsRDSS3ProviderSyncForProvider.apply(awsRDSS3ProviderSyncForProvider, providers);
+        }else if(orgs.length > 0){
+            for(var i = 0; i < orgs.length; i++){
+                (function(org){
+                    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
+                        if(err) {
+                            logger.error(err);
+                        } else if(providers.length > 0){
+                            for(var j = 0; j < providers.length; j++){
+                                (function(provider){
+                                    awsRDSS3ProviderSyncForProvider(provider)
+                                })(providers[j]);
+                            }
+                        }else{
+                            logger.info("Please configure Provider for S3/RDS Provider Sync");
+                        }
+                    });
+                })(orgs[i]);
+            }
+        }else{
+            logger.info("Please configure Organization for S3/RDS Provider Sync");
         }
     });
 }
 
 function awsRDSS3ProviderSyncForProvider(provider) {
-    logger.info("S3/RDS Data Fetching started");
-    if(provider._id) {
-        async.waterfall([
-            function (next) {
-                async.parallel({
-                    s3: function (callback) {
-                        resourceService.getBucketsInfo(provider, orgName, callback);
-                    },
-                    rds: function (callback) {
-                        resourceService.getRDSInstancesInfo(provider, orgName, callback);
+    logger.info("S3/RDS Data Fetching started for Provider "+provider._id);
+    async.waterfall([
+        function (next) {
+            async.parallel({
+                s3: function (callback) {
+                    resourceService.getBucketsInfo(provider, orgName, callback);
+                },
+                rds: function (callback) {
+                    resourceService.getRDSInstancesInfo(provider, orgName, callback);
+                }
+            }, function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            });
+        },
+        function (resources, next) {
+            async.parallel({
+                s3: function (callback) {
+                    saveS3Data(resources.s3, callback);
+                },
+                rds: function (callback) {
+                    saveRDSData(resources.rds, callback);
+                },
+                s3Delete: function (callback) {
+                    deleteResourceData(resources.s3, provider._id, 'S3', callback);
+                },
+                rdsDelete: function (callback) {
+                    deleteResourceData(resources.rds, provider._id, 'RDS', callback);
+                }
+            }, function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    next(null, results);
                     }
-                }, function (err, results) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        next(null, results);
-                    }
-                });
-            },
-            function (resources, next) {
-                async.parallel({
-                    s3: function (callback) {
-                        saveS3Data(resources.s3, callback);
-                    },
-                    rds: function (callback) {
-                        saveRDSData(resources.rds, callback);
-                    },
-                    s3Delete: function (callback) {
-                        deleteResourceData(resources.s3, provider._id, 'S3', callback);
-                    },
-                    rdsDelete: function (callback) {
-                        deleteResourceData(resources.rds, provider._id, 'RDS', callback);
-                    }
-                }, function (err, results) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        next(null, results);
-                    }
-                });
-            },
-            function(resourcesDetails,next){
-                resourceModel.getAllUnassignedResources(provider._id,next);
-            },
-            function(resources,next){
-                tagMappingForResources(resources,provider,next);
-            }
-        ], function (err, results) {
-            if (err) {
-                logger.error(err);
-                return;
-            } else {
-                logger.info("S3/RDS Data Successfully Added");
-            }
-        })
-    }else{
-        logger.info("Please configure Provider for S3/RDS Resources");
-    }
+            });
+        },
+        function(resourcesDetails,next){
+            resourceModel.getAllUnassignedResources(provider._id,next);
+        },
+        function(resources,next){
+            tagMappingForResources(resources,provider,next);
+        }
+    ], function (err, results) {
+        if (err) {
+            logger.error(err);
+            return;
+        } else {
+            logger.info("S3/RDS Data Successfully Added for Provider "+provider._id);
+        }
+    });
 };
 function saveS3Data(s3Info, callback) {
     var results = [];
