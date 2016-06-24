@@ -34,13 +34,13 @@ var awsKeyPairSchema = new Schema({
     },
     keyPairName: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
         validate: schemaValidator.nameValidator
     },
     region: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     providerId: {
@@ -51,7 +51,7 @@ var awsKeyPairSchema = new Schema({
     },
     fileName: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     }
 });
@@ -177,6 +177,7 @@ awsKeyPairSchema.statics.getAWSKeyPairById = function(keyPairId, callback) {
 
 awsKeyPairSchema.statics.getAWSKeyPairByProviderId = function(providerId, callback) {
     logger.debug("Enter getAWSKeyPairByProviderId");
+    console.log(providerId);
     this.find({
         "providerId": new ObjectId(providerId)
     }, function(err, aKeyPair) {
