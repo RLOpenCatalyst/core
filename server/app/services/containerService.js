@@ -67,7 +67,14 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             logger.debug("Code     "+retCode);
             logger.debug("stdOut     "+stdOut);
             if(retCode === 0){
-                if(stdOut.trim().length === jsonData.containerId.length || stdOut.trim().length ===0){
+                var strArr = stdOut.split(" ");
+                var count = 0;
+                for(var i = 0; i < strArr.length; i++){
+                    if(strArr[i].indexOf(jsonData.containerId) > -1){
+                        count++;
+                    }
+                };
+                if(count === 1){
                     containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action),dockerContainerStatus(jsonData.action),next);
                 }else{
                     containerDao.deleteContainerById(jsonData.containerId,next);

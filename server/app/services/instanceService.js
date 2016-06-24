@@ -17,6 +17,7 @@
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var instancesModel = require('_pr/model/classes/instance/instance');
+var containerModel = require('_pr/model/container');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
@@ -54,6 +55,7 @@ instanceService.getTrackedInstancesForProvider = getTrackedInstancesForProvider;
 instanceService.getTrackedInstances = getTrackedInstances;
 instanceService.createTrackedInstancesResponse = createTrackedInstancesResponse;
 instanceService.validateListInstancesQuery = validateListInstancesQuery;
+instanceService.removeInstanceById = removeInstanceById;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -128,8 +130,8 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
     return callback(null, filterQuery);
 }
 
-function getUnassignedInstancesByProvider(provider, callback) {
-    unassignedInstancesModel.getByProviderId(provider._id, function(err, assignedInstances) {
+function getUnassignedInstancesByProvider(jsonData, callback) {
+    unassignedInstancesModel.getByProviderId(jsonData, function(err, assignedInstances) {
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -144,7 +146,6 @@ function getUnassignedInstancesByProvider(provider, callback) {
 
 function bulkUpdateInstanceProviderTags(provider, instances, callback) {
     var providerTypes = appConfig.providerTypes;
-
     if (instances.length > 10) {
         var err = new Error("Invalid request");
         err.status = 400;
@@ -392,7 +393,6 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 }
 
 function getTrackedInstancesForProvider(provider, next) {
-    console.log("Provider is >>"+provider);
     async.parallel({
             managed: function(callback) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
@@ -505,6 +505,7 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.providerId = instance.providerId;
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
+        instanceObj.instanceState = instance.instanceState ? instance.instanceState:instance.state;
         instanceObj.bgId = ('bgId' in instance) ? instance.bgId : null;
 
         if (('hardware' in instance) && ('os' in instance.hardware))
@@ -522,7 +523,7 @@ function createTrackedInstancesResponse(instances, callback) {
             instanceObj.ip = null;
 
         instanceObj.usage = ('usage' in instance)?instance.usage:null;
-        instanceObj.cost = (('cost' in instance) && instance.cost)?parseFloat(instance.cost.aggregateInstanceCost).toFixed(2):0;
+        instanceObj.cost = (('cost' in instance) && instance.cost)? (instance.cost.symbol + ' ' + parseFloat(instance.cost.aggregateInstanceCost).toFixed(2)):0;
 
         return instanceObj;
     });
@@ -1157,3 +1158,23 @@ function getCookBookAttributes(instance, callback) {
         return;
     }
 };
+
+function removeInstanceById(instanceId,instanceState,callback){
+        containerModel.deleteContainerByInstanceId(instanceId, function (err, container) {
+            if (err) {
+                logger.error("Container deletion Failed >> ", err);
+                callback(err, null);
+                return;
+            } else {
+                instancesModel.removeInstanceById(instanceId,instanceState, function (err, data) {
+                    if (err) {
+                        logger.error("Instance deletion Failed >> ", err);
+                        callback(err, null);
+                        return;
+                    }
+                    logger.debug("Exit delete() for /instances/%s", instanceId);
+                    callback(err, data);
+                });
+            }
+        });
+}

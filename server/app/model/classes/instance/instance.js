@@ -282,6 +282,11 @@ var InstanceSchema = new Schema({
         type: String,
         required: false,
         trim: true
+    },
+    isDeleted:{
+        type: Boolean,
+        required:false,
+        default:false
     }
 });
 
@@ -320,7 +325,8 @@ var InstancesDao = function() {
     };
     this.getInstanceById = function(instanceId, callback) {
         Instances.find({
-            "_id": new ObjectId(instanceId)
+            "_id": new ObjectId(instanceId),
+            "isDeleted":false
         }, {
             'actionLogs': false
         }, function(err, data) {
@@ -338,7 +344,8 @@ var InstancesDao = function() {
         logger.debug("Enter getInstanceByPlatformId (%s)", platformId);
 
         Instances.find({
-            platformId: platformId
+            platformId: platformId,
+            isDeleted:false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getInstanceByPlatformId (%s)", platformId, err);
@@ -355,7 +362,8 @@ var InstancesDao = function() {
         logger.debug("Enter getInstanceByProviderId (%s)", providerId);
 
         Instances.find({
-            providerId: providerId
+            providerId: providerId,
+            isDeleted:false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getInstanceByProviderId (%s)", providerId, err);
@@ -374,7 +382,8 @@ var InstancesDao = function() {
         if (instanceIds && instanceIds.length) {
             queryObj._id = {
                 $in: instanceIds
-            }
+            };
+            queryObj.isDeleted = false
         }
 
         Instances.find(queryObj, {
@@ -396,7 +405,8 @@ var InstancesDao = function() {
         logger.debug("Enter getInstancesByProjectAndEnvId(%s, %s, %s, %s)", projectId, envId, instanceType, userName);
         var queryObj = {
             projectId: projectId,
-            envId: envId
+            envId: envId,
+            isDeleted:false
         }
         if (instanceType) {
             queryObj['blueprintData.templateType'] = instanceType;
@@ -422,7 +432,8 @@ var InstancesDao = function() {
         var queryObj = {
             orgId: orgId,
             projectId: projectId,
-            envId: envId
+            envId: envId,
+            isDeleted:false
         }
         if (instanceType) {
             queryObj['blueprintData.templateType'] = instanceType;
@@ -453,6 +464,7 @@ var InstancesDao = function() {
                     err.status = 500;
                     return callback(err);
                 } else {
+                    databaseCall.queryObj.isDeleted = false;
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
                         if (err) {
                             var err = new Error('Internal server error');
@@ -513,7 +525,8 @@ var InstancesDao = function() {
                 orgId: jsonData.orgId,
                 bgId: jsonData.bgId,
                 projectId: jsonData.projectId,
-                envId: jsonData.envId
+                envId: jsonData.envId,
+                isDeleted:false
             }
             if (jsonData.instanceType) {
                 queryObj['blueprintData.templateType'] = jsonData.instanceType;
@@ -535,7 +548,8 @@ var InstancesDao = function() {
             orgId: jsonData.orgId,
             bgId: jsonData.bgId,
             projectId: jsonData.projectId,
-            envId: jsonData.envId
+            envId: jsonData.envId,
+            isDeleted:false
         }
         Instances.find(queryObj, function(err, instances) {
             if (err) {
@@ -551,7 +565,8 @@ var InstancesDao = function() {
         logger.debug("Enter getInstancesByOrgEnvIdAndChefNodeName (%s, %s, %s)", orgId, envId, nodeName);
         var queryObj = {
             orgId: orgId,
-            envId: envId
+            envId: envId,
+            isDeleted:false
         }
         queryObj['chef.chefNodeName'] = nodeName;
         Instances.find(queryObj, function(err, data) {
@@ -570,7 +585,8 @@ var InstancesDao = function() {
         var queryObj = {
             orgId: orgId,
             envId: envId,
-            instanceIP: ip
+            instanceIP: ip,
+            isDeleted:false
         }
         Instances.find(queryObj, function(err, data) {
             if (err) {
@@ -587,6 +603,7 @@ var InstancesDao = function() {
         logger.debug("Enter getInstanceByOrgAndNodeNameOrIP (%s, %s, %s)", orgId, nodeName, ip);
         var queryObj = {
             orgId: orgId,
+            isDeleted:false,
             '$or': [{
                 instanceIP: ip
             }, {
@@ -609,6 +626,7 @@ var InstancesDao = function() {
     this.getInstanceByProjectId = function(ProjectId, callback) {
         logger.debug("Enter getInstanceByProjectId (%s,)", ProjectId);
         var queryObj = {
+            isDeleted:false,
             $or: [{
                 projectId: ProjectId
             }, {
@@ -632,7 +650,8 @@ var InstancesDao = function() {
     this.getInstancesByCloudformationId = function(cfId, callback) {
         logger.debug("Enter getInstancesByCloudformationId (%s)", cfId);
         var queryObj = {
-            cloudFormationId: cfId
+            cloudFormationId: cfId,
+            isDeleted:false
         }
         Instances.find(queryObj, function(err, data) {
             if (err) {
@@ -649,7 +668,8 @@ var InstancesDao = function() {
     this.getInstancesByARMId = function(armId, callback) {
         logger.debug("Enter getInstancesByCloudformationId (%s)", armId);
         var queryObj = {
-            armId: armId
+            armId: armId,
+            isDeleted:false
         }
         Instances.find(queryObj, function(err, data) {
             if (err) {
@@ -664,6 +684,7 @@ var InstancesDao = function() {
     };
 
     this.getAll = function getAll(query, callback) {
+        query.isDeleted = false;
         Instances.find(query,
             function(err, instances) {
                 if (err) {
@@ -981,19 +1002,38 @@ var InstancesDao = function() {
     };
 
 
-    this.removeInstancebyId = function(instanceId, callback) {
-        logger.debug("Enter removeInstancebyId (%s)", instanceId);
-        Instances.remove({
-            "_id": ObjectId(instanceId)
-        }, function(err, data) {
-            if (err) {
-                logger.error("Failed to removeInstancebyId (%s)", instanceId, err);
-                callback(err, null);
-                return;
-            }
-            logger.debug("Exit removeInstancebyId (%s)", instanceId);
-            callback(null, data);
-        });
+    this.removeInstanceById = function(instanceId,instanceState, callback) {
+        logger.debug("Enter removeInstanceById (%s)", instanceId);
+        if (instanceState === 'terminated') {
+            Instances.update({
+                "_id": ObjectId(instanceId)
+            }, {
+                    $set: {
+                        isDeleted: true
+                    }
+            }, {
+                    upsert: false
+            },function (err, data) {
+                if (err) {
+                    logger.error("Failed to removeInstanceById (%s)", instanceId, err);
+                    callback(err, null);
+                    return;
+                }
+                logger.debug("Exit removeInstanceById (%s)", instanceId);
+                callback(null, data);
+            });
+        } else
+            Instances.remove({
+                "_id": ObjectId(instanceId)
+            }, function (err, data) {
+                if (err) {
+                    logger.error("Failed to removeInstanceById (%s)", instanceId, err);
+                    callback(err, null);
+                    return;
+                }
+                logger.debug("Exit removeInstanceById (%s)", instanceId);
+                callback(null, data);
+            });
     };
 
     this.removeInstancebyCloudFormationId = function(cfId, callback) {
@@ -1046,7 +1086,8 @@ var InstancesDao = function() {
         logger.debug("Enter findInstancebyCloudFormationIdAndAwsId (%s)", cfId, awsInstanceId);
         Instances.find({
             cloudFormationId: cfId,
-            platformId: awsInstanceId
+            platformId: awsInstanceId,
+            isDeleted:false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed to findInstancebyCloudFormationIdAndAwsId (%s)", cfId, awsInstanceId, err);
@@ -1248,6 +1289,7 @@ var InstancesDao = function() {
         Instances.find({
             "_id": new ObjectId(instanceId),
             "services._id": new ObjectId(serviceId),
+            isDeleted:false
         }, {
             "services": {
                 "$elemMatch": {
@@ -1311,7 +1353,8 @@ var InstancesDao = function() {
     this.getAllActionLogs = function(instanceId, callback) {
         logger.debug("Enter getAllActionLogs (%s)", instanceId);
         Instances.find({
-            "_id": new ObjectId(instanceId)
+            "_id": new ObjectId(instanceId),
+            isDeleted:false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getAllActionLogs (%s)", instanceId, err);
@@ -1333,6 +1376,7 @@ var InstancesDao = function() {
         Instances.find({
             "_id": new ObjectId(instanceId),
             "actionLogs._id": new ObjectId(logId),
+            isDeleted:false
         }, {
             "actionLogs": {
                 "$elemMatch": {
@@ -1518,7 +1562,8 @@ var InstancesDao = function() {
         logger.debug("Enter getInstanceByKeyPairId (%s)", keyPairId);
 
         Instances.find({
-            "keyPairId": keyPairId
+            "keyPairId": keyPairId,
+            isDeleted:false
         }, {
             'actionLogs': false
         }, function(err, data) {
@@ -1589,7 +1634,7 @@ var InstancesDao = function() {
     this.getAllInstances = function(callback) {
         logger.debug("Enter getAllInstances");
 
-        Instances.find(function(err, data) {
+        Instances.find({isDeleted:false},function(err, data) {
             if (err) {
                 logger.error("Failed getAllInstances", err);
                 callback(err, null);
@@ -1610,7 +1655,8 @@ var InstancesDao = function() {
             envId: envId,
             docker: {
                 $exists: true
-            }
+            },
+            isDeleted:false
         }
         Instances.find(queryObj, {
             'actionLogs': false
@@ -1626,7 +1672,8 @@ var InstancesDao = function() {
     this.getInstanceByIP = function(instanceIp, callback) {
         instanceIp = instanceIp.trim();
         Instances.find({
-            "instanceIP": instanceIp
+            "instanceIP": instanceIp,
+            isDeleted:false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getInstanceById (%s)", instanceId, err);
@@ -1642,7 +1689,8 @@ var InstancesDao = function() {
         Instances.find({
             "orgId": opts.orgId,
             "providerId": opts.providerId,
-            platformId: opts.platformId
+            platformId: opts.platformId,
+            isDeleted:false
         }, {
             'actionLogs': false
         }, function(err, instances) {
@@ -1663,7 +1711,8 @@ var InstancesDao = function() {
 
         Instances.find({
             "orgId": opts.orgId,
-            "providerId": opts.providerId
+            "providerId": opts.providerId,
+            isDeleted:false
         }, {
             'actionLogs': false
         }, function(err, instances) {
@@ -1679,32 +1728,23 @@ var InstancesDao = function() {
     };
 
     this.getByProviderId = function(jsonData, callback) {
-        jsonData['searchColumns'] = ['instanceIP', 'platformId'];
-        apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+        jsonData.queryObj.isDeleted = false;
+        Instances.paginate(jsonData.queryObj, jsonData.options, function(err, instances) {
             if (err) {
-                process.nextTick(function() {
-                    callback(null, []);
-                });
+                logger.error("Failed getByProviderId (%s)", err);
+                callback(err, null);
                 return;
-            } else {
-                Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
-                    if (err) {
-                        logger.error("Failed getByProviderId (%s)", err);
-                        callback(err, null);
-                        return;
-                    }
-                    callback(null, instances);
-                });
             }
+            callback(null, instances);
         });
     };
-    //End By Durgesh
 
     this.getInstanceByIPAndProject = function(instanceIp, projectId, callback) {
         instanceIp = instanceIp.trim();
         Instances.find({
             "instanceIP": instanceIp,
-            "projectId": projectId
+            "projectId": projectId,
+            "isDeleted":false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getInstanceById (%s)", instanceId, err);
@@ -1723,7 +1763,8 @@ var InstancesDao = function() {
             for (var i = 0; i < instanceIps.length; i++) {
                 var instanceIp = instanceIps[i].trim();
                 Instances.find({
-                    "instanceIP": instanceIp
+                    "instanceIP": instanceIp,
+                    "isDeleted":false
                 }, function(err, data) {
                     count++;
                     if (data && data.length) {
@@ -1747,6 +1788,7 @@ var InstancesDao = function() {
                 "_id": {
                     $in: instanceIds
                 },
+                "isDeleted":false,
             }, function(err, instances) {
                 if (err) {
                     logger.error("Failed getInstancesByIDs " + err);
@@ -1849,7 +1891,8 @@ var InstancesDao = function() {
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
                 '$in': nodesName
-            }
+            },
+            "isDeleted":false
         }, function(err, instances) {
             if (err) {
                 logger.error("Failed searchByChefServerAndNodeNames ", err);
@@ -1871,7 +1914,8 @@ var InstancesDao = function() {
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
                 '$in': nodesName
-            }
+            },
+            "isDeleted":false
         }, function(err, instances) {
             if (err) {
                 logger.error("Failed searchByChefServerAndNodeNames ", err);

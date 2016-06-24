@@ -20,6 +20,7 @@ function sync() {
     var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
     async.waterfall([
             function(next){
+                logger.info("Docker Container Cron Job started");
                 MasterUtils.getAllActiveOrg(next);
             },
             function(orgs,next) {
@@ -85,8 +86,15 @@ function sync() {
                                                                 var stdOut = '';
                                                                 sshConnection.exec(cmd, function (err, code) {
                                                                     if (err) {
-                                                                        logger.error(err);
-                                                                        return;
+                                                                        logger.error("Error while ssh connection in machine "+instance.instanceIP+"  "+err);
+                                                                        if (decryptedCredentials.pemFileLocation) {
+                                                                            fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
+                                                                                logger.debug('temp file deleted');
+                                                                                return;
+                                                                            });
+                                                                        }else{
+                                                                            return;
+                                                                        }
                                                                     };
                                                                     if (decryptedCredentials.pemFileLocation) {
                                                                         fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
@@ -158,13 +166,13 @@ function sync() {
                                                             });
                                                         })
                                                     } else {
-                                                        logger.debug("No instance is Available in "+environment.environmentname +" Environment for Container Cron Job");
+                                                        logger.info("No instance is Available in "+environment.environmentname +" Environment for Container Cron Job");
                                                         return;
                                                     }
                                                 })
                                             });
                                         } else {
-                                            logger.debug("No Environment is Available for Container Cron Job");
+                                            logger.info("No Environment is Available for Container Cron Job");
                                             return;
                                         }
                                     });
@@ -179,8 +187,9 @@ function sync() {
             if(err){
                 logger.error(err);
                 return;
+            }else{
+                logger.info("Docker Container Cron Job ended");
             }
-
         });
 };
 function containerAction(containers,containerIds,instanceId){

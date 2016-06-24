@@ -4,19 +4,18 @@
 	</div>
 	<form name="DeploymentForm" novalidate>
 		<div class="modal-header">
-			<div class="imp-note red" ng-show="DeploymentForm.$invalid"><span class="red">*</span> are mandatory fields</div>
+			<div class="imp-note red" ng-show="DeploymentForm.$invalid" > <span class="red">*</span> are mandatory fields</div>
 			<span class="close" ng-click="cancel()">×</span>
 			<h4 class="modal-title">
 				<i class="fa fa-plus"></i> New App Deployment
 			</h4>
 		</div>
-
 		<div class="modal-body">
 			<div>
 				<fieldset class="repo-job-details-wrapper">
 					<legend class="repo-job-details-wrapper-inner">Repository Details:</legend>
 					<div class="col-lg-6 col-md-6">
-						<label for="">Repository Server:<span class="red">*</span>
+						<label for="">Repository Server:<span class="red">*</span> <span ng-if="depNewApp.errorMsg.server" messages msg-config="depNewApp.errorMsg"></span>
 						</label>
 						<div class="input-groups">
 							<loading size="small" name="isLoadingServer" type="inline"></loading>
@@ -77,7 +76,7 @@
 					</div>
 					<div  ng-if="depNewApp.newEnt.serverType==='nexus'">
 						<div class="col-lg-6 col-md-6">
-							<label >Repository:<span class="red">*</span>
+							<label >Repository:<span class="red">*</span> <span ng-if="depNewApp.errorMsg.repository" messages msg-config="depNewApp.errorMsg"></span>
 								<loading size="small" name="isLoadingNexus" type="inline"></loading>
 							</label>
 							<div class="input-groups">
