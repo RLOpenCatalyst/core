@@ -88,7 +88,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(awsSpecificProvName);
-              loanManagedInstances(providerid);
+              loadManagedInstances(providerid);
             });
 
             $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
@@ -109,7 +109,7 @@ $(document).ready(function() {
                 $('#unmanagedTableContainer').show();
                 $('#providerforunManagedInstId').empty().append(awsSpecificProvName);
                 //Managned data passed to loadManagedInstances function to populate data in table.
-                loanUnManagedInstances(providerid);
+                loadUnManagedInstances(providerid);
               });
             });
           });
@@ -187,7 +187,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(azureProvidersName);
-              loanManagedInstances(providerid);
+              loadManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -201,7 +201,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(azureProvidersName);
-              loanUnManagedInstances(providerid);
+              loadUnManagedInstances(providerid);
             });
           });
 
@@ -266,7 +266,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(vmwareProvidersName);
-              loanManagedInstances(providerid);
+              loadManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -280,7 +280,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(vmwareProvidersName);
-              loanUnManagedInstances(providerid);
+              loadUnManagedInstances(providerid);
             });
           });
 
@@ -393,7 +393,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(openstackSpecificProvName);
-              loanManagedInstances(providerid);
+              loadManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -407,7 +407,7 @@ $(document).ready(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(openstackSpecificProvName);
-              loanUnManagedInstances(providerid);
+              loadUnManagedInstances(providerid);
             });
           });
 
@@ -455,7 +455,7 @@ $(document).ready(function() {
   });
 
 
-  function loanManagedInstances(providerId){
+  function loadManagedInstances(providerId){
     $('#managedinstanceListTable').DataTable({
       "processing": true,
       "serverSide": true,
@@ -486,16 +486,46 @@ $(document).ready(function() {
           }
         },
         {"data": "instanceState","orderable" : true  }
-      ],
-      "initComplete": function(settings, json){
-        var info = this.api().page.info();
-        alert(info.recordsTotal);
-        alert(info.recordsDisplay);
-      }
+      ]
     });
   }
 
-  function loanUnManagedInstances(providerId){
+  function loadAllManagedInstances(){
+    $('#managedinstanceListTable').DataTable({
+      "processing": true,
+      "serverSide": true,
+      "destroy":true,
+      "ajax": '/tracked-instances?category=managed',
+      "columns": [
+        {"data": "platformId","orderable" : true},
+        {"data": "orgName" ,"orderable" : false },
+        {"data": "projectName" ,"orderable" : false },
+        {"data": "environmentName","orderable" : true  },
+        {"data": "hardware.os","orderable" : false,
+          "render": function(data){
+            if(data){
+              return data;
+            }else{
+              return '';
+            }
+          }
+        },
+        {"data": "instanceIP","orderable" : true},
+        {"data": "","orderable" : true,
+          "render":function(data, type, full, meta) {
+            if(full.region){
+              return full.region;
+            }else{
+              return full.providerData.region;
+            }
+          }
+        },
+        {"data": "instanceState","orderable" : true  }
+      ]
+    });
+  }
+
+  function loadUnManagedInstances(providerId){
     $('#unmanagedinstanceListTable').DataTable( {
       "processing": true,
       "serverSide": true,
@@ -531,12 +561,47 @@ $(document).ready(function() {
           }
         },
         {"data": "state","orderable" : true  }
-      ],
-      "initComplete": function(settings, json){
-        var info = this.api().page.info();
-        alert(info.recordsTotal);
-        alert(info.recordsDisplay);
-      }
+      ]
+    });
+  }
+
+  function loadAllUnManagedInstances(){
+    $('#unmanagedinstanceListTable').DataTable( {
+      "processing": true,
+      "serverSide": true,
+      "destroy":true,
+      "createdRow": function( row, data ) {
+        $( row ).attr({"data-id" : data._id})
+      },
+      "ajax": '/tracked-instances?category=assigned',
+      "columns": [
+        {"data": "platformId","orderable" : true  },
+        {"data": "orgName" ,"orderable" : false },
+        {"data": "projectName" ,"orderable" : false },
+        {"data": "environmentName","orderable" : true  },
+        {"data": "os","orderable" : false,
+          "render": function(data){
+            if(data){
+              return data;
+            }else{
+              return '';
+            }
+          }
+        },
+        {"data": "ip","orderable" : true  },
+        {"data": "","orderable" : true,
+          "render":function(data, type, full, meta) {
+            var region =full.region;
+            if(region){
+              region = full.region;
+            }else{
+              region = full.providerData.region;
+            }
+            return region;
+          }
+        },
+        {"data": "state","orderable" : true  }
+      ]
     });
   }
 

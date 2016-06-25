@@ -87,18 +87,30 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @param next
      */
     function getTrackedInstances(req, res, next) {
+        var category = req.query.params;
+        var reqData={};
         async.waterfall(
             [
-                function(next) {
-                    apiUtil.paginationRequest(req.query,'trackedInstances', next);
+                function (next) {
+                    apiUtil.changeRequestForJqueryPagination(req.query, next);
+                },
+                function(reqData,next) {
+                    apiUtil.paginationRequest(reqData,'trackedInstances', next);
                 },
                 function(paginationRequest, next) {
                     // @TODO Relook at pagination to allow validation of query parameters
                     // @TODO Whether databaseUtil should be renamed
+                    if(category === 'managed') {
+                        paginationRequest['searchColumns'] = ['instanceIP', 'instanceState'];
+                    }else if(category === 'assigned'){
+                        paginationRequest['searchColumns'] = ['ip', 'state'];
+                    }else{
+                        paginationRequest['searchColumns'] = [];
+                    }
+                    reqData = paginationRequest;
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
                 function(filterQuery, next) {
-                    console.log(JSON.stringify(filterQuery));
                     // @TODO Modify to work without sessions as well
                     userService.getUserOrgs(req.session.user, function(err, orgs) {
                         if(err) {
@@ -109,11 +121,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     });
                 },
                 function(filterQuery, next) {
-                    instanceService.getTrackedInstances(filterQuery.queryObj, next);
+                    instanceService.getTrackedInstances(filterQuery,category, next);
                 },
-                function(instances, next) {
+                function (instances, next) {
+                    apiUtil.changeResponseForJqueryPagination(instances, reqData, next);
+                },
+                /*function(instances, next) {
                     instanceService.createTrackedInstancesResponse(instances, next);
-                }
+                }*/
             ],
             function(err, results) {
                 if (err) {

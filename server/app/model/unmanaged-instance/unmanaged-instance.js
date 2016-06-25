@@ -80,8 +80,8 @@ UnmanagedInstanceSchema.statics.updateInstance = function updateInstance(instanc
 //End By Durgesh
 
 UnmanagedInstanceSchema.statics.getAll = function getAll(query, callback) {
-	query.isDeleted =  false;
-	this.find(query,
+	query.queryObj.isDeleted =  false;
+	this.paginate(query.queryObj, query.options,
 		function(err, instances) {
 			if (err) {
 				return callback(err);

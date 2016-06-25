@@ -414,14 +414,16 @@ function getTrackedInstancesForProvider(provider, next) {
     );
 }
 
-function getTrackedInstances(query, next) {
+function getTrackedInstances(query,category, next) {
     async.parallel([
-
             function(callback) {
-                instancesModel.getAll(query, callback);
-            },
-            function(callback) {
-                unManagedInstancesModel.getAll(query, callback);
+                if(category === 'managed'){
+                    instancesModel.getAll(query, callback);
+                }else if(category === 'assigned'){
+                    unManagedInstancesModel.getAll(query, callback);
+                }else{
+                    callback(null,[]);
+                }
             }
         ],
         function(err, results) {

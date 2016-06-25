@@ -684,8 +684,8 @@ var InstancesDao = function() {
     };
 
     this.getAll = function getAll(query, callback) {
-        query.isDeleted = false;
-        Instances.find(query,
+        query.queryObj.isDeleted =  false;
+        Instances.paginate(query.queryObj, query.options,
             function(err, instances) {
                 if (err) {
                     return callback(err);
