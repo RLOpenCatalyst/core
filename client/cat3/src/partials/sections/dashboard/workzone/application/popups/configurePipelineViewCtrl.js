@@ -17,11 +17,11 @@
 					var envSequence = response.envSequence;
 					var leftEnvList = [];
 					var rightEnvList = [];
-					for(var i=0;i<envSequence.length;i++) {
-						if(envIds.indexOf(envSequence[i])!==-1) {
-							rightEnvList.push(envSequence[i]);
+					for(var i=0;i<envIds.length;i++) {
+						if(envSequence.indexOf(envIds[i])!==-1) {
+							rightEnvList.push(envIds[i]);
 						} else {
-							leftEnvList.push(envSequence[i]);
+							leftEnvList.push(envIds[i]);
 						}
 					}
 					return {
