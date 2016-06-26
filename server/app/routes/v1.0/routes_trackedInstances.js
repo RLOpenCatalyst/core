@@ -87,14 +87,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @param next
      */
     function getTrackedInstances(req, res, next) {
-        var category = req.query.params;
-        var reqData={};
+        var category = req.query.category;
+        var reqObj={};
         async.waterfall(
             [
                 function (next) {
                     apiUtil.changeRequestForJqueryPagination(req.query, next);
                 },
                 function(reqData,next) {
+                    reqObj = reqData;
                     apiUtil.paginationRequest(reqData,'trackedInstances', next);
                 },
                 function(paginationRequest, next) {
@@ -107,7 +108,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     }else{
                         paginationRequest['searchColumns'] = [];
                     }
-                    reqData = paginationRequest;
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
                 function(filterQuery, next) {
@@ -124,9 +124,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     instanceService.getTrackedInstances(filterQuery,category, next);
                 },
                 function (instances, next) {
-                    apiUtil.changeResponseForJqueryPagination(instances, reqData, next);
-                },
-                /*function(instances, next) {
+                    apiUtil.changeResponseForJqueryPagination(instances[0], reqObj, next);
+                }/*,
+                function(instances, next) {
                     instanceService.createTrackedInstancesResponse(instances, next);
                 }*/
             ],

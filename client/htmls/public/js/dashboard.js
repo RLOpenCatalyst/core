@@ -39,14 +39,16 @@ $(document).ready(function() {
       $presentProviderView.show();
       $('#totalProviders').append(totalcountproviders);
 
-      $('#providerMoreInfo').on('click',function(){
+      $('#totalManagedInstancesMoreInfo').on('click',function(){
         $('#mainPanelId').hide();
-        $('#trackedInstancesAllProviderTableContainer').show();
-        $.get('../tracked-instances', function(data) {
-          loadtrackedallProviderInstances(data);
-        }).fail(function() {
-          alert("Tracked Instances not properly Loaded");
-        });
+        $('#trackedManagedInstancesAllProviderTableContainer').show();
+        loadAllManagedInstances();
+      });
+
+      $('#totalAssignedInstancesMoreInfo').on('click',function(){
+        $('#mainPanelId').hide();
+        $('#trackedAssignedInstancesAllProviderTableContainer').show();
+        loadAllAssignedInstances();
       });
 
       var awstotalinstancecount = 0;
@@ -84,7 +86,7 @@ $(document).ready(function() {
             var managedData = dataManaged.managedInstances.length;
             updateTotalCount("managed", providerid, managedData);
 
-            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+            $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(awsSpecificProvName);
@@ -104,29 +106,14 @@ $(document).ready(function() {
               awstotalinstancecount = awstotalinstancecount + totalManagedUnmanagedData;
 
               $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
-              $childUnmanagedInstanceTemplate.find('.unmanagedInstSpecificMoreInfo').click(function() {
+              $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function() {
                 $('#mainPanelId').hide();
                 $('#unmanagedTableContainer').show();
                 $('#providerforunManagedInstId').empty().append(awsSpecificProvName);
-                //Managned data passed to loadManagedInstances function to populate data in table.
-                loadUnManagedInstances(providerid);
+                loadAssignedInstances(providerid);
               });
             });
           });
-
-          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
-            $('#mainPanelId').hide();
-            $('#trackedInstancesSpecProviderTableContainer').show();
-
-            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              //var trackedInstancesData = data.trackedInstances;
-              loadtrackedspecProviderInstances(data);
-            }).fail(function() {
-              //TO DO
-              alert("Tracked Instances for specific provider not properly Loaded");
-            });
-          });
-
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
@@ -183,7 +170,7 @@ $(document).ready(function() {
             var managedData = dataManaged.managedInstances.length;
             updateTotalCount("managed", providerid, managedData);
 
-            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+            $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(azureProvidersName);
@@ -197,22 +184,11 @@ $(document).ready(function() {
             updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
 
             $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
-            $childUnmanagedInstanceTemplate.find('.unmanagedInstSpecificMoreInfo').click(function() {
+            $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(azureProvidersName);
-              loadUnManagedInstances(providerid);
-            });
-          });
-
-          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
-            $('#mainPanelId').hide();
-            $('#trackedInstancesSpecProviderTableContainer').show();
-            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              loadtrackedspecProviderInstances(data);
-            }).fail(function() {
-              //TO DO
-              alert("Tracked Instances for specific provider not properly Loaded");
+              loadAssignedInstances(providerid);
             });
           });
 
@@ -262,7 +238,7 @@ $(document).ready(function() {
             var managedData = dataManaged.managedInstances.length;
             updateTotalCount("managed", providerid, managedData);
 
-            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+            $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(vmwareProvidersName);
@@ -276,25 +252,13 @@ $(document).ready(function() {
             updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
 
             $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
-            $childUnmanagedInstanceTemplate.find('.unmanagedInstSpecificMoreInfo').click(function() {
+            $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(vmwareProvidersName);
-              loadUnManagedInstances(providerid);
+              loadAssignedInstances(providerid);
             });
           });
-
-          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
-            $('#mainPanelId').hide();
-            $('#trackedInstancesSpecProviderTableContainer').show();
-            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              loadtrackedspecProviderInstances(data);
-            }).fail(function() {
-              //TO DO
-              alert("Tracked Instances for specific provider not properly Loaded");
-            });
-          });
-
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
@@ -389,7 +353,7 @@ $(document).ready(function() {
             var managedData = dataManaged.managedInstances.length;
             updateTotalCount("managed", providerid, managedData);
 
-            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+            $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(openstackSpecificProvName);
@@ -403,25 +367,13 @@ $(document).ready(function() {
             updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
 
             $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
-            $childUnmanagedInstanceTemplate.find('.unmanagedInstSpecificMoreInfo').click(function() {
+            $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(openstackSpecificProvName);
-              loadUnManagedInstances(providerid);
+              loadAssignedInstances(providerid);
             });
           });
-
-          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
-            $('#mainPanelId').hide();
-            $('#trackedInstancesSpecProviderTableContainer').show();
-            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              loadtrackedspecProviderInstances(data);
-            }).fail(function() {
-              //TO DO
-              alert("Tracked Instances for specific provider not properly Loaded");
-            });
-          });
-
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
@@ -463,26 +415,30 @@ $(document).ready(function() {
       "ajax": '/providers/' + providerId + '/managedInstanceList',
       "columns": [
         {"data": "platformId","orderable" : true},
-        {"data": "orgName" ,"orderable" : false },
-        {"data": "projectName" ,"orderable" : false },
-        {"data": "environmentName","orderable" : true  },
+        {"data": "orgName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "projectName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "environmentName","orderable" : true,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
         {"data": "hardware.os","orderable" : false,
           "render": function(data){
-            if(data){
-              return data;
-            }else{
-              return '';
-            }
+            return data?data:'';
           }
         },
         {"data": "instanceIP","orderable" : true},
         {"data": "","orderable" : true,
           "render":function(data, type, full, meta) {
-            if(full.region){
-              return full.region;
-            }else{
-              return full.providerData.region;
-            }
+              return full.region?full.region:full.providerData.region;
           }
         },
         {"data": "instanceState","orderable" : true  }
@@ -491,41 +447,56 @@ $(document).ready(function() {
   }
 
   function loadAllManagedInstances(){
-    $('#managedinstanceListTable').DataTable({
+    $('#allProviderTrackedManagedInstanceListTable').DataTable({
       "processing": true,
       "serverSide": true,
       "destroy":true,
       "ajax": '/tracked-instances?category=managed',
       "columns": [
         {"data": "platformId","orderable" : true},
-        {"data": "orgName" ,"orderable" : false },
-        {"data": "projectName" ,"orderable" : false },
-        {"data": "environmentName","orderable" : true  },
+        {"data": "orgName" ,"orderable" : false,
+          "render": function(data){
+              return data?data:'';
+          }
+        },
+        {"data": "projectName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "environmentName","orderable" : true,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
         {"data": "hardware.os","orderable" : false,
           "render": function(data){
-            if(data){
-              return data;
-            }else{
-              return '';
-            }
+            return data?data:'';
           }
         },
         {"data": "instanceIP","orderable" : true},
-        {"data": "","orderable" : true,
-          "render":function(data, type, full, meta) {
-            if(full.region){
-              return full.region;
-            }else{
-              return full.providerData.region;
-            }
+        {"data": "instanceState","orderable" : true},
+        {"data": "providerType","orderable" : true,
+          "render": function(data){
+            return data?data.toUpperCase():'';
           }
         },
-        {"data": "instanceState","orderable" : true  }
+        {"data": "","orderable" : false,
+          "render":function(data, type, full, meta) {
+              return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
+          }
+        },
+        {"data": "usage","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
+                  '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
+          }
+        }
       ]
     });
   }
 
-  function loadUnManagedInstances(providerId){
+  function loadAssignedInstances(providerId){
     $('#unmanagedinstanceListTable').DataTable( {
       "processing": true,
       "serverSide": true,
@@ -536,28 +507,30 @@ $(document).ready(function() {
       "ajax": '/providers/' + providerId + '/unmanagedInstanceList',
       "columns": [
         {"data": "platformId","orderable" : true  },
-        {"data": "orgName" ,"orderable" : false },
-        {"data": "projectName" ,"orderable" : false },
-        {"data": "environmentName","orderable" : true  },
+        {"data": "orgName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "projectName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "environmentName","orderable" : true,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
         {"data": "os","orderable" : false,
           "render": function(data){
-            if(data){
-              return data;
-            }else{
-              return '';
-            }
+            return data?data:'';
           }
         },
         {"data": "ip","orderable" : true  },
         {"data": "","orderable" : true,
           "render":function(data, type, full, meta) {
-            var region =full.region;
-            if(region){
-              region = full.region;
-            }else{
-              region = full.providerData.region;
-            }
-            return region;
+              return full.region?full.region:full.providerData.region;
           }
         },
         {"data": "state","orderable" : true  }
@@ -565,8 +538,8 @@ $(document).ready(function() {
     });
   }
 
-  function loadAllUnManagedInstances(){
-    $('#unmanagedinstanceListTable').DataTable( {
+  function loadAllAssignedInstances(){
+    $('#allProviderTrackedAssignedInstanceListTable').DataTable( {
       "processing": true,
       "serverSide": true,
       "destroy":true,
@@ -576,226 +549,61 @@ $(document).ready(function() {
       "ajax": '/tracked-instances?category=assigned',
       "columns": [
         {"data": "platformId","orderable" : true  },
-        {"data": "orgName" ,"orderable" : false },
-        {"data": "projectName" ,"orderable" : false },
-        {"data": "environmentName","orderable" : true  },
+        {"data": "orgName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "projectName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "environmentName","orderable" : true,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
         {"data": "os","orderable" : false,
           "render": function(data){
-            if(data){
-              return data;
-            }else{
-              return '';
-            }
+            return data?data:'';
           }
         },
         {"data": "ip","orderable" : true  },
-        {"data": "","orderable" : true,
-          "render":function(data, type, full, meta) {
-            var region =full.region;
-            if(region){
-              region = full.region;
-            }else{
-              region = full.providerData.region;
-            }
-            return region;
+        {"data": "state","orderable" : true  },
+        {"data": "providerType","orderable" : true,
+          "render": function(data){
+            return data?data.toUpperCase():'';
           }
         },
-        {"data": "state","orderable" : true  }
+        {"data": "","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
+          }
+        },
+        {"data": "usage","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
+            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
+          }
+        }
       ]
     });
   }
 
-
-  //For all provider tracked instances.
-  $('#backfrmallprovidertrackedInstance').click(function() {
+  $('#allProviderTrackedManagedInstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
+  $('#allProviderTrackedAssignedInstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
+  //For all Managed  tracked instances.
+  $('#backfrmallprovidertrackedManagedInstance').click(function() {
     $('#mainPanelId').show();
-    $('#trackedInstancesAllProviderTableContainer').hide();
+    $('#trackedManagedInstancesAllProviderTableContainer').hide();
   });
 
-  function loadtrackedallProviderInstances(allProviderData) {
-    $allProviderTrackedInstanceDatatable.clear().draw();
-    var $tbody = $('#allProviderTrackedInstance tbody').empty();
-    for (var i = 0; i < allProviderData.trackedInstances.length; i++) {
-      var $tr = $('<tr class="allproviderTrackedInstance"></tr>').attr('data-id', allProviderData.trackedInstances[i].id);
-
-      var $tdinstancePlatformId = $('<td></td>').append(allProviderData.trackedInstances[i].instancePlatformId);
-      $tr.append($tdinstancePlatformId);
-
-      var $tdorgId = $('<td></td>').append(allProviderData.trackedInstances[i].orgName);
-      $tr.append($tdorgId);
-
-      /*var $tdbgId = $('<td></td>').append(allProviderData.trackedInstances[i].bgName);
-       $tr.append($tdbgId);*/
-
-      var $tdprojectName = $('<td></td>').append(allProviderData.trackedInstances[i].projectName);
-      $tr.append($tdprojectName);
-
-      var $tdenvironmentName = $('<td></td>').append(allProviderData.trackedInstances[i].environmentName);
-      $tr.append($tdenvironmentName);
-
-      var $tdos = $('<td></td>').append(allProviderData.trackedInstances[i].os);
-      $tr.append($tdos);
-
-      var $tdip = $('<td></td>').append(allProviderData.trackedInstances[i].ip);
-      $tr.append($tdip);
-
-      if(allProviderData.trackedInstances[i].providerType){
-        var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType.toUpperCase());
-        $tr.append($tdproviderType);
-      }else{
-        var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
-        $tr.append($tdproviderType);
-      }
-
-      if(allProviderData.trackedInstances[i].cost)
-        var $tdcost = $('<td></td>').append('$ '+allProviderData.trackedInstances[i].cost);
-      else
-        var $tdcost = $('<td></td>').append('-');
-      $tr.append($tdcost);
-
-      if(allProviderData.trackedInstances[i].usage)
-        $tdavgCpuUtilization = '<span>'+allProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
-            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(allProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
-      else
-        $tdavgCpuUtilization = '<span>&nbsp;-&nbsp;</span>';
-      var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
-      $tr.append($tdusage);
-
-      $tbody.append($tr);
-      $allProviderTrackedInstanceDatatable.row.add($tr).draw();
-      $allProviderTrackedInstanceDatatable.on('click', '.specProviderUsages', specProviderUsagesClickHandler);
-    }
-  }
-
-  if (!$.fn.dataTable.isDataTable('#allProviderTrackedInstanceListTable')) {
-    var $allProviderTrackedInstanceDatatable = $('#allProviderTrackedInstanceListTable').DataTable({
-      "pagingType": "full_numbers",
-      "bInfo": true,
-      "bLengthChange": true,
-      "paging": true,
-      "bFilter": true,
-      "aaSorting": [
-        [4, "asc"]
-      ],
-      "aoColumns": [{
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      }]
-
-    });
-  }
-  $('#allProviderTrackedInstanceListTable_info').addClass('font-size12');
-  $('#allProviderTrackedInstanceListTable_paginate').addClass('font-size12');
-
-
-
-  //For Specific Provider details
-
-  $('#backfrmspecprovidertrackedInstance').click(function() {
+  //For all Assigned  tracked instances.
+  $('#backfrmallprovidertrackedAssignedInstance').click(function() {
     $('#mainPanelId').show();
-    $('#trackedInstancesSpecProviderTableContainer').hide();
+    $('#trackedAssignedInstancesAllProviderTableContainer').hide();
   });
-
-  function loadtrackedspecProviderInstances(specProviderData) {
-    $specProviderTrackedInstanceDatatable.clear().draw();
-    var $tbody = $('#specProviderTrackedInstance tbody').empty();
-    for (var i = 0; i < specProviderData.trackedInstances.length; i++) {
-      var $tr = $('<tr class="specproviderTrackedInstance"></tr>').attr('data-id', specProviderData.trackedInstances[i].id);
-
-      var $tdinstancePlatformId = $('<td></td>').append(specProviderData.trackedInstances[i].instancePlatformId);
-      $tr.append($tdinstancePlatformId);
-
-      var $tdorgId = $('<td></td>').append(specProviderData.trackedInstances[i].orgName);
-      $tr.append($tdorgId);
-
-      /*var $tdbgId = $('<td></td>').append(specProviderData.trackedInstances[i].bgName);
-       $tr.append($tdbgId);*/
-
-      var $tdprojectName = $('<td></td>').append(specProviderData.trackedInstances[i].projectName);
-      $tr.append($tdprojectName);
-
-      var $tdenvironmentName = $('<td></td>').append(specProviderData.trackedInstances[i].environmentName);
-      $tr.append($tdenvironmentName);
-
-      var $tdos = $('<td></td>').append(specProviderData.trackedInstances[i].os);
-      $tr.append($tdos);
-
-      var $tdip = $('<td></td>').append(specProviderData.trackedInstances[i].ip);
-      $tr.append($tdip);
-
-      var $tdproviderType = $('<td></td>').append(specProviderData.trackedInstances[i].providerType.toUpperCase());
-      $tr.append($tdproviderType);
-
-      if(specProviderData.trackedInstances[i].cost)
-        var $tdcost = $('<td></td>').append('$ '+specProviderData.trackedInstances[i].cost);
-      else
-        var $tdcost = $('<td></td>').append('-');
-      $tr.append($tdcost);
-
-      if(specProviderData.trackedInstances[i].usage)
-        $tdavgCpuUtilization = '<span>'+specProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
-            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(specProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
-      else
-        $tdavgCpuUtilization = '<span>&nbsp;-&nbsp;</span>';
-      var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
-      $tr.append($tdusage);
-
-      $tbody.append($tr);
-      $specProviderTrackedInstanceDatatable.row.add($tr).draw();
-      $specProviderTrackedInstanceDatatable.on('click', '.specProviderUsages', specProviderUsagesClickHandler);
-    }
-  }
-
-  if (!$.fn.dataTable.isDataTable('#specProviderTrackedInstanceListTable')) {
-    var $specProviderTrackedInstanceDatatable = $('#specProviderTrackedInstanceListTable').DataTable({
-      "pagingType": "full_numbers",
-      "bInfo": true,
-      "bLengthChange": true,
-      "paging": true,
-      "bFilter": true,
-      "aaSorting": [
-        [4, "asc"]
-      ],
-      "aoColumns": [{
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      }]
-
-    });
-  }
-  $('#specProviderTrackedInstanceListTable_info').addClass('font-size12');
-  $('#specProviderTrackedInstanceListTable_paginate').addClass('font-size12');
-
 
   //Function to get the specific provider usages.
   function specProviderUsagesClickHandler(){
@@ -822,7 +630,7 @@ $(document).ready(function() {
     $specUsageModalContainer.find('#specNetworkInAvg').html($data.NetworkIn.average);
     $specUsageModalContainer.find('#specNetworkInMin').html($data.NetworkIn.minimum);
     $specUsageModalContainer.find('#specNetworkInMax').html($data.NetworkIn.maximum);
-
+   
     $specUsageModalContainer.modal('show');
   }
 });

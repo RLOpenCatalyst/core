@@ -25,17 +25,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get('/resources', getAWSResources);
 
     function getAWSResources(req, res, next) {
-            var reqData = {};
+            var reqObj = {};
             async.waterfall(
                 [
                     function(next){
                         apiUtil.changeRequestForJqueryPagination(req.query,next);
                     },
                     function(reqData,next) {
+                        reqObj = reqData;
                         apiUtil.paginationRequest(reqData, 'resources', next);
                     },
                     function(paginationReq, next) {
-                        reqData = paginationReq;
                         if(paginationReq.filterBy.resourceType === 'S3'){
                             paginationReq['searchColumns'] = ['resourceDetails.bucketName'];
                         }else if(paginationReq.filterBy.resourceType === 'RDS') {
@@ -47,7 +47,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         resourceService.getResources(queryObj, next);
                     },
                     function(resources,next){
-                        apiUtil.changeResponseForJqueryPagination(resources[0],reqData,next);
+                        apiUtil.changeResponseForJqueryPagination(resources[0],reqObj,next);
                     },
 
                 ], function(err, results) {
