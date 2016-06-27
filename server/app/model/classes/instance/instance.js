@@ -292,9 +292,6 @@ var InstanceSchema = new Schema({
         type: String,
         required: false,
         trim: true
-    },
-    createdOn: {
-        type: Number
     }
 });
 

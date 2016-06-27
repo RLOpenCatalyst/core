@@ -37,7 +37,7 @@
                     <th class="text-center">Org</th>
                     <th class="text-center">BU</th>
                     <th class="text-center">Project</th>
-                    <th class="text-center">Environment</th>
+                    <th class="text-center">Env</th>
                     <th class="text-center">Data</th>
                     <th class="text-center">Log</th>
                 </tr>
@@ -122,16 +122,22 @@
                 $providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/azure.png' alt='provider'/>");
             } else if (managnedData[i].providerType == 'openstack') {
                 $providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/openstack.png' alt='provider'/>");
+            }else if (managnedData[i].providerType == 'vmware') {
+                $providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/vmware.png' alt='provider'/>");
             }
             if (managnedData[i].hardware.platform == 'ubuntu') {
                 $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
-            } else if (managnedData[i].hardware.platform == 'linux') {
-                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-            } else if (managnedData[i].hardware.platform == 'windows') {
+            } else if (managnedData[i].hardware.os == 'linux' && managnedData[i].hardware.platform == 'centos') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
+            } else if (managnedData[i].hardware.os == 'windows') {
                 $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
-            } else if (managnedData[i].hardware.platform == 'openstack') {
+            } else if (managnedData[i].hardware.platform == 'openstack' && managnedData[i].hardware.os == 'linux') {
                 $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-            } else if (managnedData[i].hardware.platform == 'unknown') {
+            }else if (managnedData[i].hardware.platform == 'openstack' && managnedData[i].hardware.os == 'windows') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
+            } else if (managnedData[i].hardware.platform == 'unknown' && managnedData[i].hardware.os == 'unknown') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
+            }else if (managnedData[i].hardware.platform == 'unknown' && managnedData[i].hardware.os == 'linux') {
                 $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
             }
 
@@ -139,8 +145,8 @@
             $tr.append($tdProvider);
             var $tdOs = $('<td></td>').append($osImg);
             $tr.append($tdOs);
-            var createdOn = managnedData[i].createdOn;
-            var $tdCreatedOn = $('<td></td>').append(new Date(createdOn));
+            var createdOn = new Date(managnedData[i].instanceCreatedOn).toLocaleString();
+            var $tdCreatedOn = $('<td></td>').append(createdOn);
             $tr.append($tdCreatedOn);
             var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
             $tr.append($tdStatus);
@@ -172,7 +178,6 @@
     }
     var instanceLogsHandler = function(e) {
         var instanceId = $(this).attr('data-id');
-        alert(instanceId);
         var timeout;
         var $instanceLogModalContainer = $('#instanceLogsModalContainer');
         $instanceLogModalContainer.on('hidden.bs.modal', function(e) {

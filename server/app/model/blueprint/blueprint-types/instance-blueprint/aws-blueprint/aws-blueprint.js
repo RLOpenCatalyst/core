@@ -228,7 +228,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 							users: launchParams.users,
                             instanceType: self.instanceType,
                             catUser: launchParams.sessionUser,
-                            createdOn: new Date().getTime(),
 							hardware: {
 								platform: 'unknown',
 								platformVersion: 'unknown',
