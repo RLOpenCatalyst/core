@@ -476,10 +476,6 @@ option.script {
     right: 10px;
 }
 
-.ui-grid-cell {
-	text-overflow: ellipsis;
-}
-
 /* global styles for logs display across workzone*/
 
 .logsArea {
@@ -572,6 +568,10 @@ option.script {
 
 	.ui-grid-cell-contents {
 	    white-space: pre-wrap;
+	}
+
+	.ui-grid-invisible {
+	    display: none;
 	}
 }
 /*ui grid css ends*/
