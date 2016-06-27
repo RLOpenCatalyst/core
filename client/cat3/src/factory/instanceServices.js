@@ -272,7 +272,8 @@
 						instanceChefAttribute: function() {
 							return{
 								instanceId:instance._id,
-								chefrunlist:instance.runlist
+								chefrunlist:instance.runlist,
+								attributes:instance.attributes
 							}; 
 						}
 					}
