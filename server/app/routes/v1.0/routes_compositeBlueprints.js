@@ -1,0 +1,413 @@
+/*
+ Copyright [2016] [Relevance Lab]
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+var logger = require('_pr/logger')(module);
+var appConfig = require('_pr/config');
+
+module.exports.setRoutes = function(app, sessionVerificationFunc) {
+    app.all("/composite-blueprints/*", sessionVerificationFunc);
+
+    /**
+     * @api {get} /composite-blueprints 	                        Get composite blueprints
+     * @apiName getCompositeBlueprints
+     * @apiGroup composite-blueprints
+     *
+     * @apiSuccess {Object[]} compositeBlueprints                   List of composite blueprints
+     * @apiSuccess {String} compositeBlueprints.id		            Composite blueprint id
+     * @apiSuccess {String} compositeBlueprints.name		            Composite blueprint name
+     * @apiSuccess {String} compositeBlueprints.organization		Organization
+     * @apiSuccess {String} compositeBlueprints.businessGroup		Business group
+     * @apiSuccess {String} compositeBlueprints.project			    Project
+     * @apiSuccess {Object[]} compositeBlueprints.blueprints		Blueprints
+     * @apiSuccess {Object} compositeBlueprints.metadata		    Pagination metadata
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * 		HTTP/1.1 200 OK
+     * 		{
+	 * 			"compositeBlueprints": [
+	 * 				{
+     *                  "id": "<MongoID>",
+     *                  "name": "Blueprint1",
+     *                  "organization": {
+     *                      "id": "<MongoID>",
+     *                      "name": "Organization1"
+     *                  },
+     *                  "businessGroup": {
+     *                      "id": "<MongoID>",
+     *                      "name": "BusinessGroup1"
+     *                  },
+     *                  "project": {
+     *                      "id": "<MongoID>",
+     *                      "name": "Project1"
+     *                  },
+     *                  "blueprints": [
+     *                      {
+     *                          "id": "<MongoID>",
+     *                          "type": "SOFTWARESTACK",
+     *                          "runList": [
+     *                          ],
+     *                          "attributes": [
+     *                          ]
+     *                          ...
+     *                      },
+     *                      {
+     *                          "id": "<MongoID>",
+     *                          "type": "SOFTWARESTACK",
+     *                          "runList": [
+     *                          ],
+     *                          "attributes": [
+     *                          ]
+     *                          ...
+     *                      }
+     *                  ]
+     *              },
+	 *				{
+     *                  "id": "<MongoID>",
+     *                  "name": "Blueprint2",
+     *                  "organization": {
+     *                      "id": "<MongoID>",
+     *                      "name": "Organization2"
+     *                  },
+     *                  "businessGroup": {
+     *                      "id": "<MongoID>",
+     *                      "name": "BusinessGroup2"
+     *                  },
+     *                  "project": {
+     *                      "id": "<MongoID>",
+     *                      "name": "Project2"
+     *                  },
+     *                  "providerId": "<MongoID>",
+     *                  "blueprints": [
+     *                      {
+     *                          "id": "<MongoID>",
+     *                          "type": "SOFTWARESTACK",
+     *                          "runList": [
+     *                              "recipe[apache2]",
+     *                              "
+     *                          ],
+     *                          "attributes": [
+     *                          ]
+     *                          ...
+     *                      },
+     *                      {
+     *                          "id": "<MongoID>",
+     *                          "type": "SOFTWARESTACK",
+     *                          "runList": [
+     *                          ],
+     *                          "attributes": [
+     *                          ]
+     *                          ...
+     *                      }
+     *                  ]
+     *              }
+	 * 			],
+	 * 		    "metadata": {
+	 * 		    }
+	 * 		}
+     *
+     */
+    app.get('/composite-blueprints/', function(req, res) {
+
+    });
+
+    /**
+     * @api {get} /composite-blueprints/:compositeBlueprintId       Get composite blueprint
+     * @apiName getCompositeBlueprint
+     * @apiGroup composite-blueprints
+     *
+     * @apiSuccess {Object[]} compositeBlueprints                   List of composite blueprints
+     * @apiSuccess {String} compositeBlueprints.id		            Composite blueprint id
+     * @apiSuccess {String} compositeBlueprints.type 	            softwarestack/docker...
+     * @apiSuccess {String} compositeBlueprints.organization		Organization
+     * @apiSuccess {String} compositeBlueprints.businessGroup		Business group
+     * @apiSuccess {String} compositeBlueprints.project			    Project
+     * @apiSuccess {Object[]} compositeBlueprints.blueprints		Blueprints
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * 		HTTP/1.1 200 OK
+	 * 	    {
+     *          "id": "<MongoID>",
+     *          "name": "Blueprint1",
+     *          "organization": {
+     *              "id": "<MongoID>",
+     *              "name": "Organization1"
+     *          },
+     *          "businessGroup": {
+     *              "id": "<MongoID>",
+     *              "name": "BusinessGroup1"
+     *          },
+     *          "project": {
+     *              "id": "<MongoID>",
+     *              "name": "Project1"
+     *          },
+     *          "blueprints": [
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "runList": [
+     *                  ],
+     *                  "attributes": [
+     *                  ]
+     *                  ...
+     *              },
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "runList": [
+     *                  ],
+     *                  "attributes": [
+     *                  ]
+     *                  ...
+     *              }
+     *          ]
+     *      }
+     */
+    app.get('/composite-blueprints/:compositeBlueprintId', function(req, res) {
+    });
+
+    /**
+     * @api {post} /composite-blueprints                                 Create composite blueprint
+     * @apiName createCompositeBlueprint
+     * @apiGroup composite-blueprints
+     *
+     * @apiParam {Object} compositeBlueprint                              Composite Blueprint
+     * @apiParam {String} compositeBlueprint.name                         Blueprint organization
+     * @apiParam {String} compositeBlueprint.organizationId               Organization id
+     * @apiParam {String} compositeBlueprint.businessGroupId              BG id
+     * @apiParam {String} compositeBlueprint.projectId                    Project id
+     * @apiParam {Object[]} compositeBlueprint.blueprints                 List of nested blueprints in launch order
+     * @apiParam {Object} compositeBlueprint.blueprints.id                Nested blueprint ID
+     * @apiParam {Object} compositeBlueprint.blueprints.type              Nested blueprint type
+     * @apiParam {String[]} compositeBlueprint.blueprints.attributes      Nested blueprint cookbook/role attributes
+     * @apiParamExample {json} Request-Example:
+     *      {
+     *          "name": "blueprintName",
+     *          "organizationId": "<ID>",
+     *          "businessGroupId": "<ID>",
+     *          "projectId": "<ID>",
+     *          "blueprints": [
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "attributes": [
+     *                  ]
+     *              },
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "attributes": [
+     *                  ]
+     *              }
+     *          ]
+     *      }
+     *
+     * @apiSuccess {Object[]} compositeBlueprints                   List of composite blueprints
+     * @apiSuccess {String} compositeBlueprints.id		            Composite blueprint id
+     * @apiSuccess {String} compositeBlueprints.type 	            softwarestack/docker...
+     * @apiSuccess {String} compositeBlueprints.organization		Organization
+     * @apiSuccess {String} compositeBlueprints.businessGroup		Business group
+     * @apiSuccess {String} compositeBlueprints.project			    Project
+     * @apiSuccess {Object[]} compositeBlueprints.blueprints		Blueprints
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * 		HTTP/1.1 200 OK
+     * 	    {
+     *          "id": "<MongoID>",
+     *          "name": "Blueprint1",
+     *          "organization": {
+     *              "id": "<MongoID>",
+     *              "name": "Organization1"
+     *          },
+     *          "businessGroup": {
+     *              "id": "<MongoID>",
+     *              "name": "BusinessGroup1"
+     *          },
+     *          "project": {
+     *              "id": "<MongoID>",
+     *              "name": "Project1"
+     *          },
+     *          "blueprints": [
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "runList": [
+     *                  ],
+     *                  "attributes": [
+     *                  ]
+     *                  ...
+     *              },
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "runList": [
+     *                  ],
+     *                  "attributes": [
+     *                  ]
+     *                  ...
+     *              }
+     *          ]
+     *      }
+     */
+    app.post('/composite-blueprints/', function(req, res) {
+    });
+
+
+    /**
+     * @api {post} /composite-blueprints/:compositeBlueprintId       Launch composite blueprint
+     * @apiName lauchCompositeBlueprint
+     * @apiGroup composite-blueprints
+     *
+     * @apiParam {String} compositeBlueprintId                       Blueprint ID
+     *
+     * @apiSuccess {Object} Empty response object
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * 		HTTP/1.1 200 OK
+     * 	    {
+     *          "launchID": "<MongoID>",
+     *          "name": "Blueprint1",
+     *          "organization": {
+     *              "id": "<MongoID>",
+     *              "name": "Organization1"
+     *          },
+     *          "businessGroup": {
+     *              "id": "<MongoID>",
+     *              "name": "BusinessGroup1"
+     *          },
+     *          "project": {
+     *              "id": "<MongoID>",
+     *              "name": "Project1"
+     *          },
+     *          "blueprints": [
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "runList": [
+     *                  ],
+     *                  "attributes": [
+     *                  ]
+     *                  ...
+     *              },
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "runList": [
+     *                  ],
+     *                  "attributes": [
+     *                  ]
+     *                  ...
+     *              }
+     *          ]
+     *      }
+     *
+     */
+    // @TODO Can become a different resource
+    app.post('/composite-blueprints/:compositeBlueprintId/launch', function(req, res) {
+    });
+
+    /**
+     * @api {patch} /composite-blueprints                                 Update composite blueprint
+     * @apiName updateCompositeBlueprint
+     * @apiGroup composite-blueprints
+     *
+     * @apiParam {String} compositeBlueprintId                       Blueprint ID
+     * @apiParam {Object} compositeBlueprint                              Composite Blueprint
+     * @apiParam {String} compositeBlueprint.name                         Blueprint organization
+     * @apiParam {Object[]} compositeBlueprint.blueprints                 List of nested blueprints in launch order
+     * @apiParam {Object} compositeBlueprint.blueprints.id                Nested blueprint ID
+     * @apiParam {Object} compositeBlueprint.blueprints.type              Nested blueprint type
+     * @apiParam {String[]} compositeBlueprint.blueprints.attributes      Nested blueprint cookbook/role attributes
+     * @apiParamExample {json} Request-Example:
+     *      {
+     *          "name": "blueprintName",
+     *          "blueprints": [
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "attributes": [
+     *                  ]
+     *              },
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "attributes": [
+     *                  ]
+     *              }
+     *          ]
+     *      }
+     *
+     * @apiSuccess {Object[]} compositeBlueprints                   List of composite blueprints
+     * @apiSuccess {String} compositeBlueprints.id		            Composite blueprint id
+     * @apiSuccess {String} compositeBlueprints.type 	            softwarestack/docker...
+     * @apiSuccess {String} compositeBlueprints.organization		Organization
+     * @apiSuccess {String} compositeBlueprints.businessGroup		Business group
+     * @apiSuccess {String} compositeBlueprints.project			    Project
+     * @apiSuccess {Object[]} compositeBlueprints.blueprints		Blueprints
+     *
+     * @apiSuccessExample {json} Success-Response:
+     * 		HTTP/1.1 200 OK
+     * 	    {
+     *          "id": "<MongoID>",
+     *          "name": "Blueprint1",
+     *          "organization": {
+     *              "id": "<MongoID>",
+     *              "name": "Organization1"
+     *          },
+     *          "businessGroup": {
+     *              "id": "<MongoID>",
+     *              "name": "BusinessGroup1"
+     *          },
+     *          "project": {
+     *              "id": "<MongoID>",
+     *              "name": "Project1"
+     *          },
+     *          "blueprints": [
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "runList": [
+     *                  ],
+     *                  "attributes": [
+     *                  ]
+     *                  ...
+     *              },
+     *              {
+     *                  "id": "<MongoID>",
+     *                  "type": "SOFTWARESTACK",
+     *                  "runList": [
+     *                  ],
+     *                  "attributes": [
+     *                  ]
+     *                  ...
+     *              }
+     *          ]
+     *      }
+     */
+    app.patch('/composite-blueprints/:compositeBlueprintId', function(req, res) {
+    });
+
+    /**
+     * @api {delete} /composite-blueprints/:compositeBlueprintId    Delete blueprint
+     * @apiName deleteBlueprint
+     * @apiGroup composite-blueprints
+     *
+     * @apiParam {String} compositeBlueprintId                       Blueprint ID
+     *
+     * @apiSuccess {Object} Empty response object
+     *
+     */
+    app.delete('/composite-blueprints/:compositeBlueprintId', function(req, res) {
+    });
+};
