@@ -1161,14 +1161,14 @@ function getCookBookAttributes(instance, callback) {
     }
 };
 
-function removeInstanceById(instanceId,instanceState,callback){
+function removeInstanceById(instanceId,callback){
         containerModel.deleteContainerByInstanceId(instanceId, function (err, container) {
             if (err) {
                 logger.error("Container deletion Failed >> ", err);
                 callback(err, null);
                 return;
             } else {
-                instancesModel.removeInstanceById(instanceId,instanceState, function (err, data) {
+                instancesModel.removeInstanceById(instanceId, function (err, data) {
                     if (err) {
                         logger.error("Instance deletion Failed >> ", err);
                         callback(err, null);

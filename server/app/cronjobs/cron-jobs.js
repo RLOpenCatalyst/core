@@ -40,13 +40,13 @@ module.exports.start = function start() {
 
 	logger.info('Tags aggregation started with interval ==> '+ providerTagsAggregation.getInterval());
 	var providerTagsAggregationJobId
-		= crontab.scheduleJob(providerTagsAggregation.getInterval(), providerTagsAggregation.execute);
+		= crontab.scheduleJob(providerTagsAggregation.getInterval(), providerTagsAggregation.execute);*/
 
 	logger.info('Docker Container Sync started with interval ==> '+ dockerContainerSync.getInterval());
 	var dockerContainerSyncJobId
 		= crontab.scheduleJob(dockerContainerSync.getInterval(), dockerContainerSync.execute);
 
-	logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
+	/*logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
 	var awsRDSS3ProviderSyncJobId
 		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);*/
 }

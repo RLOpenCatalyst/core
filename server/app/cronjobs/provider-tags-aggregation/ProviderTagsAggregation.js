@@ -23,15 +23,22 @@ function providerTagAggregation() {
                     AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
                         if(err) {
                             logger.error(err);
+                            return;
                         } else if(providers.length > 0){
+                            var count = 0;
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
+                                    count++;
                                     aggregateTagForProvider(provider)
                                 })(providers[j]);
+                            }
+                            if(count ===providers.length){
+                                return;
                             }
 
                         }else{
                             logger.info("Please configure Provider for Tag Aggregation");
+                            return;
                         }
                     });
 
@@ -40,6 +47,7 @@ function providerTagAggregation() {
 
         }else{
             logger.info("Please configure Organization for Tag Aggregation");
+            return;
         }
     });
 };
@@ -79,8 +87,9 @@ function aggregateTagForProvider(provider) {
         if (err) {
             logger.error(err);
             return;
-        } else {
+        }else {
             logger.info('Tags aggregation ended for Provider'+provider._id);
+            return;
         }
     })
 };

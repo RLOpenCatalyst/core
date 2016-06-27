@@ -24,6 +24,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.get('/resources', getAWSResources);
 
+    app.get('/resources/resourceList', getAWSResourceList);
+
     function getAWSResources(req, res, next) {
             var reqObj = {};
             async.waterfall(
@@ -56,7 +58,34 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     else
                         return res.status(200).send(results);
                 });
-        };
+    };
+
+    function getAWSResourceList(req,res,next) {
+        var reqData = {};
+        async.waterfall(
+            [
+                function (next) {
+                    apiUtil.paginationRequest(req.query, 'resources', next);
+                },
+                function (paginationReq, next) {
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function (queryObj, next) {
+                    resourceService.getResources(queryObj, next);
+                },
+                function (resources, next) {
+                    apiUtil.paginationResponse(resources[0], reqData, next);
+                }
+
+            ], function (err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
+
 
     app.patch('/resources', updateUnassignedResourcesTags);
     

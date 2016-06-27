@@ -45,15 +45,22 @@ function aggregateAWSCost() {
                     AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
                         if(err) {
                             logger.error(err);
+                            return;
                         } else if(providers.length > 0){
+                            var count = 0;
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
+                                    count++;
                                     aggregateAWSCostForProvider(provider)
                                 })(providers[j]);
+                            }
+                            if(count ===providers.length){
+                                return;
                             }
 
                         }else{
                             logger.info("Please configure Provider for AWS Cost Aggregation");
+                            return;
                         }
                     });
 
@@ -62,6 +69,7 @@ function aggregateAWSCost() {
 
         }else{
             logger.info("Please configure Organization for Aws Cost Aggregation");
+            return;
         }
     });
 }
@@ -158,8 +166,10 @@ function aggregateAWSCostForProvider(provider) {
             } else {
                 if (results === false) {
                     logger.info("File updated time is same as DB updated time");
+                    return;
                 } else {
                     logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
+                    return;
                 }
             }
         });

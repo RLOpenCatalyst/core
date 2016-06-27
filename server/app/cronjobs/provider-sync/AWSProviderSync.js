@@ -208,8 +208,10 @@ function sync() {
 																					instances.splice(n, 1);
 																					break;
 																				}
-																			} else if (instances[n].instanceState === 'terminated') {
-																				removeTerminateInstance(instances[n]._id,instances[n].instanceState, 'managed');
+																			}else if ((instances[n].instanceState === 'running' || instances[n].instanceState === 'terminated') && instances[n].bootStrapStatus === 'failed') {
+																			    removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
+																			}else if (instances[n].instanceState === 'terminated') {
+																				removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
 																			}
 																		}
 
@@ -371,11 +373,11 @@ function sync() {
 		}
 	});
 }
-function removeTerminateInstance(instanceId,instanceState,key) {
+function removeTerminateInstance(instanceId,bootStrapState,key) {
 	if(key === 'managed') {
-		instanceService.removeInstanceById(instanceId,instanceState, function (err, data) {
+		instancesDao.removeTerminatedInstanceById(instanceId,bootStrapState, function (err, data) {
 			if (err) {
-				logger.error(key+" Instance deletion Failed >> ", err);
+				logger.error(err);
 				return;
 			}else{
 				return;
@@ -384,7 +386,7 @@ function removeTerminateInstance(instanceId,instanceState,key) {
 	}else if(key === 'assigned') {
 		unManagedInstancesDao.removeInstanceById(instanceId, function (err, data) {
 			if (err) {
-				logger.error(key+" Instance deletion Failed >> ", err);
+				logger.error(err);
 				return;
 			}else{
 				return;
