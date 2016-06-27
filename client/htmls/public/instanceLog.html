@@ -32,6 +32,7 @@
                     <th class="text-center">OS</th>
                     <th class="text-center">Time</th>
                     <th class="text-center">Status</th>
+                    <th class="text-center">BootStrapStatus</th>
                     <th class="text-center">Size</th>
                     <th class="text-center">User</th>
                     <th class="text-center">Org</th>
@@ -99,10 +100,13 @@
                 "bSortable": false
             }, {
                 "bSortable": false
+            }, {
+                "bSortable": false
             }]
 
         });
     }
+
     $(document).ready(function(e) {
         getInstances();
     });
@@ -150,7 +154,8 @@
             $tr.append($tdCreatedOn);
             var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
             $tr.append($tdStatus);
-
+            var $tdBootStrapStatus = $('<td></td>').append(managnedData[i].bootStrapStatus);
+            $tr.append($tdBootStrapStatus);
             var $tdSize = $('<td></td>').append(managnedData[i].instanceType);
             $tr.append($tdSize);
             var $tdUser = $('<td></td>').append(managnedData[i].catUser);
