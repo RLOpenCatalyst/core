@@ -100,10 +100,18 @@ function aggregateDockerContainerForInstance(instance){
                         if (decryptedCredentials.pemFileLocation) {
                             fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
                                 logger.debug('temp file deleted');
-                                next(err,null);
+                                var containerObj={
+                                    instanceId:instance._id,
+                                    operation:'delete'
+                                }
+                                next(null,containerObj);
                             });
                         } else {
-                            next(err,null);
+                            var containerObj={
+                                instanceId:instance._id,
+                                operation:'delete'
+                            }
+                            next(null,containerObj);
                         }
                     };
                     if (decryptedCredentials.pemFileLocation) {
@@ -112,14 +120,11 @@ function aggregateDockerContainerForInstance(instance){
                         });
                     };
                     if (code === -5000) {
-                        containerDao.deleteContainerByInstanceId(instance._id, function (err, deleteContainer) {
-                            if (err) {
-                                logger.error(err);
-                                next(err,null);
-                            }else{
-                                next(null,null);
-                            }
-                        });
+                        var containerObj={
+                            instanceId:instance._id,
+                            operation:'delete'
+                        }
+                        next(null,containerObj);
                     } else {
                         var _stdout = stdOut.split('\r\n');
                         var start = false;
@@ -195,14 +200,10 @@ function aggregateDockerContainerForInstance(instance){
                 });
             },
             function(containers,next){
-                if(containers){
-                    if(containers.operation === 'delete'){
-                        deleteContainerByInstanceId(containers.instanceId,next);
-                    }else if (containers.operation === 'create'){
-                        saveAndUpdateContainers(containers.containers,containers.containerIds,containers.instanceId,next)
-                    }else{
-                        next(null,containers);
-                    }
+                if(containers.operation === 'delete'){
+                    deleteContainerByInstanceId(containers.instanceId,next);
+                }else if (containers.operation === 'create'){
+                    saveAndUpdateContainers(containers.containers,containers.containerIds,containers.instanceId,next)
                 }else{
                     next(null,containers);
                 }
