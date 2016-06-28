@@ -351,6 +351,22 @@ var InstancesDao = function() {
         });
     };
 
+    this.getInstancesWithContainersByOrgId = function(orgId, callback) {
+        var queryObj = {
+            orgId:orgId
+        }
+        queryObj['docker.dockerEngineStatus'] = 'success';
+        Instances.find(queryObj, function(err, data) {
+            if (err) {
+                logger.error("Failed getInstancesWithContainersByOrgId (%s)", orgId, err);
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+
+        });
+    };
+
     this.getInstanceByProviderId = function(providerId, callback) {
         logger.debug("Enter getInstanceByProviderId (%s)", providerId);
 
