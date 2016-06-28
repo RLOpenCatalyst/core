@@ -79,11 +79,11 @@ $(document).ready(function() {
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-green');
 
           $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
-            var managedInstancesLength = dataManaged.managedInstances.length;
+            var managedInstancesLength = dataManaged.metaData.totalRecords;
             $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
 
             var totalManagedUnmanagedData;
-            var managedData = dataManaged.managedInstances.length;
+            var managedData = dataManaged.metaData.totalRecords;
             updateTotalCount("managed", providerid, managedData);
 
             $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
@@ -94,7 +94,7 @@ $(document).ready(function() {
             });
 
             $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
-              var unmanagedData = dataUnmanaged.unmanagedInstances.length;
+              var unmanagedData = dataUnmanaged.metaData.totalRecords;
               $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
 
 

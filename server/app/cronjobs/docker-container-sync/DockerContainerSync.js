@@ -11,7 +11,7 @@ var toPairs = require('lodash.topairs');
 var async = require('async');
 
 var DockerContainerSync = Object.create(CatalystCronJob);
-DockerContainerSync.interval = '* * * * *';
+DockerContainerSync.interval = '*/5 * * * *';
 DockerContainerSync.execute = dockerContainerSync;
 
 module.exports = DockerContainerSync;
@@ -39,7 +39,7 @@ function dockerContainerSync(){
                                 return;
                             }
                         }else{
-                            logger.info("There is no Instance in "+org.orgname+" Organization who have docker install");
+                            logger.info("There is no Instance in "+org.orgname+" Organization who have docker installed");
                             return;
                         }
                     });
