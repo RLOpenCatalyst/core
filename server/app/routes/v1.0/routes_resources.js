@@ -28,6 +28,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     function getAWSResources(req, res, next) {
             var reqObj = {};
+            var category = req.query.category;
             async.waterfall(
                 [
                     function(next){
@@ -46,6 +47,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         apiUtil.databaseUtil(paginationReq, next);
                     },
                     function(queryObj, next) {
+                        queryObj['category']=category;
                         resourceService.getResources(queryObj, next);
                     },
                     function(resources,next){
@@ -62,6 +64,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     function getAWSResourceList(req,res,next) {
         var reqData = {};
+        var category = req.query.category;
         async.waterfall(
             [
                 function (next) {
@@ -72,6 +75,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     apiUtil.databaseUtil(paginationReq, next);
                 },
                 function (queryObj, next) {
+                    queryObj['category']=category;
                     resourceService.getResources(queryObj, next);
                 },
                 function (resources, next) {

@@ -24,7 +24,9 @@ $(document).ready(function() {
     totalcountproviders = awsproviderscount ;
     $('#totalProviders').empty();
     $('#awsProviderView').empty();
-
+      if (totalcountproviders == 0) {
+          $('#totalProviders').append(totalcountproviders);
+      }
     if (totalcountproviders > 0) {
         var $presentProviderView = $('.infrastructureClass');
         $presentProviderView.show();
@@ -83,7 +85,7 @@ $(document).ready(function() {
               loadUnAssignedS3Buckets(providerId);
           });
 
-          $.get('../resources/resourceList?filterBy=providerId:'+ providerId +'+resourceType:S3+category:assigned', function(assignedS3Buckets){
+          $.get('../resources/resourceList?category=dashboard&filterBy=providerId:'+ providerId +'+resourceType:S3+category:assigned', function(assignedS3Buckets){
             var s3AssignedBucketsLength = assignedS3Buckets.metaData.totalRecords;
               $childS3ManagedInstanceTemplate.find('.countAssignedBuckets').empty().append(s3AssignedBucketsLength);
 
@@ -93,7 +95,7 @@ $(document).ready(function() {
 
           
 
-            $.get('../resources/resourceList?filterBy=providerId:'+ providerId +'+resourceType:S3+category:unassigned', function(unAssignedS3Buckets) {
+            $.get('../resources/resourceList?category=dashboard&filterBy=providerId:'+ providerId +'+resourceType:S3+category:unassigned', function(unAssignedS3Buckets) {
               var s3UnAssignedBucketsLength = unAssignedS3Buckets.metaData.totalRecords;
                 $childS3UnmanagedInstanceTemplate.find('.countUnAssignedBuckets').empty().append(s3UnAssignedBucketsLength);
 
@@ -147,7 +149,7 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "destroy":true,
-        "ajax": '/resources?filterBy=providerId:'+ providerId +'+resourceType:S3+category:assigned',
+        "ajax": '/resources?category=dashboard&filterBy=providerId:'+ providerId +'+resourceType:S3+category:assigned',
         "columns": [
             {"data": "resourceDetails.bucketName", "orderable" : true},
             {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
@@ -171,7 +173,7 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=resourceType:S3+category:assigned',
+            "ajax": '/resources?category=dashboard&filterBy=resourceType:S3+category:assigned',
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
@@ -206,7 +208,7 @@ $(document).ready(function() {
           "processing": true,
           "serverSide": true,
           "destroy":true,
-          "ajax": '/resources?filterBy=providerId:'+ providerId +'+resourceType:S3+category:unassigned',
+          "ajax": '/resources?category=dashboard&filterBy=providerId:'+ providerId +'+resourceType:S3+category:unassigned',
           "createdRow": function( row, data ) {
               $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
           },
@@ -230,7 +232,7 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=resourceType:S3+category:unassigned',
+            "ajax": '/resources?category=dashboard&filterBy=resourceType:S3+category:unassigned',
             "createdRow": function( row, data ) {
                 $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
             },

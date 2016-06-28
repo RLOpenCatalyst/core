@@ -88,6 +88,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	function getManagedInstancesList(req,res,next) {
 		var reqObj = {};
+		var category = req.query.category;
 		async.waterfall(
 			[
 				function (next) {
@@ -103,6 +104,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function (queryObj, next) {
+					queryObj['category']=category;
 					instancesDao.getByProviderId(queryObj, next);
 				},
 				function (managedInstances, next) {
@@ -116,12 +118,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					return res.status(200).send(results);
 			});
 	};
-
-
+	
 	app.get('/providers/:providerId/managedInstances', validate(instanceValidator.get), getManagedInstances);
 
 	function getManagedInstances(req,res,next) {
 		var reqData = {};
+		var category = req.query.category;
 		async.waterfall(
 			[
 				function (next) {
@@ -134,6 +136,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function (queryObj, next) {
+					queryObj['category']=category;
 					instancesDao.getByProviderId(queryObj, next);
 				},
 				function (managedInstances, next) {
@@ -153,6 +156,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	function getUnManagedInstances(req, res,next) {
 		var reqData = {};
+		var category = req.query.category;
 		async.waterfall(
 			[
 				function(next){
@@ -165,6 +169,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function(queryObj, next) {
+					queryObj['category']=category;
 					unManagedInstancesDao.getByProviderId(queryObj, next);
 				},
 				function(unmanagedInstances, next) {
@@ -183,6 +188,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	function getUnManagedInstancesList(req, res,next) {
 		var reqObj = {};
+		var category = req.query.category;
 		async.waterfall(
 			[
 				function(next){
@@ -198,6 +204,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function(queryObj, next) {
+					var category = req.query.category;
 					unManagedInstancesDao.getByProviderId(queryObj, next);
 				},
 				function(unmanagedInstances,next){

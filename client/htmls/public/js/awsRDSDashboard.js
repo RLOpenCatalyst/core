@@ -26,7 +26,9 @@ $(document).ready(function() {
     totalcountproviders = awsproviderscount ;
     $('#totalProviders').empty();
     $('#awsProviderView').empty();
-
+      if (totalcountproviders == 0) {
+          $('#totalProviders').append(totalcountproviders);
+      }
     if (totalcountproviders > 0) {
       var $presentProviderView = $('.infrastructureClass');
       $presentProviderView.show();
@@ -85,7 +87,7 @@ $(document).ready(function() {
               loadUnAssignedDBInstances(providerId);
           });
 
-            $.get('../resources/resourceList?filterBy=providerId:'+ providerId +'+resourceType:RDS+category:assigned', function(assignedRDSDBInstances){
+            $.get('../resources/resourceList?category=dashboard&filterBy=providerId:'+ providerId +'+resourceType:RDS+category:assigned', function(assignedRDSDBInstances){
                 var rdsAssignedDBInstancesLength = assignedRDSDBInstances.metaData.totalRecords;
                 $childRDSAssignedDBInstanceTemplate.find('.countAssignedDBInstance').empty().append(rdsAssignedDBInstancesLength);
 
@@ -95,7 +97,7 @@ $(document).ready(function() {
 
 
 
-                $.get('../resources/resourceList?filterBy=providerId:'+ providerId +'+resourceType:RDS+category:unassigned', function(unAssignedDBInstances) {
+                $.get('../resources/resourceList?category=dashboard&filterBy=providerId:'+ providerId +'+resourceType:RDS+category:unassigned', function(unAssignedDBInstances) {
                     var rdsUnAssignedDBInstancesLength = unAssignedDBInstances.metaData.totalRecords;
                     $childRDSUnAssignedDBInstancesTemplate.find('.countUnAssignedDBInstance').empty().append(rdsUnAssignedDBInstancesLength);
 
@@ -149,7 +151,7 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "destroy":true,
-        "ajax": '/resources?filterBy=providerId:'+ providerId +'+resourceType:RDS+category:assigned',
+        "ajax": '/resources?category=dashboard&filterBy=providerId:'+ providerId +'+resourceType:RDS+category:assigned',
         "columns": [
             {"data": "resourceDetails.dbName",  "orderable" : true},
             {"data": "masterDetails.orgName","orderable" : false  },
@@ -173,7 +175,7 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=resourceType:RDS+category:assigned',
+            "ajax": '/resources?category=dashboard&filterBy=resourceType:RDS+category:assigned',
             "columns": [
                 {"data": "resourceDetails.dbName",  "orderable" : true},
                 {"data": "masterDetails.orgName","orderable" : false  },
@@ -208,7 +210,7 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "destroy":true,
-        "ajax": '/resources?filterBy=providerId:'+ providerId +'+resourceType:RDS+category:unassigned',
+        "ajax": '/resources?category=dashboard&filterBy=providerId:'+ providerId +'+resourceType:RDS+category:unassigned',
         "createdRow": function( row, data ) {
             $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
         },
@@ -232,7 +234,7 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=resourceType:RDS+category:unassigned',
+            "ajax": '/resources?category=dashboard&filterBy=resourceType:RDS+category:unassigned',
             "createdRow": function( row, data ) {
                 $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
             },

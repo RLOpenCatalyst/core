@@ -662,7 +662,7 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:assigned',
+            "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:assigned',
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
@@ -687,7 +687,7 @@
             "createdRow": function( row, data ) {
                 $( row ).attr({"data-id" : data._id})
             },
-            "ajax": '/providers/' + urlproviderId + '/managedInstanceList',
+            "ajax": '/providers/' + urlproviderId + '/managedInstanceList?category=providerSync',
             "columns": [
                 {"data": "platformId","orderable" : true  },
                 {"data": "hardware.os","orderable" : false  },
@@ -750,7 +750,7 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
+            "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
             "columns": [
                 {"data": "resourceDetails.dbName",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
@@ -1425,7 +1425,7 @@
                 "createdRow": function( row, data ) {
                     $( row ).attr({"instanceId" : data._id})
                 },
-                "ajax": '/providers/' + urlproviderId + '/unmanagedInstanceList',
+                "ajax": '/providers/' + urlproviderId + '/unmanagedInstanceList?category=providerSync',
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
@@ -1461,7 +1461,7 @@
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
+                "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
                 "createdRow": function( row, data ) {
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
@@ -1505,7 +1505,7 @@
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
+                "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
                 "createdRow": function( row, data ) {
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },

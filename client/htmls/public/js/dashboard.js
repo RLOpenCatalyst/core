@@ -78,7 +78,7 @@ $(document).ready(function() {
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-green');
 
-          $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
+          $.get('../providers/' + providerid + '/managedInstances?category=dashboard', function(dataManaged) {
             var managedInstancesLength = dataManaged.metaData.totalRecords;
             $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
 
@@ -93,7 +93,7 @@ $(document).ready(function() {
               loadManagedInstances(providerid);
             });
 
-            $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
+            $.get('../providers/' + providerid + '/unmanagedInstances?category=dashboard', function(dataUnmanaged) {
               var unmanagedData = dataUnmanaged.metaData.totalRecords;
               $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
 
@@ -412,7 +412,7 @@ $(document).ready(function() {
       "processing": true,
       "serverSide": true,
       "destroy":true,
-      "ajax": '/providers/' + providerId + '/managedInstanceList',
+      "ajax": '/providers/' + providerId + '/managedInstanceList?category=dashboard',
       "columns": [
         {"data": "platformId","orderable" : true},
         {"data": "orgName" ,"orderable" : false,
@@ -504,7 +504,7 @@ $(document).ready(function() {
       "createdRow": function( row, data ) {
         $( row ).attr({"data-id" : data._id})
       },
-      "ajax": '/providers/' + providerId + '/unmanagedInstanceList',
+      "ajax": '/providers/' + providerId + '/unmanagedInstanceList?category=dashboard',
       "columns": [
         {"data": "platformId","orderable" : true  },
         {"data": "orgName" ,"orderable" : false,

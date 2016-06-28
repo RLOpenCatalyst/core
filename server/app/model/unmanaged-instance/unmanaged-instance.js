@@ -105,8 +105,7 @@ UnmanagedInstanceSchema.statics.getByOrgProviderId = function(opts, callback) {
 
 UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,callback) {
 	this.find({"orgId": opts.orgId,
-		"providerId": opts.providerId,
-		"isDeleted":false
+		"providerId": opts.providerId
 	},{tags:1, _id:0}, function(err, instancesTag) {
 		if (err) {
 			logger.error("Failed getInstanceTagByOrgProviderId (%s)", opts, err);
@@ -120,7 +119,9 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 
 
 UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
-	jsonData.queryObj.isDeleted = false;
+	if(jsonData.category === 'dashboard') {
+		jsonData.queryObj.isDeleted = false;
+	}
 	this.paginate(jsonData.queryObj, jsonData.options, function(err, instances) {
 			if (err) {
 				logger.error("Failed getByProviderId (%s)", err);
@@ -131,11 +132,11 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 		});
 };
 
+
 UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, callback) {
 	logger.debug("Enter getInstanceByProviderId (%s)", providerId);
 	this.find({
-		providerId: providerId,
-		isDeleted:false
+		providerId: providerId
 	}, function(err, data) {
 		if (err) {
 			logger.error("Failed getInstanceByProviderId (%s)", providerId, err);
@@ -157,7 +158,6 @@ UnmanagedInstanceSchema.statics.getByIds = function(providerIds, callback) {
 		return;
 	}
 	var queryObj = {};
-	queryObj.isDeleted=false;
 	queryObj._id = {
 		$in: providerIds
 	}
