@@ -39,6 +39,7 @@
                     <th class="text-center">BU</th>
                     <th class="text-center">Project</th>
                     <th class="text-center">Env</th>
+                    <th class="text-center">BluePrint</th>
                     <th class="text-center">Data</th>
                     <th class="text-center">Log</th>
                 </tr>
@@ -75,6 +76,8 @@
             "paging": true,
             "bFilter": true,
             "aoColumns": [{
+                "bSortable": false
+            }, {
                 "bSortable": false
             }, {
                 "bSortable": false
@@ -169,6 +172,9 @@
             $tr.append($projectName);
             var $environmentName = $('<td></td>').append(managnedData[i].environmentName);
             $tr.append($environmentName);
+
+            var $bluePrint = $('<td></td>').append(managnedData[i].blueprintData.blueprintName);
+            $tr.append($bluePrint);
 
             var $tdData = $('<td></td>').append(managnedData[i].runlist);
             $tr.append($tdData);
