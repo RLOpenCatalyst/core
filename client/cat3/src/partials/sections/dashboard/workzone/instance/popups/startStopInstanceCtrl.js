@@ -35,11 +35,11 @@
 							alert('Unexpected Behaviour');
 						}
 					}, function(error) {
-						error = error.responseText || error;
+						error = error.data || error;
 						if (error.message) {
 							alert(error.message);
 						} else {
-							alert(error);
+							alert("Unexpected Behaviour");
 						}
 					});
 				}
