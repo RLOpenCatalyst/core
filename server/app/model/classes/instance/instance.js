@@ -356,7 +356,7 @@ var InstancesDao = function() {
         });
     };
 
-    this.getInstancesByOrgId = function(orgId, callback) {
+    this.getInstancesWithContainersByOrgId = function(orgId, callback) {
         var queryObj = {
             orgId:orgId
         }

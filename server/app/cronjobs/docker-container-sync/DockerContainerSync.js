@@ -23,7 +23,7 @@ function dockerContainerSync(){
         }else if(orgs.length > 0){
             for(var i = 0; i < orgs.length; i++){
                 (function(org){
-                    instancesDao.getInstancesByOrgId(org.rowid, function(err, instances) {
+                    instancesDao.getInstancesWithContainersByOrgId(org.rowid, function(err, instances) {
                         if(err) {
                             logger.error(err);
                             return;
