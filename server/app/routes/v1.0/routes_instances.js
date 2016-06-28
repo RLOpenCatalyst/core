@@ -53,6 +53,8 @@ var containerDao = require('_pr/model/container');
 var providerService = require('_pr/services/providerService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
+var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -200,7 +202,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/instances/*', sessionVerificationFunc);
 
 
-    app.get('/instances', function(req, res) {
+    /*app.get('/instances', function(req, res) {
         logger.debug("Enter get() for /instances");
         instancesDao.getInstances(null, function(err, data) {
             if (err) {
@@ -212,7 +214,33 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             res.send(data);
             logger.debug("Exit get() for /instances");
         });
-    });
+    });*/
+
+    app.get('/instances',getInstanceList);
+
+    function getInstanceList(req, res, next) {
+        var reqData = {};
+        async.waterfall(
+            [
+
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'instances', next);
+                },
+                function(paginationReq, next) {
+                    reqData = paginationReq;
+                    instancesDao.getInstanceList(paginationReq, next);
+                },
+                function(instances, next) {
+                    apiUtil.paginationResponse(instances, reqData, next);
+                }
+
+            ], function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
 
     app.get('/instances/rdp/:vmname/:port', function(req, res) {
         res.setHeader('Content-disposition', 'attachment; filename=' + req.params.vmname + '.rdp');

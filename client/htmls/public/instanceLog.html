@@ -114,7 +114,8 @@
         getInstances();
     });
 
-    function createInstanceLogTable(managnedData) {
+    function createInstanceLogTable(instanceData) {
+        var managnedData = instanceData.instances;
         $instanceLogDatatable.clear().draw();
         var $tbody = $('#instanceLogTrail tbody').empty();
         var $providerImg = '';
