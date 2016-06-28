@@ -171,7 +171,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                     }
                     if (!err) {
                         //send the response back and create the instance 
-                        
+
 
                         var credentials = {
                             username: anImage.userName,
@@ -202,7 +202,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                             var instance = {
                                 name: launchParams.blueprintName,
                                 orgId: launchParams.orgId,
-                                orgName:launchParams.orgName,
+                                orgName: launchParams.orgName,
                                 bgId: launchParams.bgId,
                                 bgName: launchParams.bgName,
                                 projectId: launchParams.projectId,
@@ -212,7 +212,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 providerId: self.cloudProviderId,
                                 providerType: self.cloudProviderType,
                                 keyPairId: 'unknown',
-                                region:self.region,
+                                region: self.region,
                                 chefNodeName: createserverdata["vm_name"],
                                 runlist: paramRunList,
                                 platformId: createserverdata["vm_name"],
@@ -221,6 +221,8 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 instanceState: 'pending',
                                 bootStrapStatus: 'waiting',
                                 users: launchParams.users,
+                                instanceType: "unknown",
+                                catUser: launchParams.sessionUser,
                                 hardware: {
                                     platform: 'unknown',
                                     platformVersion: 'unknown',
@@ -355,7 +357,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                     instanceIp: publicip,
                                                     runlist: runlist,
                                                     instanceUsername: anImage.userName,
-                                                    instancePassword: decryptedCredentials.password, 
+                                                    instancePassword: decryptedCredentials.password,
                                                     nodeName: createserverdata["vm_name"],
                                                     environment: launchParams.envName,
                                                     instanceOS: instance.hardware.os,

@@ -282,6 +282,16 @@ var InstanceSchema = new Schema({
         type: String,
         required: false,
         trim: true
+    },
+    instanceType: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    catUser: {
+        type: String,
+        required: false,
+        trim: true
     }
 });
 

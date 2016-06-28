@@ -16,6 +16,10 @@
 
 var logger = require('_pr/logger')(module);
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
+var instancesDao = require('_pr/model/classes/instance/instance');
 
 const errorType = 'taskService';
 
@@ -75,7 +79,7 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
 };
 
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, callback) {
-    if(appData){
+    if (appData) {
         appData['taskId'] = taskId;
     }
     taskDao.getTaskById(taskId, function(err, task) {

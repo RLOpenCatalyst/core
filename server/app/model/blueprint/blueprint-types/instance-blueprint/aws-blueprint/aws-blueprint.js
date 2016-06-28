@@ -226,6 +226,8 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 							instanceState: instanceData.State.Name,
 							bootStrapStatus: 'waiting',
 							users: launchParams.users,
+                            instanceType: self.instanceType,
+                            catUser: launchParams.sessionUser,
 							hardware: {
 								platform: 'unknown',
 								platformVersion: 'unknown',

@@ -1,0 +1,273 @@
+<html>
+
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <style>
+    .imgStyle {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .logsArea {
+        height: 413px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        word-break: break-all;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="tabContent table-responsive" id="instanceListDiv">
+        <table class="table table-hover table-bordered text-center" id="instanceLogTable">
+            <thead>
+                <tr>
+                    <th class="text-center">InstanceId</th>
+                    <th class="text-center">Provider</th>
+                    <th class="text-center">OS</th>
+                    <th class="text-center">Time</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">BootStrapStatus</th>
+                    <th class="text-center">Size</th>
+                    <th class="text-center">User</th>
+                    <th class="text-center">Org</th>
+                    <th class="text-center">BU</th>
+                    <th class="text-center">Project</th>
+                    <th class="text-center">Env</th>
+                    <th class="text-center">BluePrint</th>
+                    <th class="text-center">Data</th>
+                    <th class="text-center">Log</th>
+                </tr>
+            </thead>
+            <tbody class="instanceLogTrail">
+            </tbody>
+        </table>
+    </div>
+    <!--instance launching pad-->
+    <div class="modal fade" id="instanceLogsModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">
+               <i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Instance Logs
+            </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="logsArea font-size-12"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    if (!$.fn.dataTable.isDataTable('#instanceLogTable')) {
+        var $instanceLogDatatable = $('#instanceLogTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": true,
+            "bLengthChange": true,
+            "paging": true,
+            "bFilter": true,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+
+        });
+    }
+
+    $(document).ready(function(e) {
+        getInstances();
+    });
+
+    function createInstanceLogTable(managnedData) {
+        $instanceLogDatatable.clear().draw();
+        var $tbody = $('#instanceLogTrail tbody').empty();
+        var $providerImg = '';
+        var $osImg = '';
+        for (var i = 0; i < managnedData.length; i++) {
+            var $tr = $('<tr class="instanceLogTrail"></tr>').attr('data-id', managnedData[i]._id);
+            var $tdId = $('<td></td>').append(managnedData[i].platformId);
+            $tr.append($tdId);
+            if (managnedData[i].providerType == 'aws') {
+                $providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/aws.png' alt='provider'/>");
+            } else if (managnedData[i].providerType == 'azure') {
+                $providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/azure.png' alt='provider'/>");
+            } else if (managnedData[i].providerType == 'openstack') {
+                $providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/openstack.png' alt='provider'/>");
+            }else if (managnedData[i].providerType == 'vmware') {
+                $providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/vmware.png' alt='provider'/>");
+            }
+            if (managnedData[i].hardware.platform == 'ubuntu') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
+            } else if (managnedData[i].hardware.os == 'linux' && managnedData[i].hardware.platform == 'centos') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
+            } else if (managnedData[i].hardware.os == 'windows') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
+            } else if (managnedData[i].hardware.platform == 'openstack' && managnedData[i].hardware.os == 'linux') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
+            }else if (managnedData[i].hardware.platform == 'openstack' && managnedData[i].hardware.os == 'windows') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
+            } else if (managnedData[i].hardware.platform == 'unknown' && managnedData[i].hardware.os == 'unknown') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
+            }else if (managnedData[i].hardware.platform == 'unknown' && managnedData[i].hardware.os == 'linux') {
+                $osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
+            }
+
+            var $tdProvider = $('<td></td>').append($providerImg);
+            $tr.append($tdProvider);
+            var $tdOs = $('<td></td>').append($osImg);
+            $tr.append($tdOs);
+            var createdOn = new Date(managnedData[i].instanceCreatedOn).toLocaleString();
+            var $tdCreatedOn = $('<td></td>').append(createdOn);
+            $tr.append($tdCreatedOn);
+            var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
+            $tr.append($tdStatus);
+            var $tdBootStrapStatus = $('<td></td>').append(managnedData[i].bootStrapStatus);
+            $tr.append($tdBootStrapStatus);
+            var $tdSize = $('<td></td>').append(managnedData[i].instanceType);
+            $tr.append($tdSize);
+            var $tdUser = $('<td></td>').append(managnedData[i].catUser);
+            $tr.append($tdUser);
+            var $tdOrg = $('<td></td>').append(managnedData[i].orgName);
+            $tr.append($tdOrg);
+            var $tdBG = $('<td></td>').append(managnedData[i].bgName);
+            $tr.append($tdBG);
+
+            var $projectName = $('<td></td>').append(managnedData[i].projectName);
+            $tr.append($projectName);
+            var $environmentName = $('<td></td>').append(managnedData[i].environmentName);
+            $tr.append($environmentName);
+
+            var $bluePrint = $('<td></td>').append(managnedData[i].blueprintData.blueprintName);
+            $tr.append($bluePrint);
+
+            var $tdData = $('<td></td>').append(managnedData[i].runlist);
+            $tr.append($tdData);
+            var $logIcon = $("<a data-original-title='MoreInfo' class='moreInfoLog' data-placement='top' rel='tooltip' href='javascript:void(0) data-toggle='modal' data-id=" + managnedData[i]._id + "><img class='moreInfo' src = '../private/img/galleryIcons/moreinfo.png' alt='moreInfo'/></a>");
+            var $tdLog = $('<td></td>').append($logIcon);
+            $tr.append($tdLog);
+            $logIcon.click(instanceLogsHandler);
+            console.log(managnedData[i]._id);
+            $tbody.append($tr);
+            $instanceLogDatatable.row.add($tr).draw();
+        }
+    }
+    var instanceLogsHandler = function(e) {
+        var instanceId = $(this).attr('data-id');
+        var timeout;
+        var $instanceLogModalContainer = $('#instanceLogsModalContainer');
+        $instanceLogModalContainer.on('hidden.bs.modal', function(e) {
+            $instanceLogModalContainer.off('hidden.bs.modal');
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+        });
+        $instanceLogModalContainer.find('.logsArea').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+        $instanceLogModalContainer.modal('show');
+        var lastTimestamp;
+
+        //Showing the log for Instances
+        function pollLogs(timestamp, delay, clearData) {
+            var url = '../instances/' + instanceId + '/logs';
+            if (timestamp) {
+                url = url + '?timestamp=' + timestamp;
+            }
+
+            timeout = setTimeout(function() {
+                $.get(url, function(data) {
+                    var $modalBody = $instanceLogModalContainer.find('.logsArea')
+                    if (clearData) {
+                        $modalBody.empty();
+                    }
+                    var $table = $('<table></table>');
+
+                    for (var i = 0; i < data.length; i++) {
+                        var $rowDiv = $('<tr class="row rowSpacing"></tr>');
+                        var timeString = new Date().setTime(data[i].timestamp);
+                        var date = new Date(timeString).toLocaleString(); //converts to human readable strings
+                        /*$rowDiv.append($('<div class="col-lg-4 col-sm-4"></div>').append('<div>' + date + '</div>'));*/
+
+                        if (data[i].err) {
+                            $rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:red;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + data[i].log + '</span>'));
+                        } else {
+                            $rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:DarkBlue;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + data[i].log + '</span>'));
+                        }
+
+                        $table.append($rowDiv);
+                        //$table.append('<hr/>');
+
+                    }
+
+
+                    if (data.length) {
+                        lastTimestamp = data[data.length - 1].timestamp;
+                        console.log(lastTimestamp);
+                        $modalBody.append($table);
+                        $modalBody.scrollTop($modalBody[0].scrollHeight + 100);
+                    }
+
+
+                    console.log('polling again');
+                    if ($instanceLogModalContainer.data()['bs.modal'].isShown) {
+                        pollLogs(lastTimestamp, 1000, false);
+                    } else {
+                        console.log('not polling again');
+                    }
+                });
+            }, delay);
+        }
+        pollLogs(lastTimestamp, 0, true);
+    };
+
+    function getInstances() {
+        $.get('/instances', function(instances) {
+            createInstanceLogTable(instances);
+        }).fail(function(jxhr) {
+            var msg = "Unable to fetch Instances.";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+        });
+    }
+    </script>
+</body>
+
+</html>

@@ -213,7 +213,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
             var instance = {
                 name: launchparamsOpenstack.server.name,
                 orgId: launchParams.orgId,
-                orgName:launchParams.orgName,
+                orgName: launchParams.orgName,
                 bgId: launchParams.bgId,
                 bgName: launchParams.bgName,
                 projectId: launchParams.projectId,
@@ -223,7 +223,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                 providerId: self.cloudProviderId,
                 providerType: self.cloudProviderType,
                 keyPairId: 'unknown',
-                region:self.region,
+                region: self.region,
                 chefNodeName: instanceData.server.id,
                 runlist: paramRunList,
                 platformId: instanceData.server.id,
@@ -232,6 +232,8 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                 instanceState: 'pending',
                 bootStrapStatus: 'waiting',
                 users: launchParams.users,
+                instanceType: self.flavor,
+                catUser: launchParams.sessionUser,
                 hardware: {
                     platform: 'unknown',
                     platformVersion: 'unknown',
