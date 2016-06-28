@@ -351,7 +351,7 @@ var InstancesDao = function() {
         });
     };
 
-    this.getInstancesByOrgId = function(orgId, callback) {
+    this.getDockerInstancesByOrgId = function(orgId, callback) {
         var queryObj = {
             orgId:orgId
         }
