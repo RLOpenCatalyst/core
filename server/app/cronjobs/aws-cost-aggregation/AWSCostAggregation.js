@@ -30,7 +30,7 @@ var csvFile = appConfig.aws.s3BucketDownloadFileLocation + accountNumber + appCo
 
 
 var AggregateAWSCost= Object.create(CatalystCronJob);
-AggregateAWSCost.interval = '*/5 * * * *';
+AggregateAWSCost.interval = '0 */2 * * *';
 AggregateAWSCost.execute = aggregateAWSCost;
 
 module.exports = AggregateAWSCost;
