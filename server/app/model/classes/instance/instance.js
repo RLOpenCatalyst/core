@@ -351,14 +351,14 @@ var InstancesDao = function() {
         });
     };
 
-    this.getDockerInstancesByOrgId = function(orgId, callback) {
+    this.getInstancesWithContainersByOrgId = function(orgId, callback) {
         var queryObj = {
             orgId:orgId
         }
         queryObj['docker.dockerEngineStatus'] = 'success';
         Instances.find(queryObj, function(err, data) {
             if (err) {
-                logger.error("Failed getInstanceByOrgId (%s)", orgId, err);
+                logger.error("Failed getInstancesWithContainersByOrgId (%s)", orgId, err);
                 callback(err, null);
                 return;
             }
