@@ -378,6 +378,17 @@ var InstancesDao = function() {
         });
     };
 
+    this.listInstances = function(callback) {
+        Instances.find(function(err, data) {
+            if (err) {
+                logger.error("Failed to getInstances :: ", err);
+                callback(err, null);
+                return;
+            }
+            return callback(null,data);
+        });
+    };
+
     this.getInstances = function(instanceIds, callback) {
         logger.debug("Enter getInstances :: ", instanceIds);
         var queryObj = {};
@@ -391,7 +402,7 @@ var InstancesDao = function() {
             'actionLogs': false
         }, function(err, data) {
             if (err) {
-                logger.error("Failed to getInstances :: ", instanceIds, err);
+                logger.error("Failed to getInstances :: ", err);
                 callback(err, null);
                 return;
             }
@@ -403,7 +414,7 @@ var InstancesDao = function() {
 
     this.getInstanceList = function getInstanceList(jsonData, callback) {
         if (jsonData.pageSize) {
-            jsonData['searchColumns'] = ['platformId', 'instanceState','bootStrapStatus', 'orgName', 'bgName', 'projectName', 'environmentName'];
+            jsonData['searchColumns'] = ['platformId', 'instanceState', 'bootStrapStatus', 'orgName', 'bgName', 'projectName', 'environmentName'];
             apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
                 if (err) {
                     var err = new Error('Internal server error');
@@ -1925,6 +1936,22 @@ var InstancesDao = function() {
 
         });
 
+    }
+
+    this.updateInstance = function updateInstance(instanceId, instanceData, callback) {
+        Instances.update({
+            _id: new ObjectId(instanceId)
+        }, {
+            $set: instanceData
+        }, {
+            upsert: false
+        }, function(err, instance) {
+            if (err) {
+                logger.debug("Got error while updating Instance: ", err);
+                return callback(err, null);
+            }
+            return callback(null, instance);
+        });
     }
 };
 
