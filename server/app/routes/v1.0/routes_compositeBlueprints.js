@@ -26,7 +26,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *
      * @apiSuccess {Object[]} compositeBlueprints                   List of composite blueprints
      * @apiSuccess {String} compositeBlueprints.id		            Composite blueprint id
-     * @apiSuccess {String} compositeBlueprints.name		            Composite blueprint name
+     * @apiSuccess {String} compositeBlueprints.name		        Composite blueprint name
      * @apiSuccess {String} compositeBlueprints.organization		Organization
      * @apiSuccess {String} compositeBlueprints.businessGroup		Business group
      * @apiSuccess {String} compositeBlueprints.project			    Project
@@ -54,62 +54,68 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *                  },
      *                  "blueprints": [
      *                      {
-     *                          "id": "<MongoID>",
-     *                          "type": "SOFTWARESTACK",
-     *                          "runList": [
-     *                          ],
-     *                          "attributes": [
-     *                          ]
-     *                          ...
-     *                      },
-     *                      {
-     *                          "id": "<MongoID>",
-     *                          "type": "SOFTWARESTACK",
-     *                          "runList": [
-     *                          ],
-     *                          "attributes": [
-     *                          ]
-     *                          ...
-     *                      }
-     *                  ]
-     *              },
-	 *				{
-     *                  "id": "<MongoID>",
-     *                  "name": "Blueprint2",
-     *                  "organization": {
-     *                      "id": "<MongoID>",
-     *                      "name": "Organization2"
-     *                  },
-     *                  "businessGroup": {
-     *                      "id": "<MongoID>",
-     *                      "name": "BusinessGroup2"
-     *                  },
-     *                  "project": {
-     *                      "id": "<MongoID>",
-     *                      "name": "Project2"
-     *                  },
-     *                  "providerId": "<MongoID>",
-     *                  "blueprints": [
-     *                      {
-     *                          "id": "<MongoID>",
-     *                          "type": "SOFTWARESTACK",
-     *                          "runList": [
-     *                              "recipe[apache2]",
-     *                              "
-     *                          ],
-     *                          "attributes": [
-     *                          ]
-     *                          ...
-     *                      },
-     *                      {
-     *                          "id": "<MongoID>",
-     *                          "type": "SOFTWARESTACK",
-     *                          "runList": [
-     *                          ],
-     *                          "attributes": [
-     *                          ]
-     *                          ...
-     *                      }
+     *                         "id": "5756881cee06745903a776cc",
+     *                         "name": "test-blueprint",
+     *                         "templateId": "test-template",
+     *                         "templateType": "chef",
+     *                         "blueprintConfig": {
+     *                           "_id": "5756881cee06745903a776cb",
+     *                           "infraManagerData": {
+     *                             "versionsList": [
+     *                               {
+     *                                 "runlist": [
+     *                                   "recipe[apache2]"
+     *                                 ],
+     *                                 "attributes": [
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035df",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "nexusUrl": "url"
+     *                                              }
+     *                                          },
+     *                                          "name": "Nexus Repo Url for Petclinic"
+     *                                      },
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035de",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "version": "version"
+     *                                              }
+     *                                          },
+     *                                          "name": "Version"
+     *                                      }
+     *                                 ]
+     *                                 "ver": "0.1"
+     *                               }
+     *                             ],
+     *                             "latestVersion": "0.1"
+     *                           },
+     *                           "infraManagerId": "3b7701be-2134-45fd-8b34-2b4fabf4420c",
+     *                           "infraMangerType": "chef",
+     *                           "cloudProviderData": {
+     *                             "securityGroupIds": [
+     *                               "sg-e18e6085"
+     *                             ],
+     *                             "instanceCount": "1",
+     *                             "instanceOS": "linux",
+     *                             "imageId": "575687a7ee06745903a776a7",
+     *                             "subnetId": "subnet-12b4ea54",
+     *                             "region": "us-west-1",
+     *                             "vpcId": "vpc-52110130",
+     *                             "instanceUsername": "root",
+     *                             "instanceAmiid": "ami-ff89fb9f",
+     *                             "instanceType": "t2.micro",
+     *                             "keyPairId": "57568337ee06745903a773c6"
+     *                           },
+     *                           "cloudProviderId": "57568337ee06745903a773c5",
+     *                           "cloudProviderType": "aws"
+     *                         },
+     *                         "blueprintType": "instance_launch",
+     *                         "version": "1",
+     *                         "users": [],
+     *                         "appUrls": []
+     *                       }
      *                  ]
      *              }
 	 * 			],
@@ -154,22 +160,67 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          },
      *          "blueprints": [
      *              {
-     *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
-     *                  "runList": [
-     *                  ],
-     *                  "attributes": [
-     *                  ]
-     *                  ...
-     *              },
-     *              {
-     *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
-     *                  "runList": [
-     *                  ],
-     *                  "attributes": [
-     *                  ]
-     *                  ...
+     *                  "id": "5756881cee06745903a776cc",
+     *                  "name": "test-blueprint",
+     *                  "templateId": "test-template",
+     *                  "templateType": "chef",
+     *                  "blueprintConfig": {
+     *                      "_id": "5756881cee06745903a776cb",
+     *                      "infraManagerData": {
+     *                          "versionsList": [
+     *                              {
+     *                                  "runlist": [
+     *                                      "recipe[apache2]"
+     *                                  ],
+     *                                  "attributes": [
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035df",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "nexusUrl": "url"
+     *                                              }
+     *                                          },
+     *                                          "name": "Nexus Repo Url for Petclinic"
+     *                                      },
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035de",
+     *                                          "jsonObj": {
+     *                                          "rlcatalyst": {
+     *                                                  "version": "version"
+     *                                              }
+     *                                          },
+     *                                          "name": "Version"
+     *                                      }
+     *                                  ]
+     *                                      "ver": "0.1"
+     *                                  }
+     *                             ],
+     *                              "latestVersion": "0.1"
+     *                      },
+     *                      "infraManagerId": "3b7701be-2134-45fd-8b34-2b4fabf4420c",
+     *                      "infraMangerType": "chef",
+     *                      "cloudProviderData": {
+     *                          "securityGroupIds": [
+     *                              "sg-e18e6085"
+     *                          ],
+     *                          "instanceCount": "1",
+     *                          "instanceOS": "linux",
+     *                          "imageId": "575687a7ee06745903a776a7",
+     *                          "subnetId": "subnet-12b4ea54",
+     *                          "region": "us-west-1",
+     *                          "vpcId": "vpc-52110130",
+     *                          "instanceUsername": "root",
+     *                          "instanceAmiid": "ami-ff89fb9f",
+     *                          "instanceType": "t2.micro",
+     *                              "keyPairId": "57568337ee06745903a773c6"
+     *                       },
+     *                       "cloudProviderId": "57568337ee06745903a773c5",
+     *                       "cloudProviderType": "aws"
+     *                  },
+     *                  "blueprintType": "instance_launch",
+     *                  "version": "1",
+     *                  "users": [],
+     *                  "appUrls": []
      *              }
      *          ]
      *      }
@@ -187,9 +238,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} compositeBlueprint.organizationId               Organization id
      * @apiParam {String} compositeBlueprint.businessGroupId              BG id
      * @apiParam {String} compositeBlueprint.projectId                    Project id
-     * @apiParam {Object[]} compositeBlueprint.blueprints                 List of nested blueprints in launch order
+     * @apiParam {Object[]} compositeBlueprint.blueprints                 List of nested blueprints in launch order.
+     * Blueprints should be of the same type and should be created by the same provider.
      * @apiParam {Object} compositeBlueprint.blueprints.id                Nested blueprint ID
-     * @apiParam {Object} compositeBlueprint.blueprints.type              Nested blueprint type
      * @apiParam {String[]} compositeBlueprint.blueprints.attributes      Nested blueprint cookbook/role attributes
      * @apiParamExample {json} Request-Example:
      *      {
@@ -200,13 +251,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          "blueprints": [
      *              {
      *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
      *                  "attributes": [
      *                  ]
      *              },
      *              {
      *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
      *                  "attributes": [
      *                  ]
      *              }
@@ -215,7 +264,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *
      * @apiSuccess {Object[]} compositeBlueprints                   List of composite blueprints
      * @apiSuccess {String} compositeBlueprints.id		            Composite blueprint id
-     * @apiSuccess {String} compositeBlueprints.type 	            softwarestack/docker...
+     * @apiSuccess {String} compositeBlueprints.type 	            chef
      * @apiSuccess {String} compositeBlueprints.organization		Organization
      * @apiSuccess {String} compositeBlueprints.businessGroup		Business group
      * @apiSuccess {String} compositeBlueprints.project			    Project
@@ -240,22 +289,69 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          },
      *          "blueprints": [
      *              {
-     *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
-     *                  "runList": [
-     *                  ],
-     *                  "attributes": [
+     *                         "id": "5756881cee06745903a776cc",
+     *                         "name": "test-blueprint",
+     *                         "templateId": "test-template",
+     *                         "templateType": "chef",
+     *                         "blueprintConfig": {
+     *                           "_id": "5756881cee06745903a776cb",
+     *                           "infraManagerData": {
+     *                             "versionsList": [
+     *                               {
+     *                                 "runlist": [
+     *                                   "recipe[apache2]"
+     *                                 ],
+     *                                 "attributes": [
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035df",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "nexusUrl": "url"
+     *                                              }
+     *                                          },
+     *                                          "name": "Nexus Repo Url for Petclinic"
+     *                                      },
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035de",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "version": "version"
+     *                                              }
+     *                                          },
+     *                                          "name": "Version"
+     *                                      }
+     *                                 ]
+     *                                 "ver": "0.1"
+     *                               }
+     *                             ],
+     *                             "latestVersion": "0.1"
+     *                           },
+     *                           "infraManagerId": "3b7701be-2134-45fd-8b34-2b4fabf4420c",
+     *                           "infraMangerType": "chef",
+     *                           "cloudProviderData": {
+     *                             "securityGroupIds": [
+     *                               "sg-e18e6085"
+     *                             ],
+     *                             "instanceCount": "1",
+     *                             "instanceOS": "linux",
+     *                             "imageId": "575687a7ee06745903a776a7",
+     *                             "subnetId": "subnet-12b4ea54",
+     *                             "region": "us-west-1",
+     *                             "vpcId": "vpc-52110130",
+     *                             "instanceUsername": "root",
+     *                             "instanceAmiid": "ami-ff89fb9f",
+     *                             "instanceType": "t2.micro",
+     *                             "keyPairId": "57568337ee06745903a773c6"
+     *                           },
+     *                           "cloudProviderId": "57568337ee06745903a773c5",
+     *                           "cloudProviderType": "aws"
+     *                         },
+     *                         "blueprintType": "instance_launch",
+     *                         "version": "1",
+     *                         "users": [],
+     *                         "appUrls": []
+     *                       }
      *                  ]
-     *                  ...
-     *              },
-     *              {
-     *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
-     *                  "runList": [
-     *                  ],
-     *                  "attributes": [
-     *                  ]
-     *                  ...
      *              }
      *          ]
      *      }
@@ -265,11 +361,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     /**
-     * @api {post} /composite-blueprints/:compositeBlueprintId       Launch composite blueprint
+     * @api {post} /composite-blueprints/:compositeBlueprintId/launch       Launch composite blueprint
      * @apiName lauchCompositeBlueprint
      * @apiGroup composite-blueprints
      *
-     * @apiParam {String} compositeBlueprintId                       Blueprint ID
+     * @apiParam {String} compositeBlueprintId                              Blueprint ID
      *
      * @apiSuccess {Object} Empty response object
      *
@@ -291,23 +387,70 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *              "name": "Project1"
      *          },
      *          "blueprints": [
-     *              {
-     *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
-     *                  "runList": [
-     *                  ],
-     *                  "attributes": [
+     *                      {
+     *                         "id": "5756881cee06745903a776cc",
+     *                         "name": "test-blueprint",
+     *                         "templateId": "test-template",
+     *                         "templateType": "chef",
+     *                         "blueprintConfig": {
+     *                           "_id": "5756881cee06745903a776cb",
+     *                           "infraManagerData": {
+     *                             "versionsList": [
+     *                               {
+     *                                 "runlist": [
+     *                                   "recipe[apache2]"
+     *                                 ],
+     *                                 "attributes": [
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035df",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "nexusUrl": "url"
+     *                                              }
+     *                                          },
+     *                                          "name": "Nexus Repo Url for Petclinic"
+     *                                      },
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035de",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "version": "version"
+     *                                              }
+     *                                          },
+     *                                          "name": "Version"
+     *                                      }
+     *                                 ]
+     *                                 "ver": "0.1"
+     *                               }
+     *                             ],
+     *                             "latestVersion": "0.1"
+     *                           },
+     *                           "infraManagerId": "3b7701be-2134-45fd-8b34-2b4fabf4420c",
+     *                           "infraMangerType": "chef",
+     *                           "cloudProviderData": {
+     *                             "securityGroupIds": [
+     *                               "sg-e18e6085"
+     *                             ],
+     *                             "instanceCount": "1",
+     *                             "instanceOS": "linux",
+     *                             "imageId": "575687a7ee06745903a776a7",
+     *                             "subnetId": "subnet-12b4ea54",
+     *                             "region": "us-west-1",
+     *                             "vpcId": "vpc-52110130",
+     *                             "instanceUsername": "root",
+     *                             "instanceAmiid": "ami-ff89fb9f",
+     *                             "instanceType": "t2.micro",
+     *                             "keyPairId": "57568337ee06745903a773c6"
+     *                           },
+     *                           "cloudProviderId": "57568337ee06745903a773c5",
+     *                           "cloudProviderType": "aws"
+     *                         },
+     *                         "blueprintType": "instance_launch",
+     *                         "version": "1",
+     *                         "users": [],
+     *                         "appUrls": []
+     *                       }
      *                  ]
-     *                  ...
-     *              },
-     *              {
-     *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
-     *                  "runList": [
-     *                  ],
-     *                  "attributes": [
-     *                  ]
-     *                  ...
      *              }
      *          ]
      *      }
@@ -335,13 +478,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          "blueprints": [
      *              {
      *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
      *                  "attributes": [
      *                  ]
      *              },
      *              {
      *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
      *                  "attributes": [
      *                  ]
      *              }
@@ -350,7 +491,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *
      * @apiSuccess {Object[]} compositeBlueprints                   List of composite blueprints
      * @apiSuccess {String} compositeBlueprints.id		            Composite blueprint id
-     * @apiSuccess {String} compositeBlueprints.type 	            softwarestack/docker...
+     * @apiSuccess {String} compositeBlueprints.type 	            chef
      * @apiSuccess {String} compositeBlueprints.organization		Organization
      * @apiSuccess {String} compositeBlueprints.businessGroup		Business group
      * @apiSuccess {String} compositeBlueprints.project			    Project
@@ -374,23 +515,70 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *              "name": "Project1"
      *          },
      *          "blueprints": [
-     *              {
-     *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
-     *                  "runList": [
-     *                  ],
-     *                  "attributes": [
+     *                  {
+     *                         "id": "5756881cee06745903a776cc",
+     *                         "name": "test-blueprint",
+     *                         "templateId": "test-template",
+     *                         "templateType": "chef",
+     *                         "blueprintConfig": {
+     *                           "_id": "5756881cee06745903a776cb",
+     *                           "infraManagerData": {
+     *                             "versionsList": [
+     *                               {
+     *                                 "runlist": [
+     *                                   "recipe[apache2]"
+     *                                 ],
+     *                                 "attributes": [
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035df",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "nexusUrl": "url"
+     *                                              }
+     *                                          },
+     *                                          "name": "Nexus Repo Url for Petclinic"
+     *                                      },
+     *                                      {
+     *                                          "_id": "57720e75171e21a0128035de",
+     *                                          "jsonObj": {
+     *                                              "rlcatalyst": {
+     *                                                  "version": "version"
+     *                                              }
+     *                                          },
+     *                                          "name": "Version"
+     *                                      }
+     *                                 ]
+     *                                 "ver": "0.1"
+     *                               }
+     *                             ],
+     *                             "latestVersion": "0.1"
+     *                           },
+     *                           "infraManagerId": "3b7701be-2134-45fd-8b34-2b4fabf4420c",
+     *                           "infraMangerType": "chef",
+     *                           "cloudProviderData": {
+     *                             "securityGroupIds": [
+     *                               "sg-e18e6085"
+     *                             ],
+     *                             "instanceCount": "1",
+     *                             "instanceOS": "linux",
+     *                             "imageId": "575687a7ee06745903a776a7",
+     *                             "subnetId": "subnet-12b4ea54",
+     *                             "region": "us-west-1",
+     *                             "vpcId": "vpc-52110130",
+     *                             "instanceUsername": "root",
+     *                             "instanceAmiid": "ami-ff89fb9f",
+     *                             "instanceType": "t2.micro",
+     *                             "keyPairId": "57568337ee06745903a773c6"
+     *                           },
+     *                           "cloudProviderId": "57568337ee06745903a773c5",
+     *                           "cloudProviderType": "aws"
+     *                         },
+     *                         "blueprintType": "instance_launch",
+     *                         "version": "1",
+     *                         "users": [],
+     *                         "appUrls": []
+     *                       }
      *                  ]
-     *                  ...
-     *              },
-     *              {
-     *                  "id": "<MongoID>",
-     *                  "type": "SOFTWARESTACK",
-     *                  "runList": [
-     *                  ],
-     *                  "attributes": [
-     *                  ]
-     *                  ...
      *              }
      *          ]
      *      }
