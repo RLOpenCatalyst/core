@@ -414,14 +414,16 @@ function getTrackedInstancesForProvider(provider, next) {
     );
 }
 
-function getTrackedInstances(query, next) {
+function getTrackedInstances(query,category, next) {
     async.parallel([
-
             function(callback) {
-                instancesModel.getAll(query, callback);
-            },
-            function(callback) {
-                unManagedInstancesModel.getAll(query, callback);
+                if(category === 'managed'){
+                    instancesModel.getAll(query, callback);
+                }else if(category === 'assigned'){
+                    unManagedInstancesModel.getAll(query, callback);
+                }else{
+                    callback(null,[]);
+                }
             }
         ],
         function(err, results) {
@@ -1159,20 +1161,19 @@ function getCookBookAttributes(instance, callback) {
     }
 };
 
-function removeInstanceById(instanceId,instanceState,callback){
+function removeInstanceById(instanceId,callback){
         containerModel.deleteContainerByInstanceId(instanceId, function (err, container) {
             if (err) {
                 logger.error("Container deletion Failed >> ", err);
                 callback(err, null);
                 return;
             } else {
-                instancesModel.removeInstanceById(instanceId,instanceState, function (err, data) {
+                instancesModel.removeInstanceById(instanceId, function (err, data) {
                     if (err) {
                         logger.error("Instance deletion Failed >> ", err);
                         callback(err, null);
                         return;
                     }
-                    logger.debug("Exit delete() for /instances/%s", instanceId);
                     callback(err, data);
                 });
             }

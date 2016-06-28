@@ -44,7 +44,6 @@ function getOrgProjBUComparison(data, id) {
 var eventAdded = false;
 //method for blueprint launch except docker.
 function blueprintLaunchDesign(data) {
-    console.log(data);
     bootbox.confirm({
         message: "Are you sure you want to launch the Blueprint? Press Ok To continue",
         title: "Confirmation",

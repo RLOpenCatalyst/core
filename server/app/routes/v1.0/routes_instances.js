@@ -361,7 +361,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            instanceService.removeInstanceById(req.params.instanceId,'dummy', function(err, data) {
+            instanceService.removeInstanceById(req.params.instanceId, function(err, data) {
                         if (err) {
                             logger.error("Instance deletion Failed >> ", err);
                             res.status(500).send(errorResponses.db.error);

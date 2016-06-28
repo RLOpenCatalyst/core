@@ -83,7 +83,7 @@ var RDS = function(awsSettings) {
             });
         }
         var params = {
-            ResourceName: 'arn:aws:rds:us-west-1:549974527830:db:'+dbName,
+            ResourceName: 'arn:aws:rds:us-west-1:'+appConfig.aws.s3AccountNumber+':db:'+dbName,
             Tags: tagsArray
         };
         rds.addTagsToResource(params, function(err, data) {
