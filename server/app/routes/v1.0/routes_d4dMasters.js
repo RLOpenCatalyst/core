@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 // This file act as a Controller which contains Settings related all end points.
@@ -44,6 +44,7 @@ var util = require('util');
 var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
 var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
+var	masterDataService = require('_pr/services/masterDataService');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -162,7 +163,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     //d4dmasters/getdockertags/centos/null
     app.get('/d4dmasters/getdockertags/:repopath/:dockerreponame', function(req, res) {
         logger.debug("Enter get() for /d4dmasters/getdockertags/%s/%s", req.params.repopath, req.params.dockerreponame);
-        //fetch the username and password from 
+        //fetch the username and password from
         //Need to populate dockerrowid in template card. - done
         logger.debug('hit getdockertags');
         configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function(err, data) {
@@ -432,7 +433,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     }
                                                 }); //end findOne
                                             }else{
-                                                masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, aEnvironment) {
+                                                masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, environment) {
                                                     if (err) {
                                                         logger.debug("Hit an errror to get Environment Name : %s", err);
                                                         res.send(500);
@@ -442,26 +443,31 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             rowid: req.params.fieldvalue
                                                         }, function (err) {
                                                             if (err) {
-                                                                    logger.debug("Hit an errror on delete : %s", err);
-                                                                    res.send(500);
-                                                                    return;
+                                                                logger.debug("Hit an errror on delete : %s", err);
+                                                                res.send(500);
+                                                                return;
                                                             }else {
-                                                                    appDeployPipelineService.updateAppDeployPipeLineEnviornment(aEnvironment,function(err,data){
-                                                                        if (err) {
-                                                                            logger.debug("Hit an errror on updating the PipeLine Configuration : %s", err);
-                                                                            res.send(500);
-                                                                            return;
-                                                                        }
-                                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
-                                                                        res.send(200);
-                                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                                masterDataService.updateProjectData(environment,function(err,projectData){
+                                                                    if (err) {
+                                                                        logger.debug("Hit an error on updating the Project Master Data : %s", err);
+                                                                        res.send(500);
                                                                         return;
-
-                                                                    })
-                                                                }
-                                                            }); //end findOne
-                                                        }
-                                                    })
+                                                                    }else {
+                                                                        appDeployPipelineService.updateAppDeployPipeLineEnviornment(environment, function (err, data) {
+                                                                            if (err) {
+                                                                                logger.debug("Hit an error on updating the PipeLine Configuration : %s", err);
+                                                                                res.send(500);
+                                                                                return;
+                                                                            }
+                                                                            res.send(200);
+                                                                            return;
+                                                                        })
+                                                                    }
+                                                                })
+                                                            }
+                                                        }); //end findOne
+                                                    }
+                                                })
                                             }
                                         }
                                     }); //end configmgmtDao
@@ -1557,7 +1563,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
             if (dbtype) {
                 var query = {};
-                query[req.params.filtercolumnname] = req.params.filtercolumnvalue; //building the query 
+                query[req.params.filtercolumnname] = req.params.filtercolumnvalue; //building the query
                 query['id'] = req.params.masterid;
 
                 logger.debug("Master Type: %s", dbtype);
@@ -1913,7 +1919,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             var fil = eval('req.files.' + fi[i]);
             if (typeof fil != 'undefined') {
 
-                var data = fs.readFileSync(fil.path); //, function(err, data) { 
+                var data = fs.readFileSync(fil.path); //, function(err, data) {
                 if (folderpath == '') {
                     logger.debug("this is where file gets saved as (no folderpath): %s %s / %s %s __ %s", chefRepoPath, req.params.orgname, suffix, controlName, fil.name);
                     fs.writeFile(chefRepoPath + req.params.orgname + '/' + suffix + controlName + '__' + fil.name, data);
@@ -2607,7 +2613,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     // Update settings
                                     if (req.params.id === '4') {
                                         bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
-                                        delete rowtoedit._id; //fixing the issue of 
+                                        delete rowtoedit._id; //fixing the issue of
                                         rowtoedit["repositories"] = bodyJson['repositories'];
                                         logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                         eval('d4dModelNew.' + dbtype).update({
@@ -2630,7 +2636,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                     if (req.params.id === '26') {
                                         bodyJson['groupid'] = JSON.parse(bodyJson['groupid']);
-                                        delete rowtoedit._id; //fixing the issue of 
+                                        delete rowtoedit._id; //fixing the issue of
                                         rowtoedit["groupid"] = bodyJson['groupid'];
                                         logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                         eval('d4dModelNew.' + dbtype).update({
@@ -2664,7 +2670,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             if (anUser.length) {
                                                 if (bodyJson["password"] === '') {
 
-                                                    delete rowtoedit._id; //fixing the issue of 
+                                                    delete rowtoedit._id; //fixing the issue of
                                                     if (bodyJson["orgname"] === "") {
                                                         logger.debug("Inside if for empty for update..");
                                                         rowtoedit["orgname"] = [""];
@@ -2697,7 +2703,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             return;
                                                         }
                                                         logger.debug("hashedPassword: ", hashedPassword);
-                                                        delete rowtoedit._id; //fixing the issue of 
+                                                        delete rowtoedit._id; //fixing the issue of
                                                         if (bodyJson["orgname"] === "") {
                                                             rowtoedit["orgname"] = [""];
                                                             rowtoedit["orgname_rowid"] = [""];
@@ -2722,7 +2728,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         });
                                                     });
                                                 } else {
-                                                    delete rowtoedit._id; //fixing the issue of 
+                                                    delete rowtoedit._id; //fixing the issue of
                                                     if (bodyJson["orgname"] === "") {
                                                         rowtoedit["orgname"] = [""];
                                                         rowtoedit["orgname_rowid"] = [""];
@@ -2767,7 +2773,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                     logger.debug("Rowid: %s", bodyJson["rowid"]);
                                     var currowid = bodyJson["rowid"];
-                                    delete rowtoedit._id; //fixing the issue of 
+                                    delete rowtoedit._id; //fixing the issue of
                                     logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                     eval('d4dModelNew.' + dbtype).update({
                                         rowid: bodyJson["rowid"]
