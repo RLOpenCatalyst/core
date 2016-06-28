@@ -184,7 +184,6 @@ var ApiUtil = function() {
                 } else {
                     if(key === 'resources' && b[0] === 'providerId'){
                         filterBy['providerDetails.id'] = b[1];
-                        filterBy['isDeleted'] = false;
                     }else {
                         filterBy[b[0]] = b[1];
                     }

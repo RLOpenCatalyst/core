@@ -41,7 +41,6 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
 ResourceSchema.statics.getResourcesByProviderId = function(providerId,callback) {
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
-    queryObj['isDeleted']=false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getResourcesByProviderId", err);
@@ -148,6 +147,9 @@ ResourceSchema.statics.updateResourceTag = function(params, fields, callback) {
 };
 
 ResourceSchema.statics.getResources=function(dataBaseQueryObj,callback){
+    if(dataBaseQueryObj.category === 'dashboard') {
+        dataBaseQueryObj.queryObj.isDeleted = false;
+    }
     Resources.paginate(dataBaseQueryObj.queryObj, dataBaseQueryObj.options, function(err, data) {
         if (err) {
             logger.error("Failed to getResources", err);

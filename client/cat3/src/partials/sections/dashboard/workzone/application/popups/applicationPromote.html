@@ -10,6 +10,12 @@
                 <i class="fa fa-clone"></i> Promote for Pipeline Card
             </h4>
         </div>
+        
+  	<div ng-if="promApp.errorMsg">
+		<div class="alert alert-danger fade in">
+			<strong>Error!</strong> Some {{promApp.msgText}} has been occurred while submitting your data.
+		</div>
+	</div>
 
         <div class="modal-body">
             <div>

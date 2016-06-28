@@ -17,23 +17,15 @@
                 <a data-toggle="collapse" data-parent="#accordion-Infrastructure" href="#collapseInfrastructure" >
                     <i class="fa fa-fw fa-plus-circle txt-color-blue"></i>
                     <i class="fa fa-fw fa-minus-circle txt-color-blue"></i>
-                    <b class="accordianName">Infrastructure</b>
+                    <b class="accordianName">Provider Information</b>
                     <fieldset class="fieldsetCustomDashboard">
                         <legend class="legendCustomDashboard legendCustomImp">Providers Annotation</legend>
                         <span class="totalProviderLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        <span class="font-size11 marginright15">Total Provider</span>
+                        <span class="font-size11 marginright15">Total AWS Provider</span>
 
                         <span class="totalAwsLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                         <span class="font-size11 marginright15">AWS</span>
 
-                        <span class="totalAzureLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        <span class="font-size11 marginright15">Azure</span>
-
-                        <span class="totalVmwareLegendCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        <span class="font-size11 marginright15">VMware</span>
-
-                        <span class="totalOpenstackCSS">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        <span class="font-size11 marginright15">OpenStack</span>
                     </fieldset>
                 </a>
             </h4>
@@ -47,7 +39,7 @@
                 <div class="inner">
                     <h3>&nbsp;</h3>
                     <p>
-                    <div class="margintop-15">Provider name </div>
+                    <div class="margintop-15">Provider Name </div>
                     <br>
                     <span class="providerName font-bold"></span>
                     </p>
@@ -63,43 +55,43 @@
         <div class="col-lg-3 col-md-3 col-xs-6 childTotalInstanceTemplate" style="display:none">
             <div class="small-box bg-aqua">
                 <div class="inner">
-                    <h3 class="countTotalInstance">0</h3>
-                    <p> <br>No. of Instances</p>
+                    <h3 class="countTotalBuckets">0</h3>
+                    <p>Total <br>S3 Buckets</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-laptop"></i>
                 </div>
-                <span class="small-box-footer managedUnmanagedCSS">
+                <span class="small-box-footer providerSpecificMoreInfo managedUnmanagedCSS">
               </span>
 
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-3 col-xs-6 childManagedInstanceTemplate" style="display:none">
+        <div class="col-lg-3 col-md-3 col-xs-6 childS3ManagedInstanceTemplate" style="display:none">
             <div class="small-box bg-aqua">
                 <div class="inner">
-                    <h3 class="countMangedInstance">0</h3>
-                    <p> <br>No. of Managed Instances</p>
+                    <h3 class="countAssignedBuckets">0</h3>
+                    <p>Total <br>Assigned S3 Buckets</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-cube"></i>
                 </div>
-              <span id="managedInstSpecificMoreInfo" class="small-box-footer  managedUnmanagedCSS">
+              <span id="assignedS3BucketsMoreInfo" class="small-box-footer  managedUnmanagedCSS">
                 More info <i class="fa fa-arrow-circle-right"></i>
               </span>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-3 col-xs-6 childUnmanagedInstanceTemplate" style="display:none">
+        <div class="col-lg-3 col-md-3 col-xs-6 childS3UnmanagedInstanceTemplate" style="display:none">
             <div class="small-box bg-aqua">
                 <div class="inner">
-                    <h3 class="countUnmangedInstance">0</h3>
-                    <p> <br>No. of Assigned Instances</p>
+                    <h3 class="countUnAssignedBuckets">0</h3>
+                    <p>Total <br>UnAssigned S3 Buckets</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-external-link"></i>
                 </div>
-              <span id="assignedInstSpecificMoreInfo" class="small-box-footer footer-box-css">
+              <span id="unAssignedS3BucketsMoreInfo" class="small-box-footer footer-box-css">
                More info <i class="fa fa-arrow-circle-right"></i>
               </span>
             </div>
@@ -113,7 +105,7 @@
                             <div class="small-box bg-aqua">
                                 <div class="inner">
                                     <h3 id="totalProviders">&nbsp;</h3>
-                                    <p>Total <br>Number of Providers</p>
+                                    <p>Total <br>Providers</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fa fa-th"></i>
@@ -122,50 +114,48 @@
                       </span>
                             </div>
                         </div>
+                        <!--s3-->
                         <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Instances">
                             <div class="small-box bg-aqua">
                                 <div class="inner">
-                                    <h3 id="totalInstances">0</h3>
-                                    <p>Total <br>No. of Instances</p>
+                                    <h3 id="totalBuckets">0</h3>
+                                    <p>Total <br>S3 Buckets</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fa fa-laptop"></i>
                                 </div>
-                        <span class="small-box-footer managedUnmanagedCSS">
-                      </span>
-
+                                <span class="small-box-footer managedUnmanagedCSS">
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Managed Instances">
                             <div class="small-box bg-aqua">
                                 <div class="inner">
-                                    <h3 id="totalmanagedInstances">0</h3>
-                                    <p>Total <br>No. of Managed Instances</p>
+                                    <h3 id="totalS3AssignedBuckets">0</h3>
+                                    <p>Total <br>Assigned S3 Buckets</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fa fa-cube"></i>
                                 </div>
-                      <span id="totalManagedInstancesMoreInfo" class="small-box-footer managedUnmanagedCSS">
-                        More info <i class="fa fa-arrow-circle-right"></i>
-                      </span>
+                     <span id="allAssignedS3BucketsMoreInfo" class="small-box-footer  managedUnmanagedCSS">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
                             </div>
                         </div>
 
                         <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass" data-text="Total Spend in Today">
                             <div class="small-box bg-aqua">
                                 <div class="inner">
-                                    <h3 id="totalunmanagedInstances">0</h3>
-                                    <p>Total <br>No. of Assigned Instances</p>
+                                    <h3 id="totalS3UnAssignedBuckets">0</h3>
+                                    <p>Total <br>UnAssigned S3 Buckets</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fa fa-external-link"></i>
                                 </div>
-                       <span id="totalAssignedInstancesMoreInfo" class="small-box-footer managedUnmanagedCSS">
-                        More info <i class="fa fa-arrow-circle-right"></i>
-                      </span>
+                       <span id="allUnAssignedS3BucketsMoreInfo" class="small-box-footer  managedUnmanagedCSS">
+                More info <i class="fa fa-arrow-circle-right"></i>
+              </span>
                             </div>
                         </div>
-
                     </div>
                     <div class=" noProviderView" style="display:none">
                         <div id="noenvwarning" class="alert alert-warning noEnvWarning text-center">
@@ -175,106 +165,36 @@
                     </div>
                     <div id="awsProviderView">
                     </div>
-                    <div id="openstackProviderView">
-                    </div>
-                    <div id="vmwareProvidersView">
-                    </div>
-                    <div id="hpPlublicCloudProvidersView">
-                    </div>
-                    <div id="azureProvidersView">
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div id="managedTableContainer" style="display:none">
+
+<!--for s3-->
+<div id="assignedS3TableContainer" style="display:none">
     <div class="panel panel-default panel-default-CSS">
         <div class="panel-heading panel-heading-CSS">
             <h4 class="panel-title padding2">
-                <span class="panelh4spanCSS">Managed Instances Details for the Provider :&nbsp;</span>
-                <span id="providerforManagedInstId" class="panelh4spanCSS"></span>
+                <span class="panelh4spanCSS">Assigned S3 Instances Details for the Provider :&nbsp;</span>
+                <span id="providerforAssignedS3Id" class="panelh4spanCSS"></span>
             </h4>
-            <a id="backfrmManagedInstance" class="btn btn-primary panelh4aCSS">
+            <a id="backfromAssignedS3Instance" class="btn btn-primary panelh4aCSS">
                 <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
             </a>
         </div>
     </div>
     <div  class="table-responsive table-responsiveCSS">
-        <table id="managedinstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="assignedS3ListTable">
             <thead>
             <tr>
-                <th class="text-center">InstanceId</th>
-                <th class="text-center">Org</th>
+                <th class="text-center">Bucket Name</th>
+                <th class="text-center">Bucket Owner</th>
+                <th class="text-center">Org Name</th>
                 <th class="text-center">Project</th>
                 <th class="text-center">Env</th>
-                <th class="text-center">OS</th>
-                <th class="text-center">IP Address</th>
-                <th class="text-center">Region</th>
-                <th class="text-center">Status</th>
-            </tr>
-            </thead>
-            <tbody class="managedInstance">
-            </tbody>
-        </table>
-    </div>
-</div>
-<div id="unmanagedTableContainer" style="display:none">
-    <div class="panel panel-default panel-default-CSS">
-        <div class="panel-heading panel-heading-CSS">
-            <h4 class="panel-title padding2">
-                <span class="panelh4spanCSS">Assigned Instances Details for the Provider :&nbsp;</span>
-                <span id="providerforunManagedInstId" class="panelh4spanCSS"></span>
-            </h4>
-            <a id="backfrmunManagedInstance" class="btn btn-primary panelh4aCSS">
-                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
-            </a>
-        </div>
-    </div>
-    <div  class="table-responsive table-responsiveCSS">
-        <table id="unmanagedinstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">InstanceId</th>
-                <th class="text-center">Org</th>
-                <th class="text-center">Project</th>
-                <th class="text-center">Env</th>
-                <th class="text-center">OS</th>
-                <th class="text-center">IP Address</th>
-                <th class="text-center">Region</th>
-                <th class="text-center">Status</th>
-            </tr>
-            </thead>
-            <tbody class="unmanagedInstance">
-            </tbody>
-        </table>
-    </div>
-</div>
-<div id="trackedManagedInstancesAllProviderTableContainer" style="display:none">
-    <div class="panel panel-default panel-default-CSS">
-        <div class="panel-heading panel-heading-CSS">
-            <h4 class="panel-title padding2">
-                <span class="panelh4spanCSS">All Tracked Managed Instances &nbsp;</span>
-            </h4>
-            <a id="backfrmallprovidertrackedManagedInstance" class="btn btn-primary panelh4aCSS">
-                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
-            </a>
-        </div>
-    </div>
-    <div  class="table-responsive table-responsiveCSS">
-        <table id="allProviderTrackedManagedInstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">InstanceId</th>
-                <th class="text-center">Org</th>
-                <th class="text-center">Project</th>
-                <th class="text-center">Env</th>
-                <th class="text-center">OS</th>
-                <th class="text-center">IP Address</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Provider</th>
-                <th class="text-center">Cost</th>
-                <th class="text-center">Avg. Cpu Usage</th>
+                <th class="text-center">Size(MB)</th>
+                <th class="text-center">Created</th>
             </tr>
             </thead>
             <tbody class="managedInstance">
@@ -283,34 +203,89 @@
     </div>
 </div>
 
-<div id="trackedAssignedInstancesAllProviderTableContainer" style="display:none">
+<div id="allAssignedS3TableContainer" style="display:none">
     <div class="panel panel-default panel-default-CSS">
         <div class="panel-heading panel-heading-CSS">
             <h4 class="panel-title padding2">
-                <span class="panelh4spanCSS">All Tracked Assigned Instances &nbsp;</span>
+                <span class="panelh4spanCSS">All Assigned S3 Buckets Details</span>
             </h4>
-            <a id="backfrmallprovidertrackedAssignedInstance" class="btn btn-primary panelh4aCSS">
+            <a id="backfromAllAssignedS3Instance" class="btn btn-primary panelh4aCSS">
                 <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
             </a>
         </div>
     </div>
     <div  class="table-responsive table-responsiveCSS">
-        <table id="allProviderTrackedAssignedInstanceListTable" class="table table-hover table-bordered managedinstanceListTableCSS" cellspacing="0" width="100%">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="allAssignedS3ListTable">
             <thead>
             <tr>
-                <th class="text-center">InstanceId</th>
-                <th class="text-center">Org</th>
+                <th class="text-center">Bucket Name</th>
+                <th class="text-center">Bucket Owner</th>
+                <th class="text-center">Org Name</th>
                 <th class="text-center">Project</th>
                 <th class="text-center">Env</th>
-                <th class="text-center">OS</th>
-                <th class="text-center">IP Address</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Provider</th>
+                <th class="text-center">Size(MB)</th>
+                <th class="text-center">Created</th>
                 <th class="text-center">Cost</th>
-                <th class="text-center">Avg. Cpu Usage</th>
+                <th class="text-center">Avg. Bucket Size</th>
             </tr>
             </thead>
-            <tbody class="unmanagedInstance">
+            <tbody class="managedInstance">
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="unAssignedS3TableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">UnAssigned S3 Instances Details for the Provider :&nbsp;</span>
+                <span id="providerforUnAssignedS3Id" class="panelh4spanCSS"></span>
+            </h4>
+            <a id="backfromUnAssignedS3Instance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="unassignedS3ListTable">
+        <thead>
+        <tr>
+            <th class="text-center">Bucket Name</th>
+            <th class="text-center">Bucket Owner</th>
+            <th class="text-center">Size(MB)</th>
+            <th class="text-center">Created</th>
+        </tr>
+        </thead>
+        <tbody class="managedInstance">
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div id="allUnAssignedS3TableContainer" style="display:none">
+    <div class="panel panel-default panel-default-CSS">
+        <div class="panel-heading panel-heading-CSS">
+            <h4 class="panel-title padding2">
+                <span class="panelh4spanCSS">All UnAssigned S3 Buckets Details </span>
+            </h4>
+            <a id="backfromAllUnAssignedS3Instance" class="btn btn-primary panelh4aCSS">
+                <i class="ace-icon ace-icon fa fa-chevron-left bigger-110 panelh4aiCSS"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    <div  class="table-responsive table-responsiveCSS">
+        <table class="table table-hover table-bordered managedinstanceListTableCSS" id="allUnassignedS3ListTable">
+            <thead>
+            <tr>
+                <th class="text-center">Bucket Name</th>
+                <th class="text-center">Bucket Owner</th>
+                <th class="text-center">Size(MB)</th>
+                <th class="text-center">Created</th>
+                <th class="text-center">Cost</th>
+                <th class="text-center">Avg. Bucket Size</th>
+            </tr>
+            </thead>
+            <tbody class="managedInstance">
             </tbody>
         </table>
     </div>
@@ -338,40 +313,18 @@
                         </thead>
                         <tbody class="usagesTbody text-center">
                         <tr>
-                            <td class="text-left">CPUUtilization&nbsp;<span style="margin-left:10px;">(Percent)</span></td>
-                            <td id="specCpuUtilAvg"></td>
-                            <td id="specCpuUtilMin"></td>
-                            <td id="specCpuUtilMax"></td>
+                            <td class="text-left">BucketSizeBytes&nbsp;<span style="margin-left:10px;">(Bytes)</span></td>
+                            <td id="specBucketSizeAvg"></td>
+                            <td id="specBucketSizeMin"></td>
+                            <td id="specBucketSizeMax"></td>
                         </tr>
 
                         <tr>
-                            <td class="text-left">DiskReadBytes&nbsp;<span style="margin-left:10px;">(MB)</span></td>
-                            <td id="specDiskReadAvg"></td>
-                            <td id="specDiskReadMin"></td>
-                            <td id="specDiskReadMax"></td>
+                            <td class="text-left">NumberOfObjects&nbsp;<span style="margin-left:10px;">(Count)</span></td>
+                            <td id="specNumOfObjectsAvg"></td>
+                            <td id="specNumOfObjectsMin"></td>
+                            <td id="specNumOfObjectsMax"></td>
                         </tr>
-
-                        <tr>
-                            <td class="text-left">DiskWriteBytes&nbsp;<span style="margin-left:10px;">(MB)</span></td>
-                            <td id="specDiskWriteAvg"></td>
-                            <td id="specDiskWriteMin"></td>
-                            <td id="specDiskWriteMax"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="text-left">NetworkOut&nbsp;<span style="margin-left:10px;">(MB)</span></td>
-                            <td id="specNetworkOutAvg"></td>
-                            <td id="specNetworkOutMin"></td>
-                            <td id="specNetworkOutMax"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="text-left">NetworkIn&nbsp;<span style="margin-left:20px;">(MB)</span></td>
-                            <td id="specNetworkInAvg"></td>
-                            <td id="specNetworkInMin"></td>
-                            <td id="specNetworkInMax"></td>
-                        </tr>
-
                         </tbody>
                     </table>
 
@@ -383,7 +336,8 @@
         </div>
     </div>
 </div>
+<!--s3 ends here-->
 
-<script src="js/dashboard.js"></script>
+<script src="js/awsS3Dashboard.js"></script>
 </body>
 </html>

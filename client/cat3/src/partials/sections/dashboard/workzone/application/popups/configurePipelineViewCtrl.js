@@ -89,9 +89,10 @@
 						envSequence = envListLeft.concat(newEnv);
 						var envList = {
 							"projectId": projectID,
-							"envId": envSequence,
-							"envSequence": newEnv
+							"envId": newEnv,
+							"envSequence": envSequence
 						};
+
 						workzoneServices.postEnvConfig(envList).then(function (envListResult) {
 							$modalInstance.close(envListResult.data[0]);
 						},function(error){

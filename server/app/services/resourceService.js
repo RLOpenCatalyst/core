@@ -44,7 +44,7 @@ resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
     var temp = String(updatedTime).split(',');
     var ec2Cost = 0, totalCost = 0, rdCost = 0, rstCost = 0, elcCost = 0, cdfCost = 0, r53Cost = 0, s3Cost = 0 , vpcCost = 0;
-    var regionOne = 0, regionTwo = 0, regionThree = 0, regionFour = 0, regionFive = 0, regionSix = 0, regionSeven = 0, regionEight = 0, regionNine = 0, regionTen = 0, catTagCost = 0, jjTagCost = 0;
+    var regionOne = 0, regionTwo = 0, regionThree = 0, regionFour = 0, regionFive = 0, regionSix = 0, regionSeven = 0, regionEight = 0, regionNine = 0, regionTen = 0, catTagCost = 0, jjTagCost = 0, accentureTagCost=0;
     var stream = fs.createReadStream(fileName);
     var costIndex = 18,zoneIndex = 11,usageIndex= 9,prodIndex=5,tagIndex =22,totalCostIndex=3;
     var instanceCostMetrics = [],bucketCostMetrics=[],dbInstanceCostMetrics=[];
@@ -186,6 +186,8 @@ function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInst
             catTagCost += Number(data[costIndex]);
         }else if(data[tagIndex] === "J&J") {
             jjTagCost += Number(data[costIndex]);
+        }else if(data[tagIndex] === "Accenture") {
+            accentureTagCost += Number(data[costIndex]);
         }
     }).on("end", function(){
         var awsResourceCostObject = {
@@ -223,7 +225,8 @@ function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInst
                 },
                 tagCost: {
                     "Catalyst": catTagCost,
-                    "J&J": jjTagCost
+                    "J&J": jjTagCost,
+                    "Accenture":accentureTagCost
                 },
                 currency:'USD',
                 symbol:"$"
@@ -853,7 +856,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                             }
                         };
                         var params ={
-                            ResourceName:'arn:aws:rds:us-west-1:549974527830:db:'+dbInstance.DBName
+                            ResourceName:'arn:aws:rds:us-west-1:'+appConfig.aws.s3AccountNumber+':db:'+dbInstance.DBName
                         };
                         rds.getRDSDBInstanceTag(params,function(err,rdsTags){
                             if(err){

@@ -662,7 +662,7 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:assigned',
+            "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:assigned',
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
@@ -687,45 +687,70 @@
             "createdRow": function( row, data ) {
                 $( row ).attr({"data-id" : data._id})
             },
-            "ajax": '/providers/' + urlproviderId + '/managedInstanceList',
+            "ajax": '/providers/' + urlproviderId + '/managedInstanceList?category=providerSync',
             "columns": [
                 {"data": "platformId","orderable" : true  },
                 {"data": "hardware.os","orderable" : false  },
                 {"data": "instanceIP","orderable" : true  },
                 {"data": "","orderable" : true,
                     "render":function(data, type, full, meta) {
-                        var region =full.region;
-                        if(region){
-                            region = full.region;
-                        }else{
-                            region = full.providerData.region;
-                        }
-                        return region;
+                        return full.region?full.region:full.providerData.region;
                     }
                 },
                 {"data": "instanceState","orderable" : true  },
                 {"data": "projectName" ,"orderable" : false },
                 {"data": "environmentName","orderable" : true  },
-                {"data": "","orderable" : false,
-                    "render":function(data, type, full, meta) {
-                        var state = full.instanceState;
-                        var $button = '';
-                        if (state === 'terminate') {
-                            $button = $('<div class="btn-group marginleft14"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
-                            return $button;
+                {"data": "instanceState","orderable" : false,
+                    "render":function(data) {
+                        if (data === 'terminated') {
+                            return '<div class="btn-group marginleft14"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalTrackUrlRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>';
                         }else{
-                            return $button;
+                            return '';
                         }
                     }
                 }
             ]
         } );
 
+        $('#instanceListTable tbody').on( 'click', 'button', function(){
+            var $this = $(this);
+            var $tr = $this.parents('tr.managedInstance');
+            var id = $this.parents('tr').attr('data-id');
+            bootbox.confirm({
+                message: 'Are you sure you want to Delete Managed Instance -&nbsp;',
+                title: "Warning",
+                callback: function(result) {
+                    if (result) {
+                        $.ajax({
+                            url: '/instances/' + id,
+                            method: 'DELETE',
+                            success: function() {
+                                $('#instanceListTable').row($tr).remove().draw(false);
+                            },
+                            error: function(jxhr) {
+                                bootbox.alert(result);
+                                var msg = "Unable to Delete Managed Instances please try again later";
+                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                    msg = jxhr.responseJSON.message;
+                                } else if (jxhr.responseText) {
+                                    msg = jxhr.responseText;
+                                }
+                                bootbox.alert(msg);
+                            }
+                        });
+                    } else {
+                        return;
+                    }
+                }
+            });
+            return false;
+        });
+
         $('#assignedRDSListTable').DataTable( {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
+            "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
             "columns": [
                 {"data": "resourceDetails.dbName",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
@@ -1400,28 +1425,18 @@
                 "createdRow": function( row, data ) {
                     $( row ).attr({"instanceId" : data._id})
                 },
-                "ajax": '/providers/' + urlproviderId + '/unmanagedInstanceList',
+                "ajax": '/providers/' + urlproviderId + '/unmanagedInstanceList?category=providerSync',
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
                     {"data": "ip","orderable" : true,
                         "render": function(data){
-                            if(data){
-                                return data;
-                            }else{
-                                return '';
-                            }
+                            return data?data:'';
                         }
                     },
                     {"data": "","orderable" : true,
                         "render":function(data, type, full, meta) {
-                            var region =full.region;
-                            if(region){
-                                region = full.region;
-                            }else{
-                                region = full.providerData.region;
-                            }
-                            return region;
+                            return full.region?full.region:full.providerData.region;
                         }
                     },
                     {"data": "state","orderable" : true  },
@@ -1446,7 +1461,7 @@
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
+                "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
                 "createdRow": function( row, data ) {
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
@@ -1490,7 +1505,7 @@
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
+                "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
                 "createdRow": function( row, data ) {
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },

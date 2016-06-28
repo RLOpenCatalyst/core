@@ -45,15 +45,22 @@ function aggregateAWSUsage() {
                     AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
                         if(err) {
                             logger.error(err);
+                            return;
                         } else if(providers.length > 0){
+                            var count = 0;
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
+                                    count++;
                                     aggregateEC2UsageForProvider(provider)
                                 })(providers[j]);
+                            }
+                            if(count ===providers.length){
+                                return;
                             }
 
                         }else{
                             logger.info("Please configure Provider for AWS Usage Aggregation");
+                            return;
                         }
                     });
 
@@ -62,6 +69,7 @@ function aggregateAWSUsage() {
 
         }else{
             logger.info("Please configure Organization for AWS Usage Aggregation");
+            return;
         }
     });
 }
@@ -121,10 +129,13 @@ function aggregateEC2UsageForProvider(provider) {
             });
         }
     ], function (err, results) {
-        if (err)
+        if (err) {
             logger.error(err);
-        else if (results)
+            return;
+        }else {
             logger.info('AWS Service usage aggregation for provider: ' + provider._id + ' ended');
+            return;
+        }
     });
 
 }

@@ -24,18 +24,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.get('/resources', getAWSResources);
 
+    app.get('/resources/resourceList', getAWSResourceList);
+
     function getAWSResources(req, res, next) {
-            var reqData = {};
+            var reqObj = {};
+            var category = req.query.category;
             async.waterfall(
                 [
                     function(next){
                         apiUtil.changeRequestForJqueryPagination(req.query,next);
                     },
                     function(reqData,next) {
+                        reqObj = reqData;
                         apiUtil.paginationRequest(reqData, 'resources', next);
                     },
                     function(paginationReq, next) {
-                        reqData = paginationReq;
                         if(paginationReq.filterBy.resourceType === 'S3'){
                             paginationReq['searchColumns'] = ['resourceDetails.bucketName'];
                         }else if(paginationReq.filterBy.resourceType === 'RDS') {
@@ -44,10 +47,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         apiUtil.databaseUtil(paginationReq, next);
                     },
                     function(queryObj, next) {
+                        queryObj['category']=category;
                         resourceService.getResources(queryObj, next);
                     },
                     function(resources,next){
-                        apiUtil.changeResponseForJqueryPagination(resources[0],reqData,next);
+                        apiUtil.changeResponseForJqueryPagination(resources[0],reqObj,next);
                     },
 
                 ], function(err, results) {
@@ -56,7 +60,36 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     else
                         return res.status(200).send(results);
                 });
-        };
+    };
+
+    function getAWSResourceList(req,res,next) {
+        var reqData = {};
+        var category = req.query.category;
+        async.waterfall(
+            [
+                function (next) {
+                    apiUtil.paginationRequest(req.query, 'resources', next);
+                },
+                function (paginationReq, next) {
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function (queryObj, next) {
+                    queryObj['category']=category;
+                    resourceService.getResources(queryObj, next);
+                },
+                function (resources, next) {
+                    apiUtil.paginationResponse(resources[0], reqData, next);
+                }
+
+            ], function (err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
+
 
     app.patch('/resources', updateUnassignedResourcesTags);
     

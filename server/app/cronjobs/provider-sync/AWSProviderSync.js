@@ -50,7 +50,7 @@ function sync() {
 					}
 					for (var j = 0; j < providers.length; j++) {
 						(function (provider) {
-							unassignedInstancesModel.getByProviderId(provider._id,
+							unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id,
 								function (err, unassignedInstances) {
 									if (err) {
 										logger.error('Unable to fetch unassigned Instances by provider', err);
@@ -59,6 +59,7 @@ function sync() {
 									unManagedInstancesDao.getByOrgProviderId({
 										orgId: org.rowid,
 										providerId: provider._id,
+										isDeleted:false
 									}, function (err, unManagedInstances) {
 										if (err) {
 											logger.error('Unable to fetch Unmanaged Instances by org,provider', err);
@@ -67,6 +68,7 @@ function sync() {
 										instancesDao.getByOrgProviderId({
 											orgId: org.rowid,
 											providerId: provider._id,
+											isDeleted:false
 										}, function (err, instances) {
 											if (err) {
 												logger.error('Unable to fetch instance by org,provider', err);
@@ -77,7 +79,6 @@ function sync() {
 													logger.error("Unable to get tags", err);
 													return;
 												}
-
 												var projectTag = null;
 												var environmentTag = null;
 												// @TODO enum to be used to compare against project and env
@@ -186,16 +187,13 @@ function sync() {
 																				instances[n].instanceState = awsInstances[m].State.Name;
 
 																				if (instances[n].instanceState === 'terminated') {
-																					instances[n].remove();
+																					removeTerminateInstance(instances[n]._id,instances[n].instanceState, 'managed');
 																				} else {
 																					if (instances[n].instanceState === 'running') {
 																						instances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
 																					}
 
 																					if (assignmentFound) {
-																						/*instances[n].projectId = catalystProjectId;
-																						 instances[n].projectName = catalystProjectName;
-																						 instances[n].envId = catalystEnvironmentId;*/
 																						instances[n].environmentName = catalystEnvironmentName;
 																					}
 
@@ -210,8 +208,10 @@ function sync() {
 																					instances.splice(n, 1);
 																					break;
 																				}
-																			} else if (instances[n].instanceState === 'terminated') {
-																				removeTerminateInstance(instances[n]._id,unManagedInstances[n].state, 'managed');
+																			}else if ((instances[n].instanceState === 'running' || instances[n].instanceState === 'terminated') && instances[n].bootStrapStatus === 'failed') {
+																			    removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
+																			}else if (instances[n].instanceState === 'terminated') {
+																				removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
 																			}
 																		}
 
@@ -222,8 +222,8 @@ function sync() {
 																					unManagedInstances[n].remove();
 																				} else if (unManagedInstances[n].platformId === awsInstances[m].InstanceId) {
 																					unManagedInstances[n].state = awsInstances[m].State.Name;
-																					if (unManagedInstances[n].state === 'terminated') {
-																						unManagedInstances[n].remove();
+																					if (unManagedInstances[n].state === 'terminated') {    
+																						removeTerminateInstance(unManagedInstances[n]._id,unManagedInstances[n].state, 'assigned');
 																					} else {
 																						if (unManagedInstances[n].state === 'running') {
 																							unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
@@ -341,7 +341,6 @@ function sync() {
 																		}
 																	}
 																}
-																// logger.debug('loop complete l==>',l ,' res==> ', reservations.length,' region==> ',region);
 															}
 
 															if (regionCount === regions.length) {
@@ -374,24 +373,22 @@ function sync() {
 		}
 	});
 }
-function removeTerminateInstance(instanceId,instanceState,key) {
+function removeTerminateInstance(instanceId,bootStrapState,key) {
 	if(key === 'managed') {
-		instanceService.removeInstanceById(instanceId,instanceState, function (err, data) {
+		instancesDao.removeTerminatedInstanceById(instanceId,bootStrapState, function (err, data) {
 			if (err) {
-				logger.error(key+" Instance deletion Failed >> ", err);
+				logger.error(err);
 				return;
 			}else{
-				logger.debug("Exit delete() for /instances/%s", instanceId);
 				return;
 			}
 		});
 	}else if(key === 'assigned') {
 		unManagedInstancesDao.removeInstanceById(instanceId, function (err, data) {
 			if (err) {
-				logger.error(key+" Instance deletion Failed >> ", err);
+				logger.error(err);
 				return;
 			}else{
-				logger.debug("Exit delete() for /instances/%s", instanceId);
 				return;
 			}
 

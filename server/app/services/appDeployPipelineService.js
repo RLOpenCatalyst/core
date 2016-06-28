@@ -33,23 +33,22 @@ appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(pr
             projectBasedConfiguration: function (callback) {
                 getProjectFromMaster(projectId, callback);
             }
-        }
-    ,function(err,results){
-        if (err) {
-            logger.error("Error while fetching App Deploy Pipeline Configuration  "+err);
-            callback(err,null);
-            return;
-        }else{
-            if(results.pipeLineConfiguration.length > 0){
-                results.pipeLineConfiguration[0].envId = results.projectBasedConfiguration[0].envId;
-                callback(null,results.pipeLineConfiguration);
+        },function(err,results){
+            if (err) {
+                logger.error("Error while fetching App Deploy Pipeline Configuration  "+err);
+                callback(err,null);
                 return;
             }else{
-                callback(null,results.projectBasedConfiguration);
-                return;
+                if(results.pipeLineConfiguration.length > 0){
+                    results.pipeLineConfiguration[0].envId = results.projectBasedConfiguration[0].envId;
+                    callback(null,results.pipeLineConfiguration);
+                    return;
+                }else{
+                    callback(null,results.projectBasedConfiguration);
+                    return;
+                }
             }
-        }
-    });
+        });
 }
 
 appDeployPipelineService.saveAndUpdatePipeLineConfiguration=function saveAndUpdatePipeLineConfiguration(configurationData,callback){
@@ -68,14 +67,14 @@ appDeployPipelineService.saveAndUpdatePipeLineConfiguration=function saveAndUpda
             appDeployPipeline.getAppDeployPipelineByProjectId(configurationData.projectId,next);
         }
     ],function(err,results){
-            if (err) {
-                logger.error("Error while Creating App Deploy Pipeline Configuration  "+err);
-                callback(err,null);
-                return;
-            }else{
-                callback(null,results);
-                return;
-            }
+        if (err) {
+            logger.error("Error while Creating App Deploy Pipeline Configuration  "+err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
 
     })
 };

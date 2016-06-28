@@ -9,7 +9,7 @@ var s3Model = require('_pr/model/resources/s3-resource');
 var rdsModel = require('_pr/model/resources/rds-resource');
 var resourceModel = require('_pr/model/resources/resources');
 var tagsModel = require('_pr/model/tags');
-var orgName='';
+
 
 var AWSRDSS3ProviderSync = Object.create(CatalystCronJob);
 AWSRDSS3ProviderSync.execute = awsRDSS3ProviderSync;
@@ -26,25 +26,33 @@ function awsRDSS3ProviderSync() {
                     AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
                         if(err) {
                             logger.error(err);
+                            return;
                         } else if(providers.length > 0){
+                            var count = 0;
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
-                                    awsRDSS3ProviderSyncForProvider(provider)
+                                    count++;
+                                    awsRDSS3ProviderSyncForProvider(provider,org.orgname)
                                 })(providers[j]);
+                            }
+                            if(count ===providers.length){
+                                return;
                             }
                         }else{
                             logger.info("Please configure Provider for S3/RDS Provider Sync");
+                            return;
                         }
                     });
                 })(orgs[i]);
             }
         }else{
             logger.info("Please configure Organization for S3/RDS Provider Sync");
+            return;
         }
     });
 }
 
-function awsRDSS3ProviderSyncForProvider(provider) {
+function awsRDSS3ProviderSyncForProvider(provider,orgName) {
     logger.info("S3/RDS Data Fetching started for Provider "+provider._id);
     async.waterfall([
         function (next) {
@@ -82,7 +90,7 @@ function awsRDSS3ProviderSyncForProvider(provider) {
                     next(err);
                 } else {
                     next(null, results);
-                    }
+                }
             });
         },
         function(resourcesDetails,next){
@@ -97,6 +105,7 @@ function awsRDSS3ProviderSyncForProvider(provider) {
             return;
         } else {
             logger.info("S3/RDS Data Successfully Added for Provider "+provider._id);
+            return;
         }
     });
 };
