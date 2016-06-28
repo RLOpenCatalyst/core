@@ -710,8 +710,13 @@ function setleftnavigation(toplink, breadcrumbHeader) {
     if (TabID === "workZoneNew") {
         
         if(isAngularIntegration){
-		  locationClick();
-          return false;
+          var checkUrl = window.location.href;
+          if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+            console.log('here');
+          }else{
+            locationClick();  
+            return false;
+          }
         }
         loadTreeFuncNew();
         $('#Settings_nav').hide();
@@ -1295,7 +1300,7 @@ function selectEnv() {
         }
         var $envLink = $workspaceTree.find('a[rowid="' + urlParams.envid + '"]');
         if ($envLink.length) {
-            $envLink = $envLink.first().click();
+            //$envLink = $envLink.first().click();
             console.log('ancor a ==>', $envLink.attr('href'));
             $('#workZoneNew').attr('href', $envLink.attr('href'));
             treeNodes.push($envLink);
