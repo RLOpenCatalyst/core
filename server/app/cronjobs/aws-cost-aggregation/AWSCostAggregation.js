@@ -50,8 +50,12 @@ function aggregateAWSCost() {
                             var count = 0;
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
-                                    count++;
-                                    aggregateAWSCostForProvider(provider)
+                                    if(provider.s3BucketName){
+                                        count++;
+                                        aggregateAWSCostForProvider(provider)
+                                    }else{
+                                        count++;
+                                    }
                                 })(providers[j]);
                             }
                             if(count ===providers.length){
