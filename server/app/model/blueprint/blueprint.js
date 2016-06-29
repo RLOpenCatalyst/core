@@ -933,6 +933,9 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData,
         projectId: jsonData.projectId,
         $or: options
     }
+    if('blueprintType' in jsonData) {
+        queryObj.blueprintType = jsonData.blueprintType;
+    }
 
     logger.debug("Query Obj ", JSON.stringify(queryObj));
     // if (filterBlueprintType) {
