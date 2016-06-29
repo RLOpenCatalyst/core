@@ -228,9 +228,15 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
                 function(err, data) {
                     if (err) {
                         logger.error(err);
-                        var err = new Error('Internal server error');
-                        err.status = 500;
-                        return callback(err);
+                        if(err.code === 'AccessDenied'){
+                            var err = new Error('Update tag failed, Invalid keys or Permission Denied');
+                            err.status = 500;
+                            return callback(err);
+                        }else {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        }
                     } else if (j == instances.length - 1) {
                         return callback(null, instances);
                     }
@@ -331,9 +337,15 @@ function updateAWSInstanceTag(provider, instance, tags, callback) {
         function(err, data) {
             if (err) {
                 logger.error(err);
-                var err = new Error('Internal server error');
-                err.status = 500;
-                return callback(err);
+                if(err.code === 'AccessDenied'){
+                    var err = new Error('Update tag failed, Invalid keys or Permission Denied');
+                    err.status = 500;
+                    return callback(err);
+                }else {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
             } else {
                 logger.debug(data);
                 return callback(null, instance);

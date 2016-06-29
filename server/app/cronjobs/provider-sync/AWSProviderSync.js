@@ -40,7 +40,6 @@ function sync() {
 			logger.warn('No org found');
 			return;
 		}
-		logger.debug('orgs ==> ', JSON.stringify(orgs));
 		for (var i = 0; i < orgs.length; i++) {
 			(function (org) {
 				AWSProvider.getAWSProvidersByOrgId(org._id, function (err, providers) {
@@ -58,8 +57,7 @@ function sync() {
 									}
 									unManagedInstancesDao.getByOrgProviderId({
 										orgId: org.rowid,
-										providerId: provider._id,
-										isDeleted:false
+										providerId: provider._id
 									}, function (err, unManagedInstances) {
 										if (err) {
 											logger.error('Unable to fetch Unmanaged Instances by org,provider', err);
@@ -67,8 +65,7 @@ function sync() {
 										}
 										instancesDao.getByOrgProviderId({
 											orgId: org.rowid,
-											providerId: provider._id,
-											isDeleted:false
+											providerId: provider._id
 										}, function (err, instances) {
 											if (err) {
 												logger.error('Unable to fetch instance by org,provider', err);
@@ -209,7 +206,7 @@ function sync() {
 																					break;
 																				}
 																			}else if ((instances[n].instanceState === 'running' || instances[n].instanceState === 'terminated') && instances[n].bootStrapStatus === 'failed') {
-																			    removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
+																				removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
 																			}else if (instances[n].instanceState === 'terminated') {
 																				removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
 																			}

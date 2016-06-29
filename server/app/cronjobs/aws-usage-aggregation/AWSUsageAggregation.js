@@ -31,7 +31,6 @@ AggregateAWSUsage.interval = '0 */2 * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
-
 /**
  *
  */
@@ -59,7 +58,7 @@ function aggregateAWSUsage() {
                             }
 
                         }else{
-                            logger.info("Please configure Provider for AWS Usage Aggregation");
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for AWS Usage Aggregation");
                             return;
                         }
                     });

@@ -27,7 +27,6 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
     queryObj['resourceType']=resourceType;
-    queryObj['isDeleted']=false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getResourcesByProviderResourceType", err);
@@ -183,7 +182,6 @@ ResourceSchema.statics.getAllUnassignedResources=function(providerId,callback){
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
     queryObj['category'] ='unassigned';
-    queryObj['isDeleted']=false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getAllUnassignedResources", err);
