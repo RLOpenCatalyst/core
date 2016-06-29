@@ -44,7 +44,7 @@ var util = require('util');
 var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
 var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
-var	masterDataService = require('_pr/services/masterDataService');
+var	settingsService = require('_pr/services/settingsService');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -447,7 +447,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 res.send(500);
                                                                 return;
                                                             }else {
-                                                                masterDataService.updateProjectData(environment,function(err,projectData){
+                                                                settingsService.updateProjectData(environment,function(err,projectData){
                                                                     if (err) {
                                                                         logger.debug("Hit an error on updating the Project Master Data : %s", err);
                                                                         res.send(500);

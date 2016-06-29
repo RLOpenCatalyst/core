@@ -19,11 +19,11 @@ var logger = require('_pr/logger')(module);
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var async = require("async");
 
-const errorType = 'masterDataService';
+const errorType = 'settingsService';
 
-var masterDataService = module.exports = {};
+var settingsService = module.exports = {};
 
-masterDataService.updateProjectData = function updateProjectData(enviornment,callback){
+settingsService.updateProjectData = function updateProjectData(enviornment,callback){
     async.waterfall([
         function(next){
             masterUtil.getParticularProject(enviornment.projectname_rowid,next);
