@@ -195,7 +195,7 @@ $(document).ready(function() {
                 },
                 {"data": "","orderable" : false,
                     "render":function(data, type, full, meta) {
-                        return full.usage ? '<span>'+full.usage.BucketSizeBytes.average+'&nbsp;Bytes</span>'+
+                        return full.usage ? '<span>'+full.usage.NumberOfObjects.average+'</span>'+
                         '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
                     }
                 }
@@ -254,7 +254,7 @@ $(document).ready(function() {
                 },
                 {"data": "","orderable" : false,
                     "render":function(data, type, full, meta) {
-                        return full.usage ? '<span>'+full.usage.BucketSizeBytes.average+'&nbsp;Bytes</span>'+
+                        return full.usage ? '<span>'+full.usage.NumberOfObjects.average+'</span>'+
                         '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
                     }
                 }
@@ -293,9 +293,9 @@ $(document).ready(function() {
         var dataStr = $(this).attr("data-usage");
         var $data = JSON.parse(dataStr);
 
-        $specUsageModalContainer.find('#specBucketSizeAvg').html($data.BucketSizeBytes.average);
-        $specUsageModalContainer.find('#specBucketSizeMin').html($data.BucketSizeBytes.minimum);
-        $specUsageModalContainer.find('#specBucketSizeMax').html($data.BucketSizeBytes.maximum);
+        $specUsageModalContainer.find('#specBucketSizeAvg').html(Math.round($data.BucketSizeBytes.average/1048576));
+        $specUsageModalContainer.find('#specBucketSizeMin').html(Math.round($data.BucketSizeBytes.minimum/1048576));
+        $specUsageModalContainer.find('#specBucketSizeMax').html(Math.round($data.BucketSizeBytes.maximum/1048576));
 
         $specUsageModalContainer.find('#specNumOfObjectsAvg').html($data.NumberOfObjects.average);
         $specUsageModalContainer.find('#specNumOfObjectsMin').html($data.NumberOfObjects.minimum);

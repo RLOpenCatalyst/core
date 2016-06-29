@@ -994,9 +994,15 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
                         function (err, data) {
                             if (err) {
                                 logger.error(err);
-                                var err = new Error('Internal server error');
-                                err.status = 500;
-                                return callback(err);
+                                if(err.code === 'AccessDenied'){
+                                    var err = new Error('Update tag failed, Invalid keys or Permission Denied');
+                                    err.status = 500;
+                                    return callback(err);
+                                }else {
+                                    var err = new Error('Internal server error');
+                                    err.status = 500;
+                                    return callback(err);
+                                }
                             } else if (j == resources.length - 1) {
                                 return callback(null, resources);
                             }
@@ -1023,9 +1029,15 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
                         function (err, data) {
                             if (err) {
                                 logger.error(err);
-                                var err = new Error('Internal server error');
-                                err.status = 500;
-                                return callback(err);
+                                if(err.code === 'AccessDenied'){
+                                    var err = new Error('Update tag failed, Invalid keys or Permission Denied');
+                                    err.status = 500;
+                                    return callback(err);
+                                }else {
+                                    var err = new Error('Internal server error');
+                                    err.status = 500;
+                                    return callback(err);
+                                }
                             } else if (j == resources.length - 1) {
                                 return callback(null, resources);
                             }

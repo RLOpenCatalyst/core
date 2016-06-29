@@ -39,7 +39,7 @@ function awsRDSS3ProviderSync() {
                                 return;
                             }
                         }else{
-                            logger.info("Please configure Provider for S3/RDS Provider Sync");
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for S3/RDS Provider Sync");
                             return;
                         }
                     });

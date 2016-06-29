@@ -137,6 +137,8 @@ var S3 = function(awsSettings) {
         };
         s3.putBucketTagging(params, function(err, data) {
             if (err){
+                console.log(err);
+                console.log(err.stack);
                 logger.error(err, err.stack);
                 callback(err,null);
             }else{
