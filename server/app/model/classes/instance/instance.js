@@ -378,6 +378,17 @@ var InstancesDao = function() {
         });
     };
 
+    this.listInstances = function(callback) {
+        Instances.find(function(err, data) {
+            if (err) {
+                logger.error("Failed to getInstances :: ", err);
+                callback(err, null);
+                return;
+            }
+            return callback(null,data);
+        });
+    };
+
     this.getInstances = function(instanceIds, callback) {
         logger.debug("Enter getInstances :: ", instanceIds);
         var queryObj = {};
@@ -391,7 +402,7 @@ var InstancesDao = function() {
             'actionLogs': false
         }, function(err, data) {
             if (err) {
-                logger.error("Failed to getInstances :: ", instanceIds, err);
+                logger.error("Failed to getInstances :: ", err);
                 callback(err, null);
                 return;
             }
@@ -400,6 +411,39 @@ var InstancesDao = function() {
         });
 
     };
+
+    this.getInstanceList = function getInstanceList(jsonData, callback) {
+        if (jsonData.pageSize) {
+            jsonData['searchColumns'] = ['platformId', 'instanceState', 'bootStrapStatus', 'orgName', 'bgName', 'projectName', 'environmentName'];
+            apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+                if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                } else {
+                    Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
+                        if (err) {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        } else {
+                            return callback(null, instances);
+                        }
+                    });
+                }
+            });
+        } else {
+            Instances.find({
+                'actionLogs': false
+            }, function(err, data) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
+        }
+    }
 
 
     this.getInstancesByProjectAndEnvId = function(projectId, envId, instanceType, userName, callback) {
@@ -469,7 +513,7 @@ var InstancesDao = function() {
                             err.status = 500;
                             return callback(err);
                         } else if (instances.docs.length === 0) {
-                            return callback(null,instances);
+                            return callback(null, instances);
                         } else {
                             // @TODO Workaround to avoid circular dependency to be addressed
                             var tasks = require('_pr/model/classes/tasks/tasks.js');
@@ -1808,26 +1852,26 @@ var InstancesDao = function() {
         });
     };
 
-    this.NormalizedInstances=function(jsonData,fieldName,callback){
-        var queryObj={};
-        if(jsonData.filterBy){
+    this.NormalizedInstances = function(jsonData, fieldName, callback) {
+        var queryObj = {};
+        if (jsonData.filterBy) {
             queryObj = jsonData.filterBy;
         }
-        queryObj['orgId']= jsonData.orgId;
-        queryObj['bgId']= jsonData.bgId;
-        queryObj['projectId']= jsonData.projectId;
-        queryObj['envId']= jsonData.envId;
-        Instances.find(queryObj,function(err,instances){
-            if(err){
+        queryObj['orgId'] = jsonData.orgId;
+        queryObj['bgId'] = jsonData.bgId;
+        queryObj['projectId'] = jsonData.projectId;
+        queryObj['envId'] = jsonData.envId;
+        Instances.find(queryObj, function(err, instances) {
+            if (err) {
                 logger.error(err);
                 callback(err, null);
                 return;
             }
-            var count=0;
-            for(var i =0;i < instances.length;i++) {
-                (function(instance){
+            var count = 0;
+            for (var i = 0; i < instances.length; i++) {
+                (function(instance) {
                     count++;
-                    var normalized=instance[fieldName];
+                    var normalized = instance[fieldName];
                     Instances.update({
                         "_id": new ObjectId(instance._id)
                     }, {
@@ -1836,14 +1880,14 @@ var InstancesDao = function() {
                         }
                     }, {
                         upsert: false
-                    },function(err,updatedInstance){
-                        if(err){
+                    }, function(err, updatedInstance) {
+                        if (err) {
                             logger.error(err);
                             callback(err, null);
                             return;
                         }
-                        if(instances.length === count){
-                            callback(null,updatedInstance);
+                        if (instances.length === count) {
+                            callback(null, updatedInstance);
                         }
                     });
                 })(instances[i]);
@@ -1877,7 +1921,7 @@ var InstancesDao = function() {
         logger.debug('nodesName ==>', nodesName);
 
         Instances.find({
-            "envId":envId,
+            "envId": envId,
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
                 '$in': nodesName
@@ -1892,6 +1936,22 @@ var InstancesDao = function() {
 
         });
 
+    }
+
+    this.updateInstance = function updateInstance(instanceId, instanceData, callback) {
+        Instances.update({
+            _id: new ObjectId(instanceId)
+        }, {
+            $set: instanceData
+        }, {
+            upsert: false
+        }, function(err, instance) {
+            if (err) {
+                logger.debug("Got error while updating Instance: ", err);
+                return callback(err, null);
+            }
+            return callback(null, instance);
+        });
     }
 };
 
