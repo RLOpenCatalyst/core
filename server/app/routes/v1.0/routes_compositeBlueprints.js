@@ -15,6 +15,8 @@
  */
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
+var compositeBlueprintService = require('_pr/services/compositeBlueprintService');
+var async = require('async');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/composite-blueprints/*", sessionVerificationFunc);
@@ -356,21 +358,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          ]
      *      }
      */
-    app.post('/composite-blueprints/', createProvider);
+    app.post('/composite-blueprints/', createCompositeBlueprint);
 
-    function createProvider(req, res, next) {
+    function createCompositeBlueprint(req, res, next) {
         async.waterfall([
             // @TODO Check if user has access to the specified organization
             // @TODO Authorization checks to be addded
             function(next) {
-                providerService.createProvider(req.body, next);
+                compositeBlueprintService.populateComposedBlueprints(req.body, next);
             },
-            providerService.createProviderResponseObject
-        ], function(err, provider) {
+            compositeBlueprintService.validateCompositeBlueprintCreateRequest,
+            compositeBlueprintService.createCompositeBlueprint
+        ], function(err, compositeBlueprint) {
             if(err) {
                 next(err);
             } else {
-                res.status(200).send(provider);
+                res.status(200).send(compositeBlueprint);
             }
         });
     }

@@ -18,7 +18,7 @@ var blueprintModel = require('_pr/model/blueprint/blueprint');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints');
 var appConfig = require('_pr/config');
 
-const errorType = 'composite-blueprint';
+const errorType = 'composite-blueprints';
 
 var compositeBlueprintServices = module.exports = {};
 
@@ -31,7 +31,7 @@ compositeBlueprintServices.populateComposedBlueprints
     }
 
     //@TODO allowed length should be read from config
-    if(compsiteBlueprint.length <= 0 || compsiteBlueprint.length > 5) {
+    if(compositeBlueprint.blueprints.length <= 0 || compositeBlueprint.blueprints.length > 5) {
         var err = new Error('Bad Request');
         err.status = 400;
         return callback(err);
@@ -44,12 +44,14 @@ compositeBlueprintServices.populateComposedBlueprints
         })(compositeBlueprint.blueprints[i]);
     }
 
-    blueprintModel.getByIds(blueprintsMap.keys(), function(err, blueprints) {
+    blueprintModel.getByIds(Object.keys(blueprintsMap), function(err, blueprints) {
         if(err) {
+            logger.error(err);
             var err = new Error('Internal Server Error');
             err.status = 500;
             return callback(err);
-        } else if(blueprints.size != compositeBlueprint.blueprints.length) {
+        } else if(blueprints.length != compositeBlueprint.blueprints.length) {
+            logger.error(err);
             var err = new Error('Bad Request');
             err.status = 400;
             return callback(err);
@@ -60,8 +62,10 @@ compositeBlueprintServices.populateComposedBlueprints
                     tempBlueprint.blueprintConfig.infraManagerData.versionsList[0].attributes
                         = compositeBlueprint.blueprints[blueprintsMap[blueprintEntry._id]].attributes;
                     compositeBlueprint.blueprints[blueprintsMap[blueprintEntry._id]] = tempBlueprint;
-                })(blueprints);
+                })(blueprints[j]);
             }
+
+            return callback(null, compositeBlueprint);
         }
     });
 };
@@ -75,7 +79,7 @@ compositeBlueprintServices.validateCompositeBlueprintCreateRequest
     }
 
     //@TODO allowed length should be read from config
-    if(compsiteBlueprint.length <= 0 || compsiteBlueprint.length > 5) {
+    if(compositeBlueprint.length <= 0 || compositeBlueprint.length > 5) {
         var err = new Error('Bad Request');
         err.status = 400;
         return callback(err);
@@ -92,22 +96,24 @@ compositeBlueprintServices.validateCompositeBlueprintCreateRequest
                 var err = new Error('Bad Request');
                 err.status = 400;
                 return callback(err);
-
-
             }
         })(compositeBlueprint.blueprints[i]);
     }
+
+    return callback(null, compositeBlueprint);
 };
 
-compositeBlueprintServices.createCompositeBlueprint = function createCompositeBlueprint(compositeBlueprint, callback) {
-    logger.debug('Creating new GCP provider');
+compositeBlueprintServices.createCompositeBlueprint
+    = function createCompositeBlueprint(compositeBlueprint, callback) {
     compositeBlueprintModel.createNew(compositeBlueprint, function (err, compositeBlueprint) {
         //@TODO To be generalized
         if (err && err.name == 'ValidationError') {
+            logger.error(err);
             var err = new Error('Bad Request');
             err.status = 400;
             return callback(err);
         } else if (err) {
+            logger.error(err);
             var err = new Error('Internal Server Error');
             err.status = 500;
             return callback(err);
@@ -116,3 +122,11 @@ compositeBlueprintServices.createCompositeBlueprint = function createCompositeBl
         }
     });
 };
+
+/*
+compositeBlueprintService.formatCompositeBlueprint
+    = function formatCompositeBlueprint(compositeBlueprint, callback) {
+    var compositeBlueprintObject = compositeBlueprint;
+
+
+};*/

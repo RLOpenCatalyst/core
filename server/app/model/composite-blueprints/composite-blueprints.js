@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 var mongoose = require('mongoose');
 var util = require('util');
 var Schema = mongoose.Schema;
@@ -50,18 +49,19 @@ var CompositeBlueprintSchema = new Schema({
     }
 });
 
+CompositeBlueprintSchema.index({name: 1, organizationId: 1, bgId: 1,  projectId: 1}, {unique: true});
+
 CompositeBlueprintSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
-    var CompositeBlueprint = new self(data);
-    CompositeBlueprint.save(function (err, data) {
+    var compositeBlueprint = new self(data);
+    compositeBlueprint.save(function (err, data) {
         if (err) {
-            logger.error(err);
             return callback(err);
         } else {
-            return callback(null, CompositeBlueprint);
+            return callback(null, compositeBlueprint);
         }
     });
 };
 
-var CompositeBlueprints = mongoose.model('composite-blueprints', CompositeBlueprintSchema);
+var CompositeBlueprints = mongoose.model('compositeBlueprints', CompositeBlueprintSchema);
 module.exports = CompositeBlueprints;
