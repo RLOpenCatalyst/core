@@ -57,7 +57,8 @@ function sync() {
 									}
 									unManagedInstancesDao.getByOrgProviderId({
 										orgId: org.rowid,
-										providerId: provider._id
+										providerId: provider._id,
+										isDeleted:false
 									}, function (err, unManagedInstances) {
 										if (err) {
 											logger.error('Unable to fetch Unmanaged Instances by org,provider', err);
@@ -65,7 +66,8 @@ function sync() {
 										}
 										instancesDao.getByOrgProviderId({
 											orgId: org.rowid,
-											providerId: provider._id
+											providerId: provider._id,
+											isDeleted:false
 										}, function (err, instances) {
 											if (err) {
 												logger.error('Unable to fetch instance by org,provider', err);

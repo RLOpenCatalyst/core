@@ -24,11 +24,15 @@ var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
+var resourceCost = require('_pr/model/resource-costs/resource-costs.js');
+var resourceUsage = require('_pr/model/resource-metrics/resource-metrics.js');
+
 var async = require('async');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Docker = require('_pr/model/docker.js');
+var resources = require('_pr/model/resources/resources.js');
 
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
@@ -56,6 +60,7 @@ instanceService.getTrackedInstances = getTrackedInstances;
 instanceService.createTrackedInstancesResponse = createTrackedInstancesResponse;
 instanceService.validateListInstancesQuery = validateListInstancesQuery;
 instanceService.removeInstanceById = removeInstanceById;
+instanceService.removeInstancesByProviderId = removeInstancesByProviderId;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -1190,4 +1195,36 @@ function removeInstanceById(instanceId,callback){
                 });
             }
         });
+}
+
+function removeInstancesByProviderId(providerId,callback){
+    async.parallel({
+        managedInstance: function(callback){
+            instancesModel.removeInstancesByProviderId(providerId,callback);
+        },
+        assignedInstance: function(callback){
+            unManagedInstancesModel.removeInstancesByProviderId(providerId,callback);
+        },
+        unassignedInstance: function(callback){
+            unassignedInstancesModel.removeInstancesByProviderId(providerId,callback);
+        },
+        resources: function(callback){
+            resources.removeResourcesByProviderId(providerId,callback);
+        },
+        resourcesCost: function(callback){
+            resourceCost.removeResourceCostByProviderId(providerId,callback);
+        },
+        resourcesUsage: function(callback){
+            resourceUsage.removeResourceUsageByProviderId(providerId,callback);
+        },
+        resourcesTags: function(callback){
+            tagsModel.removeTagsByProviderId(providerId,callback);
+        }
+    },function(err,results){
+        if(err){
+            callback(err,null);
+        }else{
+            callback(null,results);
+        }
+    })
 }

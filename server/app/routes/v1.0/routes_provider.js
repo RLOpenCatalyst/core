@@ -37,6 +37,7 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var rc = require('node-rest-client').Client;
 var appConfig = require('_pr/config');
+var instanceService=require('_pr/services/instanceService');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
@@ -452,10 +453,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Enter delete() for vmware/providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for vmware/providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+									}
+								})
 							} else {
 								res.send(400);
 							}
@@ -1087,10 +1096,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Enter delete() for hppubliccloud/providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for hppubliccloud/providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+									}
+								})
 							} else {
 								res.send(400);
 							}
@@ -1536,10 +1553,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Enter delete() for /providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for azure/providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+									}
+								})
 							} else {
 								res.send(400);
 							}
@@ -2056,11 +2081,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Exit delete() for /providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
-								return;
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for /providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+										return;
+									}
+								})
 							} else {
 								res.send(400);
 								return;
@@ -2584,7 +2617,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
 							return;
 						}
-
 						AWSProvider.removeAWSProviderById(providerId, function(err, deleteCount) {
 							if (err) {
 								logger.error(err);
@@ -2592,10 +2624,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Enter delete() for /providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for aws/providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+									}
+								})
 							} else {
 								res.send(400);
 							}

@@ -97,6 +97,18 @@ ResourceSchema.statics.deleteResourcesById = function(resourceId,callback) {
     });
 };
 
+ResourceSchema.statics.removeResourcesByProviderId = function(providerId,callback) {
+    var queryObj={};
+    queryObj['providerDetails.id'] =providerId;
+    Resources.remove(queryObj, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
 
 ResourceSchema.statics.updateResourceUsage = function(resourceId, usage, callback) {
     Resources.update({

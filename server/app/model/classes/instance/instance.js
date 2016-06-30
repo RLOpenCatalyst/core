@@ -1047,6 +1047,18 @@ var InstancesDao = function() {
             });
     };
 
+    this.removeInstancesByProviderId = function(providerId,callback) {
+        var queryObj={};
+        queryObj['providerId'] =providerId;
+        Instances.remove(queryObj, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
+
     this.removeInstancebyCloudFormationId = function(cfId, callback) {
         logger.debug("Enter removeInstancebyCloudFormationId (%s)", cfId);
         Instances.remove({
