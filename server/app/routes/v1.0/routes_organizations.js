@@ -945,10 +945,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             }
             // if (!blueprintData.users || !blueprintData.users.length) {
-            // 	res.status(400).send({
-            // 		message: "User is empty"
-            // 	});
-            // 	return;
+            //  res.status(400).send({
+            //      message: "User is empty"
+            //  });
+            //  return;
             // }
             Blueprints.createNew(blueprintData, function(err, data) {
                 if (err) {
@@ -1241,14 +1241,39 @@ module.exports.setRoutes = function(app, sessionVerification) {
         taskData.projectId = req.params.projectId;
         taskData.envId = req.params.envId;
         taskData.autoSyncFlag = req.body.taskData.autoSyncFlag;
-        Task.createNew(taskData, function(err, task) {
+
+        masterUtil.getParticularProject(req.params.projectId, function(err, project) {
             if (err) {
-                logger.err(err);
-                res.send(500);
+                callback({
+                    message: "Failed to get project via project id"
+                }, null);
+                return;
+            };
+            if (project.length === 0) {
+                callback({
+                    "message": "Unable to find Project Information from project id"
+                });
                 return;
             }
-            res.send(task);
-            logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
+            taskData.orgName = project[0].orgname;
+            taskData.bgName = project[0].productgroupname;
+            taskData.projectName = project[0].projectname;
+            configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
+                if (err) {
+                    res.status(500).send("Failed to fetch ENV: ",err);
+                    return;
+                }
+                taskData.envName = envName;
+                Task.createNew(taskData, function(err, task) {
+                    if (err) {
+                        logger.err(err);
+                        res.status(500).send("Failed to create task: ",err);
+                        return;
+                    }
+                    res.send(task);
+                    logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
+                });
+            });
         });
     });
 
@@ -1746,11 +1771,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         var instance = {
                                             name: req.body.fqdn,
                                             orgId: req.params.orgId,
-                                            orgName:project[0].orgname,
+                                            orgName: project[0].orgname,
                                             bgId: req.params.bgId,
-                                            bgName:project[0].productgroupname,
+                                            bgName: project[0].productgroupname,
                                             projectId: req.params.projectId,
-                                            projectName:project[0].projectname,
+                                            projectName: project[0].projectname,
                                             envId: req.params.envId,
                                             environmentName: envName,
                                             platformId: req.body.fqdn,

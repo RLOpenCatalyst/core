@@ -30,6 +30,7 @@ var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 
+
 var TASK_TYPE = {
     CHEF_TASK: 'chef',
     JENKINS_TASK: 'jenkins',
@@ -95,6 +96,26 @@ var taskSchema = new Schema({
     taskCreatedOn: {
         type: Date,
         default: Date.now
+    },
+    orgName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    bgName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    projectName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    envName: {
+        type: String,
+        required: true,
+        trim: true
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -618,16 +639,39 @@ taskSchema.statics.updateJobUrl = function(taskId, taskConfig, callback) {
 };
 
 // get task by ids
-taskSchema.statics.listTasks = function(callback) {
-    this.find(function(err, tasks) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
-        }
-        callback(null, tasks);
-    });
+taskSchema.statics.listTasks = function(jsonData, callback) {
+    if (jsonData.pageSize) {
+        jsonData['searchColumns'] = ['name', 'orgName', 'bgName', 'projectName', 'envName'];
+        ApiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else {
+                Tasks.paginate(databaseCall.queryObj, databaseCall.options, function(err, tasks) {
+                    if (err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    } else {
+                        return callback(null, tasks);
+                    }
+                });
+            }
+        });
+    } else {
+        this.find(function(err, tasks) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+            }
+            callback(null, tasks);
+        });
+    }
 };
+
+
 taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
     this.find(jsonData, { _id: 1, taskType: 1, name: 1, taskConfig: 1, blueprintIds: 1 }, function(err, chefTasks) {
         if (err) {
