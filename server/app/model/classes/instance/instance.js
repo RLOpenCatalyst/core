@@ -385,7 +385,7 @@ var InstancesDao = function() {
                 callback(err, null);
                 return;
             }
-            return callback(null,data);
+            return callback(null, data);
         });
     };
 
@@ -421,8 +421,10 @@ var InstancesDao = function() {
                     err.status = 500;
                     return callback(err);
                 } else {
+                    databaseCall.queryObj['$or']=[{ "instanceState": "running" }, { "instanceState": "stopped" },{ "instanceState": "pending" }];
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
                         if (err) {
+                            logger.error(err);
                             var err = new Error('Internal server error');
                             err.status = 500;
                             return callback(err);
@@ -434,8 +436,8 @@ var InstancesDao = function() {
             });
         } else {
             Instances.find({
-                'actionLogs': false
-            }, function(err, data) {
+            'actionLogs': false
+        },{ $or: [{ "instanceState": "running" }, { "instanceState": "stopped" },{ "instanceState": "pending" }] }, function(err, data) {
                 if (err) {
                     callback(err, null);
                     return;

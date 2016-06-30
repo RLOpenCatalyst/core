@@ -38,6 +38,7 @@ var fs = require('fs');
 var nexus = require('_pr/lib/nexus.js');
 var utils = require('_pr/model/classes/utils/utils.js');
 var AppData = require('_pr/model/app-deploy/app-data');
+var instancesDao = require('_pr/model/classes/instance/instance');
 
 
 var instanceService = module.exports = {};
@@ -66,7 +67,7 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
                 var err = new Error('Instance not found');
                 err.status = 404;
                 return callback(err);
-            } else if(instance && instance.providerId != providerId) {
+            } else if (instance && instance.providerId != providerId) {
                 var err = new Error('Forbidden');
                 err.status = 403;
                 return callback(err);
@@ -112,15 +113,15 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
     if ('orgName' in queryObjectAndCondition)
         delete filterQuery.queryObj['$and'][0].orgName;
 
-    if(orgIds.length > 0) {
-        if(queryObjectAndCondition.providerId) {
+    if (orgIds.length > 0) {
+        if (queryObjectAndCondition.providerId) {
             filterQuery.queryObj['$and'][0].orgId = {
                 '$in': orgIds
             }
-        }else{
+        } else {
             filterQuery.queryObj['$and'][0] = {
-                providerId:{'$ne':null},
-                orgId:{'$in': orgIds}
+                providerId: { '$ne': null },
+                orgId: { '$in': orgIds }
             }
         }
     }
@@ -392,7 +393,7 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 }
 
 function getTrackedInstancesForProvider(provider, next) {
-    console.log("Provider is >>"+provider);
+    console.log("Provider is >>" + provider);
     async.parallel({
             managed: function(callback) {
                 instancesModel.getInstanceByProviderId(provider._id, callback);
@@ -521,8 +522,8 @@ function createTrackedInstancesResponse(instances, callback) {
         else
             instanceObj.ip = null;
 
-        instanceObj.usage = ('usage' in instance)?instance.usage:null;
-        instanceObj.cost = (('cost' in instance) && instance.cost)?parseFloat(instance.cost.aggregateInstanceCost).toFixed(2):0;
+        instanceObj.usage = ('usage' in instance) ? instance.usage : null;
+        instanceObj.cost = (('cost' in instance) && instance.cost) ? parseFloat(instance.cost.aggregateInstanceCost).toFixed(2) : 0;
 
         return instanceObj;
     });
@@ -1156,4 +1157,59 @@ function getCookBookAttributes(instance, callback) {
         callback(null, attributeObj);
         return;
     }
+};
+
+instanceService.getInstanceActionList = function getInstanceActionList(paginationReq, callback) {
+
+    instancesDao.getInstanceList(paginationReq, function(err, list) {
+        if (err) {
+            logger.debug("Error while fetching instance actionLog: ", err);
+            return callback(err, null);
+        }
+        var count = 0;
+        if (list && list.docs && list.docs.length) {
+            var actionLogs = [];
+            for (var i = 0; i < list.docs.length; i++) {
+                (function(i) {
+                    if (list.docs[i].actionLogs && list.docs[i].actionLogs.length) {
+                        for (var j = 0; j < list.docs[i].actionLogs.length; j++) {
+                            if (list.docs[i].actionLogs[j].name != "Orchestration") {
+                                list.docs[i].actionLogs[j] = JSON.parse(JSON.stringify(list.docs[i].actionLogs[j]));
+                                list.docs[i].actionLogs[j]['orgName'] = list.docs[i].orgName;
+                                list.docs[i].actionLogs[j]['bgName'] = list.docs[i].bgName;
+                                list.docs[i].actionLogs[j]['projectName'] = list.docs[i].projectName;
+                                list.docs[i].actionLogs[j]['environmentName'] = list.docs[i].environmentName;
+                                list.docs[i].actionLogs[j]['instanceState'] = list.docs[i].instanceState;
+                                list.docs[i].actionLogs[j]['bootStrapStatus'] = list.docs[i].bootStrapStatus;
+                                list.docs[i].actionLogs[j]['platformId'] = list.docs[i].platformId;
+                                list.docs[i].actionLogs[j]['instanceIP'] = list.docs[i].instanceIP;
+                                list.docs[i].actionLogs[j]['providerType'] = list.docs[i].providerType;
+                                list.docs[i].actionLogs[j]['instanceType'] = list.docs[i].instanceType;
+                                list.docs[i].actionLogs[j]['os'] = list.docs[i].hardware.os;
+                                list.docs[i].actionLogs[j]['platform'] = list.docs[i].hardware.platform;
+                                list.docs[i].actionLogs[j]['instanceId'] = list.docs[i]._id;
+                                list.docs[i].actionLogs[j]['blueprintName'] = list.docs[i].blueprintData.blueprintName;
+                                actionLogs.push(list.docs[i].actionLogs[j]);
+                            }
+                        }
+                    }
+                    count++;
+                    if (list.docs.length == count) {
+                        var page = {
+                            "docs": actionLogs,
+                            "total": actionLogs.length,
+                            "limit": list.limit,
+                            "page": list.page,
+                            "pages": list.pages
+                        };
+                        logger.debug(JSON.stringify(page));
+                        return callback(null, page);
+                    }
+                })(i);
+            }
+
+        } else {
+            return callback(null, list);
+        }
+    })
 };

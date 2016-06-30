@@ -28,6 +28,7 @@ var PuppetTask = require('./taskTypePuppet');
 var ScriptTask = require('./taskTypeScript');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
 var Schema = mongoose.Schema;
 
 
@@ -326,15 +327,48 @@ taskSchema.methods.getHistory = function(callback) {
         var count = 0;
         var checker;
         var uniqueResults = [];
-        for (var i = 0; i < tHistories.length; ++i) {
-            count++;
-            if (!checker || comparer(checker, tHistories[i]) != 0) {
-                checker = tHistories[i];
-                uniqueResults.push(checker);
+        if (tHistories && tHistories.length) {
+            for (var i = 0; i < tHistories.length; ++i) {
+                count++;
+                if (!checker || comparer(checker, tHistories[i]) != 0) {
+                    checker = tHistories[i];
+                    uniqueResults.push(checker);
+                }
             }
-        }
-        if (count === tHistories.length) {
-            callback(err, uniqueResults);
+            if (count === tHistories.length) {
+                if (uniqueResults.length) {
+                    var hCount = 0;
+                    for (var i = 0; i < uniqueResults.length; i++) {
+                        (function(i) {
+                            if (uniqueResults[i].nodeIds && uniqueResults[i].nodeIds.length) {
+                                instancesDao.getInstancesByIDs(uniqueResults[i].nodeIds, function(err, data) {
+                                    if (err) {
+                                        res.send(500);
+                                        return;
+                                    }
+
+                                    if (data && data.length) {
+                                        var pId = [];
+                                        for (var j = 0; j < data.length; j++) {
+                                            pId.push(data[j].platformId);
+                                        }
+                                        uniqueResults[i] = JSON.parse(JSON.stringify(uniqueResults[i]));
+                                        uniqueResults[i]['platformId'] = pId;
+                                    }
+                                    hCount++;
+                                    if (uniqueResults.length == hCount) {
+                                        return callback(null, uniqueResults);
+                                    }
+                                });
+                            } else {
+                                return callback(null, uniqueResults);
+                            }
+                        })(i);
+                    }
+                }
+            }
+        } else {
+            return callback(null, tHistories);
         }
     });
 };
