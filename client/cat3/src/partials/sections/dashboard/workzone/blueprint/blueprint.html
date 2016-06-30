@@ -13,7 +13,7 @@
             <div class="alert alert-info text-center" ng-show="blueprints.length===0">
                 No Blueprints Available
             </div>
-            <div class="container">
+            <div class="container" ng-init="getAllCompsiteBlueprint();">
                 <accordion>
                     <div ng-if="blueprints.software_stack.length>0">
                         <accordion-group ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
@@ -63,7 +63,7 @@
                             </div>
                         </accordion-group>
                     </div>
-                     <div ng-if="blueprints.os_image.length>0">
+                    <div ng-if="blueprints.os_image.length>0">
                         <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                             <accordion-heading>
                                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
@@ -236,6 +236,53 @@
                                         </div>
                                         <div class="btnicons">
                                             <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="removeBlueprint(launcher, 'software_stack')">
+                                                <i class="fa fa-trash-o white"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                    <div >
+                        <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                            <accordion-heading>
+                                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                Composite Blueprint
+                            </accordion-heading>
+                            <div class="productdiv4" ng-repeat="compBlue in compositeBlueprints">
+                                <div class="productdiv1 cardimage role-Selected1" data-templatetype="compositeBlueprint">
+                                    <ul class="list-unstyled system-prop">
+                                        <div class="bp-more-info-section">
+                                            <span class="readBtn" title="More Info" ng-click="compBlueInfo(compBlue)">
+                                                <i class="fa fa-info-circle"></i>
+                                            </span>
+                                            <div class="bp-provider">
+                                                <img src="images/providers/azure-card.png" ng-show="compBlue.blueprintType == 'azure_launch'" />
+                                                <img src="images/providers/openstack-card.png" ng-show="compBlue.blueprintType == 'openstack_launch'" />
+                                                <img src="images/providers/vmware-card.png" ng-show="compBlue.blueprintType == 'vmware_launch'" />
+                                                <img src="images/providers/hpcloud-card.png" ng-show="compBlue.blueprintType == 'hppubliccloud_launch'" />
+                                            </div>
+                                        </div>
+                                        <li>
+                                            <img src="../private/img/composite.png" alt="softwareStack" class="cardLogo">
+                                        </li>
+                                        <li title="{{compBlue.name}}" class="card-text-overflow">
+                                            <u><b>{{compBlue.name}}</b></u>
+                                        </li>
+                                    </ul>
+                                    <div class="bp-version-dropdown-wrapper">
+                                        <span class="bp-version-dropdown-text"></span>
+
+                                    </div>
+                                    <div class="blueprint-buttons">
+                                        <div class="btnicons">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstanceCompoBlueprint(compBlue.launchID);">
+                                                <i class="fa fa-location-arrow white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="btnicons">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="deleteCompositeBlueprint(compBlue.launchID)">
                                                 <i class="fa fa-trash-o white"></i>
                                             </span>
                                         </div>
