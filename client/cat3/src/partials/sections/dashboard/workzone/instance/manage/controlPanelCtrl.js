@@ -14,12 +14,12 @@
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.tileView = true;
+			$scope.selectedTab = 'Information';
 			var _tab = {
 				//To activate the Information tab on Control Panel Page Load
 				tab : 'Information',
 				setTab : function (tabId) {
-					$('.cp-card').removeClass('selected-cp-card');
-					$('#id'+tabId).addClass('selected-cp-card');
+					$scope.selectedTab = tabId;
 					_tab.tab = tabId;
 					if(tabId==='Logs') {
 						instanceLogs.scrollBottom();

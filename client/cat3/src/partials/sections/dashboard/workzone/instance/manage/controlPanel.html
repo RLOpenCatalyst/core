@@ -20,7 +20,7 @@
 	<div class="modal-body">
 		<fieldset>
 			<div class="cp-cards">
-				<div class="cp-card selected-cp-card" id="idInformation" ng-click="tab.setTab('Information')">
+				<div class="cp-card selected-cp-card" title="Information" ng-class="{'selected-cp-card': selectedTab == 'Information'}" ng-click="tab.setTab('Information')">
 					<div class="cp-card-info-wrapper">
 						<div>
 							<i class="fa fa-fw fa-info"></i>
@@ -30,7 +30,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="cp-card" id="idActionhistory" ng-click="tab.setTab('Actionhistory')">
+				<div class="cp-card" title="Action History" ng-class="{'selected-cp-card': selectedTab == 'Actionhistory'}" ng-click="tab.setTab('Actionhistory')">
 					<div class="cp-card-info-wrapper">
 						<div>
 							<i class="fa fa-sun-o"></i>
@@ -40,7 +40,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="cp-card" id="idServices" ng-click="tab.setTab('Services')">
+				<div class="cp-card" title="Services" ng-class="{'selected-cp-card': selectedTab == 'Services'}" ng-click="tab.setTab('Services')">
 					<div class="cp-card-info-wrapper">
 						<div>
 							<i class="fa fa-share-square-o"></i>
@@ -50,7 +50,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="cp-card" id="idLogs" ng-click="tab.setTab('Logs')">
+				<div class="cp-card" title="Logs" ng-class="{'selected-cp-card': selectedTab == 'Logs'}" ng-click="tab.setTab('Logs')">
 					<div class="cp-card-info-wrapper">
 						<div>
 							<i class="fa fa-clock-o"></i>

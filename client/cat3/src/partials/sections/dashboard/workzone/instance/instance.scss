@@ -230,14 +230,6 @@ $imagePath : "../../../../../../images";
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
-	#instancePage {
-		#tableView {
-			.instance-grid-wrapper {
-
-			}
-		}
-	}
-
 	#assignJobPage {
 		#container {
 			.left-right-selection {
@@ -572,6 +564,7 @@ $imagePath : "../../../../../../images";
 		    margin-right: 15px;
 		    @include border-radius(8px);
 		    margin-bottom: 8px;
+		    cursor: pointer;
 		}
 
 		.selected-cp-card {
@@ -635,12 +628,6 @@ $imagePath : "../../../../../../images";
 
 	.tableactionbutton {
 			border-radius: 50%;
-	}
-}
-
-#addNewServicePage {
-	.body-padding {
-		padding-bottom: 40px;
 	}
 }
 
