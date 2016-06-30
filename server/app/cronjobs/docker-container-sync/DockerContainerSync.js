@@ -15,6 +15,7 @@ DockerContainerSync.interval = '*/5 * * * *';
 DockerContainerSync.execute = dockerContainerSync;
 
 module.exports = DockerContainerSync;
+
 function dockerContainerSync(){
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
@@ -38,7 +39,7 @@ function dockerContainerSync(){
                                 return;
                             }
                         }else{
-                            logger.info("There is no Instance in "+org.orgname+" Organization who have docker install");
+                            logger.info("There is no Instance in "+org.orgname+" Organization who have docker installed");
                             return;
                         }
                     });

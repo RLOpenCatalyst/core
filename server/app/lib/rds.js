@@ -82,9 +82,8 @@ var RDS = function(awsSettings) {
                 Value: tags[key]
             });
         }
-        console.log(tagsArray);
         var params = {
-            ResourceName: dbName,
+            ResourceName: 'arn:aws:rds:us-west-1:'+appConfig.aws.s3AccountNumber+':db:'+dbName,
             Tags: tagsArray
         };
         rds.addTagsToResource(params, function(err, data) {

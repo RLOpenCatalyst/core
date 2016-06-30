@@ -722,7 +722,9 @@ function helperConstructOption(data, keyList, nameKey, valueKey) {
     }
     var str = ''
     for (var i = 0; i < data.length; i++) {
-        str = str + getOptionAppend(data[i], keyList, nameKey, valueKey);
+        if(data[i].region !=null){
+            str = str + getOptionAppend(data[i], keyList, nameKey, valueKey);
+        }
     }
     return str;
 }

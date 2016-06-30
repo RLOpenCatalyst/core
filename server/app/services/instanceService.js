@@ -24,11 +24,15 @@ var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
+var resourceCost = require('_pr/model/resource-costs/resource-costs.js');
+var resourceUsage = require('_pr/model/resource-metrics/resource-metrics.js');
+
 var async = require('async');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Chef = require('_pr/lib/chef.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Docker = require('_pr/model/docker.js');
+var resources = require('_pr/model/resources/resources.js');
 
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
@@ -56,6 +60,7 @@ instanceService.getTrackedInstances = getTrackedInstances;
 instanceService.createTrackedInstancesResponse = createTrackedInstancesResponse;
 instanceService.validateListInstancesQuery = validateListInstancesQuery;
 instanceService.removeInstanceById = removeInstanceById;
+instanceService.removeInstancesByProviderId = removeInstancesByProviderId;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -228,9 +233,15 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
                 function(err, data) {
                     if (err) {
                         logger.error(err);
-                        var err = new Error('Internal server error');
-                        err.status = 500;
-                        return callback(err);
+                        if(err.code === 'AccessDenied'){
+                            var err = new Error('Update tag failed, Invalid keys or Permission Denied');
+                            err.status = 500;
+                            return callback(err);
+                        }else {
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        }
                     } else if (j == instances.length - 1) {
                         return callback(null, instances);
                     }
@@ -331,9 +342,15 @@ function updateAWSInstanceTag(provider, instance, tags, callback) {
         function(err, data) {
             if (err) {
                 logger.error(err);
-                var err = new Error('Internal server error');
-                err.status = 500;
-                return callback(err);
+                if(err.code === 'AccessDenied'){
+                    var err = new Error('Update tag failed, Invalid keys or Permission Denied');
+                    err.status = 500;
+                    return callback(err);
+                }else {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                }
             } else {
                 logger.debug(data);
                 return callback(null, instance);
@@ -414,14 +431,16 @@ function getTrackedInstancesForProvider(provider, next) {
     );
 }
 
-function getTrackedInstances(query, next) {
+function getTrackedInstances(query,category, next) {
     async.parallel([
-
             function(callback) {
-                instancesModel.getAll(query, callback);
-            },
-            function(callback) {
-                unManagedInstancesModel.getAll(query, callback);
+                if(category === 'managed'){
+                    instancesModel.getAll(query, callback);
+                }else if(category === 'assigned'){
+                    unManagedInstancesModel.getAll(query, callback);
+                }else{
+                    callback(null,[]);
+                }
             }
         ],
         function(err, results) {
@@ -1159,22 +1178,53 @@ function getCookBookAttributes(instance, callback) {
     }
 };
 
-function removeInstanceById(instanceId,instanceState,callback){
+function removeInstanceById(instanceId,callback){
         containerModel.deleteContainerByInstanceId(instanceId, function (err, container) {
             if (err) {
                 logger.error("Container deletion Failed >> ", err);
                 callback(err, null);
                 return;
             } else {
-                instancesModel.removeInstanceById(instanceId,instanceState, function (err, data) {
+                instancesModel.removeInstanceById(instanceId, function (err, data) {
                     if (err) {
                         logger.error("Instance deletion Failed >> ", err);
                         callback(err, null);
                         return;
                     }
-                    logger.debug("Exit delete() for /instances/%s", instanceId);
                     callback(err, data);
                 });
             }
         });
+}
+
+function removeInstancesByProviderId(providerId,callback){
+    async.parallel({
+        managedInstance: function(callback){
+            instancesModel.removeInstancesByProviderId(providerId,callback);
+        },
+        assignedInstance: function(callback){
+            unManagedInstancesModel.removeInstancesByProviderId(providerId,callback);
+        },
+        unassignedInstance: function(callback){
+            unassignedInstancesModel.removeInstancesByProviderId(providerId,callback);
+        },
+        resources: function(callback){
+            resources.removeResourcesByProviderId(providerId,callback);
+        },
+        resourcesCost: function(callback){
+            resourceCost.removeResourceCostByProviderId(providerId,callback);
+        },
+        resourcesUsage: function(callback){
+            resourceUsage.removeResourceUsageByProviderId(providerId,callback);
+        },
+        resourcesTags: function(callback){
+            tagsModel.removeTagsByProviderId(providerId,callback);
+        }
+    },function(err,results){
+        if(err){
+            callback(err,null);
+        }else{
+            callback(null,results);
+        }
+    })
 }

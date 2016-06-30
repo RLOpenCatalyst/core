@@ -37,6 +37,7 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var rc = require('node-rest-client').Client;
 var appConfig = require('_pr/config');
+var instanceService=require('_pr/services/instanceService');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
@@ -452,10 +453,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Enter delete() for vmware/providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for vmware/providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+									}
+								})
 							} else {
 								res.send(400);
 							}
@@ -1087,10 +1096,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Enter delete() for hppubliccloud/providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for hppubliccloud/providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+									}
+								})
 							} else {
 								res.send(400);
 							}
@@ -1536,10 +1553,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Enter delete() for /providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for azure/providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+									}
+								})
 							} else {
 								res.send(400);
 							}
@@ -2056,11 +2081,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Exit delete() for /providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
-								return;
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for /providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+										return;
+									}
+								})
 							} else {
 								res.send(400);
 								return;
@@ -2121,43 +2154,56 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				return;
 			} else {
 				logger.debug("Adding provider");
+				if(req.body.region) {
+					var region;
+					if (typeof req.body.region === 'string') {
+						logger.debug("inside single region: ", req.body.region);
+						region = req.body.region;
+					} else {
+						region = req.body.region[0];
+					}
+					logger.debug("Final Region:  ", region);
 
-				var region;
-				if (typeof req.body.region === 'string') {
-					logger.debug("inside single region: ", req.body.region);
-					region = req.body.region;
-				} else {
-					region = req.body.region[0];
-				}
-				logger.debug("Final Region:  ", region);
+					var providerData = {
+						id: 9,
+						providerName: providerName,
+						providerType: providerType,
+						orgId: orgId,
+						isDefault: isDefault,
+						s3BucketName: s3BucketName
+					};
+					var ec2;
+					if (isDefault == true) {
+						ec2 = new EC2({
+							"isDefault": true,
+							"region": region
+						});
+					} else {
+						ec2 = new EC2({
+							"access_key": accessKey,
+							"secret_key": secretKey,
+							"region": region
+						});
 
-				var providerData = {
-					id: 9,
-					providerName: providerName,
-					providerType: providerType,
-					orgId: orgId,
-					isDefault: isDefault,
-					s3BucketName:s3BucketName
-				};
-				var ec2;
-				if (isDefault == true) {
-					ec2 = new EC2({
-						"isDefault": true,
-						"region": region
-					});
-				} else {
-					ec2 = new EC2({
-						"access_key": accessKey,
-						"secret_key": secretKey,
-						"region": region
-					});
-
+						providerData.accessKey = cryptography.encryptText(accessKey, cryptoConfig.encryptionEncoding,
+							cryptoConfig.decryptionEncoding);
+						providerData.secretKey = cryptography.encryptText(secretKey, cryptoConfig.encryptionEncoding,
+							cryptoConfig.decryptionEncoding);
+					}
+				}else{
+					var providerData = {
+						id: 9,
+						providerName: providerName,
+						providerType: providerType,
+						orgId: orgId,
+						isDefault: isDefault,
+						s3BucketName: s3BucketName
+					};
 					providerData.accessKey = cryptography.encryptText(accessKey, cryptoConfig.encryptionEncoding,
 						cryptoConfig.decryptionEncoding);
 					providerData.secretKey = cryptography.encryptText(secretKey, cryptoConfig.encryptionEncoding,
 						cryptoConfig.decryptionEncoding);
 				}
-
 				usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset,
 					function (err, data) {
 						if (!err) {
@@ -2178,70 +2224,99 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (anUser) {
-								ec2.describeKeyPairs(function (err, data) {
-									if(err && isDefault) {
-										logger.debug("Unable to get AWS Keypairs");
-										res.status(500).send("Not able to get catalyst instance metadata.");
-										return;
-									} else if (err) {
-										logger.debug("Unable to get AWS Keypairs");
-										res.status(500).send("Invalid AccessKey or SecretKey.");
-										return;
-									}  else {
-										logger.debug("Able to get AWS Keypairs. %s", JSON.stringify(data));
-										AWSProvider.getAWSProviderByName(providerData.providerName, providerData.orgId,
-											function (err, prov) {
-												if (err) {
-													logger.error("err. ", err);
-												}
-												if (prov) {
-													logger.debug("getAWSProviderByName: ", JSON.stringify(prov));
-													res.status(409).send("Provider name already exist.");
-													return;
-												}
-												AWSProvider.createNew(providerData, function (err, provider) {
-													if (err) {
-														logger.error("err. ", err);
-														res.status(500).send("Failed to create Provider.");
-														return;
-													}
-													AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
-														masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
-															if (err) {
-																res.status(500).send("Not able to fetch org.");
-																return;
-															}
-															if (orgs.length > 0) {
-																if (keyPair) {
-																	var dommyProvider = {
-																		_id: provider._id,
-																		id: 9,
-																		//accessKey: provider.accessKey,
-																		//secretKey: provider.secretKey,
-																		providerName: provider.providerName,
-																		providerType: provider.providerType,
-																		s3BucketName: provider.s3BucketName,
-																		orgId: orgs[0].rowid,
-																		orgName: orgs[0].orgname,
-																		__v: provider.__v,
-																		keyPairs: keyPair
-																	};
-																	res.send(dommyProvider);
-																	return;
-																}
-															}
-														})
-													});
-													logger.debug("Exit post() for /providers");
-												});
-											});
-									}
-								});
+								if (req.body.region) {
+									ec2.describeKeyPairs(function (err, data) {
+										if (err && isDefault) {
+											logger.debug("Unable to get AWS Keypairs");
+											res.status(500).send("Not able to get catalyst instance metadata.");
+											return;
+										} else if (err) {
+											logger.debug("Unable to get AWS Keypairs");
+											res.status(500).send("Invalid AccessKey or SecretKey.");
+											return;
+										} else {
+											logger.debug("Able to get AWS Keypairs. %s", JSON.stringify(data));
+											createProvider(providerData);
+										}
+									});
+								}else {
+									createProvider(providerData);
+								}
 							}
 						});
 					});
 			}
 		});
+
+		function createProvider(providerData){
+			AWSProvider.getAWSProviderByName(providerData.providerName, providerData.orgId,
+				function (err, prov) {
+					if (err) {
+						logger.error("err. ", err);
+					}
+					if (prov) {
+						logger.debug("getAWSProviderByName: ", JSON.stringify(prov));
+						res.status(409).send("Provider name already exist.");
+						return;
+					}
+					AWSProvider.createNew(providerData, function (err, provider) {
+						if (err) {
+							logger.error("err. ", err);
+							res.status(500).send("Failed to create Provider.");
+							return;
+						}
+						if(req.body.region) {
+							AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
+								masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
+									if (err) {
+										res.status(500).send("Not able to fetch org.");
+										return;
+									}
+									if (orgs.length > 0) {
+										if (keyPair) {
+											var dummyProvider = {
+												_id: provider._id,
+												id: 9,
+												providerName: provider.providerName,
+												providerType: provider.providerType,
+												s3BucketName: provider.s3BucketName,
+												orgId: orgs[0].rowid,
+												orgName: orgs[0].orgname,
+												__v: provider.__v,
+												keyPairs: keyPair
+											};
+											res.send(dummyProvider);
+											return;
+										}
+									}
+								})
+							});
+							logger.debug("Exit post() for /providers");
+						}else{
+							masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
+								if (err) {
+									res.status(500).send("Not able to fetch org.");
+									return;
+								}
+								if (orgs.length > 0) {
+									var dummyProvider = {
+										_id: provider._id,
+										id: 9,
+										providerName: provider.providerName,
+										providerType: provider.providerType,
+										s3BucketName: provider.s3BucketName,
+										orgId: orgs[0].rowid,
+										orgName: orgs[0].orgname,
+										__v: provider.__v
+									};
+									res.send(dummyProvider);
+									return;
+								}
+							})
+						}
+					});
+				});
+		}
 	});
 
 	// Return list of all available AWS Providers.
@@ -2271,28 +2346,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							var providersList = [];
+							var providerObj={};
 							if (providers && providers.length > 0) {
 								for (var i = 0; i < providers.length; i++) {
-
-									providersList.push(providers[i]);
-									if (providers.length === providersList.length) {
-										res.send(providersList);
-										return;
-									}
-
-									/*var keys = [];
-									 keys.push(providers[i].accessKey);
-									 keys.push(providers[i].secretKey);
-									 cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-									 cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-									 if (err) {
-									 res.status(500).send("Failed to decrypt accessKey or secretKey");
-									 return;
-									 }
-									 providers[i].accessKey = decryptedKeys[0];
-									 providers[i].secretKey = decryptedKeys[1];
-
-									 });*/
+									(function (provider) {
+										AWSKeyPair.getAWSKeyPairByProviderId(provider._id, function (err, keyPair) {
+											if (err) {
+												logger.error(err);
+												res.status(500).send(errorResponses.db.error);
+												return;
+											}
+											providerObj = {
+												_id: provider._id,
+												id: provider.id,
+												providerName: provider.providerName,
+												providerType: provider.providerType,
+												s3BucketName: provider.s3BucketName,
+												orgId: provider.orgId,
+												isDefault:provider.isDefault,
+												__v: provider.__v,
+												region: keyPair.length > 0 ? keyPair[0].region : null
+											};
+											providersList.push(providerObj);
+											providerObj = {};
+											if (providers.length === providersList.length) {
+												res.send(providersList);
+												return;
+											}
+										});
+									})(providers[i]);
 								}
 							} else {
 								res.send(200, []);
@@ -2322,31 +2404,36 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								res.send(providersList);
 								return;
 							}
-							if (providers.length > 0) {
+							var providersList = [];
+							var providerObj={};
+							if (providers && providers.length  > 0) {
 								for (var i = 0; i < providers.length; i++) {
-
-									providersList.push(providers[i]);
-									if (providers.length === providersList.length) {
-										res.send(providersList);
-										return;
-									}
-									/*var keys = [];
-									 keys.push(providers[i].accessKey);
-									 keys.push(providers[i].secretKey);
-									 cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-									 cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-									 if (err) {
-									 res.sned(500, "Failed to decrypt accessKey or secretKey");
-									 return;
-									 }
-									 //providers[i].accessKey = decryptedKeys[0];
-									 //providers[i].secretKey = decryptedKeys[1];
-									 providersList.push(providers[i]);
-									 if (providers.length === providersList.length) {
-									 res.send(providersList);
-									 return;
-									 }
-									 });*/
+									(function (provider) {
+										AWSKeyPair.getAWSKeyPairByProviderId(provider._id, function (err, keyPair) {
+											if (err) {
+												logger.error(err);
+												res.status(500).send(errorResponses.db.error);
+												return;
+											}
+											providerObj = {
+												_id: provider._id,
+												id: provider.id,
+												providerName: provider.providerName,
+												providerType: provider.providerType,
+												s3BucketName: provider.s3BucketName,
+												orgId: provider.orgId,
+												isDefault:provider.isDefault,
+												__v: provider.__v,
+												region: keyPair.length > 0 ? keyPair[0].region : null
+											};
+											providersList.push(providerObj);
+											providerObj = {};
+											if (providers.length === providersList.length) {
+												res.send(providersList);
+												return;
+											}
+										});
+									})(providers[i]);
 								}
 							} else {
 								res.send(providersList);
@@ -2530,7 +2617,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
 							return;
 						}
-
 						AWSProvider.removeAWSProviderById(providerId, function(err, deleteCount) {
 							if (err) {
 								logger.error(err);
@@ -2538,10 +2624,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (deleteCount) {
-								logger.debug("Enter delete() for /providers/%s", req.params.providerId);
-								res.send({
-									deleteCount: deleteCount
-								});
+								instanceService.removeInstancesByProviderId(providerId,function(err,data){
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}else{
+										logger.debug("Enter delete() for aws/providers/%s", req.params.providerId);
+										res.send({
+											deleteCount: deleteCount
+										});
+									}
+								})
 							} else {
 								res.send(400);
 							}

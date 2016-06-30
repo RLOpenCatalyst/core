@@ -87,26 +87,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/providers/:providerId/managedInstanceList', validate(instanceValidator.get), getManagedInstancesList);
 
 	function getManagedInstancesList(req,res,next) {
-		var reqData = {};
+		var reqObj = {};
+		var category = req.query.category;
 		async.waterfall(
 			[
 				function (next) {
 					apiUtil.changeRequestForJqueryPagination(req.query, next);
 				},
 				function (reqData, next) {
+					reqObj = reqData;
 					apiUtil.paginationRequest(reqData, 'managedInstances', next);
 				},
 				function (paginationReq, next) {
 					paginationReq['providerId'] = req.params.providerId;
 					paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
-					reqData = paginationReq;
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function (queryObj, next) {
+					queryObj['category']=category;
 					instancesDao.getByProviderId(queryObj, next);
 				},
 				function (managedInstances, next) {
-					apiUtil.changeResponseForJqueryPagination(managedInstances, reqData, next);
+					apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
 				},
 
 			], function (err, results) {
@@ -115,13 +117,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				else
 					return res.status(200).send(results);
 			});
-	}
-
-
+	};
+	
 	app.get('/providers/:providerId/managedInstances', validate(instanceValidator.get), getManagedInstances);
 
 	function getManagedInstances(req,res,next) {
 		var reqData = {};
+		var category = req.query.category;
 		async.waterfall(
 			[
 				function (next) {
@@ -134,6 +136,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function (queryObj, next) {
+					queryObj['category']=category;
 					instancesDao.getByProviderId(queryObj, next);
 				},
 				function (managedInstances, next) {
@@ -153,6 +156,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	function getUnManagedInstances(req, res,next) {
 		var reqData = {};
+		var category = req.query.category;
 		async.waterfall(
 			[
 				function(next){
@@ -165,6 +169,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function(queryObj, next) {
+					queryObj['category']=category;
 					unManagedInstancesDao.getByProviderId(queryObj, next);
 				},
 				function(unmanagedInstances, next) {
@@ -182,26 +187,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.get('/providers/:providerId/unmanagedInstanceList', validate(instanceValidator.get), getUnManagedInstancesList);
 
 	function getUnManagedInstancesList(req, res,next) {
-		var reqData = {};
+		var reqObj = {};
+		var category = req.query.category;
 		async.waterfall(
 			[
 				function(next){
 					apiUtil.changeRequestForJqueryPagination(req.query,next);
 				},
 				function(reqData,next) {
+					reqObj = reqData;
 					apiUtil.paginationRequest(reqData, 'unmanagedInstances', next);
 				},
 				function(paginationReq, next) {
 					paginationReq['providerId'] = req.params.providerId;
 					paginationReq['searchColumns']=['ip', 'platformId'];
-					reqData = paginationReq;
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function(queryObj, next) {
+					var category = req.query.category;
 					unManagedInstancesDao.getByProviderId(queryObj, next);
 				},
 				function(unmanagedInstances,next){
-					apiUtil.changeResponseForJqueryPagination(unmanagedInstances,reqData,next);
+					apiUtil.changeResponseForJqueryPagination(unmanagedInstances,reqObj,next);
 				}
 
 			], function(err, results) {

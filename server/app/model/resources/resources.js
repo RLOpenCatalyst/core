@@ -27,7 +27,6 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
     queryObj['resourceType']=resourceType;
-    queryObj['isDeleted']=false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getResourcesByProviderResourceType", err);
@@ -41,7 +40,6 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
 ResourceSchema.statics.getResourcesByProviderId = function(providerId,callback) {
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
-    queryObj['isDeleted']=false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getResourcesByProviderId", err);
@@ -99,6 +97,18 @@ ResourceSchema.statics.deleteResourcesById = function(resourceId,callback) {
     });
 };
 
+ResourceSchema.statics.removeResourcesByProviderId = function(providerId,callback) {
+    var queryObj={};
+    queryObj['providerDetails.id'] =providerId;
+    Resources.remove(queryObj, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
 
 ResourceSchema.statics.updateResourceUsage = function(resourceId, usage, callback) {
     Resources.update({
@@ -148,6 +158,9 @@ ResourceSchema.statics.updateResourceTag = function(params, fields, callback) {
 };
 
 ResourceSchema.statics.getResources=function(dataBaseQueryObj,callback){
+    if(dataBaseQueryObj.category === 'dashboard') {
+        dataBaseQueryObj.queryObj.isDeleted = false;
+    }
     Resources.paginate(dataBaseQueryObj.queryObj, dataBaseQueryObj.options, function(err, data) {
         if (err) {
             logger.error("Failed to getResources", err);
@@ -181,7 +194,6 @@ ResourceSchema.statics.getAllUnassignedResources=function(providerId,callback){
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
     queryObj['category'] ='unassigned';
-    queryObj['isDeleted']=false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getAllUnassignedResources", err);

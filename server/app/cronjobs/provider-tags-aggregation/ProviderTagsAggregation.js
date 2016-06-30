@@ -17,65 +17,81 @@ function providerTagAggregation() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
             logger.error(err);
-        } else {
-            aggregateTagForProvidersOfOrg.apply(aggregateTagForProvidersOfOrg, orgs);
-        }
-    });
-};
+        }else if(orgs.length > 0){
+            for(var i = 0; i < orgs.length; i++){
+                (function(org){
+                    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
+                        if(err) {
+                            logger.error(err);
+                            return;
+                        } else if(providers.length > 0){
+                            var count = 0;
+                            for(var j = 0; j < providers.length; j++){
+                                (function(provider){
+                                    count++;
+                                    aggregateTagForProvider(provider)
+                                })(providers[j]);
+                            }
+                            if(count ===providers.length){
+                                return;
+                            }
 
-function aggregateTagForProvidersOfOrg(org) {
-    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
-        if(err) {
-            logger.error(err);
-        } else {
-            aggregateTagForProvider.apply(aggregateTagForProvider, providers);
+                        }else{
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for  Tag Aggregation");
+                            return;
+                        }
+                    });
+
+                })(orgs[i]);
+            }
+
+        }else{
+            logger.info("Please configure Organization for Tag Aggregation");
+            return;
         }
     });
 };
 
 function aggregateTagForProvider(provider) {
-    logger.info('Tags aggregation started');
-    if(provider._id) {
-        var tags={};
-        async.waterfall([
-            function (next) {
-                tagsModel.getTagsByProviderId(provider._id, next);
-            },
-            function (tags, next) {
-                var tagDetails = {};
-                var count = 0;
-                if (tags.length === 0) {
-                    next(null, tags);
-                } else {
-                    for (var i = 0; i < tags.length; i++) {
-                        tagDetails[tags[i].name] = tags[i];
-                        if (i === tags.length - 1) {
-                            next(null, tagDetails);
-                        }
+    var tags={};
+    logger.info('Tags aggregation started for provider '+provider._id);
+    async.waterfall([
+        function (next) {
+            tagsModel.getTagsByProviderId(provider._id, next);
+        },
+        function (tags, next) {
+            var tagDetails = {};
+            var count = 0;
+            if (tags.length === 0) {
+                next(null, tags);
+            } else {
+                for (var i = 0; i < tags.length; i++) {
+                    tagDetails[tags[i].name] = tags[i];
+                    if (i === tags.length - 1) {
+                        next(null, tagDetails);
                     }
                 }
-            },
-            function (tagDetails, next) {
-                tags = tagDetails;
-                getResourcesForTagAggregation(provider,next);
-            },
-            function (resourceDetails, next) {
-                getResourceTags(tags,resourceDetails,provider, next);
-            },
-            function (tagsDetails, next) {
-                saveAndUpdateResourceTags(tagsDetails,provider, next);
             }
-        ], function (err, results) {
-            if (err) {
-                logger.error(err);
-                return;
-            } else {
-                logger.info('Tags aggregation ended');
-            }
-        })
-    }else{
-        logger.info("Please configure Provider for Tag Aggregation Cost");
-    }
+        },
+        function (tagDetails, next) {
+            tags = tagDetails;
+            getResourcesForTagAggregation(provider,next);
+        },
+        function (resourceDetails, next) {
+            getResourceTags(tags,resourceDetails,provider, next);
+        },
+        function (tagsDetails, next) {
+            saveAndUpdateResourceTags(tagsDetails,provider, next);
+        }
+    ], function (err, results) {
+        if (err) {
+            logger.error(err);
+            return;
+        }else {
+            logger.info('Tags aggregation ended for Provider'+provider._id);
+            return;
+        }
+    })
 };
 
 function getResourcesForTagAggregation(provider,next){
