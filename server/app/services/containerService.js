@@ -44,7 +44,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             if(permission){
                 containerDao.getContainerByIdInstanceId(jsonData.containerId,jsonData.instanceId,next);
             }else{
-                callBackReturn(permission,next)
+                next(null,permission);
             }
         },
         function (container,next){
@@ -53,7 +53,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
                 enumStatus = container[0].containerStatus;
                 containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action)+" IN PROGRESS",dockerContainerStatus(jsonData.action)+" IN PROGRESS",next);
             }else{
-                callBackReturn(container,next);
+                next(null,container);
             }
         },
         function(updateContainer,next){
@@ -64,16 +64,11 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             });
         },
         function (retCode,next){
-            logger.debug("Code     "+retCode);
-            logger.debug("stdOut     "+stdOut);
+            logger.debug("Code >>>>"+retCode);
+            logger.debug("stdOut >>>>"+stdOut);
             if(retCode === 0){
-                var strArr = stdOut.split(" ");
-                var count = 0;
-                for(var i = 0; i < strArr.length; i++){
-                    if(strArr[i].indexOf(jsonData.containerId) > -1){
-                        count++;
-                    }
-                };
+                var count = occurrences(stdOut,jsonData.containerId,true);
+                logger.debug("Occurrence count is >>>   "+count);
                 if(count === 1){
                     containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action),dockerContainerStatus(jsonData.action),next);
                 }else{
@@ -93,9 +88,24 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
     });
 };
 
-function callBackReturn(data,callback){
-    callback(null,data);
-};
+
+function occurrences(string, subString, allowOverlapping) {
+    string += "";
+    subString += "";
+    if (subString.length <= 0) return (string.length + 1);
+    var n = 0,
+        pos = 0,
+        step = allowOverlapping ? 1 : subString.length;
+
+    while (true) {
+        pos = string.indexOf(subString, pos);
+        if (pos >= 0) {
+            ++n;
+            pos += step;
+        } else break;
+    }
+    return n;
+}
 
 function dockerContainerStatus(status){
     if(status === 'stop') {
