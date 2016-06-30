@@ -15,10 +15,11 @@
 			};
 			$scope.tileView = true;
 			var _tab = {
-				//To activate the tab
-				tab : 'none',
+				//To activate the Information tab on Control Panel Page Load
+				tab : 'Information',
 				setTab : function (tabId) {
-					$scope.tileView = false;
+					$('.cp-card').removeClass('selected-cp-card');
+					$('#id'+tabId).addClass('selected-cp-card');
 					_tab.tab = tabId;
 					if(tabId==='Logs') {
 						instanceLogs.scrollBottom();
@@ -55,13 +56,9 @@
 			//The cpInstance from this scope is used in the controllers of child tabs.
 			$scope.cpInstance = instance;
 			$scope.instInfo = $scope.cpInstance;
-			//To activate the tab
+			//To activate the selected tab
 			$scope.activateTab = function (tabName) {
 				$scope.tab.setTab(tabName);
-			};
-			$scope.back = function(){
-				$scope.activateTab('none');
-				$scope.tileView = true;
 			};
 		}
 	]);
