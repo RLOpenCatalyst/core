@@ -356,8 +356,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          ]
      *      }
      */
-    app.post('/composite-blueprints/', function(req, res) {
-    });
+    app.post('/composite-blueprints/', createProvider);
+
+    function createProvider(req, res, next) {
+        async.waterfall([
+            // @TODO Check if user has access to the specified organization
+            // @TODO Authorization checks to be addded
+            function(next) {
+                providerService.createProvider(req.body, next);
+            },
+            providerService.createProviderResponseObject
+        ], function(err, provider) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send(provider);
+            }
+        });
+    }
 
 
     /**
@@ -461,11 +477,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     /**
-     * @api {patch} /composite-blueprints                                 Update composite blueprint
+     * @api {patch} /composite-blueprints/:compositeBlueprintId          Update composite blueprint
      * @apiName updateCompositeBlueprint
      * @apiGroup composite-blueprints
      *
-     * @apiParam {String} compositeBlueprintId                       Blueprint ID
+     * @apiParam {String} compositeBlueprintId                            Blueprint ID
      * @apiParam {Object} compositeBlueprint                              Composite Blueprint
      * @apiParam {String} compositeBlueprint.name                         Blueprint organization
      * @apiParam {Object[]} compositeBlueprint.blueprints                 List of nested blueprints in launch order
