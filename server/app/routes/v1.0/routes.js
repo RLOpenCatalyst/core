@@ -64,6 +64,7 @@ var trackedInstances = require('./routes_trackedInstances');
 var resources = require('./routes_resources');
 var serviceStatus = require('./routes_serviceStatus');
 var cors = require('cors');
+var auditTrail = require('./routes_audit_trails');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -153,6 +154,8 @@ module.exports.setRoutes = function(app) {
     resources.setRoutes(app, sessionVerificationFunc);
 
     serviceStatus.setRoutes(app, sessionVerificationFunc);
+
+    auditTrail.setRoutes(app, sessionVerificationFunc);
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');
