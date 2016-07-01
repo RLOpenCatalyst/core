@@ -324,49 +324,50 @@ taskSchema.methods.getHistory = function(callback) {
             callback(err, null);
             return;
         }
-        var count = 0;
         var checker;
         var uniqueResults = [];
         if (tHistories && tHistories.length) {
             for (var i = 0; i < tHistories.length; ++i) {
-                count++;
                 if (!checker || comparer(checker, tHistories[i]) != 0) {
                     checker = tHistories[i];
                     uniqueResults.push(checker);
                 }
             }
-            if (count === tHistories.length) {
-                if (uniqueResults.length) {
-                    var hCount = 0;
-                    for (var i = 0; i < uniqueResults.length; i++) {
-                        (function(i) {
-                            if (uniqueResults[i].nodeIds && uniqueResults[i].nodeIds.length) {
-                                instancesDao.getInstancesByIDs(uniqueResults[i].nodeIds, function(err, data) {
-                                    if (err) {
-                                        res.send(500);
-                                        return;
-                                    }
 
-                                    if (data && data.length) {
-                                        var pId = [];
-                                        for (var j = 0; j < data.length; j++) {
-                                            pId.push(data[j].platformId);
-                                        }
-                                        uniqueResults[i] = JSON.parse(JSON.stringify(uniqueResults[i]));
-                                        uniqueResults[i]['platformId'] = pId;
+            if (uniqueResults.length) {
+                var hCount = 0;
+                for (var i = 0; i < uniqueResults.length; i++) {
+                    (function(i) {
+                        if (uniqueResults[i].nodeIds && uniqueResults[i].nodeIds.length) {
+                            instancesDao.getInstancesByIDs(uniqueResults[i].nodeIds, function(err, data) {
+                                hCount++;
+                                if (err) {
+                                    return;
+                                }
+
+                                if (data && data.length) {
+                                    var pId = [];
+                                    for (var j = 0; j < data.length; j++) {
+                                        pId.push(data[j].platformId);
                                     }
-                                    hCount++;
-                                    if (uniqueResults.length == hCount) {
-                                        return callback(null, uniqueResults);
-                                    }
-                                });
-                            } else {
+                                    uniqueResults[i] = JSON.parse(JSON.stringify(uniqueResults[i]));
+                                    uniqueResults[i]['platformId'] = pId;
+                                }
+
+                                if (uniqueResults.length == hCount) {
+                                    return callback(null, uniqueResults);
+                                }
+                            });
+                        } else {
+                            hCount++;
+                            if (uniqueResults.length == hCount) {
                                 return callback(null, uniqueResults);
                             }
-                        })(i);
-                    }
+                        }
+                    })(i);
                 }
             }
+
         } else {
             return callback(null, tHistories);
         }
@@ -674,7 +675,7 @@ taskSchema.statics.updateJobUrl = function(taskId, taskConfig, callback) {
 
 // get task by ids
 taskSchema.statics.listTasks = function(jsonData, callback) {
-    if (jsonData.pageSize) {
+    if (jsonData && jsonData.pageSize) {
         jsonData['searchColumns'] = ['name', 'orgName', 'bgName', 'projectName', 'envName'];
         ApiUtils.databaseUtil(jsonData, function(err, databaseCall) {
             if (err) {

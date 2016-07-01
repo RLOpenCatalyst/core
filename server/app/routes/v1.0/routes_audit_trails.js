@@ -19,6 +19,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var async = require('async');
 var instanceService = require('_pr/services/instanceService');
 var logger = require('_pr/logger')(module);
+var taskService = require('_pr/services/taskService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/audit-trail/*', sessionVerificationFunc);
@@ -48,6 +49,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
                 function(next) {
                     instanceService.getInstanceAction(req.params.actionId, next);
+                }
+            ],
+            function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
+
+    app.get('/audit-trail/task-action', getTaskActionList);
+
+    function getTaskActionList(req, res, next) {
+        async.waterfall(
+            [
+
+                function(next) {
+                    taskService.getTaskActionList(next);
                 }
             ],
             function(err, results) {
