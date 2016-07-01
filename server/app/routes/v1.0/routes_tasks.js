@@ -48,7 +48,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/tasks/list/all', function(req, res) {
-        Tasks.listTasks(function(err, tasks) {
+        Tasks.listTasks(null, function(err, tasks) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
