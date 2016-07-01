@@ -1159,51 +1159,43 @@ function getCookBookAttributes(instance, callback) {
     }
 };
 
-instanceService.getInstanceActionList = function getInstanceActionList(paginationReq, callback) {
+instanceService.getInstanceActionList = function getInstanceActionList(callback) {
 
-    instancesDao.getInstanceList(paginationReq, function(err, list) {
+    instancesDao.listInstances(function(err, list) {
         if (err) {
             logger.debug("Error while fetching instance actionLog: ", err);
             return callback(err, null);
         }
         var count = 0;
-        if (list && list.docs && list.docs.length) {
+        if (list && list.length) {
             var actionLogs = [];
-            for (var i = 0; i < list.docs.length; i++) {
+            for (var i = 0; i < list.length; i++) {
                 (function(i) {
-                    if (list.docs[i].actionLogs && list.docs[i].actionLogs.length) {
-                        for (var j = 0; j < list.docs[i].actionLogs.length; j++) {
-                            if (list.docs[i].actionLogs[j].name != "Orchestration") {
-                                list.docs[i].actionLogs[j] = JSON.parse(JSON.stringify(list.docs[i].actionLogs[j]));
-                                list.docs[i].actionLogs[j]['orgName'] = list.docs[i].orgName;
-                                list.docs[i].actionLogs[j]['bgName'] = list.docs[i].bgName;
-                                list.docs[i].actionLogs[j]['projectName'] = list.docs[i].projectName;
-                                list.docs[i].actionLogs[j]['environmentName'] = list.docs[i].environmentName;
-                                list.docs[i].actionLogs[j]['instanceState'] = list.docs[i].instanceState;
-                                list.docs[i].actionLogs[j]['bootStrapStatus'] = list.docs[i].bootStrapStatus;
-                                list.docs[i].actionLogs[j]['platformId'] = list.docs[i].platformId;
-                                list.docs[i].actionLogs[j]['instanceIP'] = list.docs[i].instanceIP;
-                                list.docs[i].actionLogs[j]['providerType'] = list.docs[i].providerType;
-                                list.docs[i].actionLogs[j]['instanceType'] = list.docs[i].instanceType;
-                                list.docs[i].actionLogs[j]['os'] = list.docs[i].hardware.os;
-                                list.docs[i].actionLogs[j]['platform'] = list.docs[i].hardware.platform;
-                                list.docs[i].actionLogs[j]['instanceId'] = list.docs[i]._id;
-                                list.docs[i].actionLogs[j]['blueprintName'] = list.docs[i].blueprintData.blueprintName;
-                                actionLogs.push(list.docs[i].actionLogs[j]);
+                    if (list[i].instanceState != "terminated" && list[i].actionLogs && list[i].actionLogs.length) {
+                        for (var j = 0; j < list[i].actionLogs.length; j++) {
+                            if (list[i].actionLogs[j].name != "Orchestration") {
+                                list[i].actionLogs[j] = JSON.parse(JSON.stringify(list[i].actionLogs[j]));
+                                list[i].actionLogs[j]['orgName'] = list[i].orgName;
+                                list[i].actionLogs[j]['bgName'] = list[i].bgName;
+                                list[i].actionLogs[j]['projectName'] = list[i].projectName;
+                                list[i].actionLogs[j]['environmentName'] = list[i].environmentName;
+                                list[i].actionLogs[j]['instanceState'] = list[i].instanceState;
+                                list[i].actionLogs[j]['bootStrapStatus'] = list[i].bootStrapStatus;
+                                list[i].actionLogs[j]['platformId'] = list[i].platformId;
+                                list[i].actionLogs[j]['instanceIP'] = list[i].instanceIP;
+                                list[i].actionLogs[j]['providerType'] = list[i].providerType;
+                                list[i].actionLogs[j]['instanceType'] = list[i].instanceType;
+                                list[i].actionLogs[j]['os'] = list[i].hardware.os;
+                                list[i].actionLogs[j]['platform'] = list[i].hardware.platform;
+                                list[i].actionLogs[j]['instanceId'] = list[i]._id;
+                                list[i].actionLogs[j]['blueprintName'] = list[i].blueprintData.blueprintName;
+                                actionLogs.push(list[i].actionLogs[j]);
                             }
                         }
                     }
                     count++;
-                    if (list.docs.length == count) {
-                        var page = {
-                            "docs": actionLogs,
-                            "total": actionLogs.length,
-                            "limit": list.limit,
-                            "page": list.page,
-                            "pages": list.pages
-                        };
-                        logger.debug(JSON.stringify(page));
-                        return callback(null, page);
+                    if (list.length == count) {
+                        return callback(null, actionLogs);
                     }
                 })(i);
             }
@@ -1212,4 +1204,30 @@ instanceService.getInstanceActionList = function getInstanceActionList(paginatio
             return callback(null, list);
         }
     })
+};
+
+instanceService.getInstanceAction = function getInstanceAction(actionId, callback) {
+    instancesDao.getActionLogsById(actionId, function(err, action) {
+        if (err) {
+            logger.error("Failed to fetch Instance Action: ", err);
+            return callback(err, null);
+        }
+        if (action && action.length) {
+            var instanceAction = JSON.parse(JSON.stringify(action[0].actionLogs[0]));
+            logsDao.getLogsByReferenceId(actionId, null, function(err, data) {
+                if (err) {
+                    logger.error("Failed to fetch Logs: ", err);
+                    res.send(500);
+                    return;
+                }
+                instanceAction['logs'] = data;
+                return callback(null, instanceAction);
+            });
+
+        } else {
+            var error = new Error("Action not found.");
+            error.status = 404;
+            return callback(error, null);
+        }
+    });
 };

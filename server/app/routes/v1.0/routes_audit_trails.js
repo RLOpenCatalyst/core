@@ -17,29 +17,38 @@ limitations under the License.
 var instancesDao = require('_pr/model/classes/instance/instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var async = require('async');
-var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instanceService = require('_pr/services/instanceService');
+var logger = require('_pr/logger')(module);
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-	app.all('/audit-trail/*', sessionVerificationFunc);
+    app.all('/audit-trail/*', sessionVerificationFunc);
     app.get('/audit-trail/instance-action', getInstanceActionList);
 
     function getInstanceActionList(req, res, next) {
-        var reqData = {};
         async.waterfall(
             [
 
                 function(next) {
-                    apiUtil.paginationRequest(req.query, 'instances', next);
-                },
-                function(paginationReq, next) {
-                    reqData = paginationReq;
-                    instanceService.getInstanceActionList(paginationReq, next);
-                },
-                function(instanceActions, next) {
-                    apiUtil.paginationResponse(instanceActions, reqData, next);
+                    instanceService.getInstanceActionList(next);
                 }
+            ],
+            function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
 
+    app.get('/audit-trail/instance-action/:actionId', getInstanceAction);
+
+    function getInstanceAction(req, res, next) {
+        async.waterfall(
+            [
+
+                function(next) {
+                    instanceService.getInstanceAction(req.params.actionId, next);
+                }
             ],
             function(err, results) {
                 if (err)

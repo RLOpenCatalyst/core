@@ -378,7 +378,7 @@ var InstancesDao = function() {
         });
     };
 
-    this.listInstances = function(callback) {
+    this.listInstances = function listInstances(callback) {
         Instances.find(function(err, data) {
             if (err) {
                 logger.error("Failed to getInstances :: ", err);
@@ -413,7 +413,7 @@ var InstancesDao = function() {
     };
 
     this.getInstanceList = function getInstanceList(jsonData, callback) {
-        if (jsonData.pageSize) {
+        if (jsonData && jsonData.pageSize) {
             jsonData['searchColumns'] = ['platformId', 'instanceState', 'bootStrapStatus', 'orgName', 'bgName', 'projectName', 'environmentName'];
             apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
                 if (err) {
@@ -421,7 +421,7 @@ var InstancesDao = function() {
                     err.status = 500;
                     return callback(err);
                 } else {
-                    databaseCall.queryObj['$or']=[{ "instanceState": "running" }, { "instanceState": "stopped" },{ "instanceState": "pending" }];
+                    databaseCall.queryObj['$or'] = [{ "instanceState": "running" }, { "instanceState": "stopped" }, { "instanceState": "pending" }];
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
                         if (err) {
                             logger.error(err);
@@ -435,14 +435,13 @@ var InstancesDao = function() {
                 }
             });
         } else {
-            Instances.find({
-            'actionLogs': false
-        },{ $or: [{ "instanceState": "running" }, { "instanceState": "stopped" },{ "instanceState": "pending" }] }, function(err, data) {
+            Instances.find(function(err, data) {
                 if (err) {
+                    logger.error("Failed to getInstances :: ", err);
                     callback(err, null);
                     return;
                 }
-                callback(null, data);
+                return callback(null, data);
             });
         }
     }
@@ -1955,6 +1954,21 @@ var InstancesDao = function() {
             return callback(null, instance);
         });
     }
+
+    this.getActionLogsById = function(actionId, callback) {
+        logger.debug("Enter getActionLogById ", actionId);
+        Instances.find({
+            "actionLogs._id": new ObjectId(actionId),
+        },function(err, data) {
+            if (err) {
+                logger.debug("Failed to getActionLogById ", err);
+                callback(err, null);
+                return;
+            }
+            logger.debug("Exit getActionLogById ",JSON.stringify(data));
+            return callback(null, data);
+        });
+    };
 };
 
 module.exports = new InstancesDao();
