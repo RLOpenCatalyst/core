@@ -17,6 +17,7 @@ var mongoose = require('mongoose');
 var util = require('util');
 var Schema = mongoose.Schema;
 
+//@TODO Unique validation for name to be added
 var CompositeBlueprintSchema = new Schema({
     name: {
         type: String,
@@ -28,7 +29,7 @@ var CompositeBlueprintSchema = new Schema({
         required: true,
         trim: false
     },
-    bgId: {
+    businessGroupId: {
         type: String,
         required: true,
         trim: false
@@ -49,8 +50,6 @@ var CompositeBlueprintSchema = new Schema({
     }
 });
 
-CompositeBlueprintSchema.index({name: 1, organizationId: 1, bgId: 1,  projectId: 1}, {unique: true});
-
 CompositeBlueprintSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
     var compositeBlueprint = new self(data);
@@ -61,6 +60,38 @@ CompositeBlueprintSchema.statics.createNew = function createNew(data, callback) 
             return callback(null, compositeBlueprint);
         }
     });
+};
+
+CompositeBlueprintSchema.statics.getById = function getById(compositeBlueprintId, callback) {
+    this.find(
+        {'_id': compositeBlueprintId, 'isDeleted': false },
+        function(err, compositeBlueprints) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if(compositeBlueprints && compositeBlueprints.length > 0) {
+                return callback(null, compositeBlueprints[0]);
+            } else {
+                return callback(null, null);
+            }
+        }
+    );
+};
+
+CompositeBlueprintSchema.statics.getAll
+    = function getAll(query, callback) {
+    query.isDeleted = false;
+
+    this.find(query,
+        function(err, compositeBlueprints) {
+            if (err) {
+                logger.error(err);
+                return callback(err);
+            } else {
+                return callback(null, compositeBlueprints);
+            }
+        }
+    );
 };
 
 var CompositeBlueprints = mongoose.model('compositeBlueprints', CompositeBlueprintSchema);

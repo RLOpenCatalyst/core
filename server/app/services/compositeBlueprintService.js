@@ -20,9 +20,9 @@ var appConfig = require('_pr/config');
 
 const errorType = 'composite-blueprints';
 
-var compositeBlueprintServices = module.exports = {};
+var compositeBlueprintService = module.exports = {};
 
-compositeBlueprintServices.populateComposedBlueprints
+compositeBlueprintService.populateComposedBlueprints
     = function populateComposedBlueprints(compositeBlueprint, callback) {
     if(!('blueprints' in compositeBlueprint)) {
         var err = new Error('Bad Request');
@@ -70,7 +70,7 @@ compositeBlueprintServices.populateComposedBlueprints
     });
 };
 
-compositeBlueprintServices.validateCompositeBlueprintCreateRequest
+compositeBlueprintService.validateCompositeBlueprintCreateRequest
     = function validateCompositeBlueprintCreateRequest(compositeBlueprint, callback) {
     if(!('blueprints' in compositeBlueprint)) {
         var err = new Error('Bad Request');
@@ -103,7 +103,7 @@ compositeBlueprintServices.validateCompositeBlueprintCreateRequest
     return callback(null, compositeBlueprint);
 };
 
-compositeBlueprintServices.createCompositeBlueprint
+compositeBlueprintService.createCompositeBlueprint
     = function createCompositeBlueprint(compositeBlueprint, callback) {
     compositeBlueprintModel.createNew(compositeBlueprint, function (err, compositeBlueprint) {
         //@TODO To be generalized
@@ -123,10 +123,101 @@ compositeBlueprintServices.createCompositeBlueprint
     });
 };
 
-/*
+compositeBlueprintService.getCompositeBlueprint
+    = function getCompositeBlueprint(compositeBlueprintId, callback) {
+    compositeBlueprintModel.getById(compositeBlueprintId, function (err, compositeBlueprint) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!compositeBlueprint) {
+            var err = new Error('Composite blueprint not found');
+            err.status = 404;
+            return callback(err);
+        } else if (compositeBlueprint) {
+            return callback(null, compositeBlueprint);
+        }
+    });
+};
+
+compositeBlueprintService.getCompositeBlueprintsList
+    = function getCompositeBlueprintsList(userOrganizationIds, filterParameters, callback) {
+    var query = {};
+
+    if('organizationId' in filterParameters) {
+        query.organizationId = filterParameters.organizationId;
+    } else {
+        query.organizationId = {$in: userOrganizationIds};
+    }
+
+    /*query.businessGroupId
+        = ('businessGroupId' in filterParameters)?filterParameters.businessGroupId:null;
+
+    query.projectId
+        = ('projectId' in filterParameters)?filterParameters.projectId:null;*/
+
+    compositeBlueprintModel.getAll(query, function(err, compositeBlueprints) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (compositeBlueprints) {
+            return callback(null, compositeBlueprints);
+        }
+    });
+};
+
 compositeBlueprintService.formatCompositeBlueprint
     = function formatCompositeBlueprint(compositeBlueprint, callback) {
-    var compositeBlueprintObject = compositeBlueprint;
+    var compositeBlueprintObject = {
+        id: compositeBlueprint.id,
+        organization: compositeBlueprint.organization,
+        businessGroup: compositeBlueprint.businessGroup,
+        project: compositeBlueprint.project,
+        blueprints: compositeBlueprint.blueprints
+    };
 
+    if(!('blueprints' in compositeBlueprint)) {
+        var err = new Error('Formatting error');
+        err.status = 400;
+        return callback(err);
+    }
 
-};*/
+    /*for(var i = 0; i < compositeBlueprint.blueprints.length; i++) {
+        (function (blueprint) {
+            blueprint.id = blueprint._id;
+            delete blueprint._id;
+            compositeBlueprintObject.blueprints[i] =  blueprint;
+        })(compositeBlueprint.blueprints[i]);
+    }*/
+
+    callback(null, compositeBlueprintObject);
+};
+
+compositeBlueprintService.formatCompositeBlueprintsList
+    = function formatCompositeBlueprintsList(compositeBlueprints, callback) {
+    var compositeBlueprintsList = [];
+
+    if(compositeBlueprints.length == 0)
+        return callback(null, compositeBlueprintsList);
+
+    for(var i = 0; i < compositeBlueprints.length; i++) {
+        (function(compositeBlueprint) {
+            compositeBlueprintService.formatCompositeBlueprint(compositeBlueprint,
+                function(err, formattedCompositeBlueprint) {
+                    if(err) {
+                        return callback(err);
+                    } else {
+                        compositeBlueprintsList.push(formattedCompositeBlueprint);
+                    }
+
+                    if(compositeBlueprintsList.length == compositeBlueprints.length) {
+                        var compositeBlueprintsListObject = {
+                            'compositeBlueprints': compositeBlueprintsList
+                        };
+                        return callback(null, compositeBlueprintsListObject);
+                    }
+            });
+        })(compositeBlueprints[i]);
+    }
+};

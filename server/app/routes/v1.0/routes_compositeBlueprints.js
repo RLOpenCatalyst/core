@@ -16,6 +16,7 @@
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var compositeBlueprintService = require('_pr/services/compositeBlueprintService');
+var userService = require('_pr/services/userService');
 var async = require('async');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -126,9 +127,31 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
      *
      */
-    app.get('/composite-blueprints/', function(req, res) {
+    app.get('/composite-blueprints/', getCompositeBlueprintsList);
 
-    });
+    function getCompositeBlueprintsList(req, res, next) {
+        async.waterfall([
+            // @TODO Check if user has access to the specified organization
+            function(next) {
+                if('user' in req.session) {
+                    userService.getUserOrgIds(req.session.user, next);
+                } else {
+                    next(null, req.user.orgIds);
+                }
+            },
+            function(organizationIds, next) {
+                compositeBlueprintService.getCompositeBlueprintsList(organizationIds, {}, next);
+            },
+            userService.updateOwnerDetailsOfList,
+            compositeBlueprintService.formatCompositeBlueprintsList
+        ], function(err, compositeBlueprints) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send(compositeBlueprints);
+            }
+        });
+    }
 
     /**
      * @api {get} /composite-blueprints/:compositeBlueprintId       Get composite blueprint
@@ -227,8 +250,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          ]
      *      }
      */
-    app.get('/composite-blueprints/:compositeBlueprintId', function(req, res) {
-    });
+    app.get('/composite-blueprints/:compositeBlueprintId', getCompositeBlueprint);
+
+    function getCompositeBlueprint(req, res, next) {
+        async.waterfall([
+            // @TODO Check if user has access to the specified organization
+            function(next) {
+                compositeBlueprintService.getCompositeBlueprint(req.params.compositeBlueprintId, next);
+            },
+            userService.updateOwnerDetails,
+            compositeBlueprintService.formatCompositeBlueprint
+        ], function(err, compositeBlueprint) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send(compositeBlueprint);
+            }
+        });
+    }
 
     /**
      * @api {post} /composite-blueprints                                 Create composite blueprint
@@ -368,7 +407,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 compositeBlueprintService.populateComposedBlueprints(req.body, next);
             },
             compositeBlueprintService.validateCompositeBlueprintCreateRequest,
-            compositeBlueprintService.createCompositeBlueprint
+            compositeBlueprintService.createCompositeBlueprint,
+            compositeBlueprintService.formatCompositeBlueprint,
+            userService.updateOwnerDetails
         ], function(err, compositeBlueprint) {
             if(err) {
                 next(err);
