@@ -15,6 +15,9 @@
  */
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
+var compositeBlueprintService = require('_pr/services/compositeBlueprintService');
+var userService = require('_pr/services/userService');
+var async = require('async');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/composite-blueprints/*", sessionVerificationFunc);
@@ -124,9 +127,31 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	 * 		}
      *
      */
-    app.get('/composite-blueprints/', function(req, res) {
+    app.get('/composite-blueprints/', getCompositeBlueprintsList);
 
-    });
+    function getCompositeBlueprintsList(req, res, next) {
+        async.waterfall([
+            // @TODO Check if user has access to the specified organization
+            function(next) {
+                if('user' in req.session) {
+                    userService.getUserOrgIds(req.session.user, next);
+                } else {
+                    next(null, req.user.orgIds);
+                }
+            },
+            function(organizationIds, next) {
+                compositeBlueprintService.getCompositeBlueprintsList(organizationIds, {}, next);
+            },
+            userService.updateOwnerDetailsOfList,
+            compositeBlueprintService.formatCompositeBlueprintsList
+        ], function(err, compositeBlueprints) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send(compositeBlueprints);
+            }
+        });
+    }
 
     /**
      * @api {get} /composite-blueprints/:compositeBlueprintId       Get composite blueprint
@@ -225,8 +250,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          ]
      *      }
      */
-    app.get('/composite-blueprints/:compositeBlueprintId', function(req, res) {
-    });
+    app.get('/composite-blueprints/:compositeBlueprintId', getCompositeBlueprint);
+
+    function getCompositeBlueprint(req, res, next) {
+        async.waterfall([
+            // @TODO Check if user has access to the specified organization
+            function(next) {
+                compositeBlueprintService.getCompositeBlueprint(req.params.compositeBlueprintId, next);
+            },
+            userService.updateOwnerDetails,
+            compositeBlueprintService.formatCompositeBlueprint
+        ], function(err, compositeBlueprint) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send(compositeBlueprint);
+            }
+        });
+    }
 
     /**
      * @api {post} /composite-blueprints                                 Create composite blueprint
@@ -356,8 +397,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          ]
      *      }
      */
-    app.post('/composite-blueprints/', function(req, res) {
-    });
+    app.post('/composite-blueprints/', createCompositeBlueprint);
+
+    function createCompositeBlueprint(req, res, next) {
+        async.waterfall([
+            // @TODO Check if user has access to the specified organization
+            // @TODO Authorization checks to be addded
+            function(next) {
+                compositeBlueprintService.populateComposedBlueprints(req.body, next);
+            },
+            compositeBlueprintService.validateCompositeBlueprintCreateRequest,
+            compositeBlueprintService.createCompositeBlueprint,
+            compositeBlueprintService.formatCompositeBlueprint,
+            userService.updateOwnerDetails
+        ], function(err, compositeBlueprint) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send(compositeBlueprint);
+            }
+        });
+    }
 
 
     /**
@@ -461,11 +521,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     /**
-     * @api {patch} /composite-blueprints                                 Update composite blueprint
+     * @api {patch} /composite-blueprints/:compositeBlueprintId          Update composite blueprint
      * @apiName updateCompositeBlueprint
      * @apiGroup composite-blueprints
      *
-     * @apiParam {String} compositeBlueprintId                       Blueprint ID
+     * @apiParam {String} compositeBlueprintId                            Blueprint ID
      * @apiParam {Object} compositeBlueprint                              Composite Blueprint
      * @apiParam {String} compositeBlueprint.name                         Blueprint organization
      * @apiParam {Object[]} compositeBlueprint.blueprints                 List of nested blueprints in launch order
