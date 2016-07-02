@@ -20,18 +20,45 @@ var async = require('async');
 var instanceService = require('_pr/services/instanceService');
 var logger = require('_pr/logger')(module);
 var taskService = require('_pr/services/taskService');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/audit-trail/*', sessionVerificationFunc);
     app.get('/audit-trail/instance-action', getInstanceActionList);
 
-    function getInstanceActionList(req, res, next) {
+    /*function getInstanceActionList(req, res, next) {
         async.waterfall(
             [
 
                 function(next) {
                     instanceService.getInstanceActionList(next);
                 }
+            ],
+            function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }*/
+
+    function getInstanceActionList(req, res, next) {
+        var reqData = {};
+        async.waterfall(
+            [
+
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'instanceLogs', next);
+                },
+                function(paginationReq, next) {
+                    reqData = paginationReq;
+                    instanceLogModel.getInstanceActionList(paginationReq, next);
+                },
+                function(instanceActions, next) {
+                    apiUtil.paginationResponse(instanceActions, reqData, next);
+                }
+
             ],
             function(err, results) {
                 if (err)
