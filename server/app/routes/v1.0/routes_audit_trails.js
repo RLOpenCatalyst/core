@@ -75,7 +75,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             [
 
                 function(next) {
-                    instanceService.getInstanceAction(req.params.actionId, next);
+                    instanceLogModel.getLogsByActionId(req.params.actionId, next);
                 }
             ],
             function(err, results) {
