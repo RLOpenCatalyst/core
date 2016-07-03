@@ -116,8 +116,8 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
 
 
 
-taskService.getTaskActionList = function getTaskActionList(callback) {
-    taskDao.listTasks(null, function(err, tList) {
+taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
+    /*taskDao.listTasks(null, function(err, tList) {
         if (err) {
             logger.error("Failed to fetch tasks: ", err);
             return callback(err, null);
@@ -156,5 +156,13 @@ taskService.getTaskActionList = function getTaskActionList(callback) {
         } else {
             return callback(null, tList);
         }
+    });*/
+
+    TaskHistory.listHistoryWithPagination(jsonData, function(err, histories) {
+        if (err) {
+            logger.error("Failed to fetch TaskActions: ", err);
+            return callback(err, null);
+        }
+        return callback(null,histories);
     });
 };

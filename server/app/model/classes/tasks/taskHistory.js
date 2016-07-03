@@ -20,143 +20,186 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var validate = require('mongoose-validator');
 var logger = require('_pr/logger')(module);
 var schemaValidator = require('../../dao/schema-validator');
+var mongoosePaginate = require('mongoose-paginate');
+var apiUtils = require('_pr/lib/utils/apiUtil.js');
 
 var Schema = mongoose.Schema;
 
 var taskHistorySchema = new Schema({
-	taskId: String,
-	taskType: String,
-	runlist: [String],
-	nodeIds: [String],
-	nodeIdsWithActionLog: [{
-		nodeId: String,
-		actionLogId: String
-	}],
-	attributes: Schema.Types.Mixed,
-	jenkinsServerId: String,
-	jobName: String,
-	buildNumber: Number,
-	previousBuildNumber: Number,
-	status: String,
-	user: String,
-	timestampStarted: Number,
-	timestampEnded: Number,
-	jobResultURL: [String],
-	executionResults: [Schema.Types.Mixed],
-	assignedTaskIds: [String],
-	taskHistoryIds: [{
-		taskId: String,
-		historyId: String
-	}],
+    taskId: String,
+    taskType: String,
+    runlist: [String],
+    nodeIds: [String],
+    nodeIdsWithActionLog: [{
+        nodeId: String,
+        actionLogId: String
+    }],
+    attributes: Schema.Types.Mixed,
+    jenkinsServerId: String,
+    jobName: String,
+    buildNumber: Number,
+    previousBuildNumber: Number,
+    status: String,
+    user: String,
+    timestampStarted: Number,
+    timestampEnded: Number,
+    jobResultURL: [String],
+    executionResults: [Schema.Types.Mixed],
+    assignedTaskIds: [String],
+    taskHistoryIds: [{
+        taskId: String,
+        historyId: String
+    }],
 
-	blueprintExecutionResults: Schema.Types.Mixed
+    blueprintExecutionResults: Schema.Types.Mixed,
+    orgName: String,
+    bgName: String,
+    projectName: String,
+    envName: String,
+    taskName: String,
+    actionId: String
 });
 
-taskHistorySchema.method.update = function(status, timestampEnded, callback) {
-	var self = this;
-	var taskHistory = new self(historyData);
+taskHistorySchema.plugin(mongoosePaginate);
+//var TaskHistories = mongoose.model('taskHistory', taskHistorySchema);
 
-	taskHistory.save(function(err, tHistory) {
-		if (err) {
-			callback(err, null);
-			return;
-		}
-		callback(null, tHistory);
-	});
+taskHistorySchema.method.update = function(status, timestampEnded, callback) {
+    var self = this;
+    var taskHistory = new self(historyData);
+
+    taskHistory.save(function(err, tHistory) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, tHistory);
+    });
 };
 
 taskHistorySchema.statics.createNew = function(historyData, callback) {
-	var self = this;
-	var taskHistory = new self(historyData);
+    var self = this;
+    var taskHistory = new self(historyData);
 
-	taskHistory.save(function(err, tHistory) {
-		logger.debug('saving task history ==>');
-		if (err) {
-			callback(err, null);
-			return;
-		}
-		callback(null, tHistory);
-	});
+    taskHistory.save(function(err, tHistory) {
+        logger.debug('saving task history ==>');
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, tHistory);
+    });
 };
 
 taskHistorySchema.statics.getHistoryByTaskId = function(taskId, callback) {
-	// this.find({
-	// 	$query: {
-	// 		taskId: taskId
-	// 	},
-	// 	$orderby: {
-	// 		"buildNumber": -1
-	// 	}
-	// }, function(err, tHistories) {
-	// 	if (err) {
-	// 		logger.debug('err = >', err);
-	// 		callback(err, null);
-	// 		return;
-	// 	}
-	// 	tHistories.sort({
-	// 		"buildNumber": -1
-	// 	})
-	// 	callback(null, tHistories);
-	// });
+    // this.find({
+    // 	$query: {
+    // 		taskId: taskId
+    // 	},
+    // 	$orderby: {
+    // 		"buildNumber": -1
+    // 	}
+    // }, function(err, tHistories) {
+    // 	if (err) {
+    // 		logger.debug('err = >', err);
+    // 		callback(err, null);
+    // 		return;
+    // 	}
+    // 	tHistories.sort({
+    // 		"buildNumber": -1
+    // 	})
+    // 	callback(null, tHistories);
+    // });
 
-	this.find({
-		taskId: taskId
-	}).sort({
-		"buildNumber": 'desc'
-	}).exec(function(err, tHistories) {
-		if (err) {
-			logger.debug('err', err);
-			callback(err, null);
-			return;
-		}
-		callback(null, tHistories);
-	});
+    this.find({
+        taskId: taskId
+    }).sort({
+        "buildNumber": 'desc'
+    }).exec(function(err, tHistories) {
+        if (err) {
+            logger.debug('err', err);
+            callback(err, null);
+            return;
+        }
+        callback(null, tHistories);
+    });
 };
 
 
 
 taskHistorySchema.statics.getHistoryByTaskIdAndHistoryId = function(taskId, historyId, callback) {
-	this.find({
-		taskId: taskId,
-		_id: new ObjectId(historyId)
-	}, function(err, tHistories) {
-		if (err) {
-			callback(err, null);
-			return;
-		}
-		if (tHistories.length) {
-			callback(null, tHistories[0]);
-		} else {
-			callback(null, null);
-		}
-	});
+    this.find({
+        taskId: taskId,
+        _id: new ObjectId(historyId)
+    }, function(err, tHistories) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        if (tHistories.length) {
+            callback(null, tHistories[0]);
+        } else {
+            callback(null, null);
+        }
+    });
 };
 
 
 taskHistorySchema.statics.getLast100HistoriesByTaskId = function(taskId, callback) {
 
-	this.find({
-		taskId: taskId
-	}, function(err, tHistories) {
-		if (err) {
-			callback(err, null);
-			return;
-		}
-		callback(null, tHistories);
-	}).sort({
-		buildNumber: -1
-	}).limit(100);
+    this.find({
+        taskId: taskId
+    }, function(err, tHistories) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, tHistories);
+    }).sort({
+        buildNumber: -1
+    }).limit(100);
 };
 
 taskHistorySchema.statics.listHistory = function(callback) {
+    this.find(function(err, tHistories) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, tHistories);
+    });
+};
 
-	this.find(function(err, tHistories) {
-		if (err) {
-			callback(err, null);
-			return;
-		}
-		callback(null, tHistories);
-	});
+taskHistorySchema.statics.listHistoryWithPagination = function(jsonData, callback) {
+    if (jsonData && jsonData.pageSize) {
+        jsonData['searchColumns'] = ['taskName', 'status', 'orgName', 'bgName', 'projectName', 'envName'];
+        apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else {
+                TaskHistory.paginate(databaseCall.queryObj, databaseCall.options, function(err, taskActions) {
+                    if (err) {
+                        logger.error(err);
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    }
+                    return callback(null, taskActions);
+                });
+            }
+        });
+
+    } else {
+        TaskHistory.find(function(err, data) {
+            if (err) {
+                logger.error("Failed to task actions :: ", err);
+                callback(err, null);
+                return;
+            }
+            return callback(null, data);
+        });
+    }
 };
 
 var TaskHistory = mongoose.model('taskHistory', taskHistorySchema);

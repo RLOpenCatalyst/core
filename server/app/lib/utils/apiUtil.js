@@ -61,7 +61,7 @@ var ApiUtil = function() {
         var key=Object.keys(sortField)[0];
 
         if(fields.indexOf(key) !== -1){
-            if(jsonData.id === 'tasks' || jsonData.id === 'instances' || jsonData.id === 'instanceLogs'){
+            if(jsonData.id === 'tasks' || jsonData.id === 'instances' || jsonData.id === 'instanceLogs' || jsonData.id === 'taskLogs'){
                 normalizedUtil.normalizedSort(jsonData,key);
                 var sortBy={};
                 sortBy['normalized'] = sortField[key];
