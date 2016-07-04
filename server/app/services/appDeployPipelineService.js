@@ -33,8 +33,7 @@ appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(pr
             projectBasedConfiguration: function (callback) {
                 getProjectFromMaster(projectId, callback);
             }
-        }
-        ,function(err,results){
+        },function(err,results){
             if (err) {
                 logger.error("Error while fetching App Deploy Pipeline Configuration  "+err);
                 callback(err,null);
@@ -113,11 +112,11 @@ function callBackReturn(data,callback){
 function getProjectFromMaster(projectId,callback){
     var responseProjectList=[];
     var responseProject={};
-    masterUtil.getParticularProject(projectId,function(err,aProject){
-        responseProject['_id'] = aProject[0]._id;
-        responseProject['projectId'] = aProject[0].rowid;
-        responseProject['envSequence'] = aProject[0].environmentname.split(",");
-        responseProject['envId'] = aProject[0].environmentname.split(",");
+    masterUtil.getParticularProject(projectId,function(err,project){
+        responseProject['_id'] = project[0]._id;
+        responseProject['projectId'] = project[0].rowid;
+        responseProject['envSequence'] = project[0].environmentname.split(",");
+        responseProject['envId'] = project[0].environmentname.split(",");
         responseProjectList.push(responseProject);
         callback(null, responseProjectList);
     });
@@ -145,8 +144,3 @@ function updateAppConfigEnv(configData,envName,callback){
         });
     }
 };
-
-
-
-
-

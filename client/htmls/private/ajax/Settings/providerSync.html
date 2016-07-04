@@ -1625,9 +1625,13 @@
                     $('.margintop-25left250').fadeIn();
                     $('#spanunassignedformSaveId').text('Updated successfully');
                     $('.margintop-25left250').delay(2000).fadeOut();
+                    getUnassignedData('EC2');
                 },
                 error: function(jqxhr) {
-
+                    // if(jqxhr.responseJSON.message === 'Access Denied'){
+                    bootbox.alert(jqxhr.responseJSON.message);
+                    getUnassignedData('EC2');
+                    // }
                 }
             });
         });
@@ -1661,8 +1665,11 @@
                     $('.margintop-25left250').fadeIn();
                     $('#spanS3unassignedformSaveId').text('Updated successfully');
                     $('.margintop-25left250').delay(2000).fadeOut();
+                    getUnassignedData('S3');
                 },
                 error: function(jqxhr) {
+                        bootbox.alert(jqxhr.responseJSON.message);
+                        getUnassignedData('S3');
                 }
             });
         });
@@ -1696,8 +1703,11 @@
                     $('.margintop-25left250').fadeIn();
                     $('#spanRDSunassignedformSaveId').text('Updated successfully');
                     $('.margintop-25left250').delay(2000).fadeOut();
+                    getUnassignedData('RDS');
                 },
                 error: function(jqxhr) {
+                    bootbox.alert(jqxhr.responseJSON.message);
+                    getUnassignedData('RDS');
 
                 }
             });

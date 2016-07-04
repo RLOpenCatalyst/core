@@ -27,11 +27,10 @@ var resourceService = require('_pr/services/resourceService');
 var resources = require('_pr/model/resources/resources');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
-AggregateAWSUsage.interval = '0 */2 * * *';
+AggregateAWSUsage.interval = '*/5 * * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
-
 /**
  *
  */
@@ -59,7 +58,7 @@ function aggregateAWSUsage() {
                             }
 
                         }else{
-                            logger.info("Please configure Provider for AWS Usage Aggregation");
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for AWS Usage Aggregation");
                             return;
                         }
                     });

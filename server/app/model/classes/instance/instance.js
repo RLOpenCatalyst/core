@@ -363,7 +363,7 @@ var InstancesDao = function() {
         queryObj['docker.dockerEngineStatus'] = 'success';
         Instances.find(queryObj, function(err, data) {
             if (err) {
-                logger.error("Failed getInstanceByOrgId (%s)", orgId, err);
+                logger.error("Failed getInstancesWithContainersByOrgId (%s)", orgId, err);
                 callback(err, null);
                 return;
             }
@@ -1045,6 +1045,18 @@ var InstancesDao = function() {
                 }
                 callback(null, data);
             });
+    };
+
+    this.removeInstancesByProviderId = function(providerId,callback) {
+        var queryObj={};
+        queryObj['providerId'] =providerId;
+        Instances.remove(queryObj, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
     };
 
     this.removeInstancebyCloudFormationId = function(cfId, callback) {

@@ -227,5 +227,18 @@ TagSchema.statics.updateTagValues = function updateTagValues(params, values, cal
     )
 }
 
+TagSchema.statics.removeTagsByProviderId = function(providerId, callback) {
+    Tags.remove({
+        providerId: providerId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to removeTagsByProviderId (%s)", providerId, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 var Tags = mongoose.model('Tags',TagSchema);
 module.exports = Tags;

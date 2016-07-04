@@ -40,7 +40,6 @@ function sync() {
 			logger.warn('No org found');
 			return;
 		}
-		logger.debug('orgs ==> ', JSON.stringify(orgs));
 		for (var i = 0; i < orgs.length; i++) {
 			(function (org) {
 				AWSProvider.getAWSProvidersByOrgId(org._id, function (err, providers) {
@@ -209,7 +208,7 @@ function sync() {
 																					break;
 																				}
 																			}else if ((instances[n].instanceState === 'running' || instances[n].instanceState === 'terminated') && instances[n].bootStrapStatus === 'failed') {
-																			    removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
+																				removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
 																			}else if (instances[n].instanceState === 'terminated') {
 																				removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
 																			}

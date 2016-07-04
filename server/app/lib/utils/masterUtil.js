@@ -1932,6 +1932,27 @@ var MasterUtil = function() {
         });
     }
 
+    this.updateParticularProject = function(projectData, callback) {
+        d4dModelNew.d4dModelMastersProjects.update({
+            id: "4",
+            rowid: projectData.projectId
+        },{
+            $set: {
+                environmentname:projectData.envNames,
+                environmentname_rowid:projectData.envIds
+            }
+        }, {
+            upsert: false
+        }, function(err, projects) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, projects);
+            }
+        });
+    }
+
+
 
     // Return Docker
     this.getDockerById = function(anId, callback) {
