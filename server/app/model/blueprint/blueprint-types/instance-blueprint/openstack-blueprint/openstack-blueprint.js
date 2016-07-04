@@ -35,6 +35,7 @@ var openstackProvider = require('_pr/model/classes/masters/cloudprovider/opensta
 
 var Hppubliccloud = require('_pr/lib/hppubliccloud.js');
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 var fs = require('fs');
 
@@ -283,6 +284,38 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                     timestamp: timestampStarted
                 });
 
+                var instanceLog = {
+                    actionId: actionLog._id,
+                    instanceId: instance.id,
+                    orgName: launchParams.orgName,
+                    bgName: launchParams.bgName,
+                    projectName: launchParams.projectName,
+                    envName: launchParams.envName,
+                    status: "pending",
+                    bootStrap: "waiting",
+                    platformId: instanceData.server.id,
+                    blueprintName: launchParams.blueprintData.name,
+                    data: paramRunList,
+                    platform: "unknown",
+                    os: self.instanceOS,
+                    size: self.flavor,
+                    user: launchParams.sessionUser,
+                    createdOn: new Date().getTime(),
+                    providerType: self.cloudProviderType,
+                    action: "Bootstrap",
+                    logs: [{
+                        err: false,
+                        logText: "Waiting for instance ok state",
+                        timestamp: new Date().getTime()
+                    }]
+                };
+
+                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
+                    }
+                });
+
 
                 logger.debug('Returned from Create Instance. About to wait for instance ready state');
 
@@ -327,6 +360,17 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                     log: "Instance was not associated with an IP",
                                     timestamp: timestampStarted
                                 });
+
+                                instanceLog.logs = {
+                                    err: false,
+                                    logText: "Instance was not associated with an IP",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                             }
                             instancesDao.updateInstanceState(instance.id, "running", function(err, updateCount) {
                                 if (err) {
@@ -349,6 +393,17 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                 err: false,
                                 log: "Instance Ready..about to bootstrap",
                                 timestamp: timestampStarted
+                            });
+                            instanceLog.status = "running";
+                            instanceLog.logs = {
+                                err: false,
+                                logText: "Instance Ready..about to bootstrap",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
                             });
                             var repoData = {};
                             repoData['projectId'] = launchParams.blueprintData.projectId;
@@ -397,6 +452,17 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                        instanceLog.bootStrap = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            logText: "Bootstrap failed",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         return;
                                     }
 
@@ -417,7 +483,17 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
+                                        instanceLog.bootStrap = "success";
+                                        instanceLog.logs = {
+                                            err: false,
+                                            logText: "Instance Bootstraped successfully",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         launchParams.infraManager.getNode(instance.chef.chefNodeName, function(err, nodeData) {
                                             if (err) {
                                                 logger.error("Failed chef.getNode", err);
@@ -463,7 +539,17 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                        instanceLog.bootStrap = "failed";
+                                        instanceLog.logs = {
+                                            err: false,
+                                            logText: "Bootstrap Failed",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
 
                                     }
 
@@ -475,6 +561,16 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         log: stdOutData.toString('ascii'),
                                         timestamp: new Date().getTime()
                                     });
+                                    instanceLog.logs = {
+                                        err: false,
+                                        logText: stdOutData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
 
                                 }, function(stdErrData) {
 
@@ -484,6 +580,16 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         err: true,
                                         log: stdErrData.toString('ascii'),
                                         timestamp: new Date().getTime()
+                                    });
+                                    instanceLog.logs = {
+                                        err: true,
+                                        logText: stdErrData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
                                     });
 
                                 });

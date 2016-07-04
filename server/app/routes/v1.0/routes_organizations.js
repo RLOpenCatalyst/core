@@ -48,6 +48,7 @@ var Docker = require('_pr/model/docker.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
 var taskService = require('_pr/services/taskService');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
 
@@ -1260,14 +1261,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.projectName = project[0].projectname;
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
-                    res.status(500).send("Failed to fetch ENV: ",err);
+                    res.status(500).send("Failed to fetch ENV: ", err);
                     return;
                 }
                 taskData.envName = envName;
                 Task.createNew(taskData, function(err, task) {
                     if (err) {
                         logger.err(err);
-                        res.status(500).send("Failed to create task: ",err);
+                        res.status(500).send("Failed to create task: ", err);
                         return;
                     }
                     res.send(task);
@@ -1833,6 +1834,38 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 timestamp: timestampStarded
                                             });
 
+                                            var instanceLog = {
+                                                actionId: actionLog._id,
+                                                instanceId: instance.id,
+                                                orgName: project[0].orgname,
+                                                bgName: project[0].productgroupname,
+                                                projectName: project[0].projectname,
+                                                envName: envName,
+                                                status: nodeAlive,
+                                                bootStrap: "waiting",
+                                                platformId: req.body.fqdn,
+                                                blueprintName: "",
+                                                data: [],
+                                                platform: "unknown",
+                                                os: req.body.os,
+                                                size: "",
+                                                user: req.session.user.cn,
+                                                createdOn: new Date().getTime(),
+                                                providerType: "",
+                                                action: "Import",
+                                                logs: [{
+                                                    err: false,
+                                                    logText: "Bootstrapping instance",
+                                                    timestamp: new Date().getTime()
+                                                }]
+                                            };
+
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+
                                             credentialCryptography.decryptCredential(encryptedCredentials, function(err, decryptedCredentials) {
                                                 if (err) {
                                                     logger.error("unable to decrypt credentials", err);
@@ -1844,6 +1877,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         timestamp: timestampEnded
                                                     });
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                    instanceLog.logs = {
+                                                        err: true,
+                                                        logText: "Unable to decrypt credentials. Bootstrap Failed",
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
                                                     res.send(500);
                                                     return;
                                                 }
@@ -1938,6 +1981,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     log: err.message,
                                                                     timestamp: timestampEnded
                                                                 });
+                                                                instanceLog.bootStrap = "failed";
+                                                                instanceLog.logs = {
+                                                                    err: true,
+                                                                    logText: err.message,
+                                                                    timestamp: new Date().getTime()
+                                                                };
+                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                    }
+                                                                });
 
                                                             }
                                                             var timestampEnded = new Date().getTime();
@@ -1948,6 +2002,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 timestamp: timestampEnded
                                                             });
                                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                            instanceLog.bootStrap = "failed";
+                                                            instanceLog.logs = {
+                                                                err: true,
+                                                                logText: "Bootstrap Failed",
+                                                                timestamp: new Date().getTime()
+                                                            };
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                }
+                                                            });
 
                                                         } else {
                                                             if (code == 0) {
@@ -1981,6 +2046,18 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     err: false,
                                                                     log: "Instance Bootstrapped Successfully",
                                                                     timestamp: timestampEnded
+                                                                });
+
+                                                                instanceLog.bootStrap = "success";
+                                                                instanceLog.logs = {
+                                                                    err: false,
+                                                                    logText: "Instance Bootstrapped Successfully",
+                                                                    timestamp: new Date().getTime()
+                                                                };
+                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                    }
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                 var hardwareData = {};
@@ -2111,6 +2188,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                instanceLog.bootStrap = "failed";
+                                                                instanceLog.logs = {
+                                                                    err: true,
+                                                                    logText: "Bootstrap Failed",
+                                                                    timestamp: new Date().getTime()
+                                                                };
+                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                    }
+                                                                });
 
                                                             }
                                                         }
@@ -2123,6 +2211,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             log: stdOutData.toString('ascii'),
                                                             timestamp: new Date().getTime()
                                                         });
+                                                        instanceLog.logs = {
+                                                            err: false,
+                                                            logText: stdOutData.toString('ascii'),
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
+                                                        });
 
                                                     }, function(stdErrData) {
 
@@ -2131,6 +2229,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             err: true,
                                                             log: stdErrData.toString('ascii'),
                                                             timestamp: new Date().getTime()
+                                                        });
+
+                                                        instanceLog.logs = {
+                                                            err: true,
+                                                            logText: stdErrData.toString('ascii'),
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
                                                         });
                                                     });
                                                 }); //end of chefcleanup
