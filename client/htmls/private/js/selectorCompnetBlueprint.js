@@ -31,7 +31,7 @@
         '<select id="selectorList" size="10" multiple="multiple" class="btn-group selectCookbooksandRecipes"></select>' +
         '</div>' +
         '<div class="btn-group left-right-selection marginleft5">' +
-        '<button id="ediAattributeBlue" type="button" class="btn btn-default btn-primary anchorUp" style="display: none;">' +
+        '<button id="ediAattributeBlue" type="button" class="btn btn-default btn-primary anchorUp" style="display: none;margin-top:-45px;">' +
         '<i class="fa fa-pencil anchorUpi"></i></button>' +
         '<div class="clearfix"></div>' +
         '<button id="btnRunlistItemUp" type="button" class="btn btn-default btn-primary anchorUp">' +
