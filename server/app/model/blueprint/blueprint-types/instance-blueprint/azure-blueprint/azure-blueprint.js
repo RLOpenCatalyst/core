@@ -35,6 +35,7 @@ var AzureCloud = require('_pr/lib/azure.js');
 var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var fs = require('fs');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 var Schema = mongoose.Schema;
 
@@ -338,6 +339,38 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 timestamp: timestampStarted
                                             });
 
+                                            var instanceLog = {
+                                                actionId: actionLog._id,
+                                                instanceId: instance.id,
+                                                orgName: launchParams.orgName,
+                                                bgName: launchParams.bgName,
+                                                projectName: launchParams.projectName,
+                                                envName: launchParams.envName,
+                                                status: "pending",
+                                                bootStrap: "waiting",
+                                                platformId: launchparamsazure.VMName,
+                                                blueprintName: launchParams.blueprintData.name,
+                                                data: paramRunList,
+                                                platform: "unknown",
+                                                os: self.instanceOS,
+                                                size: self.instanceType,
+                                                user: launchParams.sessionUser,
+                                                createdOn: new Date().getTime(),
+                                                providerType: self.cloudProviderType,
+                                                action: "Bootstrap",
+                                                logs: [{
+                                                    err: false,
+                                                    logText: "Waiting for instance ok state",
+                                                    timestamp: new Date().getTime()
+                                                }]
+                                            };
+
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+
 
                                             logger.debug('Returned from Create Instance. About to wait for instance ready state');
 
@@ -383,6 +416,19 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         log: "Instance Ready..about to bootstrap",
                                                         timestamp: timestampStarted
                                                     });
+
+                                                    instanceLog.status = "running";
+                                                    instanceLog.logs = {
+                                                        err: false,
+                                                        logText: "Instance Ready..about to bootstrap",
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
+
                                                     var port = '';
 
                                                     if (instance.hardware.os === 'windows') {
@@ -445,6 +491,17 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                instanceLog.bootStrap = "failed";
+                                                                instanceLog.logs = {
+                                                                    err: true,
+                                                                    logText: "Bootstrap failed",
+                                                                    timestamp: new Date().getTime()
+                                                                };
+                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                    }
+                                                                });
                                                                 return;
                                                             }
 
@@ -467,6 +524,17 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+                                                                instanceLog.bootStrap = "success";
+                                                                instanceLog.logs = {
+                                                                    err: false,
+                                                                    logText: "Instance Bootstraped successfully",
+                                                                    timestamp: new Date().getTime()
+                                                                };
+                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                    }
+                                                                });
 
                                                                 launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                                     if (err) {
@@ -513,6 +581,17 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                instanceLog.bootStrap = "failed";
+                                                                instanceLog.logs = {
+                                                                    err: false,
+                                                                    logText: "Bootstrap Failed",
+                                                                    timestamp: new Date().getTime()
+                                                                };
+                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                    }
+                                                                });
 
 
                                                             }
@@ -525,6 +604,17 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 timestamp: new Date().getTime()
                                                             });
 
+                                                            instanceLog.logs = {
+                                                                err: false,
+                                                                logText: stdOutData.toString('ascii'),
+                                                                timestamp: new Date().getTime()
+                                                            };
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                }
+                                                            });
+
 
 
                                                         }, function(stdErrData) {
@@ -535,6 +625,17 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 err: true,
                                                                 log: stdErrData.toString('ascii'),
                                                                 timestamp: new Date().getTime()
+                                                            });
+
+                                                            instanceLog.logs = {
+                                                                err: false,
+                                                                logText: stdErrData.toString('ascii'),
+                                                                timestamp: new Date().getTime()
+                                                            };
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                }
                                                             });
 
                                                         });
