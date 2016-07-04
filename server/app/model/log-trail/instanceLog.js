@@ -141,6 +141,7 @@ var InstanceLog = function() {
                                 for(var i=0; i< instanceActions.docs.length; i++){
                                     instanceActions.docs[i] = JSON.parse(JSON.stringify(instanceActions.docs[i]));
                                     delete instanceActions.docs[i]['logs'];
+                                    delete instanceActions.docs[i]['_id'];
                                 }
                             }
                             return callback(null, instanceActions);

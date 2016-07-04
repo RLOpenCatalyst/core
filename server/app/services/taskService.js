@@ -117,47 +117,6 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
 
 
 taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
-    /*taskDao.listTasks(null, function(err, tList) {
-        if (err) {
-            logger.error("Failed to fetch tasks: ", err);
-            return callback(err, null);
-        }
-        if (tList && tList.length) {
-            var count = 0;
-            var tHistories = [];
-            for (var i = 0; i < tList.length; i++) {
-                (function(i) {
-                    tList[i].getHistory(function(err, histories) {
-                         count++;
-                        if (err) {
-                            logger.error("Failed to fetch task histories: ", err);
-                            return;
-                        }
-                        
-                        if (histories && histories.length) {
-                            for (var j = 0; j < histories.length; j++) {
-                                var tHistory = JSON.parse(JSON.stringify(histories[j]));
-                                tHistory['taskName'] = tList[i].name;
-                                tHistory['orgName'] = tList[i].orgName;
-                                tHistory['bgName'] = tList[i].bgName;
-                                tHistory['projectName'] = tList[i].projectName;
-                                tHistory['envName'] = tList[i].envName;
-                                tHistories.push(tHistory);
-                            }
-                        }
-                        
-                        if (tList.length == count) {
-                            return callback(null, tHistories);
-                        }
-                       
-                    });
-                })(i);
-            }
-        } else {
-            return callback(null, tList);
-        }
-    });*/
-
     TaskHistory.listHistoryWithPagination(jsonData, function(err, histories) {
         if (err) {
             logger.error("Failed to fetch TaskActions: ", err);

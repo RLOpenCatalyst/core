@@ -27,22 +27,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/audit-trail/*', sessionVerificationFunc);
     app.get('/audit-trail/instance-action', getInstanceActionList);
 
-    /*function getInstanceActionList(req, res, next) {
-        async.waterfall(
-            [
-
-                function(next) {
-                    instanceService.getInstanceActionList(next);
-                }
-            ],
-            function(err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
-    }*/
-
     function getInstanceActionList(req, res, next) {
         var reqData = {};
         async.waterfall(
