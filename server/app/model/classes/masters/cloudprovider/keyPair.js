@@ -34,13 +34,13 @@ var awsKeyPairSchema = new Schema({
     },
     keyPairName: {
         type: String,
-        required: false,
+        required: true,
         trim: true,
         validate: schemaValidator.nameValidator
     },
     region: {
         type: String,
-        required: false,
+        required: true,
         trim: true
     },
     providerId: {
@@ -51,12 +51,12 @@ var awsKeyPairSchema = new Schema({
     },
     fileName: {
         type: String,
-        required: false,
+        required: true,
         trim: true
     }
 });
 
-// Static methods :- 
+// Static methods :-
 
 // creates a new Provider
 awsKeyPairSchema.statics.createNew = function(req, providerId, callback) {
