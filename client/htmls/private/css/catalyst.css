@@ -4489,7 +4489,7 @@ form.cmxform .gray * {
 .selectCookbooksandRecipesdivLeft, .selectCookbooksandRecipesdivRight {
     width: 80%;
 }
-.environment {
+.blueprintClass {
     background-repeat: no-repeat;
     height: 24px;
     padding-left: 34px;
@@ -4504,4 +4504,22 @@ form.cmxform .gray * {
     height: 29px;
     padding: 0 16%;
     font-weight: 700;
+}
+
+#btnaddToRunlist , #btnremoveFromRunlist {
+    padding: 5px 10px;
+}
+
+#ediAattributeBlue, #btnRunlistItemUp, #btnRunlistItemDown {
+    padding: 5px 8px;
+}
+
+.compositeBPVersion{
+    float:right;
+    margin-right: 30px;
+    margin-top: 10px;
+}
+
+.marginTop19{
+    margin-top:19px
 }

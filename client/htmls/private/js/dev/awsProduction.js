@@ -14,41 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-var checkandupdateRunlistTable = function() {
-    if (!$.fn.dataTable.isDataTable('#tableRunlistForBlueprint')) {
-        $tasksRunlist = $('#tableRunlistForBlueprint').DataTable({
-            "pagingType": "full_numbers",
-            "bInfo": false,
-            "aaSorting": [
-                [0, "desc"]
-            ],
-            "bLengthChange": false,
-            "paging": false,
-            "bFilter": false,
-            "aoColumns": [{
-                "bSortable": false
-            }],
-            "bSort": false
-        });
-    }
-}
 checkandupdateRunlistTable();
 
 //Used for maintaining one copy of the form for edit or new
 var $formBPEdit;
 var $formBPNew;
 
-function createRunlistTable(runlist) {
-    $tasksRunlist.clear().draw();
-    for (i = 0; i < runlist.length; i++) {
-        var $runlistList = $('#tableRunlistForBlueprint');
-        var $tr = $('<tr class="runlistRow"></tr>');
-        var $tdName = $('<td class="runlistDescription">' + runlist[i] + '</td>');
-        $tr.append($tdName);
-        $runlistList.append($tr);
-        $tasksRunlist.row.add($tr).draw();
-    }
-}
+
 $('#saveRunlist').click(function(e) {
     var $ccrs = $('.cookbookShow').data('$ccrs');
     console.log($ccrs);
@@ -191,97 +163,6 @@ function editAtrributesHandler(e) {
 }
 $('.awsEditAttributesBtn').click(editAtrributesHandler);
 
-function createAttribTableRowFromJson(attributes) {
-    var $table = $('#attributesViewListTable').removeClass('hidden');
-    var $tbody = $table.find('tbody').empty();
-    console.log(attributes);
-    for (var j = 0; j < attributes.length; j++) {
-        var attributeObj = attributes[j].jsonObj;
-
-        function getVal(obj, currentKey) {
-            var keys = Object.keys(obj);
-            for (var i = 0; i < keys.length; i++) {
-                if (typeof obj[keys[i]] === 'object') {
-                    getVal(obj[keys[i]], currentKey + '/' + keys[i]);
-                } else {
-                    var keyString = currentKey + '/' + keys[i];
-                    keyString = keyString.substring(1);
-
-                    var $tr = $('<tr/>').attr({
-                        'data-attributeKey': keyString,
-                        'data-attributeValue': obj[keys[i]],
-                        'data-attributeName': attributes[j].name
-                    }).data('jsonObj', attributes[j].jsonObj).css('word-break', 'break-all');
-
-                    var passwordField = false;
-                    var passwordField = false;
-                    var keyParts = keyString.split('/');
-                    if (keyParts.length) {
-                        var indexOfPassword = keyParts[keyParts.length - 1].indexOf('password_');
-                        if (indexOfPassword !== -1) {
-                            passwordField = true;
-                        }
-                    }
-
-                    var $tdAttributeKey = $('<td/>').html(attributes[j].name);
-                    if (passwordField) {
-                        var $tdAttributeVal = $('<td/>').html("*****");
-                    } else {
-                        var $tdAttributeVal = $('<td/>').html(obj[keys[i]]);
-                    }
-                    $tr.append($tdAttributeKey).append($tdAttributeVal);
-                    $tbody.append($tr);
-                }
-            }
-        }
-        getVal(attributeObj, '');
-    }
-}
-
-
-function saveAtrributesHandler(e) {
-    var $modal = $('#editAttributesModalContainer');
-    var $tbody = $modal.find('.attributesEditTableBody');
-    var $input = $tbody.find('.attribValueInput');
-    var attributes = [];
-    for (var j = 0; j < $input.length; j++) {
-        var $this = $($input[j]);
-        var attributeKey = $this.attr('data-attribKey');
-        console.log(attributeKey);
-        var attribValue = $this.val();
-        if (attribValue) {
-            var attribPathParts = attributeKey.split('/');
-            var attributeObj = {};
-            var currentObj = attributeObj;
-            for (var i = 0; i < attribPathParts.length; i++) {
-                if (!currentObj[attribPathParts[i]]) {
-                    if (i === attribPathParts.length - 1) {
-                        currentObj[attribPathParts[i]] = attribValue;
-                        continue;
-                    } else {
-                        currentObj[attribPathParts[i]] = {};
-                    }
-                }
-                currentObj = currentObj[attribPathParts[i]];
-            }
-            attributes.push({
-                name: $this.attr('data-attribName'),
-                jsonObj: attributeObj
-            });
-        } else {
-            if ($this.attr('data-attributeRequired') === 'true') {
-                alert("Please fill in the required attributes");
-                return false;
-            }
-        }
-    }
-
-    console.log('attributeObj ==>', attributes);
-    //$('#attrtextarea').text(JSON.stringify(attributeObj));
-    createAttribTableRowFromJson(attributes);
-    $modal.modal('hide');
-}
-
 $('.saveAttribBtn').click(saveAtrributesHandler);
 
 function updatecompositedockertableemptymessage() {
@@ -308,6 +189,8 @@ $(document).ready(function() {
     $('.artifactClass').hide();
     $('.versionClass').hide();
     $('#selectOrgName').trigger('change');
+    getTreeDetails();
+    getCompositeBPDetails();
     if (isAngularIntegration) {
         $('#workZoneNew').attr('href', '#');
         $('#workZoneNew').removeClass('active');
@@ -329,121 +212,7 @@ $(document).ready(function() {
         $('#tabheader').trigger('click');
     }
 
-    $.ajax({
-        type: "get",
-        dataType: "json",
-        async: false,
-        url: "../organizations/getTreeNew",
-        success: function(data) {
-            console.log(data);
-            data = JSON.parse(JSON.stringify(data));
-            var $orgListInput = $('#orgnameSelectExisting');
-            var $bgList = $('#bgListInputExisting');
-            var $projectList = $('#projectListInputExisting');
-            var $envList = $('#envListExisting');
-            var $projectList = $('#projectListInputExisting');
-            //Dropdowns on the copy popup
-            var $orgListInputforcopy = $('#orgnameSelectExistingforcopy');
-            var $bgListforcopy = $('#bgListInputExistingforcopy');
-            var $projectListforcopy = $('#projectListInputExistingforcopy');
-            var $envListforcopy = $('#envListExistingforcopy');
-
-            $bgList.change(function(e) {
-                var bgName = $(this).val();
-                if (bgName == 'choose') {
-                    return;
-                }
-                var $selectedOrgOption = $(this).find(":selected");
-                $projectList.empty();
-                var getProjs = bgProjects[bgName];
-                for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
-                    $projectList.append($option);
-                }
-                $projectList.trigger('change');
-            });
-
-            $bgListforcopy.change(function(e) {
-                var bgName = $(this).val();
-                if (bgName == 'choose') {
-                    return;
-                }
-                var $selectedOrgOption = $(this).find(":selected");
-                $projectListforcopy.empty();
-                var getProjs = bgProjects[bgName];
-                for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
-                    $projectListforcopy.append($option);
-                }
-                $projectListforcopy.trigger('change');
-            });
-
-
-
-            var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
-            $('#projectListInputExisting').change(function(e) {
-                var reqBodyNew = {};
-                $spinnerProject.removeClass('hidden');
-                reqBodyNew.orgId = $orgListInput.val();
-                reqBodyNew.bgId = $bgList.val();
-                reqBodyNew.projectId = $projectList.val();
-                reqBodyNew.envId = $envList.val();
-                //alert('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws' );
-                $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws', function(data) {
-                    console.log('success---3---4' + data.blueprints.length);
-                    //Syncing up the tree view based on url
-                    initializeBlueprintAreaNew(data.blueprints);
-                    $spinnerProject.addClass('hidden');
-                    if (data.blueprints.length > 0) {
-                        $('#accordion-2').removeClass('hidden');
-                        $spinnerProject.addClass('hidden');
-                        $('#npbpmsg').addClass('hidden');
-                    } else {
-                        $spinnerProject.addClass('hidden');
-                        //show no blueprints found message
-                        $('#npbpmsg').removeClass('hidden');
-                    }
-                });
-            }); //choose env gets over
-
-
-
-            var bgProjects = {};
-            for (var i = 0; i < data.length; i++) {
-                console.log(data[i].businessGroups);
-                $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
-                for (var j = 0; j < data[i].businessGroups.length; j++) {
-                    var rowid = data[i].businessGroups[j].rowid;
-                    $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
-                    //Dropdowns on the copy popup
-                    $bgListforcopy.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
-
-
-                    bgProjects[rowid] = data[i].businessGroups[j].projects;
-                }
-                for (var k = 0; k < data[i].environments.length; k++) {
-                    $envList.append($('<option></option').val(data[i].environments[k].rowid).html(data[i].environments[k].name))
-                }
-
-                //Dropdowns on the copy popup
-                $orgListInputforcopy.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
-            }
-            $bgList.trigger('change');
-            $bgListforcopy.trigger('change');
-            $('.chooseOrgSelectExisting').change(function(e) {
-                if ($(this).val() == 'choose') {
-                    $('#accordion-2').addClass('hidden');
-                }
-                $('.chooseBGExisting').change();
-                $('.chooseProjectExisting').change();
-            });
-            $('.chooseOrgSelectExistingforcopy').change(function(e) {
-
-                $('.chooseBGExisting').change();
-                $('.chooseProjectExisting').change();
-            });
-        }
-    }); //getTreeNew gets over here
+    
 
     //form validation for blueprint save
     var validator = $('#wizard-1').validate({
@@ -1250,7 +1019,6 @@ $(document).ready(function() {
             var selectedrow = false;
             var getDesignTypeImg;
             var getDesignTypeRowID;
-            console.log(rowLength);
             for (var i = 0; i < rowLength; i += 1) {
                 switch (data[i]['templatetype']) {
                     case "chef":
@@ -2090,7 +1858,6 @@ var saveblueprint = function(tempType) {
 var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
     'tabClass': 'form-wizard',
     'onNext': function(tab, navigation, index) {
-        console.log(tab,navigation, index)
         if (index === 1) {
             $('#viewCreateNew').addClass('hidden');
             $('#selectOrgName').attr('disabled', true);
@@ -2288,7 +2055,6 @@ var OrgdataLoader = function(editing, blueprintData) {
         async: false,
         url: "../organizations/getTreeForbtv",
         success: function(data) {
-            console.log(data);
             $('#selectOrgName').html('');
             $('#orgnameSelect').html('');
             data = JSON.parse(JSON.stringify(data));
@@ -3173,33 +2939,11 @@ function closeblueprintedit(blueprintId) {
     $('#orgnameSelect').trigger('change');
 }
 
-function sortResults(versions, prop, asc) {
-    versions = versions.sort(function(a, b) {
-        a[prop] = parseInt(a[prop]);
-        b[prop] = parseInt(b[prop]);
-        if (asc) return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
-        else return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
-    });
-    return (versions);
-}
-
-
 function initializeBlueprintAreaNew(data) {
-
-    var reqBodyNew = {};
-    var $orgListInput = $('#orgnameSelectExisting');
-    reqBodyNew.orgId = $orgListInput.val();
-    var $AppFactpanelBody = $('.appFactoryPanel').find('.panel-body');
-    $AppFactpanelBody.empty();
-    var $devopsRolepanelBody = $('.devopsRolePanel').find('.panel-body');
-    $devopsRolepanelBody.empty();
-    var $desktopProvisioningPanelBody = $('.desktopProvisioningPanel').find('.panel-body');
-    $devopsRolepanelBody.empty();
     //Displaying the Template Types.
     $('#accordion-2').empty();
     $.get("/d4dMasters/readmasterjsonnew/16", function(tdata) {
         tdata = JSON.parse(tdata);
-        var rowLength = tdata.length;
         var $containerTempNew = "";
         var selectedrow = false;
         var getDesignTypeImg;
@@ -3207,59 +2951,86 @@ function initializeBlueprintAreaNew(data) {
         var getDesignTypeName;
         var getDesignType;
 
-        for (var i = 0; i < rowLength; i += 1) {
+        for (var i = 0; i < tdata.length; i++) {
             getDesignTypeImg = tdata[i]['designtemplateicon_filename'];
             getDesignTypeRowID = tdata[i]['rowid'];
             getDesignTypeName = tdata[i]['templatetypename'];
             getDesignType = tdata[i]['templatetype'];
             //Extracting the TT definitions. Add New Template types
-            var $currRolePanel = null;
-            switch (getDesignTypeName) {
-                case "AppFactory":
-                    $AppFactpanelBody = $('<div class="panel-body AppFactory"></div>');
-                    $currRolePanel = $AppFactpanelBody;
-                    break;
-                case "DevopsRoles":
-                    $DevopsRolespanelBody = $('<div class="panel-body DevopsRoles"></div>');
-                    $currRolePanel = $DevopsRolespanelBody;
-                    break;
-                case "CloudFormation":
-                    $CloudFormationBody = $('<div class="panel-body CloudFormation"></div>');
-                    $currRolePanel = $CloudFormationBody;
-                    break;
-                case "Docker":
-                    $DockerpanelBody = $('<div class="panel-body Docker"></div>');
-                    $currRolePanel = $DockerpanelBody;
-                    break;
-                case "Desktop":
-                    $DesktopProvisioningPanelBody = $('<div class="panel-body Desktop"></div>');
-                    $currRolePanel = $DesktopProvisioningPanelBody;
-                    break;
-                case "Environment":
-                    $EnvironmentpanelBody = $('<div class="panel-body Environment"></div>');
-                    $currRolePanel = $EnvironmentpanelBody;
-                    break;
-            }
-            console.log(tdata);
             if ($("div." + tdata[i]['templatetype']).length === 0) {
                 $containerTempNew = '<div class="panel panel-default blueprintContainer hidden">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapse' + i + '" data-parent="#accordion-2" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>' + getDesignTypeName + '</a>' + '</h4></div><div class="panel-collapse collapse bpeditas" id="collapse' + i + '">' + '<div class="panel-body ' + getDesignType + '"></div>' + '</div>';
                 $('#accordion-2').append($containerTempNew);
             }
         }
+        //for other blueprint types..
         for (var i = 0; i < data.length; i++) {
             addBlueprintToDom(data[i]);
         }
-        if ($('#accordion-2').length > 0) {
-            console.log('object ==>', $('#accordion-2').find('.blueprintContainer:not(.hidden)').first().find('.panel-heading a'));
-        }
     }); //end of readmasterjson to be pushed to the end of the function.
-    $('#accordion-2').on('show.bs.collapse', function(e) {
-        console.log(e.target);
-        //$(e.target).find('.productdiv1').first().click(); //removed click to avoid accidental copy
-    });
     //Expanding the fist Accordion.
-
 };
+
+    function initializeCompositeBP(data){
+        $('#accordion-3').empty();
+        var $containerCompoTemp = ""; 
+        $containerCompoTemp = '<div class="panel panel-default blueprintContainer hidden">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapseCompo" data-parent="#accordion-3" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>Composite</a>' + '</h4></div><div class="panel-collapse collapse bpeditas" id="collapseCompo">' + '<div class="panel-body composite"></div>' + '</div>';
+        $('#accordion-3').append($containerCompoTemp);
+        
+        $.get('../composite-blueprints',function(compositeData){
+            for(var j=0;j<compositeData.compositeBlueprints.length;j++){
+                addBlueprintToComposite(compositeData.compositeBlueprints[j]);    
+            }
+        });
+    }
+
+//for showing composite blueprints in the blueprints page
+function addBlueprintToComposite(data) {
+    //Find a panel-body with the template type class
+        var $currRolePanelComposite = $('#accordion-3').find('.composite');
+        var $itemContainer = $('<div></div>').addClass("productdiv4");
+        var $itemBody = $('<div></div>').addClass('productdiv1 cardimage').attr('data-blueprintId', data.id);
+        var $ul = $('<ul></ul>').addClass('list-unstyled system-prop').css({
+            'text-align': 'center'
+        });
+        var $liRead = $('<a style="float:right;margin:5px;cursor:pointer" class="readBtn"><div class="moreInfo moreInfoabsolute"></div></a>').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'More Info');
+        $ul.append($liRead);
+
+        var $img
+        $img = $('<img />').attr('src', 'img/composite.png').attr('alt', data.name).addClass('cardLogo');
+        var $liImage = $('<li></li>').append($img);
+        $ul.append($liImage);
+
+        var $liCardName = $('<li title="' + data.name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + data.name + '</b></u>');
+        //Versions sections
+        var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Edit"></button>');
+        var $launchButton = $('<a href="#modalSelectEnvironment" class="btn btn-primary launchIcon" title="Launch" data-backdrop="false" data-toggle="modal"></a>');
+        $launchButton.append('<i class="fa fa-location-arrow white"></i>');
+        $launchButton.attr('blueprintId', data.id);
+        $launchButton.click(function(e){
+            var lastversion = data.id //default version
+            console.log(lastversion);
+            var $blueprintLaunch = $('#modalSelectEnvironment');
+            $blueprintLaunch.find('#selectedVersion').val(lastversion);
+            getOrgProjBUComparison(data,$blueprintLaunch);
+            console.log("launch",data);
+            eventAdded = false;
+            $('.launchBlueprintBtn').unbind().click(function(e) {
+                if(data.templateType === "chef" || data.templateType === "ami" || data.templateType === "cft"){
+                    blueprintLaunchDesign(data);    
+                }else if(data.templateType=== "docker"){
+                    dockerBlueprintLaunch(data);
+                }
+                
+            });
+        })
+        $ul.append($liCardName).append($launchButton);
+        $itemBody.append($ul);
+        $itemContainer.append($itemBody);
+        $currRolePanelComposite.append($itemContainer);
+        //enabling the bluepintContiner div when item added.
+        $currRolePanelComposite.closest('.blueprintContainer').removeClass('hidden');
+        $currRolePanelComposite.parent().parent().show();        
+}
 
 function addBlueprintToDom(data) {
     //Find a panel-body with the template type class
