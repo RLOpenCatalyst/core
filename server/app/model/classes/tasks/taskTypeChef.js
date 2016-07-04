@@ -35,6 +35,7 @@ var utils = require('../utils/utils.js');
 var Blueprints = require('_pr/model/blueprint');
 var AppData = require('_pr/model/app-deploy/app-data');
 var masterUtil = require('../../../lib/utils/masterUtil.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 var Docker = require('_pr/model/docker.js');
 
@@ -339,9 +340,29 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
             for (var i = 0; i < instances.length; i++) {
                 (function(instance) {
                     var timestampStarted = new Date().getTime();
-
                     var actionLog = instancesDao.insertOrchestrationActionLog(instance._id, self.runlist, userName, timestampStarted);
                     instance.tempActionLogId = actionLog._id;
+                    var instanceLog = {
+                        actionId: actionLog._id,
+                        instanceId: instance._id,
+                        orgName: instance.orgName,
+                        bgName: instance.bgName,
+                        projectName: instance.projectName,
+                        envName: instance.environmentName,
+                        status: instance.instanceState,
+                        bootStrap: instance.bootStrapStatus,
+                        platformId: instance.platformId,
+                        blueprintName: instance.blueprintData.blueprintName,
+                        data: instance.runlist,
+                        platform: "unknown",
+                        os: instance.hardware.os,
+                        size: instance.instanceType,
+                        user: instance.catUser,
+                        createdOn: new Date().getTime(),
+                        providerType: instance.providerType,
+                        action: "Orchestration",
+                        logs: []
+                    };
 
 
                     var logsReferenceIds = [instance._id, actionLog._id];
@@ -354,6 +375,18 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             timestamp: timestampEnded
                         });
                         instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                        instanceLog.createdOn = new Date().getTime();
+                        instanceLog.logs = {
+                            err: true,
+                            logText: "Instance IP is not defined. Chef Client run failed",
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
+
                         instanceOnCompleteHandler({
                             message: "Instance IP is not defined. Chef Client run failed"
                         }, 1, instance._id, null, actionLog._id);
@@ -504,6 +537,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         var attributeObj = utils.mergeObjects(objectArray);
                         configmgmtDao.getChefServerDetails(instance.chef.serverId, function(err, chefDetails) {
                             if (err) {
+                                instanceLog.createdOn = new Date().getTime();
+                                instanceLog.logs = {
+                                    err: true,
+                                    logText: "Chef Data Corrupted. Chef Client run failed",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
                                     referenceId: logsReferenceIds,
@@ -516,6 +560,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 return;
                             }
                             if (!chefDetails) {
+                                instanceLog.createdOn = new Date().getTime();
+                                instanceLog.logs = {
+                                    err: true,
+                                    logText: "Chef Data Corrupted. Chef Client run failed",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
                                     referenceId: logsReferenceIds,
@@ -532,6 +587,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             //decrypting pem file
                             credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
                                 if (err) {
+                                    instanceLog.createdOn = new Date().getTime();
+                                    instanceLog.logs = {
+                                        err: true,
+                                        logText: "Unable to decrypt pem file. Chef run failed",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     var timestampEnded = new Date().getTime();
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
@@ -549,6 +615,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
 
                                 }, function(err, chefClientExecution) {
                                     if (err) {
+                                        instanceLog.createdOn = new Date().getTime();
+                                        instanceLog.logs = {
+                                            err: true,
+                                            logText: "Unable to generate chef run execution id. Chef run failed",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
@@ -594,6 +671,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                     } else {
                                         chefClientOptions.password = decryptedCredentials.password;
                                     }
+                                    instanceLog.createdOn = new Date().getTime();
+                                    instanceLog.logs = {
+                                        err: false,
+                                        logText: "Executing Task",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
                                         err: false,
@@ -611,6 +699,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             });
                                         }
                                         if (err) {
+                                            instanceLog.createdOn = new Date().getTime();
+                                            instanceLog.logs = {
+                                                err: true,
+                                                logText: "Unable to run chef-client",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
                                                 referenceId: logsReferenceIds,
@@ -623,6 +722,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             return;
                                         }
                                         if (retCode == 0) {
+                                            instanceLog.createdOn = new Date().getTime();
+                                            instanceLog.logs = {
+                                                err: true,
+                                                logText: "Task execution success",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
                                                 referenceId: logsReferenceIds,
@@ -652,6 +762,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         } else {
                                             instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
                                             if (retCode === -5000) {
+                                                instanceLog.createdOn = new Date().getTime();
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Host Unreachable",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
                                                     err: true,
@@ -659,6 +780,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     timestamp: new Date().getTime()
                                                 });
                                             } else if (retCode === -5001) {
+                                                instanceLog.createdOn = new Date().getTime();
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Invalid credentials",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
                                                     err: true,
@@ -687,6 +819,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 });
 
                                             } else {
+                                                instanceLog.createdOn = new Date().getTime();
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Unknown error occured. ret code = " + retCode,
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
                                                     err: true,
@@ -702,6 +845,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                            instanceLog.createdOn = new Date().getTime();
+                                            instanceLog.logs = {
+                                                err: true,
+                                                logText: "Error in running chef-client",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                         }
                                     }, function(stdOutData) {
                                         logsDao.insertLog({
@@ -710,12 +864,34 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             log: stdOutData.toString('ascii'),
                                             timestamp: new Date().getTime()
                                         });
+                                        instanceLog.createdOn = new Date().getTime();
+                                        instanceLog.logs = {
+                                            err: false,
+                                            logText: stdOutData.toString('ascii'),
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                     }, function(stdOutErr) {
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
                                             err: true,
                                             log: stdOutErr.toString('ascii'),
                                             timestamp: new Date().getTime()
+                                        });
+                                        instanceLog.createdOn = new Date().getTime();
+                                        instanceLog.logs = {
+                                            err: true,
+                                            logText: stdOutErr.toString('ascii'),
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
                                         });
                                     });
                                 });
@@ -735,6 +911,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                     timestamp: timestampEnded
                                 });
                                 instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                instanceLog.createdOn = new Date().getTime();
+                                instanceLog.logs = {
+                                    err: true,
+                                    logText: "Chef Data Corrupted. Chef Client run failed",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                                 instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
                                 return;
                             }
@@ -747,6 +934,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                     timestamp: timestampEnded
                                 });
                                 instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                instanceLog.createdOn = new Date().getTime();
+                                instanceLog.logs = {
+                                    err: true,
+                                    logText: "Chef Data Corrupted. Chef Client run failed",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                                 instanceOnCompleteHandler({
                                     message: "Chef Data Corrupted. Chef Client run failed"
                                 }, 1, instance._id, null, actionLog._id);
@@ -763,6 +961,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         timestamp: timestampEnded
                                     });
                                     instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                    instanceLog.createdOn = new Date().getTime();
+                                    instanceLog.logs = {
+                                        err: true,
+                                        logText: "Unable to decrypt pem file. Chef run failed",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
                                     return;
                                 }
@@ -780,6 +989,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                        instanceLog.createdOn = new Date().getTime();
+                                        instanceLog.logs = {
+                                            err: true,
+                                            logText: "Unable to generate chef run execution id. Chef run failed",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
                                         return;
                                     }
@@ -823,6 +1043,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         log: "Executing Task",
                                         timestamp: new Date().getTime()
                                     });
+                                    instanceLog.createdOn = new Date().getTime();
+                                    instanceLog.logs = {
+                                        err: false,
+                                        logText: "Executing Task",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     chef.runChefClient(chefClientOptions, function(err, retCode) {
                                         if (decryptedCredentials.pemFileLocation) {
                                             fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
@@ -842,6 +1073,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                            instanceLog.createdOn = new Date().getTime();
+                                            instanceLog.logs = {
+                                                err: true,
+                                                logText: "Unable to run chef-client",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             instanceOnCompleteHandler(err, 1, instance._id, chefClientExecution.id, actionLog._id);
                                             return;
                                         }
@@ -854,6 +1096,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
+                                            instanceLog.createdOn = new Date().getTime();
+                                            instanceLog.logs = {
+                                                err: false,
+                                                logText: "Task execution success",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
                                         } else {
                                             instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
@@ -864,6 +1117,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     log: 'Host Unreachable',
                                                     timestamp: new Date().getTime()
                                                 });
+                                                instanceLog.createdOn = new Date().getTime();
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Host Unreachable",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                             } else if (retCode === -5001) {
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
@@ -871,12 +1135,34 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     log: 'Invalid credentials',
                                                     timestamp: new Date().getTime()
                                                 });
+                                                instanceLog.createdOn = new Date().getTime();
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Invalid credentials",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                             } else {
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
                                                     err: true,
                                                     log: 'Unknown error occured. ret code = ' + retCode,
                                                     timestamp: new Date().getTime()
+                                                });
+                                                instanceLog.createdOn = new Date().getTime();
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: 'Unknown error occured. ret code = ' + retCode,
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
                                                 });
                                             }
                                             var timestampEnded = new Date().getTime();
@@ -887,6 +1173,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                            instanceLog.createdOn = new Date().getTime();
+                                            instanceLog.logs = {
+                                                err: true,
+                                                logText: "Error in running chef-client",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                         }
                                     }, function(stdOutData) {
                                         logsDao.insertLog({
@@ -895,12 +1192,34 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             log: stdOutData.toString('ascii'),
                                             timestamp: new Date().getTime()
                                         });
+                                        instanceLog.logs = {
+                                            err: false,
+                                            logText: stdOutData.toString('ascii'),
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLog.createdOn = new Date().getTime();
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                     }, function(stdOutErr) {
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
                                             err: true,
                                             log: stdOutErr.toString('ascii'),
                                             timestamp: new Date().getTime()
+                                        });
+                                        instanceLog.createdOn = new Date().getTime();
+                                        instanceLog.logs = {
+                                            err: true,
+                                            logText: stdOutErr.toString('ascii'),
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
                                         });
                                     });
                                 });

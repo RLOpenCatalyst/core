@@ -91,7 +91,9 @@ function getDefaultsConfig() {
                 "cftList" : "status",
                 "appDeploy" : "envId",
                 "trackedInstances": "providerType",
-                "resources":"createdOn"
+                "resources":"createdOn",
+                "instanceLogs":"createdOn",
+                "taskLogs":"timestampStarted"
             },
             skip_Records : 1,
             max_record_limit : 100000,

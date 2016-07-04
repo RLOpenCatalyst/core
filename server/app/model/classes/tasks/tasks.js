@@ -132,7 +132,12 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     var taskHistoryData = {
         taskId: self.id,
         taskType: self.taskType,
-        user: userName
+        user: userName,
+        taskName: self.name,
+        orgName: self.orgName,
+        bgName: self.bgName,
+        projectName: self.projectName,
+        envName: self.envName
     };
 
     if (this.taskType === TASK_TYPE.CHEF_TASK) {
@@ -318,7 +323,7 @@ taskSchema.methods.getPuppetTaskNodes = function() {
     }
 };
 
-taskSchema.methods.getHistory = function(callback) {
+/*taskSchema.methods.getHistory = function(callback) {
     TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
         if (err) {
             callback(err, null);
@@ -370,6 +375,28 @@ taskSchema.methods.getHistory = function(callback) {
 
         } else {
             return callback(null, tHistories);
+        }
+    });
+};*/
+
+taskSchema.methods.getHistory = function(callback) {
+    TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        var count = 0;
+        var checker;
+        var uniqueResults = [];
+        for (var i = 0; i < tHistories.length; ++i) {
+            count++;
+            if (!checker || comparer(checker, tHistories[i]) != 0) {
+                checker = tHistories[i];
+                uniqueResults.push(checker);
+            }
+        }
+        if (count === tHistories.length) {
+            callback(err, uniqueResults);
         }
     });
 };
