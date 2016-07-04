@@ -1878,7 +1878,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     });
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                     instanceLog.logs = {
-                                                        err: false,
+                                                        err: true,
                                                         logText: "Unable to decrypt credentials. Bootstrap Failed",
                                                         timestamp: new Date().getTime()
                                                     };
