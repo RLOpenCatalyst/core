@@ -52,21 +52,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.post('/blueprint-frames/', createBlueprintLaunchFrame);
 
     function createBlueprintLaunchFrame(req, res, next) {
-        /*async.waterfall([
-         function(next) {
-         compositeBlueprintService.populateComposedBlueprints(req.body, next);
-         },
-         compositeBlueprintService.validateCompositeBlueprintCreateRequest,
-         compositeBlueprintService.createCompositeBlueprint,
-         compositeBlueprintService.formatCompositeBlueprint,
-         userService.updateOwnerDetails
-         ], function(err, compositeBlueprint) {
-         if(err) {
-         next(err);
-         } else {
-         res.status(200).send(compositeBlueprint);
-         }
-         });*/
         res.status(200).send({
             state: 'S0'
         });
