@@ -16,7 +16,8 @@
 						"docker": [],
 						"os_image": [],
 						"cloudFormation": [],
-						"azureARM": []
+						"azureARM": [],
+						"compositeBlueprint":[]
 					},
 					temp;
 					for (var i = 0; i < obj.length; i++) {
@@ -64,7 +65,7 @@
 				}
 			};
 		}])
-		.controller('blueprintCtrl', ['$scope', '$modal', 'formatData', 'workzoneServices', '$rootScope', 'workzoneUIUtils', function($scope, $modal, formatData, workzoneServices, $rootScope, workzoneUIUtils) {
+		.controller('blueprintCtrl', ['$scope', '$modal', 'formatData', 'workzoneServices', '$rootScope', 'workzoneUIUtils','confirmbox', function($scope, $modal, formatData, workzoneServices, $rootScope, workzoneUIUtils,confirmbox) {
 			/*Open only One Accordian-Group at a time*/
 			$scope.oneAtATime = true;
 			/*Initialising First Accordian-group open on load*/
@@ -189,6 +190,20 @@
 						
 					});
 				},
+				compBlueInfo:function (blueprintObj) {
+					var modalInstance = $modal.open({
+						animation: true,
+						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/compositeBlueprintInfo.html',
+						controller: 'compositeBlueprintInfoCtrl as compBlue',
+						backdrop : 'static',
+						keyboard: false,
+						resolve: {
+							items: function() {
+								return blueprintObj ;
+							}
+						}
+					});
+				},
 				showDockerRepoList: function(blueprintObj) {
 					var modalInstance = $modal.open({
 						animation: true,
@@ -227,8 +242,78 @@
 					}, function() {
 						
 					});
+				},
+				getAllCompsiteBlueprint:function(){
+					$scope.compositeBlueprints=[{
+						"launchID": "fdfsfdsf32313",
+						"name": "asasasasas",
+						"organization": {
+						"id": "<MongoID>",
+							"name": "Organization1"
+					},
+						"businessGroup": {
+						"id": "<MongoID>",
+							"name": "BusinessGroup1"
+					},
+						"project": {
+						"id": "<MongoID>",
+							"name": "Project1"
+					}
+					},{
+						"launchID": "fdfsfdsf32313",
+						"name": "Blueprintsdsadasd1",
+						"organization": {
+							"id": "<MongoID>",
+							"name": "Organization1"
+						},
+						"businessGroup": {
+							"id": "<MongoID>",
+							"name": "BusinessGroup1"
+						},
+						"project": {
+							"id": "<MongoID>",
+							"name": "Project1"
+						}
+					}];
+					// workezoneServices.getAllCompsiteBlueprint().success(function(compBlue){
+					// 	$scope.compositeBlueprints=compBlue.data;
+					// });
+				},
+				deleteCompositeBlueprint:function(compositeBlueprintId){
+					var modalOptions = {
+						closeButtonText: 'Cancel',
+						actionButtonText: 'Delete',
+						actionButtonStyle: 'cat-btn-delete',
+						headerText: 'Delete Composite Blueprint',
+						bodyText: 'Are you sure you want to delete this composite blueprint?'
+					};
+					confirmbox.showModal({}, modalOptions).then(function() {
+						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).then(function(response) {
+
+						}, function(data) {
+							alert('error:: ' + data.toString());
+						});
+					});
+				},
+				launchInstanceCompoBlueprint:function(compositeBlueprintId){
+					var modalOptions = {
+						closeButtonText: ' No ',
+						actionButtonText: ' Yes ',
+						actionButtonStyle: 'cat-btn-update',
+						headerText: 'Launch Instance Composite Blueprint',
+						bodyText: 'Are you sure you want to launch the composite blueprint? Press Yes To continue.'
+					};
+					confirmbox.showModal({}, modalOptions).then(function() {
+						workzoneServices.launchCompsiteBlueprint(compositeBlueprintId).then(function(response) {
+
+						}, function(data) {
+							alert('error:: ' + data.toString());
+						});
+					});
 				}
+
 			});
+
 		}
 	]);
 })(angular);

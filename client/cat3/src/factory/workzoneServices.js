@@ -475,6 +475,14 @@
 				getApprove:function(argument,version){
 					var url ='/deploy-permission/project/'+argument.params.proj+'/env/'+argument.envName+'/permissionList?appName='+argument.appName.name+'&version='+version;
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				deleteCompsiteBlueprint:function (compositeBlueprintId) {
+					var url ='/composite-blueprints/'+compositeBlueprintId;
+					return $http.delete(fullUrl(url),Auth.getHeaderObject());
+				},
+				launchCompsiteBlueprint:function (compositeBlueprintId) {
+					var url ='/composite-blueprints/'+compositeBlueprintId+'/launch';
+					return $http.post(fullUrl(url),Auth.getHeaderObject());
 				}
 			};
 			return serviceInterface;
