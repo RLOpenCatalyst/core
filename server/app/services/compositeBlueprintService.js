@@ -16,6 +16,7 @@
 var logger = require('_pr/logger')(module);
 var blueprintModel = require('_pr/model/blueprint/blueprint');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints');
+var blueprintFrameModel = require('_pr/model/blueprint-frame/blueprint-frame');
 var appConfig = require('_pr/config');
 
 const errorType = 'composite-blueprints';
@@ -221,4 +222,56 @@ compositeBlueprintService.formatCompositeBlueprintsList
             });
         })(compositeBlueprints[i]);
     }
+};
+
+compositeBlueprintService.createBlueprintFrame
+    = function createBlueprintFrame(compositeBlueprint, environmentId, callback) {
+    if((compositeBlueprint == null) || !('blueprints' in compositeBlueprint)) {
+        var err = new Error('Bad Request');
+        err.status = 400;
+        return callback(err);
+    }
+
+    var stateMap = {};
+    for(var i = 0; i < compositeBlueprint.blueprints.length; i++) {
+        (function(i) {
+            var blueprint = compositeBlueprint.blueprints[i];
+            stateMap[blueprint._id] = {};
+            stateMap[blueprint._id].blueprint = blueprint;
+            stateMap[blueprint._id].instances = [];
+
+            stateMap[blueprint._id].transitions = {}
+            if(i+1 < compositeBlueprint.blueprints.length) {
+                stateMap[blueprint._id].transitions['success'] = compositeBlueprint.blueprints[i+1]._id;
+                stateMap[blueprint._id].transitions['failed'] = null;
+            } else {
+                stateMap[blueprint._id].transitions['failed'] = null;
+                stateMap[blueprint._id].transitions['success'] = '#';
+            }
+        }) (i);
+    }
+
+    var blueprintFrame = {
+        environmentId: environmentId,
+        blueprintId: compositeBlueprint._id,
+        state: compositeBlueprint.blueprints[0]._id,
+        stateMap: stateMap
+    };
+
+    blueprintFrameModel.createNew(blueprintFrame, function (err, blueprintFrame) {
+        //@TODO To be generalized
+        if (err && err.name == 'ValidationError') {
+            logger.error(err);
+            var err = new Error('Bad Request');
+            err.status = 400;
+            return callback(err);
+        } else if (err) {
+            logger.error(err);
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else {
+            return callback(null, blueprintFrame);
+        }
+    });
 };

@@ -49,11 +49,29 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      }
      */
     //@TODO Enhance state details
-    app.post('/blueprint-frames/', createBlueprintLaunchFrame);
+    app.post('/blueprint-frames/', createBlueprintFrame);
 
-    function createBlueprintLaunchFrame(req, res, next) {
-        res.status(200).send({
-            state: 'S0'
+    function createBlueprintFrame(req, res, next) {
+        async.waterfall([
+            // @TODO Check if user has access to the specified organization
+            // @TODO Authorization checks to be addded
+            function(next) {
+                compositeBlueprintService.getCompositeBlueprint(req.body.blueprintId, next);
+            },
+            function(blueprint, next) {
+                compositeBlueprintService.createBlueprintFrame(blueprint, req.body.environmentId, next);
+            }
+            /*,
+            compositeBlueprintService.validateCompositeBlueprintCreateRequest,
+            compositeBlueprintService.createCompositeBlueprint,
+            compositeBlueprintService.formatCompositeBlueprint,
+            userService.updateOwnerDetails*/
+        ], function(err, blueprintFrame) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send(blueprintFrame);
+            }
         });
     }
 }
