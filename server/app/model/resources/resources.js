@@ -37,6 +37,78 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
     });
 };
 
+ResourceSchema.statics.getResourcesByProviderId = function(providerId,callback) {
+    var queryObj={};
+    queryObj['providerDetails.id'] =providerId;
+    Resources.find(queryObj, function(err, data) {
+        if (err) {
+            logger.error("Failed to getResourcesByProviderId", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+ResourceSchema.statics.getResourceById = function(resourceId,callback) {
+    Resources.findById(resourceId, function(err, data) {
+        if (err) {
+            logger.error("Failed to getResourceById", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+ResourceSchema.statics.deleteResourcesByResourceType = function(resourceType,callback) {
+    Resources.update({
+        resourceType: resourceType
+    }, {
+        $set: {
+            isDeleted: true
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+ResourceSchema.statics.deleteResourcesById = function(resourceId,callback) {
+    Resources.update({
+        _id: new ObjectId(resourceId)
+    }, {
+        $set: {
+            isDelete: true
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+ResourceSchema.statics.removeResourcesByProviderId = function(providerId,callback) {
+    var queryObj={};
+    queryObj['providerDetails.id'] =providerId;
+    Resources.remove(queryObj, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
 
 ResourceSchema.statics.updateResourceUsage = function(resourceId, usage, callback) {
     Resources.update({
@@ -74,10 +146,57 @@ ResourceSchema.statics.updateResourceCost = function(resourceId, cost, callback)
     });
 };
 
+ResourceSchema.statics.updateResourceTag = function(params, fields, callback) {
+    Resources.update(params, fields, function(err, data) {
+        if (err) {
+            logger.error("Failed to update unassigned resource data", err);
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
 ResourceSchema.statics.getResources=function(dataBaseQueryObj,callback){
+    if(dataBaseQueryObj.category === 'dashboard') {
+        dataBaseQueryObj.queryObj.isDeleted = false;
+    }
     Resources.paginate(dataBaseQueryObj.queryObj, dataBaseQueryObj.options, function(err, data) {
         if (err) {
             logger.error("Failed to getResources", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+ResourceSchema.statics.updateResourcesForAssigned =  function(resourceId,masterDetails,callback){
+    Resources.update({
+        _id: new ObjectId(resourceId)
+    }, {
+        $set: {
+            category: 'assigned',
+            masterDetails:masterDetails
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+ResourceSchema.statics.getAllUnassignedResources=function(providerId,callback){
+    var queryObj={};
+    queryObj['providerDetails.id'] =providerId;
+    queryObj['category'] ='unassigned';
+    Resources.find(queryObj, function(err, data) {
+        if (err) {
+            logger.error("Failed to getAllUnassignedResources", err);
             callback(err, null);
             return;
         }
