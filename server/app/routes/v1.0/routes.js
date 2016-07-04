@@ -64,6 +64,7 @@ var trackedInstances = require('./routes_trackedInstances');
 var resources = require('./routes_resources');
 var serviceStatus = require('./routes_serviceStatus');
 var compositeBlueprints = require('./routes_compositeBlueprints');
+var blueprintFrames = require('./routes_blueprintFrames');
 var cors = require('cors');
 /*
  * @TODO
@@ -156,6 +157,8 @@ module.exports.setRoutes = function(app) {
     serviceStatus.setRoutes(app, sessionVerificationFunc);
 
     compositeBlueprints.setRoutes(app, sessionVerificationFunc);
+
+    blueprintFrames.setRoutes(app, sessionVerificationFunc);
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');
