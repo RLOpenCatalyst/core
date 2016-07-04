@@ -987,7 +987,7 @@ $(document).ready(function() {
       var $projectList = $('#projectListInputExisting');
 
 
-      var $orgListInputforcopy = $('#orgnameSelectExistingforcopy');
+      var $orgListInputforcopy = $('.orgnameSelectExistingforcopy');
       var $bgListforcopy = $('#bgListInputExistingforcopy');
       var $projectListforcopy = $('#projectListInputExistingforcopy');
       var $envListforcopy = $('#envListExistingforcopy');
@@ -3746,7 +3746,7 @@ function initializeBlueprintAreaNew(data) {
             $selectVer.hide();
             $selectVerEdit.hide();
             function getOrgProjDetails(id) {
-              var orgName = $("#orgnameSelectExisting option:selected").text();
+              var orgName = $(".orgnameSelectExisting option:selected").text();
               var bgName = $('#bgListInputExisting option:selected').text();
               var projName = $('#projectListInputExisting option:selected').text();
               var $blueprintReadContainer = $(id);
@@ -3999,7 +3999,7 @@ function copySelectedBlueprint(){
   $('.productdiv1.role-Selected1').each(function(){
     blueprintId.push($(this).attr('data-blueprintid'));
   });
-  var orgid = $('#orgnameSelectExistingforcopy').val();
+  var orgid = $('.orgnameSelectExistingforcopy').val();
   var buid = $('#bgListInputExistingforcopy').val();
   var projid = $('#projectListInputExistingforcopy').val();
   

@@ -483,6 +483,14 @@
 				launchCompsiteBlueprint:function (compositeBlueprintId) {
 					var url ='/composite-blueprints/'+compositeBlueprintId+'/launch';
 					return $http.post(fullUrl(url),Auth.getHeaderObject());
+				},
+				getAllCompsiteBlueprint:function () {
+					var url ='/composite-blueprints';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getCompsiteBlueprintInfo:function (compositeBlueprintId) {
+					var url ='/composite-blueprints/'+compositeBlueprintId;
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				}
 			};
 			return serviceInterface;

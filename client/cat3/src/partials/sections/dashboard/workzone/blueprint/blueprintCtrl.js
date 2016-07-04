@@ -244,40 +244,9 @@
 					});
 				},
 				getAllCompsiteBlueprint:function(){
-					$scope.compositeBlueprints=[{
-						"launchID": "fdfsfdsf32313",
-						"name": "asasasasas",
-						"organization": {
-						"id": "<MongoID>",
-							"name": "Organization1"
-					},
-						"businessGroup": {
-						"id": "<MongoID>",
-							"name": "BusinessGroup1"
-					},
-						"project": {
-						"id": "<MongoID>",
-							"name": "Project1"
-					}
-					},{
-						"launchID": "fdfsfdsf32313",
-						"name": "Blueprintsdsadasd1",
-						"organization": {
-							"id": "<MongoID>",
-							"name": "Organization1"
-						},
-						"businessGroup": {
-							"id": "<MongoID>",
-							"name": "BusinessGroup1"
-						},
-						"project": {
-							"id": "<MongoID>",
-							"name": "Project1"
-						}
-					}];
-					// workezoneServices.getAllCompsiteBlueprint().success(function(compBlue){
-					// 	$scope.compositeBlueprints=compBlue.data;
-					// });
+					workzoneServices.getAllCompsiteBlueprint().success(function(compBlue){
+						$scope.compositeBlueprints=compBlue.compositeBlueprints;
+					});
 				},
 				deleteCompositeBlueprint:function(compositeBlueprintId){
 					var modalOptions = {

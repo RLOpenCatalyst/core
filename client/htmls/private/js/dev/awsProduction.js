@@ -212,8 +212,6 @@ $(document).ready(function() {
         $('#tabheader').trigger('click');
     }
 
-    
-
     //form validation for blueprint save
     var validator = $('#wizard-1').validate({
         ignore: [],
@@ -2977,9 +2975,12 @@ function initializeBlueprintAreaNew(data) {
         $('#accordion-3').append($containerCompoTemp);
         
         $.get('../composite-blueprints',function(compositeData){
-            for(var j=0;j<compositeData.compositeBlueprints.length;j++){
-                addBlueprintToComposite(compositeData.compositeBlueprints[j]);    
+            if(compositeData && compositeData.compositeBlueprints){
+                for(var j=0;j<compositeData.compositeBlueprints.length;j++){
+                    addBlueprintToComposite(compositeData.compositeBlueprints[j]);
+                }
             }
+
         });
     }
 
@@ -3138,7 +3139,7 @@ function addBlueprintToDom(data) {
 
 
         function getOrgProjDetails(id) {
-            var orgName = $("#orgnameSelectExisting option:selected").text();
+            var orgName = $(".orgnameSelectExisting option:selected").text();
 
             var bgName = $('#bgListInputExisting option:selected').text();
             var projName = $('#projectListInputExisting option:selected').text();
@@ -3407,7 +3408,7 @@ function copySelectedBlueprint() {
     $('.productdiv1.role-Selected1').each(function() {
         blueprintId.push($(this).attr('data-blueprintid'));
     });
-    var orgid = $('#orgnameSelectExistingforcopy').val();
+    var orgid = $('.orgnameSelectExistingforcopy').val();
     var buid = $('#bgListInputExistingforcopy').val();
     var projid = $('#projectListInputExistingforcopy').val();
 

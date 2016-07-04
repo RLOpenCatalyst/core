@@ -4487,7 +4487,7 @@ form.cmxform .gray * {
     margin: 0 0 0 10px;
 }
 .selectCookbooksandRecipesdivLeft, .selectCookbooksandRecipesdivRight {
-    width: 80%;
+    width: 79%;
 }
 .blueprintClass {
     background-repeat: no-repeat;
@@ -4522,4 +4522,22 @@ form.cmxform .gray * {
 
 .marginTop19{
     margin-top:19px
+}
+#compBlueprint{
+    display: block;
+    -webkit-margin-start: 2px;
+    -webkit-margin-end: 2px;
+    -webkit-padding-before: 0.35em;
+    -webkit-padding-start: 0.75em;
+    -webkit-padding-end: 0.75em;
+    -webkit-padding-after: 0.625em;
+    min-width: -webkit-min-content;
+    border: 1px solid #ccc;
+}
+#compBlueprint legend {
+    display: block;
+    -webkit-padding-start: 2px;
+    -webkit-padding-end: 2px;
+    border: none;
+    width: auto !important;
 }

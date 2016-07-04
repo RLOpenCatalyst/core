@@ -23,6 +23,13 @@
     </div>
 </div>
 <div style="clear: both;"></div>
+    <fieldset id="compBlueprint">
+        <legend>Composite Blueprint:</legend>
+        <div class="col-lg-4 col-mg-4 ">
+            <label for="blueprintNameInputComposite">Enter Blueprint Name<span class=" redSpan">&nbsp;*</span></label>
+            <input type="text" id="blueprintName" class="required form-control" type="text" autofocus="autofocus">
+        </div>
+        <div style="clear: both;"></div>
 <div id="compositeDivision">
 <div class="section-headings">
     <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
@@ -33,6 +40,7 @@
     </div>
 </div>
 <div id="compsiteBlueprint">
+
     <div id="compsiteBlueprintSelecter" >
         <!-- Here HTML snippet will be append through chef component-->
     </div>
@@ -50,13 +58,9 @@
                 </h4>
                 <span class="compositeBPVersion">Blueprint Version:&nbsp;<select class="bpVersion"></select></span>
             </div>
-            <div id="CollapseEditRunlistParam" class="panel-collapse collapse in" style="height: auto;display: none;">
+            <div id="CollapseEditRunlistParam" class="panel-collapse collapse" style="height: auto;">
                 <div class="panel-body" id="attributeRunlistTable" style="padding-left: 8px;">
-                    <div class="col-lg-4 col-mg-4 marginTop19">
-                        <label for="blueprintNameInputComposite">Enter Blueprint Name<span class="control-label redSpan">&nbsp;*</span></label>
-                        <input type="text" id="blueprintName" class="required form-control" type="text" autofocus="autofocus">
-                    </div>
-                    <div class="col-lg-4 col-md-4 marginTop19">
+                    <div class="col-lg-6 col-md-6 marginTop19">
                         <label>
                             <i style="color:#40baf1;font-size:16px;" class="ace-icon fa fa-list-ul"></i>
                             Runlist
@@ -72,7 +76,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-md-4 marginTop19">
+                    <div class="col-lg-6 col-md-6 marginTop19">
                         <label>
                             <i style="color:#40baf1;font-size:16px;" class="ace-icon fa fa-list-ul"></i>
                             Cookbook Attributes <a href="#editAttributesModalContainer" id="editAttributesBtn" class="bpEditBtn btn btn-primary editAttributesBtnCSS awsEditAttributesBtn" rel="tooltip" data-placement="top" data-original-title="Edit" data-toggle="modal">
@@ -95,15 +99,14 @@
             </div>
         </div>
     </div>
-</div>
+</div></fieldset>
 <script>
     /*only for software stack*/
     $(document).ready(function(){
-        softwareStackListing(); 
-        checkandupdateRunlistTable();   
+        softwareStackListing();
+        checkandupdateRunlistTable();
         $('.awsEditAttributesBtn').click(editAtrributesHandlers);
         $('.saveAttribBtn').click(saveAtrributesHandler);
-    })
-    
 
+    })
 </script>

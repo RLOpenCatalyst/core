@@ -27,7 +27,7 @@
             </table>
           <h4> Blueprint List :-</h4>
         <accordion>
-            <div ng-repeat="blueprint in compBlue.bluePrints">
+            <div ng-repeat="blueprint in compBlue.bluePrintDetails.blueprints">
                 <accordion-group ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
                     <accordion-heading>
                         <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
