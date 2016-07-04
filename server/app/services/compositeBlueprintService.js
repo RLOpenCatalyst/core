@@ -171,6 +171,7 @@ compositeBlueprintService.formatCompositeBlueprint
     = function formatCompositeBlueprint(compositeBlueprint, callback) {
     var compositeBlueprintObject = {
         id: compositeBlueprint.id,
+        name: compositeBlueprint.name,
         organization: compositeBlueprint.organization,
         businessGroup: compositeBlueprint.businessGroup,
         project: compositeBlueprint.project,
