@@ -103,6 +103,18 @@ UnmanagedInstanceSchema.statics.getByOrgProviderId = function(opts, callback) {
 	});
 };
 
+UnmanagedInstanceSchema.statics.removeInstancesByProviderId = function(providerId,callback) {
+	var queryObj={};
+	queryObj['providerId'] =providerId;
+	this.remove(queryObj, function(err, data) {
+		if (err) {
+			return callback(err, null);
+		} else {
+			callback(null, data);
+		}
+	});
+};
+
 UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,callback) {
 	this.find({"orgId": opts.orgId,
 		"providerId": opts.providerId

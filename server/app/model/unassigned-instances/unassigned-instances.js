@@ -200,5 +200,17 @@ UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId = function delet
     });
 };
 
+UnassignedInstancesSchema.statics.removeInstancesByProviderId = function(providerId,callback) {
+    var queryObj={};
+    queryObj['providerId'] =providerId;
+    this.remove(queryObj, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);
 module.exports = UnassignedInstances;

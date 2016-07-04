@@ -37,7 +37,7 @@ function providerTagAggregation() {
                             }
 
                         }else{
-                            logger.info("Please configure Provider for Tag Aggregation");
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for  Tag Aggregation");
                             return;
                         }
                     });

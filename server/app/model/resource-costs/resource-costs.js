@@ -93,6 +93,19 @@ ResourceCostsSchema.statics.deleteResourceCostByResourceId = function(resourceId
     });
 };
 
+ResourceCostsSchema.statics.removeResourceCostByProviderId = function(providerId, callback) {
+    ResourceCosts.remove({
+        providerId: providerId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to removeResourceCostByProviderId (%s)", providerId, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 ResourceCostsSchema.statics.getResourceCostUpdatedTime = function(callback) {
     ResourceCosts.aggregate(
         [
