@@ -48,12 +48,12 @@ var BlueprintFrameSchema = new Schema({
 
 BlueprintFrameSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
-    var blueprintLaunchFrame = new self(data);
-    blueprintLaunchFrame.save(function (err, data) {
+    var blueprintFrame = new self(data);
+    blueprintFrame.save(function (err, data) {
         if (err) {
             return callback(err);
         } else {
-            return callback(null, blueprintLaunchFrame);
+            return callback(null, blueprintFrame);
         }
     });
 };
