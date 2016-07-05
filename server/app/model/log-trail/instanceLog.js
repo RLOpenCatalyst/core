@@ -39,6 +39,8 @@ var InstanceLogSchema = new Schema({
     size: String,
     user: String,
     createdOn: Number,
+    startedOn: Number,
+    endedOn: Number,
     providerType: String,
     action: String,
     logs: [{

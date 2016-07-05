@@ -356,6 +356,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 size: self.instanceType,
                                                 user: launchParams.sessionUser,
                                                 createdOn: new Date().getTime(),
+                                                startedOn: new Date().getTime(),
                                                 providerType: self.cloudProviderType,
                                                 action: "Bootstrap",
                                                 logs: [{
@@ -491,6 +492,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.bootStrap = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,
@@ -524,6 +526,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+                                                                instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.bootStrap = "success";
                                                                 instanceLog.logs = {
                                                                     err: false,
@@ -581,6 +584,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.bootStrap = "failed";
                                                                 instanceLog.logs = {
                                                                     err: false,

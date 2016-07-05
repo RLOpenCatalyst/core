@@ -299,6 +299,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 os: self.instanceOS,
                                 size: self.instanceType,
                                 user: launchParams.sessionUser,
+                                startedOn: new Date().getTime(),
                                 createdOn: new Date().getTime(),
                                 providerType: launchParams.cloudProviderType,
                                 action: "Bootstrap",
@@ -331,6 +332,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         logText: "Instance ready state wait failed. Unable to bootstrap",
                                         timestamp: new Date().getTime()
                                     };
+                                    instanceLog.endedOn = new Date().getTime();
                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                         if (err) {
                                             logger.error("Failed to create or update instanceLog: ", err);
@@ -390,6 +392,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             logText: "Instance ok state wait failed. Unable to bootstrap",
                                             timestamp: new Date().getTime()
                                         };
+                                        instanceLog.endedOn = new Date().getTime();
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -423,7 +426,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     logger.debug("Instance bootstrap status set to failed");
                                                 }
                                             });
-
+                                            instanceLog.endedOn = new Date().getTime();
                                             instanceLog.bootStrap = "failed";
                                             instanceLog.logs = {
                                                 err: true,
@@ -496,6 +499,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                                 logger.error('process stopped ==> ', err, code);
                                                 if (err) {
+                                                    instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.bootStrap = "failed";
                                                     instanceLog.logs = {
                                                         err: true,
@@ -530,6 +534,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 logger.debug("Instance bootstrap status set to success");
                                                             }
                                                         });
+                                                        instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.bootStrap = "success";
                                                         instanceLog.logs = {
                                                             err: false,
@@ -606,6 +611,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 logger.debug("Instance bootstrap status set to failed");
                                                             }
                                                         });
+                                                        instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.bootStrap = "failed";
                                                         instanceLog.logs = {
                                                             err: false,

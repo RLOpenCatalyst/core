@@ -90,6 +90,7 @@ module.exports.setRoutes = function(socketIo) {
                     size: instance.instanceType,
                     user: instance.catUser,
                     createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
                     providerType: instance.providerType,
                     action: "SSH",
                     logs: []
@@ -117,6 +118,7 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "Host Unreachable",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
                                 logText: "Host Unreachable",
@@ -138,6 +140,7 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "The username or password/pemfile you entered is incorrect",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
                                 logText: "The username or password/pemfile you entered is incorrect",
@@ -159,6 +162,7 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "Unable to connect to instance, error code = " + err.errCode + ".",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
                                 logText: "Unable to connect to instance, error code = " + err.errCode + ".",
@@ -202,6 +206,7 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "Host Unreachable",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
                                 logText: "Host Unreachable",
@@ -223,6 +228,7 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "The username or password/pemfile you entered is incorrect",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
                                 logText: "The username or password/pemfile you entered is incorrect",
@@ -244,6 +250,7 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "Something went wrong, error code = " + err.errCode + ".",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
                                 logText: "Something went wrong, error code = " + err.errCode + ".",
@@ -276,6 +283,7 @@ module.exports.setRoutes = function(socketIo) {
                         timestamp: timestampEnded
                     });
                     instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
+                    instanceLog.endedOn = new Date().getTime();
                     instanceLog.logs = {
                         err: false,
                         logText: "SSH Shell initiated",

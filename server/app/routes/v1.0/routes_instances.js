@@ -1534,6 +1534,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 size: data[0].instanceType,
                                 user: data[0].catUser,
                                 createdOn: new Date().getTime(),
+                                startedOn: new Date().getTime(),
                                 providerType: data[0].providerType,
                                 action: "Stop",
                                 logs: []
@@ -1574,6 +1575,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     log: "Insufficient provider details, to complete the operation",
                                     timestamp: new Date().getTime()
                                 });
+                                instanceLog.endedOn = new Date().getTime();
                                 instanceLog.logs = {
                                     err: false,
                                     logText: "Insufficient provider details, to complete the operation",
@@ -1622,6 +1624,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     log: "Instance Stopping",
                                                     timestamp: timestampEnded
                                                 });
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.status = "stopped";
                                                 instanceLog.logs = {
                                                     err: false,
@@ -1650,6 +1653,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.logs = {
                                                     err: false,
                                                     logText: "Instance Stopped",
@@ -1674,6 +1678,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     log: "Unable to stop instance",
                                                     timestamp: timestampEnded
                                                 });
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.logs = {
                                                     err: false,
                                                     logText: "Unable to stop instance",
@@ -1704,6 +1709,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     log: "Unable to stop openstack instance",
                                     timestamp: timestampEnded
                                 });
+                                instanceLog.endedOn = new Date().getTime();
                                 instanceLog.logs = {
                                     err: true,
                                     logText: "Unable to stop openstack instance",
@@ -1776,6 +1782,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                        instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.logs = {
                                                             err: true,
                                                             logText: "Unable to stop instance",
@@ -1831,6 +1838,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     });
 
                                                     instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                                    instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.status = "stopped";
                                                     instanceLog.logs = {
                                                         err: false,
@@ -1894,6 +1902,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.logs = {
                                                     err: true,
                                                     logText: "Unable to stop instance",
@@ -1937,6 +1946,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                            instanceLog.endedOn = new Date().getTime();
                                             instanceLog.status = "stopped";
                                             instanceLog.logs = {
                                                 err: false,
@@ -2025,6 +2035,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.logs = {
                                                     err: false,
                                                     logText: "Unable to stop instance",
@@ -2074,6 +2085,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                            instanceLog.endedOn = new Date().getTime();
                                             instanceLog.status = "stopped";
                                             instanceLog.logs = {
                                                 err: false,
@@ -2139,6 +2151,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 size: data[0].instanceType,
                                 user: data[0].catUser,
                                 createdOn: new Date().getTime(),
+                                startedOn: new Date().getTime(),
                                 providerType: data[0].providerType,
                                 action: "Start",
                                 logs: []
@@ -2213,6 +2226,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.status = "running";
                                                 instanceLog.logs = {
                                                     err: false,
@@ -2238,6 +2252,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     log: "Unable to start instance",
                                                     timestamp: timestampEnded
                                                 });
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.logs = {
                                                     err: true,
                                                     logText: "Unable to start instance",
@@ -2301,6 +2316,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         log: "Insufficient provider details, to complete the operation",
                                         timestamp: new Date().getTime()
                                     });
+                                    instanceLog.endedOn = new Date().getTime();
                                     instanceLog.logs = {
                                         err: true,
                                         logText: "Insufficient provider details, to complete the operation",
@@ -2369,6 +2385,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                        instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.logs = {
                                                             err: true,
                                                             logText: "Unable to start instance",
@@ -2424,6 +2441,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     });
 
                                                     instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                                    instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.status = "running";
                                                     instanceLog.logs = {
                                                         err: false,
@@ -2517,6 +2535,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.logs = {
                                                     err: true,
                                                     logText: "Unable to start instance",
@@ -2564,6 +2583,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                            instanceLog.endedOn = new Date().getTime();
                                             instanceLog.status = "running";
                                             instanceLog.logs = {
                                                 err: false,
@@ -2676,6 +2696,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.actionId = actionLog._id;
                                                 instanceLog.logs = {
                                                     err: true,
@@ -2725,6 +2746,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                            instanceLog.endedOn = new Date().getTime();
                                             instanceLog.status = state;
                                             instanceLog.logs = {
                                                 err: false,
