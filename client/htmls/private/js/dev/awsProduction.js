@@ -3139,7 +3139,7 @@ function addBlueprintToDom(data) {
 
 
         function getOrgProjDetails(id) {
-            var orgName = $(".orgnameSelectExisting option:selected").text();
+            var orgName = $("#orgnameSelectExisting option:selected").text();
 
             var bgName = $('#bgListInputExisting option:selected').text();
             var projName = $('#projectListInputExisting option:selected').text();

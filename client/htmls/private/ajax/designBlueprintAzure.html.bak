@@ -3746,7 +3746,7 @@ function initializeBlueprintAreaNew(data) {
             $selectVer.hide();
             $selectVerEdit.hide();
             function getOrgProjDetails(id) {
-              var orgName = $(".orgnameSelectExisting option:selected").text();
+              var orgName = $("#orgnameSelectExisting option:selected").text();
               var bgName = $('#bgListInputExisting option:selected').text();
               var projName = $('#projectListInputExisting option:selected').text();
               var $blueprintReadContainer = $(id);
