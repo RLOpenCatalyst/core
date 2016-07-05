@@ -257,10 +257,10 @@
 						bodyText: 'Are you sure you want to delete this composite blueprint?'
 					};
 					confirmbox.showModal({}, modalOptions).then(function() {
-						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).then(function(response) {
+						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function(response) {
 
-						}, function(data) {
-							alert('error:: ' + data.toString());
+						}).error(function(data) {
+							alert(data.message);
 						});
 					});
 				},
@@ -273,10 +273,10 @@
 						bodyText: 'Are you sure you want to launch the composite blueprint? Press Yes To continue.'
 					};
 					confirmbox.showModal({}, modalOptions).then(function() {
-						workzoneServices.launchCompsiteBlueprint(compositeBlueprintId).then(function(response) {
-
-						}, function(data) {
-							alert('error:: ' + data.toString());
+						workzoneServices.launchCompsiteBlueprint(compositeBlueprintId).success(function(response) {
+							
+						}).error(function(data) {
+							alert(data.message);
 						});
 					});
 				}
