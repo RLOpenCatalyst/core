@@ -53,6 +53,11 @@ var UnassignedInstancesSchema = new Schema({
     },
     os: String,
     state: String,
+    isDeleted:{
+        type:Boolean,
+        default:false,
+        required:false
+    },
     tags: Schema.Types.Mixed
 });
 UnassignedInstancesSchema.plugin(mongoosePaginate);
@@ -76,6 +81,7 @@ UnassignedInstancesSchema.statics.createNew = function createNew(data, callback)
 
 
 UnassignedInstancesSchema.statics.getByProviderId = function getByProviderId(databaseReq, callback) {
+    databaseReq.queryObj.isDeleted = false;
     this.paginate(databaseReq.queryObj, databaseReq.options, function (err, instances) {
         if (err) {
             logger.error("Failed getByProviderId (%s)", err);
@@ -166,12 +172,18 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
 };
 
 UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instance,callback) {
+    var updateObj={};
+    if(instance.state === 'terminated'){
+        updateObj['state'] = instance.state;
+        updateObj['isDeleted'] = true;
+    }else{
+        updateObj['state'] = instance.state;
+        updateObj['isDeleted'] = false;
+    }
     this.update({
         "platformId": instance.platformId,
     }, {
-        $set: {
-            state:instance.state
-        }
+        $set: updateObj
     }, function(err, data) {
         if (err) {
             logger.error("Failed to update Unassigned Instance status data", err);
@@ -211,6 +223,7 @@ UnassignedInstancesSchema.statics.removeInstancesByProviderId = function(provide
         }
     });
 };
+
 
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);
 module.exports = UnassignedInstances;

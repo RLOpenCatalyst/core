@@ -466,67 +466,58 @@ var InstancesDao = function() {
     };
 
     this.getInstancesByOrgBgProjectAndEnvId = function(jsonData, callback) {
-        if (jsonData.pageSize) {
-            jsonData['searchColumns'] = ['instanceIP', 'instanceState'];
-            apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+        if (jsonData.pagination) {
+            jsonData.queryObj.isDeleted = false;
+            Instances.paginate(jsonData.queryObj, jsonData.options, function(err, instances) {
                 if (err) {
                     var err = new Error('Internal server error');
                     err.status = 500;
                     return callback(err);
+                } else if (instances.docs.length === 0) {
+                    return callback(null,instances);
                 } else {
-                    Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
-                        if (err) {
-                            var err = new Error('Internal server error');
-                            err.status = 500;
-                            return callback(err);
-                        } else if (instances.docs.length === 0) {
-                            return callback(null,instances);
-                        } else {
-                            // @TODO Workaround to avoid circular dependency to be addressed
-                            var tasks = require('_pr/model/classes/tasks/tasks.js');
-                            var instanceList = instances.docs;
-                            var count = 0;
-                            for (var i = 0; i < instanceList.length; i++) {
-                                (function(instance) {
-                                    if (instance.taskIds.length > 0) {
-                                        tasks.getTaskByIds(instance.taskIds, function(err, tasks) {
-                                            if (err) {
-                                                var err = new Error('Internal server error');
-                                                err.status = 500;
-                                                return callback(err);
-                                            } else if (tasks.length === 0) {
-                                                return callback(null, instances);
-                                            } else {
-                                                count++;
-                                                var taskObj = {};
-                                                var taskList = [];
-                                                for (var j = 0; j < tasks.length; j++) {
-                                                    taskObj['id'] = tasks[j]._id;
-                                                    taskObj['taskName'] = tasks[j].name;
-                                                    taskObj['taskType'] = tasks[j].taskType;
-                                                    taskObj['taskConfig'] = tasks[j].taskConfig;
-                                                    taskList.push(taskObj);
-                                                    taskObj = {};
-                                                };
-                                                instance['tasks'] = taskList;
-                                                if (instanceList.length === count) {
-                                                    instances.docs = instanceList;
-                                                    return callback(null, instances);
-                                                }
-                                            }
-                                        })
+                    // @TODO Workaround to avoid circular dependency to be addressed
+                    var tasks = require('_pr/model/classes/tasks/tasks.js');
+                    var instanceList = instances.docs;
+                    var count = 0;
+                    for (var i = 0; i < instanceList.length; i++) {
+                        (function(instance) {
+                            if (instance.taskIds.length > 0) {
+                                tasks.getTaskByIds(instance.taskIds, function(err, tasks) {
+                                    if (err) {
+                                        var err = new Error('Internal server error');
+                                        err.status = 500;
+                                        return callback(err);
+                                    } else if (tasks.length === 0) {
+                                        return callback(null, instances);
                                     } else {
                                         count++;
+                                        var taskObj = {};
+                                        var taskList = [];
+                                        for (var j = 0; j < tasks.length; j++) {
+                                            taskObj['id'] = tasks[j]._id;
+                                            taskObj['taskName'] = tasks[j].name;
+                                            taskObj['taskType'] = tasks[j].taskType;
+                                            taskObj['taskConfig'] = tasks[j].taskConfig;
+                                            taskList.push(taskObj);
+                                            taskObj = {};
+                                        };
+                                        instance['tasks'] = taskList;
                                         if (instanceList.length === count) {
                                             instances.docs = instanceList;
                                             return callback(null, instances);
                                         }
                                     }
-                                })(instanceList[i]);
+                                })
+                            } else {
+                                count++;
+                                if (instanceList.length === count) {
+                                    instances.docs = instanceList;
+                                    return callback(null, instances);
+                                }
                             }
-
-                        }
-                    });
+                        })(instanceList[i]);
+                    }
                 }
             });
         } else {
@@ -534,7 +525,8 @@ var InstancesDao = function() {
                 orgId: jsonData.orgId,
                 bgId: jsonData.bgId,
                 projectId: jsonData.projectId,
-                envId: jsonData.envId
+                envId: jsonData.envId,
+                isDeleted : false
             }
             if (jsonData.instanceType) {
                 queryObj['blueprintData.templateType'] = jsonData.instanceType;
@@ -1725,9 +1717,7 @@ var InstancesDao = function() {
     };
 
     this.getByProviderId = function(jsonData, callback) {
-        if(jsonData.category === 'dashboard'){
-            jsonData.queryObj.isDeleted = false;
-        }
+        jsonData.queryObj.isDeleted = false;
         Instances.paginate(jsonData.queryObj, jsonData.options, function(err, instances) {
             if (err) {
                 logger.error("Failed getByProviderId (%s)", err);
