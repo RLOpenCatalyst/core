@@ -11,26 +11,17 @@
         .controller('compositeBlueprintInfoCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
             var compBlueInfo={
                 items:items,
-                bluePrints:[{"id": "5756881cee06745903a776cc",
-                    "name": "test-sdfgthint",
-                    "templateId": "test-template",
-                    "templateType": "chef"},
-                    {"id": "5756881cee06745903a776cc",
-                        "name": "test-blueprint",
-                        "templateId": "test-template",
-                        "templateType": "chef"},
-                    {"id": "5756881cee06745903a776cc",
-                        "name": "test-blueprint",
-                        "templateId": "test-template",
-                        "templateType": "chef"},
-                    {"id": "5756881cee06745903a776cc",
-                        "name": "test-blueprint",
-                        "templateId": "test-template",
-                        "templateType": "chef"}]
+                bluePrintDetails:[]
             };
+            compBlueInfo.getInfo=function () {
+                workzoneServices.getCompsiteBlueprintInfo(compBlueInfo.items.id).success(function(compBlue){
+                    compBlueInfo.bluePrintDetails=compBlue;
+                });
+            }
             $scope.cancel = function() {
                 $modalInstance.dismiss('cancel');
             };
+            compBlueInfo.getInfo();
             return compBlueInfo;
         }]);
 })(angular);

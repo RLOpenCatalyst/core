@@ -244,40 +244,9 @@
 					});
 				},
 				getAllCompsiteBlueprint:function(){
-					$scope.compositeBlueprints=[{
-						"launchID": "fdfsfdsf32313",
-						"name": "asasasasas",
-						"organization": {
-						"id": "<MongoID>",
-							"name": "Organization1"
-					},
-						"businessGroup": {
-						"id": "<MongoID>",
-							"name": "BusinessGroup1"
-					},
-						"project": {
-						"id": "<MongoID>",
-							"name": "Project1"
-					}
-					},{
-						"launchID": "fdfsfdsf32313",
-						"name": "Blueprintsdsadasd1",
-						"organization": {
-							"id": "<MongoID>",
-							"name": "Organization1"
-						},
-						"businessGroup": {
-							"id": "<MongoID>",
-							"name": "BusinessGroup1"
-						},
-						"project": {
-							"id": "<MongoID>",
-							"name": "Project1"
-						}
-					}];
-					// workezoneServices.getAllCompsiteBlueprint().success(function(compBlue){
-					// 	$scope.compositeBlueprints=compBlue.data;
-					// });
+					workzoneServices.getAllCompsiteBlueprint().success(function(compBlue){
+						$scope.compositeBlueprints=compBlue.compositeBlueprints;
+					});
 				},
 				deleteCompositeBlueprint:function(compositeBlueprintId){
 					var modalOptions = {
@@ -288,10 +257,10 @@
 						bodyText: 'Are you sure you want to delete this composite blueprint?'
 					};
 					confirmbox.showModal({}, modalOptions).then(function() {
-						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).then(function(response) {
+						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function(response) {
 
-						}, function(data) {
-							alert('error:: ' + data.toString());
+						}).error(function(data) {
+							alert(data.message);
 						});
 					});
 				},
@@ -304,10 +273,10 @@
 						bodyText: 'Are you sure you want to launch the composite blueprint? Press Yes To continue.'
 					};
 					confirmbox.showModal({}, modalOptions).then(function() {
-						workzoneServices.launchCompsiteBlueprint(compositeBlueprintId).then(function(response) {
-
-						}, function(data) {
-							alert('error:: ' + data.toString());
+						workzoneServices.launchCompsiteBlueprint(compositeBlueprintId).success(function(response) {
+							
+						}).error(function(data) {
+							alert(data.message);
 						});
 					});
 				}

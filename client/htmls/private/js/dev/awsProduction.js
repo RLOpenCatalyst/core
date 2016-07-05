@@ -212,8 +212,6 @@ $(document).ready(function() {
         $('#tabheader').trigger('click');
     }
 
-    
-
     //form validation for blueprint save
     var validator = $('#wizard-1').validate({
         ignore: [],
@@ -2977,9 +2975,9 @@ function initializeBlueprintAreaNew(data) {
         $('#accordion-3').append($containerCompoTemp);
         
         $.get('../composite-blueprints',function(compositeData){
-            if(compositeData.compositeBlueprints !=null){
+            if(compositeData && compositeData.compositeBlueprints){
                 for(var j=0;j<compositeData.compositeBlueprints.length;j++){
-                    addBlueprintToComposite(compositeData.compositeBlueprints[j]);    
+                    addBlueprintToComposite(compositeData.compositeBlueprints[j]);
                 }
             }
         });
