@@ -106,7 +106,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     }else if(category === 'assigned'){
                         paginationRequest['searchColumns'] = ['ip', 'state'];
                     }else{
-                        paginationRequest['searchColumns'] = [];
+                        paginationRequest['searchColumns'] = ['ip', 'state'];
                     }
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
