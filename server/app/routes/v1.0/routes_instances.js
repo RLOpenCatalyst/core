@@ -55,6 +55,7 @@ var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -216,7 +217,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });*/
 
-    app.get('/instances',getInstanceList);
+    app.get('/instances', getInstanceList);
 
     function getInstanceList(req, res, next) {
         var reqData = {};
@@ -234,7 +235,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     apiUtil.paginationResponse(instances, reqData, next);
                 }
 
-            ], function(err, results) {
+            ],
+            function(err, results) {
                 if (err)
                     next(err);
                 else
@@ -265,7 +267,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
         } else {
             res.status(400).send({
-                message:"invalid instance Ids"
+                message: "invalid instance Ids"
             });
         }
     });
@@ -388,12 +390,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            containerDao.deleteContainerByInstanceId(req.params.instanceId,function(err,container){
+            containerDao.deleteContainerByInstanceId(req.params.instanceId, function(err, container) {
                 if (err) {
                     logger.error("Container deletion Failed >> ", err);
                     res.status(500).send(errorResponses.db.error);
                     return;
-                }else{
+                } else {
                     instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
                         if (err) {
                             logger.error("Instance deletion Failed >> ", err);
@@ -1515,6 +1517,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         }
                         logger.debug("data.providerId: ::::   ", JSON.stringify(data[0]));
                         if (data.length) {
+                            var instanceLog = {
+                                actionId: "",
+                                instanceId: data[0]._id,
+                                orgName: data[0].orgName,
+                                bgName: data[0].bgName,
+                                projectName: data[0].projectName,
+                                envName: data[0].environmentName,
+                                status: data[0].instanceState,
+                                bootStrap: data[0].bootStrapStatus,
+                                platformId: data[0].platformId,
+                                blueprintName: data[0].blueprintData.blueprintName,
+                                data: data[0].runlist,
+                                platform: data[0].hardware.platform,
+                                os: data[0].hardware.os,
+                                size: data[0].instanceType,
+                                user: data[0].catUser,
+                                createdOn: new Date().getTime(),
+                                providerType: data[0].providerType,
+                                action: "Stop",
+                                logs: []
+                            };
                             var timestampStarted = new Date().getTime();
 
                             var actionLog = instancesDao.insertStopActionLog(req.params.instanceId, req.session.user.cn, timestampStarted);
@@ -1529,6 +1552,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 log: "Instance Stopping",
                                 timestamp: timestampStarted
                             });
+                            instanceLog.actionId = actionLog._id;
+                            instanceLog.logs = {
+                                err: false,
+                                logText: "Instance Stopping",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
 
                             if (!data[0].providerId) {
                                 res.status(500).send({
@@ -1539,6 +1573,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     err: true,
                                     log: "Insufficient provider details, to complete the operation",
                                     timestamp: new Date().getTime()
+                                });
+                                instanceLog.logs = {
+                                    err: false,
+                                    logText: "Insufficient provider details, to complete the operation",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
                                 });
                                 return;
                             }
@@ -1572,12 +1616,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             if (!err) {
                                                 var timestampEnded = new Date().getTime();
 
-
                                                 logsDao.insertLog({
                                                     referenceId: logReferenceIds,
                                                     err: false,
                                                     log: "Instance Stopping",
                                                     timestamp: timestampEnded
+                                                });
+                                                instanceLog.status = "stopped";
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    logText: "Instance Stopping",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
                                                 });
                                                 instancesDao.updateInstanceState(req.params.instanceId, 'stopped', function(err, updateCount) {
                                                     if (err) {
@@ -1596,6 +1650,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    logText: "Instance Stopped",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 res.send(200, {
                                                     instanceCurrentState: 'stopped',
                                                     actionLogId: actionLog._id
@@ -1609,6 +1673,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     err: true,
                                                     log: "Unable to stop instance",
                                                     timestamp: timestampEnded
+                                                });
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    logText: "Unable to stop instance",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
                                                 });
                                                 res.send('500', null);
                                                 return;
@@ -1629,6 +1703,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     err: true,
                                     log: "Unable to stop openstack instance",
                                     timestamp: timestampEnded
+                                });
+                                instanceLog.logs = {
+                                    err: true,
+                                    logText: "Unable to stop openstack instance",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
                                 });
                                 res.status(500).send({
                                     message: "Unable to stop openstack instance "
@@ -1692,6 +1776,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                        instanceLog.logs = {
+                                                            err: true,
+                                                            logText: "Unable to stop instance",
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
+                                                        });
                                                         res.status(500).send({
                                                             actionLogId: actionLog._id
                                                         });
@@ -1737,7 +1831,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     });
 
                                                     instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
-
+                                                    instanceLog.status = "stopped";
+                                                    instanceLog.logs = {
+                                                        err: false,
+                                                        logText: "Instance Stopped",
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
                                                     fs.unlink(decryptedPemFile, function(err) {
                                                         logger.debug("Deleting decryptedPemFile..");
                                                         if (err) {
@@ -1790,6 +1894,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Unable to stop instance",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 fs.unlink('/tmp/' + provider.id + '.json', function(err) {
                                                     if (err) {
                                                         logger.error("Unable to delete json file.");
@@ -1822,11 +1936,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 log: "Instance Stopped",
                                                 timestamp: timestampEnded
                                             });
+                                            instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                            instanceLog.status = "stopped";
+                                            instanceLog.logs = {
+                                                err: false,
+                                                logText: "Instance Stopped",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             res.send(200, {
                                                 instanceCurrentState: "stopped",
                                                 actionLogId: actionLog._id
                                             });
-                                            instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+
                                             fs.unlink('/tmp/' + provider.id + '.json', function(err) {
                                                 if (err) {
                                                     logger.error("Unable to delete json file.");
@@ -1899,6 +2025,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    logText: "Unable to stop instance",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 res.status(500).send({
                                                     actionLogId: actionLog._id
                                                 });
@@ -1938,7 +2074,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
-
+                                            instanceLog.status = "stopped";
+                                            instanceLog.logs = {
+                                                err: false,
+                                                logText: "Instance Stopped",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                         });
                                     });
                                 });
@@ -1975,6 +2121,29 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             return;
                         }
                         if (data.length) {
+
+                            var instanceLog = {
+                                actionId: "",
+                                instanceId: data[0]._id,
+                                orgName: data[0].orgName,
+                                bgName: data[0].bgName,
+                                projectName: data[0].projectName,
+                                envName: data[0].environmentName,
+                                status: data[0].instanceState,
+                                bootStrap: data[0].bootStrapStatus,
+                                platformId: data[0].platformId,
+                                blueprintName: data[0].blueprintData.blueprintName,
+                                data: data[0].runlist,
+                                platform: data[0].hardware.platform,
+                                os: data[0].hardware.os,
+                                size: data[0].instanceType,
+                                user: data[0].catUser,
+                                createdOn: new Date().getTime(),
+                                providerType: data[0].providerType,
+                                action: "Start",
+                                logs: []
+                            };
+
                             if (data[0].providerType && data[0].providerType == 'vmware') {
                                 vmwareCloudProvider.getvmwareProviderById(data[0].providerId, function(err, providerdata) {
                                     var timestampStarted = new Date().getTime();
@@ -2016,6 +2185,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     log: "Instance Starting",
                                                     timestamp: timestampEnded
                                                 });
+                                                instanceLog.actionId = actionLog._id;
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    logText: "Instance Starting",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 instancesDao.updateInstanceState(req.params.instanceId, 'running', function(err, updateCount) {
                                                     if (err) {
                                                         logger.error("update instance state err ==>", err);
@@ -2033,6 +2213,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                                instanceLog.status = "running";
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    logText: "Instance Started",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 res.send(200, {
                                                     instanceCurrentState: 'running',
                                                     actionLogId: actionLog._id
@@ -2046,6 +2237,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     err: true,
                                                     log: "Unable to start instance",
                                                     timestamp: timestampEnded
+                                                });
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Unable to start instance",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
                                                 });
                                                 res.send('500', null);
                                                 return;
@@ -2078,6 +2279,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     timestamp: timestampStarted
                                 });
 
+                                instanceLog.actionId = actionLog._id;
+                                instanceLog.logs = {
+                                    err: false,
+                                    logText: "Instance Starting",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+
                                 if (!data[0].providerId) {
                                     res.status(500).send({
                                         message: "Insufficient provider details, to complete the operation"
@@ -2087,6 +2300,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         err: true,
                                         log: "Insufficient provider details, to complete the operation",
                                         timestamp: new Date().getTime()
+                                    });
+                                    instanceLog.logs = {
+                                        err: true,
+                                        logText: "Insufficient provider details, to complete the operation",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
                                     });
                                     return;
                                 }
@@ -2146,6 +2369,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                        instanceLog.logs = {
+                                                            err: true,
+                                                            logText: "Unable to start instance",
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
+                                                        });
                                                         res.status(500).send({
                                                             actionLogId: actionLog._id
                                                         });
@@ -2191,7 +2424,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     });
 
                                                     instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
-
+                                                    instanceLog.status = "running";
+                                                    instanceLog.logs = {
+                                                        err: false,
+                                                        logText: "Instance Started",
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
                                                     fs.unlink(decryptedPemFile, function(err) {
                                                         logger.debug("Deleting decryptedPemFile..");
                                                         if (err) {
@@ -2251,6 +2494,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         timestamp: timestampStarted
                                     });
 
+                                    instanceLog.actionId = actionLog._id;
+                                    instanceLog.logs = {
+                                        err: false,
+                                        logText: "Instance Starting",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+
                                     gcp.startVM(gcpParam, function(err, vmResponse) {
                                         if (err) {
                                             if (err) {
@@ -2262,6 +2517,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Unable to start instance",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 fs.unlink('/tmp/' + provider.id + '.json', function(err) {
                                                     if (err) {
                                                         logger.error("Unable to delete json file.");
@@ -2299,6 +2564,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
+                                            instanceLog.status = "running";
+                                            instanceLog.logs = {
+                                                err: false,
+                                                logText: "Instance Started",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             fs.unlink('/tmp/' + provider.id + '.json', function(err) {
                                                 if (err) {
                                                     logger.error("Unable to delete json file.");
@@ -2355,6 +2631,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             timestamp: timestampStarted
                                         });
 
+                                        instanceLog.actionId = actionLog._id;
+                                        instanceLog.logs = {
+                                            err: false,
+                                            logText: "Instance Starting",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+
                                         var ec2;
                                         if (aProvider.isDefault) {
                                             ec2 = new EC2({
@@ -2388,6 +2676,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                                                instanceLog.actionId = actionLog._id;
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    logText: "Unable to start instance",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 res.status(500).send({
                                                     actionLogId: actionLog._id
                                                 });
@@ -2426,7 +2725,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
-
+                                            instanceLog.status = state;
+                                            instanceLog.logs = {
+                                                err: false,
+                                                logText: "Instance Started",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
 
                                             ec2.describeInstances([data[0].platformId], function(err, data) {
                                                 if (err) {

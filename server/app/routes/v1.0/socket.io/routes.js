@@ -29,6 +29,7 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var EC2 = require('_pr/lib/ec2.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 
 module.exports.setRoutes = function(socketIo) {
@@ -41,7 +42,7 @@ module.exports.setRoutes = function(socketIo) {
         socketList.push[socket];
         //logger.debug('socket ==>',socket);
         socket.on('open', function(instanceData) {
-            
+
             instancesDao.getInstanceById(instanceData.id, function(err, instances) {
                 logger.debug(instanceData.id);
                 if (err) {
@@ -72,6 +73,27 @@ module.exports.setRoutes = function(socketIo) {
                     log: "Initiating SSH Shell Connection",
                     timestamp: timestampStarted
                 });
+                var instanceLog = {
+                    actionId: actionLog._id,
+                    instanceId: instance._id,
+                    orgName: instance.orgName,
+                    bgName: instance.bgName,
+                    projectName: instance.projectName,
+                    envName: instance.environmentName,
+                    status: instance.instanceState,
+                    bootStrap: instance.bootStrapStatus,
+                    platformId: instance.platformId,
+                    blueprintName: instance.blueprintData.blueprintName,
+                    data: instance.runlist,
+                    platform: instance.hardware.platform,
+                    os: instance.hardware.os,
+                    size: instance.instanceType,
+                    user: instance.catUser,
+                    createdOn: new Date().getTime(),
+                    providerType: instance.providerType,
+                    action: "SSH",
+                    logs: []
+                };
 
                 shellClient.open({
                     host: instance.instanceIP,
@@ -95,6 +117,16 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "Host Unreachable",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.logs = {
+                                err: true,
+                                logText: "Host Unreachable",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
                         } else if (err.errCode === -5001) {
                             socket.emit('conErr', {
                                 message: "The username or password/pemfile you entered is incorrect",
@@ -105,6 +137,16 @@ module.exports.setRoutes = function(socketIo) {
                                 err: true,
                                 log: "The username or password/pemfile you entered is incorrect",
                                 timestamp: timestampEnded
+                            });
+                            instanceLog.logs = {
+                                err: true,
+                                logText: "The username or password/pemfile you entered is incorrect",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
                             });
                         } else {
                             socket.emit('conErr', {
@@ -117,12 +159,22 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "Unable to connect to instance, error code = " + err.errCode + ".",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.logs = {
+                                err: true,
+                                logText: "Unable to connect to instance, error code = " + err.errCode + ".",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
                         }
                         instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                         return;
                     }
                     socket.shellInstance = shell;
-                    
+
                     shell.on('data', function(data) {
                         socket.emit('out', {
                             res: data
@@ -150,6 +202,16 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "Host Unreachable",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.logs = {
+                                err: true,
+                                logText: "Host Unreachable",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
                         } else if (err.errCode === -5001) {
                             socket.emit('conErr', {
                                 message: "The username or password/pemfile you entered is incorrect",
@@ -160,6 +222,16 @@ module.exports.setRoutes = function(socketIo) {
                                 err: true,
                                 log: "The username or password/pemfile you entered is incorrect",
                                 timestamp: timestampEnded
+                            });
+                            instanceLog.logs = {
+                                err: true,
+                                logText: "The username or password/pemfile you entered is incorrect",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
                             });
                         } else {
                             socket.emit('conErr', {
@@ -172,11 +244,21 @@ module.exports.setRoutes = function(socketIo) {
                                 log: "Something went wrong, error code = " + err.errCode + ".",
                                 timestamp: timestampEnded
                             });
+                            instanceLog.logs = {
+                                err: true,
+                                logText: "Something went wrong, error code = " + err.errCode + ".",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
                         }
                     });
 
                     if (instanceData.dockerContainerId) {
-                        shell.write('sudo docker exec -it '+instanceData.dockerContainerId+' /bin/bash \r'); 
+                        shell.write('sudo docker exec -it ' + instanceData.dockerContainerId + ' /bin/bash \r');
                         socket.emit('opened', {
                             actionLogId: actionLog._id
                         });
@@ -194,6 +276,16 @@ module.exports.setRoutes = function(socketIo) {
                         timestamp: timestampEnded
                     });
                     instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
+                    instanceLog.logs = {
+                        err: false,
+                        logText: "SSH Shell initiated",
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
                 });
             });
         });
@@ -201,7 +293,7 @@ module.exports.setRoutes = function(socketIo) {
         socket.on('cmd', function(data) {
 
             if (socket.shellInstance) {
-                
+
                 socket.shellInstance.write(data);
             }
         });
