@@ -390,6 +390,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
+            instanceLogModel.removeByInstanceId(req.params.instanceId,function(err,removed){
+                if(err){
+                    logger.error("Failed to remove instance Log: ",err);
+                }
+            });
             containerDao.deleteContainerByInstanceId(req.params.instanceId, function(err, container) {
                 if (err) {
                     logger.error("Container deletion Failed >> ", err);

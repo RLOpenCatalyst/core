@@ -92,22 +92,22 @@ taskHistorySchema.statics.createNew = function(historyData, callback) {
 
 taskHistorySchema.statics.getHistoryByTaskId = function(taskId, callback) {
     // this.find({
-    // 	$query: {
-    // 		taskId: taskId
-    // 	},
-    // 	$orderby: {
-    // 		"buildNumber": -1
-    // 	}
+    //  $query: {
+    //      taskId: taskId
+    //  },
+    //  $orderby: {
+    //      "buildNumber": -1
+    //  }
     // }, function(err, tHistories) {
-    // 	if (err) {
-    // 		logger.debug('err = >', err);
-    // 		callback(err, null);
-    // 		return;
-    // 	}
-    // 	tHistories.sort({
-    // 		"buildNumber": -1
-    // 	})
-    // 	callback(null, tHistories);
+    //  if (err) {
+    //      logger.debug('err = >', err);
+    //      callback(err, null);
+    //      return;
+    //  }
+    //  tHistories.sort({
+    //      "buildNumber": -1
+    //  })
+    //  callback(null, tHistories);
     // });
 
     this.find({
@@ -201,6 +201,21 @@ taskHistorySchema.statics.listHistoryWithPagination = function(jsonData, callbac
         });
     }
 };
+
+taskHistorySchema.statics.removeByTaskId = function(taskId, callback) {
+    var queryObj = {
+        taskId: taskId
+    }
+
+    this.remove(queryObj, function(err, data) {
+        if (err) {
+            logger.debug("Failed to remove ", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+}
 
 var TaskHistory = mongoose.model('taskHistory', taskHistorySchema);
 
