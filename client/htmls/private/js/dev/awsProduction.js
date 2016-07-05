@@ -3408,7 +3408,7 @@ function copySelectedBlueprint() {
     $('.productdiv1.role-Selected1').each(function() {
         blueprintId.push($(this).attr('data-blueprintid'));
     });
-    var orgid = $('.orgnameSelectExistingforcopy').val();
+    var orgid = $('#orgnameSelectExistingforcopy').val();
     var buid = $('#bgListInputExistingforcopy').val();
     var projid = $('#projectListInputExistingforcopy').val();
 
