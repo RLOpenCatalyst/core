@@ -15,7 +15,7 @@
 						paginationPageSize: 10,
 						enableColumnMenus:false,
 						enableScrollbars :true,
-						enableHorizontalScrollbar: 2,
+						enableHorizontalScrollbar: 0,
 						enableVerticalScrollbar: 1,
 						useExternalPagination: true,
 						useExternalSorting: true,
