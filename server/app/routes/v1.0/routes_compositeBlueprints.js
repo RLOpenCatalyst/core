@@ -15,6 +15,8 @@
  */
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
+var validate = require('express-validation');
+var compositeBlueprintValidator = require('_pr/validators/compositeBlueprintValidator');
 var compositeBlueprintService = require('_pr/services/compositeBlueprintService');
 var userService = require('_pr/services/userService');
 var async = require('async');
@@ -57,7 +59,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *                  },
      *                  "blueprints": [
      *                      {
-     *                         "id": "5756881cee06745903a776cc",
+     *                         "_id": "5756881cee06745903a776cc",
      *                         "name": "test-blueprint",
      *                         "templateId": "test-template",
      *                         "templateType": "chef",
@@ -185,7 +187,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          },
      *          "blueprints": [
      *              {
-     *                  "id": "5756881cee06745903a776cc",
+     *                  "_id": "5756881cee06745903a776cc",
      *                  "name": "test-blueprint",
      *                  "templateId": "test-template",
      *                  "templateType": "chef",
@@ -330,7 +332,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          },
      *          "blueprints": [
      *              {
-     *                         "id": "5756881cee06745903a776cc",
+     *                         "_id": "5756881cee06745903a776cc",
      *                         "name": "test-blueprint",
      *                         "templateId": "test-template",
      *                         "templateType": "chef",
@@ -397,7 +399,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          ]
      *      }
      */
-    app.post('/composite-blueprints/', createCompositeBlueprint);
+    app.post('/composite-blueprints/', validate(compositeBlueprintValidator.create), createCompositeBlueprint);
 
     function createCompositeBlueprint(req, res, next) {
         async.waterfall([
@@ -448,7 +450,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          },
      *          "blueprints": [
      *                      {
-     *                         "id": "5756881cee06745903a776cc",
+     *                         "_id": "5756881cee06745903a776cc",
      *                         "name": "test-blueprint",
      *                         "templateId": "test-template",
      *                         "templateType": "chef",
@@ -576,7 +578,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          },
      *          "blueprints": [
      *                  {
-     *                         "id": "5756881cee06745903a776cc",
+     *                         "_id": "5756881cee06745903a776cc",
      *                         "name": "test-blueprint",
      *                         "templateId": "test-template",
      *                         "templateType": "chef",
