@@ -71,7 +71,8 @@
 			/*Initialising First Accordian-group open on load*/
 			$scope.isFirstOpen = true;
 
-			$rootScope.$on('WZ_ENV_CHANGE_START', function() {
+			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
+				$scope.requestParams=requestParams;
 				$scope.isBlueprintPageLoading = true;
 				$scope.blueprintListCards();
 			});
@@ -272,8 +273,12 @@
 						headerText: 'Launch Instance Composite Blueprint',
 						bodyText: 'Are you sure you want to launch the composite blueprint? Press Yes To continue.'
 					};
+					var compBlue={
+						"blueprintId": compositeBlueprintId,
+						"environmentId": $scope.requestParams.env
+					}
 					confirmbox.showModal({}, modalOptions).then(function() {
-						workzoneServices.launchCompsiteBlueprint(compositeBlueprintId).success(function(response) {
+						workzoneServices.launchCompsiteBlueprint(compBlue).success(function(response) {
 							
 						}).error(function(data) {
 							alert(data.message);
