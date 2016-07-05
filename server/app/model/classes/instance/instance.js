@@ -1003,37 +1003,24 @@ var InstancesDao = function() {
     };
 
 
-    this.removeTerminatedInstanceById = function(instanceId,bootStrapState, callback) {
-        if (bootStrapState === 'failed') {
-            Instances.remove({
-                "_id": ObjectId(instanceId)
-            }, function (err, data) {
-                if (err) {
-                    logger.error("Failed to removeTerminatedInstanceById (%s)", instanceId, err);
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-            });
-        } else
-            Instances.update({
-                "_id": ObjectId(instanceId)
-            }, {
-                $set: {
-                    isDeleted: true
-                }
-            }, {
-                upsert: false
-            },function (err, data) {
-                if (err) {
-                    logger.error("Failed to removeTerminatedInstanceById (%s)", instanceId, err);
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-            });
+    this.removeTerminatedInstanceById = function(instanceId, callback) {
+        Instances.update({
+            "_id": ObjectId(instanceId)
+        }, {
+            $set: {
+                isDeleted: true
+            }
+        }, {
+            upsert: false
+        },function (err, data) {
+            if (err) {
+                logger.error("Failed to removeTerminatedInstanceById (%s)",instanceId, err);
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
     };
-
     this.removeInstanceById = function(instanceId, callback) {
             Instances.remove({
                 "_id": ObjectId(instanceId)
