@@ -78,7 +78,7 @@ $(document).ready(function() {
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-green');
 
-          $.get('../providers/' + providerid + '/managedInstances?category=dashboard', function(dataManaged) {
+          $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
             var managedInstancesLength = dataManaged.metaData.totalRecords;
             $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
 
@@ -93,7 +93,7 @@ $(document).ready(function() {
               loadManagedInstances(providerid);
             });
 
-            $.get('../providers/' + providerid + '/unmanagedInstances?category=dashboard', function(dataUnmanaged) {
+            $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
               var unmanagedData = dataUnmanaged.metaData.totalRecords;
               $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
 
@@ -412,7 +412,7 @@ $(document).ready(function() {
       "processing": true,
       "serverSide": true,
       "destroy":true,
-      "ajax": '/providers/' + providerId + '/managedInstanceList?category=dashboard',
+      "ajax": '/providers/' + providerId + '/managedInstanceList',
       "columns": [
         {"data": "platformId","orderable" : true},
         {"data": "orgName" ,"orderable" : false,
@@ -438,7 +438,7 @@ $(document).ready(function() {
         {"data": "instanceIP","orderable" : true},
         {"data": "","orderable" : true,
           "render":function(data, type, full, meta) {
-              return full.region?full.region:full.providerData.region;
+              return full.region?full.region:(full.providerData.region?full.providerData.region:'-');
           }
         },
         {"data": "instanceState","orderable" : true  }
@@ -478,7 +478,15 @@ $(document).ready(function() {
         {"data": "instanceState","orderable" : true},
         {"data": "providerType","orderable" : true,
           "render": function(data){
-            return data?data.toUpperCase():'';
+            if(data === 'aws'){
+              return 'AWS';
+            }else if(data === 'azure'){
+              return 'Azure';
+            }else if(data === 'vmware'){
+              return 'VMWare';
+            }else if(data === 'openstack'){
+              return 'OpenStack';
+            }
           }
         },
         {"data": "","orderable" : false,
@@ -504,7 +512,7 @@ $(document).ready(function() {
       "createdRow": function( row, data ) {
         $( row ).attr({"data-id" : data._id})
       },
-      "ajax": '/providers/' + providerId + '/unmanagedInstanceList?category=dashboard',
+      "ajax": '/providers/' + providerId + '/unmanagedInstanceList',
       "columns": [
         {"data": "platformId","orderable" : true  },
         {"data": "orgName" ,"orderable" : false,
@@ -530,7 +538,7 @@ $(document).ready(function() {
         {"data": "ip","orderable" : true  },
         {"data": "","orderable" : true,
           "render":function(data, type, full, meta) {
-              return full.region?full.region:full.providerData.region;
+            return full.region?full.region:(full.providerData.region?full.providerData.region:'-');
           }
         },
         {"data": "state","orderable" : true  }
@@ -572,9 +580,17 @@ $(document).ready(function() {
         {"data": "ip","orderable" : true  },
         {"data": "state","orderable" : true  },
         {"data": "providerType","orderable" : true,
-          "render": function(data){
-            return data?data.toUpperCase():'';
-          }
+            "render": function(data){
+              if(data === 'aws'){
+                return 'AWS';
+              }else if(data === 'azure'){
+                return 'Azure';
+              }else if(data === 'vmware'){
+                return 'VMWare';
+              }else if(data === 'openstack'){
+                return 'OpenStack';
+              }
+            }
         },
         {"data": "","orderable" : false,
           "render":function(data, type, full, meta) {

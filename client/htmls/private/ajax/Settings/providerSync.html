@@ -662,7 +662,7 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:assigned',
+            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:assigned',
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
@@ -687,7 +687,7 @@
             "createdRow": function( row, data ) {
                 $( row ).attr({"data-id" : data._id})
             },
-            "ajax": '/providers/' + urlproviderId + '/managedInstanceList?category=providerSync',
+            "ajax": '/providers/' + urlproviderId + '/managedInstanceList',
             "columns": [
                 {"data": "platformId","orderable" : true  },
                 {"data": "hardware.os","orderable" : false  },
@@ -750,7 +750,7 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
+            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
             "columns": [
                 {"data": "resourceDetails.dbName",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
@@ -1417,6 +1417,7 @@
             });
         };
 
+
         function getAssignedInstances() {
             $('#unmanagedinstanceListTable').DataTable( {
                 "processing": true,
@@ -1425,7 +1426,7 @@
                 "createdRow": function( row, data ) {
                     $( row ).attr({"instanceId" : data._id})
                 },
-                "ajax": '/providers/' + urlproviderId + '/unmanagedInstanceList?category=providerSync',
+                "ajax": '/providers/' + urlproviderId + '/unmanagedInstanceList',
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
@@ -1461,7 +1462,7 @@
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
+                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
                 "createdRow": function( row, data ) {
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
@@ -1500,12 +1501,13 @@
             });
         }
 
+
         function getUnassignedS3BucketsWithProjectAndEnv(envProjectMappingObject)  {
             $('#unassignedS3ListTable').DataTable( {
                 "processing": true,
                 "serverSide": true,
                 "destroy":true,
-                "ajax": '/resources?category=providerSync&filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
+                "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
                 "createdRow": function( row, data ) {
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
@@ -1601,116 +1603,132 @@
         $('#unassignedSyncBtn').on('click', function(e) {
             var updateInstanceTagsObj = {};
             var updateInstanceTagsArr = [];
-            $('#unassignedinstanceListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function() {
-                //Batch update instances tags
-                var updateUniqueInstanceTagsObj = {};
-                var instanceId = $(this).attr("instanceId");
-                var projectTagsMapName = $(this).attr("projectTagsMapName");
-                var envTagsMapName = $(this).attr("envTagsMapName");
-                var projectTagName = $(this).find('.projectTagName').val();
-                var envTagName = $(this).find('.envTagName').val();
-                updateUniqueInstanceTagsObj["id"] = instanceId;
-                updateUniqueInstanceTagsObj["tags"] = {};
-                updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
-                updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
-                updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
-            });
-            updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
-            $.ajax({
-                url: '/providers/'+urlproviderId+'/unassigned-instances',
-                data: JSON.stringify(updateInstanceTagsObj),
-                type: 'PATCH',
-                contentType: "application/json",
-                success: function(data) {
-                    $('.margintop-25left250').fadeIn();
-                    $('#spanunassignedformSaveId').text('Updated successfully');
-                    $('.margintop-25left250').delay(2000).fadeOut();
-                    getUnassignedData('EC2');
-                },
-                error: function(jqxhr) {
-                    // if(jqxhr.responseJSON.message === 'Access Denied'){
-                    bootbox.alert(jqxhr.responseJSON.message);
-                    getUnassignedData('EC2');
-                    // }
-                }
-            });
+            var $checkBox_checked = $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)');
+            if($checkBox_checked.length > 0) {
+                $('#unassignedinstanceListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
+                    //Batch update instances tags
+                    var updateUniqueInstanceTagsObj = {};
+                    var instanceId = $(this).attr("instanceId");
+                    var projectTagsMapName = $(this).attr("projectTagsMapName");
+                    var envTagsMapName = $(this).attr("envTagsMapName");
+                    var projectTagName = $(this).find('.projectTagName').val();
+                    var envTagName = $(this).find('.envTagName').val();
+                    updateUniqueInstanceTagsObj["id"] = instanceId;
+                    updateUniqueInstanceTagsObj["tags"] = {};
+                    updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
+                    updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
+                });
+                updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
+                $.ajax({
+                    url: '/providers/' + urlproviderId + '/unassigned-instances',
+                    data: JSON.stringify(updateInstanceTagsObj),
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    success: function (data) {
+                        $('.margintop-25left250').fadeIn();
+                        $('#spanunassignedformSaveId').text('Updated successfully');
+                        $('.margintop-25left250').delay(2000).fadeOut();
+                        //getUnassignedData('EC2');
+                    },
+                    error: function (jqxhr) {
+                        // if(jqxhr.responseJSON.message === 'Access Denied'){
+                        bootbox.alert(jqxhr.responseJSON.message);
+                        // getUnassignedData('EC2');
+                        // }
+                    }
+                });
+            }else{
+                bootbox.alert("Please select corresponding check-box for updating tags");
+            }
         });
 
         $('#s3UnassignedSyncBtn').on('click', function(e) {
             var updateBucketTagsObj = {};
             var updateBucketTagsArr = [];
-            $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function() {
-                //Batch update instances tags
-                var updateUniqueBucketTagsObj = {};
-                var resourceId = $(this).attr("resourceId");
-                var resourceType = $(this).attr("resourceType");
-                var projectTagsMapName = $(this).attr("projectTagsMapName");
-                var envTagsMapName = $(this).attr("envTagsMapName");
-                var projectTagName = $(this).find('.projectTagName').val();
-                var envTagName = $(this).find('.envTagName').val();
-                updateUniqueBucketTagsObj["id"] = resourceId;
-                updateUniqueBucketTagsObj["resourceType"] = resourceType;
-                updateUniqueBucketTagsObj["tags"] = {};
-                updateUniqueBucketTagsObj["tags"][projectTagsMapName] = projectTagName;
-                updateUniqueBucketTagsObj["tags"][envTagsMapName] = envTagName;
-                updateBucketTagsArr.push(updateUniqueBucketTagsObj);
-            });
-            updateBucketTagsObj["resources"] = updateBucketTagsArr;
-            $.ajax({
-                url: '/resources?providerId='+urlproviderId,
-                data: JSON.stringify(updateBucketTagsObj),
-                type: 'PATCH',
-                contentType: "application/json",
-                success: function(data) {
-                    $('.margintop-25left250').fadeIn();
-                    $('#spanS3unassignedformSaveId').text('Updated successfully');
-                    $('.margintop-25left250').delay(2000).fadeOut();
-                    getUnassignedData('S3');
-                },
-                error: function(jqxhr) {
+            var $checkBox_checked = $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)');
+            if($checkBox_checked.length > 0) {
+                $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
+                    //Batch update instances tags
+                    var updateUniqueBucketTagsObj = {};
+                    var resourceId = $(this).attr("resourceId");
+                    var resourceType = $(this).attr("resourceType");
+                    var projectTagsMapName = $(this).attr("projectTagsMapName");
+                    var envTagsMapName = $(this).attr("envTagsMapName");
+                    var projectTagName = $(this).find('.projectTagName').val();
+                    var envTagName = $(this).find('.envTagName').val();
+                    updateUniqueBucketTagsObj["id"] = resourceId;
+                    updateUniqueBucketTagsObj["resourceType"] = resourceType;
+                    updateUniqueBucketTagsObj["tags"] = {};
+                    updateUniqueBucketTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    updateUniqueBucketTagsObj["tags"][envTagsMapName] = envTagName;
+                    updateBucketTagsArr.push(updateUniqueBucketTagsObj);
+                });
+                updateBucketTagsObj["resources"] = updateBucketTagsArr;
+                $.ajax({
+                    url: '/resources?providerId=' + urlproviderId,
+                    data: JSON.stringify(updateBucketTagsObj),
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    success: function (data) {
+                        $('.margintop-25left250').fadeIn();
+                        $('#spanS3unassignedformSaveId').text('Updated successfully');
+                        $('.margintop-25left250').delay(2000).fadeOut();
+                        // getUnassignedData('S3');
+                    },
+                    error: function (jqxhr) {
                         bootbox.alert(jqxhr.responseJSON.message);
-                        getUnassignedData('S3');
-                }
-            });
+                        // getUnassignedData('S3');
+                    }
+                });
+            }else{
+                bootbox.alert("Please select corresponding check-box for updating tags");
+            }
         });
 
         $('#rdsUnassignedSyncBtn').on('click', function(e) {
             var updateDBTagsObj = {};
             var updateDBTagsArr = [];
-            $('#unassignedRDSListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function() {
-                //Batch update instances tags
-                var updateUniqueDBTagsObj = {};
-                var resourceId = $(this).attr("resourceId");
-                var resourceType = $(this).attr("resourceType");
-                var projectTagsMapName = $(this).attr("projectTagsMapName");
-                var envTagsMapName = $(this).attr("envTagsMapName");
-                var projectTagName = $(this).find('.projectTagName').val();
-                var envTagName = $(this).find('.envTagName').val();
-                updateUniqueDBTagsObj["id"] = resourceId;
-                updateUniqueDBTagsObj["resourceType"] = resourceType;
-                updateUniqueDBTagsObj["tags"] = {};
-                updateUniqueDBTagsObj["tags"][projectTagsMapName] = projectTagName;
-                updateUniqueDBTagsObj["tags"][envTagsMapName] = envTagName;
-                updateDBTagsArr.push(updateUniqueDBTagsObj);
-            });
-            updateDBTagsObj["resources"] = updateDBTagsArr;
-            $.ajax({
-                url: '/resources?providerId='+urlproviderId,
-                data: JSON.stringify(updateDBTagsObj),
-                type: 'PATCH',
-                contentType: "application/json",
-                success: function(data) {
-                    $('.margintop-25left250').fadeIn();
-                    $('#spanRDSunassignedformSaveId').text('Updated successfully');
-                    $('.margintop-25left250').delay(2000).fadeOut();
-                    getUnassignedData('RDS');
-                },
-                error: function(jqxhr) {
-                    bootbox.alert(jqxhr.responseJSON.message);
-                    getUnassignedData('RDS');
+            var $checkBox_checked = $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)');
+            if($checkBox_checked.length > 0) {
+                $('#unassignedRDSListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
+                    //Batch update instances tags
+                    var updateUniqueDBTagsObj = {};
+                    var resourceId = $(this).attr("resourceId");
+                    var resourceType = $(this).attr("resourceType");
+                    var projectTagsMapName = $(this).attr("projectTagsMapName");
+                    var envTagsMapName = $(this).attr("envTagsMapName");
+                    var projectTagName = $(this).find('.projectTagName').val();
+                    var envTagName = $(this).find('.envTagName').val();
+                    updateUniqueDBTagsObj["id"] = resourceId;
+                    updateUniqueDBTagsObj["resourceType"] = resourceType;
+                    updateUniqueDBTagsObj["tags"] = {};
+                    updateUniqueDBTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    updateUniqueDBTagsObj["tags"][envTagsMapName] = envTagName;
+                    updateDBTagsArr.push(updateUniqueDBTagsObj);
+                });
+                updateDBTagsObj["resources"] = updateDBTagsArr;
+                $.ajax({
+                    url: '/resources?providerId=' + urlproviderId,
+                    data: JSON.stringify(updateDBTagsObj),
+                    type: 'PATCH',
+                    contentType: "application/json",
+                    success: function (data) {
+                        $('.margintop-25left250').fadeIn();
+                        $('#spanRDSunassignedformSaveId').text('Updated successfully');
+                        $('.margintop-25left250').delay(2000).fadeOut();
+                        //getUnassignedData('RDS');
+                    },
+                    error: function (jqxhr) {
+                        bootbox.alert(jqxhr.responseJSON.message);
+                        //getUnassignedData('RDS');
 
-                }
-            });
+                    }
+                });
+            }else{
+                bootbox.alert("Please select corresponding check-box for updating tags");
+            }
+
         });
 
 

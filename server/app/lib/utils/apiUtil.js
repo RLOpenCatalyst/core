@@ -95,17 +95,17 @@ var ApiUtil = function() {
             queryArr.push(objAnd);
             for(var i = 0; i < jsonData.searchColumns.length; i++){
                 var searchParam={};
-                searchParam[jsonData.searchColumns[i]]=jsonData.search;
+                searchParam[jsonData.searchColumns[i]]={
+                  $regex:jsonData.search
+                };
                 objOr.push(searchParam);
             }
             queryArr.push({$or:objOr});
         }
-        else{
-            if(jsonData.filterBy) {
-                objAnd = jsonData.filterBy;
-            }
-            queryArr.push(objAnd);
+        if(jsonData.filterBy) {
+            objAnd = jsonData.filterBy;
         }
+        queryArr.push(objAnd);
         queryObj['$and']=queryArr;
         var options = {
             sort: jsonData.sortBy,

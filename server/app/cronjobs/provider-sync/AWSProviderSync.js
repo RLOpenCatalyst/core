@@ -207,10 +207,8 @@ function sync() {
 																					instances.splice(n, 1);
 																					break;
 																				}
-																			}else if ((instances[n].instanceState === 'running' || instances[n].instanceState === 'terminated') && instances[n].bootStrapStatus === 'failed') {
-																				removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
 																			}else if (instances[n].instanceState === 'terminated') {
-																				removeTerminateInstance(instances[n]._id,instances[n].bootStrapStatus, 'managed');
+																				removeTerminateInstance(instances[n]._id, 'managed');
 																			}
 																		}
 
@@ -240,7 +238,7 @@ function sync() {
 																					unManagedInstances.splice(n, 1);
 																					break;
 																				} else if (unManagedInstances[n].state === 'terminated') {
-																					removeTerminateInstance(unManagedInstances[n]._id,unManagedInstances[n].state, 'assigned');
+																					removeTerminateInstance(unManagedInstances[n]._id, 'assigned');
 																				}
 																			}
 																		}
@@ -372,9 +370,9 @@ function sync() {
 		}
 	});
 }
-function removeTerminateInstance(instanceId,bootStrapState,key) {
+function removeTerminateInstance(instanceId,key) {
 	if(key === 'managed') {
-		instancesDao.removeTerminatedInstanceById(instanceId,bootStrapState, function (err, data) {
+		instancesDao.removeTerminatedInstanceById(instanceId, function (err, data) {
 			if (err) {
 				logger.error(err);
 				return;
