@@ -244,7 +244,7 @@
                             </div>
                         </accordion-group>
                     </div>
-                    <div >
+                    <div ng-if="compositeBlueprints.length>0">
                         <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                             <accordion-heading>
                                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
@@ -277,12 +277,12 @@
                                     </div>
                                     <div class="blueprint-buttons">
                                         <div class="btnicons">
-                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstanceCompoBlueprint(compBlue.launchID);">
+                                            <span class="btn cat-btn-update control-panel-button" title="Launch BluePrint" ng-click="launchInstanceCompoBlueprint(compBlue.id);">
                                                 <i class="fa fa-location-arrow white"></i>
                                             </span>
                                         </div>
                                         <div class="btnicons">
-                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="deleteCompositeBlueprint(compBlue.launchID)">
+                                            <span class="btn pull-right btn-danger right-button" title="Delete BluePrint" ng-click="deleteCompositeBlueprint(compBlue.id)">
                                                 <i class="fa fa-trash-o white"></i>
                                             </span>
                                         </div>

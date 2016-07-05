@@ -160,6 +160,9 @@ function softwareStackListing() {
                 $projectListforcopy.trigger('change');
             });
             var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
+            function createBpAttributes(list){
+
+            }
             $('#projectListInputExisting').change(function(e) {
                 var reqBodyNew = {};
                 $spinnerProject.removeClass('hidden');
@@ -171,6 +174,7 @@ function softwareStackListing() {
                 $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws?blueprintType=' + blueprintTypeList + '', function(data) {
                     //Syncing up the tree view based on url
                     var list = [], bpAttributes = [];
+                    var versionOptions=[];
                     for (var i = 0; i < data.blueprints.length; i++) {
                         var item = {
                             "className": "blueprintClass",
@@ -181,6 +185,19 @@ function softwareStackListing() {
                                 "bpData": data.blueprints[i]
                             }
                         };
+                        var option='<option data-value="' + data.blueprints[i]._id + '" value="'+data.blueprints[i]._id+'" >'+data.blueprints[i].version+'</option>';
+                        if(data.blueprints[i] && data.blueprints[i].versions){
+                            for (var kk = 0; kk < data.blueprints[i].versions.length; kk++) {
+                                var varLop= data.blueprints[i].versions[kk];
+                                option += '<option data-value="' +varLop.id + '" value="'+varLop.id+'">'+varLop.version+'</option>';
+                            }
+                        }
+                        versionOptions[data.blueprints[i]._id]=option;
+                        if(data.blueprints[i] && data.blueprints[i].versions){
+                            for (var l = 0; l < data.blueprints[i].versions.length; l++) {
+                                versionOptions[data.blueprints[i].versions[l].id]=option;
+                            }
+                        }
                         bpAttributes[data.blueprints[i]._id] = data.blueprints[i];
                         list.push(item);
                     }
@@ -208,43 +225,31 @@ function softwareStackListing() {
                         var thisVal=$('.bpVersion').val()
                         var selectBlueId=$('#selectorList').val();
                         $('#selectorList option:selected').prop('value',thisVal);
+                        $.get('/blueprints/' + thisVal, function(blueprintdata) {
+                            bpAttributes[thisVal]=blueprintdata;
+                            editRunListAttribute ()
+                        });
                     });
                     $('#selectorList').change(function() {
-                        $('#attributeBlue').hide();
-                        // manage accordion
+                       // manage accordion
+                        editRunListAttribute();
                         if (!$('#collapsed').hasClass('collapsed')) {
                             $('#collapsed').trigger('click');
                         }
-                        if ($('#selectorList').val() == null) {
-                            $('#ediAattributeBlue').hide();
-                        } else {
-                            $('#ediAattributeBlue').show();
-                        }
+                        $('.bpVersion').html(versionOptions[$('#selectorList').val()])
+                        $('.bpVersion').val($('#selectorList').val());
                     });
-                    //on click of edit button from option List
-                    $('#ediAattributeBlue').click(function() {
+                    function editRunListAttribute () {
                         $tasksRunlist.clear().draw();
                         var $table = $('#attributesViewListTable').removeClass('hidden');
                         var $tbody = $table.find('tbody').empty();
                         $('#attributeBlue').show();
-                        var $selectVer = $('.bpVersion').html('');
+                        var $selectVer = $('.bpVersion');
                         selectedValueOnRight = $('#selectorList option:selected').val();
                         var runlistForTable = bpAttributes[selectedValueOnRight].blueprintConfig.infraManagerData.versionsList[0].runlist
                         createRunlistTable(runlistForTable);
                         //assigning the value to the attribute reader.
                         runlistCheckAttribute = runlistForTable;
-
-                        // if there are different version of blueprint
-                        if (bpAttributes[selectedValueOnRight].versions) {
-                            _versions = sortResults(bpAttributes[selectedValueOnRight].versions, 'version');
-                            for (var kk = 0; kk < _versions.length; kk++) {
-                                var $option = $('<option data-value="' + _versions[kk].id + '"></option>').val(_versions[kk].id).html(_versions[kk].version);
-                                $selectVer.append($option);
-                            }
-                        }
-                        //appending the first version to the dropdown
-                        var $firstVersionOption = $('<option data-value="' + bpAttributes[selectedValueOnRight]._id + '" selected=selected></option>').val(bpAttributes[selectedValueOnRight]._id).html("1");
-                        $selectVer.append($firstVersionOption);
                         $selectVer.unbind().click(function(e) {
                             $('#CollapseEditRunlistParam').show();
                             $tasksRunlist.clear().draw();
@@ -256,71 +261,81 @@ function softwareStackListing() {
                                 createRunlistTable(blueprintRunlistOnChange);
                                 runlistCheckAttribute = blueprintRunlistOnChange;
                                 // on save of composite blueprint
-                                $('#saveCompBlup').unbind().click(function(e) {
-                                        bootbox.confirm({
-                                        message: "Are you sure you want to save the Composite Blueprint? Press Ok To continue",
-                                        title: "Confirmation",
-                                        callback: function(result) {
-                                            if (!result) {
-                                            return;
-                                            } else {
-                                            var blueprintName = $('#blueprintName').val();
-                                            var attributes = [],blueprintsList = [];
-                                            //running a loop to extract the values of each option available in the option List
-                                            var $selectorList = $('#selectorList');
-                                            $selectorList.find('option').each(function() {                                    
-                                                blueprintsList.push({
-                                                    id: $(this).val(),
-                                                    attributes: versionAttr[$(this).val()]
-                                                });
-                                            });
 
-                                            var url, bpData = {};
-                                            url = '../composite-blueprints/';
-                                            reqBody = {
-                                                "name": blueprintName,
-                                                "organizationId": blueprintdata.orgId,
-                                                "businessGroupId": blueprintdata.bgId,
-                                                "projectId": blueprintdata.projectId,
-                                                "blueprints": blueprintsList
-                                            };
-
-                                            $.ajax({
-                                                method: "POST",
-                                                url: url,
-                                                data: reqBody,
-                                                success: function(data, success) {
-                                                    bootbox.hideAll();
-                                                    $('#viewCreate').load('ajax/Aws-Production.html'); 
-                                                },
-                                                error: function(jxhr) {
-                                                    var msg = "Server Behaved Unexpectedly";
-                                                    if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                                        msg = jxhr.responseJSON.message;
-                                                    } else if (jxhr.responseText) {
-                                                        msg = jxhr.responseText;
-                                                    }
-                                                    bootbox.alert(msg);
-                                                },
-                                                failure: function(jxhr) {
-                                                    var msg = "Server Behaved Unexpectedly";
-                                                    if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                                        msg = jxhr.responseJSON.message;
-                                                    } else if (jxhr.responseText) {
-                                                        msg = jxhr.responseText;
-                                                    }
-                                                    bootbox.alert(msg);
-                                                }
-                                            });
-                                            return false;
-                                            }
-                                        }
-                                    });
-                                    //save ends in next line
-                                })
                             });
                         })
-                    });
+                    }
+
+                    $('#saveCompBlup').unbind().click(function(e) {
+                        if(!$('#blueprintName').val()){
+                            alert('Please enter composite blueprint name !');
+                            return true;
+                        } if($('#selectorList option').length == 0){
+                            alert('Please select blueprint !');
+                            return true;
+                        }
+                        bootbox.confirm({
+                            message: "Are you sure you want to save the Composite Blueprint? Press Ok To continue",
+                            title: "Confirmation",
+                            callback: function(result) {
+                                if (!result) {
+                                    return;
+                                } else {
+                                    var blueprintName = $('#blueprintName').val();
+                                    var attributes = [],blueprintsList = [];
+                                    //running a loop to extract the values of each option available in the option List
+                                    var $selectorList = $('#selectorList');
+                                    $selectorList.find('option').each(function() {
+                                        blueprintsList.push({
+                                            id: $(this).val(),
+                                            attributes: versionAttr[$(this).val()]
+                                        });
+                                    });
+
+                                    var url, bpData = {};
+                                    url = '../composite-blueprints/';
+                                    reqBody = {
+                                        "name": blueprintName,
+                                        "organizationId":$('#orgnameSelectExisting').val(),
+                                        "businessGroupId": $('#bgListInputExisting').val(),
+                                        "projectId": $('#projectListInputExisting').val(),
+                                        "blueprints": blueprintsList
+                                    };
+
+                                    $.ajax({
+                                        method: "POST",
+                                        url: url,
+                                        data: reqBody,
+                                        success: function(data, success) {
+                                            bootbox.hideAll();
+                                            alert('Successfully created a composite blueprint');
+                                            $('.previous').trigger('click');
+                                        },
+                                        error: function(jxhr) {
+                                            var msg = "Server Behaved Unexpectedly";
+                                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                                msg = jxhr.responseJSON.message;
+                                            } else if (jxhr.responseText) {
+                                                msg = jxhr.responseText;
+                                            }
+                                            bootbox.alert(msg);
+                                        },
+                                        failure: function(jxhr) {
+                                            var msg = "Server Behaved Unexpectedly";
+                                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                                msg = jxhr.responseJSON.message;
+                                            } else if (jxhr.responseText) {
+                                                msg = jxhr.responseText;
+                                            }
+                                            bootbox.alert(msg);
+                                        }
+                                    });
+                                    return false;
+                                }
+                            }
+                        });
+                        //save ends in next line
+                    })
                     $spinnerProject.addClass('hidden');
                     if (data.blueprints.length > 0) {
                         $('#npbpmsgComposite').addClass('hidden');
@@ -622,3 +637,4 @@ function saveAtrributesHandler(e) {
     createAttribTableRowFromJson(attributes);
     $modal.modal('hide');
 }
+
