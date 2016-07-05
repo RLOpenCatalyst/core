@@ -4506,13 +4506,13 @@ form.cmxform .gray * {
     font-weight: 700;
 }
 
-#btnaddToRunlist , #btnremoveFromRunlist {
+/*#btnaddToRunlist , #btnremoveFromRunlist {
     padding: 5px 10px;
-}
+}*/
 
-#ediAattributeBlue, #btnRunlistItemUp, #btnRunlistItemDown {
+/*#ediAattributeBlue, #btnRunlistItemUp, #btnRunlistItemDown {
     padding: 5px 8px;
-}
+}*/
 
 .compositeBPVersion{
     float:right;

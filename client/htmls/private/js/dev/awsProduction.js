@@ -2977,8 +2977,10 @@ function initializeBlueprintAreaNew(data) {
         $('#accordion-3').append($containerCompoTemp);
         
         $.get('../composite-blueprints',function(compositeData){
-            for(var j=0;j<compositeData.compositeBlueprints.length;j++){
-                addBlueprintToComposite(compositeData.compositeBlueprints[j]);    
+            if(compositeData.compositeBlueprints !=null){
+                for(var j=0;j<compositeData.compositeBlueprints.length;j++){
+                    addBlueprintToComposite(compositeData.compositeBlueprints[j]);    
+                }
             }
         });
     }
