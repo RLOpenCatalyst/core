@@ -14,14 +14,20 @@
  limitations under the License.
  */
 var logger = require('_pr/logger')(module);
-var blueprintModel = require('_pr/model/blueprint/blueprint');
+var blueprintModel = require('_pr/model/blueprint');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints');
 var blueprintFrameModel = require('_pr/model/blueprint-frame/blueprint-frame');
+var events = require('events');
+var async = require('async');
+
 var appConfig = require('_pr/config');
 
 const errorType = 'composite-blueprints';
 
 var compositeBlueprintService = module.exports = {};
+
+compositeBlueprintService.SUCCESS_EVENT = 'success';
+compositeBlueprintService.FAILED_EVENT = 'failed';
 
 compositeBlueprintService.populateComposedBlueprints
     = function populateComposedBlueprints(compositeBlueprint, callback) {
@@ -224,8 +230,30 @@ compositeBlueprintService.formatCompositeBlueprintsList
     }
 };
 
+compositeBlueprintService.launchComposedBlueprint
+    = function launchComposedBlueprint(blueprintFrameId, composedBlueprintId, environmentId, userName) {
+    blueprintModel.getById(composedBlueprintId,
+        function (err, blueprint) {
+            blueprint.launch({
+                blueprintFrameId: blueprintFrameId,
+                envId: environmentId,
+                ver: blueprint.version,
+                stackName: null,
+                sessionUser: userName
+            }, function (err, launchData) {
+                if (err) {
+                    logger.error(err);
+                    var err = new Error('Internal Server Error');
+                    err.status = 500;
+                    return;
+                }
+            });
+        });
+};
+
+// @TODO FSM module should be generic
 compositeBlueprintService.createBlueprintFrame
-    = function createBlueprintFrame(compositeBlueprint, environmentId, callback) {
+    = function createBlueprintFrame(compositeBlueprint, environmentId, userName, callback) {
     if((compositeBlueprint == null) || !('blueprints' in compositeBlueprint)) {
         var err = new Error('Bad Request');
         err.status = 400;
@@ -240,7 +268,7 @@ compositeBlueprintService.createBlueprintFrame
             stateMap[blueprint._id].blueprint = blueprint;
             stateMap[blueprint._id].instances = [];
 
-            stateMap[blueprint._id].transitions = {}
+            stateMap[blueprint._id].transitions = {};
             if(i+1 < compositeBlueprint.blueprints.length) {
                 stateMap[blueprint._id].transitions['success'] = compositeBlueprint.blueprints[i+1]._id;
                 stateMap[blueprint._id].transitions['failed'] = null;
@@ -254,10 +282,10 @@ compositeBlueprintService.createBlueprintFrame
     var blueprintFrame = {
         environmentId: environmentId,
         blueprintId: compositeBlueprint._id,
+        blueprintOwnerName: userName,
         state: compositeBlueprint.blueprints[0]._id,
         stateMap: stateMap
     };
-
     blueprintFrameModel.createNew(blueprintFrame, function (err, blueprintFrame) {
         //@TODO To be generalized
         if (err && err.name == 'ValidationError') {
@@ -271,7 +299,73 @@ compositeBlueprintService.createBlueprintFrame
             err.status = 500;
             return callback(err);
         } else {
+            compositeBlueprintService.launchComposedBlueprint(blueprintFrame._id,
+                compositeBlueprint.blueprints[0]._id, environmentId, userName);
             return callback(null, blueprintFrame);
+        }
+    });
+};
+
+//@TODO Design of event handler to be improved
+compositeBlueprintService.compositeBlueprintEventEmitter
+    = function compositeBlueprintEventEmitter(callback) {
+    var eventEmitter = new events.EventEmitter();
+
+    eventEmitter.on(compositeBlueprintService.SUCCESS_EVENT,
+        compositeBlueprintService.successEventHandler);
+    eventEmitter.on(compositeBlueprintService.FAILED_EVENT,
+        compositeBlueprintService.failedEventHandler);
+
+    callback(eventEmitter);
+};
+
+compositeBlueprintService.successEventHandler
+    = function successEventHandler(eventData) {
+    blueprintFrameModel.getById(eventData.blueprintFrameId, function (err, blueprintFrame) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!blueprintFrame) {
+            var err = new Error('Composite blueprint not found');
+            err.status = 404;
+            return callback(err);
+        } else if (blueprintFrame) {
+            // State transition
+            if('instances' in eventData) {
+                blueprintFrame.stateMap[blueprintFrame.state].instances = eventData.instances;
+            }
+
+            blueprintFrame.state
+                = blueprintFrame.stateMap[eventData.state].transitions[compositeBlueprintService.SUCCESS_EVENT];
+
+            if(blueprintFrame.state != '#') {
+                compositeBlueprintService.launchComposedBlueprint(blueprintFrame._id,
+                    blueprintFrame.state, blueprintFrame.environmentId, blueprintFrame.blueprintOwnerName);
+            }
+        }
+    });
+};
+
+compositeBlueprintService.failedEventHandler
+    = function failedEventHandler(eventData) {
+    blueprintFrameModel.getById(eventData.blueprintFrameId, function (err, blueprintFrame) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!blueprintFrame) {
+            var err = new Error('Composite blueprint not found');
+            err.status = 404;
+            return callback(err);
+        } else if (blueprintFrame) {
+            // State transition
+            if('instances' in eventData) {
+                blueprintFrame.stateMap[blueprintFrame.state].instances = eventData.instances;
+            }
+
+            blueprintFrame.state = null;
+            blueprintFrame.save();
         }
     });
 };

@@ -24,7 +24,12 @@ var BlueprintFrameSchema = new Schema({
         required: true,
         trim: false
     },
-    blueprintId: {
+    compositeBlueprintId: {
+        type: String,
+        required: true,
+        trim: false
+    },
+    blueprintOwnerName: {
         type: String,
         required: true,
         trim: false
@@ -56,6 +61,22 @@ BlueprintFrameSchema.statics.createNew = function createNew(data, callback) {
             return callback(null, blueprintFrame);
         }
     });
+};
+
+BlueprintFrameSchema.statics.getById = function getById(blueprintFrameId, callback) {
+    this.find(
+        {'_id': blueprintFrameId, 'isDeleted': false },
+        function(err, blueprintFrames) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else if(blueprintFrames && blueprintFrames.length > 0) {
+                return callback(null, blueprintFrameId[0]);
+            } else {
+                return callback(null, null);
+            }
+        }
+    );
 };
 
 var BlueprintFrames = mongoose.model('blueprintFrames', BlueprintFrameSchema);
