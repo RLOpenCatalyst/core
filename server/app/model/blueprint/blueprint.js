@@ -329,7 +329,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             });
                         });
                     } else {
-                        var launchOptions = {
+                        blueprintConfigType.launch({
                             infraManager: chef,
                             ver: opts.ver,
                             envName: envName,
@@ -346,13 +346,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             sessionUser: opts.sessionUser,
                             users: self.users,
                             blueprintData: self,
-                        };
-
-                        if('blueprintFrameId' in opts) {
-                            launchOptions.blueprintFrameId = opts.blueprintFrameId;
-                        }
-
-                        blueprintConfigType.launch(launchOptions, function(err, launchData) {
+                        }, function(err, launchData) {
                             callback(err, launchData);
                         });
                     }
