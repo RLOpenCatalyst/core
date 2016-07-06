@@ -307,8 +307,8 @@ compositeBlueprintService.createBlueprintFrame
 };
 
 //@TODO Design of event handler to be improved
-compositeBlueprintService.compositeBlueprintEventEmitter
-    = function compositeBlueprintEventEmitter(callback) {
+compositeBlueprintService.getCompositeBlueprintEventEmitter
+    = function getCompositeBlueprintEventEmitter() {
     var eventEmitter = new events.EventEmitter();
 
     eventEmitter.on(compositeBlueprintService.SUCCESS_EVENT,
@@ -316,7 +316,7 @@ compositeBlueprintService.compositeBlueprintEventEmitter
     eventEmitter.on(compositeBlueprintService.FAILED_EVENT,
         compositeBlueprintService.failedEventHandler);
 
-    callback(eventEmitter);
+    return eventEmitter;
 };
 
 compositeBlueprintService.successEventHandler
