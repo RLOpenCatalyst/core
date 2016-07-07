@@ -79,7 +79,7 @@ function getDefaultsConfig() {
                     "instanceState": "running"
                 }]
             },
-            sort_order : "desc",
+            sort_order : "asc",
             sortReferanceData : {
                 "unmanagedInstances" : "state",
                 "managedInstances" : "instanceState",
@@ -91,11 +91,12 @@ function getDefaultsConfig() {
                 "cftList" : "status",
                 "appDeploy" : "envId",
                 "trackedInstances": "providerType",
-                "resources":"createdOn"
+                "resources":"createdOn",
+                "unassignedInstances":"state"
             },
             skip_Records : 1,
-            max_record_limit : 100000,
-            record_limit : 100000
+            max_record_limit : 200,
+            record_limit : 50
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
@@ -109,6 +110,8 @@ function getDefaultsConfig() {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
             s3BucketFileName:'rlBilling.zip',
+            s3AccountNumber:"549974527830",
+            s3CSVFileName:"-aws-billing-detailed-line-items-with-resources-and-tags-",
             pemFile: "catalyst.pem",
             instanceUserName: "root",
             virtualizationType: [{

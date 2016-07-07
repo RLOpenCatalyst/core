@@ -138,6 +138,7 @@
 						items = reqBody.taskData;
 						$rootScope.$emit('WZ_ORCHESTRATION_SHOW_LATEST');
 						$rootScope.$emit('GET_ALL_TASK');
+                        $scope.taskSaving = false;
 						$modalInstance.close(items);
 					});
 				},
@@ -149,6 +150,7 @@
 					workzoneServices.updateTask(reqBody, $scope.id).then(function () {
 						items = reqBody.taskData;
 						$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                        $scope.taskSaving = false;
 						$modalInstance.close(items);
 					});
 				},
@@ -158,6 +160,7 @@
 					});
 				},
 				ok: function () {
+                    $scope.taskSaving = true;
 					//these values are common across all task types
 					var taskJSON = {
 						taskType: $scope.taskType,
@@ -167,6 +170,7 @@
 					//checking for name of the task
 					if (!taskJSON.name.trim()) {
 						alert('Please enter the name of the task.');
+                        $scope.taskSaving = false;
 						return false;
 					}
 					//validating the task selections values and taking selected values from chef components
@@ -179,6 +183,7 @@
 							}
 						} else {
 							alert('please select atleast one job');
+                            $scope.taskSaving = false;
 							return false;
 						}
 					}
@@ -200,20 +205,24 @@
 
 						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
 							alert('Please select a node or blueprint or role');
+                            $scope.taskSaving = false;
 							return false;
 						}
 						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
 							alert('Please choose either nodes or blueprints or role, not all');
+                            $scope.taskSaving = false;
 							return false;
 						}
 
                         if (taskJSON.nodeIds.length && taskJSON.role) {
                             alert('Please choose either nodes or blueprints or role, not all');
+                            $scope.taskSaving = false;
                             return false;
                         }
 
                         if (taskJSON.blueprintIds.length && taskJSON.role) {
                             alert('Please choose either nodes or blueprints or role, not all');
+                            $scope.taskSaving = false;
                             return false;
                         }
 
@@ -230,6 +239,7 @@
 						}
 						if (!taskJSON.nodeIds.length) {
 							alert('Please select atleast one puppet node');
+                            $scope.taskSaving = false;
 							return false;
 						}
 					}
@@ -237,17 +247,20 @@
 						taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
 						if (!taskJSON.jenkinsServerId.length) {
 							alert('Please select the Jenkins Server');
+                            $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.autoSyncFlag = $scope.autoSync.flag;
 						taskJSON.jobName = $scope.jenkinJobSelected;
 						if (!taskJSON.jobName.length) {
 							alert('Please select one Job');
+                            $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.jobURL = $scope.jobUrl;
 						if (!taskJSON.jobURL.length) {
 							alert('No Job Url');
+                            $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.isParameterized = $scope.isParameterized.flag;
@@ -266,6 +279,7 @@
 						}
 						if (!taskJSON.nodeIds.length) {
 							alert('Please select a node');
+                            $scope.taskSaving = false;
 							return false;
 						}
 						if($scope.scriptFile){//will be true if a file chosen by user 
@@ -307,6 +321,7 @@
 			$scope.name = "";
 			$scope.taskType = "chef";//default Task type selection;
 			$scope.isEditMode = false;//default edit mode is false;
+            $scope.taskSaving = false;//to disable submit button, dfault false
 			$scope.autoSync = {
 				flag: false
 			};
