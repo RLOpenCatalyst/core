@@ -39,6 +39,8 @@ var InstanceLogSchema = new Schema({
     size: String,
     user: String,
     createdOn: Number,
+    startedOn: Number,
+    endedOn: Number,
     providerType: String,
     action: String,
     logs: [{
@@ -137,8 +139,8 @@ var InstanceLog = function() {
                             err.status = 500;
                             return callback(err);
                         } else {
-                            if(instanceActions && instanceActions.docs && instanceActions.docs.length){
-                                for(var i=0; i< instanceActions.docs.length; i++){
+                            if (instanceActions && instanceActions.docs && instanceActions.docs.length) {
+                                for (var i = 0; i < instanceActions.docs.length; i++) {
                                     instanceActions.docs[i] = JSON.parse(JSON.stringify(instanceActions.docs[i]));
                                     delete instanceActions.docs[i]['logs'];
                                     delete instanceActions.docs[i]['_id'];
@@ -159,6 +161,21 @@ var InstanceLog = function() {
                 return callback(null, data);
             });
         }
+    };
+    this.removeByInstanceId = function(instanceId, callback) {
+        var queryObj = {
+            instanceId: instanceId
+        }
+
+        InstanceLogs.remove(queryObj, function(err, data) {
+            if (err) {
+                logger.debug("Failed to remove ", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+
     }
 }
 

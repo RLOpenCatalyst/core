@@ -1851,6 +1851,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 size: "",
                                                 user: req.session.user.cn,
                                                 createdOn: new Date().getTime(),
+                                                startedOn: new Date().getTime(),
                                                 providerType: "",
                                                 action: "Import",
                                                 logs: [{
@@ -1877,6 +1878,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         timestamp: timestampEnded
                                                     });
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                    instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.logs = {
                                                         err: true,
                                                         logText: "Unable to decrypt credentials. Bootstrap Failed",
@@ -1981,6 +1983,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     log: err.message,
                                                                     timestamp: timestampEnded
                                                                 });
+                                                                instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.bootStrap = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,
@@ -2002,6 +2005,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 timestamp: timestampEnded
                                                             });
                                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                            instanceLog.endedOn = new Date().getTime();
                                                             instanceLog.bootStrap = "failed";
                                                             instanceLog.logs = {
                                                                 err: true,
@@ -2047,7 +2051,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     log: "Instance Bootstrapped Successfully",
                                                                     timestamp: timestampEnded
                                                                 });
-
+                                                                instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.bootStrap = "success";
                                                                 instanceLog.logs = {
                                                                     err: false,
@@ -2188,6 +2192,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                instanceLog.endedOn = new Date().getTime();
                                                                 instanceLog.bootStrap = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,

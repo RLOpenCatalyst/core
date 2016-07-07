@@ -331,8 +331,6 @@ var InstancesDao = function() {
     this.getInstanceById = function(instanceId, callback) {
         Instances.find({
             "_id": new ObjectId(instanceId)
-        }, {
-            'actionLogs': false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getInstanceById (%s)", instanceId, err);

@@ -292,6 +292,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     size: "unknown",
                                     user: launchParams.sessionUser,
                                     createdOn: new Date().getTime(),
+                                    startedOn: new Date().getTime(),
                                     providerType: self.cloudProviderType,
                                     action: "Bootstrap",
                                     logs: [{
@@ -337,6 +338,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
                                         instanceLog.bootStrap = "failed";
                                         instanceLog.logs = {
                                             err: true,
@@ -436,6 +438,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                        instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.bootStrap = "failed";
                                                         instanceLog.logs = {
                                                             err: true,
@@ -515,6 +518,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+                                                        instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.bootStrap = "success";
                                                         instanceLog.logs = {
                                                             err: false,
@@ -545,6 +549,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                        instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.bootStrap = "failed";
                                                         instanceLog.logs = {
                                                             err: true,

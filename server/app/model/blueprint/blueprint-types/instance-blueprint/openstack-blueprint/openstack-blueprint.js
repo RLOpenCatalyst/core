@@ -301,6 +301,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                     size: self.flavor,
                     user: launchParams.sessionUser,
                     createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
                     providerType: self.cloudProviderType,
                     action: "Bootstrap",
                     logs: [{
@@ -360,7 +361,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                     log: "Instance was not associated with an IP",
                                     timestamp: timestampStarted
                                 });
-
+                                instanceLog.endedOn = new Date().getTime();
                                 instanceLog.logs = {
                                     err: false,
                                     logText: "Instance was not associated with an IP",
@@ -452,6 +453,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
                                         instanceLog.bootStrap = "failed";
                                         instanceLog.logs = {
                                             err: true,
@@ -483,6 +485,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
                                         instanceLog.bootStrap = "success";
                                         instanceLog.logs = {
                                             err: false,
@@ -539,6 +542,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
                                         instanceLog.bootStrap = "failed";
                                         instanceLog.logs = {
                                             err: false,

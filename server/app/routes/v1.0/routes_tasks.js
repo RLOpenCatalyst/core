@@ -166,6 +166,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             return;
                         }
                         if (deleteCount) {
+                            TaskHistory.removeByTaskId(req.params.taskId,function(err,removed){
+                                if(err){
+                                    logger.error("Failed to remove history: ",err);
+                                }
+                            });
                             res.send({
                                 deleteCount: deleteCount
                             });

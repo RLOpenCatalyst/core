@@ -22,6 +22,8 @@ var appConfig = require('_pr/config');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
 var Blueprints = require('_pr/model/blueprint');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
 
 var dboptions = {
     host: appConfig.db.host,
@@ -51,6 +53,29 @@ instancesDao.listInstances(function(err, instances) {
                     logger.error("Failed to fetch Instance: ", err);
                 }
                 if (instance && instance.length) {
+                    var instanceLog = {
+                        actionId: "",
+                        instanceId: instance[0]._id,
+                        orgName: "",
+                        bgName: "",
+                        projectName: "",
+                        envName: "",
+                        status: instance[0].instanceState,
+                        bootStrap: instance[0].bootStrapStatus,
+                        platformId: instance[0].platformId,
+                        blueprintName: instance[0].blueprintData.name,
+                        data: instance[0].runlist,
+                        platform: instance[0].hardware.platform,
+                        os: instance[0].hardware.os,
+                        size: instance[0].instanceType,
+                        user: "",
+                        createdOn: 0,
+                        startedOn: 0,
+                        endedOn: 0,
+                        providerType: instance[0].providerType,
+                        action: "",
+                        logs: []
+                    };
                     if (!instance[0].orgName) {
                         d4dModelNew.d4dModelMastersProjects.find({ rowid: instance[0].projectId }, function(err, project) {
                             if (err) {
@@ -107,17 +132,46 @@ instancesDao.listInstances(function(err, instances) {
                                     }
                                 });
                             }
+                            logger.debug("count: ", count + " instances.length: " + instances.length);
+                            if (count == instances.length) {
+                                logger.debug("updated..");
+                                process.exit();
+                            }
                         });
+                    } else {
+                        logger.debug("OrgName attached to instance.");
+                        if (instance[0].actionLogs && instance[0].actionLogs.length) {
+                            for (var x = 0; x < instance[0].actionLogs.length; x++) {
+                                instanceLog.actionId = instance[0].actionLogs[x]._id;
+                                instanceLog.bgName = instance[0].bgName;
+                                instanceLog.orgName = instance[0].orgName;
+                                instanceLog.projectName = instance[0].projectName;
+                                instanceLog.envName = instance[0].environmentName;
+                                instanceLog.createdOn = instance[0].actionLogs[x].timeStarted;
+                                instanceLog.startedOn = instance[0].actionLogs[x].timeStarted;
+                                instanceLog.endedOn = instance[0].actionLogs[x].timeEnded;
+                                instanceLog.user = instance[0].actionLogs[x].user;
+                                logsdao.getLogsByReferenceId(instance[0].actionLogs[x]._id, null, function(err, logs) {
+                                    if (err) {
+                                        logger.error("Failed to fetch logs: ", err);
+                                    }
+                                    instanceLog.logs = logs;
+                                    instanceLogModel.createOrUpdate(instance[0].actionLogs[x]._id, instance[0]._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                });
+                            }
+                        }
                     }
+                } else {
+                    logger.debug("No Instance to update...");
                 }
             });
-            logger.debug("count: ", count + "instances.length: " + instances.length);
-            if (count == instances.length) {
-                logger.debug("Nothing to update..");
-                process.exit();
-            }
         }
     } else {
-        logger.debug("No AWSProvider configured.");
+        logger.debug("Nothing to update...");
+        process.exit();
     }
 });
