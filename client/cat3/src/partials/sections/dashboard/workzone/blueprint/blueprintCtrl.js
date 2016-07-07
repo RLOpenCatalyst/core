@@ -276,7 +276,7 @@
 					};
 					var compBlue={
 						"blueprintId": compositeBlueprintId,
-						"environmentIds": $scope.requestParams.env
+						"environmentId": $scope.requestParams.env
 					}
 					confirmbox.showModal({}, modalOptions).then(function() {
 						workzoneServices.launchCompsiteBlueprint(compBlue).success(function(response) {
