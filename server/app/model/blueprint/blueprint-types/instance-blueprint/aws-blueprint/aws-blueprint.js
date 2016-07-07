@@ -89,6 +89,14 @@ var AWSInstanceBlueprintSchema = new Schema({
 
 AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 	var self = this;
+	var eventData = null;
+	if('blueprintFrameId' in lauchParams) {
+		eventData = {
+			blueprintFrameId: lauchParams.blueprintFrameId,
+			instances: []
+		}
+	}
+
 	VMImage.getImageById(self.imageId, function(err, anImage) {
 		if (err) {
 			logger.error(err);
@@ -426,8 +434,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 														timestamp: timestampEnded
 													});
 													instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
-
 												} else {
 													if (code == 0) {
 														instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
@@ -493,7 +499,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 																});
 
 														});
-
 													} else {
 														instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
 															if (err) {
@@ -510,7 +515,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 															timestamp: timestampEnded
 														});
 														instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
 													}
 												}
 

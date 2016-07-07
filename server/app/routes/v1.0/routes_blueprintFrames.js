@@ -59,13 +59,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 compositeBlueprintService.getCompositeBlueprint(req.body.blueprintId, next);
             },
             function(blueprint, next) {
-                compositeBlueprintService.createBlueprintFrame(blueprint, req.body.environmentId, next);
+                compositeBlueprintService.createBlueprintFrame(blueprint, req.body.environmentId,
+                    req.session.user.cn, next);
             }
-            /*,
-            compositeBlueprintService.validateCompositeBlueprintCreateRequest,
-            compositeBlueprintService.createCompositeBlueprint,
-            compositeBlueprintService.formatCompositeBlueprint,
-            userService.updateOwnerDetails*/
         ], function(err, blueprintFrame) {
             if(err) {
                 next(err);
