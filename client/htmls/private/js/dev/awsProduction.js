@@ -3059,8 +3059,6 @@ function addBlueprintToComposite(data) {
             $('.modal-title').html('Blueprint Information Composite&nbsp;-' 
                 + data.name);
             $blueprintReadContainer.modal('show');
-            
-            //getOrgProjDetails($blueprintReadContainer);
         });
     });
 

@@ -309,6 +309,7 @@ function softwareStackListing() {
                                             bootbox.hideAll();
                                             alert('Successfully Created a Composite Blueprint');
                                             $('.previous').trigger('click');
+                                            initializeCompositeBP();
                                         },
                                         error: function(jxhr) {
                                             var msg = "Server Behaved Unexpectedly";
