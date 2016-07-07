@@ -65,7 +65,7 @@
 				}
 			};
 		}])
-		.controller('blueprintCtrl', ['$scope', '$modal', 'formatData', 'workzoneServices', '$rootScope', 'workzoneUIUtils','confirmbox', function($scope, $modal, formatData, workzoneServices, $rootScope, workzoneUIUtils,confirmbox) {
+		.controller('blueprintCtrl', ['$scope', '$modal', 'formatData', 'workzoneServices', '$rootScope', 'workzoneUIUtils','confirmbox','toastr', function($scope, $modal, formatData, workzoneServices, $rootScope, workzoneUIUtils,confirmbox,toastr) {
 			/*Open only One Accordian-Group at a time*/
 			$scope.oneAtATime = true;
 			/*Initialising First Accordian-group open on load*/
@@ -259,12 +259,13 @@
 					};
 					confirmbox.showModal({}, modalOptions).then(function() {
 						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function(response) {
-
+							toastr.success('Successfully deleted composite blueprint',{timeOut: 1000,closeButton: true});
 						}).error(function(data) {
-							alert(data.message);
+							toastr.error(data.message, 'Error',{timeOut: 1000,closeButton: true});
 						});
 					});
 				},
+
 				launchInstanceCompoBlueprint:function(compositeBlueprintId){
 					var modalOptions = {
 						closeButtonText: ' No ',
@@ -275,13 +276,13 @@
 					};
 					var compBlue={
 						"blueprintId": compositeBlueprintId,
-						"environmentId": $scope.requestParams.env
+						"environmentIds": $scope.requestParams.env
 					}
 					confirmbox.showModal({}, modalOptions).then(function() {
 						workzoneServices.launchCompsiteBlueprint(compBlue).success(function(response) {
-							
+                            toastr.success('Successfully launched composite blueprint',{timeOut: 1000,closeButton: true});
 						}).error(function(data) {
-							alert(data.message);
+                            toastr.error(data.message, 'Error',{timeOut: 1000,closeButton: true});
 						});
 					});
 				}
