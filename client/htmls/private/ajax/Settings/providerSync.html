@@ -805,8 +805,8 @@
             $envtagsList.empty();
             $tagsDatatable.clear().draw();
 
-            $projecttagsList.append($('<option></option>').html("Choose Project"));
-            $envtagsList.append($('<option></option>').html("Choose Environment"));
+            $projecttagsList.append($('<option></option>').val("").html("Choose Project"));
+            $envtagsList.append($('<option></option>').val("").html("Choose Environment"));
             for (var i = 0; i < tagsListData.length; i++) {
                 var $tbody = $('#tagsTable tbody').empty();
                 //For Dropdown
@@ -885,8 +885,6 @@
                     }
                 });
             });
-            /*var blankArr = [];
-             loaddefaultTagMappingSelection(blankArr);*/
         }
         function loaddefaultTagMappingSelection(catalystEntityTypeListPassed){
             $.ajax({
@@ -1603,7 +1601,7 @@
         $('#unassignedSyncBtn').on('click', function(e) {
             var updateInstanceTagsObj = {};
             var updateInstanceTagsArr = [];
-            var $checkBox_checked = $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)');
+            var $checkBox_checked = $('#unassignedinstanceListTable').find('tbody tr').filter(':has(:checkbox:checked)');
             if($checkBox_checked.length > 0) {
                 $('#unassignedinstanceListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
                     //Batch update instances tags
@@ -1689,7 +1687,7 @@
         $('#rdsUnassignedSyncBtn').on('click', function(e) {
             var updateDBTagsObj = {};
             var updateDBTagsArr = [];
-            var $checkBox_checked = $('#unassignedS3ListTable').find('tbody tr').filter(':has(:checkbox:checked)');
+            var $checkBox_checked = $('#unassignedRDSListTable').find('tbody tr').filter(':has(:checkbox:checked)');
             if($checkBox_checked.length > 0) {
                 $('#unassignedRDSListTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
                     //Batch update instances tags
