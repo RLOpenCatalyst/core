@@ -631,6 +631,47 @@
   </div>
 </div>
 
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="editAttributesModalContainer" class="modal fade" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+                    x
+                </button>
+                <h4 class="modal-title">
+                <i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Edit Attributes
+                </h4>
+            </div>
+            <div class="modal-body no-padding">
+                <div class="loadingContainer">
+                    <img class="center-block loadingContainerimageCSS" src="img/loading.gif" />
+                </div>
+                <div class="errorMsgContainer loadingerrorMsgContainerCSS"></div>
+                <form class="attributesEditFormArea padding10" action="">
+                    <table id="attributesEditListArea" class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Attributes</th>
+                                <th>Values</th>
+                            </tr>
+                        </thead>
+                        <tbody class="attributesEditTableBody">
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-default" data-dismiss="modal">Close</a>
+                <a type="submit" class="btn btn-primary saveAttribBtn">Save</a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+
     
 <script src="js/libs/jquery-2.0.2.min.js"></script>
 <!--Authentication Setup through token-->
@@ -1363,8 +1404,10 @@ loadSettingsTree();
 foldTreeForSetting();
 </script>
 <script src="js/blueprintLaunch.js"></script>
+<script src="js/blueprintCommon.js"></script>
 <script src="js/chefmodalcommon.js"></script>
 <script src="js/jquerytemplatemin.js"></script>
 <script src="/private/js/settingscommon.js"></script>
+<script src="/private/js/selectorCompnetBlueprint.js" type="application/javascript"></script>
 </body>
 </html>
