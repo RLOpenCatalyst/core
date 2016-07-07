@@ -438,7 +438,7 @@ $(document).ready(function() {
         {"data": "instanceIP","orderable" : true},
         {"data": "","orderable" : true,
           "render":function(data, type, full, meta) {
-              return full.region?full.region:(full.providerData.region?full.providerData.region:'-');
+              return full.region?full.region:full.providerData?full.providerData.region:'-';
           }
         },
         {"data": "instanceState","orderable" : true  }
@@ -538,7 +538,7 @@ $(document).ready(function() {
         {"data": "ip","orderable" : true  },
         {"data": "","orderable" : true,
           "render":function(data, type, full, meta) {
-            return full.region?full.region:(full.providerData.region?full.providerData.region:'-');
+            return full.region?full.region:full.providerData?full.providerData.region:'-';
           }
         },
         {"data": "state","orderable" : true  }
