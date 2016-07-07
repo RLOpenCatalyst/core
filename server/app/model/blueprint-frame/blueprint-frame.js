@@ -71,7 +71,7 @@ BlueprintFrameSchema.statics.getById = function getById(blueprintFrameId, callba
                 logger.error(err);
                 return callback(err, null);
             } else if(blueprintFrames && blueprintFrames.length > 0) {
-                return callback(null, blueprintFrameId[0]);
+                return callback(null, blueprintFrames[0]);
             } else {
                 return callback(null, null);
             }

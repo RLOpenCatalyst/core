@@ -348,7 +348,7 @@ compositeBlueprintService.successEventHandler
         if (err) {
             logger.error('Internal Server Error');
         } else if (!blueprintFrame) {
-            logger.error('Composite blueprint not found');
+            logger.error('Blueprint frame not found');
         } else if (blueprintFrame) {
             // State transition
             if('instances' in eventData) {
@@ -363,6 +363,8 @@ compositeBlueprintService.successEventHandler
                     blueprintFrame.stateMap[blueprintFrame.state].blueprint,
                     blueprintFrame.environmentId, blueprintFrame.blueprintOwnerName);
             }
+
+            blueprintFrame.save();
         }
     });
 };
@@ -378,7 +380,7 @@ compositeBlueprintService.failedEventHandler
         if (err) {
             logger.error('Internal Server Error');
         } else if (!blueprintFrame) {
-            logger.error('Composite blueprint not found');
+            logger.error('Blueprint frame not found');
         } else if (blueprintFrame) {
             // State transition
             if('instances' in eventData) {
@@ -478,9 +480,9 @@ compositeBlueprintService.launch = function launch(blueprint, opts, callback) {
                             projectName:project[0].projectname,
                             appUrls: appUrls,
                             sessionUser: opts.sessionUser,
-                            users: self.users,
-                            blueprintData: self,
+                            users: self.users
                         };
+                        launchOptions.blueprintData = new blueprintModel(self);
 
                         if('blueprintFrameId' in opts) {
                             launchOptions.blueprintFrameId = opts.blueprintFrameId;
@@ -502,21 +504,15 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
     var self = blueprint.blueprintConfig.cloudProviderData;
     var compositeBlueprintEventEmitter
         = compositeBlueprintService.getCompositeBlueprintEventEmitter();
-    var eventData = null;
-    if('blueprintFrameId' in launchParams) {
-        eventData = {
-            blueprintFrameId: launchParams.blueprintFrameId,
-            instances: []
-        }
+    var eventData = {
+        'blueprintFrameId': launchParams.blueprintFrameId,
+        'instances': []
     };
-    console.log(eventData);
 
     VMImage.getImageById(self.imageId, function(err, anImage) {
         if (err) {
             logger.error(err);
-            if(eventData != null) {
-                compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
-            }
+            compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
             callback({
                 message: "db-error"
             });
@@ -532,18 +528,14 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
         AWSProvider.getAWSProviderById(anImage.providerId, function(err, aProvider) {
             if (err) {
                 logger.error(err);
-                if(eventData != null) {
-                    compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
-                }
+                compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
                 callback({
                     message: "db-error"
                 });
                 return;
             }
             if (!aProvider) {
-                if(eventData != null) {
-                    compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
-                }
+                compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
                 callback({
                     message: "Unable to fetch provider from DB"
                 });
@@ -552,9 +544,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
             AWSKeyPair.getAWSKeyPairById(self.keyPairId, function(err, aKeyPair) {
                 if (err) {
                     logger.error(err);
-                    if(eventData != null) {
-                        compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
-                    }
+                    compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
                     callback({
                         message: "db-error"
                     });
@@ -626,9 +616,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                 ec2.launchInstance(anImage.imageIdentifier, self.instanceType, securityGroupIds, self.subnetId, 'D4D-' + launchParams.blueprintName, aKeyPair.keyPairName, self.instanceCount, function (err, instanceDataAll) {
                     if (err) {
                         logger.error("launchInstance Failed >> ", err);
-                        if(eventData != null) {
-                            compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
-                        }
+                        compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
                         callback({
                             message: "Instance Launched Failed"
                         });
@@ -697,9 +685,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                         instancesDao.createInstance(instance, function (err, data) {
                             if (err) {
                                 logger.error("Failed to create Instance", err);
-                                if(eventData != null) {
-                                    compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
-                                }
+                                compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
                                 callback({
                                     message: "Failed to create instance in DB"
                                 });
@@ -810,18 +796,17 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
 
                                         var repoData = {};
                                         repoData['projectId'] = launchParams.blueprintData.projectId;
-                                        if (launchParams.blueprintData.nexus.repoName) {
+                                        if ('nexus' in launchParams.blueprintData) {
                                             repoData['repoName'] = launchParams.blueprintData.nexus.repoName;
-                                        } else if (launchParams.blueprintData.docker.image) {
+                                        } else if ('docker' in launchParams.blueprintData) {
                                             repoData['repoName'] = launchParams.blueprintData.docker.image;
                                         }
-
 
                                         launchParams.blueprintData.getCookBookAttributes(instance, repoData, function(err, jsonAttributes) {
                                             logger.debug("jsonAttributes::::: ",JSON.stringify(jsonAttributes));
                                             var runlist = instance.runlist;
                                             //logger.debug("launchParams.blueprintData.extraRunlist: ", JSON.stringify(launchParams.blueprintData.extraRunlist));
-                                            if (launchParams.blueprintData.extraRunlist) {
+                                            if ('extraRunlist' in launchParams.blueprintData) {
                                                 runlist = launchParams.blueprintData.extraRunlist.concat(instance.runlist);
                                             }
 
@@ -867,10 +852,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                     });
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
 
-                                                    if(eventData != null) {
-                                                        eventData.instances = [instance.id];
-                                                        compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
-                                                    }
+                                                    eventData.instances = [instance.id];
+                                                    compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
                                                 } else {
                                                     if (code == 0) {
                                                         instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
@@ -937,11 +920,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
 
                                                         });
 
-                                                        if(eventData != null) {
-                                                            eventData.instances = [instance.id];
-                                                            compositeBlueprintEventEmitter.emit(compositeBlueprintService.SUCCESS_EVENT, eventData);
-                                                        }
-
+                                                        eventData.instances = [instance.id];
+                                                        compositeBlueprintEventEmitter.emit(compositeBlueprintService.SUCCESS_EVENT, eventData);
                                                     } else {
                                                         instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
                                                             if (err) {
@@ -959,10 +939,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
 
-                                                        if(eventData != null) {
-                                                            eventData.instances = [instance.id];
-                                                            compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
-                                                        }
+                                                        eventData.instances = [instance.id];
+                                                        compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
                                                     }
                                                 }
 
