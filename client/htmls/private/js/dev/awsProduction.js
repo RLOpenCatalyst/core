@@ -13,7 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
+var checkandupdateRunlistTable = function() {
+    if (!$.fn.dataTable.isDataTable('#tableRunlistForBlueprint')) {
+        $tasksRunlist = $('#tableRunlistForBlueprint').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "aaSorting": [
+                [0, "desc"]
+            ],
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }],
+            "bSort": false
+        });
+    }
+}
 checkandupdateRunlistTable();
 
 //Used for maintaining one copy of the form for edit or new
@@ -190,7 +207,7 @@ $(document).ready(function() {
     $('.versionClass').hide();
     $('#selectOrgName').trigger('change');
     getTreeDetails();
-    getCompositeBPDetails();
+    initializeCompositeBP();
     if (isAngularIntegration) {
         $('#workZoneNew').attr('href', '#');
         $('#workZoneNew').removeClass('active');
@@ -2968,7 +2985,7 @@ function initializeBlueprintAreaNew(data) {
     //Expanding the fist Accordion.
 };
 
-    function initializeCompositeBP(data){
+    function initializeCompositeBP(){
         $('#accordion-3').empty();
         var $containerCompoTemp = ""; 
         $containerCompoTemp = '<div class="panel panel-default blueprintContainer hidden">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapseCompo" data-parent="#accordion-3" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>Composite</a>' + '</h4></div><div class="panel-collapse collapse bpeditas" id="collapseCompo">' + '<div class="panel-body composite"></div>' + '</div>';
@@ -2980,8 +2997,22 @@ function initializeBlueprintAreaNew(data) {
                     addBlueprintToComposite(compositeData.compositeBlueprints[j]);
                 }
             }
-
         });
+    }
+
+    function getOrgProjDetails(id) {
+        var orgName = $("#orgnameSelectExisting option:selected").text();
+
+        var bgName = $('#bgListInputExisting option:selected').text();
+        var projName = $('#projectListInputExisting option:selected').text();
+        var $blueprintReadContainer = $(id);
+        $blueprintReadContainer.find('.modal-body #blueprintORG').val(orgName);
+        $blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName);
+        $blueprintReadContainer.find('.modal-body #blueprintProject').val(projName);
+        var $blueprintReadContainerCFT = $(id);
+        $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(orgName);
+        $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(bgName);
+        $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(projName);
     }
 
 //for showing composite blueprints in the blueprints page
@@ -2995,6 +3026,41 @@ function addBlueprintToComposite(data) {
         });
         var $liRead = $('<a style="float:right;margin:5px;cursor:pointer" class="readBtn"><div class="moreInfo moreInfoabsolute"></div></a>').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'More Info');
         $ul.append($liRead);
+        $('#bpOrganization').val($("#orgnameSelectExisting option:selected").text());
+        $('#bpBusinessGroup').val($('#bgListInputExisting option:selected').text());
+        $('#bpProject').val($('#projectListInputExisting option:selected').text());
+        //more info click..
+        $liRead.click(function(e) {
+        $('#accordionCompo').empty();
+        var compositeBlueprintId = data.id;
+        $.get('/composite-blueprints/'+ compositeBlueprintId, function(data) {
+            console.log(data);
+            $('.compositeBlueprintInfo').removeClass('hidden');
+            $('#compositeBP').empty();
+            var $compoBlueperintTemp = "";
+            for(var i=0;i<data.blueprints.length;i++){
+                var compBlueprint = data.blueprints[i];
+                $('#compositeInfoTable table').attr('id',compBlueprint._id);
+                var $tableClone =$('#compositeInfoTable').html();
+                $compoBlueperintTemp = '<div class="panel panel-default blueprintContainer">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapseComposite' + i + '" data-parent="#accordionCompo" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>' + data.blueprints[i].name + '</a>' + '</h4></div><div class="panel-collapse collapse" id="collapseComposite' + i + '">' + '<div class="panel-body '+data.blueprints[i].name+'" id='+data.blueprints[i]._id+'>'+$tableClone+'</div>' + '</div>';
+                $('#accordionCompo').append($compoBlueperintTemp);
+                $('#'+compBlueprint._id+' .templateType').val(compBlueprint.templateType);
+                $('#'+compBlueprint._id+' .bpVersion').val(compBlueprint.version);
+                $('#'+compBlueprint._id+' .bpOS').val(compBlueprint.blueprintConfig.cloudProviderData.instanceOS);
+                $('#'+compBlueprint._id+' .bpSize').val(compBlueprint.blueprintConfig.cloudProviderData.instanceType);
+                $('#'+compBlueprint._id+' .bpProviderType').val(compBlueprint.blueprintConfig.cloudProviderType);
+                $('#'+compBlueprint._id+' .bpVPC').val(compBlueprint.blueprintConfig.cloudProviderData.vpcId);
+                $('#'+compBlueprint._id+' .bpSubnetId').val(compBlueprint.blueprintConfig.cloudProviderData.subnetId);
+                $('#'+compBlueprint._id+' .bpSecurityGroupId').val(compBlueprint.blueprintConfig.cloudProviderData.securityGroupIds);
+                $('#'+compBlueprint._id+' .bpRunlist').val(compBlueprint.blueprintConfig.infraManagerData.versionsList[0].runlist);
+            }
+
+            var $blueprintReadContainer = $('#modalForCompositeInfo');
+            $('.modal-title').html('Blueprint Information Composite&nbsp;-' 
+                + data.name);
+            $blueprintReadContainer.modal('show');
+        });
+    });
 
         var $img
         $img = $('<img />').attr('src', 'img/composite.png').attr('alt', data.name).addClass('cardLogo');
@@ -3009,19 +3075,11 @@ function addBlueprintToComposite(data) {
         $launchButton.attr('blueprintId', data.id);
         $launchButton.click(function(e){
             var lastversion = data.id //default version
-            console.log(lastversion);
             var $blueprintLaunch = $('#modalSelectEnvironment');
             $blueprintLaunch.find('#selectedVersion').val(lastversion);
             getOrgProjBUComparison(data,$blueprintLaunch);
-            console.log("launch",data);
-            eventAdded = false;
             $('.launchBlueprintBtn').unbind().click(function(e) {
-                if(data.templateType === "chef" || data.templateType === "ami" || data.templateType === "cft"){
-                    blueprintLaunchDesign(data);    
-                }else if(data.templateType=== "docker"){
-                    dockerBlueprintLaunch(data);
-                }
-                
+                blueprintLaunchComposite(data);
             });
         })
         $ul.append($liCardName).append($launchButton);
@@ -3123,7 +3181,6 @@ function addBlueprintToDom(data) {
             var $blueprintLaunch = $('#modalSelectEnvironment');
             $blueprintLaunch.find('#selectedVersion').val(lastversion);
             getOrgProjBUComparison(data,$blueprintLaunch);
-            console.log("launch",data);
             eventAdded = false;
             $('.launchBlueprintBtn').unbind().click(function(e) {
                 if(data.templateType === "chef" || data.templateType === "ami" || data.templateType === "cft"){
@@ -3134,28 +3191,7 @@ function addBlueprintToDom(data) {
                 
             });
         })
-
-        
-
-
-        function getOrgProjDetails(id) {
-            var orgName = $("#orgnameSelectExisting option:selected").text();
-
-            var bgName = $('#bgListInputExisting option:selected').text();
-            var projName = $('#projectListInputExisting option:selected').text();
-            var $blueprintReadContainer = $(id);
-            $blueprintReadContainer.find('.modal-body #blueprintORG').val(orgName);
-            $blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName);
-            $blueprintReadContainer.find('.modal-body #blueprintProject').val(projName);
-            var $blueprintReadContainerCFT = $(id);
-            $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(orgName);
-            $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(bgName);
-            $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(projName);
-        }
-
         //Versions sections End
-
-
         var $selectVer = null;
         var tagLabel = '';
         //Docker Check

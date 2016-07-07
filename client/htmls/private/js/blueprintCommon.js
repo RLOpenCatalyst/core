@@ -103,7 +103,6 @@ function getTreeDetails(){
                 $('.chooseProjectExisting').change();
             });
             $('.chooseOrgSelectExistingforcopy').change(function(e) {
-
                 $('.chooseBGExisting').change();
                 $('.chooseProjectExisting').change();
             });
@@ -268,10 +267,10 @@ function softwareStackListing() {
 
                     $('#saveCompBlup').unbind().click(function(e) {
                         if(!$('#blueprintName').val()){
-                            alert('Please enter composite blueprint name !');
+                            alert('Please enter Composite Blueprint name!');
                             return true;
                         } if($('#selectorList option').length == 0){
-                            alert('Please select blueprint !');
+                            alert('Please Select Blueprint!');
                             return true;
                         }
                         bootbox.confirm({
@@ -308,8 +307,9 @@ function softwareStackListing() {
                                         data: reqBody,
                                         success: function(data, success) {
                                             bootbox.hideAll();
-                                            alert('Successfully created a composite blueprint');
+                                            alert('Successfully Created a Composite Blueprint');
                                             $('.previous').trigger('click');
+                                            initializeCompositeBP();
                                         },
                                         error: function(jxhr) {
                                             var msg = "Server Behaved Unexpectedly";

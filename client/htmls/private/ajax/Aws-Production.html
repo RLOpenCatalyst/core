@@ -923,4 +923,115 @@
     </div>
   </div>
 </div>
+
+
+<!--modal for composite blueprint-->
+<div class="modal fade bs-example-modal-lg" id="modalForCompositeInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title" id="myModalLabel"></h4>
+         </div>
+         <div class="modal-body modalHeightHelp">
+            <table class="table table-bordered table">
+              <tbody>
+              <tr>
+                <td class="tdStyleInfo">Organisation Name:</td>
+                <td>
+                   <input id="bpOrganization" disabled="disabled" class="form-control">
+                </td>
+             </tr>
+             <tr>
+                <td class="tdStyleInfo">Business Group:</td>
+                <td>
+                   <input id="bpBusinessGroup" disabled="disabled" class="form-control">
+                </td>
+             </tr>
+             <tr>
+                <td class="tdStyleInfo">Project Name:</td>
+                <td>
+                   <input id="bpProject" disabled="disabled" class="form-control">
+                </td>
+             </tr>
+           </tbody>
+            </table>
+            <!--os and the 1st tier-->
+            <h4> Blueprint List:</h4>
+            <div class="panel-group smart-accordion-default" id="accordionCompo">
+            </div>
+            <div id="compositeInfoTable" class="hidden">
+                 <table class="table table-bordered table compoBlueprintTable">
+                  <thead>
+                     <tr>
+                        <th class="th-parameters">Parameters</th>
+                        <th class="th-values">Values</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr>
+                        <td class="tdStyleInfo">Template Type:</td>
+                        <td>
+                           <input class="templateType form-control" disabled="disabled">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Operating System:</td>
+                        <td>
+                           <input class="bpOS form-control" disabled="disabled">                                                      
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Instance Type:</td>
+                        <td>
+                           <input class="bpSize form-control" disabled="disabled">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Provider Type:</td>
+                        <td>
+                           <input class="bpProviderType form-control" disabled="disabled">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">VPC ID:</td>
+                        <td>
+                           <input class="bpVPC form-control" disabled="disabled">                                          
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Subnet:</td>
+                        <td>
+                           <input class="bpSubnetId form-control" disabled="disabled">                                          
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Security Group:</td>
+                        <td>
+                           <input class="bpSecurityGroupId form-control" disabled="disabled">
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Version:</td>
+                        <td>
+                           <input class="bpVersion form-control" disabled="disabled">                                    
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="tdStyleInfo">Runlist:</td>
+                        <td>
+                           <input class="bpRunlist form-control" disabled="disabled">                                           
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+<!--modal ends here-->
 <script type="text/javascript" src="js/dev/awsProduction.js"></script>
