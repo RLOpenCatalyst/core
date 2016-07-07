@@ -251,12 +251,12 @@ function softwareStackListing() {
                         //assigning the value to the attribute reader.
                         runlistCheckAttribute = runlistForTable;
                         $selectVer.unbind().click(function(e) {
-                            $('#CollapseEditRunlistParam').show();
+                            //$('#CollapseEditRunlistParam').show();
                             $tasksRunlist.clear().draw();
                             $table.find('tbody').empty();
                             var lastversion = $('.bpVersion').val(); //default version
                             $.get('/blueprints/' + lastversion, function(blueprintdata) {
-                                $('#CollapseEditRunlistParam').show();
+                               // $('#CollapseEditRunlistParam').show();
                                 var blueprintRunlistOnChange = blueprintdata.blueprintConfig.infraManagerData.versionsList[0].runlist;
                                 createRunlistTable(blueprintRunlistOnChange);
                                 runlistCheckAttribute = blueprintRunlistOnChange;
