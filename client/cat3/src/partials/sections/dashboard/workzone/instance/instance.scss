@@ -64,10 +64,6 @@ $imagePath : "../../../../../../images";
 
 	#cpServicesPage {
 		position: relative;
-		
-		.special-service-section {
-		    width: 254px;
-		}
 
 		.inactive-grid{
 	        width: 100%;
@@ -76,22 +72,6 @@ $imagePath : "../../../../../../images";
 	        z-index: 1;
 	        opacity: 0.6;
 	    }
-
-		.workstationBtn {
-		    margin: 0px;
-		}
-
-		.service-class {
-			padding-top: 0px;
-		}
-	}
-
-	#cpActionsPage {
-		.options-menu-wrapper {
-			.dropdown-menu {
-			    left: 17%;
-			}
-		}
 	}
 }
 
@@ -206,20 +186,6 @@ $imagePath : "../../../../../../images";
 			margin: 3px 0 0 30px;
 		}
 	}
-
-	#cpServicesPage {
-		.special-service-section {
-			width: 380px;
-		}
-
-		.workstationBtn {
-			margin: 2px 0px 0px 32px; 
-		}
-
-		.service-class {
-		    padding-top: 8px;
-		}
-	} 
 }
 
 @media (min-width : 0px) and (max-width: 767px) {
@@ -264,14 +230,6 @@ $imagePath : "../../../../../../images";
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
-	#instancePage {
-		#tableView {
-			.instance-grid-wrapper {
-
-			}
-		}
-	}
-
 	#assignJobPage {
 		#container {
 			.left-right-selection {
@@ -313,7 +271,7 @@ $imagePath : "../../../../../../images";
 
 /*Common CSS which is used for all devices*/
 
-#cardView, #tableView, #cpActionsPage {
+#cardView, #tableView {
 	.options-menu-wrapper {
 		.dropdown-menu {
 			border-width: 1px;
@@ -578,36 +536,43 @@ $imagePath : "../../../../../../images";
 	.cp-container {
 		height: 400px;
 		overflow-y: auto;
+		width: 85%;
 	}
 
 	.cp-cards {
-		margin-top: 70px;
+		width: 15%;
+		float: left;
 
 		.cp-card-info-wrapper {
-			margin-top: 50px;
+			margin-top: 15px;
 		}
 
 		.cp-card-page-name {
-			font-size: 20px;
+			font-size: 15px;
 			color: #40BAF1;
 		}
 
 		.cp-card {
 			position: relative;
-			width: 155px;
-			float: left;
+		    width: 100px;
+		    float: left;
+		    border: 1px solid #DDDDDD;
+		    text-align: center;
+		    font-size: 10px;
+		    min-height: 92px;
+		    border-radius: 11px;
+		    margin-right: 15px;
+		    @include border-radius(8px);
+		    margin-bottom: 8px;
+		    cursor: pointer;
+		}
+
+		.selected-cp-card {
 			border: 2px solid #40BAF1;
-			text-align: center;
-			font-size: 10px;
-			min-height: 210px;
-			border-radius: 11px;
-			margin-right: 15px;
-			box-shadow: 0 0 10px rgba(0,0,0,0.6);
-			@include border-radius(11px);
 		}
 
 		.fa {
-			font-size: 60px;
+			font-size: 40px;
 		}
 	} 
 }
@@ -666,12 +631,6 @@ $imagePath : "../../../../../../images";
 	}
 }
 
-#addNewServicePage {
-	.body-padding {
-		padding-bottom: 40px;
-	}
-}
-
 #cpServicesPage, #addNewServicePage {
 	.cp-service-icon {
 		width:30px; 
@@ -705,55 +664,23 @@ $imagePath : "../../../../../../images";
 #cpLogsPage {
 	.logsArea {
 		height: 400px;
+		border-left: 1px solid #ddd;
 	}
 }
 
 #cpServicesPage {
-	padding: 10px 0 0 0;
-	
 	.add-new-service-btn {
-		margin: 0px 15px 10px 0;
+		margin: 0 0 10px 0;
 	}
 
-	.special-service-section {
-			margin-top: 20px;
-			border: 1px solid #ccc;
-			padding: 3px 5px 5px 5px;
-		}
-
-	.workstationBtn {
-		float: left;  
+	.ui-grid {
+		height: 352px;
 	}
 }
 
 #cpActionHistoryPage {
-	.action-history-container {
-		 padding: 15px; 
-	}
-}
-
-#cpActionsPage {
-	.dropdown-menu {
-		left: 42%;
-		top: 10px;
-		display: block;
-		position: relative;
-	}
-
-	.edit-instance-bs {
-		display: block;
-	}
-
-	.more-info-bs {
-		display: block;
-	}
-
-	.ssh-bs {
-		display: block;
-	}
-
-	.rdp-bs {
-		display: block;
+	.ui-grid {
+		height: 396px;
 	}
 }
 
