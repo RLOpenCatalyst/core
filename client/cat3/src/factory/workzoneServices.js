@@ -480,9 +480,9 @@
 					var url ='/composite-blueprints/'+compositeBlueprintId;
 					return $http.delete(fullUrl(url),Auth.getHeaderObject());
 				},
-				launchCompsiteBlueprint:function (compositeBlueprintId) {
-					var url ='/composite-blueprints/'+compositeBlueprintId+'/launch';
-					return $http.post(fullUrl(url),Auth.getHeaderObject());
+				launchCompsiteBlueprint:function (compositeBlueprint) {
+					var url ='/blueprint-frames/';
+					return $http.post(fullUrl(url),compositeBlueprint,Auth.getHeaderObject());
 				},
 				getAllCompsiteBlueprint:function () {
 					var url ='/composite-blueprints';
