@@ -23,6 +23,7 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch',
 	'dashboard.track',
 	'dashboard.settings',
 	'dashboard.design',
+    'dashboard.analytics',
 	'directive.loading',
 	'ngSanitize',
 	'global.cache',
@@ -93,9 +94,10 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
         $rootScope.workZoneBool = _permSet.workzone;
         $rootScope.designBool = _permSet.design;
         $rootScope.settingsBool = _permSet.settings;
-        $rootScope.tracksBool = _permSet.track;
+        $rootScope.trackBool = _permSet.track;
         $rootScope.analyticsBool = _permSet.analytics;
     });
+    
     $rootScope.$emit('SET_HEADER', $rootScope.appDetails);
     $scope.showLogoutConfirmationSection = false;
     $scope.logoutConfirmation = function () {
