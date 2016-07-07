@@ -53,6 +53,7 @@ var containerDao = require('_pr/model/container');
 var providerService = require('_pr/services/providerService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
+var instanceService=require('_pr/services/instanceService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -360,24 +361,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            containerDao.deleteContainerByInstanceId(req.params.instanceId,function(err,container){
-                if (err) {
-                    logger.error("Container deletion Failed >> ", err);
-                    res.status(500).send(errorResponses.db.error);
-                    return;
-                }else{
-                    instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
+            instanceService.removeInstanceById(req.params.instanceId, function(err, data) {
                         if (err) {
                             logger.error("Instance deletion Failed >> ", err);
                             res.status(500).send(errorResponses.db.error);
                             return;
                         }
-                        logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
+                        logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
                         res.send(200);
                     });
                 }
-            });
-        }
     });
 
     app.post('/instances/:instanceId/appUrl', function(req, res) { //function(instanceId, ipaddress, callback)

@@ -236,7 +236,6 @@ module.exports.setRoutes = function(app) {
                         errorResponse.errors.push(err.errors[i].messages);
                 }
             }
-
             return res.status(err.status).send(errorResponse);
         }
     }

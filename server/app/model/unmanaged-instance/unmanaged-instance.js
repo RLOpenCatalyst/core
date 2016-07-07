@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 
 var UnmanagedInstanceSchema = new Schema({
@@ -33,7 +32,12 @@ var UnmanagedInstanceSchema = new Schema({
 	state: String,
 	tags: Schema.Types.Mixed,
 	usage: Schema.Types.Mixed,
-	cost: Schema.Types.Mixed
+	cost: Schema.Types.Mixed,
+	isDeleted:{
+		type:Boolean,
+		default:false,
+		required:false
+	}
 });
 UnmanagedInstanceSchema.plugin(mongoosePaginate);
 
@@ -76,7 +80,8 @@ UnmanagedInstanceSchema.statics.updateInstance = function updateInstance(instanc
 //End By Durgesh
 
 UnmanagedInstanceSchema.statics.getAll = function getAll(query, callback) {
-	this.find(query,
+	query.queryObj.isDeleted =  false;
+	this.paginate(query.queryObj, query.options,
 		function(err, instances) {
 			if (err) {
 				return callback(err);
@@ -88,19 +93,25 @@ UnmanagedInstanceSchema.statics.getAll = function getAll(query, callback) {
 };
 
 UnmanagedInstanceSchema.statics.getByOrgProviderId = function(opts, callback) {
-
-	this.find({
-		"orgId": opts.orgId,
-		"providerId": opts.providerId
-	}, function(err, instances) {
+	this.find(opts, function(err, instances) {
 		if (err) {
 			logger.error("Failed getByOrgProviderId (%s)", opts, err);
 			callback(err, null);
 			return;
 		}
-
 		callback(null, instances);
+	});
+};
 
+UnmanagedInstanceSchema.statics.removeInstancesByProviderId = function(providerId,callback) {
+	var queryObj={};
+	queryObj['providerId'] =providerId;
+	this.remove(queryObj, function(err, data) {
+		if (err) {
+			return callback(err, null);
+		} else {
+			callback(null, data);
+		}
 	});
 };
 
@@ -120,26 +131,17 @@ UnmanagedInstanceSchema.statics.getInstanceTagByOrgProviderId = function(opts,ca
 
 
 UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
-	jsonData['searchColumns']=['ip','platformId'];
-	ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
-		if(err){
-			process.nextTick(function() {
-				callback(null, []);
-			});
-			return;
-		}
-		else {
-			UnmanagedInstance.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
-				if (err) {
-					logger.error("Failed getByOrgProviderId (%s)", err);
-					callback(err, null);
-					return;
-				}
-				callback(null, instances);
-			});
-		}
-	});
+	jsonData.queryObj.isDeleted = false;
+	this.paginate(jsonData.queryObj, jsonData.options, function(err, instances) {
+			if (err) {
+				logger.error("Failed getByProviderId (%s)", err);
+				callback(err, null);
+				return;
+			}
+			callback(null, instances);
+		});
 };
+
 
 UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, callback) {
 	logger.debug("Enter getInstanceByProviderId (%s)", providerId);
@@ -157,30 +159,6 @@ UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, c
 	});
 };
 
-UnmanagedInstanceSchema.statics.getInstanceTagByProviderId = function(providerIds, callback) {
-	if (!(providerIds && providerIds.length)) {
-		process.nextTick(function() {
-			callback({
-				message: "Invalid providerId"
-			});
-		});
-		return;
-	}
-	var queryObj = {};
-	queryObj._id = {
-		$in: providerIds
-	}
-	this.find(queryObj, function(err, instances) {
-		if (err) {
-			logger.error("Failed getInstanceTagByProviderId (%s)", err);
-			callback(err, null);
-			return;
-		}
-
-		callback(null, instances);
-
-	}).limit(jsonData.record_Limit).skip(jsonData.record_Skip).sort({state:1});
-};
 
 UnmanagedInstanceSchema.statics.getByIds = function(providerIds, callback) {
 	if (!(providerIds && providerIds.length)) {
@@ -238,6 +216,26 @@ UnmanagedInstanceSchema.statics.updateInstanceCost = function(instanceCostData, 
 		} else {
 			callback(null, data);
 		}
+	});
+};
+
+
+UnmanagedInstanceSchema.statics.removeInstanceById = function(instanceId, callback) {
+	UnmanagedInstance.update({
+			"_id": ObjectId(instanceId)
+		}, {
+			$set: {
+				isDeleted: true
+			}
+		}, {
+			upsert: false
+		}, function(err, data) {
+		if (err) {
+			logger.error("Failed to removeInstanceById (%s)", instanceId, err);
+			callback(err, null);
+			return;
+		}
+		callback(null, data);
 	});
 };
 
