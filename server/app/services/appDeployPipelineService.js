@@ -33,22 +33,16 @@ appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(pr
             projectBasedConfiguration: function (callback) {
                 getProjectFromMaster(projectId, callback);
             }
-        }
-        ,function(err,results){
+        },function(err,results){
             if (err) {
                 logger.error("Error while fetching App Deploy Pipeline Configuration  "+err);
                 callback(err,null);
                 return;
             }else{
                 if(results.pipeLineConfiguration.length > 0){
-                    if(results.pipeLineConfiguration[0].envId.length === results.projectBasedConfiguration[0].envId.length){
-                        callback(null,results.pipeLineConfiguration);
-                        return;
-                    }else{
-                        results.pipeLineConfiguration[0].envId = results.projectBasedConfiguration[0].envId;
-                        callback(null,results.pipeLineConfiguration);
-                        return;
-                    }
+                    results.pipeLineConfiguration[0].envId = results.projectBasedConfiguration[0].envId;
+                    callback(null,results.pipeLineConfiguration);
+                    return;
                 }else{
                     callback(null,results.projectBasedConfiguration);
                     return;

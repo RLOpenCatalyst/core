@@ -311,12 +311,9 @@
 					return $http.post(fullUrl(url), data, Auth.getHeaderObject());
 				},
 				deleteInstance: function (instanceID) {
-					return $.ajax({
-						type: 'delete',
-						url: fullUrl('/instances/' + instanceID),
-						async: false
-					});
-				},
+                    var url = '/instances/' + instanceID;
+                    return $http.delete(fullUrl(url), Auth.getHeaderObject());
+                },
 				startInstance: function (instanceID) {
 					var url = '/instances/' + instanceID + '/startInstance';
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
@@ -477,6 +474,22 @@
 				},
 				getApprove:function(argument,version){
 					var url ='/deploy-permission/project/'+argument.params.proj+'/env/'+argument.envName+'/permissionList?appName='+argument.appName.name+'&version='+version;
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				deleteCompsiteBlueprint:function (compositeBlueprintId) {
+					var url ='/composite-blueprints/'+compositeBlueprintId;
+					return $http.delete(fullUrl(url),Auth.getHeaderObject());
+				},
+				launchCompsiteBlueprint:function (compositeBlueprint) {
+					var url ='/blueprint-frames/';
+					return $http.post(fullUrl(url),compositeBlueprint,Auth.getHeaderObject());
+				},
+				getAllCompsiteBlueprint:function () {
+					var url ='/composite-blueprints';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getCompsiteBlueprintInfo:function (compositeBlueprintId) {
+					var url ='/composite-blueprints/'+compositeBlueprintId;
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				}
 			};

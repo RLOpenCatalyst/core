@@ -39,7 +39,7 @@ function dockerContainerSync(){
                                 return;
                             }
                         }else{
-                            logger.info("There is no Instance in "+org.orgname+" Organization who have docker install");
+                            logger.info("There is no Instance in "+org.orgname+" Organization who have docker installed");
                             return;
                         }
                     });
