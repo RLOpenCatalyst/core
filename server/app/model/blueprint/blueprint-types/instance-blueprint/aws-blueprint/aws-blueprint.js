@@ -305,7 +305,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 action: "Bootstrap",
                                 logs: [{
                                     err: false,
-                                    logText: "Starting instance",
+                                    log: "Starting instance",
                                     timestamp: new Date().getTime()
                                 }]
                             };
@@ -329,7 +329,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     var timestamp = new Date().getTime();
                                     instanceLog.logs = {
                                         err: true,
-                                        logText: "Instance ready state wait failed. Unable to bootstrap",
+                                        log: "Instance ready state wait failed. Unable to bootstrap",
                                         timestamp: new Date().getTime()
                                     };
                                     instanceLog.endedOn = new Date().getTime();
@@ -369,7 +369,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 instanceLog.status = instanceData.State.Name;
                                 instanceLog.logs = {
                                     err: false,
-                                    logText: "waiting for instance state to be ok",
+                                    log: "waiting for instance state to be ok",
                                     timestamp: new Date().getTime()
                                 };
                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -389,7 +389,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     if (err) {
                                         instanceLog.logs = {
                                             err: true,
-                                            logText: "Instance ok state wait failed. Unable to bootstrap",
+                                            log: "Instance ok state wait failed. Unable to bootstrap",
                                             timestamp: new Date().getTime()
                                         };
                                         instanceLog.endedOn = new Date().getTime();
@@ -430,7 +430,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             instanceLog.bootStrap = "failed";
                                             instanceLog.logs = {
                                                 err: true,
-                                                logText: "Unable to decrpt pem file. Bootstrap failed",
+                                                log: "Unable to decrpt pem file. Bootstrap failed",
                                                 timestamp: new Date().getTime()
                                             };
                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -503,7 +503,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     instanceLog.bootStrap = "failed";
                                                     instanceLog.logs = {
                                                         err: true,
-                                                        logText: "Bootstrap failed",
+                                                        log: "Bootstrap failed",
                                                         timestamp: new Date().getTime()
                                                     };
                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -538,7 +538,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         instanceLog.bootStrap = "success";
                                                         instanceLog.logs = {
                                                             err: false,
-                                                            logText: "Instance Bootstraped successfully",
+                                                            log: "Instance Bootstraped successfully",
                                                             timestamp: new Date().getTime()
                                                         };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -615,7 +615,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         instanceLog.bootStrap = "failed";
                                                         instanceLog.logs = {
                                                             err: false,
-                                                            logText: "Bootstrap Failed",
+                                                            log: "Bootstrap Failed",
                                                             timestamp: new Date().getTime()
                                                         };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -639,7 +639,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                                 instanceLog.logs = {
                                                     err: false,
-                                                    logText: stdOutData.toString('ascii'),
+                                                    log: stdOutData.toString('ascii'),
                                                     timestamp: new Date().getTime()
                                                 };
                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -658,7 +658,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             }, function(stdErrData) {
                                                 instanceLog.logs = {
                                                     err: true,
-                                                    logText: stdErrData.toString('ascii'),
+                                                    log: stdErrData.toString('ascii'),
                                                     timestamp: new Date().getTime()
                                                 };
                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {

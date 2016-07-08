@@ -1856,7 +1856,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 action: "Import",
                                                 logs: [{
                                                     err: false,
-                                                    logText: "Bootstrapping instance",
+                                                    log: "Bootstrapping instance",
                                                     timestamp: new Date().getTime()
                                                 }]
                                             };
@@ -1881,7 +1881,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.logs = {
                                                         err: true,
-                                                        logText: "Unable to decrypt credentials. Bootstrap Failed",
+                                                        log: "Unable to decrypt credentials. Bootstrap Failed",
                                                         timestamp: new Date().getTime()
                                                     };
                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -1987,7 +1987,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 instanceLog.bootStrap = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,
-                                                                    logText: err.message,
+                                                                    log: err.message,
                                                                     timestamp: new Date().getTime()
                                                                 };
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -2009,7 +2009,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             instanceLog.bootStrap = "failed";
                                                             instanceLog.logs = {
                                                                 err: true,
-                                                                logText: "Bootstrap Failed",
+                                                                log: "Bootstrap Failed",
                                                                 timestamp: new Date().getTime()
                                                             };
                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -2055,7 +2055,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 instanceLog.bootStrap = "success";
                                                                 instanceLog.logs = {
                                                                     err: false,
-                                                                    logText: "Instance Bootstrapped Successfully",
+                                                                    log: "Instance Bootstrapped Successfully",
                                                                     timestamp: new Date().getTime()
                                                                 };
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -2196,7 +2196,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 instanceLog.bootStrap = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,
-                                                                    logText: "Bootstrap Failed",
+                                                                    log: "Bootstrap Failed",
                                                                     timestamp: new Date().getTime()
                                                                 };
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -2218,7 +2218,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         });
                                                         instanceLog.logs = {
                                                             err: false,
-                                                            logText: stdOutData.toString('ascii'),
+                                                            log: stdOutData.toString('ascii'),
                                                             timestamp: new Date().getTime()
                                                         };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -2238,7 +2238,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                                         instanceLog.logs = {
                                                             err: true,
-                                                            logText: stdErrData.toString('ascii'),
+                                                            log: stdErrData.toString('ascii'),
                                                             timestamp: new Date().getTime()
                                                         };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {

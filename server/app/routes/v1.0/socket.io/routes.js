@@ -121,7 +121,7 @@ module.exports.setRoutes = function(socketIo) {
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
-                                logText: "Host Unreachable",
+                                log: "Host Unreachable",
                                 timestamp: new Date().getTime()
                             };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
@@ -143,7 +143,7 @@ module.exports.setRoutes = function(socketIo) {
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
-                                logText: "The username or password/pemfile you entered is incorrect",
+                                log: "The username or password/pemfile you entered is incorrect",
                                 timestamp: new Date().getTime()
                             };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
@@ -165,7 +165,7 @@ module.exports.setRoutes = function(socketIo) {
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
-                                logText: "Unable to connect to instance, error code = " + err.errCode + ".",
+                                log: "Unable to connect to instance, error code = " + err.errCode + ".",
                                 timestamp: new Date().getTime()
                             };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
@@ -209,7 +209,7 @@ module.exports.setRoutes = function(socketIo) {
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
-                                logText: "Host Unreachable",
+                                log: "Host Unreachable",
                                 timestamp: new Date().getTime()
                             };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
@@ -231,7 +231,7 @@ module.exports.setRoutes = function(socketIo) {
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
-                                logText: "The username or password/pemfile you entered is incorrect",
+                                log: "The username or password/pemfile you entered is incorrect",
                                 timestamp: new Date().getTime()
                             };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
@@ -253,7 +253,7 @@ module.exports.setRoutes = function(socketIo) {
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.logs = {
                                 err: true,
-                                logText: "Something went wrong, error code = " + err.errCode + ".",
+                                log: "Something went wrong, error code = " + err.errCode + ".",
                                 timestamp: new Date().getTime()
                             };
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
@@ -286,7 +286,7 @@ module.exports.setRoutes = function(socketIo) {
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.logs = {
                         err: false,
-                        logText: "SSH Shell initiated",
+                        log: "SSH Shell initiated",
                         timestamp: new Date().getTime()
                     };
                     instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {

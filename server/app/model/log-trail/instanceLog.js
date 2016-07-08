@@ -23,7 +23,10 @@ var apiUtils = require('_pr/lib/utils/apiUtil.js');
 
 var Schema = mongoose.Schema;
 var InstanceLogSchema = new Schema({
-    actionId: String,
+    actionId: {
+        type: String,
+        unique: true
+    },
     instanceId: String,
     orgName: String,
     bgName: String,
@@ -45,7 +48,7 @@ var InstanceLogSchema = new Schema({
     action: String,
     logs: [{
         err: Boolean,
-        logText: String,
+        log: String,
         timestamp: Number
     }]
 });
@@ -117,7 +120,13 @@ var InstanceLog = function() {
                 callback(err, null);
                 return;
             }
-            callback(null, data);
+            if(data && data.length){
+                return callback(null,data[0]);
+            }else{
+                var error = new Error("ActionLog not found.");
+                error.status = 404;
+                callback(err, null);
+            }
         });
 
     }

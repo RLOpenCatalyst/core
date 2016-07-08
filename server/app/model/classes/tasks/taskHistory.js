@@ -56,8 +56,7 @@ var taskHistorySchema = new Schema({
     bgName: String,
     projectName: String,
     envName: String,
-    taskName: String,
-    actionId: String
+    taskName: String
 });
 
 taskHistorySchema.plugin(mongoosePaginate);
@@ -215,7 +214,37 @@ taskHistorySchema.statics.removeByTaskId = function(taskId, callback) {
         }
         callback(null, data);
     });
-}
+};
+taskHistorySchema.statics.updateHistory = function updateHistory(hId, historyData, callback) {
+    var self = this;
+    var setData = {};
+    var keys = Object.keys(historyData);
+    for (var i = 0; i < keys.length; i++) {
+        setData[keys[i]] = historyData[keys[i]];
+    }
+
+    self.update({
+        _id: new ObjectId(hId)
+    }, {
+        $set: {
+            orgName: historyData.orgName,
+            bgName: historyData.bgName,
+            projectName: historyData.projectName,
+            envName: historyData.envName,
+            taskName: historyData.taskName,
+        }
+    }, {
+        upsert: false
+    }, function(err, updatedData) {
+        if (err) {
+            logger.debug("Failed to update: ", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, updatedData);
+        return;
+    });
+};
 
 var TaskHistory = mongoose.model('taskHistory', taskHistorySchema);
 
