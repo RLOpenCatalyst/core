@@ -2,23 +2,26 @@
 function getOrgProjBUComparison(data, id) {
     data = JSON.parse(JSON.stringify(data));
     //clearing the select box.
-    $('#envSelect').html('');
+    $('#envSelect').empty();
     $.get("/d4dMasters/readmasterjsonnew/4", function(tdata) {
         var $blueprintReadContainer = $(id);
         var $blueprintLaunch = $(id);
         var $blueprintReadContainerCFT = $(id);
+        var orgID = (data.orgId)?data.orgId:data.organization.id;
+        var bgID = (data.bgId)?data.bgId:data.businessGroup.id;
+        var projID = (data.projectId)?data.projectId:data.project.id;
         for (var i = 0; i < tdata.length; i += 1) {
-            if (data.orgId == tdata[i].orgname_rowid) {
+            if (orgID == tdata[i].orgname_rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintORG').val(tdata[i].orgname[0]);
                 $blueprintLaunch.find('.modal-body #blueprintOrgEnv').val(tdata[i].orgname[0]);
                 $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(tdata[i].orgname[0]);
             }
-            if (data.bgId == tdata[i].productgroupname_rowid) {
+            if (bgID == tdata[i].productgroupname_rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintBU').val(tdata[i].productgroupname);
                 $blueprintLaunch.find('.modal-body #blueprintBuEnv').val(tdata[i].productgroupname);
                 $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(tdata[i].orgname[0]);
             }
-            if (data.projectId == tdata[i].rowid) {
+            if (projID == tdata[i].rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintProject').val(tdata[i].projectname);
                 $blueprintLaunch.find('.modal-body #blueprintProEnv').val(tdata[i].projectname);
                 $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(tdata[i].orgname[0]);
@@ -29,8 +32,8 @@ function getOrgProjBUComparison(data, id) {
             $spinnerEnv.removeClass('hidden');
             if (envNames.length === envIds.length) {
                 for (var j = 0; j < envNames.length; j++) {
-                    if (data.bgId == tdata[i].productgroupname_rowid) {
-                        if (data.projectId == tdata[i].rowid) {
+                    if (bgID == tdata[i].productgroupname_rowid) {
+                        if (projID == tdata[i].rowid) {
                             var $option = $('<option></option>').val(envIds[j]).html(envNames[j]);
                             $blueprintLaunch.find('.modal-body #envSelect').append($option);
                         }
@@ -41,10 +44,10 @@ function getOrgProjBUComparison(data, id) {
         }
     });
 }
+
 var eventAdded = false;
 //method for blueprint launch except docker.
 function blueprintLaunchDesign(data) {
-    console.log(data);
     bootbox.confirm({
         message: "Are you sure you want to launch the Blueprint? Press Ok To continue",
         title: "Confirmation",
@@ -240,7 +243,6 @@ function dockerBlueprintLaunch(data) {
 
                             $('.btnaddDockerLaunchParams').click(function() {
                                 var lp = generateDockerLaunchParams();
-                                console.log(lp);
                                 if (lp != '') {
                                     var dockerParamsList = lp[0];
 
@@ -297,6 +299,45 @@ function dockerBlueprintLaunch(data) {
                         })(i);
                     }
                 });
+            }
+        }
+    });
+}
+
+//composite blueprint Launch
+function blueprintLaunchComposite(data) {
+    bootbox.confirm({
+        message: "Are you sure you want to launch the Blueprint? Press Ok To continue",
+        title: "Confirmation",
+        callback: function(result) {
+            if (!result) {
+                return;
+            } else {
+                //setting the envId as it is needed for bpLaunch.
+                var envId = $('#envSelect').val();
+                var blueprintId = $('#modalSelectEnvironment').find('#selectedVersion').val();
+                function launchBP(blueprintId, envId) {
+                    var $launchResultContainer = $('#launchResultContainer');
+                    $launchResultContainer.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+                    $launchResultContainer.find('.modal-title').html('Launching Composite Blueprint');
+                    $launchResultContainer.modal('show');
+                    $.post('/blueprint-frames', {
+                            blueprintId: blueprintId,
+                            environmentId: envId 
+                        }, function(data) {
+                        var $msg = $('<div></div>').append('<h3 style="font-size:16px;" class=\"alert alert-success\">Your Created Blueprint is being Launched, Check Workzone to view your instance.</h3>');
+                        $launchResultContainer.find('.modal-body').empty();
+                        $launchResultContainer.find('.modal-body').append($msg);
+                    }).error(function(jxhr) {
+                        var message = "Server Behaved Unexpectedly";
+                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                            message = jxhr.responseJSON.message;
+                        }
+                        $launchResultContainer.find('.modal-body').empty().append('<span>' + message + '</span>');
+                    });
+
+                } 
+                launchBP(blueprintId, envId);
             }
         }
     });
@@ -462,3 +503,5 @@ var $dockerWizard = $('#rootwizard').bootstrapWizard({
         $('.dockerinstancestart').first().addClass('hidden');
     }
 });
+
+

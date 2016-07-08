@@ -17,19 +17,26 @@
 			$scope.chefServerID = '';
 			var totalElements, selectedElements, factory, compositeSelector;
 			$scope.allCBAttributes = [];
+            $scope.editRunListAttributes = [];
 			//promise contain list of cookbooks and roles list
 			var c = workzoneServices.getCookBookListForOrg();
 			//promise contains template list
 			var t = workzoneServices.getSoftwareTemplatesForOrg();
 			var chefRunlist = responseFormatter.findDataForEditValue(instanceChefAttribute.chefrunlist);
 			var s = responseFormatter.chefRunlistFormatter(chefRunlist);
-			$q.all([c, t , s ]).then(function(allPromise) {
+            //promise contains edited cookbook attributes list
+            var a = responseFormatter.formatSavedCookbookAttributes(instanceChefAttribute.attributes);
+			var e = $scope.editRunListAttributes;
+            //var allPromise = $q.all([c, t, s, a, e]);
+			$q.all([c, t , s, a, e ]).then(function(allPromise) {
 				$scope.chefServerID = allPromise[0].data.serverId;
 				var list = responseFormatter.formatDataForChefClientRun(allPromise[0].data);
 				var template = responseFormatter.formatTemplateDataForChefClient(allPromise[1].data);
 				totalElements = responseFormatter.merge(list, template);
 				selectedElements = allPromise[2];
 				factory = chefSelectorComponent.getComponent;
+                $scope.allCBAttributes = allPromise[3];
+				$scope.editRunListAttributes = allPromise[4];
 				$scope.isInstanceUpdateChefRunLoading = false;
 				$scope.init();
 			});
@@ -91,6 +98,9 @@
 					});
 					registerUpdateEvent(compositeSelector);
 				}, 10);
+                if (selectedElements && selectedElements.length > 0 && $scope.editRunListAttributes) {
+					$scope.updateAttributeList(selectedElements, selectedElements, 'add');
+				}
 			};
 
 			angular.extend($scope, {
@@ -184,7 +194,7 @@
 							}
 						}
 					}
-				},
+				}
 			});
 		}
 	]);

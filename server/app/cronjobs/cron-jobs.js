@@ -49,4 +49,5 @@ module.exports.start = function start() {
 	logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
 	var awsRDSS3ProviderSyncJobId
 		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);
+
 }

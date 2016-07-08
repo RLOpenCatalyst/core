@@ -372,6 +372,7 @@
 							stopPromise.then(function(){
 								$scope.operationSet.checkInstanceStatus(instObj, 2000);
 								$scope.operationSet.viewLogs(inst);
+                                $scope.instStartStopFlag = false;
 							}, function(rejectMessage){
 								$scope.instStartStopFlag = false;
 								console.log("Promise rejected " + rejectMessage);
@@ -381,6 +382,7 @@
 							startPromise.then(function(){
 								$scope.operationSet.checkInstanceStatus(instObj, 2000);
 								$scope.operationSet.viewLogs(inst);
+                                $scope.instStartStopFlag = false;
 							}, function(rejectMessage){
 								$scope.instStartStopFlag = false;
 								console.log("Promise rejected " + rejectMessage);
