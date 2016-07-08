@@ -641,8 +641,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                             projectName: launchParams.projectName,
                             envId: launchParams.envId,
                             environmentName: launchParams.envName,
-                            providerId: launchParams.cloudProviderId,
-                            providerType: launchParams.cloudProviderType,
+                            providerId: blueprint.blueprintConfig.cloudProviderId,
+                            providerType: blueprint.blueprintConfig.cloudProviderType,
                             keyPairId: self.keyPairId,
                             region:aKeyPair.region,
                             chefNodeName: instanceData.InstanceId,
@@ -840,7 +840,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                 }
 
 
-                                                logger.error('process stopped ==> ', err, code);
+                                                logger.debug('process stopped ==> ', err, code);
                                                 if (err) {
                                                     logger.error("knife launch err ==>", err);
                                                     instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
