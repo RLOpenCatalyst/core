@@ -4471,3 +4471,20 @@ form.cmxform .gray * {
 .custom-theme .left-projects-links > a.active i {
     color:#40baf1 !important;
 }
+
+.choose-file {
+    padding: 4px 8px;
+    background: #f1f1f1;
+    border-radius: 5px;
+    font-weight: normal;
+    border: 1px solid gray;
+}
+.file-name {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    float: left;
+    margin-top: 5px;
+    margin-left: 5px;
+}
