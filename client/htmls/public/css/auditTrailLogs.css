@@ -1,0 +1,151 @@
+/*CSS for Audit Trsil Logs starts here*/
+table {
+    font-size: 11px;
+}
+
+.table-responsive {
+    height: 94%;
+}
+
+.imgStyle {
+    width: 25px;
+    height: 25px;
+}
+
+.logsArea {
+    height: 413px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-all;
+}
+
+.rowSpacing {
+    line-height: 1.8;
+}
+
+.txt-color-blue {
+    color: #40BAF1;
+}
+
+.dataTables_length {
+    width: 30%;
+    float: left;
+    margin-left: 1%;
+}
+
+.dataTables_filter {
+    float: right;
+    margin-right: 1%;
+}
+
+.pager {
+    float: left;
+    height: 30px;
+    padding: 0;
+    margin: 0;
+    padding-top: 10px;
+    padding-left: 10px; 
+    width: 98%;
+}
+
+.pager div.short {
+    float: right;
+    margin: 0;
+    padding: 0;
+    margin-right: 10px;
+    width: 74px;
+    display: none;
+}
+
+.pager div.short input {
+    width: 28px;
+    height: 18px;
+    border: none;
+    margin-left: 8px;
+    float: left;
+}
+
+.pager ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    float: left;
+    margin-right: 4px;
+}
+
+.pager ul li {
+    display: inline;
+    margin-left: 2px;
+}
+
+.pager ul li a {
+    text-decoration: none;
+    display: inline-table;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+}
+
+.pager span {
+    margin-left: 4px;
+    float: left;
+    position: relative;
+    left: 10%;
+    margin-top: 5px;
+}
+
+.pager .btn {
+    display: block !important;
+    width: 40px;
+    text-align: center;
+    float: left;
+    padding: 0;
+    margin: 5px 0 0 0;
+    margin-left: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.pager .disabled {
+    color: #A0A0A0 !important;
+    text-shadow: 1px 1px 1px #FFFFFF;
+}
+
+#green {
+    margin: auto;
+}
+
+.green.normal {
+    background-color: #fff;
+    border: solid 1px #fff;
+}
+
+.green.active {
+    background-color: #ddd;
+    border: solid 1px #ccc;
+}
+
+.instanceLogTable_sort{
+    background-repeat: no-repeat;
+    background-position: center right;
+    background-image: url("../private/img/sort_both.png");
+    cursor: pointer;
+}
+
+.instanceLogTable_sort.sorting_asc {
+    background-image: url("../private/img/sort_asc.png");
+}
+
+.instanceLogTable_sort.sorting_desc {
+    background-image: url("../private/img/sort_desc.png");
+}
