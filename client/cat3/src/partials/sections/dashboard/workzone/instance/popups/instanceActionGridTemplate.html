@@ -13,6 +13,18 @@
          <i class="fa fa-gear"></i>
          <i class="fa fa-sort-down"></i></button>
          <ul class="dropdown-menu">
+            <li>
+               <span ng-click="grid.appScope.instanceControlPanel(row.entity);">
+               <i class="fa fa-gears dropdown-icon"></i>
+               Control Panel
+               </span>
+            </li>
+            <li>
+               <span ng-click="grid.appScope.operationSet.deleteInstance(row.entity, $index);">
+               <i class="fa fa-trash-o dropdown-icon"></i>
+               Delete Instance
+               </span>
+            </li>
             <li class="edit-instance-bs">
                <span ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">
                <i class="fa fa-pencil dropdown-icon"></i>
@@ -50,18 +62,6 @@
                <span>
                <i class="fa fa-stop dropdown-icon"></i>
                Stop Instance
-               </span>
-            </li>
-            <li>
-               <span ng-click="grid.appScope.instanceControlPanel(row.entity);">
-               <i class="fa fa-gears dropdown-icon"></i>
-               Control Panel
-               </span>
-            </li>
-            <li>
-               <span ng-click="grid.appScope.operationSet.deleteInstance(row.entity, $index);">
-               <i class="fa fa-trash-o dropdown-icon"></i>
-               Delete Instance
                </span>
             </li>
             <li class="divider" ng-hide="row.entity.appUrls.length==0 && row.entity.tasks.length==0"></li>

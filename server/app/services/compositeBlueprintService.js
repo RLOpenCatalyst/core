@@ -608,9 +608,12 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                 }
                 var paramRunList = [];
                 var paramAttributes = [];
-                if (launchParams && launchParams.version) {
-                    paramRunList = launchParams.version.runlist;
-                    paramAttributes = launchParams.version.attributes;
+                if (blueprint.blueprintConfig.infraManagerData.versionsList.length > 0) {
+                    if('runlist' in blueprint.blueprintConfig.infraManagerData.versionsList[0])
+                        paramRunList = blueprint.blueprintConfig.infraManagerData.versionsList[0].runlist;
+
+                    if('attributes' in blueprint.blueprintConfig.infraManagerData.versionsList[0])
+                        paramAttributes = blueprint.blueprintConfig.infraManagerData.versionsList[0].attributes;
                 }
 
                 ec2.launchInstance(anImage.imageIdentifier, self.instanceType, securityGroupIds, self.subnetId, 'D4D-' + launchParams.blueprintName, aKeyPair.keyPairName, self.instanceCount, function (err, instanceDataAll) {
@@ -638,8 +641,8 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                             projectName: launchParams.projectName,
                             envId: launchParams.envId,
                             environmentName: launchParams.envName,
-                            providerId: launchParams.cloudProviderId,
-                            providerType: launchParams.cloudProviderType,
+                            providerId: blueprint.blueprintConfig.cloudProviderId,
+                            providerType: blueprint.blueprintConfig.cloudProviderType,
                             keyPairId: self.keyPairId,
                             region:aKeyPair.region,
                             chefNodeName: instanceData.InstanceId,
@@ -837,7 +840,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                 }
 
 
-                                                logger.error('process stopped ==> ', err, code);
+                                                logger.debug('process stopped ==> ', err, code);
                                                 if (err) {
                                                     logger.error("knife launch err ==>", err);
                                                     instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {

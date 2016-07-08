@@ -87,14 +87,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @param next
      */
     function getTrackedInstances(req, res, next) {
+        var category = req.query.category;
+        var reqObj={};
         async.waterfall(
             [
-                function(next) {
-                    apiUtil.paginationRequest(req.query,'trackedInstances', next);
+                function (next) {
+                    apiUtil.changeRequestForJqueryPagination(req.query, next);
+                },
+                function(reqData,next) {
+                    reqObj = reqData;
+                    apiUtil.paginationRequest(reqData,'trackedInstances', next);
                 },
                 function(paginationRequest, next) {
                     // @TODO Relook at pagination to allow validation of query parameters
                     // @TODO Whether databaseUtil should be renamed
+                    if(category === 'managed') {
+                        paginationRequest['searchColumns'] = ['instanceIP', 'instanceState'];
+                    }else if(category === 'assigned'){
+                        paginationRequest['searchColumns'] = ['ip', 'state'];
+                    }else{
+                        paginationRequest['searchColumns'] = ['ip', 'state'];
+                    }
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
                 function(filterQuery, next) {
@@ -108,11 +121,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     });
                 },
                 function(filterQuery, next) {
-                    instanceService.getTrackedInstances(filterQuery.queryObj, next);
+                    instanceService.getTrackedInstances(filterQuery,category, next);
                 },
+                function (instances, next) {
+                    apiUtil.changeResponseForJqueryPagination(instances[0], reqObj, next);
+                }/*,
                 function(instances, next) {
                     instanceService.createTrackedInstancesResponse(instances, next);
-                }
+                }*/
             ],
             function(err, results) {
                 if (err) {

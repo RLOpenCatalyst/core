@@ -1023,11 +1023,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
 		var reqData = {};
 		async.waterfall(
 			[
-
 				function(next) {
 					apiUtil.paginationRequest(req.query, 'instances', next);
 				},
-				function(paginationReq, next) {
+				function (paginationReq, next) {
 					paginationReq['orgId'] = req.params.orgId;
 					paginationReq['bgId'] = req.params.bgId;
 					paginationReq['projectId'] = req.params.projectId;
@@ -1035,7 +1034,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
 					paginationReq['instanceType'] = req.query.instanceType;
 					paginationReq['userName'] = req.session.user.cn;
 					reqData = paginationReq;
-					instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, next);
+					apiUtil.databaseUtil(paginationReq, next);
+				},
+				function (queryObj, next) {
+					queryObj['pagination'] = true;
+					instancesDao.getInstancesByOrgBgProjectAndEnvId(queryObj, next);
 				},
 				function(instances, next) {
 					apiUtil.paginationResponse(instances, reqData, next);

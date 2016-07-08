@@ -932,7 +932,7 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData,
         bgId: jsonData.bgId,
         projectId: jsonData.projectId,
         $or: options
-    }
+    };
     if('blueprintType' in jsonData) {
         queryObj.blueprintType = jsonData.blueprintType;
     }
@@ -1267,6 +1267,27 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
          callback(null, {});
          });*/
     }
+};
+
+BlueprintSchema.statics.getBlueprintsByProviderId = function(providerId, callback) {
+    logger.debug("Enter getBlueprintsByProviderId");
+    this.find({
+        "blueprintConfig.cloudProviderId": providerId
+    }, function(err, blueprints) {
+        if (err) {
+            logger.error(err);
+            logger.debug("Exit getBlueprintsByProviderId with error");
+            callback(err, null);
+            return;
+        }else if (blueprints.length > 0) {
+            logger.debug("Exit getBlueprintsByProviderId with Blueprints present");
+            callback(null, blueprints);
+        } else {
+            logger.debug("Exit getBlueprintsByProviderId with no Blueprints present");
+            callback(null, null);
+        }
+
+    });
 };
 var Blueprints = mongoose.model('blueprints', BlueprintSchema);
 

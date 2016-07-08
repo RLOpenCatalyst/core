@@ -27,11 +27,10 @@ var resourceService = require('_pr/services/resourceService');
 var resources = require('_pr/model/resources/resources');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
-AggregateAWSUsage.interval = '0 */2 * * *';
+AggregateAWSUsage.interval = '*/5 * * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
-
 /**
  *
  */
@@ -39,22 +38,37 @@ function aggregateAWSUsage() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
             logger.error(err);
-        } else {
-            aggregateUsageForProvidersOfOrg.apply(aggregateUsageForProvidersOfOrg, orgs);
-        }
-    });
-}
+        }else if(orgs.length > 0){
+            for(var i = 0; i < orgs.length; i++){
+                (function(org){
+                    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
+                        if(err) {
+                            logger.error(err);
+                            return;
+                        } else if(providers.length > 0){
+                            var count = 0;
+                            for(var j = 0; j < providers.length; j++){
+                                (function(provider){
+                                    count++;
+                                    aggregateEC2UsageForProvider(provider)
+                                })(providers[j]);
+                            }
+                            if(count ===providers.length){
+                                return;
+                            }
 
-/**
- *
- * @param org
- */
-function aggregateUsageForProvidersOfOrg(org) {
-    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
-        if(err) {
-            logger.error(err);
-        } else {
-            aggregateEC2UsageForProvider.apply(aggregateEC2UsageForProvider, providers);
+                        }else{
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for AWS Usage Aggregation");
+                            return;
+                        }
+                    });
+
+                })(orgs[i]);
+            }
+
+        }else{
+            logger.info("Please configure Organization for AWS Usage Aggregation");
+            return;
         }
     });
 }
@@ -65,61 +79,64 @@ function aggregateUsageForProvidersOfOrg(org) {
  */
 function aggregateEC2UsageForProvider(provider) {
     async.waterfall([
-            function (next) {
-                logger.debug('AWS Service usage aggregation for provider: ' + provider._id + ' started');
-                instanceService.getTrackedInstancesForProvider(provider, next);
-            },
-            function (provider, instances, next) {
-                async.parallel({
-                    managed: function(callback) {
-                        generateEC2UsageMetricsForProvider(provider, instances.managed, callback);
-                    },
-                    unmanaged: function(callback) {
-                        generateEC2UsageMetricsForProvider(provider, instances.unmanaged, callback);
-                    },
-                    s3BucketUsageMetrics: function(callback) {
-                        generateS3UsageMetricsForProvider(provider, callback);
-                    },
-                    rdsUsageMetrics: function(callback) {
-                        generateRDSUsageMetricsForProvider(provider, callback);
-                    }
-                }, function(err, results){
-                    if(err) {
-                        next(err);
-                    } else {
-                        next(null, results);
-                    }
-                });
-            },
-            function(usageMetrics, next) {
-                async.parallel({
-                    managed: function(callback) {
-                        updateManagedInstanceUsage(usageMetrics.managed, callback);
-                    },
-                    unmanaged: function(callback) {
-                        updateUnmanagedInstanceUsage(usageMetrics.unmanaged, callback);
-                    },
-                    s3BucketUsageMetrics: function(callback) {
-                        updateResourceUsage(usageMetrics.s3BucketUsageMetrics, callback);
-                    },
-                    rdsUsageMetrics: function(callback) {
-                        updateResourceUsage(usageMetrics.rdsUsageMetrics, callback);
-                    }
-                }, function(err, results){
-                    if(err) {
-                        next(err);
-                    } else {
-                        next(null, results);
-                    }
-                });
-            }
-        ],
-        function(err, results) {
-            if(err)
-                logger.error(err);
-            else if(results)
-                logger.debug('AWS Service usage aggregation for provider: ' + provider._id + ' ended');
-        });
+        function (next) {
+            logger.info('AWS Service usage aggregation for provider: ' + provider._id + ' started');
+            instanceService.getTrackedInstancesForProvider(provider, next);
+        },
+        function (provider, instances, next) {
+            async.parallel({
+                managed: function (callback) {
+                    generateEC2UsageMetricsForProvider(provider, instances.managed, callback);
+                },
+                unmanaged: function (callback) {
+                    generateEC2UsageMetricsForProvider(provider, instances.unmanaged, callback);
+                },
+                s3BucketUsageMetrics: function (callback) {
+                    generateS3UsageMetricsForProvider(provider, callback);
+                },
+                rdsUsageMetrics: function (callback) {
+                    generateRDSUsageMetricsForProvider(provider, callback);
+                }
+            }, function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            });
+        },
+        function (usageMetrics, next) {
+            async.parallel({
+                managed: function (callback) {
+                    updateManagedInstanceUsage(usageMetrics.managed, callback);
+                },
+                unmanaged: function (callback) {
+                    updateUnmanagedInstanceUsage(usageMetrics.unmanaged, callback);
+                },
+                s3BucketUsageMetrics: function (callback) {
+                    updateResourceUsage(usageMetrics.s3BucketUsageMetrics, callback);
+                },
+                rdsUsageMetrics: function (callback) {
+                    updateResourceUsage(usageMetrics.rdsUsageMetrics, callback);
+                }
+            }, function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            });
+        }
+    ], function (err, results) {
+        if (err) {
+            logger.error(err);
+            return;
+        }else {
+            logger.info('AWS Service usage aggregation for provider: ' + provider._id + ' ended');
+            return;
+        }
+    });
+
 }
 
 /**

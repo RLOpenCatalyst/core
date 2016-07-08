@@ -15,12 +15,12 @@
         '<select id="optionSelector" size="10" multiple="multiple" class="btn-group selectCookbooksandRecipes"></select>' +
         '</div>' +
         '<div class="btn-group left-right-selection marginleft5">' +
-        '<button id="btnaddToRunlist" type="button" class="btn btn-default btn-primary anchorAdd">' +
+        '<button id="btnaddToBlueprint" type="button" class="btn btn-default btn-primary anchorAdd">' +
         '' +
         '<i class="fa fa-chevron-right anchorAddi"></i>' +
         '</button>' +
         '<div class="clearfix"></div>' +
-        '<button id="btnremoveFromRunlist" type="button" class="btn btn-default btn-primary anchorRemove">' +
+        '<button id="btnremoveFromBlueprint" type="button" class="btn btn-default btn-primary anchorRemove">' +
         '' +
         '<i class="fa fa-chevron-left anchorRemovei"></i></button>' +
         '</div>' +
@@ -34,11 +34,11 @@
         '<button id="ediAattributeBlue" type="button" class="btn btn-default btn-primary anchorUp" style="display: none;margin-top:-45px;">' +
         '<i class="fa fa-pencil anchorUpi"></i></button>' +
         '<div class="clearfix"></div>' +
-        '<button id="btnRunlistItemUp" type="button" class="btn btn-default btn-primary anchorUp">' +
+        '<button id="btnBlueprintItemUp" type="button" class="btn btn-default btn-primary anchorUp">' +
         '' +
         '<i class="fa fa-chevron-up anchorUpi"></i></button>' +
         '<div class="clearfix"></div>' +
-        '<button id="btnRunlistItemDown" type="button" class="btn btn-default btn-primary anchorDown">' +
+        '<button id="btnBlueprintItemDown" type="button" class="btn btn-default btn-primary anchorDown">' +
         '' +
         '<i class="fa fa-chevron-down anchorDowni"></i></button>' +
         '</div>' +
@@ -136,10 +136,10 @@
                 idList: { //list of id's which will require when you are opting 'isOverrideHtmlTemplate' option
                     selectorList: '#selectorList', //right select list id
                     optionSelector: '#optionSelector', //left select list id
-                    upBtn: '#btnRunlistItemUp',
-                    downBtn: '#btnRunlistItemDown',
-                    addToSelector: '#btnaddToRunlist',
-                    removeFromSelector: '#btnremoveFromRunlist',
+                    upBtn: '#btnBlueprintItemUp',
+                    downBtn: '#btnBlueprintItemDown',
+                    addToSelector: '#btnaddToBlueprint',
+                    removeFromSelector: '#btnremoveFromBlueprint',
                     searchBox: '#searchBox'
                 },
                 isPriorityEnable: true //opt this option if you want to enable priority buttons these can be hide by providing false values

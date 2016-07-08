@@ -4506,11 +4506,11 @@ form.cmxform .gray * {
     font-weight: 700;
 }
 
-#btnaddToRunlist , #btnremoveFromRunlist {
+#btnaddToBlueprint , #btnremoveFromBlueprint {
     padding: 5px 10px;
 }
 
-#ediAattributeBlue, #btnRunlistItemUp, #btnRunlistItemDown {
+#btnBlueprintItemUp, #btnBlueprintItemDown {
     padding: 5px 8px;
 }
 

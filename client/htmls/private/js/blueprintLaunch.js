@@ -2,35 +2,29 @@
 function getOrgProjBUComparison(data, id) {
     data = JSON.parse(JSON.stringify(data));
     //clearing the select box.
-    $('#envSelect').html('');
+    $('#envSelect').empty();
     $.get("/d4dMasters/readmasterjsonnew/4", function(tdata) {
         var $blueprintReadContainer = $(id);
         var $blueprintLaunch = $(id);
         var $blueprintReadContainerCFT = $(id);
+        var orgID = (data.orgId)?data.orgId:data.organization.id;
+        var bgID = (data.bgId)?data.bgId:data.businessGroup.id;
+        var projID = (data.projectId)?data.projectId:data.project.id;
         for (var i = 0; i < tdata.length; i += 1) {
-            if (data.orgId == tdata[i].orgname_rowid) {
+            if (orgID == tdata[i].orgname_rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintORG').val(tdata[i].orgname[0]);
                 $blueprintLaunch.find('.modal-body #blueprintOrgEnv').val(tdata[i].orgname[0]);
                 $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(tdata[i].orgname[0]);
             }
-            if (data.bgId == tdata[i].productgroupname_rowid) {
+            if (bgID == tdata[i].productgroupname_rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintBU').val(tdata[i].productgroupname);
                 $blueprintLaunch.find('.modal-body #blueprintBuEnv').val(tdata[i].productgroupname);
                 $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(tdata[i].orgname[0]);
             }
-            if (data.projectId == tdata[i].rowid) {
+            if (projID == tdata[i].rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintProject').val(tdata[i].projectname);
                 $blueprintLaunch.find('.modal-body #blueprintProEnv').val(tdata[i].projectname);
                 $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(tdata[i].orgname[0]);
-            }
-            if (data.organization.id == tdata[i].orgname_rowid) {
-                $blueprintLaunch.find('.modal-body #blueprintOrgEnv').val(tdata[i].orgname[0]);
-            }
-            if (data.businessGroup.id == tdata[i].productgroupname_rowid) {
-                $blueprintLaunch.find('.modal-body #blueprintBuEnv').val(tdata[i].productgroupname);
-            }
-            if (data.project.id == tdata[i].rowid) {
-                $blueprintLaunch.find('.modal-body #blueprintProEnv').val(tdata[i].projectname);
             }
             var envNames = tdata[i].environmentname.split(',');
             var envIds = tdata[i].environmentname_rowid.split(',');
@@ -38,14 +32,8 @@ function getOrgProjBUComparison(data, id) {
             $spinnerEnv.removeClass('hidden');
             if (envNames.length === envIds.length) {
                 for (var j = 0; j < envNames.length; j++) {
-                    if (data.bgId == tdata[i].productgroupname_rowid) {
-                        if (data.projectId == tdata[i].rowid) {
-                            var $option = $('<option></option>').val(envIds[j]).html(envNames[j]);
-                            $blueprintLaunch.find('.modal-body #envSelect').append($option);
-                        }
-                    }
-                    if (data.businessGroup.id == tdata[i].productgroupname_rowid) {
-                        if (data.project.id == tdata[i].rowid) {
+                    if (bgID == tdata[i].productgroupname_rowid) {
+                        if (projID == tdata[i].rowid) {
                             var $option = $('<option></option>').val(envIds[j]).html(envNames[j]);
                             $blueprintLaunch.find('.modal-body #envSelect').append($option);
                         }
@@ -56,6 +44,7 @@ function getOrgProjBUComparison(data, id) {
         }
     });
 }
+
 var eventAdded = false;
 //method for blueprint launch except docker.
 function blueprintLaunchDesign(data) {
@@ -315,6 +304,45 @@ function dockerBlueprintLaunch(data) {
     });
 }
 
+//composite blueprint Launch
+function blueprintLaunchComposite(data) {
+    bootbox.confirm({
+        message: "Are you sure you want to launch the Blueprint? Press Ok To continue",
+        title: "Confirmation",
+        callback: function(result) {
+            if (!result) {
+                return;
+            } else {
+                //setting the envId as it is needed for bpLaunch.
+                var envId = $('#envSelect').val();
+                var blueprintId = $('#modalSelectEnvironment').find('#selectedVersion').val();
+                function launchBP(blueprintId, envId) {
+                    var $launchResultContainer = $('#launchResultContainer');
+                    $launchResultContainer.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+                    $launchResultContainer.find('.modal-title').html('Launching Composite Blueprint');
+                    $launchResultContainer.modal('show');
+                    $.post('/blueprint-frames', {
+                            blueprintId: blueprintId,
+                            environmentId: envId 
+                        }, function(data) {
+                        var $msg = $('<div></div>').append('<h3 style="font-size:16px;" class=\"alert alert-success\">Your Created Blueprint is being Launched, Check Workzone to view your instance.</h3>');
+                        $launchResultContainer.find('.modal-body').empty();
+                        $launchResultContainer.find('.modal-body').append($msg);
+                    }).error(function(jxhr) {
+                        var message = "Server Behaved Unexpectedly";
+                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                            message = jxhr.responseJSON.message;
+                        }
+                        $launchResultContainer.find('.modal-body').empty().append('<span>' + message + '</span>');
+                    });
+
+                } 
+                launchBP(blueprintId, envId);
+            }
+        }
+    });
+}
+
 var instanceLogsHandler = function(e) {
     var instanceId = $(this).attr('data-instanceId');
     var timeout;
@@ -476,790 +504,4 @@ var $dockerWizard = $('#rootwizard').bootstrapWizard({
     }
 });
 
-function getCompositeBPDetails() {
-    var data = [{
-
-    "compositeBlueprints": [{
-        "id": "57766edf61932e201635c7f3",
-        "name": "HelloBP",
-        "organization": {
-            "id": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "name": "Phoenix"
-        },
-        "businessGroup": {
-            "id": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "name": "PhoenixBG"
-        },
-        "project": {
-            "id": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "PhoenixApp"
-        },
-        "blueprints": [{
-            "_id": "577538065e7c004e653d1175",
-            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "ChiksTesting1",
-            "templateId": "Check",
-            "templateType": "chef",
-            "blueprintConfig": {
-                "_id": "577538065e7c004e653d1174",
-                "infraManagerData": {
-                    "versionsList": [{
-                        "runlist": ["recipe[tomcat-all-rl]"],
-                        "_id": "577538065e7c004e653d1166",
-                        "ver": "0.1"
-                    }],
-                    "_id": "577538065e7c004e653d1165",
-                    "latestVersion": "0.1"
-                },
-                "infraManagerId": "e404bb2c-5d5d-4477-a79d-46b169e8ec70",
-                "infraMangerType": "chef",
-                "cloudProviderData": {
-                    "securityGroupIds": ["sg-eeff688b"],
-                    "_id": "577538065e7c004e653d1164",
-                    "instanceCount": "1",
-                    "instanceOS": "linux",
-                    "imageId": "5773be23466f3c8b5b7fdab1",
-                    "subnetId": "subnet-d7df258e",
-                    "region": "us-west-1",
-                    "vpcId": "vpc-bd815ad8",
-                    "instanceUsername": "root",
-                    "instanceAmiid": "ami-06116566",
-                    "instanceType": "t2.micro",
-                    "keyPairId": "5773bda1466f3c8b5b7fda5c"
-                },
-                "cloudProviderId": "5773bda1466f3c8b5b7fda5b",
-                "cloudProviderType": "aws"
-            },
-            "blueprintType": "instance_launch",
-            "version": "1",
-            "__v": 0,
-            "users": [],
-            "appUrls": []
-        }]
-    }, {
-        "id": "5776582f96f193ad0ea71bf4",
-        "name": "SrikiCompo",
-        "organization": {
-            "id": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "name": "Phoenix"
-        },
-        "businessGroup": {
-            "id": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "name": "PhoenixBG"
-        },
-        "project": {
-            "id": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "PhoenixApp"
-        },
-        "blueprints": [{
-            "_id": "577513bd5e7c004e653ceed8",
-            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "OSImage",
-            "templateId": "SrikiImage",
-            "templateType": "ami",
-            "blueprintConfig": {
-                "_id": "577513bd5e7c004e653ceed7",
-                "infraManagerData": {
-                    "versionsList": [{
-                        "attributes": [{
-                            "jsonObj": {
-                                "java": {
-                                    "install_flavor": "oracle"
-                                }
-                            },
-                            "name": "Java Flavour"
-                        }, {
-                            "jsonObj": {
-                                "java": {
-                                    "jdk_version": "7"
-                                }
-                            },
-                            "name": "Java JDK Version"
-                        }, {
-                            "jsonObj": {
-                                "java": {
-                                    "oracle": {
-                                        "accept_oracle_download_terms": "true"
-                                    }
-                                }
-                            },
-                            "name": "Oracle Download Terms"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "user": "tomcatBp1"
-                                }
-                            },
-                            "name": "Tomcat User"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "group": "tomcat"
-                                }
-                            },
-                            "name": "Tomcat Group"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "version": "7.0.53"
-                                }
-                            },
-                            "name": "Tomcat Version"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "tomcat_home": "/opt/tomcat7"
-                                }
-                            },
-                            "name": "Tomcat Home"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "set_etc_environment": "true"
-                                }
-                            },
-                            "name": "Set Tomcat Environment"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "shutdown_port": "8005"
-                                }
-                            },
-                            "name": "Tomcat Shutdown Port"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "port": "8080"
-                                }
-                            },
-                            "name": "Tomcat Running Port"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "max_threads": "100"
-                                }
-                            },
-                            "name": "Tomcat Max Threads"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "min_spare_threads": "10"
-                                }
-                            },
-                            "name": "Tomcat Min Spare Threads"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "java_opts": "-d64 -server -Djava.awt.headless=true -XX:PermSize=64m -XX:MaxPermSize=256m"
-                                }
-                            },
-                            "name": "Tomcat Java Opts"
-                        }],
-                        "runlist": ["recipe[tomcat-all-rl]"],
-                        "_id": "577513bd5e7c004e653ceed6",
-                        "ver": "0.1"
-                    }],
-                    "_id": "577513bd5e7c004e653ceed5",
-                    "latestVersion": "0.1"
-                },
-                "infraManagerId": "e404bb2c-5d5d-4477-a79d-46b169e8ec70",
-                "infraMangerType": "chef",
-                "cloudProviderData": {
-                    "securityGroupIds": ["sg-eeff688b"],
-                    "_id": "577513bd5e7c004e653ceed4",
-                    "instanceCount": "1",
-                    "instanceOS": "linux",
-                    "imageId": "5773be23466f3c8b5b7fdab1",
-                    "subnetId": "subnet-d7df258e",
-                    "region": "us-west-1",
-                    "vpcId": "vpc-bd815ad8",
-                    "instanceUsername": "root",
-                    "instanceAmiid": "ami-06116566",
-                    "instanceType": "t2.micro",
-                    "keyPairId": "5773bda1466f3c8b5b7fda5c"
-                },
-                "cloudProviderId": "5773bda1466f3c8b5b7fda5b",
-                "cloudProviderType": "aws"
-            },
-            "blueprintType": "instance_launch",
-            "version": "2",
-            "parentId": "5773c8a7466f3c8b5b7fe49f",
-            "__v": 0,
-            "users": [],
-            "appUrls": []
-        }, {
-            "_id": "577529645e7c004e653d0398",
-            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "Sriki33",
-            "templateId": "Check",
-            "templateType": "chef",
-            "blueprintConfig": {
-                "_id": "577529645e7c004e653d0397",
-                "infraManagerData": {
-                    "versionsList": [{
-                        "runlist": ["recipe[tomcat-all-rl]", "recipe[deploy_war]"],
-                        "attributes": [{
-                            "jsonObj": {
-                                "java": {
-                                    "install_flavor": "oracle"
-                                }
-                            },
-                            "name": "Java Flavour"
-                        }, {
-                            "jsonObj": {
-                                "java": {
-                                    "jdk_version": "7"
-                                }
-                            },
-                            "name": "Java JDK Version"
-                        }, {
-                            "jsonObj": {
-                                "java": {
-                                    "oracle": {
-                                        "accept_oracle_download_terms": "true"
-                                    }
-                                }
-                            },
-                            "name": "Oracle Download Terms"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "user": "tomcatCheck"
-                                }
-                            },
-                            "name": "Tomcat User"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "group": "tomcat"
-                                }
-                            },
-                            "name": "Tomcat Group"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "version": "7.0.53"
-                                }
-                            },
-                            "name": "Tomcat Version"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "tomcat_home": "/opt/tomcat7"
-                                }
-                            },
-                            "name": "Tomcat Home"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "set_etc_environment": "true"
-                                }
-                            },
-                            "name": "Set Tomcat Environment"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "shutdown_port": "8005"
-                                }
-                            },
-                            "name": "Tomcat Shutdown Port"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "port": "8080"
-                                }
-                            },
-                            "name": "Tomcat Running Port"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "max_threads": "100"
-                                }
-                            },
-                            "name": "Tomcat Max Threads"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "min_spare_threads": "10"
-                                }
-                            },
-                            "name": "Tomcat Min Spare Threads"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "java_opts": "-d64 -server -Djava.awt.headless=true -XX:PermSize=64m -XX:MaxPermSize=256m"
-                                }
-                            },
-                            "name": "Tomcat Java Opts"
-                        }, {
-                            "jsonObj": {
-                                "deploy_war": {
-                                    "catalystCallbackUrl": "http://d4d.rlcatalyst.com/app/deploy"
-                                }
-                            },
-                            "name": "Callback URL"
-                        }],
-                        "_id": "577529645e7c004e653d0388",
-                        "ver": "0.1"
-                    }],
-                    "_id": "577529645e7c004e653d0387",
-                    "latestVersion": "0.1"
-                },
-                "infraManagerId": "e404bb2c-5d5d-4477-a79d-46b169e8ec70",
-                "infraMangerType": "chef",
-                "cloudProviderData": {
-                    "securityGroupIds": ["sg-eeff688b"],
-                    "_id": "577529645e7c004e653d0386",
-                    "instanceCount": "1",
-                    "instanceOS": "linux",
-                    "imageId": "5773be23466f3c8b5b7fdab1",
-                    "subnetId": "subnet-d7df258e",
-                    "region": "us-west-1",
-                    "vpcId": "vpc-bd815ad8",
-                    "instanceUsername": "root",
-                    "instanceAmiid": "ami-06116566",
-                    "instanceType": "t2.micro",
-                    "keyPairId": "5773bda1466f3c8b5b7fda5c"
-                },
-                "cloudProviderId": "5773bda1466f3c8b5b7fda5b",
-                "cloudProviderType": "aws"
-            },
-            "blueprintType": "instance_launch",
-            "version": "3",
-            "parentId": "5773be82466f3c8b5b7fdb2f",
-            "__v": 0,
-            "users": [],
-            "appUrls": []
-        }]
-    }, {
-        "id": "5776511f96f193ad0ea7155f",
-        "name": "SrikiCompo",
-        "organization": {
-            "id": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "name": "Phoenix"
-        },
-        "businessGroup": {
-            "id": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "name": "PhoenixBG"
-        },
-        "project": {
-            "id": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "PhoenixApp"
-        },
-        "blueprints": [{
-            "_id": "577513bd5e7c004e653ceed8",
-            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "OSImage",
-            "templateId": "SrikiImage",
-            "templateType": "ami",
-            "blueprintConfig": {
-                "_id": "577513bd5e7c004e653ceed7",
-                "infraManagerData": {
-                    "versionsList": [{
-                        "attributes": [{
-                            "jsonObj": {
-                                "java": {
-                                    "install_flavor": "oracle"
-                                }
-                            },
-                            "name": "Java Flavour"
-                        }, {
-                            "jsonObj": {
-                                "java": {
-                                    "jdk_version": "7"
-                                }
-                            },
-                            "name": "Java JDK Version"
-                        }, {
-                            "jsonObj": {
-                                "java": {
-                                    "oracle": {
-                                        "accept_oracle_download_terms": "true"
-                                    }
-                                }
-                            },
-                            "name": "Oracle Download Terms"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "user": "tomcatBp1"
-                                }
-                            },
-                            "name": "Tomcat User"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "group": "tomcat"
-                                }
-                            },
-                            "name": "Tomcat Group"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "version": "7.0.53"
-                                }
-                            },
-                            "name": "Tomcat Version"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "tomcat_home": "/opt/tomcat7"
-                                }
-                            },
-                            "name": "Tomcat Home"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "set_etc_environment": "true"
-                                }
-                            },
-                            "name": "Set Tomcat Environment"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "shutdown_port": "8005"
-                                }
-                            },
-                            "name": "Tomcat Shutdown Port"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "port": "8080"
-                                }
-                            },
-                            "name": "Tomcat Running Port"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "max_threads": "100"
-                                }
-                            },
-                            "name": "Tomcat Max Threads"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "min_spare_threads": "10"
-                                }
-                            },
-                            "name": "Tomcat Min Spare Threads"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "java_opts": "-d64 -server -Djava.awt.headless=true -XX:PermSize=64m -XX:MaxPermSize=256m"
-                                }
-                            },
-                            "name": "Tomcat Java Opts"
-                        }],
-                        "runlist": ["recipe[tomcat-all-rl]"],
-                        "_id": "577513bd5e7c004e653ceed6",
-                        "ver": "0.1"
-                    }],
-                    "_id": "577513bd5e7c004e653ceed5",
-                    "latestVersion": "0.1"
-                },
-                "infraManagerId": "e404bb2c-5d5d-4477-a79d-46b169e8ec70",
-                "infraMangerType": "chef",
-                "cloudProviderData": {
-                    "securityGroupIds": ["sg-eeff688b"],
-                    "_id": "577513bd5e7c004e653ceed4",
-                    "instanceCount": "1",
-                    "instanceOS": "linux",
-                    "imageId": "5773be23466f3c8b5b7fdab1",
-                    "subnetId": "subnet-d7df258e",
-                    "region": "us-west-1",
-                    "vpcId": "vpc-bd815ad8",
-                    "instanceUsername": "root",
-                    "instanceAmiid": "ami-06116566",
-                    "instanceType": "t2.micro",
-                    "keyPairId": "5773bda1466f3c8b5b7fda5c"
-                },
-                "cloudProviderId": "5773bda1466f3c8b5b7fda5b",
-                "cloudProviderType": "aws"
-            },
-            "blueprintType": "instance_launch",
-            "version": "2",
-            "parentId": "5773c8a7466f3c8b5b7fe49f",
-            "__v": 0,
-            "users": [],
-            "appUrls": []
-        }, {
-            "_id": "577529645e7c004e653d0398",
-            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "Sriki33",
-            "templateId": "Check",
-            "templateType": "chef",
-            "blueprintConfig": {
-                "_id": "577529645e7c004e653d0397",
-                "infraManagerData": {
-                    "versionsList": [{
-                        "runlist": ["recipe[tomcat-all-rl]", "recipe[deploy_war]"],
-                        "attributes": [{
-                            "jsonObj": {
-                                "java": {
-                                    "install_flavor": "oracle"
-                                }
-                            },
-                            "name": "Java Flavour"
-                        }, {
-                            "jsonObj": {
-                                "java": {
-                                    "jdk_version": "7"
-                                }
-                            },
-                            "name": "Java JDK Version"
-                        }, {
-                            "jsonObj": {
-                                "java": {
-                                    "oracle": {
-                                        "accept_oracle_download_terms": "true"
-                                    }
-                                }
-                            },
-                            "name": "Oracle Download Terms"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "user": "tomcatCheck"
-                                }
-                            },
-                            "name": "Tomcat User"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "group": "tomcat"
-                                }
-                            },
-                            "name": "Tomcat Group"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "version": "7.0.53"
-                                }
-                            },
-                            "name": "Tomcat Version"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "tomcat_home": "/opt/tomcat7"
-                                }
-                            },
-                            "name": "Tomcat Home"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "set_etc_environment": "true"
-                                }
-                            },
-                            "name": "Set Tomcat Environment"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "shutdown_port": "8005"
-                                }
-                            },
-                            "name": "Tomcat Shutdown Port"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "port": "8080"
-                                }
-                            },
-                            "name": "Tomcat Running Port"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "max_threads": "100"
-                                }
-                            },
-                            "name": "Tomcat Max Threads"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "min_spare_threads": "10"
-                                }
-                            },
-                            "name": "Tomcat Min Spare Threads"
-                        }, {
-                            "jsonObj": {
-                                "tomcat-all-rl": {
-                                    "java_opts": "-d64 -server -Djava.awt.headless=true -XX:PermSize=64m -XX:MaxPermSize=256m"
-                                }
-                            },
-                            "name": "Tomcat Java Opts"
-                        }, {
-                            "jsonObj": {
-                                "deploy_war": {
-                                    "catalystCallbackUrl": "http://d4d.rlcatalyst.com/app/deploy"
-                                }
-                            },
-                            "name": "Callback URL"
-                        }],
-                        "_id": "577529645e7c004e653d0388",
-                        "ver": "0.1"
-                    }],
-                    "_id": "577529645e7c004e653d0387",
-                    "latestVersion": "0.1"
-                },
-                "infraManagerId": "e404bb2c-5d5d-4477-a79d-46b169e8ec70",
-                "infraMangerType": "chef",
-                "cloudProviderData": {
-                    "securityGroupIds": ["sg-eeff688b"],
-                    "_id": "577529645e7c004e653d0386",
-                    "instanceCount": "1",
-                    "instanceOS": "linux",
-                    "imageId": "5773be23466f3c8b5b7fdab1",
-                    "subnetId": "subnet-d7df258e",
-                    "region": "us-west-1",
-                    "vpcId": "vpc-bd815ad8",
-                    "instanceUsername": "root",
-                    "instanceAmiid": "ami-06116566",
-                    "instanceType": "t2.micro",
-                    "keyPairId": "5773bda1466f3c8b5b7fda5c"
-                },
-                "cloudProviderId": "5773bda1466f3c8b5b7fda5b",
-                "cloudProviderType": "aws"
-            },
-            "blueprintType": "instance_launch",
-            "version": "3",
-            "parentId": "5773be82466f3c8b5b7fdb2f",
-            "__v": 0,
-            "users": [],
-            "appUrls": []
-        }]
-    }, {
-        "id": "5776587e96f193ad0ea71c65",
-        "name": "SrikiCompo",
-        "organization": {
-            "id": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "name": "Phoenix"
-        },
-        "businessGroup": {
-            "id": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "name": "PhoenixBG"
-        },
-        "project": {
-            "id": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "PhoenixApp"
-        },
-        "blueprints": [{
-            "_id": "577513bd5e7c004e653ceed8",
-            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "OSImage",
-            "templateId": "SrikiImage",
-            "templateType": "ami",
-            "blueprintConfig": {
-                "_id": "577513bd5e7c004e653ceed7",
-                "infraManagerData": {
-                    "versionsList": [{
-                        "runlist": ["recipe[tomcat-all-rl]"],
-                        "_id": "577513bd5e7c004e653ceed6",
-                        "ver": "0.1"
-                    }],
-                    "_id": "577513bd5e7c004e653ceed5",
-                    "latestVersion": "0.1"
-                },
-                "infraManagerId": "e404bb2c-5d5d-4477-a79d-46b169e8ec70",
-                "infraMangerType": "chef",
-                "cloudProviderData": {
-                    "securityGroupIds": ["sg-eeff688b"],
-                    "_id": "577513bd5e7c004e653ceed4",
-                    "instanceCount": "1",
-                    "instanceOS": "linux",
-                    "imageId": "5773be23466f3c8b5b7fdab1",
-                    "subnetId": "subnet-d7df258e",
-                    "region": "us-west-1",
-                    "vpcId": "vpc-bd815ad8",
-                    "instanceUsername": "root",
-                    "instanceAmiid": "ami-06116566",
-                    "instanceType": "t2.micro",
-                    "keyPairId": "5773bda1466f3c8b5b7fda5c"
-                },
-                "cloudProviderId": "5773bda1466f3c8b5b7fda5b",
-                "cloudProviderType": "aws"
-            },
-            "blueprintType": "instance_launch",
-            "version": "2",
-            "parentId": "5773c8a7466f3c8b5b7fe49f",
-            "__v": 0,
-            "users": [],
-            "appUrls": []
-        }]
-    }, {
-        "id": "5776599496f193ad0ea71d46",
-        "name": "SCompo",
-        "organization": {
-            "id": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "name": "Phoenix"
-        },
-        "businessGroup": {
-            "id": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "name": "PhoenixBG"
-        },
-        "project": {
-            "id": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "PhoenixApp"
-        },
-        "blueprints": [{
-            "_id": "5774b7e65e7c004e653c97cc",
-            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-            "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "name": "Srikissadsd",
-            "templateId": "Check",
-            "templateType": "chef",
-            "blueprintConfig": {
-                "_id": "5774b7e65e7c004e653c97cb",
-                "infraManagerData": {
-                    "versionsList": [{
-                        "runlist": [],
-                        "_id": "5774b7e65e7c004e653c97ca",
-                        "ver": "0.1"
-                    }],
-                    "_id": "5774b7e65e7c004e653c97c9",
-                    "latestVersion": "0.1"
-                },
-                "infraManagerId": "e404bb2c-5d5d-4477-a79d-46b169e8ec70",
-                "infraMangerType": "chef",
-                "cloudProviderData": {
-                    "securityGroupIds": ["sg-eeff688b"],
-                    "_id": "5774b7e65e7c004e653c97c8",
-                    "instanceCount": "1",
-                    "instanceOS": "linux",
-                    "imageId": "5773be23466f3c8b5b7fdab1",
-                    "subnetId": "subnet-d7df258e",
-                    "region": "us-west-1",
-                    "vpcId": "vpc-bd815ad8",
-                    "instanceUsername": "root",
-                    "instanceAmiid": "ami-06116566",
-                    "instanceType": "t2.micro",
-                    "keyPairId": "5773bda1466f3c8b5b7fda5c"
-                },
-                "cloudProviderId": "5773bda1466f3c8b5b7fda5b",
-                "cloudProviderType": "aws"
-            },
-            "blueprintType": "instance_launch",
-            "version": "2",
-            "parentId": "5773be82466f3c8b5b7fdb2f",
-            "__v": 0,
-            "users": [],
-            "appUrls": []
-        }]
-    }]
-}]
-                 
-    initializeCompositeBP(data[0].compositeBlueprints)
-
-}
 

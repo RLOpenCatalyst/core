@@ -2,6 +2,9 @@
 textarea{
 width:100%;
 }
+.wordBreak {
+    word-break:break-word;
+}
 </style>
 
 
@@ -295,13 +298,17 @@ function createTableForTrack(trackData) {
 
                 var $tdParent = $('<td class="trackParent"/>').append('<a title="' + trackData.itemUrls[j].url + '" target="_blank" href="' + trackData.itemUrls[j].url + '">' + trackData.itemUrls[j].name + '</a>');
 
-                var $child = $('<td class="trackChild"/>');
+                var $child = $('<td class="trackChild wordBreak"/>');
 
                 if (trackData.itemUrls[j].childItem && trackData.itemUrls[j].childItem.length) {
 
                     for (var k = 0; k < trackData.itemUrls[j].childItem.length; k++) {
                         (function(k) {
-                            $child.append('<a title="' + trackData.itemUrls[j].childItem[k].url + '" target="_blank" href="' + trackData.itemUrls[j].childItem[k].url + '">' + trackData.itemUrls[j].childItem[k].name + '</a>').append('&nbsp;&nbsp;');
+                        if(k  === trackData.itemUrls[j].childItem.length -1){
+                            $child.append('<a title="' + trackData.itemUrls[j].childItem[k].url + '" target="_blank" href="' + trackData.itemUrls[j].childItem[k].url + '">' + trackData.itemUrls[j].childItem[k].name + '</a>');
+                        } else {
+                            $child.append('<a title="' + trackData.itemUrls[j].childItem[k].url + '" target="_blank" href="' + trackData.itemUrls[j].childItem[k].url + '">' + trackData.itemUrls[j].childItem[k].name + '</a>').append('&#44;&nbsp;');
+                        }
                         })(k);
                     }
                 } else {
@@ -475,8 +482,6 @@ $('#trackItemUrl').submit(function(e) {
                 console.log(dashboardEditNew);
 
                 if (dashboardEditNew === 'new') {
-                    console.log(data);
-
                     //making itemUrls as an empty array
                     var itemUrls = [];
                     for (var j = 0; j < data.itemUrls.length; j++) {
@@ -489,18 +494,19 @@ $('#trackItemUrl').submit(function(e) {
 
                     $('#saveBtnTrack').removeAttr('disabled');
                 } else {
-                    console.log(dashboardEditNew);
                     var $tr = $('tr[data-itemUrlId="' + itemId + '"]');
                     $tr.find('.trackType').html(reqBody.type);
-                    console.log("reqBody" + JSON.stringify(reqBody.itemUrls));
                     $tr.find('.trackParent').html('<a style="word-break:break-word;" href="' + reqBody.itemUrls.url + '" target="_blank">' + reqBody.itemUrls.name + '</a> ');
 
                     $tr.find('.trackDescription').html(reqBody.itemUrls.description);
                     var $trChild = $tr.find('.trackChild').empty();
                     if (reqBody.itemUrls.childItem && reqBody.itemUrls.childItem.length) {
                         for (var q = 0; q < reqBody.itemUrls.childItem.length; q++) {
-                            console.log("childItem" + JSON.stringify(reqBody.itemUrls.childItem));
-                            $trChild.append('<a style="word-break:break-word;" href="' + reqBody.itemUrls.childItem[q].url + '" target="_blank">' + reqBody.itemUrls.childItem[q].name + '</a>').append('&nbsp;&nbsp;');
+                            if(q === reqBody.itemUrls.childItem.length -1){
+                            $trChild.append('<a href="' + reqBody.itemUrls.childItem[q].url + '" target="_blank">' + reqBody.itemUrls.childItem[q].name + '</a>');
+                            } else {
+                            $trChild.append('<a href="' + reqBody.itemUrls.childItem[q].url + '" target="_blank">' + reqBody.itemUrls.childItem[q].name + '</a>').append('&#44;&nbsp;');
+                            }
                         }
                     }
                     $tr.data('trackData', {
