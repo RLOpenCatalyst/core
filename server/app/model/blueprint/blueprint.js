@@ -1284,7 +1284,7 @@ BlueprintSchema.statics.getBlueprintsByProviderId = function(providerId, callbac
             callback(null, blueprints);
         } else {
             logger.debug("Exit getBlueprintsByProviderId with no Blueprints present");
-            callback(null, null);
+            callback(null, []);
         }
 
     });
