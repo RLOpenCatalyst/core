@@ -122,6 +122,18 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
             logger.error("Failed to fetch TaskActions: ", err);
             return callback(err, null);
         }
-        return callback(null,histories);
+        var count =0;
+        if(histories && histories.docs && histories.docs.length){
+            for(var i=0; i<histories.docs.length; i++){
+                count++;
+                if(histories.docs[i].taskType == "jenkins"){
+                    histories.docs[i] = JSON.parse(JSON.stringify(histories.docs[i]));
+                    histories.docs[i].jenkinsLog = "/jenkins/"+histories.docs[i].jenkinsServerId+"/jobs/"+histories.docs[i].jobName+"/builds/"+histories.docs[i].buildNumber+"/output";
+                }
+                if(count == histories.docs.length){
+                    return callback(null,histories);
+                }
+            }
+        }
     });
 };
