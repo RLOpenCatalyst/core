@@ -162,15 +162,6 @@
 					}
 					return temp;
 				},
-				getScriptList: function (list) {
-					var temp = [];
-					for (var i = 0; i < list.length; i++) {
-						if (list[i]._id) {
-							temp.push(list[i]);
-						}
-					}
-					return temp;
-				},
 				identifyAvailableChefNode: function (totalNodeList, selectedNode) {
 					for (var i = 0; i < totalNodeList.length; i++) {
 						if (_.indexOf(selectedNode, totalNodeList[i]._id) !== -1) {

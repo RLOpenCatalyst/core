@@ -423,10 +423,10 @@
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
 						$scope.isNewTaskPageLoading = false;
 						$scope.targetType="instance";
-						$scope.scriptTaskList = responseFormatter.identifyAvailableScript(responseFormatter.getScriptList(scripts), items.taskConfig.scriptIds);
+						$scope.scriptTaskList = responseFormatter.identifyAvailableScript(scripts, items.taskConfig.scriptIds);
 					}else{
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
-						$scope.scriptTaskList = responseFormatter.identifyAvailableScript(responseFormatter.getScriptList(scripts), []);
+						$scope.scriptTaskList = responseFormatter.identifyAvailableScript(scripts, []);
 						$scope.isNewTaskPageLoading = false;
 						$scope.targetType="instance";
 					}
