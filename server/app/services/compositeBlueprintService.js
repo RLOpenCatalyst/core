@@ -670,7 +670,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                 password: encrptedPassword
                             },
                             chef: {
-                                serverId: launchParams.infraManagerId,
+                                serverId: blueprint.blueprintConfig.infraManagerId,
                                 chefNodeName: instanceData.InstanceId
                             },
                             blueprintData: {
