@@ -699,7 +699,11 @@
                 },
                 {"data": "instanceState","orderable" : true  },
                 {"data": "projectName" ,"orderable" : false },
-                {"data": "environmentName","orderable" : true  },
+                {"data": "","orderable" : true ,
+                    "render":function(data, type, full, meta) {
+                        return full.environmentName?full.environmentName:'-';
+                    }
+                },
                 {"data": "instanceState","orderable" : false,
                     "render":function(data) {
                         if (data === 'terminated') {
@@ -1443,10 +1447,8 @@
                     {"data": "environmentName","orderable" : true  },
                     {"data": "","orderable" : false,
                         "render":function(data, type, full, meta) {
-                            var state = full.state;
-                            var id=full._id;
-                            if (state === 'running') {
-                                return '<input class="nodeCheckBox" type="checkbox" val = ' +id+ '/>';
+                            if (full.state === 'running') {
+                                return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full._id).html() + '">';
                             }else{
                                 return '';
                             }
