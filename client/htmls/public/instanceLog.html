@@ -216,9 +216,14 @@
                 var $providerImg = '';
                 var $osImg = '';
                 for (var i = 0; i < managnedData.length; i++) {
-                    console.log(managnedData[i].instanceId);
-                    var $tr = $('<tr class="instanceLogTrail"></tr>').attr('data-id', managnedData[i].instanceId);
-                    var $tdInstanceId = $('<td></td>').append(managnedData[i].instanceId);
+                    var instanceId = "";
+                    if(managnedData[i].platformId){
+                        instanceId = managnedData[i].platformId;
+                    }else{
+                        instanceId = managnedData[i].instanceId;
+                    }
+                    var $tr = $('<tr class="instanceLogTrail"></tr>').attr('data-id', instanceId);
+                    var $tdInstanceId = $('<td></td>').append(instanceId);
                     $tr.append($tdInstanceId);
                     if (managnedData[i].providerType == 'aws') {
                         $providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/aws.png' alt='provider'/>");
