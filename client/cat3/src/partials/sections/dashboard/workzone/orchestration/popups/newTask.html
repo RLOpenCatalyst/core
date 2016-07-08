@@ -111,18 +111,24 @@
 				                                </div>
 				                            
 				                        </div>
+										<div ng-show="targetType==='instance'" class="">
+											<label class="checkbox check-list">
+												Select All : &nbsp;<input  type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAll()" ng-model="$parent.isAllSelected" title="Select All ">
+											</label>
+										</div>
+										<div class="clearfix"></div>
 										<div class="select-nodes">
 											<ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
+														<input type="checkbox" ng-change="optionToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
 													</label>
 												</li>
 											</ul>
 											<ul ng-show="targetType==='blueprint'">
 												<li ng-repeat="blueprint in chefBluePrintList">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="blueprint._isBlueprintSelected" ng-model="blueprint._isBlueprintSelected" class="checkbox-list">{{blueprint.name}}
+														<input name="blueprint" ng-value="blueprint._id" type="radio"  ng-model="blueprint._isBlueprintSelected" class="checkbox-list blueprint-{{blueprint._isBlueprintSelected}}">{{blueprint.name}}
 													</label>
 												</li>
 											</ul>

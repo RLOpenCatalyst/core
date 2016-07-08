@@ -176,7 +176,7 @@
 				identifyAvailableBlueprint: function (totalBlueprintList, selectedBlueprint) {
 					for (var i = 0; i < totalBlueprintList.length; i++) {
 						if (_.indexOf(selectedBlueprint, totalBlueprintList[i]._id) !== -1) {
-							totalBlueprintList[i]._isBlueprintSelected = true;
+							totalBlueprintList[i]._isBlueprintSelected = totalBlueprintList[i]._id;
 						} else {
 							totalBlueprintList[i]._isBlueprintSelected = false;
 						}
