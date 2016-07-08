@@ -40,7 +40,7 @@ var appConfig = require('_pr/config');
 
 var scriptTaskSchema = taskTypeSchema.extend({
 	nodeIds: [String],
-	scriptFileName: String
+	scriptIds: [String]
 });
 
 //Instance Methods :- getNodes

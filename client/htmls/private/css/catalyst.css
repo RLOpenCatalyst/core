@@ -2433,9 +2433,6 @@ hr {
     width: 64%;
     cursor: pointer;
 }
-.blueprintdiv-aws {
-    width: 77% !important;
-}
 /*Added for padding top in the li*/
 
 .Padded {
@@ -2454,15 +2451,15 @@ hr {
     padding: 8px 17px 8px 54px !important;
 }
 .smart-style-1 nav ul ul li > span {} .smart-style-1 nav ul ul li > span {
-    color: #E1EAF1;
-    display: block;
-    font-size: 13px;
-    font-weight: 300;
-    padding-bottom: 6px !important;
-    padding-left: 43px;
-    padding-top: 6px !important;
-    text-shadow: 0 1px 1px #000000;
-}
+                                          color: #E1EAF1;
+                                          display: block;
+                                          font-size: 13px;
+                                          font-weight: 300;
+                                          padding-bottom: 6px !important;
+                                          padding-left: 43px;
+                                          padding-top: 6px !important;
+                                          text-shadow: 0 1px 1px #000000;
+                                      }
 .domain-roles-heading {
     font-size: 12px;
     height: 25px;
@@ -2627,8 +2624,8 @@ body {
     text-align: center;
 }
 .instance-state {} .instance-state-text-started {
-    color: #008000;
-}
+                       color: #008000;
+                   }
 .instance-state-text-stopped {
     color: red;
 }
@@ -2731,7 +2728,7 @@ body {
         -ms-filter: none !important;
     }
     /* Black prints faster: h5bp.com/s */
-    
+
     a,
     a:visited {
         text-decoration: underline;
@@ -2748,7 +2745,7 @@ body {
         content: "";
     }
     /* Don't show links for images, or javascript/internal links */
-    
+
     pre,
     blockquote {
         border: 1px solid #999;
@@ -2758,7 +2755,7 @@ body {
         display: table-header-group;
     }
     /* h5bp.com/t */
-    
+
     tr,
     img {
         page-break-inside: avoid;
@@ -3015,8 +3012,8 @@ body {
     margin: 2px;
 }
 .chefCookbookList {} .disabled {
-    display: none;
-}
+                         display: none;
+                     }
 .blueprintContainer {
     display: ;
 }
@@ -3085,8 +3082,8 @@ body {
     width: 100%;
 }
 .fa-1.7x {
-    font-size: 1.7em;
-}
+           font-size: 1.7em;
+       }
 #logo img {
     width: 100px !important;
 }
@@ -3910,8 +3907,8 @@ span.icon {
     margin-left: 10px;
     margin-top: 15px;
     padding:3px 5px;
- }
- .launchIcon{
+}
+.launchIcon{
     border-radius: 11px;
     height:25px;
     width:25px;
@@ -3927,7 +3924,7 @@ span.icon {
     position: absolute;
 }
 .versionModalBody{
-   height: 272px;
+    height: 272px;
     margin-top: -13px;
     overflow-x: scroll;
 }
@@ -3937,7 +3934,7 @@ span.icon {
     margin-left: 15px;
     margin-right: 0;
     width: 162px;*/
-   
+
 }
 .versionoption{
     border-top: 1px solid #eeeeee;
@@ -4440,104 +4437,54 @@ form.cmxform .gray * {
     width:56%;
 }
 @media(max-width:978px){
-  #selectOrgName{
-    width:48%;
-}
-.orgSelectDropDown{
-    font-size: 11px;
-}
-.spanName{
-    width:43%;
-    margin-top: -40px;
-}
+    #selectOrgName{
+        width:48%;
+    }
+    .orgSelectDropDown{
+        font-size: 11px;
+    }
+    .spanName{
+        width:43%;
+        margin-top: -40px;
+    }
 
 }
 @media(min-width:979px) and (max-width:1199px){
-.spanName{
-    width:40%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:40%;
+        margin-top:-40px;
+    }
 }
 @media(min-width:1200px) and (max-width:1400px){
-.spanName{
-    width:34%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:34%;
+        margin-top:-40px;
+    }
 }
 @media(min-width:1401px){
-.spanName{
-    width:26%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:26%;
+        margin-top:-40px;
+    }
 }
 /*Class added in Dev Angular to show the blue color for active classes.*/
 .custom-theme .left-projects-links > a.active i {
     color:#40baf1 !important;
 }
-/* compsiteBlueprint*/
-#compsiteBlueprint{
-    margin: 0 auto;
-    width: 69%;
-}
-#optionSelector, #selectorList {
-    width: 100%;
-    height: 250px;
-}
-.selectCookbooksandRecipesdivLeft {
-    margin: 0 0 0 10px;
-}
-.selectCookbooksandRecipesdivLeft, .selectCookbooksandRecipesdivRight {
-    width: 79%;
-}
-.blueprintClass {
-    background-repeat: no-repeat;
-    height: 24px;
-    padding-left: 34px;
-    padding-top: 6px;
-    background-position: 4px 2px !important;
-    font-size: 12px;
-    background: url("../img/environment.png") no-repeat;
 
+.choose-file {
+    padding: 4px 8px;
+    background: #f1f1f1;
+    border-radius: 5px;
+    font-weight: normal;
+    border: 1px solid gray;
 }
-.section-headings{
-    background: rgba(241, 241, 241, 0.77);
-    height: 29px;
-    padding: 0 16%;
-    font-weight: 700;
-}
-
-#btnaddToBlueprint , #btnremoveFromBlueprint {
-    padding: 5px 10px;
-}
-
-#btnBlueprintItemUp, #btnBlueprintItemDown {
-    padding: 5px 8px;
-}
-
-.compositeBPVersion{
-    float:right;
-    margin-right: 30px;
-    margin-top: 10px;
-}
-
-.marginTop19{
-    margin-top:19px
-}
-#compBlueprint{
-    display: block;
-    -webkit-margin-start: 2px;
-    -webkit-margin-end: 2px;
-    -webkit-padding-before: 0.35em;
-    -webkit-padding-start: 0.75em;
-    -webkit-padding-end: 0.75em;
-    -webkit-padding-after: 0.625em;
-    min-width: -webkit-min-content;
-    border: 1px solid #ccc;
-}
-#compBlueprint legend {
-    display: block;
-    -webkit-padding-start: 2px;
-    -webkit-padding-end: 2px;
-    border: none;
-    width: auto !important;
+.file-name {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    float: left;
+    margin-top: 5px;
+    margin-left: 5px;
 }

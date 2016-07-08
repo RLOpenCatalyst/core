@@ -66,6 +66,7 @@ var serviceStatus = require('./routes_serviceStatus');
 var compositeBlueprints = require('./routes_compositeBlueprints');
 var blueprintFrames = require('./routes_blueprintFrames');
 var cors = require('cors');
+var scriptExecutor = require('./routes_scriptExecutor');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -159,6 +160,9 @@ module.exports.setRoutes = function(app) {
     compositeBlueprints.setRoutes(app, sessionVerificationFunc);
 
     blueprintFrames.setRoutes(app, sessionVerificationFunc);
+
+    scriptExecutor.setRoutes(app, sessionVerificationFunc);
+
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');

@@ -99,7 +99,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				},
 				function (paginationReq, next) {
 					paginationReq['providerId'] = req.params.providerId;
-					paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
+					paginationReq['searchColumns'] = ['instanceIP', 'platformId'];
 					apiUtil.databaseUtil(paginationReq, next);
 				},
 				function (queryObj, next) {
@@ -128,7 +128,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				},
 				function (paginationReq, next) {
 					paginationReq['providerId'] = req.params.providerId;
-					paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
+					paginationReq['searchColumns'] = ['instanceIP', 'platformId'];
 					reqData = paginationReq;
 					apiUtil.databaseUtil(paginationReq, next);
 				},
