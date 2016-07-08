@@ -17,6 +17,14 @@
             $scope.isNewTaskPageLoading = true;
 			$scope.chefrunlist = [];
 			$scope.cookbookAttributes = [];
+			$scope.toggleAll = function() {
+				var toggleStatus = $scope.isAllSelected;
+				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus; });
+
+			};
+			$scope.optionToggled = function(){
+				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+			};
 			//default values for new task
 			angular.extend($scope, {
 				taskTypes: {
@@ -190,7 +198,7 @@
 					/*This will get the values in order to create chef type task and check for any chef node selections*/
 					if ($scope.taskType === "chef") {
 						taskJSON.nodeIds = [];
-						taskJSON.blueprintIds = [];
+						taskJSON.blueprintIds = '';
                         taskJSON.role = $scope.role.name;
 						for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
 							if ($scope.chefInstanceList[ci]._isNodeSelected) {
@@ -199,16 +207,16 @@
 						}
 						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
 							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
-								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
+								taskJSON.blueprintIds=$scope.chefBluePrintList[bi]._id;
 							}
 						}
 
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
+						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds && !taskJSON.role ) {
 							alert('Please select a node or blueprint or role');
                             $scope.taskSaving = false;
 							return false;
 						}
-						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
+						if (taskJSON.nodeIds.length && taskJSON.blueprintIds) {
 							alert('Please choose either nodes or blueprints or role, not all');
                             $scope.taskSaving = false;
 							return false;
@@ -443,6 +451,7 @@
 						$scope.targetType="instance";
 					}
 				}
+				$scope.optionToggled();
 			});
 			workzoneServices.getJenkinsServerList().then(function (response) {
 				var data;
