@@ -361,7 +361,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 action: "Bootstrap",
                                                 logs: [{
                                                     err: false,
-                                                    logText: "Waiting for instance ok state",
+                                                    log: "Waiting for instance ok state",
                                                     timestamp: new Date().getTime()
                                                 }]
                                             };
@@ -421,7 +421,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     instanceLog.status = "running";
                                                     instanceLog.logs = {
                                                         err: false,
-                                                        logText: "Instance Ready..about to bootstrap",
+                                                        log: "Instance Ready..about to bootstrap",
                                                         timestamp: new Date().getTime()
                                                     };
                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -496,7 +496,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 instanceLog.bootStrap = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,
-                                                                    logText: "Bootstrap failed",
+                                                                    log: "Bootstrap failed",
                                                                     timestamp: new Date().getTime()
                                                                 };
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -530,7 +530,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 instanceLog.bootStrap = "success";
                                                                 instanceLog.logs = {
                                                                     err: false,
-                                                                    logText: "Instance Bootstraped successfully",
+                                                                    log: "Instance Bootstraped successfully",
                                                                     timestamp: new Date().getTime()
                                                                 };
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -588,7 +588,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 instanceLog.bootStrap = "failed";
                                                                 instanceLog.logs = {
                                                                     err: false,
-                                                                    logText: "Bootstrap Failed",
+                                                                    log: "Bootstrap Failed",
                                                                     timestamp: new Date().getTime()
                                                                 };
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -610,7 +610,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                                             instanceLog.logs = {
                                                                 err: false,
-                                                                logText: stdOutData.toString('ascii'),
+                                                                log: stdOutData.toString('ascii'),
                                                                 timestamp: new Date().getTime()
                                                             };
                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -633,7 +633,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 
                                                             instanceLog.logs = {
                                                                 err: false,
-                                                                logText: stdErrData.toString('ascii'),
+                                                                log: stdErrData.toString('ascii'),
                                                                 timestamp: new Date().getTime()
                                                             };
                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {

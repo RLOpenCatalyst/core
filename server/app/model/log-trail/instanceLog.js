@@ -48,7 +48,7 @@ var InstanceLogSchema = new Schema({
     action: String,
     logs: [{
         err: Boolean,
-        logText: String,
+        log: String,
         timestamp: Number
     }]
 });

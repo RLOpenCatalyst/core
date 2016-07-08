@@ -132,34 +132,34 @@ instancesDao.listInstances(function(err, instances) {
                                                 }
                                             });
                                         }
+                                        if (instance[0].actionLogs && instance[0].actionLogs.length) {
+                                            for (var x = 0; x < instance[0].actionLogs.length; x++) {
+                                                (function(x) {
+                                                    instanceLog.actionId = instance[0].actionLogs[x]._id;
+                                                    instanceLog.bgName = project[0].productgroupname;
+                                                    instanceLog.orgName = project[0].orgname[0];
+                                                    instanceLog.projectName = project[0].projectname;
+                                                    instanceLog.envName = instance[0].environmentName;
+                                                    instanceLog.createdOn = instance[0].actionLogs[x].timeStarted;
+                                                    instanceLog.startedOn = instance[0].actionLogs[x].timeStarted;
+                                                    instanceLog.endedOn = instance[0].actionLogs[x].timeEnded;
+                                                    instanceLog.user = instance[0].actionLogs[x].user;
+                                                    instanceLog.action = instance[0].actionLogs[x].name;
+                                                    logsDao.getLogsByActionId(instance[0].actionLogs[x]._id, function(err, logs) {
+                                                        if (err) {
+                                                            logger.error("Failed to fetch logs: ", err);
+                                                        }
+                                                        instanceLog.logs = logs;
+                                                        instanceLogModel.createOrUpdate(instance[0].actionLogs[x]._id, instance[0]._id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
+                                                        });
+                                                    });
+                                                })(x);
+                                            }
+                                        }
                                     });
-                                }
-                                if (instance[0].actionLogs && instance[0].actionLogs.length) {
-                                    for (var x = 0; x < instance[0].actionLogs.length; x++) {
-                                        (function(x) {
-                                            instanceLog.actionId = instance[0].actionLogs[x]._id;
-                                            instanceLog.bgName = instance[0].bgName;
-                                            instanceLog.orgName = instance[0].orgName;
-                                            instanceLog.projectName = instance[0].projectName;
-                                            instanceLog.envName = instance[0].environmentName;
-                                            instanceLog.createdOn = instance[0].actionLogs[x].timeStarted;
-                                            instanceLog.startedOn = instance[0].actionLogs[x].timeStarted;
-                                            instanceLog.endedOn = instance[0].actionLogs[x].timeEnded;
-                                            instanceLog.user = instance[0].actionLogs[x].user;
-                                            instanceLog.action = instance[0].actionLogs[x].name;
-                                            logsDao.getLogsByActionId(instance[0].actionLogs[x]._id, function(err, logs) {
-                                                if (err) {
-                                                    logger.error("Failed to fetch logs: ", err);
-                                                }
-                                                instanceLog.logs = logs;
-                                                instanceLogModel.createOrUpdate(instance[0].actionLogs[x]._id, instance[0]._id, instanceLog, function(err, logData) {
-                                                    if (err) {
-                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                    }
-                                                });
-                                            });
-                                        })(x);
-                                    }
                                 }
                             });
                         } else {

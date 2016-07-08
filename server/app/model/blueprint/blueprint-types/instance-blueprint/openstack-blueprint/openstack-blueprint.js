@@ -306,7 +306,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                     action: "Bootstrap",
                     logs: [{
                         err: false,
-                        logText: "Waiting for instance ok state",
+                        log: "Waiting for instance ok state",
                         timestamp: new Date().getTime()
                     }]
                 };
@@ -364,7 +364,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                 instanceLog.endedOn = new Date().getTime();
                                 instanceLog.logs = {
                                     err: false,
-                                    logText: "Instance was not associated with an IP",
+                                    log: "Instance was not associated with an IP",
                                     timestamp: new Date().getTime()
                                 };
                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -398,7 +398,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                             instanceLog.status = "running";
                             instanceLog.logs = {
                                 err: false,
-                                logText: "Instance Ready..about to bootstrap",
+                                log: "Instance Ready..about to bootstrap",
                                 timestamp: new Date().getTime()
                             };
                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -457,7 +457,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         instanceLog.bootStrap = "failed";
                                         instanceLog.logs = {
                                             err: true,
-                                            logText: "Bootstrap failed",
+                                            log: "Bootstrap failed",
                                             timestamp: new Date().getTime()
                                         };
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -489,7 +489,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         instanceLog.bootStrap = "success";
                                         instanceLog.logs = {
                                             err: false,
-                                            logText: "Instance Bootstraped successfully",
+                                            log: "Instance Bootstraped successfully",
                                             timestamp: new Date().getTime()
                                         };
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -546,7 +546,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         instanceLog.bootStrap = "failed";
                                         instanceLog.logs = {
                                             err: false,
-                                            logText: "Bootstrap Failed",
+                                            log: "Bootstrap Failed",
                                             timestamp: new Date().getTime()
                                         };
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -567,7 +567,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                     });
                                     instanceLog.logs = {
                                         err: false,
-                                        logText: stdOutData.toString('ascii'),
+                                        log: stdOutData.toString('ascii'),
                                         timestamp: new Date().getTime()
                                     };
                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -587,7 +587,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                     });
                                     instanceLog.logs = {
                                         err: true,
-                                        logText: stdErrData.toString('ascii'),
+                                        log: stdErrData.toString('ascii'),
                                         timestamp: new Date().getTime()
                                     };
                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
