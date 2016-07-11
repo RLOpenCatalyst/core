@@ -120,9 +120,9 @@ var InstanceLog = function() {
                 callback(err, null);
                 return;
             }
-            if(data && data.length){
-                return callback(null,data[0]);
-            }else{
+            if (data && data.length) {
+                return callback(null, data[0]);
+            } else {
                 var error = new Error("ActionLog not found.");
                 error.status = 404;
                 callback(err, null);
@@ -184,7 +184,30 @@ var InstanceLog = function() {
             }
             callback(null, data);
         });
+    }
 
+    this.pollInstanceActionLog = function(actionId, startTime, callback) {
+        
+        InstanceLogs.find({
+            actionId: actionId
+        }, function(err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            var logs =[];
+            if(data && data.length && data[0].logs.length){
+                for(var i=0; i<data[0].logs.length; i++){
+                    if(data[0].logs[i].timestamp > startTime){
+                        logs.push(data[0].logs[i]);
+                    }
+                }
+                data[0].logs = logs;
+                return callback(null, data[0]);
+            }else{
+                return callback(null, data);
+            }
+        });
     }
 }
 
