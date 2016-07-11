@@ -658,6 +658,31 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiSuccess {Object} Empty response object
      *
      */
-    app.delete('/composite-blueprints/:compositeBlueprintId', function(req, res) {
-    });
+    app.delete('/composite-blueprints/:compositeBlueprintId', deleteCompositeBlueprint);
+
+    function deleteCompositeBlueprint(req, res, next) {
+        async.waterfall([
+            // @TODO Authorization checks to be addded
+            function(next) {
+                if('user' in req.session) {
+                    userService.getUserOrgIds(req.session.user, next);
+                } else {
+                    next(null, req.user.orgIds);
+                }
+            },
+            function(orgs, next) {
+                compositeBlueprintService.checkCompositeBlueprintAccess(orgs,
+                    req.params.compositeBlueprintId, next);
+            },
+            function(compositeBlueprint, next) {
+                compositeBlueprintService.deleteCompositeBlueprint(compositeBlueprint._id, next);
+            },
+        ], function(err, compositeBlueprint) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send({});
+            }
+        });
+    }
 };

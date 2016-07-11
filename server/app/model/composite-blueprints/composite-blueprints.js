@@ -94,5 +94,20 @@ CompositeBlueprintSchema.statics.getAll
     );
 };
 
+CompositeBlueprintSchema.statics.deleteById = function deleteById(compositeBlueprintId, callback) {
+    this.update(
+        {'_id': compositeBlueprintId},
+        { $set: {isDeleted: true} },
+        function(err, compositeBlueprint) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, true);
+            }
+        }
+    )
+};
+
 var CompositeBlueprints = mongoose.model('compositeBlueprints', CompositeBlueprintSchema);
 module.exports = CompositeBlueprints;
