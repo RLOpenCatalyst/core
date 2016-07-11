@@ -1,0 +1,258 @@
+<html>
+	<head>
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../public/js/pagination.js"></script>
+		<link rel="stylesheet" href="../public/css/auditTrailLogs.css"></link>
+	</head>
+
+	<body>
+		<div class="tabContent table-responsive">
+			<div class="dataTables_length" id="taskLogTable_length">
+				<label>Show 
+					<select name="taskLogTable_length" id="taskLogTable_length_sel" aria-controls="taskLogTable">
+						<option value="10">10</option>
+						<option value="25">25</option>
+						<option value="50">50</option>
+						<option value="100">100</option>
+					</select> entries
+				</label>
+			</div>
+			<div id="taskLogTable_filter" class="dataTables_filter">
+				<label>Search:<input type="search" id="taskLogTable_filter_text" class="" placeholder="" aria-controls="taskLogTable"></label>
+			</div>
+			<!--Table to show all the task actions for all the tasks starts here-->
+			<table class="table table-hover table-bordered text-center" id="taskLogTable">
+				<thead>
+					<tr>
+						<th class="text-center">Job Type</th>
+						<th class="text-center">Name</th>
+						<th class="text-center">Instance</th>
+						<th class="text-center taskLogTable_sort sorting_desc" data-fieldname='timestampStarted'>Start Time</th>
+						<th class="text-center">End Time</th>
+						<th class="text-center">Status</th>
+						<th class="text-center">Org</th>
+						<th class="text-center">BU</th>
+						<th class="text-center">Project</th>
+						<th class="text-center">Env</th>
+						<th class="text-center">User</th>
+						<th class="text-center">Log</th>
+					</tr>
+				</thead>
+				<tbody class="taskLogTrail"></tbody>
+			</table>
+			<div id="green">
+		</div>
+		<!--Modal popup to show the logs for selected task action starts here-->
+		<div class="modal fade" id="taskLogsModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+						<h4 class="modal-title" id="myModalLabel">
+							<i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp; Logs
+						</h4>
+					</div>
+					<div class="modal-body">
+						<div class="logsArea"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--Modal popup to show the logs for selected task action ends here-->
+		<script>
+			$(document).ready(function(e) {
+				var pageSetting = {
+					page: 1,
+					pageSize: 10,
+					sortBy: "timestampStarted",
+					sortOrder: "desc",
+					search: ""
+				};
+
+				var taskLogsHandler = function(e) {
+					var taskActionId = $(this).attr('data-id');
+					console.log(taskActionId);
+					var timeout;
+					var $taskLogModalContainer = $('#taskLogsModalContainer');
+					$taskLogModalContainer.on('hidden.bs.modal', function(e) {
+						$taskLogModalContainer.off('hidden.bs.modal');
+						if (timeout) {
+							clearTimeout(timeout);
+						}
+					});
+					$taskLogModalContainer.find('.logsArea').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+					$taskLogModalContainer.modal('show');
+					var lastTimestamp;
+					//Showing the log for Tasks
+					function pollLogs(timestamp, delay, clearData) {
+						console.log(timestamp);
+						console.log(delay);
+						var url = '/audit-trail/task-action/' + taskActionId+'/logs';
+						url = url + '?timestamp=' + timestamp;
+						timeout = setTimeout(function() {
+							$.ajax({
+							  url: url,
+							  cache: false
+							}).done(function(data) {
+								console.log(data.logs);
+								var $modalBody = $taskLogModalContainer.find('.logsArea')
+								if (clearData) {
+									$modalBody.empty();
+								}
+								var $table = $('<table></table>');
+								for (var i = 0; i < data.logs.length; i++) {
+									var $rowDiv = $('<tr class="row rowSpacing"></tr>');
+									var timeString;
+									if(data.logs[i].timestamp){
+										timeString = new Date().setTime(data.logs[i].timestamp);
+									}
+									var date = new Date(timeString).toLocaleString();
+									var logStr ="";
+									if(data.logs[i].log){
+										logStr = data.logs[i].log;
+									}
+									if (data.logs[i].err) {
+										$rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:red;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + logStr + '</span>'));
+									} else {
+										$rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:DarkBlue;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + logStr + '</span>'));
+									}
+									$table.append($rowDiv);
+									lastTimestamp = data.logs[i].timestamp;
+									if (data.logs[i]) {
+										$modalBody.append($table);
+										$modalBody.scrollTop($modalBody[0].scrollHeight + 100);
+									}
+								 }
+								if ($taskLogModalContainer.data()['bs.modal'].isShown) {
+									pollLogs(lastTimestamp, 10000, false);
+								} else {
+									console.log('not polling again');
+								}
+							});
+						}, delay);
+					}
+					pollLogs(0, 0, true);
+				};
+
+				function getTasks() {
+					var url = '/audit-trail/task-action?page='+pageSetting.page+'&pageSize='+pageSetting.pageSize+'&sortBy='+pageSetting.sortBy+'&sortOrder='+pageSetting.sortOrder;
+					if(pageSetting.search != ''){
+						url += '&search='+pageSetting.search;
+					}
+					$.get(url, function(tasks) {
+						createTaskLogTable(tasks.taskLogs);
+						$('#green').smartpaginator(
+						{ 
+							totalrecords: tasks.metaData.totalRecords, 
+							recordsperpage: pageSetting.pageSize, 
+							datacontainer: 'mt', 
+							dataelement: 'tr', 
+							initval: pageSetting.page, 
+							next: 'Next', 
+							prev: 'Prev', 
+							first: 'First', 
+							last: 'Last', 
+							theme: 'green',
+							onchange: function(newPage){
+								pageSetting.page = newPage;
+								getTasks();
+							}
+						});
+					}).fail(function(jxhr) {
+						var msg = "Unable to fetch Tasks.";
+						if (jxhr.responseJSON && jxhr.responseJSON.message) {
+							msg = jxhr.responseJSON.message;
+						} else if (jxhr.responseText) {
+							msg = jxhr.responseText;
+						}
+						bootbox.alert(msg);
+					});
+				}
+				getTasks();
+
+				$("#taskLogTable_length_sel").change(function(){
+					pageSetting.pageSize = $(this).val();
+					getTasks();
+				});
+
+				$("#taskLogTable_filter_text").change(function(){
+					pageSetting.search = $(this).val();
+					getTasks();
+				});
+
+				$(".taskLogTable_sort").click(function(){
+					$(".sorting_desc").removeClass('sorting_desc');
+					$(".sorting_asc").removeClass('sorting_asc');
+					var sortBy = $(this).data('fieldname');
+					if(pageSetting.sortBy == sortBy){
+						pageSetting.sortOrder = (pageSetting.sortOrder == 'desc')? 'asc':'desc';
+					}
+					pageSetting.sortBy = sortBy;
+					$(this).addClass('sorting_'+pageSetting.sortOrder);
+					getTasks();
+				});
+
+				function createTaskLogTable(taskData) {
+					var managnedData = taskData;
+					console.log(managnedData);
+					var $tbody = $('#taskLogTable tbody').empty();
+					var $taskLogTable = $('#taskLogTable');
+					if(managnedData.length == 0) {
+						var $tbody = $('.taskLogTrail').append('<tr><td colspan="12"><span>No Tasks Available</span></td></tr>');
+					}
+					var $providerImg = '';
+					var $osImg = '';
+					for (var i = 0; i < managnedData.length; i++) {
+						var $tr = $('<tr class="taskLogTrail"></tr>').attr('data-id', managnedData[i].taskId);
+						if (managnedData[i].taskType == 'chef') {
+							$jobTypeImg = $("<img class ='imgStyle' src = '../private/img/chef.png' alt='taskType'/>");
+						} else if (managnedData[i].taskType == 'jenkins') {
+							$jobTypeImg = $("<img class ='imgStyle' src = '../private/img/jenkins.png' alt='taskType'/>");
+						} else if (managnedData[i].taskType == 'composite') {
+							$jobTypeImg = $("<img class ='imgStyle' src = '../private/img/composite.jpg' alt='taskType'/>");
+						} else if (managnedData[i].taskType == 'puppet') {
+							$jobTypeImg = $("<img class ='imgStyle' src = '../private/img/puppeticon.png' alt='taskType'/>");
+						} else if (managnedData[i].taskType == 'script') {
+							$jobTypeImg = $("<img class ='imgStyle' src = '../private/img/script.jpg' alt='taskType'/>");
+						}
+						var $tdJobType = $('<td></td>').append($jobTypeImg);
+						$tr.append($tdJobType);
+						var $tdJobName = $('<td></td>').append(managnedData[i].taskName);
+						$tr.append($tdJobName);
+						var $tdInstance = $('<td></td>').append(managnedData[i].executionResults.instanceId);
+						$tr.append($tdInstance);
+						var startTime = new Date(managnedData[i].timestampStarted).toLocaleString();
+						var $tdStartTime = $('<td></td>').append(startTime);
+						$tr.append($tdStartTime);
+						var endTime = new Date(managnedData[i].timestampEnded).toLocaleString();
+						var $tdEndTime = $('<td></td>').append(endTime);
+						$tr.append($tdEndTime);
+						var $tdStatus = $('<td></td>').append(managnedData[i].status);
+						$tr.append($tdStatus);
+						var $tdOrg = $('<td></td>').append(managnedData[i].orgName);
+						$tr.append($tdOrg);
+						var $tdBG = $('<td></td>').append(managnedData[i].bgName);
+						$tr.append($tdBG);
+						var $projectName = $('<td></td>').append(managnedData[i].projectName);
+						$tr.append($projectName);
+						var $environmentName = $('<td></td>').append(managnedData[i].envName);
+						$tr.append($environmentName);
+						var $tdUser = $('<td></td>').append(managnedData[i].user);
+						$tr.append($tdUser);
+						var $logIcon = $("<a data-original-title='MoreInfo' class='moreInfoLog' data-placement='top' rel='tooltip' href='javascript:void(0) data-toggle='modal' data-id=" + managnedData[i].executionResults.actionId + "><img class='moreInfo' src = '../private/img/galleryIcons/moreinfo.png' alt='moreInfo'/></a>");
+						var $tdLog = $('<td></td>').append($logIcon);
+						$tr.append($tdLog);
+						$logIcon.click(taskLogsHandler);
+						$tbody.append($tr);
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
