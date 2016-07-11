@@ -67,7 +67,6 @@ CompositeBlueprintSchema.statics.getById = function getById(compositeBlueprintId
         {'_id': compositeBlueprintId, 'isDeleted': false },
         function(err, compositeBlueprints) {
             if (err) {
-                logger.error(err);
                 return callback(err, null);
             } else if(compositeBlueprints && compositeBlueprints.length > 0) {
                 return callback(null, compositeBlueprints[0]);
@@ -107,6 +106,21 @@ CompositeBlueprintSchema.statics.deleteById = function deleteById(compositeBluep
             }
         }
     )
+};
+
+CompositeBlueprintSchema.statics.updateById
+    = function updateById(compositeBlueprintId, fields, callback) {
+    this.update(
+        {_id: compositeBlueprintId},
+        fields,
+        function(err, result) {
+            if (err) {
+                return callback(err, null);
+            } else if(result.ok == 1 && result.n == 1)  {
+                return callback(null, true);
+            }
+        }
+    );
 };
 
 var CompositeBlueprints = mongoose.model('compositeBlueprints', CompositeBlueprintSchema);

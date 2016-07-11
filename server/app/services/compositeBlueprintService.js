@@ -218,6 +218,49 @@ compositeBlueprintService.getCompositeBlueprintsList
     });
 };
 
+compositeBlueprintService.updateCompositeBlueprint
+    = function updateCompositeBlueprint(compositeBlueprint, updateFields, callback) {
+    var fields = {};
+    if('name' in updateFields) {
+        fields.name = updateFields.name;
+        compositeBlueprint.name = updateFields.name;
+    }
+
+    if('blueprints' in updateFields) {
+        fields.blueprints = updateFields.blueprints;
+        compositeBlueprint.blueprints = updateFields.blueprints;
+    }
+
+    compositeBlueprintModel.updateById(compositeBlueprint._id, fields, function(err, result) {
+        if(err || !result) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(result) {
+            callback(null, compositeBlueprint);
+        }
+    });
+};
+
+// @TODO State of blueprintframes to be accounted for while developing blueprintframe state APIs
+compositeBlueprintService.deleteCompositeBlueprint
+    = function deleteCompositeBlueprint(compositeBlueprintId, callback) {
+    compositeBlueprintModel.deleteById(compositeBlueprintId, function(err, deleted) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if(!deleted) {
+            var err = new Error('Composite blueprint not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
+        }
+    });
+};
+
 compositeBlueprintService.formatCompositeBlueprint
     = function formatCompositeBlueprint(compositeBlueprint, callback) {
     var compositeBlueprintObject = {
@@ -413,25 +456,6 @@ compositeBlueprintService.failedEventHandler
 
             blueprintFrame.state = null;
             blueprintFrame.save();
-        }
-    });
-};
-
-// @TODO State of blueprintframes to be accounted for while developing blueprintframe state APIs
-compositeBlueprintService.deleteCompositeBlueprint
-    = function deleteCompositeBlueprint(compositeBlueprintId, callback) {
-    compositeBlueprintModel.deleteById(compositeBlueprintId, function(err, deleted) {
-        if(err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        } else if(!deleted) {
-            var err = new Error('Composite blueprint not found');
-            err.status = 404;
-            return callback(err);
-        } else {
-            // @TODO response to be decided
-            return callback(null, {});
         }
     });
 };

@@ -421,107 +421,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     }
 
-
-    /**
-     * @api {post} /composite-blueprints/:compositeBlueprintId/launch       Launch composite blueprint
-     * @apiName lauchCompositeBlueprint
-     * @apiGroup composite-blueprints
-     *
-     * @apiParam {String} compositeBlueprintId                              Blueprint ID
-     *
-     * @apiSuccess {Object} Empty response object
-     *
-     * @apiSuccessExample {json} Success-Response:
-     * 		HTTP/1.1 200 OK
-     * 	    {
-     *          "launchID": "<MongoID>",
-     *          "name": "Blueprint1",
-     *          "organization": {
-     *              "id": "<MongoID>",
-     *              "name": "Organization1"
-     *          },
-     *          "businessGroup": {
-     *              "id": "<MongoID>",
-     *              "name": "BusinessGroup1"
-     *          },
-     *          "project": {
-     *              "id": "<MongoID>",
-     *              "name": "Project1"
-     *          },
-     *          "blueprints": [
-     *                      {
-     *                         "_id": "5756881cee06745903a776cc",
-     *                         "name": "test-blueprint",
-     *                         "templateId": "test-template",
-     *                         "templateType": "chef",
-     *                         "blueprintConfig": {
-     *                           "_id": "5756881cee06745903a776cb",
-     *                           "infraManagerData": {
-     *                             "versionsList": [
-     *                               {
-     *                                 "runlist": [
-     *                                   "recipe[apache2]"
-     *                                 ],
-     *                                 "attributes": [
-     *                                      {
-     *                                          "_id": "57720e75171e21a0128035df",
-     *                                          "jsonObj": {
-     *                                              "rlcatalyst": {
-     *                                                  "nexusUrl": "url"
-     *                                              }
-     *                                          },
-     *                                          "name": "Nexus Repo Url for Petclinic"
-     *                                      },
-     *                                      {
-     *                                          "_id": "57720e75171e21a0128035de",
-     *                                          "jsonObj": {
-     *                                              "rlcatalyst": {
-     *                                                  "version": "version"
-     *                                              }
-     *                                          },
-     *                                          "name": "Version"
-     *                                      }
-     *                                 ]
-     *                                 "ver": "0.1"
-     *                               }
-     *                             ],
-     *                             "latestVersion": "0.1"
-     *                           },
-     *                           "infraManagerId": "3b7701be-2134-45fd-8b34-2b4fabf4420c",
-     *                           "infraMangerType": "chef",
-     *                           "cloudProviderData": {
-     *                             "securityGroupIds": [
-     *                               "sg-e18e6085"
-     *                             ],
-     *                             "instanceCount": "1",
-     *                             "instanceOS": "linux",
-     *                             "imageId": "575687a7ee06745903a776a7",
-     *                             "subnetId": "subnet-12b4ea54",
-     *                             "region": "us-west-1",
-     *                             "vpcId": "vpc-52110130",
-     *                             "instanceUsername": "root",
-     *                             "instanceAmiid": "ami-ff89fb9f",
-     *                             "instanceType": "t2.micro",
-     *                             "keyPairId": "57568337ee06745903a773c6"
-     *                           },
-     *                           "cloudProviderId": "57568337ee06745903a773c5",
-     *                           "cloudProviderType": "aws"
-     *                         },
-     *                         "blueprintType": "instance_launch",
-     *                         "version": "1",
-     *                         "users": [],
-     *                         "appUrls": []
-     *                       }
-     *                  ]
-     *              }
-     *          ]
-     *      }
-     *
-     */
-    // @TODO Can become a different resource
-    app.post('/composite-blueprints/:compositeBlueprintId/launch', function(req, res) {
-    });
-
     /**
      * @api {patch} /composite-blueprints/:compositeBlueprintId          Update composite blueprint
      * @apiName updateCompositeBlueprint
@@ -645,8 +544,36 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          ]
      *      }
      */
-    app.patch('/composite-blueprints/:compositeBlueprintId', function(req, res) {
-    });
+    app.patch('/composite-blueprints/:compositeBlueprintId', updateCompositeBlueprint);
+
+    // @TODO Access check pending
+    function updateCompositeBlueprint(req, res, next) {
+        async.waterfall([
+            function(next) {
+                compositeBlueprintService.populateComposedBlueprints(req.body, next);
+            },
+            compositeBlueprintService.validateCompositeBlueprintCreateRequest,
+            function (updateFields, next) {
+                compositeBlueprintService.getCompositeBlueprint(req.params.compositeBlueprintId,
+                    function(err, compositeBlueprint) {
+                        if(err) {
+                            next(err);
+                        } else {
+                            next(null, compositeBlueprint, updateFields);
+                        }
+                });
+            },
+            compositeBlueprintService.updateCompositeBlueprint,
+            userService.updateOwnerDetails,
+            compositeBlueprintService.formatCompositeBlueprint
+        ], function(err, compositeBlueprint) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send(compositeBlueprint);
+            }
+        });
+    }
 
     /**
      * @api {delete} /composite-blueprints/:compositeBlueprintId    Delete blueprint
