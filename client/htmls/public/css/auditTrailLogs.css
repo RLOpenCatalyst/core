@@ -28,14 +28,13 @@ table {
 }
 
 .dataTables_length {
-    width: 30%;
-    float: left;
-    margin-left: 1%;
+    float: right;
+    margin-right: 1%;
 }
 
 .dataTables_filter {
-    float: right;
-    margin-right: 1%;
+    float: left;
+    margin-left: 1%;
 }
 
 .pager {
@@ -90,9 +89,8 @@ table {
 
 .pager span {
     margin-left: 4px;
-    float: left;
+    float: right;
     position: relative;
-    left: 10%;
     margin-top: 5px;
 }
 
@@ -135,17 +133,36 @@ table {
     border: solid 1px #ccc;
 }
 
-.instanceLogTable_sort{
+.table_sort{
     background-repeat: no-repeat;
     background-position: center right;
-    background-image: url("../private/img/sort_both.png");
+    background-image: url("/private/img/sort_both.png");
     cursor: pointer;
 }
 
-.instanceLogTable_sort.sorting_asc {
-    background-image: url("../private/img/sort_asc.png");
+.table_sort.sorting_asc {
+    background-image: url("/private/img/sort_asc.png");
 }
 
-.instanceLogTable_sort.sorting_desc {
-    background-image: url("../private/img/sort_desc.png");
+.table_sort.sorting_desc {
+    background-image: url("/private/img/sort_desc.png");
+}
+
+input, select, textarea {
+    vertical-align: middle;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, 0.6);
 }

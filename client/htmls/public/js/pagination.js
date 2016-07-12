@@ -61,11 +61,13 @@
                     container.find('span').remove();
                     var upper = (pageIndex + 1) * settings.recordsperpage;
                     if (upper > settings.totalrecords) upper = settings.totalrecords;
-                    container.append($('<span/>').append($('<b/>').text(pageIndex * settings.recordsperpage + 1)))
-                                             .append($('<span/>').text('-'))
-                                             .append($('<span/>').append($('<b/>').text(upper)))
-                                             .append($('<span/>').text('of'))
-                                             .append($('<span/>').append($('<b/>').text(settings.totalrecords)));
+                    container.append($('<span/>').text('entries'))
+                             .append($('<span/>').text(settings.totalrecords))
+                             .append($('<span/>').text('of'))
+                             .append($('<span/>').text(upper))
+                             .append($('<span/>').text('-'))
+                             .append($('<span/>').text(pageIndex * settings.recordsperpage + 1))
+                             .append($('<span/>').text('Showing'));
                 }
                 function buildNavigation(startPage) {
                     list.find('li').remove();
