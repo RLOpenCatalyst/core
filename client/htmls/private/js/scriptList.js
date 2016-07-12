@@ -1,31 +1,8 @@
-//initialising the datatable...
-if (!$.fn.dataTable.isDataTable('#scriptListTable')) {
-    var $scriptDatatable = $('#scriptListTable').DataTable({
-        "pagingType": "full_numbers",
-        "bInfo": false,
-        "bLengthChange": false,
-        "paging": false,
-        "bFilter": false,
-        "aoColumns": [{
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }]
-
-    });
-}
-
- function setfilename(val){
+function setfilename(val){
     $('#fileNameDisplay').empty();
     var fileName = val.substr(val.lastIndexOf("\\")+1, val.length);
     $("#fileNameDisplay").append(fileName);
-  }
+}
 
 //calling the global track functionality when track params are available..
 $(document).ready(function(e) {
@@ -71,17 +48,12 @@ var validator = $('#scriptForm').validate({
     },
     onkeyup: false,
     errorClass: "error",
-
-    //put error message behind each form element
     errorPlacement: function(error, element) {
-        console.log(error, element);
         var elem = $(element);
         if (element.parent('.input-groups').length) {
             error.insertBefore(element.parent());
         } else {
             if (element.parent('div.inputGroups')) {
-                console.log(element);
-                console.log(element.parent);
                 error.insertBefore('div.inputGroups');
             }
         }
@@ -91,105 +63,80 @@ $('a.addScriptItem[type="reset"]').on('click', function(e) {
     validator.resetForm();
 });
 
-
-//this is a functionality to get the list of script items that have been created....
 function getScriptList() {
-    //for getting the list of scripts
-    var scriptDetails = '../scriptExecutor';
-    $.get(scriptDetails, function(data) {
-        if (data && data.length) {
-            for (var kk = 0; kk < data.length; kk++) {
-                createTableForScript(data[kk]);
-            }
-        }
-    }).fail(function(jxhr) {
-        var msg = "Server Behaved Unexpectedly";
-        if (jxhr.responseJSON && jxhr.responseJSON.message) {
-            msg = jxhr.responseJSON.message;
-        } else if (jxhr.responseText) {
-            msg = jxhr.responseText;
-        }
-        bootbox.alert(msg);
-    });
-};
-
-
-//creating a table for showcasing the list of script items on the script gallery page..
-function createTableForScript(scriptData) {
-    var $scriptNameList = $('#scriptListTable tbody');
-    var $tr = $('<tr class="scriptItemRow"></tr>').attr('data-scriptId', scriptData._id).attr('data-type', scriptData.type);
-    $tr.data('scriptData', scriptData);
-
-    var $tdName = $('<td class="scriptName">' + scriptData.name + '</td>');
-    var $tdOrganization = $('<td class="scriptOrganization">' + scriptData.orgDetails.name + '</td>');
-    var $tdType = $('<td class="scriptType">' + scriptData.type + '</td>');
-    var $tdDescription = $('<td class="scriptDescription">' + scriptData.description + '</td>');
-
-    var $tdAction = $('<td/>');
-
-    $tdAction.append('<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton editRowScriptItem" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>').append('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton deleteScript" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
-
-    //for editing track items from the table...
-    $tdAction.find('button.editRowScriptItem').click(function() {
-        var $this = $(this);
-        var $tr = $this.parents('tr.scriptItemRow');
-        var scriptData = $tr.data('scriptData');
-        console.log(scriptData);
-        var scriptId = scriptData._id;
-        var $editModal = $('#modalForScriptEdit');
-        $editModal.modal('show');
-        $editModal.find('#scriptEditHiddenInput').val('edit');
-        $editModal.find('h4.modal-title').html('Edit Script &nbsp;-&nbsp;&nbsp;' + scriptData.name);
-        $editModal.find('#scriptName').val(scriptData.name);
-        $editModal.find('#scriptDescription').val(scriptData.description);
-        $editModal.find('#orgName').empty().append('<option value="'+scriptData.orgDetails.id+'">'+scriptData.orgDetails.name+'</option>').attr('disabled','disabled');
-        $editModal.find('#scriptType').val(scriptData.type).attr('disabled','disabled');
-        $editModal.find('#scriptHiddenInputId').val(scriptData._id);
-        console.log(scriptData.filePath);
-        $editModal.find('#fileNameDisplay').empty().append(scriptData.filePath);
-        return false;
-    });
-
-    //for deletion of script items from the table..
-    $tdAction.find('button.deleteScript').click(function() {
-
-        var $this = $(this);
-        var $tr = $this.parents('tr.scriptItemRow');
-        var scriptId = scriptData._id;
-        bootbox.confirm({
-            message: 'Are you sure you want to Delete Script Item -&nbsp;' + scriptData.name + '&nbsp;&nbsp;of Type-&nbsp;' + scriptData.type,
-            title: "Warning",
-            callback: function(result) {
-                if (result) {
-                    $.ajax({
-                        url: '../scriptExecutor/' + scriptId,
-                        method: 'DELETE',
-                        success: function() {
-                            $scriptDatatable.row($tr).remove().draw(false);
-                        },
-                        error: function(jxhr) {
-                            bootbox.alert(result);
-                            var msg = "Unable to Delete URL please try again later";
-                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                msg = jxhr.responseJSON.message;
-                            } else if (jxhr.responseText) {
-                                msg = jxhr.responseText;
-                            }
-                            bootbox.alert(msg);
-                        }
-                    });
-                } else {
-                    return;
+    $('#scriptListTable').DataTable( {
+        "processing": true,
+        "serverSide": true,
+        "destroy":true,
+        "createdRow": function( row, data ) {
+            $( row ).attr({"scriptId" : data._id,"scriptName":data.name,"scriptType":data.type, "scriptDesc" : data.description, "orgId" : data.orgDetails.id ,"orgName" : data.orgDetails.name,"scriptFileName" : data.fileDetails.name});
+        },
+        "ajax": '/scripts',
+        "columns": [
+            {"data": "name", "orderable" : true},
+            {"data": "orgDetails.name" ,"orderable" : false },
+            {"data": "type","orderable" : false  },
+            {"data": "description" ,"orderable" : false },
+            {"data": "","orderable" : true,
+                "render": function (data) {
+                    var $tdAction = '<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton editRowScriptItem" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>';
+                    $tdAction = $tdAction + '<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton deleteScript" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>';
+                    return $tdAction;
                 }
             }
-        });
-        return false;
-    });
-
-    $tr.append($tdName).append($tdOrganization).append($tdType).append($tdDescription).append($tdAction);
-    $scriptNameList.append($tr);
-    $scriptDatatable.row.add($tr).draw();
+        ]
+    } );
 };
+
+$('#scriptListTable tbody').on( 'click', 'button.editRowScriptItem', function(){
+    var $this = $(this);
+    var $tr = $(this).parents('tr.scriptItemRow');
+    var $editModal = $('#modalForScriptEdit');
+    $editModal.modal('show');
+    $editModal.find('#scriptEditHiddenInput').val('edit');
+    $editModal.find('h4.modal-title').html('Edit Script &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('scriptName'));
+    $editModal.find('#scriptName').val($this.parents('tr').attr('scriptName'));
+    $editModal.find('#scriptDescription').val($this.parents('tr').attr("scriptDesc"));
+    $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
+    $editModal.find('#scriptType').val($this.parents('tr').attr('scriptType')).attr('disabled','disabled');
+    $editModal.find('#scriptHiddenInputId').val($this.parents('tr').attr('scriptId'));
+    $editModal.find('#fileNameDisplay').empty().append($this.parents('tr').attr('scriptFileName'));
+    return false;
+});
+
+$('#scriptListTable tbody').on( 'click', 'button.deleteScript', function(){
+    var $this = $(this);
+    var $tr = $this.parents('tr.scriptItemRow');
+    bootbox.confirm({
+        message: 'Are you sure you want to Delete Script Item -&nbsp;' + $this.parents('tr').attr('scriptName') + '&nbsp;&nbsp;of Type-&nbsp;' + $this.parents('tr').attr('scriptType'),
+        title: "Warning",
+        callback: function(result) {
+            if (result) {
+                $.ajax({
+                    url: '../scripts/' + $this.parents('tr').attr('scriptId'),
+                    method: 'DELETE',
+                    success: function() {
+                        getScriptList();
+                    },
+                    error: function(jxhr) {
+                        bootbox.alert(result);
+                        var msg = "Unable to Delete URL please try again later";
+                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                            msg = jxhr.responseJSON.message;
+                        } else if (jxhr.responseText) {
+                            msg = jxhr.responseText;
+                        }
+                        bootbox.alert(msg);
+                    }
+                });
+            } else {
+                return;
+            }
+        }
+    });
+    return false;
+});
+
 
 //save form for creating a new script item and updation of the script item(name, description etc)..
 $('#scriptForm').submit(function(e) {
@@ -202,7 +149,7 @@ $('#scriptForm').submit(function(e) {
         $('#saveItemSpinner').removeClass('hidden');
         var $form = $('#scriptForm');
         var scriptData = {};
-        $this = $(this);
+        var $this = $(this);
         var name = $this.find('#scriptName').val().trim();
         var description = $this.find('#scriptDescription').val().trim();
         var type = $form.find('#scriptType').val();
@@ -211,7 +158,6 @@ $('#scriptForm').submit(function(e) {
         var scriptId = $form.find('#scriptHiddenInputId').val();
         var orgName = $form.find('#orgName :selected').text();
         var fileNameDisplay = $form.find('#scriptFile').val();
-        console.log(fileNameDisplay);
         var availableFileName = $form.find('#fileNameDisplay').text();
         var orgDetails = {
             name: orgName,
@@ -219,67 +165,56 @@ $('#scriptForm').submit(function(e) {
         }
         var url;
         var reqBody = {};
-        //for multipart form data upload..
         var formData = new FormData();
         formData.append('file', $('input[type=file]')[0].files[0]);
-
-        if(fileNameDisplay){
+        var methodName ='';
         $.ajax({
             method: "POST",
-            url: '../scriptExecutor/uploadScript',
+            url: '../scripts/uploadScript',
             data: formData,
             cache: false,
             contentType: false,
             processData: false,
             success: function(data, success) {
-                var filePath = data.filename;
-                filePath = filePath.split('_')[1];
-                //for edit
+                var fileName = data.fileName;
+                var fileDetails = {
+                    id:fileName.split('_')[0],
+                    name:fileName.split('_')[1],
+                    path:data.filePath
+                }
                 if (scriptEditNew === 'edit') {
-                    console.log(scriptEditNew);
-                    url = '../scriptExecutor/' + scriptId + '/update';
+                    url = '../scripts/update/scriptData';
+                    methodName = 'PUT';
                     reqBody = {
+                        "scriptId": scriptId,
                         "name": name,
+                        "type": type,
                         "description": description,
-                        "filePath": filePath
+                        "orgDetails": orgDetails,
+                        "fileDetails": fileDetails
                     };
                 } else {
-                    url = '../scriptExecutor';
+                    url = '../scripts/save/scriptData';
+                    methodName = 'POST';
                     reqBody = {
                         "name": name,
                         "type": type,
                         "description": description,
                         "orgDetails": orgDetails,
-                        "filePath": filePath
+                        "fileDetails": fileDetails
                     };
                 }
                 $.ajax({
-                    method: "POST",
+                    method: methodName,
                     url: url,
                     data: reqBody,
                     success: function(data, success) {
                         $('#modalForScriptEdit').modal('hide');
                         $('#saveItemSpinner').addClass('hidden');
                         $('#saveBtnScript').removeAttr('disabled');
-                        if (scriptEditNew === 'new') {
-                            createTableForScript(data);
-                            $('#saveBtnScript').removeAttr('disabled');
-                        } else {
-                            var $tr = $('tr[data-scriptId="' + scriptId + '"]');
-                            $tr.find('.scriptName').html(reqBody.name);
-                            $tr.find('.scriptDescription').html(reqBody.description);
-                            $tr.data('scriptData', {
-                                _id: scriptId,
-                                name: name,
-                                type: type,
-                                description: description,
-                                orgDetails : orgDetails,
-                                filePath: filePath
-                            });
-                        }
+                        getScriptList();
                     },
                     error: function(jxhr) {
-                        console.log(jxhr);
                         var msg = "Server Behaved Unexpectedly";
                         if (jxhr.responseJSON && jxhr.responseJSON.message) {
                             msg = jxhr.responseJSON.message;
@@ -287,12 +222,10 @@ $('#scriptForm').submit(function(e) {
                             msg = jxhr.responseText;
                         }
                         bootbox.alert(msg);
-
                         $('#saveItemSpinner').addClass('hidden');
                         $('#saveBtnScript').removeAttr('disabled');
                     },
                     failure: function(jxhr) {
-                        console.log(jxhr);
                         var msg = "Server Behaved Unexpectedly";
                         if (jxhr.responseJSON && jxhr.responseJSON.message) {
                             msg = jxhr.responseJSON.message;
@@ -306,52 +239,6 @@ $('#scriptForm').submit(function(e) {
                 });
             }
         });
-        }else{
-            //for edit
-            if (scriptEditNew === 'edit') {
-                console.log(scriptEditNew);
-                url = '../scriptExecutor/' + scriptId + '/update';
-                reqBody = {
-                    "name": name,
-                    "description": description,
-                    "filePath": availableFileName
-                };
-            }
-            $.ajax({
-                    method: "POST",
-                    url: url,
-                    data: reqBody,
-                    success: function(data, success) {
-                        $('#modalForScriptEdit').modal('hide');
-                        $('#saveItemSpinner').addClass('hidden');
-                        $('#saveBtnScript').removeAttr('disabled');
-                        var $tr = $('tr[data-scriptId="' + scriptId + '"]');
-                        $tr.find('.scriptName').html(reqBody.name);
-                        $tr.find('.scriptDescription').html(reqBody.description);
-                        $tr.data('scriptData', {
-                            _id: scriptId,
-                            name: name,
-                            type: type,
-                            description: description,
-                            orgDetails : orgDetails,
-                            filePath: availableFileName
-                        });
-                    },
-                    error: function(jxhr) {
-                        console.log(jxhr);
-                        var msg = "Server Behaved Unexpectedly";
-                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                            msg = jxhr.responseJSON.message;
-                        } else if (jxhr.responseText) {
-                            msg = jxhr.responseText;
-                        }
-                        bootbox.alert(msg);
-
-                        $('#saveItemSpinner').addClass('hidden');
-                        $('#saveBtnScript').removeAttr('disabled');
-                    }
-                });
-        }
         return false;
     }
 });

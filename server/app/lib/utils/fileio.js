@@ -147,12 +147,12 @@ module.exports.removeFile = function(path, callback) {
     fs.unlink(path, function(err) {
         if (err) {
             if (typeof callback === 'function') {
-                callback(err);
+                callback(err,null);
             }
             return;
         }
         if (typeof callback === 'function') {
-            callback(null);
+            callback(null,null);
         }
     });
 };
