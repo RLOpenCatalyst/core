@@ -49,6 +49,30 @@ var compositeBlueprintService = module.exports = {};
 compositeBlueprintService.SUCCESS_EVENT = 'success';
 compositeBlueprintService.FAILED_EVENT = 'failed';
 
+compositeBlueprintService.checkCompositeBlueprintAccess
+    = function checkCompositeBlueprintAccess(orgs, compositeBlueprintId, callback) {
+    compositeBlueprintService.getCompositeBlueprint(compositeBlueprintId, function(err, compositeBlueprint) {
+        if(err) {
+            return callback(err);
+        }
+
+        var authorized = orgs.reduce(function(a, b) {
+            if(b == compositeBlueprint.organizationId)
+                return true || a;
+            else
+                return false || a;
+        }, false);
+
+        if(!authorized) {
+            var err = new Error('Forbidden');
+            err.status = 403;
+            return callback(err);
+        } else {
+            return callback(null, compositeBlueprint);
+        }
+    });
+};
+
 compositeBlueprintService.populateComposedBlueprints
     = function populateComposedBlueprints(compositeBlueprint, callback) {
     if(!('blueprints' in compositeBlueprint)) {
@@ -190,6 +214,49 @@ compositeBlueprintService.getCompositeBlueprintsList
             return callback(err);
         } else if (compositeBlueprints) {
             return callback(null, compositeBlueprints);
+        }
+    });
+};
+
+compositeBlueprintService.updateCompositeBlueprint
+    = function updateCompositeBlueprint(compositeBlueprint, updateFields, callback) {
+    var fields = {};
+    if('name' in updateFields) {
+        fields.name = updateFields.name;
+        compositeBlueprint.name = updateFields.name;
+    }
+
+    if('blueprints' in updateFields) {
+        fields.blueprints = updateFields.blueprints;
+        compositeBlueprint.blueprints = updateFields.blueprints;
+    }
+
+    compositeBlueprintModel.updateById(compositeBlueprint._id, fields, function(err, result) {
+        if(err || !result) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if(result) {
+            callback(null, compositeBlueprint);
+        }
+    });
+};
+
+// @TODO State of blueprintframes to be accounted for while developing blueprintframe state APIs
+compositeBlueprintService.deleteCompositeBlueprint
+    = function deleteCompositeBlueprint(compositeBlueprintId, callback) {
+    compositeBlueprintModel.deleteById(compositeBlueprintId, function(err, deleted) {
+        if(err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if(!deleted) {
+            var err = new Error('Composite blueprint not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
         }
     });
 };
