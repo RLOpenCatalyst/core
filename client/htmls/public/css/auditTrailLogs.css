@@ -133,24 +133,19 @@ table {
     border: solid 1px #ccc;
 }
 
-.instanceLogTable_sort{
+.table_sort{
     background-repeat: no-repeat;
     background-position: center right;
     background-image: url("/private/img/sort_both.png");
     cursor: pointer;
 }
 
-.instanceLogTable_sort.sorting_asc {
+.table_sort.sorting_asc {
     background-image: url("/private/img/sort_asc.png");
 }
 
-.instanceLogTable_sort.sorting_desc {
+.table_sort.sorting_desc {
     background-image: url("/private/img/sort_desc.png");
-}
-
-input, select, textarea {
-    background: #fff;
-    border: 1px solid #ccc;
 }
 
 input, select, textarea {
