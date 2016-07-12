@@ -10,18 +10,18 @@
 
 	<body>
 		<div class="tabContent table-responsive">
-			<div class="dataTables_length" id="taskLogTable_length">
+			<div class="dataTables_filter">
+				<label>Search:&nbsp;<input type="search" id="table_filter_text" class="" placeholder="" aria-controls="taskLogTable"></label>
+			</div>
+			<div class="dataTables_length">
 				<label>Show 
-					<select name="taskLogTable_length" id="taskLogTable_length_sel" aria-controls="taskLogTable">
+					<select name="taskLogTable_length" id="table_length_sel" aria-controls="taskLogTable">
 						<option value="10">10</option>
 						<option value="25">25</option>
 						<option value="50">50</option>
 						<option value="100">100</option>
 					</select> entries
 				</label>
-			</div>
-			<div id="taskLogTable_filter" class="dataTables_filter">
-				<label>Search:<input type="search" id="taskLogTable_filter_text" class="" placeholder="" aria-controls="taskLogTable"></label>
 			</div>
 			<!--Table to show all the task actions for all the tasks starts here-->
 			<table class="table table-hover table-bordered text-center" id="taskLogTable">
@@ -30,7 +30,7 @@
 						<th class="text-center">Job Type</th>
 						<th class="text-center">Name</th>
 						<th class="text-center">Instance</th>
-						<th class="text-center taskLogTable_sort sorting_desc" data-fieldname='timestampStarted'>Start Time</th>
+						<th class="text-center table_sort sorting_desc" data-fieldname='timestampStarted'>Start Time</th>
 						<th class="text-center">End Time</th>
 						<th class="text-center">Status</th>
 						<th class="text-center">Org</th>
@@ -176,17 +176,17 @@
 				}
 				getTasks();
 
-				$("#taskLogTable_length_sel").change(function(){
+				$("#table_length_sel").change(function(){
 					pageSetting.pageSize = $(this).val();
 					getTasks();
 				});
 
-				$("#taskLogTable_filter_text").change(function(){
+				$("#table_filter_text").change(function(){
 					pageSetting.search = $(this).val();
 					getTasks();
 				});
 
-				$(".taskLogTable_sort").click(function(){
+				$(".table_sort").click(function(){
 					$(".sorting_desc").removeClass('sorting_desc');
 					$(".sorting_asc").removeClass('sorting_asc');
 					var sortBy = $(this).data('fieldname');

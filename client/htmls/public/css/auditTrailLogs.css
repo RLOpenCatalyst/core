@@ -89,9 +89,8 @@ table {
 
 .pager span {
     margin-left: 4px;
-    float: left;
+    float: right;
     position: relative;
-    left: 10%;
     margin-top: 5px;
 }
 

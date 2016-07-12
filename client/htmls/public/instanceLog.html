@@ -10,15 +10,15 @@
 </head>
 
 <body>
-	<div class="tabContent table-responsive" id="instanceListDiv">
-		<div id="instanceLogTable_filter" class="dataTables_filter">
-			<label>Search:
-				<input type="search" id="instanceLogTable_filter_text" class="search" placeholder="" aria-controls="instanceLogTable">
+	<div class="tabContent table-responsive">
+		<div class="dataTables_filter">
+			<label>Search:&nbsp;
+				<input type="search" id="table_filter_text" class="search" placeholder="" aria-controls="instanceLogTable">
 			</label>
 		</div>
-		<div class="dataTables_length" id="instanceLogTable_length">
+		<div class="dataTables_length">
 			<label>Show
-				<select name="instanceLogTable_length" id="instanceLogTable_length_sel" aria-controls="instanceLogTable">
+				<select name="instanceLogTable_length" id="table_length_sel" aria-controls="instanceLogTable">
 					<option value="10">10</option>
 					<option value="25">25</option>
 					<option value="50">50</option>
@@ -33,7 +33,7 @@
 					<th class="text-center">InstanceId</th>
 					<th class="text-center">Provider</th>
 					<th class="text-center">OS</th>
-					<th class="text-center instanceLogTable_sort sorting_desc" data-fieldname='createdOn'>Time
+					<th class="text-center table_sort sorting_desc" data-fieldname='createdOn'>Time
 					</th>
 					<th class="text-center">Status</th>
 					<th class="text-center">BootStrapStatus</th>
@@ -181,17 +181,17 @@
 			}
 			getInstances();
 
-			$("#instanceLogTable_length_sel").change(function() {
+			$("#table_length_sel").change(function() {
 				pageSetting.pageSize = $(this).val();
 				getInstances();
 			});
 
-			$("#instanceLogTable_filter_text").change(function() {
+			$("#table_filter_text").change(function() {
 				pageSetting.search = $(this).val();
 				getInstances();
 			});
 
-			$(".instanceLogTable_sort").click(function() {
+			$(".table_sort").click(function() {
 				$(".sorting_desc").removeClass('sorting_desc');
 				$(".sorting_asc").removeClass('sorting_asc');
 				var sortBy = $(this).data('fieldname');
