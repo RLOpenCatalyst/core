@@ -134,6 +134,8 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                     return callback(null,histories);
                 }
             }
+        }else{
+            return callback(null,histories);
         }
     });
 };
