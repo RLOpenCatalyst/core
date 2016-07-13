@@ -127,6 +127,23 @@ ScriptSchema.statics.getScriptById = function(scriptId,callback) {
     });
 };
 
+ScriptSchema.statics.getScriptByIds = function(scriptIds,callback) {
+    var queryObj = {};
+    if (scriptIds && scriptIds.length) {
+        queryObj._id = {
+            $in: scriptIds
+        };
+    }
+    this.find(queryObj, function(err, scripts) {
+        if (err) {
+            logger.error("Failed to getScriptByIds :: ", scriptIds, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, scripts);
+    });
+};
+
 ScriptSchema.statics.removeScriptById = function(scriptId, callback) {
     this.remove({
         "_id":  new ObjectId(scriptId)

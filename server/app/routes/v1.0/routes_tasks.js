@@ -520,37 +520,4 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
 
     });
-
-    app.post('/task/uploadScript', function(req, res) {
-
-        var fileName = uuid.v4();
-        if (!appConfig.scriptDir) {
-            res.send(500, {
-                message: "Unable to upload to scriptDir"
-            });
-            return;
-        }
-        if (req.files && req.files.file) {
-            console.log(req.files.file);
-            fileName = fileName + '_' + req.files.file.originalFilename;
-            var destPath = appConfig.scriptDir + fileName;
-            console.log(destPath);
-            fileIo.copyFile(req.files.file.path, destPath, function(err) {
-                if (err) {
-                    res.status(500).send({
-                        message: "Unable to save file"
-                    });
-                    return;
-                }
-                res.status(201).send({
-                    filename: fileName
-                });
-            });
-        } else {
-            res.status(400).send({
-                message: "Bad Request"
-            });
-        }
-    });
-
 };

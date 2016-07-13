@@ -25,7 +25,7 @@ const errorType = 'scriptService';
 
 var scriptService = module.exports = {};
 
-scriptService.getScripts = function getScripts(reqQuery,callback){
+scriptService.getScriptListWithPagination = function getScriptListWithPagination(reqQuery,callback){
     var reqObj = {};
     async.waterfall(
         [
@@ -149,3 +149,25 @@ scriptService.removeScriptById=function removeScriptById(scriptId,callback){
 
     })
 };
+
+scriptService.getScriptListByType = function getScriptListByType(filterBy,callback){
+    if(filterBy.split(':')[0] === 'scriptType') {
+        var scriptType = filterBy.split(':')[1];
+    }else{
+        var scriptType = 'bash';
+    }
+    async.waterfall([
+        function(next){
+            script.getScriptByType(scriptType,next);
+        }
+    ],function(err,results){
+        if (err) {
+            logger.error("Error while fetching All Scripts "+err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+}

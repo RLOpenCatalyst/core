@@ -23,25 +23,39 @@ var errorResponses = require('./error_responses');
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
 var fileIo = require('_pr/lib/utils/fileio');
+var scriptValidator =require('_pr/validators/scriptValidator.js');
+var validate = require('express-validation');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/scripts/*', sessionVerificationFunc);
 
 
     app.get('/scripts', function(req, res) {
-        scriptService.getScripts(req.query,function(err, scripts) {
-            if (err) {
-                res.send(errorResponses.db.error);
-                return;
-            }else{
-                res.send(scripts);
-                return;
-            }
-        });
+        if(req.query.filterBy){
+            scriptService.getScriptListByType(req.query.filterBy,function(err, scripts) {
+                if (err) {
+                    res.send(errorResponses.db.error);
+                    return;
+                }else{
+                    res.send(scripts);
+                    return;
+                }
+            });
+        }else {
+            scriptService.getScriptListWithPagination(req.query, function (err, scripts) {
+                if (err) {
+                    res.send(errorResponses.db.error);
+                    return;
+                } else {
+                    res.send(scripts);
+                    return;
+                }
+            });
+        }
     });
 
-    app.post('/scripts/save/scriptData',saveAndUpdateScript);
-    app.put('/scripts/update/scriptData',saveAndUpdateScript);
+    app.post('/scripts/save/scriptData',validate(scriptValidator.create),saveAndUpdateScript);
+    app.put('/scripts/update/scriptData',validate(scriptValidator.create),saveAndUpdateScript);
 
     function saveAndUpdateScript(req,res,next) {
         scriptService.saveAndUpdateScript(req.body, function (err, scripts) {
@@ -55,7 +69,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     }
 
-    app.get('/scripts/:scriptId', function(req, res) {
+    app.get('/scripts/:scriptId',validate(scriptValidator.get), function(req, res) {
         scriptService.getScriptById(req.params.scriptId, function(err, scripts) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -93,7 +107,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }
     });
 
-    app.delete('/scripts/:scriptId', function(req, res) {
+    app.delete('/scripts/:scriptId',validate(scriptValidator.get), function (req, res) {
         scriptService.removeScriptById(req.params.scriptId, function(err, script) {
             if (err) {
                 res.send("Error while removing script:");

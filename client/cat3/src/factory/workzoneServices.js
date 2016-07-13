@@ -302,13 +302,9 @@
 							'/projects/' + p.proj + '/environments/' + p.env + '/tasks';
 					return $http.post(fullUrl(url), data, Auth.getHeaderObject());
 				},
-				getScriptList: function () {
-					var url = '/scriptExecutor/';
+				getScriptList: function (scriptType) {
+					var url = '/scripts?filterBy=scriptType:'+scriptType;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
-				},
-				postFileUpload: function(data,postFormat) {
-					var url = '/task/uploadScript';
-					return $http.post(fullUrl(url), data, postFormat, Auth.getHeaderObject());
 				},
 				updateTask: function (data, id) {
 					var url = '/tasks/' + id + '/update';
