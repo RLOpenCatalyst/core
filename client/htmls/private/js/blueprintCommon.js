@@ -184,7 +184,9 @@ function softwareStackListing() {
                                 "bpData": data.blueprints[i]
                             }
                         };
-                        var option='<option data-value="' + data.blueprints[i]._id + '" value="'+data.blueprints[i]._id+'" >'+data.blueprints[i].version+'</option>';
+                        var optText=1;
+                        if(data.blueprints[i].version){ optText= data.blueprints[i].version;}
+                        var option='<option data-value="' + data.blueprints[i]._id + '" value="'+data.blueprints[i]._id+'" >'+optText+'</option>';
                         if(data.blueprints[i] && data.blueprints[i].versions){
                             for (var kk = 0; kk < data.blueprints[i].versions.length; kk++) {
                                 var varLop= data.blueprints[i].versions[kk];

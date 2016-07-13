@@ -259,6 +259,7 @@
 					};
 					confirmbox.showModal({}, modalOptions).then(function() {
 						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function(response) {
+							$scope.getAllCompsiteBlueprint();
 							toastr.success('Successfully deleted composite blueprint',{timeOut: 2000,closeButton: true});
 						}).error(function(data) {
 							toastr.error(data.message, 'Error',{timeOut: 2000,closeButton: true});
