@@ -83,5 +83,18 @@ ResourceMetricsSchema.statics.createNew = function createNew(data, callback) {
     });
 };
 
+ResourceMetricsSchema.statics.removeResourceUsageByProviderId = function(providerId, callback) {
+    ResourceMetrics.remove({
+        providerId: providerId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to removeResourceUsageByProviderId (%s)", providerId, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 var ResourceMetrics = mongoose.model('ResourceMetrics', ResourceMetricsSchema);
 module.exports = ResourceMetrics;

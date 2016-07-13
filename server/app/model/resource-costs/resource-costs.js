@@ -93,5 +93,50 @@ ResourceCostsSchema.statics.deleteResourceCostByResourceId = function(resourceId
     });
 };
 
+ResourceCostsSchema.statics.removeResourceCostByProviderId = function(providerId, callback) {
+    ResourceCosts.remove({
+        providerId: providerId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to removeResourceCostByProviderId (%s)", providerId, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+ResourceCostsSchema.statics.getResourceCostUpdatedTime = function(callback) {
+    ResourceCosts.aggregate(
+        [
+            {
+                $match: {
+                    resourceType: 'csv'
+                }
+            },
+            {
+            $sort: {
+                updatedTime: 1
+            }
+            }, {
+            $group: {
+                _id: "resourceId",
+                updatedTime: { $last: "$updatedTime" }
+            }
+        }],
+        function(err, updatedTime) {
+            if (err) {
+                logger.debug("Got error while fetching updatedTime: ", err);
+                callback(err, null);
+            }else{
+                if(updatedTime.length === 0){
+                    callback(null,0);
+                }else{
+                    callback(null,updatedTime[0].updatedTime);
+                }
+            }
+        });
+};
+
 var ResourceCosts = mongoose.model('ResourceCost', ResourceCostsSchema);
 module.exports = ResourceCosts;

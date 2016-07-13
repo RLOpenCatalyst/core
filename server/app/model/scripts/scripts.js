@@ -18,9 +18,7 @@ limitations under the License.
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
-var uniqueValidator = require('mongoose-unique-validator');
-
-// File which contains Track DB schema and DAO methods. 
+var mongoosePaginate = require('mongoose-paginate');
 
 var Schema = mongoose.Schema;
 
@@ -41,122 +39,130 @@ var ScriptSchema = new Schema({
         trim: true
     },
     orgDetails: {
-        name: {
-            type: String,
-            required: false
-        },
         id: {
             type: String,
-            required: true,
+            required: false,
+            trim: true
+        },
+        name: {
+            type: String,
+            required: false,
             trim: true
         }
     },
-    filePath: {
-        type: String,
-        required: false
+    fileDetails:{
+        id: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        name: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        path:{
+            type: String,
+            required: false,
+            trim: true
+        }
     },
     scriptCreatedOn: {
         type: Date,
         default: Date.now
     }
 });
+ScriptSchema.plugin(mongoosePaginate);
 
-// Get all Script information.
-ScriptSchema.statics.getScripts = function(callback) {
-    this.find(function(err, scripts) {
+ScriptSchema.statics.getScripts = function(query,callback) {
+    this.paginate(query.queryObj, query.options,
+        function(err, scripts) {
         if (err) {
-            logger.debug("Got error while fetching Script: ", err);
             callback(err, null);
-        }
-        if (scripts) {
-            logger.debug("Got Script: ", JSON.stringify(scripts));
+        }else{
             callback(null, scripts);
         }
     });
 };
 
-// Save all Script informations.
 ScriptSchema.statics.createNew = function(scriptData, callback) {
     var script = new this(scriptData);
     script.save(function(err, scripts) {
         if (err) {
-            logger.debug("Got error while creating Script: ", err);
             callback(err, null);
-        }
-        if (scripts) {
-            logger.debug("Creating Script: ", JSON.stringify(scripts));
+        }else{
             callback(null, scripts);
         }
     });
 };
 
-// Update all Script informations.
-ScriptSchema.statics.updateScript = function(scriptId, scriptData, callback) {
-
-    logger.debug("Update Script" , JSON.stringify(scriptData));
+ScriptSchema.statics.updateScript = function(scriptData, callback) {
     this.update({
-        "_id": new ObjectId(scriptId)
+        "_id": new ObjectId(scriptData.scriptId)
     }, {
         $set: {
             "name": scriptData.name,
             "description": scriptData.description,
-            "filePath": scriptData.filePath
-        }
+            "fileDetails": scriptData.fileDetails
+        },
+    },{
+        upsert: false
     }, function(err, updateCount) {
         if (err) {
-            logger.debug("Got error while creating scripts: ", err);
-            callback(err, null);
+            callback(err,null);
         }
-        logger.debug("updated data",JSON.stringify(scriptData));
-        callback(null, updateCount);
-
+        callback(null,updateCount);
     });
 };
 
-// Get all Script informations.
-ScriptSchema.statics.getScriptById = function(scriptId, callback) {
+ScriptSchema.statics.getScriptById = function(scriptId,callback) {
     this.find({
         "_id": new ObjectId(scriptId)
     }, function(err, scripts) {
         if (err) {
-            logger.debug("Got error while fetching Scripts: ", err);
             callback(err, null);
-            return;
-        }
-        if (scripts) {
-            logger.debug("Got Script: ", JSON.stringify(scripts[0]));
-            callback(null, scripts[0]);
-        }
-    });
-};
-
-// Remove Script informations.
-ScriptSchema.statics.removeScripts = function(scriptId, callback) {
-    this.remove({
-        "_id": scriptId
-    }, function(err, scripts) {
-        if (err) {
-            logger.debug("Got error while removing Scripts: ", err);
-            callback(err, null);
-        }
-        if (scripts) {
-            logger.debug("Remove Success....");
+        }else{
             callback(null, scripts);
         }
     });
 };
 
-//find entry by type.
+ScriptSchema.statics.getScriptByIds = function(scriptIds,callback) {
+    var queryObj = {};
+    if (scriptIds && scriptIds.length) {
+        queryObj._id = {
+            $in: scriptIds
+        };
+    }
+    this.find(queryObj, function(err, scripts) {
+        if (err) {
+            logger.error("Failed to getScriptByIds :: ", scriptIds, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, scripts);
+    });
+};
+
+ScriptSchema.statics.removeScriptById = function(scriptId, callback) {
+    this.remove({
+        "_id":  new ObjectId(scriptId)
+    }, function(err, scripts) {
+        if (err) {
+            callback(err, null);
+        }else{
+            callback(null, scripts);
+        }
+    });
+};
+
 ScriptSchema.statics.getScriptByType = function(scriptType, callback) {
     this.find({
         "type": scriptType
     }, function(err, scripts) {
         if (err) {
-            logger.debug("Got error while fetching Script: ", err);
             callback(err, null);
-            return;
-        }
-        if (scripts) {
+        }else{
             callback(null, scripts);
         }
     });

@@ -2451,15 +2451,15 @@ hr {
     padding: 8px 17px 8px 54px !important;
 }
 .smart-style-1 nav ul ul li > span {} .smart-style-1 nav ul ul li > span {
-    color: #E1EAF1;
-    display: block;
-    font-size: 13px;
-    font-weight: 300;
-    padding-bottom: 6px !important;
-    padding-left: 43px;
-    padding-top: 6px !important;
-    text-shadow: 0 1px 1px #000000;
-}
+                                          color: #E1EAF1;
+                                          display: block;
+                                          font-size: 13px;
+                                          font-weight: 300;
+                                          padding-bottom: 6px !important;
+                                          padding-left: 43px;
+                                          padding-top: 6px !important;
+                                          text-shadow: 0 1px 1px #000000;
+                                      }
 .domain-roles-heading {
     font-size: 12px;
     height: 25px;
@@ -2624,8 +2624,8 @@ body {
     text-align: center;
 }
 .instance-state {} .instance-state-text-started {
-    color: #008000;
-}
+                       color: #008000;
+                   }
 .instance-state-text-stopped {
     color: red;
 }
@@ -2728,7 +2728,7 @@ body {
         -ms-filter: none !important;
     }
     /* Black prints faster: h5bp.com/s */
-    
+
     a,
     a:visited {
         text-decoration: underline;
@@ -2745,7 +2745,7 @@ body {
         content: "";
     }
     /* Don't show links for images, or javascript/internal links */
-    
+
     pre,
     blockquote {
         border: 1px solid #999;
@@ -2755,7 +2755,7 @@ body {
         display: table-header-group;
     }
     /* h5bp.com/t */
-    
+
     tr,
     img {
         page-break-inside: avoid;
@@ -3012,8 +3012,8 @@ body {
     margin: 2px;
 }
 .chefCookbookList {} .disabled {
-    display: none;
-}
+                         display: none;
+                     }
 .blueprintContainer {
     display: ;
 }
@@ -3082,8 +3082,8 @@ body {
     width: 100%;
 }
 .fa-1.7x {
-    font-size: 1.7em;
-}
+           font-size: 1.7em;
+       }
 #logo img {
     width: 100px !important;
 }
@@ -3907,8 +3907,8 @@ span.icon {
     margin-left: 10px;
     margin-top: 15px;
     padding:3px 5px;
- }
- .launchIcon{
+}
+.launchIcon{
     border-radius: 11px;
     height:25px;
     width:25px;
@@ -3924,7 +3924,7 @@ span.icon {
     position: absolute;
 }
 .versionModalBody{
-   height: 272px;
+    height: 272px;
     margin-top: -13px;
     overflow-x: scroll;
 }
@@ -3934,7 +3934,7 @@ span.icon {
     margin-left: 15px;
     margin-right: 0;
     width: 162px;*/
-   
+
 }
 .versionoption{
     border-top: 1px solid #eeeeee;
@@ -4437,35 +4437,35 @@ form.cmxform .gray * {
     width:56%;
 }
 @media(max-width:978px){
-  #selectOrgName{
-    width:48%;
-}
-.orgSelectDropDown{
-    font-size: 11px;
-}
-.spanName{
-    width:43%;
-    margin-top: -40px;
-}
+    #selectOrgName{
+        width:48%;
+    }
+    .orgSelectDropDown{
+        font-size: 11px;
+    }
+    .spanName{
+        width:43%;
+        margin-top: -40px;
+    }
 
 }
 @media(min-width:979px) and (max-width:1199px){
-.spanName{
-    width:40%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:40%;
+        margin-top:-40px;
+    }
 }
 @media(min-width:1200px) and (max-width:1400px){
-.spanName{
-    width:34%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:34%;
+        margin-top:-40px;
+    }
 }
 @media(min-width:1401px){
-.spanName{
-    width:26%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:26%;
+        margin-top:-40px;
+    }
 }
 /*Class added in Dev Angular to show the blue color for active classes.*/
 .custom-theme .left-projects-links > a.active i {

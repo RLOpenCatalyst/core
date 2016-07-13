@@ -370,7 +370,7 @@
 			var allInstances = workzoneServices.getCurrentEnvInstances();
 			var allBlueprints = workzoneServices.getBlueprints();
             var allRunlist = workzoneServices.getCookBookListForOrg();
-            var allScripts = workzoneServices.getScriptList();
+            var allScripts = workzoneServices.getScriptList('Bash');
 			$q.all([allInstances,allBlueprints,allRunlist,allScripts]).then(function(promiseObjs) {
                 $scope.isTargetTypesLoading = false;
 				var instances = promiseObjs[0].data;

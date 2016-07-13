@@ -73,7 +73,6 @@ function TaskStatusClass(taskId) {
     };
 
     this.getStatusByTimestamp = function(timestamp, callback) {
-
         taskStatusDao.getTaskStatusById(taskId, function(err, taskStatus) {
             if (err) {
                 logger.debug('unable to get taskstatus', err);
@@ -81,8 +80,7 @@ function TaskStatusClass(taskId) {
                     callback(err, null);
                 }
                 return;
-            }
-            if (!taskStatus.length) {
+            }else if (taskStatus.length === 0) {
                 callback(null, null);
                 return;
             } else {

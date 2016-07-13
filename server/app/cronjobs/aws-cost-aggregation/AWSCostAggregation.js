@@ -24,13 +24,13 @@ var month = date.getMonth() + 1;
 if (month < 10) {
     month = '0' + month;
 };
-var accountNumber = '549974527830';
-var fullKey = accountNumber + "-aws-billing-detailed-line-items-with-resources-and-tags-" + year + "-" + month + ".csv.zip";
-var csvFile = appConfig.aws.s3BucketDownloadFileLocation + accountNumber + "-aws-billing-detailed-line-items-with-resources-and-tags-" + year + "-" + month + ".csv";
+var accountNumber = appConfig.aws.s3AccountNumber;
+var fullKey = accountNumber + appConfig.aws.s3CSVFileName + year + "-" + month + ".csv.zip";
+var csvFile = appConfig.aws.s3BucketDownloadFileLocation + accountNumber + appConfig.aws.s3CSVFileName + year + "-" + month + ".csv";
 
 
 var AggregateAWSCost= Object.create(CatalystCronJob);
-AggregateAWSCost.interval = '0 */2 * * *';
+AggregateAWSCost.interval = '*/5 * * * *';
 AggregateAWSCost.execute = aggregateAWSCost;
 
 module.exports = AggregateAWSCost;
@@ -39,103 +39,142 @@ function aggregateAWSCost() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
             logger.error(err);
-        } else {
-            aggregateCostForProvidersOfOrg.apply(aggregateCostForProvidersOfOrg, orgs);
-        }
-    });
-}
+        }else if(orgs.length > 0){
+            for(var i = 0; i < orgs.length; i++){
+                (function(org){
+                    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
+                        if(err) {
+                            logger.error(err);
+                            return;
+                        } else if(providers.length > 0){
+                            var count = 0;
+                            for(var j = 0; j < providers.length; j++){
+                                (function(provider){
+                                    if(provider.s3BucketName !== ''){
+                                        count++;
+                                        aggregateAWSCostForProvider(provider)
+                                    }else{
+                                        logger.info("S3 Bucket Name is not present in "+provider.providerName+" for Cost Aggregation ");
+                                        count++;
+                                    }
+                                })(providers[j]);
+                            }
+                            if(count ===providers.length){
+                                return;
+                            }
 
-function aggregateCostForProvidersOfOrg(org) {
-    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
-        if(err) {
-            logger.error(err);
-        } else {
-            aggregateAWSCostForProvider.apply(aggregateAWSCostForProvider, providers);
+                        }else{
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for AWS Cost Aggregation");
+                            return;
+                        }
+                    });
+
+                })(orgs[i]);
+            }
+
+        }else{
+            logger.info("Please configure Organization for Aws Cost Aggregation");
+            return;
         }
     });
 }
 
 function aggregateAWSCostForProvider(provider) {
-    var instanceObj={};
-    var resourceObj={};
+    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' started');
+    var instanceObj = {};
+    var resourceObj = {};
     async.waterfall([
-        function(next){
-            logger.debug('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' started');
-            resourceService.getTotalCost(provider,next);
-        },
-        function(totalCost,next){
-            resourceService.getCostForServices(provider,next);
-        },
-        function (serviceCost,next){
-            downloadUpdatedCSVFile(provider,next);
-        },
-        function (downloadStatus,next) {
-            if(downloadStatus){
-                instanceService.getTrackedInstancesForProvider(provider, next);
-            }else{
-                next(null,downloadStatus)
+            function (next) {
+                resourceService.getTotalCost(provider, next);
+            },
+            function (totalCost, next) {
+                resourceService.getCostForServices(provider, next);
+            },
+            function (serviceCost, next) {
+                downloadUpdatedCSVFile(provider, next);
+            },
+            function (downloadStatus, next) {
+                async.waterfall([
+                    function(next){
+                        instanceService.getTrackedInstancesForProvider(provider, next);
+                    },
+                    function (provider, instances, next) {
+                        instanceObj = instances;
+                        async.parallel({
+                            instanceIds: function (callback) {
+                                instanceIdList(instances, callback);
+                            },
+                            bucketNames: function (callback) {
+                                bucketNameList(provider, callback);
+                            },
+                            rdsDBNames: function (callback) {
+                                rdsDBNameList(provider, callback);
+                            },
+                            bucketResource: function (callback) {
+                                resources.getResourcesByProviderResourceType(provider._id, 'S3', callback);
+                            },
+                            rdsResource: function (callback) {
+                                resources.getResourcesByProviderResourceType(provider._id, 'RDS', callback);
+                            }
+                        }, function (err, results) {
+                            if (err) {
+                                next(err);
+                            } else {
+                                next(null, results);
+                            }
+                        });
+                    },
+                    function (resources, next) {
+                        resourceObj = resources;
+                        resourceService.getCostForResources(lastModified, provider, resources.bucketNames, resources.instanceIds, resources.rdsDBNames, csvFile, next);
+                    },
+                    function (costMetrics, next) {
+                        async.parallel({
+                            managedCostMetrics: function (callback) {
+                                updateManagedInstanceCost(instanceObj.managed, costMetrics.instanceCostMetrics, callback);
+                            },
+                            unManagedCostMetrics: function (callback) {
+                                updateUnManagedInstanceCost(instanceObj.unmanaged, costMetrics.instanceCostMetrics, callback);
+                            },
+                            instanceCostMetrics: function (callback) {
+                                saveInstanceResourceCost(instanceObj, costMetrics.instanceCostMetrics, callback);
+                            },
+                            bucketCostMetrics: function (callback) {
+                                updateResourceCost(resourceObj.bucketResource, costMetrics.bucketCostMetrics, callback);
+                            },
+                            rdsDBInstancesMetrics: function (callback) {
+                                updateResourceCost(resourceObj.rdsResource, costMetrics.dbInstanceCostMetrics, callback);
+                            }
+                        }, function (err, results) {
+                            if (err) {
+                                next(err);
+                            } else {
+                                next(null, results);
+                            }
+                        });
+                    }
+                ],function(err,results){
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, downloadStatus);
+                    }
+                });
+            }],
+        function (err, results) {
+            if (err) {
+                logger.error(err);
+            } else {
+                if (results === false) {
+                    logger.info("File updated time is same as DB updated time");
+                    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
+                    return;
+                } else {
+                    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
+                    return;
+                }
             }
-        },
-        function (provider, instances, next) {
-            instanceObj=instances;
-            async.parallel({
-                instanceIds: function(callback) {
-                    instanceIdList(instances,callback);
-                },
-                bucketNames: function(callback) {
-                    bucketNameList(provider,callback);
-                },
-                rdsDBNames: function(callback) {
-                    rdsDBNameList(provider,callback);
-                },
-                bucketResource: function(callback){
-                    resources.getResourcesByProviderResourceType(provider._id,'S3',callback);
-                },
-                rdsResource: function(callback){
-                    resources.getResourcesByProviderResourceType(provider._id,'RDS',callback);
-                }
-            }, function(err, results){
-                if(err) {
-                    next(err);
-                } else {
-                    next(null, results);
-                }
-            });
-        },
-        function(resources,next){
-            resourceObj=resources;
-            resourceService.getCostForResources(date,provider,resources.bucketNames,resources.instanceIds,resources.rdsDBNames,csvFile,next);
-        },
-        function(costMetrics, next) {
-            async.parallel({
-                managedCostMetrics: function(callback) {
-                    updateManagedInstanceCost(instanceObj.managed,costMetrics.instanceCostMetrics, callback);
-                },
-                unManagedCostMetrics: function(callback) {
-                    updateUnManagedInstanceCost(instanceObj.unmanaged,costMetrics.instanceCostMetrics, callback);
-                },
-                instanceCostMetrics: function(callback) {
-                    saveInstanceResourceCost(instanceObj,costMetrics.instanceCostMetrics,callback);
-                },
-                bucketCostMetrics: function(callback) {
-                    updateResourceCost(resourceObj.bucketResource,costMetrics.bucketCostMetrics,callback);
-                },
-                rdsDBInstancesMetrics: function(callback) {
-                    updateResourceCost(resourceObj.rdsResource,costMetrics.dbInstanceCostMetrics,callback);
-                }
-            }, function(err, results){
-                if(err) {
-                    next(err);
-                } else {
-                    next(null, results);
-                }
-            });
-        }], function(err, results) {
-        if(err)
-            logger.error(err);
-        else if(results)
-            logger.debug('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
-    });
+        });
 };
 
 function downloadUpdatedCSVFile(provider, next) {
@@ -156,17 +195,21 @@ function downloadUpdatedCSVFile(provider, next) {
         Key: fullKey
     };
     async.waterfall([
-            function (next) {
+            function(next){
+                resourceCost.getResourceCostUpdatedTime(next);
+            },
+            function (dbUpdatedTime,next) {
+                lastModified =dbUpdatedTime;
                 s3.getObject(params, 'time', next);
             },
-            function (updateTime, next) {
-                var temp = String(updateTime).split(',');
+            function (csvFileUpdatedTime, next) {
+                var temp = String(csvFileUpdatedTime).split(',');
                 var changedTime = new Date(temp[1]).getTime();
                 if (lastModified < changedTime) {
                     lastModified =changedTime;
                     s3.getObject(params, 'file', next);
                 } else {
-                    next(null, updateTime);
+                    next(null, false);
                 }
             }],
         function(err,results){
@@ -174,7 +217,7 @@ function downloadUpdatedCSVFile(provider, next) {
                 logger.error(err);
                 next(err);
             }else{
-                if(results) {
+                if(results === true) {
                     var path=appConfig.aws.s3BucketDownloadFileLocation;
                     var fileName=appConfig.aws.s3BucketFileName;
                     var zip = new AdmZip(path+fileName);

@@ -2,98 +2,187 @@ var logger = require('_pr/logger')(module);
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
-var instancesDao = require('_pr/model/classes/instance/instance');
-var unManagedInstancesDao = require('_pr/model/unmanaged-instance');
 var tagsModel = require('_pr/model/tags');
+var async = require('async');
+var resources = require('_pr/model/resources/resources');
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 
 var ProviderTagsAggregation = Object.create(CatalystCronJob);
-ProviderTagsAggregation.execute = aggregation;
+ProviderTagsAggregation.execute = providerTagAggregation;
 
 module.exports = ProviderTagsAggregation;
 
-//  @TODO To be refactored (High priority)
-function aggregation() {
-    logger.info('Tags aggregation started');
-    var orgs = MasterUtils.getAllActiveOrg(function(err, orgs) {
-        if (err) {
-            logger.error('Unable to fetch orgs ==>', err);
-            return;
-        }
-        if (!(orgs && orgs.length)) {
-            logger.warn('No org found');
-            return;
-        }
-        for (var i = 0; i < orgs.length; i++) {
-            (function (org) {
-                AWSProvider.getAWSProvidersByOrgId(org._id, function (err, providers) {
-                    if (err) {
-                        logger.error("Unable to get aws providers :", err);
-                        return;
-                    }
-                    else {
-                        for (var j = 0; j < providers.length; j++) {
-                            (function (provider) {
-                                tagsModel.getTagsByProviderId(provider._id, function(err, tags) {
 
-                                    if(err) {
-                                        logger.error("Unable to get tags for provider");
-                                        return;
-                                    } else {
-                                        var tagDetails = {};
-                                        for(var l = 0; l < tags.length; l++) {
-                                            tagDetails[tags[l].name] = tags[l];
-                                        }
+function providerTagAggregation() {
+    MasterUtils.getAllActiveOrg(function(err, orgs) {
+        if(err) {
+            logger.error(err);
+        }else if(orgs.length > 0){
+            for(var i = 0; i < orgs.length; i++){
+                (function(org){
+                    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
+                        if(err) {
+                            logger.error(err);
+                            return;
+                        } else if(providers.length > 0){
+                            var count = 0;
+                            for(var j = 0; j < providers.length; j++){
+                                (function(provider){
+                                    count++;
+                                    aggregateTagForProvider(provider)
+                                })(providers[j]);
+                            }
+                            if(count ===providers.length){
+                                return;
+                            }
 
-                                        unassignedInstancesModel.getByProviderId(provider._id, function(err, instances) {
-                                            for(var m = 0; m < instances.length; m++) {
-                                                for(var tagName in instances[m].tags) {
-
-                                                    var tagValue = instances[m].tags[tagName];
-                                                    if(tagName in tagDetails) {
-                                                        if (tagDetails[tagName].values.indexOf(tagValue) < 0) {
-                                                            tagDetails[tagName].values.push(tagValue);
-                                                        }
-                                                    } else {
-                                                        tagDetails[tagName] = {
-                                                            'providerId': provider._id,
-                                                            'orgId': org.rowid,
-                                                            'name': tagName,
-                                                            'values': [tagValue],
-                                                            'new': true
-                                                        }
-                                                    }
-
-                                                }
-                                            }
-
-                                            for(var tagName in tagDetails) {
-                                                if(tagDetails[tagName].new) {
-                                                    var tagObject = tagDetails[tagName];
-                                                    delete tagObject.new;
-                                                    tagsModel.createNew(tagObject);
-                                                } else {
-                                                    var params = {
-                                                        'providerId': provider._id,
-                                                        'name': tagName
-                                                    }
-                                                    var fields = {
-                                                        'values': tagDetails[tagName].values
-                                                    }
-                                                    tagsModel.updateTag(params, fields);
-                                                }
-                                            }
-                                        });
-                                    }
-
-                                })
-                                logger.info('Tags aggregation for provider ', provider._id);
-                            })(providers[j]);
-                            logger.info('Tags aggregation ended');
+                        }else{
+                            logger.info("Please configure Provider in Organization " +org.orgname+" for  Tag Aggregation");
+                            return;
                         }
-                    }
-                });
-            })(orgs[i]);
+                    });
+
+                })(orgs[i]);
+            }
+
+        }else{
+            logger.info("Please configure Organization for Tag Aggregation");
+            return;
         }
     });
-}
+};
+
+function aggregateTagForProvider(provider) {
+    var tags={};
+    logger.info('Tags aggregation started for provider '+provider._id);
+    async.waterfall([
+        function (next) {
+            tagsModel.getTagsByProviderId(provider._id, next);
+        },
+        function (tags, next) {
+            var tagDetails = {};
+            var count = 0;
+            if (tags.length === 0) {
+                next(null, tags);
+            } else {
+                for (var i = 0; i < tags.length; i++) {
+                    tagDetails[tags[i].name] = tags[i];
+                    if (i === tags.length - 1) {
+                        next(null, tagDetails);
+                    }
+                }
+            }
+        },
+        function (tagDetails, next) {
+            tags = tagDetails;
+            getResourcesForTagAggregation(provider,next);
+        },
+        function (resourceDetails, next) {
+            getResourceTags(tags,resourceDetails,provider, next);
+        },
+        function (tagsDetails, next) {
+            saveAndUpdateResourceTags(tagsDetails,provider, next);
+        }
+    ], function (err, results) {
+        if (err) {
+            logger.error(err);
+            return;
+        }else {
+            logger.info('Tags aggregation ended for Provider'+provider._id);
+            return;
+        }
+    })
+};
+
+function getResourcesForTagAggregation(provider,next){
+    var resourcesList=[];
+    async.waterfall([
+        function(next){
+            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, next);
+        },
+        function(instances,next){
+            resourcesList = instances;
+            resources.getResourcesByProviderId(provider._id, next);
+        },
+        function(resources,next){
+            if(resources.length > 0){
+                var count = 0;
+                for(var i = 0; i < resources.length ; i++){
+                    count++;
+                    resourcesList.push(resources[i]);
+                }
+                if(count === resources.length){
+                    next(null,resourcesList);
+                }
+            }else{
+                next(null,resourcesList);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            next(err);
+        }else{
+            next(null,results);
+        }
+
+    })
+};
+
+function getResourceTags(tagDetails,resourceDetails,provider,next){
+    if(resourceDetails.length > 0) {
+        var count = 0;
+        for (var m = 0; m < resourceDetails.length; m++) {
+            count++;
+            for (var tagName in resourceDetails[m].tags) {
+                var tagValue = resourceDetails[m].tags[tagName];
+                if (tagName in tagDetails) {
+                    if (tagDetails[tagName].values.indexOf(tagValue) < 0) {
+                        tagDetails[tagName].values.push(tagValue);
+                    }
+                } else {
+                    tagDetails[tagName] = {
+                        'providerId': provider._id,
+                        'orgId': provider.orgId[0],
+                        'name': tagName,
+                        'values': [tagValue],
+                        'new': true
+                    }
+                }
+            }
+        }
+        if (resourceDetails.length === count) {
+            next(null, tagDetails);
+        }
+    }else{
+        next(null,{});
+    }
+};
+
+function saveAndUpdateResourceTags(tags,provider,next){
+    if(tags) {
+        var count = 0;
+        for (var tagName in tags) {
+            if (tags[tagName].new) {
+                count++;
+                var tagObject = tags[tagName];
+                delete tagObject.new;
+                tagsModel.createNew(tagObject);
+            } else {
+                count++;
+                var params = {
+                    'providerId': provider._id,
+                    'name': tagName
+                }
+                var fields = {
+                    'values': tags[tagName].values
+                }
+                tagsModel.updateTag(params, fields);
+            }
+        }
+        if(count ===Object.keys(tags).length){
+            next(null,tags);
+        }
+    }else{
+        next(null,{});
+    }
+};

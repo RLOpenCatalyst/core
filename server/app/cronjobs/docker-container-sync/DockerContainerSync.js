@@ -11,210 +11,265 @@ var toPairs = require('lodash.topairs');
 var async = require('async');
 
 var DockerContainerSync = Object.create(CatalystCronJob);
-DockerContainerSync.interval = '*/15 * * * *';
-DockerContainerSync.execute = sync;
+DockerContainerSync.interval = '*/5 * * * *';
+DockerContainerSync.execute = dockerContainerSync;
 
 module.exports = DockerContainerSync;
 
-function sync() {
-    var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
-    async.waterfall([
-            function(next){
-                MasterUtils.getAllActiveOrg(next);
-            },
-            function(orgs,next) {
-                async.forEach(orgs, function (organization, next) {
-                    MasterUtils.getBusinessGroupsByOrgId(organization.rowid, function (err, businessGroups) {
-                        if (err) {
+function dockerContainerSync(){
+    MasterUtils.getAllActiveOrg(function(err, orgs) {
+        if(err) {
+            logger.error(err);
+        }else if(orgs.length > 0){
+            for(var i = 0; i < orgs.length; i++){
+                (function(org){
+                    instancesDao.getInstancesWithContainersByOrgId(org.rowid, function(err, instances) {
+                        if(err) {
                             logger.error(err);
                             return;
-                        };
-                        async.forEach(businessGroups, function (businessGroup, next) {
-                            MasterUtils.getProjectsBybgId(businessGroup.rowid, function (err, projects) {
-                                if (err) {
-                                    logger.error(err);
-                                    return;
-                                };
-                                async.forEach(projects, function (project, next) {
-                                    MasterUtils.getEnvironmentsByprojectId(project.rowid, function (err, environments) {
-                                        if (err) {
-                                            logger.error(err);
-                                            return;
-                                        };
-                                        if (environments.length > 0) {
-                                            async.forEach(environments, function (environment, next) {
-                                                var jsonData = {
-                                                    orgId: organization.rowid,
-                                                    bgId: businessGroup.rowid,
-                                                    projectId: project.rowid,
-                                                    envId: environment.rowid
-                                                };
-                                                instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, function (err, instances) {
-                                                    if (err) {
-                                                        logger.error(err);
-                                                        return;
-                                                    };
-                                                    if (instances.length > 0) {
-                                                        async.forEach(instances, function (instance, next) {
-                                                            credentialCrpto.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
-                                                                if (err) {
-                                                                    logger.error(err);
-                                                                    return;
-                                                                };
-                                                                var options = {
-                                                                    host: instance.instanceIP,
-                                                                    port: '22',
-                                                                    username: decryptedCredentials.username,
-                                                                    privateKey: decryptedCredentials.pemFileLocation,
-                                                                    password: decryptedCredentials.password
-                                                                };
-                                                                var sshParamObj = {
-                                                                    host: options.host,
-                                                                    port: options.port,
-                                                                    username: options.username
-                                                                };
-                                                                if (options.privateKey) {
-                                                                    sshParamObj.privateKey = options.privateKey;
-                                                                    if (options.passphrase) {
-                                                                        sshParamObj.passphrase = options.passphrase;
-                                                                    }
-                                                                } else {
-                                                                    sshParamObj.password = options.password;
-                                                                }
-                                                                var sshConnection = new SSH(sshParamObj);
-                                                                var stdOut = '';
-                                                                sshConnection.exec(cmd, function (err, code) {
-                                                                    if (err) {
-                                                                        logger.error(err);
-                                                                        return;
-                                                                    };
-                                                                    if (decryptedCredentials.pemFileLocation) {
-                                                                        fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
-                                                                            logger.debug('temp file deleted');
-                                                                        });
-                                                                    };
-                                                                    if (code === -5000) {
-                                                                        containerDao.deleteContainerByInstanceId(instance._id, function (err, deleteContainer) {
-                                                                            if (err) {
-                                                                                logger.error(err);
-                                                                                return;
-                                                                            };
-                                                                            return;
-                                                                        });
-                                                                    } else {
-                                                                        var _stdout = stdOut.split('\r\n');
-                                                                        var start = false;
-                                                                        var so = '';
-                                                                        _stdout.forEach(function (k, v) {
-                                                                            if (start == true) {
-                                                                                so += _stdout[v];
-                                                                                logger.debug(v + ':' + _stdout[v].length);
-                                                                            }
-                                                                            if (_stdout[v].length == 1)
-                                                                                start = true;
-                                                                            if (v >= _stdout.length - 1) {
-                                                                                if (so.indexOf("Names") > 0) {
-                                                                                    var containers = JSON.parse(so);
-                                                                                    var containerList = [];
-                                                                                    var containerIds = [];
-                                                                                    async.forEach(containers, function (container, next) {
-                                                                                        var containerName = container.Names[0].replace(/^\//, "");
-                                                                                        var status = dockerContainerStatus(container.Status.toString());
-                                                                                        var containerData = {
-                                                                                            orgId: jsonData.orgId,
-                                                                                            bgId: jsonData.bgId,
-                                                                                            projectId: jsonData.projectId,
-                                                                                            envId: jsonData.envId,
-                                                                                            Id: container.Id,
-                                                                                            instanceIP: instance.instanceIP,
-                                                                                            instanceId: instance._id,
-                                                                                            Names: containerName,
-                                                                                            Image: container.Image,
-                                                                                            ImageID: container.ImageID,
-                                                                                            Command: container.Command,
-                                                                                            Created: container.Created,
-                                                                                            Ports: container.Ports,
-                                                                                            Labels: toPairs(container.Labels),
-                                                                                            Status: container.Status,
-                                                                                            containerStatus: status,
-                                                                                            HostConfig: container.HostConfig
-                                                                                        };
-                                                                                        containerList.push(containerData);
-                                                                                        containerIds.push(container.Id);
-                                                                                        containerData = {};
-                                                                                    });
-                                                                                    containerAction(containerList, containerIds, instance._id);
-                                                                                } else {
-                                                                                    deleteContainerByInstanceId(instance._id);
-                                                                                }
-                                                                            }
-                                                                        });
-                                                                    }
-                                                                }, function (stdOutData) {
-                                                                    stdOut += stdOutData.toString();
-                                                                }, function (stdOutErr) {
-                                                                    logger.error("Error hits to fetch docker details", stdOutErr);
-                                                                });
-                                                            });
-                                                        })
-                                                    } else {
-                                                        logger.debug("No instance is Available in "+environment.environmentname +" Environment for Container Cron Job");
-                                                        return;
-                                                    }
-                                                })
-                                            });
-                                        } else {
-                                            logger.debug("No Environment is Available for Container Cron Job");
-                                            return;
-                                        }
-                                    });
-                                });
-                            })
-                        });
+                        }else if(instances.length > 0){
+                            var count = 0;
+                            for(var j = 0; j < instances.length; j++){
+                                (function(instance){
+                                    count++;
+                                    aggregateDockerContainerForInstance(instance)
+                                })(instances[j]);
+                            }
+                            if(count === instances.length){
+                                return;
+                            }
+                        }else{
+                            logger.info("There is no Instance in "+org.orgname+" Organization who have docker installed");
+                            return;
+                        }
                     });
-                })
+
+                })(orgs[i]);
             }
-        ],
-        function (err, results) {
+
+        }else{
+            logger.info("There is no Active Organization for Docker Container Sync");
+            return;
+        }
+    });
+}
+
+function aggregateDockerContainerForInstance(instance){
+    logger.info("Docker Container Sync started for Instance IP "+instance.instanceIP);
+    if(instance.instanceState === 'terminated' || instance.instanceState === 'stopped'){
+        deleteContainerByInstanceId(instance._id,function(err,data){
             if(err){
                 logger.error(err);
                 return;
+            }else{
+                logger.debug("Deleted Docker Containers for Terminated or Stopped Instance");
+                return;
             }
-
+        })
+    }else {
+        var cmd = 'echo -e \"GET /containers/json?all=1 HTTP/1.0\r\n\" | sudo nc -U /var/run/docker.sock';
+        async.waterfall([
+            function (next) {
+                credentialCrpto.decryptCredential(instance.credentials, next);
+            },
+            function (decryptedCredentials, next) {
+                var options = {
+                    host: instance.instanceIP,
+                    port: '22',
+                    username: decryptedCredentials.username,
+                    privateKey: decryptedCredentials.pemFileLocation,
+                    password: decryptedCredentials.password
+                };
+                var sshParamObj = {
+                    host: options.host,
+                    port: options.port,
+                    username: options.username
+                };
+                if (options.privateKey) {
+                    sshParamObj.privateKey = options.privateKey;
+                    if (options.passphrase) {
+                        sshParamObj.passphrase = options.passphrase;
+                    }
+                } else {
+                    sshParamObj.password = options.password;
+                }
+                var sshConnection = new SSH(sshParamObj);
+                var stdOut = '';
+                sshConnection.exec(cmd, function (err, code) {
+                    if (err) {
+                        if (decryptedCredentials.pemFileLocation) {
+                            fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
+                                logger.debug('temp file deleted');
+                                var containerObj={
+                                    instanceId:instance._id,
+                                    operation:'delete'
+                                }
+                                next(null,containerObj);
+                            });
+                        } else {
+                            var containerObj={
+                                instanceId:instance._id,
+                                operation:'delete'
+                            }
+                            next(null,containerObj);
+                        }
+                    };
+                    if (decryptedCredentials.pemFileLocation) {
+                        fileIo.removeFile(decryptedCredentials.pemFileLocation, function () {
+                            logger.debug('temp file deleted');
+                        });
+                    };
+                    if (code === -5000) {
+                        var containerObj={
+                            instanceId:instance._id,
+                            operation:'delete'
+                        }
+                        next(null,containerObj);
+                    } else {
+                        var _stdout = stdOut.split('\r\n');
+                        var start = false;
+                        var so = '';
+                        _stdout.forEach(function (k, v) {
+                            if (start == true) {
+                                so += _stdout[v];
+                                logger.debug(v + ':' + _stdout[v].length);
+                            }
+                            if (_stdout[v].length == 1)
+                                start = true;
+                            if (v >= _stdout.length - 1) {
+                                if (so.indexOf("Names") > 0) {
+                                    var containers = JSON.parse(so);
+                                    var containerList = [];
+                                    var containerIds = [];
+                                    for (var i = 0; i < containers.length; i++) {
+                                        (function (container) {
+                                            var containerName = container.Names[0].replace(/^\//, "");
+                                            var status = dockerContainerStatus(container.Status.toString());
+                                            var containerData = {
+                                                orgId: instance.orgId,
+                                                bgId: instance.bgId,
+                                                projectId: instance.projectId,
+                                                envId: instance.envId,
+                                                Id: container.Id,
+                                                instanceIP: instance.instanceIP,
+                                                instanceId: instance._id,
+                                                Names: containerName,
+                                                Image: container.Image,
+                                                ImageID: container.ImageID,
+                                                Command: container.Command,
+                                                Created: container.Created,
+                                                Ports: container.Ports,
+                                                Labels: toPairs(container.Labels),
+                                                Status: container.Status,
+                                                containerStatus: status,
+                                                HostConfig: container.HostConfig
+                                            };
+                                            containerList.push(containerData);
+                                            containerIds.push(container.Id);
+                                            containerData = {};
+                                        })(containers[i]);
+                                    }
+                                    if (containers.length === containerList.length) {
+                                        var containerObj={
+                                            containers:containerList,
+                                            containerIds:containerIds,
+                                            instanceId:instance._id,
+                                            operation:'create'
+                                        }
+                                        next(null,containerObj);
+                                    } else {
+                                        logger.debug("There is no container present");
+                                        next(null,null);
+                                    }
+                                } else {
+                                    logger.debug("There is no container present");
+                                    var containerObj={
+                                        instanceId:instance._id,
+                                        operation:'delete'
+                                    }
+                                    next(null,containerObj);
+                                }
+                            }
+                        });
+                    }
+                }, function (stdOutData) {
+                    stdOut += stdOutData.toString();
+                }, function (stdOutErr) {
+                    logger.error("Error hits to fetch docker details", stdOutErr);
+                    next(stdOutErr,null);
+                });
+            },
+            function(containers,next){
+                if(containers.operation === 'delete'){
+                    deleteContainerByInstanceId(containers.instanceId,next);
+                }else if (containers.operation === 'create'){
+                    saveAndUpdateContainers(containers.containers,containers.containerIds,containers.instanceId,next)
+                }else{
+                    next(null,containers);
+                }
+            }
+        ], function (err, results) {
+            if (err) {
+                logger.error("Error in Docker Container Sync");
+                return;
+            } else {
+                logger.info("Docker Container Sync ended for Instance IP " + instance.instanceIP);
+                return;
+            }
         });
+    }
 };
-function containerAction(containers,containerIds,instanceId){
+
+function saveAndUpdateContainers(containers,containerIds,instanceId,next){
     async.waterfall([
             function(next){
                 containerDao.deleteContainersByContainerIds(instanceId,containerIds,next);
             },
             function(deleteContainers,next){
-                async.forEach(containers,function(container,next){
-                    async.waterfall([
-                        function(next){
-                            containerDao.getContainerByIdInstanceId(container.Id,instanceId,next);
-                        },
-                        function(containerData,next){
-                            if(containerData.length === 0){
-                                containerDao.createContainer(container,next);
+                var count = 0;
+                for(var i = 0; i < containers.length; i++) {
+                    (function(container) {
+                        containerDao.getContainerByIdInstanceId(container.Id, instanceId, function(err,data){
+                            if(err){
+                                logger.error(err);
+                                return;
+                            }else if(data.length === 0){
+                                containerDao.createContainer(container, function(err,containerData){
+                                    if(err){
+                                        logger.error(err);
+                                        return;
+                                    }else{
+                                        count++;
+                                        if(count === containers.length){
+                                            next(null,containers);
+                                        }
+                                    }
+                                });
                             }else{
-                                containerDao.updateContainerStatus(container.Id,container.Status,container.containerStatus,next);
+                                containerDao.updateContainerStatus(container.Id, container.Status, container.containerStatus, function(err,deleteContainer){
+                                    if(err){
+                                        logger.error(err);
+                                        return;
+                                    }else{
+                                        count++;
+                                        if(count === containers.length){
+                                            next(null,containers);
+                                        }
+                                    }
+                                });
                             }
-                        }
-                    ],function (err, results) {
-                        if(err){
-                            logger.error(err);
-                            return;
-                        }
-                    });
-                });
+                        });
+                    })(containers[i]);
+                }
+
             }],
         function (err, results) {
             if(err){
-                logger.error(err);
-                return;
-            };
-            return;
+                logger.error("Error in containerAction ");
+                next(err);
+            }else{
+                next(null,results);
+            }
         });
 };
 
@@ -228,17 +283,18 @@ function dockerContainerStatus(status){
     }
 };
 
-function deleteContainerByInstanceId(instanceId){
+function deleteContainerByInstanceId(instanceId,next){
     async.waterfall([
             function(next){
                 containerDao.deleteContainerByInstanceId(instanceId,next);
             }],
         function (err, results) {
             if(err){
-                logger.error(err);
-                return;
-            };
-            return;
+                logger.error("Error in deleteContainerByInstanceId ");
+                next(err);
+            }else {
+                next(null,results);
+            }
         });
 };
 

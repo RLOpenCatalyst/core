@@ -1,19 +1,17 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
-
+ http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 var checkandupdateRunlistTable = function() {
     if (!$.fn.dataTable.isDataTable('#tableRunlistForBlueprint')) {
         $tasksRunlist = $('#tableRunlistForBlueprint').DataTable({
@@ -38,17 +36,7 @@ checkandupdateRunlistTable();
 var $formBPEdit;
 var $formBPNew;
 
-function createRunlistTable(runlist) {
-    $tasksRunlist.clear().draw();
-    for (i = 0; i < runlist.length; i++) {
-        var $runlistList = $('#tableRunlistForBlueprint');
-        var $tr = $('<tr class="runlistRow"></tr>');
-        var $tdName = $('<td class="runlistDescription">' + runlist[i] + '</td>');
-        $tr.append($tdName);
-        $runlistList.append($tr);
-        $tasksRunlist.row.add($tr).draw();
-    }
-}
+
 $('#saveRunlist').click(function(e) {
     var $ccrs = $('.cookbookShow').data('$ccrs');
     var runlist = $ccrs.getSelectedRunlist();
@@ -185,92 +173,6 @@ function editAtrributesHandler(e) {
 }
 $('.awsEditAttributesBtn').click(editAtrributesHandler);
 
-function createAttribTableRowFromJson(attributes) {
-    var $table = $('#attributesViewListTable').removeClass('hidden');
-    var $tbody = $table.find('tbody').empty();
-    for (var j = 0; j < attributes.length; j++) {
-        var attributeObj = attributes[j].jsonObj;
-
-        function getVal(obj, currentKey) {
-            var keys = Object.keys(obj);
-            for (var i = 0; i < keys.length; i++) {
-                if (typeof obj[keys[i]] === 'object') {
-                    getVal(obj[keys[i]], currentKey + '/' + keys[i]);
-                } else {
-                    var keyString = currentKey + '/' + keys[i];
-                    keyString = keyString.substring(1);
-
-                    var $tr = $('<tr/>').attr({
-                        'data-attributeKey': keyString,
-                        'data-attributeValue': obj[keys[i]],
-                        'data-attributeName': attributes[j].name
-                    }).data('jsonObj', attributes[j].jsonObj).css('word-break', 'break-all');
-
-                    var passwordField = false;
-                    var passwordField = false;
-                    var keyParts = keyString.split('/');
-                    if (keyParts.length) {
-                        var indexOfPassword = keyParts[keyParts.length - 1].indexOf('password_');
-                        if (indexOfPassword !== -1) {
-                            passwordField = true;
-                        }
-                    }
-
-                    var $tdAttributeKey = $('<td/>').html(attributes[j].name);
-                    if (passwordField) {
-                        var $tdAttributeVal = $('<td/>').html("*****");
-                    } else {
-                        var $tdAttributeVal = $('<td/>').html(obj[keys[i]]);
-                    }
-                    $tr.append($tdAttributeKey).append($tdAttributeVal);
-                    $tbody.append($tr);
-                }
-            }
-        }
-        getVal(attributeObj, '');
-    }
-}
-
-
-function saveAtrributesHandler(e) {
-    var $modal = $('#editAttributesModalContainer');
-    var $tbody = $modal.find('.attributesEditTableBody');
-    var $input = $tbody.find('.attribValueInput');
-    var attributes = [];
-    for (var j = 0; j < $input.length; j++) {
-        var $this = $($input[j]);
-        var attributeKey = $this.attr('data-attribKey');
-        var attribValue = $this.val();
-        if (attribValue) {
-            var attribPathParts = attributeKey.split('/');
-            var attributeObj = {};
-            var currentObj = attributeObj;
-            for (var i = 0; i < attribPathParts.length; i++) {
-                if (!currentObj[attribPathParts[i]]) {
-                    if (i === attribPathParts.length - 1) {
-                        currentObj[attribPathParts[i]] = attribValue;
-                        continue;
-                    } else {
-                        currentObj[attribPathParts[i]] = {};
-                    }
-                }
-                currentObj = currentObj[attribPathParts[i]];
-            }
-            attributes.push({
-                name: $this.attr('data-attribName'),
-                jsonObj: attributeObj
-            });
-        } else {
-            if ($this.attr('data-attributeRequired') === 'true') {
-                alert("Please fill in the required attributes");
-                return false;
-            }
-        }
-    }
-    createAttribTableRowFromJson(attributes);
-    $modal.modal('hide');
-}
-
 $('.saveAttribBtn').click(saveAtrributesHandler);
 
 function updatecompositedockertableemptymessage() {
@@ -297,6 +199,8 @@ $(document).ready(function() {
     $('.artifactClass').hide();
     $('.versionClass').hide();
     $('#selectOrgName').trigger('change');
+    getTreeDetails();
+    initializeCompositeBP();
     if (isAngularIntegration) {
         $('#workZoneNew').attr('href', '#');
         $('#workZoneNew').removeClass('active');
@@ -318,114 +222,6 @@ $(document).ready(function() {
         $('#tabheader').trigger('click');
     }
 
-    $.ajax({
-        type: "get",
-        dataType: "json",
-        async: false,
-        url: "../organizations/getTreeNew",
-        success: function(data) {
-            data = JSON.parse(JSON.stringify(data));
-            var $orgListInput = $('#orgnameSelectExisting');
-            var $bgList = $('#bgListInputExisting');
-            var $projectList = $('#projectListInputExisting');
-            var $envList = $('#envListExisting');
-            var $projectList = $('#projectListInputExisting');
-            //Dropdowns on the copy popup
-            var $orgListInputforcopy = $('#orgnameSelectExistingforcopy');
-            var $bgListforcopy = $('#bgListInputExistingforcopy');
-            var $projectListforcopy = $('#projectListInputExistingforcopy');
-            var $envListforcopy = $('#envListExistingforcopy');
-
-            $bgList.change(function(e) {
-                var bgName = $(this).val();
-                if (bgName == 'choose') {
-                    return;
-                }
-                var $selectedOrgOption = $(this).find(":selected");
-                $projectList.empty();
-                var getProjs = bgProjects[bgName];
-                for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
-                    $projectList.append($option);
-                }
-                $projectList.trigger('change');
-            });
-
-            $bgListforcopy.change(function(e) {
-                var bgName = $(this).val();
-                if (bgName == 'choose') {
-                    return;
-                }
-                var $selectedOrgOption = $(this).find(":selected");
-                $projectListforcopy.empty();
-                var getProjs = bgProjects[bgName];
-                for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
-                    $projectListforcopy.append($option);
-                }
-                $projectListforcopy.trigger('change');
-            });
-
-
-
-            var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
-            $('#projectListInputExisting').change(function(e) {
-                var reqBodyNew = {};
-                $spinnerProject.removeClass('hidden');
-                reqBodyNew.orgId = $orgListInput.val();
-                reqBodyNew.bgId = $bgList.val();
-                reqBodyNew.projectId = $projectList.val();
-                reqBodyNew.envId = $envList.val();
-                $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws', function(data) {
-                    //Syncing up the tree view based on url
-                    initializeBlueprintAreaNew(data.blueprints);
-                    $spinnerProject.addClass('hidden');
-                    if (data.blueprints.length > 0) {
-                        $('#accordion-2').removeClass('hidden');
-                        $spinnerProject.addClass('hidden');
-                        $('#npbpmsg').addClass('hidden');
-                    } else {
-                        $spinnerProject.addClass('hidden');
-                        //show no blueprints found message
-                        $('#npbpmsg').removeClass('hidden');
-                    }
-                });
-            }); //choose env gets over
-
-
-
-            var bgProjects = {};
-            for (var i = 0; i < data.length; i++) {
-                $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
-                for (var j = 0; j < data[i].businessGroups.length; j++) {
-                    var rowid = data[i].businessGroups[j].rowid;
-                    $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
-                    //Dropdowns on the copy popup
-                    $bgListforcopy.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
-                    bgProjects[rowid] = data[i].businessGroups[j].projects;
-                }
-                for (var k = 0; k < data[i].environments.length; k++) {
-                    $envList.append($('<option></option').val(data[i].environments[k].rowid).html(data[i].environments[k].name))
-                }
-                //Dropdowns on the copy popup
-                $orgListInputforcopy.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
-            }
-            $bgList.trigger('change');
-            $bgListforcopy.trigger('change');
-            $('.chooseOrgSelectExisting').change(function(e) {
-                if ($(this).val() == 'choose') {
-                    $('#accordion-2').addClass('hidden');
-                }
-                $('.chooseBGExisting').change();
-                $('.chooseProjectExisting').change();
-            });
-            $('.chooseOrgSelectExistingforcopy').change(function(e) {
-
-                $('.chooseBGExisting').change();
-                $('.chooseProjectExisting').change();
-            });
-        }
-    }); //getTreeNew gets over here
 
     //form validation for blueprint save
     var validator = $('#wizard-1').validate({
@@ -537,7 +333,7 @@ function addDockerTemplateToTable(title, repopath, tagname, reponame, optionalla
         optionallaunchparams = '';
     }
     var $dockertemplaterow = '<tr class="dockerimagesrow"><td >' + $cdt.find('tr').length + '</td><td paramtype="dockercontainerpathstitle">' + title + '</td><td  paramtype="dockercontainerpaths">' + repopath + '</td><td paramtype="dockerrepotags">' + tagname + '</td><td><input type="text" paramtype="dockerlaunchparameters" id="launchparam' + uniqueid + '" class="" value=" ' + optionallaunchparams + '"><input type="hidden" paramtype="dockerreponame" id="dockerreponame' + uniqueid + '" class="" value="' + reponame + '"><a onclick="loadLaunchParams(\'launchparam' + uniqueid + '\');" href="javascript:void(0);"><i class="icon-append fa fa-list-alt fa-lg" title="Launch Parameters"></i></a></td><td ><a class="dockerimageselectorup" id="dockerimageselectorup' + uniqueid + '"  href="javascript:movetablerow(\'dockerimageselectorup\',' + uniqueid + ');"><i class="fa fa-chevron-circle-up fa-lg"></i></a><a class="dockerimageselectordown" id="dockerimageselectordown' + uniqueid + '" href="javascript:movetablerow(\'dockerimageselectordown\',' + uniqueid + ');" style="padding-left:5px;"><i class="fa fa-chevron-circle-down fa-lg"></i></a><button class="btn btn-xs btn-danger pull-right" value="Remove" title="Remove" id="dockerimageremove' + uniqueid + '" onClick="javascript:removeimage(\'dockerimageremove\',' + uniqueid + ');"><i class="ace-icon fa fa-trash-o fa-lg"></i></button></td></tr>';
-    $cdt.append($dockertemplaterow); 
+    $cdt.append($dockertemplaterow);
 }
 
 function addDockerImagesToTable(title, repopath, tagname, reponame, optionallaunchparams){
@@ -548,7 +344,7 @@ function addDockerImagesToTable(title, repopath, tagname, reponame, optionallaun
         optionallaunchparams = '';
     }
     var $dockertemplaterowImage = '<tr class="dockerImagesRowDesign"><td >' + $cdtDockerImages.find('tr').length + '</td><td paramtype="dockercontainerpathstitle">' + title + '</td><td  paramtype="dockercontainerpaths">' + repopath + '</td><td paramtype="dockerrepotags">' + tagname + '</td><td><input type="text" paramtype="dockerlaunchparameters" id="launchparam' + uniqueid + '" class="" value="' + optionallaunchparams + '"><input type="hidden" paramtype="dockerreponame" id="dockerreponame' + uniqueid + '" class="" value="' + reponame + '"><a onclick="loadLaunchParams(\'launchparam' + uniqueid + '\');" href="javascript:void(0);"><i class="icon-append fa fa-list-alt fa-lg" title="Launch Parameters"></i></a></td><td ><a class="dockerimageselectorup" id="dockerimageselectorup' + uniqueid + '"  href="javascript:movetablerow(\'dockerimageselectorup\',' + uniqueid + ');"><i class="fa fa-chevron-circle-up fa-lg"></i></a><a class="dockerimageselectordown" id="dockerimageselectordown' + uniqueid + '" href="javascript:movetablerow(\'dockerimageselectordown\',' + uniqueid + ');" style="padding-left:5px;"><i class="fa fa-chevron-circle-down fa-lg"></i></a><a class="btn btn-xs btn-danger pull-right" value="Remove" title="Remove" id="dockerImageRemove' + uniqueid + '" onClick="javascript:removeImageFromTable(\'dockerImageRemove\',' + uniqueid + ');"><i class="ace-icon fa fa-trash-o fa-lg"></i></a></td></tr>';
-    $cdtDockerImages.append($dockertemplaterowImage);     
+    $cdtDockerImages.append($dockertemplaterowImage);
 }
 
 function showdockertemplateadder() {
@@ -675,7 +471,7 @@ function movetablerow(what, index) {
 function loadLaunchParams(lpinput) {
     $('[dockerparamkey]').val('');
     if ($('#' + lpinput).val() != '') {
-        //filling in -exec and -c 
+        //filling in -exec and -c
         var fullparams = $('#' + lpinput).val();
         var execparam = fullparams.split(' -exec');
         var startupparam;
@@ -1177,14 +973,26 @@ $(document).ready(function() {
         var sortbyid = function SortByID(x, y) {
             return x.position - y.position;
         }
+
         $.get('/d4dMasters/readmasterjsonnew/16', function(data) {
             data = JSON.parse(data);
+            data.push({
+                _id: "54bde11187f86fa0130c7563",
+                templatetypename: "Composite",
+                designtemplateicon_filename: "Docker.png",
+                rowid: "b02de7dd-6101-4f0e-a95e-68d74cec86c0",
+                id: "16",
+                __v: 0,
+                active: true,
+                templatetype: "composite",
+                orgname_rowid: ["46d1da9a-d927-41dc-8e9e-7e926d927537"],
+                orgname: ["Phoenix"]
+            });
             var rowLength = data.length;
             var containerTemp = "";
             var selectedrow = false;
             var getDesignTypeImg;
             var getDesignTypeRowID;
-
             for (var i = 0; i < rowLength; i += 1) {
                 switch (data[i]['templatetype']) {
                     case "chef":
@@ -1198,6 +1006,9 @@ $(document).ready(function() {
                         break;
                     case "docker":
                         data[i]['position'] = 3;
+                        break;
+                    case "composite":
+                        data[i]['position'] = 4;
                         break;
                 }
             }
@@ -1223,20 +1034,23 @@ $(document).ready(function() {
                         case "cft":
                             getDesignTypeImg = '/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png';
                             break;
+                        case "composite":
+                            getDesignTypeImg = 'img/composite.png';
+                            break;
                     }
                     getDesignTypeRowID = data[i]['rowid'];
                     if (getDesignTypeImg) {
                         if (getDesignTypeImg.indexOf('/d4dMasters/image') === -1) {
-                            getDesignTypeImg = "/d4dMasters/image/" + getDesignTypeRowID + "__designtemplateicon__" + getDesignTypeImg;
+                           // getDesignTypeImg = "/d4dMasters/image/" + getDesignTypeRowID + "__designtemplateicon__" + getDesignTypeImg;
                         }
-                        containerTemp += '<div class="" style="width:222px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv appfactory" data-' + 'templateType="' + data[i]
+                        containerTemp += '<div class="" style="width:200px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv blueprintdiv-aws appfactory" data-' + 'templateType="' + data[i]
                         ['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
                             '<img  style="height:25px;padding:2px" alt="" src="img/app-store-' + 'icons/Logoheader.png"><span style="padding-top:4px;position:absolute;' +
                             'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' +
                             '<div style="padding-top:10px;padding-left:0px;text-align:center;">' + '<img alt="Template Icon" ' + 'src="' + getDesignTypeImg +
                             '" style="height:60px;width:auto;">' + '</div></div></div>';
                     } else {
-                        containerTemp += '<div class="" style="width:222px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv appfactory" data-' + 'templateType="' + data[i]
+                        containerTemp += '<div class="" style="width:200px;float:left">' + ' <div id=grid' + i + ' class="blueprintdiv blueprintdiv-aws appfactory" data-' + 'templateType="' + data[i]
                         ['templatetypename'] + '" data-gallerytype="' + data[i]['templatetype'] + '">' + '<div style="">' +
                             '<img  style="height:25px;padding:2px" alt="" src="img/app-store-' + 'icons/Logoheader.png"><span style="padding-top:4px;position:absolute;' +
                             'padding-left: 4px;">' + '<b>' + data[i]['templatetypename'] + '</b>' + '</span></div>' + '<div style="padding-top:10px;padding-left:27px;">' +
@@ -1268,224 +1082,224 @@ $(document).ready(function() {
 
 var reqBody;
 var formInitializer = function(editing, blueprintData, callback) {
-        var $selectedItem = $('.role-Selected');
-        if (!$selectedItem.length && !editing) {
-            bootbox.alert('Please choose a blueprint design');
-            return false;
-        }
-        dataLoader(blueprintData);
-        $('#orgnameSelect').val($('#orgIDCheck').val());
-        $('#orgnameSelect').attr('disabled', true);
-        if ($('.productdiv2.role-Selected').length > 0) {
-            //Setting controls connected to docker to hidden
-            $('.forDocker').hide();
-            $('.notForDocker').show();
-            $('.forCFT').hide();
-            $('.cookbookShow').parent().show();
-            $('.divconfigureparameterrunlist').show();
-            $('.divchefrunlist').show();
-            if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
-                //Auto adding the selected template by default
-                var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
-                $('.dockerimagesrow').detach();
-		        //added now.
-                $('.dockerimagesrowDocker').detach();
+    var $selectedItem = $('.role-Selected');
+    if (!$selectedItem.length && !editing) {
+        bootbox.alert('Please choose a blueprint design');
+        return false;
+    }
+    dataLoader(blueprintData);
+    $('#orgnameSelect').val($('#orgIDCheck').val());
+    $('#orgnameSelect').attr('disabled', true);
+    if ($('.productdiv2.role-Selected').length > 0) {
+        //Setting controls connected to docker to hidden
+        $('.forDocker').hide();
+        $('.notForDocker').show();
+        $('.forCFT').hide();
+        $('.cookbookShow').parent().show();
+        $('.divconfigureparameterrunlist').show();
+        $('.divchefrunlist').show();
+        if ($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") {
+            //Auto adding the selected template by default
+            var $dockerdiv = $('#tab2').find('.productdiv2.role-Selected').first();
+            $('.dockerimagesrow').detach();
+            //added now.
+            $('.dockerimagesrowDocker').detach();
 
-                if (editing) {
-                    var compdock = $('#compositedockertable').attr('savedval');
-                    if (compdock) {
-                        compdock = JSON.parse(compdock);
-                        for (var dci = 0; dci < compdock.length; dci++) {
-                            addDockerTemplateToTable(compdock[dci].dockercontainerpathstitle, compdock[dci].dockercontainerpaths, compdock[dci].dockerrepotags, compdock[dci].dockerreponame, compdock[dci].dockerlaunchparameters);
+            if (editing) {
+                var compdock = $('#compositedockertable').attr('savedval');
+                if (compdock) {
+                    compdock = JSON.parse(compdock);
+                    for (var dci = 0; dci < compdock.length; dci++) {
+                        addDockerTemplateToTable(compdock[dci].dockercontainerpathstitle, compdock[dci].dockercontainerpaths, compdock[dci].dockerrepotags, compdock[dci].dockerreponame, compdock[dci].dockerlaunchparameters);
+                    }
+                }
+            } else
+                addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
+            //Checking if docker then only Edit organization paramerters are to be shown
+            if (!$('#CollapseEditorgParam').hasClass('in')) {
+                $('a[href="#CollapseEditorgParam"]').click();
+            }
+            $('div.selectedTemplateArea').first().addClass('hidden').parent().addClass('hidden'); //hiding card view in template
+            $('.divconfigureparameterrunlist').hide();
+            $('.divchefrunlist').hide();
+            //When docker stepping to 4th tab
+            $('#orgnameSelect').trigger('change');
+            $('.forDocker').show();
+            $('.notForDocker').hide();
+
+        } else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation" || $('.productdiv2.role-Selected').first().attr('templatetype') == "cft") {
+            $('.notforCFT').hide();
+            $('.forCFT').show();
+            $('.divconfigureparameterrunlist').hide();
+            $('.divchefrunlist').hide();
+            if (!$('#CollapseEditorgParam').hasClass('in')) {
+                $('a[href="#CollapseEditorgParam"]').click();
+            }
+            var $panelBody = $('#CollapseStackParameters').find('.panel-body').empty();;
+            var cftTemplateFileName = $('.productdiv2.role-Selected').attr('cftTemplateFileName');
+            $panelBody.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+            $.ajax({
+                type: "GET",
+                url: "/aws/providers",
+                success: function(data) {
+                    data = typeof data == "string" ? JSON.parse(data) : data;
+                    var providerStr = '<option value="">Select Provider</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].providerType === 'AWS') {
+                            providerStr = providerStr + '<option value="' + data[i]._id + '">' + data[i].providerName + '</option>';
                         }
                     }
-                } else
-                    addDockerTemplateToTable($dockerdiv.attr('templatename'), $dockerdiv.attr('dockercontainerpaths'), 'latest', $dockerdiv.attr('dockerreponame'), '--name ' + $dockerdiv.attr('templatename'));
-                //Checking if docker then only Edit organization paramerters are to be shown
-                if (!$('#CollapseEditorgParam').hasClass('in')) {
-                    $('a[href="#CollapseEditorgParam"]').click();
-                }
-                $('div.selectedTemplateArea').first().addClass('hidden').parent().addClass('hidden'); //hiding card view in template
-                $('.divconfigureparameterrunlist').hide();
-                $('.divchefrunlist').hide();
-                //When docker stepping to 4th tab
-                $('#orgnameSelect').trigger('change');
-                $('.forDocker').show();
-                $('.notForDocker').hide();
-
-            } else if ($('.productdiv2.role-Selected').first().attr('templatetype') == "CloudFormation" || $('.productdiv2.role-Selected').first().attr('templatetype') == "cft") {
-                $('.notforCFT').hide();
-                $('.forCFT').show();
-                $('.divconfigureparameterrunlist').hide();
-                $('.divchefrunlist').hide();
-                if (!$('#CollapseEditorgParam').hasClass('in')) {
-                    $('a[href="#CollapseEditorgParam"]').click();
-                }
-                var $panelBody = $('#CollapseStackParameters').find('.panel-body').empty();;
-                var cftTemplateFileName = $('.productdiv2.role-Selected').attr('cftTemplateFileName');
-                $panelBody.append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
-                $.ajax({
-                    type: "GET",
-                    url: "/aws/providers",
-                    success: function(data) {
-                        data = typeof data == "string" ? JSON.parse(data) : data;
-                        var providerStr = '<option value="">Select Provider</option>';
-                        for (var i = 0; i < data.length; i++) {
-                            if (data[i].providerType === 'AWS') {
-                                providerStr = providerStr + '<option value="' + data[i]._id + '">' + data[i].providerName + '</option>';
-                            }
+                    var $providerInput = $('<select id="cftProviderInput" class="form-control"></select>').append(providerStr);
+                    var $providerInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel">Choose Provider</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
+                    $providerInputContainer.find('.input-groups').append($providerInput);
+                    $.get('/vmimages/regions/list', function(regionList) {
+                        regionList = typeof regionList == "string" ? JSON.parse(regionList) : regionList;
+                        var regionOptStr = '<option value="">Select Region</option>';
+                        for (var i = 0; i < regionList.length; i++) {
+                            regionOptStr = regionOptStr + '<option value="' + regionList[i].region + '">' + regionList[i].region_name + '</option>';
                         }
-                        var $providerInput = $('<select id="cftProviderInput" class="form-control"></select>').append(providerStr);
-                        var $providerInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel">Choose Provider</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-                        $providerInputContainer.find('.input-groups').append($providerInput);
-                        $.get('/vmimages/regions/list', function(regionList) {
-                            regionList = typeof regionList == "string" ? JSON.parse(regionList) : regionList;
-                            var regionOptStr = '<option value="">Select Region</option>';
-                            for (var i = 0; i < regionList.length; i++) {
-                                regionOptStr = regionOptStr + '<option value="' + regionList[i].region + '">' + regionList[i].region_name + '</option>';
+                        var $regionInput = $('<select id="cftRegionInput" class="form-control"></select>').append(regionOptStr);
+                        var $regionInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel required">Choose Region</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
+                        $regionInputContainer.find('.input-groups').append($regionInput);
+                        $.get('/d4dMasters/cftTemplate?templateFile=' + cftTemplateFileName, function(data) {
+                            var templateData = {};
+                            try {
+                                templateData = JSON.parse(data);
+                            } catch (err) {
+                                bootbox.alert("Invalid template file");
+                                return;
                             }
-                            var $regionInput = $('<select id="cftRegionInput" class="form-control"></select>').append(regionOptStr);
-                            var $regionInputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel required">Choose Region</span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-                            $regionInputContainer.find('.input-groups').append($regionInput);
-                            $.get('/d4dMasters/cftTemplate?templateFile=' + cftTemplateFileName, function(data) {
-                                var templateData = {};
-                                try {
-                                    templateData = JSON.parse(data);
-                                } catch (err) {
-                                    bootbox.alert("Invalid template file");
+                            var formHtmlDivHtml = '';
+                            $panelBody.empty().append($regionInputContainer).append($providerInputContainer).append(formHtmlDivHtml).append('<input type="hidden" id="cftTemplateFileInput" value="' + cftTemplateFileName + '"/>');
+                            var parameters = templateData.Parameters;
+                            if (parameters) {
+                                var keys = Object.keys(parameters);
+                                for (var i = 0; i < keys.length; i++) {
+                                    var parameter = parameters[keys[i]];
+                                    var $parameterInput;
+                                    if (parameter.AllowedValues) {
+                                        $parameterInput = $('<select class="cftParameterInput form-control"></select>');
+                                        for (var j = 0; j < parameter.AllowedValues.length; j++) {
+                                            var $option = $('<option></option>').val(parameter.AllowedValues[j]).html(parameter.AllowedValues[j]);
+                                            $parameterInput.append($option);
+                                        }
+                                    } else {
+                                        $parameterInput = $('<input class="cftParameterInput form-control" type="text" autofocus="autofocus">');
+                                    }
+                                    if (parameter.Default) {
+                                        $parameterInput.val(parameter.Default);
+                                    }
+                                    $parameterInput.attr('data-cftParameter-type', parameter.type);
+                                    $parameterInput.attr('data-cftParameter-name', keys[i]);
+                                    var $inputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
+                                    $inputContainer.find('.input-groups').append($parameterInput);
+                                    $inputContainer.find('.cftParameterLabel').append(keys[i]);
+                                    if (parameter.Description) {
+                                        var $desc = $('<span></span>').attr('title', parameter.Description).append('&nbsp;&nbsp;<img src="img/help.png"/>');
+                                        $inputContainer.find('.cftParameterLabelContainer').append($desc);
+                                    }
+                                    $panelBody.append($inputContainer);
+                                }
+                            }
+                            var resources = templateData.Resources;
+                            var resourceKeys = Object.keys(resources);
+                            var $panelGroup = $('<div class="panel-group smart-accordion-default col-lg-12 col-md-12" id="cft-resource-editArea" style="margin-top:5px"></div>');
+                            var $panel = $('<div class="panel panel-default cft-resource-editPanel"><div class="panel-heading"><h4 class="panel-title"><a class="panel-toggle" data-toggle="collapse" data-parent="#cft-resource-editArea" href="#" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><span class="heading-text"></span></a></h4></div><div id="CollapseEditorgParam" class="panel-collapse collapse" style="height: auto;"><div class="panel-body" style="padding-left: 8px;"></div></div></div>');
+                            var $inputContainerTemplate = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftResourceLabelContainer" for=""><span class="cftResourceLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
+                            var $resourceInputTemplate = $('<input class="cftResourceInput form-control" type="text" autofocus="autofocus">');
+                            var hasResource = false;
+                            // for runlist input
+                            var $orgListInput = $('#orgnameSelect');
+                            $orgListInput.change(function() {
+                                $this = $(this);
+                                if ($this.val() === 'choose') {
                                     return;
                                 }
-                                var formHtmlDivHtml = '';
-                                $panelBody.empty().append($regionInputContainer).append($providerInputContainer).append(formHtmlDivHtml).append('<input type="hidden" id="cftTemplateFileInput" value="' + cftTemplateFileName + '"/>');
-                                var parameters = templateData.Parameters;
-                                if (parameters) {
-                                    var keys = Object.keys(parameters);
-                                    for (var i = 0; i < keys.length; i++) {
-                                        var parameter = parameters[keys[i]];
-                                        var $parameterInput;
-                                        if (parameter.AllowedValues) {
-                                            $parameterInput = $('<select class="cftParameterInput form-control"></select>');
-                                            for (var j = 0; j < parameter.AllowedValues.length; j++) {
-                                                var $option = $('<option></option>').val(parameter.AllowedValues[j]).html(parameter.AllowedValues[j]);
-                                                $parameterInput.append($option);
-                                            }
-                                        } else {
-                                            $parameterInput = $('<input class="cftParameterInput form-control" type="text" autofocus="autofocus">');
-                                        }
-                                        if (parameter.Default) {
-                                            $parameterInput.val(parameter.Default);
-                                        }
-                                        $parameterInput.attr('data-cftParameter-type', parameter.type);
-                                        $parameterInput.attr('data-cftParameter-name', keys[i]);
-                                        var $inputContainer = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftParameterLabelContainer" for=""><span class="cftParameterLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-                                        $inputContainer.find('.input-groups').append($parameterInput);
-                                        $inputContainer.find('.cftParameterLabel').append(keys[i]);
-                                        if (parameter.Description) {
-                                            var $desc = $('<span></span>').attr('title', parameter.Description).append('&nbsp;&nbsp;<img src="img/help.png"/>');
-                                            $inputContainer.find('.cftParameterLabelContainer').append($desc);
-                                        }
-                                        $panelBody.append($inputContainer);
-                                    }
+                                if (!editing) {
+                                    var $ccrs = $chefCookbookRoleSelector($this.val(), function(data) {}, null);
+                                    $('.cftResourceRunlistInput').empty().append($ccrs).data('$ccrs', $ccrs);
                                 }
-                                var resources = templateData.Resources;
-                                var resourceKeys = Object.keys(resources);
-                                var $panelGroup = $('<div class="panel-group smart-accordion-default col-lg-12 col-md-12" id="cft-resource-editArea" style="margin-top:5px"></div>');
-                                var $panel = $('<div class="panel panel-default cft-resource-editPanel"><div class="panel-heading"><h4 class="panel-title"><a class="panel-toggle" data-toggle="collapse" data-parent="#cft-resource-editArea" href="#" class="collapsed"><i class="fa fa-fw fa-plus-circle txt-color-blue"></i> <i class="fa fa-fw fa-minus-circle txt-color-red"></i><span class="heading-text"></span></a></h4></div><div id="CollapseEditorgParam" class="panel-collapse collapse" style="height: auto;"><div class="panel-body" style="padding-left: 8px;"></div></div></div>');
-                                var $inputContainerTemplate = $('<div class="col-lg-6 col-md-6" style="margin-top: 10px;"><label class="cftResourceLabelContainer" for=""><span class="cftResourceLabel"></span><span class="control-label redSpan">&nbsp;*</span></label><div class="input-groups"></div></div>');
-                                var $resourceInputTemplate = $('<input class="cftResourceInput form-control" type="text" autofocus="autofocus">');
-                                var hasResource = false;
-                                // for runlist input
-                                var $orgListInput = $('#orgnameSelect');
-                                $orgListInput.change(function() {
-                                    $this = $(this);
-                                    if ($this.val() === 'choose') {
-                                        return;
-                                    }
-                                    if (!editing) {
-                                        var $ccrs = $chefCookbookRoleSelector($this.val(), function(data) {}, null);
-                                        $('.cftResourceRunlistInput').empty().append($ccrs).data('$ccrs', $ccrs);
-                                    }
-                                });
-                                for (var i = 0; i < resourceKeys.length; i++) {
-                                    if (resources[resourceKeys[i]].Type === "AWS::EC2::Instance" || resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
-                                        var resourceName = resourceKeys[i];
-                                        if (resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
-                                            resourceName = "AutoScaleInstanceResource"
-                                        }
-                                        var $clone = $panel.clone();
-                                        $clone.find('.heading-text').html('Configure Resource : ' + resourceName);
-                                        $clone.find('.panel-collapse').attr('id', 'cftResource-' + resourceName);
-                                        $clone.find('.panel-toggle').attr('href', '#cftResource-' + resourceName);
-                                        // for username
-                                        var $inputUsernameContainer = $inputContainerTemplate.clone();
-                                        var $inputUsername = $resourceInputTemplate.clone();
-                                        $inputUsername.addClass('cftResourceUsernameInput');
-                                        $inputUsernameContainer.find('.input-groups').append($inputUsername);
-                                        $inputUsernameContainer.find('.cftResourceLabel').html('Instance Username');
-                                        //for resourceLogicalId 
-                                        var $inputLogicalId = $resourceInputTemplate.clone();
-                                        $inputLogicalId.addClass('cftResourceLogicalIdInput');
-                                        $inputLogicalId.attr('type', 'hidden');
-                                        $inputLogicalId.val(resourceName);
-                                        // for chefRunlist
-                                        var $inputChefRunlistContainer = $('<div class="col-lg-12 col-md-12 cftResourceRunlistInput"></div>');
-                                        if ($orgListInput.val().toLowerCase() !== 'choose') {
-                                            var $ccrs = $chefCookbookRoleSelector($orgListInput.val(), function(data) {}, []);
-                                            $inputChefRunlistContainer.empty().append($ccrs).data('$ccrs', $ccrs);
-                                        }
-                                        $clone.find('.panel-body').append($inputUsernameContainer);
-                                        $clone.find('.panel-body').append($inputLogicalId);
-                                        $clone.find('.panel-body').append($inputChefRunlistContainer);
-                                        $panelGroup.append($clone);
-                                        hasResource = true;
-                                    }
-                                }
-                                if (hasResource) {
-                                    $panelBody.append($panelGroup);
-                                }
-
-                                if (typeof callback === 'function') {
-
-                                    callback();
-                                }
-
                             });
-                        });
-                    },
-                    failure: function(data) {
-                        alert(data.toString());
-                    }
-                });
-            } else {
-                //setting the instance count drop down
-                $('#instanceCount').val("1");
-                if ($('.productdiv2.role-Selected').first().attr('templatetype') != "ami") {
-                    $('#instanceOS').removeAttr('disabled');
-                    $('#providerId').removeAttr('disabled');
-                    $('#orgnameSelect').removeAttr('disabled');
-                }
-                if (!$('#CollapseConfigureproviderParameter').hasClass('in')) {
-                    $('a[href="#CollapseConfigureproviderParameter"]').click();
-                }
+                            for (var i = 0; i < resourceKeys.length; i++) {
+                                if (resources[resourceKeys[i]].Type === "AWS::EC2::Instance" || resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
+                                    var resourceName = resourceKeys[i];
+                                    if (resources[resourceKeys[i]].Type === "AWS::AutoScaling::AutoScalingGroup") {
+                                        resourceName = "AutoScaleInstanceResource"
+                                    }
+                                    var $clone = $panel.clone();
+                                    $clone.find('.heading-text').html('Configure Resource : ' + resourceName);
+                                    $clone.find('.panel-collapse').attr('id', 'cftResource-' + resourceName);
+                                    $clone.find('.panel-toggle').attr('href', '#cftResource-' + resourceName);
+                                    // for username
+                                    var $inputUsernameContainer = $inputContainerTemplate.clone();
+                                    var $inputUsername = $resourceInputTemplate.clone();
+                                    $inputUsername.addClass('cftResourceUsernameInput');
+                                    $inputUsernameContainer.find('.input-groups').append($inputUsername);
+                                    $inputUsernameContainer.find('.cftResourceLabel').html('Instance Username');
+                                    //for resourceLogicalId
+                                    var $inputLogicalId = $resourceInputTemplate.clone();
+                                    $inputLogicalId.addClass('cftResourceLogicalIdInput');
+                                    $inputLogicalId.attr('type', 'hidden');
+                                    $inputLogicalId.val(resourceName);
+                                    // for chefRunlist
+                                    var $inputChefRunlistContainer = $('<div class="col-lg-12 col-md-12 cftResourceRunlistInput"></div>');
+                                    if ($orgListInput.val().toLowerCase() !== 'choose') {
+                                        var $ccrs = $chefCookbookRoleSelector($orgListInput.val(), function(data) {}, []);
+                                        $inputChefRunlistContainer.empty().append($ccrs).data('$ccrs', $ccrs);
+                                    }
+                                    $clone.find('.panel-body').append($inputUsernameContainer);
+                                    $clone.find('.panel-body').append($inputLogicalId);
+                                    $clone.find('.panel-body').append($inputChefRunlistContainer);
+                                    $panelGroup.append($clone);
+                                    hasResource = true;
+                                }
+                            }
+                            if (hasResource) {
+                                $panelBody.append($panelGroup);
+                            }
 
+                            if (typeof callback === 'function') {
+
+                                callback();
+                            }
+
+                        });
+                    });
+                },
+                failure: function(data) {
+                    alert(data.toString());
+                }
+            });
+        } else {
+            //setting the instance count drop down
+            $('#instanceCount').val("1");
+            if ($('.productdiv2.role-Selected').first().attr('templatetype') != "ami") {
+                $('#instanceOS').removeAttr('disabled');
+                $('#providerId').removeAttr('disabled');
+                $('#orgnameSelect').removeAttr('disabled');
             }
+            if (!$('#CollapseConfigureproviderParameter').hasClass('in')) {
+                $('a[href="#CollapseConfigureproviderParameter"]').click();
+            }
+
         }
-        var $clone = $selectedItem.clone().removeClass('role-Selected');
-        var selectedText = $clone.attr("data-templateType");
-        if ($selectedItem.attr('data-templateType') == 'desktopProvisoning') {
-            wizard.show(4);
-            return false;
-        }
-        if ($('#tab2 .role-Selected').length > 0) {
-            $('#tab3 .selectedTemplateArea').empty().append($('#tab2 .role-Selected').clone());
-        }
-        //force clicking orgnameSelect
-        $('#orgnameSelect').trigger('change');
-        $(".chooseBG").change();
-        $(".chooseDockerContainer").change();
-        var validatorForm = $("#wizard-1").validate();
-        validatorForm.resetForm();
-    } // end of formInitializer
+    }
+    var $clone = $selectedItem.clone().removeClass('role-Selected');
+    var selectedText = $clone.attr("data-templateType");
+    if ($selectedItem.attr('data-templateType') == 'desktopProvisoning') {
+        wizard.show(4);
+        return false;
+    }
+    if ($('#tab2 .role-Selected').length > 0) {
+        $('#tab3 .selectedTemplateArea').empty().append($('#tab2 .role-Selected').clone());
+    }
+    //force clicking orgnameSelect
+    $('#orgnameSelect').trigger('change');
+    $(".chooseBG").change();
+    $(".chooseDockerContainer").change();
+    var validatorForm = $("#wizard-1").validate();
+    validatorForm.resetForm();
+} // end of formInitializer
 
 
 var saveEditedBlueprint = function() {
@@ -1567,7 +1381,7 @@ function validateApplicationDeployData() {
 }
 
 var saveblueprint = function(tempType) {
-   
+
     if (validateApplicationDeployData()) {
         bootbox.confirm({
             message: "Are you sure want to submit this Blueprint Data? Press Ok to Continue",
@@ -1696,9 +1510,9 @@ var saveblueprint = function(tempType) {
                         });
                         dockercompose.push(dockerimages);
                     });
-                    
+
                     reqBody.dockercompose = dockercompose;
-                    //Get all the runlist 
+                    //Get all the runlist
                     var cbs = [];
                     var $ccrs = $('.cookbookShow').data('$ccrs');
                     cbs = $ccrs.getSelectedRunlist();
@@ -1753,7 +1567,7 @@ var saveblueprint = function(tempType) {
                     reqBody.providerId = providerId;
                     reqBody.region = region;
                     reqBody.name = $('#blueprintNameInput').val();
-                  
+
                     //Checking for docker blueprint images
                     if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
                         //no rows found add empty message
@@ -1818,7 +1632,7 @@ var saveblueprint = function(tempType) {
 
 
                     $('.blueprintMsgContainer').hide();
-                    
+
                     if (($('.productdiv2.role-Selected').data('templatetype')).toLowerCase() != "docker") {
                         reqBody.blueprintType = "instance_launch";
                         if (($('.productdiv2.role-Selected').data('templatetype')).toLowerCase() === 'cloudformation' || ($('.productdiv2.role-Selected').data('templatetype')).toLowerCase() === 'cft') {
@@ -1842,7 +1656,7 @@ var saveblueprint = function(tempType) {
                             $wizard.data('secondClick', true);
                             var wizard = $wizard.data('bootstrapWizard');
                             wizard.next();
-                            wizard.disablePreviouBtn(); 
+                            wizard.disablePreviouBtn();
                             //modal to open the launch popup where user will select the launch button.
                             $('a.blueprintNameLaunch').click(function(e) {
                                 var $blueprintLaunch = $('#modalSelectEnvironment');
@@ -1856,9 +1670,9 @@ var saveblueprint = function(tempType) {
                                 //method defined in index.html to obtain all the blueprint object data.
                                 blueprintLaunchDesign(data);
                             });
-                            
-                            
-                        
+
+
+
                             if (tempType === 'softwarestack' || tempType === 'osimage') {
                                 $('a#blueprintInfo').attr('href', '#modalForRead').click(function(e) {
                                     var $blueprintReadContainer = $('#modalForRead');
@@ -1914,7 +1728,7 @@ var saveblueprint = function(tempType) {
                                     });
                                     $blueprintReadContainer.find('.modal-body #blueprintTemplateType').val(data.templateType);
                                     getOrgProjBUComparison(data,$blueprintReadContainer);
-                                    
+
                                 });
                             } else if (tempType === 'cloudformation') {
                                 $('a#blueprintInfo').attr('href', '#modalForReadCFT').click(function(e) {
@@ -1937,15 +1751,15 @@ var saveblueprint = function(tempType) {
                         $.post('/organizations/' + reqBody.orgId + '/businessgroups/' + reqBody.bgId + '/projects/' + reqBody.projectId + '/blueprints', {
                             blueprintData: reqBody
                         }, function(data) {
-                             $('.blueprintNameLaunch').html('Launch Blueprint -&nbsp;&nbsp;' + data.name);
-                             $('a.blueprintNameLaunch').click(function(e) {
+                            $('.blueprintNameLaunch').html('Launch Blueprint -&nbsp;&nbsp;' + data.name);
+                            $('a.blueprintNameLaunch').click(function(e) {
                                 var $blueprintLaunch = $('#modalSelectEnvironment');
                                 getOrgProjBUComparison(data,$blueprintLaunch);
                             });
-                             $('.launchBlueprintBtn').unbind().click(function(e) {
+                            $('.launchBlueprintBtn').unbind().click(function(e) {
                                 dockerBlueprintLaunch(data);
                             });
-                            
+
                             //in edit mode refresh the blueprints page
                             if (reqBody.blueprintId) {
                                 $('#projectListInputExisting').trigger('change'); //refresh the blueprints page
@@ -1992,6 +1806,17 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
             var templateurl = "/d4dMasters/readmasterjsonnew/17";
             if (gallerytype == 'ami') {
                 templateurl = '/vmimages';
+            }
+            if(gallerytype === 'composite'){
+                $("#compsiteBluprintDiv").show();
+                $("#compsiteBluprintDiv").load("ajax/compositeBlueprint.html");
+                $('#nextSpecificValue').hide();
+                $('#saveCompBlup').show();
+                return true;
+            } else {
+                $('#saveCompBlup').hide();
+                $("#compsiteBluprintDiv").hide();
+                $('#nextSpecificValue').show();
             }
             $.ajax({
                 url: templateurl,
@@ -2086,7 +1911,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
             $('#tab' + (index + 1)).find('.temp').empty().append($clone);
             $('.' + $selectedItem.attr('data-templateType')).find('.productdiv2:first').trigger('click');
         } else if (index == 2) {
-            //If a docker type of template selected then select the Org 
+            //If a docker type of template selected then select the Org
             formInitializer();
         } else if (index == 3) {
             if ($wizard.data('secondClick')) {
@@ -2103,6 +1928,8 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
         }
     },
     'onPrevious': function(tab, navigation, index) {
+        $('#saveCompBlup').hide();
+        $('#nextSpecificValue').show();
         if (index === 0) {
             $('#viewCreateNew').removeClass('hidden');
             $('#selectOrgName').attr('disabled', false);
@@ -2886,7 +2713,7 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
             }
 
             checkandupdateRunlistTable();
-            OrgdataLoader(null, blueprintdata); //reloading Org params section 
+            OrgdataLoader(null, blueprintdata); //reloading Org params section
             $('#orgnameSelect').trigger('change');
 
             //Add a productdiv2 with required elements for form rendering
@@ -2996,37 +2823,15 @@ function closeblueprintedit(blueprintId) {
     var $newformBPNew = $formBPNew.clone();
     $('#bpeditcontent .productdiv2').detach(); //removing existing cardview on edit screen
     $('#newbpcontainer').append($newformBPNew);
-    OrgdataLoader(); //reloading Org params section 
+    OrgdataLoader(); //reloading Org params section
     $('#orgnameSelect').trigger('change');
 }
 
-function sortResults(versions, prop, asc) {
-    versions = versions.sort(function(a, b) {
-        a[prop] = parseInt(a[prop]);
-        b[prop] = parseInt(b[prop]);
-        if (asc) return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0);
-        else return (b[prop] > a[prop]) ? 1 : ((b[prop] < a[prop]) ? -1 : 0);
-    });
-    return (versions);
-}
-
-
 function initializeBlueprintAreaNew(data) {
-
-    var reqBodyNew = {};
-    var $orgListInput = $('#orgnameSelectExisting');
-    reqBodyNew.orgId = $orgListInput.val();
-    var $AppFactpanelBody = $('.appFactoryPanel').find('.panel-body');
-    $AppFactpanelBody.empty();
-    var $devopsRolepanelBody = $('.devopsRolePanel').find('.panel-body');
-    $devopsRolepanelBody.empty();
-    var $desktopProvisioningPanelBody = $('.desktopProvisioningPanel').find('.panel-body');
-    $devopsRolepanelBody.empty();
     //Displaying the Template Types.
     $('#accordion-2').empty();
     $.get("/d4dMasters/readmasterjsonnew/16", function(tdata) {
         tdata = JSON.parse(tdata);
-        var rowLength = tdata.length;
         var $containerTempNew = "";
         var selectedrow = false;
         var getDesignTypeImg;
@@ -3034,57 +2839,132 @@ function initializeBlueprintAreaNew(data) {
         var getDesignTypeName;
         var getDesignType;
 
-        for (var i = 0; i < rowLength; i += 1) {
+        for (var i = 0; i < tdata.length; i++) {
             getDesignTypeImg = tdata[i]['designtemplateicon_filename'];
             getDesignTypeRowID = tdata[i]['rowid'];
             getDesignTypeName = tdata[i]['templatetypename'];
             getDesignType = tdata[i]['templatetype'];
             //Extracting the TT definitions. Add New Template types
-            var $currRolePanel = null;
-            switch (getDesignTypeName) {
-                case "AppFactory":
-                    $AppFactpanelBody = $('<div class="panel-body AppFactory"></div>');
-                    $currRolePanel = $AppFactpanelBody;
-                    break;
-                case "DevopsRoles":
-                    $DevopsRolespanelBody = $('<div class="panel-body DevopsRoles"></div>');
-                    $currRolePanel = $DevopsRolespanelBody;
-                    break;
-                case "CloudFormation":
-                    $CloudFormationBody = $('<div class="panel-body CloudFormation"></div>');
-                    $currRolePanel = $CloudFormationBody;
-                    break;
-                case "Docker":
-                    $DockerpanelBody = $('<div class="panel-body Docker"></div>');
-                    $currRolePanel = $DockerpanelBody;
-                    break;
-                case "Desktop":
-                    $DesktopProvisioningPanelBody = $('<div class="panel-body Desktop"></div>');
-                    $currRolePanel = $DesktopProvisioningPanelBody;
-                    break;
-                case "Environment":
-                    $EnvironmentpanelBody = $('<div class="panel-body Environment"></div>');
-                    $currRolePanel = $EnvironmentpanelBody;
-                    break;
-            }
             if ($("div." + tdata[i]['templatetype']).length === 0) {
                 $containerTempNew = '<div class="panel panel-default blueprintContainer hidden">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapse' + i + '" data-parent="#accordion-2" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>' + getDesignTypeName + '</a>' + '</h4></div><div class="panel-collapse collapse bpeditas" id="collapse' + i + '">' + '<div class="panel-body ' + getDesignType + '"></div>' + '</div>';
                 $('#accordion-2').append($containerTempNew);
             }
         }
+        //for other blueprint types..
         for (var i = 0; i < data.length; i++) {
             addBlueprintToDom(data[i]);
         }
-        if ($('#accordion-2').length > 0) {
-            console.log('object ==>', $('#accordion-2').find('.blueprintContainer:not(.hidden)').first().find('.panel-heading a'));
-        }
     }); //end of readmasterjson to be pushed to the end of the function.
-    $('#accordion-2').on('show.bs.collapse', function(e) {
-        console.log(e.target);
-    });
     //Expanding the fist Accordion.
-
 };
+
+function initializeCompositeBP(){
+    $('#accordion-3').empty();
+    var $containerCompoTemp = ""; 
+    $containerCompoTemp = '<div class="panel panel-default blueprintContainer hidden">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapseCompo" data-parent="#accordion-3" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>Composite</a>' + '</h4></div><div class="panel-collapse collapse bpeditas" id="collapseCompo">' + '<div class="panel-body composite"></div>' + '</div>';
+    $('#accordion-3').append($containerCompoTemp);
+    
+    $.get('../composite-blueprints',function(compositeData){
+        if(compositeData && compositeData.compositeBlueprints){
+            for(var j=0;j<compositeData.compositeBlueprints.length;j++){
+                addBlueprintToComposite(compositeData.compositeBlueprints[j]);
+            }
+        }
+    });
+}
+
+function getOrgProjDetails(id) {
+    var orgName = $("#orgnameSelectExisting option:selected").text();
+
+    var bgName = $('#bgListInputExisting option:selected').text();
+    var projName = $('#projectListInputExisting option:selected').text();
+    var $blueprintReadContainer = $(id);
+    $blueprintReadContainer.find('.modal-body #blueprintORG').val(orgName);
+    $blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName);
+    $blueprintReadContainer.find('.modal-body #blueprintProject').val(projName);
+    var $blueprintReadContainerCFT = $(id);
+    $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(orgName);
+    $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(bgName);
+    $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(projName);
+}
+
+//for showing composite blueprints in the blueprints page
+function addBlueprintToComposite(data) {
+    //Find a panel-body with the template type class
+    var $currRolePanelComposite = $('#accordion-3').find('.composite');
+    var $itemContainer = $('<div></div>').addClass("productdiv4");
+    var $itemBody = $('<div></div>').addClass('productdiv1 cardimage').attr('data-blueprintId', data.id);
+    var $ul = $('<ul></ul>').addClass('list-unstyled system-prop').css({
+        'text-align': 'center'
+    });
+    var $liRead = $('<a style="float:right;margin:5px;cursor:pointer" class="readBtn"><div class="moreInfo moreInfoabsolute"></div></a>').attr('data-toggle', 'tooltip').attr('data-placement', 'top').attr('title', 'More Info');
+    $ul.append($liRead);
+    $('#bpOrganization').val($("#orgnameSelectExisting option:selected").text());
+    $('#bpBusinessGroup').val($('#bgListInputExisting option:selected').text());
+    $('#bpProject').val($('#projectListInputExisting option:selected').text());
+    //more info click..
+    $liRead.click(function(e) {
+        $('#accordionCompo').empty();
+        var compositeBlueprintId = data.id;
+        $.get('/composite-blueprints/'+ compositeBlueprintId, function(data) {
+            console.log(data);
+            $('.compositeBlueprintInfo').removeClass('hidden');
+            $('#compositeBP').empty();
+            var $compoBlueperintTemp = "";
+            for(var i=0;i<data.blueprints.length;i++){
+                var compBlueprint = data.blueprints[i];
+                $('#compositeInfoTable table').attr('id',compBlueprint._id);
+                var $tableClone =$('#compositeInfoTable').html();
+                $compoBlueperintTemp = '<div class="panel panel-default blueprintContainer">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapseComposite' + i + '" data-parent="#accordionCompo" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>' + data.blueprints[i].name + '</a>' + '</h4></div><div class="panel-collapse collapse" id="collapseComposite' + i + '">' + '<div class="panel-body '+data.blueprints[i].name+'" id='+data.blueprints[i]._id+'>'+$tableClone+'</div>' + '</div>';
+                $('#accordionCompo').append($compoBlueperintTemp);
+                $('#'+compBlueprint._id+' .templateType').val(compBlueprint.templateType);
+                $('#'+compBlueprint._id+' .bpVersion').val(compBlueprint.version);
+                $('#'+compBlueprint._id+' .bpOS').val(compBlueprint.blueprintConfig.cloudProviderData.instanceOS);
+                $('#'+compBlueprint._id+' .bpSize').val(compBlueprint.blueprintConfig.cloudProviderData.instanceType);
+                $('#'+compBlueprint._id+' .bpProviderType').val(compBlueprint.blueprintConfig.cloudProviderType);
+                $('#'+compBlueprint._id+' .bpVPC').val(compBlueprint.blueprintConfig.cloudProviderData.vpcId);
+                $('#'+compBlueprint._id+' .bpSubnetId').val(compBlueprint.blueprintConfig.cloudProviderData.subnetId);
+                $('#'+compBlueprint._id+' .bpSecurityGroupId').val(compBlueprint.blueprintConfig.cloudProviderData.securityGroupIds);
+                $('#'+compBlueprint._id+' .bpRunlist').val(compBlueprint.blueprintConfig.infraManagerData.versionsList[0].runlist);
+            }
+
+            var $blueprintReadContainer = $('#modalForCompositeInfo');
+            $('.modal-title').html('Blueprint Information Composite&nbsp;-' 
+                + data.name);
+            $blueprintReadContainer.modal('show');
+        });
+    });
+
+    var $img
+    $img = $('<img />').attr('src', 'img/composite.png').attr('alt', data.name).addClass('cardLogo');
+    var $liImage = $('<li></li>').append($img);
+    $ul.append($liImage);
+
+    var $liCardName = $('<li title="' + data.name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + data.name + '</b></u>');
+    //Versions sections
+    var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Edit"></button>');
+    var $launchButton = $('<a href="#modalSelectEnvironment" class="btn btn-primary launchIcon" title="Launch" data-backdrop="false" data-toggle="modal"></a>');
+    $launchButton.append('<i class="fa fa-location-arrow white"></i>');
+    $launchButton.attr('blueprintId', data.id);
+    $launchButton.click(function(e){
+        var lastversion = data.id //default version
+        var $blueprintLaunch = $('#modalSelectEnvironment');
+        $blueprintLaunch.find('#selectedVersion').val(lastversion);
+        getOrgProjBUComparison(data,$blueprintLaunch);
+        $('.launchBlueprintBtn').unbind().click(function(e) {
+            blueprintLaunchComposite(data);
+        });
+    })
+    $ul.append($liCardName).append($launchButton);
+    $itemBody.append($ul);
+    $itemContainer.append($itemBody);
+    $currRolePanelComposite.append($itemContainer);
+    //enabling the bluepintContiner div when item added.
+    $currRolePanelComposite.closest('.blueprintContainer').removeClass('hidden');
+    $currRolePanelComposite.parent().parent().show();        
+}
+
+
 var isEditingBP = false;
 function addBlueprintToDom(data) {
     //Find a panel-body with the template type class
@@ -3154,7 +3034,7 @@ function addBlueprintToDom(data) {
 
         $ul.append($liCardName).append($liVersion);
 
-        
+
         $linkVersions.click(function(e) {
             if(!isEditingBP){
                 isEditingBP = true;
@@ -3182,32 +3062,15 @@ function addBlueprintToDom(data) {
             eventAdded = false;
             $('.launchBlueprintBtn').unbind().click(function(e) {
                 if(data.templateType === "chef" || data.templateType === "ami" || data.templateType === "cft"){
-                    blueprintLaunchDesign(data);    
+                    blueprintLaunchDesign(data);
                 }else if(data.templateType=== "docker"){
                     dockerBlueprintLaunch(data);
                 }
-                
+
             });
         })
 
-        function getOrgProjDetails(id) {
-            var orgName = $("#orgnameSelectExisting option:selected").text();
-
-            var bgName = $('#bgListInputExisting option:selected').text();
-            var projName = $('#projectListInputExisting option:selected').text();
-            var $blueprintReadContainer = $(id);
-            $blueprintReadContainer.find('.modal-body #blueprintORG').val(orgName);
-            $blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName);
-            $blueprintReadContainer.find('.modal-body #blueprintProject').val(projName);
-            var $blueprintReadContainerCFT = $(id);
-            $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(orgName);
-            $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(bgName);
-            $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(projName);
-        }
-
         //Versions sections End
-
-
         var $selectVer = null;
         var tagLabel = '';
         //Docker Check
