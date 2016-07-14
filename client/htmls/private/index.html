@@ -13,6 +13,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="css/jqueryUI.min.css">
     <link rel="stylesheet" type="text/css" media="screen" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="js/jquery-filetree/jqueryFileTree.css" />
+    <link rel="stylesheet" type="text/css"  href="css/toastr.min.css">
   </head>
   <body class="custom-theme">
     <!-- HEADER -->
@@ -697,9 +698,13 @@
 <script src="js/app.js"></script>
 
 <script src="js/dev/dev.js"></script>
+    <script src="js/toastr.min.js"></script>
     
 <!-- MAIN APP JS FILE -->
 <script type="text/javascript">
+  //toastr config
+  toastr.options.closeButton = true;
+  toastr.options.closeDuration = 2000;
 var a, b, x;
 String.prototype.capitalizeFirstLetter = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);

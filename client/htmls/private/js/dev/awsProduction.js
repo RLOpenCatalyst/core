@@ -53,7 +53,7 @@ function editAtrributesHandler(e) {
     var $ccrs = $('.cookbookShow').data('$ccrs');
     var runlist = $ccrs.getSelectedRunlist();
     if (!runlist.length) {
-        alert('Please choose a runlist first');
+        toastr.warning('Please choose a runlist first');
         return false;
     }
     var $modal = $('#editAttributesModalContainer');
@@ -547,7 +547,7 @@ function getProviderList(cloudProviderId) {
 
         },
         failure: function(data) {
-            alert(data.toString());
+            toastr.error(data.toString());
         }
     });
 }
@@ -745,7 +745,7 @@ function getSecurityGroup(securityGroupsIds) {
 
                 },
                 error: function(xhr) {
-                    bootbox.alert(xhr.responseText);
+                    toastr.error(xhr.responseText);
                 }
             });
         } else {
@@ -844,7 +844,7 @@ function getVPC(vpcId) {
                     $spinner.addClass('hidden');
                 },
                 error: function(xhr) {
-                    bootbox.alert(xhr.responseText);
+                    toastr.error(xhr.responseText);
                 }
             });
         } else {
@@ -896,7 +896,7 @@ function getSubnet(subnetId) {
 
                 },
                 error: function(xhr) {
-                    bootbox.alert(xhr.responseText);
+                    toastr.error(xhr.responseText);
                 }
             });
         } else {
@@ -1104,7 +1104,7 @@ var reqBody;
 var formInitializer = function(editing, blueprintData, callback) {
         var $selectedItem = $('.role-Selected');
         if (!$selectedItem.length && !editing) {
-            bootbox.alert('Please choose a blueprint design');
+            toastr.error('Please choose a blueprint design');
             return false;
         }
         dataLoader(blueprintData);
@@ -1186,7 +1186,7 @@ var formInitializer = function(editing, blueprintData, callback) {
                                 try {
                                     templateData = JSON.parse(data);
                                 } catch (err) {
-                                    bootbox.alert("Invalid template file");
+                                    toastr.error("Invalid template file");
                                     return;
                                 }
                                 var formHtmlDivHtml = '';
@@ -1287,7 +1287,7 @@ var formInitializer = function(editing, blueprintData, callback) {
                         });
                     },
                     failure: function(data) {
-                        alert(data.toString());
+                        toastr.error(data.toString());
                     }
                 });
             } else {
@@ -1743,7 +1743,7 @@ var saveblueprint = function(tempType) {
                                             }
                                         },
                                         failure: function(data) {
-                                            alert(data.toString());
+                                            toastr.error(data.toString());
                                         }
                                     });
                                     $blueprintReadContainer.find('.modal-body #blueprintTemplateType').val(data.templateType);
@@ -3174,7 +3174,7 @@ function addBlueprintToDom(data) {
                                 }
                             },
                             failure: function(data) {
-                                alert(data.toString());
+                                toastr.error(data.toString());
                             }
                         });
                         var $parent = $(this).parents('.cardimage');

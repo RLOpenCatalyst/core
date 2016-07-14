@@ -109,6 +109,7 @@ function getTreeDetails(){
         }
     }); //getTreeNew gets over here
 }
+
 var runlistCheckAttribute;
 var versionAttr = [];
 function softwareStackListing() {
@@ -269,11 +270,16 @@ function softwareStackListing() {
 
                     $('#saveCompBlup').unbind().click(function(e) {
                         if(!$('#blueprintName').val()){
-                            alert('Please enter Composite Blueprint name!');
+                            $('.blueprintName span').removeClass('hidden');
                             return true;
-                        } if($('#selectorList option').length == 0){
-                            alert('Please Select Blueprint!');
+                        }else {
+                            $('.blueprintName span').addClass('hidden');
+                        }
+                        if($('#selectorList option').length == 0){
+                            $('.selectorList-option .error').removeClass('hidden');
                             return true;
+                        }else {
+                            $('.selectorList-option .error').addClass('hidden');
                         }
                         bootbox.confirm({
                             message: "Are you sure you want to save the Composite Blueprint? Press Ok To continue",
@@ -309,7 +315,7 @@ function softwareStackListing() {
                                         data: reqBody,
                                         success: function(data, success) {
                                             bootbox.hideAll();
-                                            alert('Successfully Created a Composite Blueprint');
+                                            toastr.success('Successfully Created a Composite Blueprint');
                                             $('.previous').trigger('click');
                                             initializeCompositeBP();
                                         },
@@ -320,7 +326,8 @@ function softwareStackListing() {
                                             } else if (jxhr.responseText) {
                                                 msg = jxhr.responseText;
                                             }
-                                            bootbox.alert(msg);
+                                            bootbox.hideAll();
+                                            toastr.error(msg);
                                         },
                                         failure: function(jxhr) {
                                             var msg = "Server Behaved Unexpectedly";
@@ -329,7 +336,8 @@ function softwareStackListing() {
                                             } else if (jxhr.responseText) {
                                                 msg = jxhr.responseText;
                                             }
-                                            bootbox.alert(msg);
+                                            bootbox.hideAll();
+                                            toastr.error(msg);
                                         }
                                     });
                                     return false;
@@ -429,7 +437,7 @@ function createRunlistTable(runlist) {
 function editAtrributesHandlers() {
     var runlist = runlistCheckAttribute;
     if (runlist.length == 0) {
-        alert('Please choose a runlist first');
+        toastr.warning('Please choose a runlist first');
         return false;
     }
     var $modal = $('#editAttributesModalContainer');
@@ -631,7 +639,7 @@ function saveAtrributesHandler(e) {
             });
         } else {
             if ($this.attr('data-attributeRequired') === 'true') {
-                alert("Please fill in the required attributes");
+                toastr.warning("Please fill in the required attributes");
                 return false;
             }
         }

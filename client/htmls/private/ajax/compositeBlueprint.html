@@ -27,7 +27,9 @@
         <legend>Composite Blueprint:</legend><br>
         <div class="form-group">
             <label class="control-label col-sm-3 labelHorizontal" for="blueprintNameInputComposite">Enter Blueprint Name<span class=" redSpan">&nbsp;*</span></label>
-            <div class="col-sm-6"> <input type="text" id="blueprintName" class="required form-control" type="text" autofocus="autofocus"></div>
+            <div class="col-sm-6 blueprintName"> <input type="text" id="blueprintName" class="required form-control" type="text" autofocus="autofocus">
+                <span class="error hidden"> Please enter Composite Blueprint name!</span>
+            </div>
         </div>
         <div style="clear: both;"></div>
 <div id="compositeDivision" class="margin-top5">
@@ -35,8 +37,8 @@
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 paddingtopbottom10 paddingleft-13">
         <span>SoftwareStack Blueprint</span>
     </div>
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 paddingtopbottom10 paddingleft assigned-tasks">
-        <span>Selected Blueprint</span>
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 paddingtopbottom10 paddingleft assigned-tasks selectorList-option">
+        <span>Selected Blueprint</span> &nbsp;<span class="error hidden"> Please Select Blueprint!</span>
     </div>
 </div>
 <div id="compsiteBlueprint">
