@@ -170,6 +170,35 @@ function softwareStackListing() {
                 reqBodyNew.projectId = $projectList.val();
                 reqBodyNew.envId = $envList.val();
                 var blueprintTypeList = "instance_launch";
+                var compositeBPId = $('#compositeBlueprintID').val();
+                 var selectedElements = [];
+                 var selectedElementsIds=[];
+                    if(compositeBPId){
+                        $.ajax({
+                            type: "get",
+                            dataType: "json",
+                            async: false,
+                            url: '/composite-blueprints/' + compositeBPId,
+                            success: function(compositeData) {
+                                if(compositeData){
+                                    $('#blueprintName').val(compositeData.name);
+                                    for(var i=0;i<compositeData.blueprints.length;i++){
+                                        var compositeRightSideListing = {
+                                            "className": "blueprintClass",
+                                            "value": compositeData.blueprints[i].name,
+                                            "data": {
+                                                "key": compositeData.blueprints[i].name,
+                                                "value": compositeData.blueprints[i]._id
+                                            }
+                                        }
+                                       // selectedElements.push(compositeRightSideListing);
+                                        selectedElementsIds.push(compositeData.blueprints[i]._id);
+                                    }
+                                    
+                                }
+                            }
+                        });
+                    }
                 $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws?blueprintType=' + blueprintTypeList + '', function(data) {
                     //Syncing up the tree view based on url
                     var list = [], bpAttributes = [];
@@ -179,9 +208,9 @@ function softwareStackListing() {
                             "className": "blueprintClass",
                             "value": data.blueprints[i].name,
                             "data": {
-                                "key": data.blueprints[i].name,
-                                "value": data.blueprints[i]._id,
-                                "bpData": data.blueprints[i]
+                            "key": data.blueprints[i].name,
+                            "value": data.blueprints[i]._id,
+                            "bpData": data.blueprints[i]
                             }
                         };
                         var option='<option data-value="' + data.blueprints[i]._id + '" value="'+data.blueprints[i]._id+'" >'+data.blueprints[i].version+'</option>';
@@ -198,11 +227,20 @@ function softwareStackListing() {
                             }
                         }
                         bpAttributes[data.blueprints[i]._id] = data.blueprints[i];
-                        list.push(item);
+                           
+                        if(!compositeBPId){
+                            list.push(item);
+                        } else{
+                             if(selectedElementsIds.indexOf(data.blueprints[i]._id) === -1){
+                               list.push(item);
+                            } else{
+                                 selectedElements.push(item);
+                            }
+                        }                       
                     }
-                    var selectedElements = [];
-                    var compsiteBlueprint = window.chefSelectorComponent({
-                        scopeElement: '#compsiteBlueprintSelecter',
+                    
+                    var compositeBlueprintSelector = window.chefSelectorComponent({
+                        scopeElement: '#compositeBlueprintSelector',
                         optionList: list,
                         selectorList: selectedElements,
                         isSortList: true,
@@ -211,6 +249,8 @@ function softwareStackListing() {
                         isPriorityEnable: true,
                         isExcludeDataFromOption: false,
                     });
+                    
+                    
                     // select blueprint for edit
                     if ($('#selectorList').val() == null) {
                         $('#attributeBlue').hide();
@@ -250,17 +290,14 @@ function softwareStackListing() {
                         //assigning the value to the attribute reader.
                         runlistCheckAttribute = runlistForTable;
                         $selectVer.unbind().click(function(e) {
-                            //$('#CollapseEditRunlistParam').show();
                             $tasksRunlist.clear().draw();
                             $table.find('tbody').empty();
                             var lastversion = $('.bpVersion').val(); //default version
                             $.get('/blueprints/' + lastversion, function(blueprintdata) {
-                               // $('#CollapseEditRunlistParam').show();
                                 var blueprintRunlistOnChange = blueprintdata.blueprintConfig.infraManagerData.versionsList[0].runlist;
                                 createRunlistTable(blueprintRunlistOnChange);
                                 runlistCheckAttribute = blueprintRunlistOnChange;
                                 // on save of composite blueprint
-
                             });
                         })
                     }
@@ -637,4 +674,6 @@ function saveAtrributesHandler(e) {
     createAttribTableRowFromJson(attributes);
     $modal.modal('hide');
 }
+
+
 
