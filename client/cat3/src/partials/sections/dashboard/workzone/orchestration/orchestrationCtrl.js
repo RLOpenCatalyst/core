@@ -13,7 +13,7 @@
 				orchestrationLogsPollerInterval:5000
 			};
 		}])
-		.controller('orchestrationCtrl', ['$scope', '$rootScope', '$modal', 'workzoneServices', 'confirmbox', 'arrayUtil', 'orchestrationPermission', 'workzoneUIUtils', 'paginationUtil', '$timeout','uiGridOptionsService', function($scope, $rootScope, $modal, workzoneServices, confirmbox, arrayUtil, orchestrationPerms, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService) {
+		.controller('orchestrationCtrl', ['$scope', '$rootScope', '$modal', 'workzoneServices', 'confirmbox', 'arrayUtil', 'orchestrationPermission', 'workzoneUIUtils', 'paginationUtil', '$timeout','uiGridOptionsService','toastr', function($scope, $rootScope, $modal, workzoneServices, confirmbox, arrayUtil, orchestrationPerms, workzoneUIUtils, paginationUtil, $timeout, uiGridOptionsService,toastr) {
 			$scope.isNewClickEnabled = true;
 			var _permSet = {
 				createTask: orchestrationPerms.createTask(),
@@ -218,10 +218,11 @@
 					confirmbox.showModal({}, modalOptions).then(function() {
 						workzoneServices.deleteTask(orchestrationObj._id).then(function(response) {
 							if (response.data.deleteCount.ok) {
+								toastr.success('Successfully deleted');
 								helper.removeTask();
 							}
 						}, function(data) {
-							alert('error:: ' + data.toString());
+							toastr.error('error:: ' + data.toString());
 						});
 					});
 				},
@@ -282,14 +283,7 @@
 						} else {
 							$rootScope.globalSuccessMessage = taskData.name + ' has been updated successfully';
 						}
-						$('#globalSuccessMessage').animate({
-							top: '0'
-						}, 1000);
-						setTimeout(function() {
-							$('#globalSuccessMessage').animate({
-								top: '-70px'
-							}, 500);
-						}, 5000);
+						toastr.success($rootScope.globalSuccessMessage);
 					}, function() {
 						$scope.isNewClickEnabled = true;
 					});

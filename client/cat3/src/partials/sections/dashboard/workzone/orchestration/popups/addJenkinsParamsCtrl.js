@@ -8,7 +8,7 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.orchestration')
-		.controller('addJenkinsParamsCtrl',['$scope', '$modalInstance',function($scope, $modalInstance){
+		.controller('addJenkinsParamsCtrl',['$scope', '$modalInstance','toastr',function($scope, $modalInstance,toastr){
 			//default selection type
 			$scope.params={
 				defaultValue:"",
@@ -31,7 +31,7 @@
 					$modalInstance.close($scope.params);
 				}
 				else{
-					alert('Please fill appropriate values.');
+					toastr.error('Please fill appropriate values.');
 				}
 			};
 		}
