@@ -76,9 +76,7 @@ compositeBlueprintService.checkCompositeBlueprintAccess
 compositeBlueprintService.populateComposedBlueprints
     = function populateComposedBlueprints(compositeBlueprint, callback) {
     if(!('blueprints' in compositeBlueprint)) {
-        var err = new Error('Bad Request');
-        err.status = 400;
-        return callback(err);
+        return callback(null, compositeBlueprint);
     }
 
     //@TODO allowed length should be read from config
