@@ -552,7 +552,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             function(next) {
                 compositeBlueprintService.populateComposedBlueprints(req.body, next);
             },
-            compositeBlueprintService.validateCompositeBlueprintCreateRequest,
             function (updateFields, next) {
                 compositeBlueprintService.getCompositeBlueprint(req.params.compositeBlueprintId,
                     function(err, compositeBlueprint) {
