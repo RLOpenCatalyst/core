@@ -4627,3 +4627,7 @@ input:focus, select:focus, textarea:focus {
 }
 .tooltipMargin{
     margin-top:2px; margin-left:2px;
+}
+.margintop5{
+    margin-top: 5px;
+}
