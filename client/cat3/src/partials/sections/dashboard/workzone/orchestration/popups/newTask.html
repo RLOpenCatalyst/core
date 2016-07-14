@@ -393,15 +393,20 @@
 		</div>
 
 		<div class="modal-footer">
-            <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
-				<i class="fa fa-times black"></i> Cancel
-			</button>
-			<button  type="submit" class="btn cat-btn-update" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid || taskSaving">
-				<i class="fa fa-check white"></i> Save
-			</button>
-			<button type="submit" class="btn cat-btn-update" ng-if="isEditMode">
-				<i class="fa fa-check white"></i> Update
-			</button>
+			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" >
+				<span class="pull-left inputValidationMsg" ><h5 ng-bind="inputValidationMsg"></h5></span>
+			</div>
+			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" >
+				<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+					<i class="fa fa-times black"></i> Cancel
+				</button>
+				<button  type="submit" class="btn cat-btn-update" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid || taskSaving">
+					<i class="fa fa-check white"></i> Save
+				</button>
+				<button type="submit" class="btn cat-btn-update" ng-if="isEditMode">
+					<i class="fa fa-check white"></i> Update
+				</button>
+			</div>
 		</div>
 	</form>
 </div>
