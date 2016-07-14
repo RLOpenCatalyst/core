@@ -392,8 +392,7 @@
     font-size: 11px;
 }
 .paddingtopbottom10 {
-    padding-top: 7px;
-    padding-bottom: 7px;
+    padding:6px 0;
 }
 .width50borderradius50 {
     width: 50%;
@@ -2454,15 +2453,15 @@ hr {
     padding: 8px 17px 8px 54px !important;
 }
 .smart-style-1 nav ul ul li > span {} .smart-style-1 nav ul ul li > span {
-    color: #E1EAF1;
-    display: block;
-    font-size: 13px;
-    font-weight: 300;
-    padding-bottom: 6px !important;
-    padding-left: 43px;
-    padding-top: 6px !important;
-    text-shadow: 0 1px 1px #000000;
-}
+                                          color: #E1EAF1;
+                                          display: block;
+                                          font-size: 13px;
+                                          font-weight: 300;
+                                          padding-bottom: 6px !important;
+                                          padding-left: 43px;
+                                          padding-top: 6px !important;
+                                          text-shadow: 0 1px 1px #000000;
+                                      }
 .domain-roles-heading {
     font-size: 12px;
     height: 25px;
@@ -2488,7 +2487,7 @@ hr {
     width: 140px;
 }
 .margin-top5{
-    margin-top: 5px;
+    margin-top: 20px;
 }
 /*border added for productdiv1 in Dev Angular to sync with Blueprint Card Design*/
 .productdiv1 {
@@ -2627,8 +2626,8 @@ body {
     text-align: center;
 }
 .instance-state {} .instance-state-text-started {
-    color: #008000;
-}
+                       color: #008000;
+                   }
 .instance-state-text-stopped {
     color: red;
 }
@@ -2731,7 +2730,7 @@ body {
         -ms-filter: none !important;
     }
     /* Black prints faster: h5bp.com/s */
-    
+
     a,
     a:visited {
         text-decoration: underline;
@@ -2748,7 +2747,7 @@ body {
         content: "";
     }
     /* Don't show links for images, or javascript/internal links */
-    
+
     pre,
     blockquote {
         border: 1px solid #999;
@@ -2758,7 +2757,7 @@ body {
         display: table-header-group;
     }
     /* h5bp.com/t */
-    
+
     tr,
     img {
         page-break-inside: avoid;
@@ -3015,8 +3014,8 @@ body {
     margin: 2px;
 }
 .chefCookbookList {} .disabled {
-    display: none;
-}
+                         display: none;
+                     }
 .blueprintContainer {
     display: ;
 }
@@ -3085,8 +3084,8 @@ body {
     width: 100%;
 }
 .fa-1.7x {
-    font-size: 1.7em;
-}
+           font-size: 1.7em;
+       }
 #logo img {
     width: 100px !important;
 }
@@ -3628,7 +3627,7 @@ nav ul {
     margin-top: 13px;
 }
 label {
-    color: #666;
+    color: #444;
 }
 .zero-margin {
     margin-left: 0px!important;
@@ -3896,6 +3895,9 @@ span.icon {
     padding-bottom: 7px;
     padding-top: 7px;
 }
+.awsExisting label {
+    font-size: 14px;
+}
 .blueprintnewbutton{
     text-align: center;
     width: 89px;
@@ -3910,8 +3912,8 @@ span.icon {
     margin-left: 10px;
     margin-top: 15px;
     padding:3px 5px;
- }
- .launchIcon{
+}
+.launchIcon{
     border-radius: 11px;
     height:25px;
     width:25px;
@@ -3927,7 +3929,7 @@ span.icon {
     position: absolute;
 }
 .versionModalBody{
-   height: 272px;
+    height: 272px;
     margin-top: -13px;
     overflow-x: scroll;
 }
@@ -3937,7 +3939,7 @@ span.icon {
     margin-left: 15px;
     margin-right: 0;
     width: 162px;*/
-   
+
 }
 .versionoption{
     border-top: 1px solid #eeeeee;
@@ -4440,35 +4442,35 @@ form.cmxform .gray * {
     width:56%;
 }
 @media(max-width:978px){
-  #selectOrgName{
-    width:48%;
-}
-.orgSelectDropDown{
-    font-size: 11px;
-}
-.spanName{
-    width:43%;
-    margin-top: -40px;
-}
+    #selectOrgName{
+        width:48%;
+    }
+    .orgSelectDropDown{
+        font-size: 11px;
+    }
+    .spanName{
+        width:43%;
+        margin-top: -40px;
+    }
 
 }
 @media(min-width:979px) and (max-width:1199px){
-.spanName{
-    width:40%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:40%;
+        margin-top:-40px;
+    }
 }
 @media(min-width:1200px) and (max-width:1400px){
-.spanName{
-    width:34%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:30%;
+        margin-top:-40px;
+    }
 }
 @media(min-width:1401px){
-.spanName{
-    width:26%;
-    margin-top:-40px;
-}
+    .spanName{
+        width:26%;
+        margin-top:-40px;
+    }
 }
 /*Class added in Dev Angular to show the blue color for active classes.*/
 .custom-theme .left-projects-links > a.active i {
@@ -4477,33 +4479,30 @@ form.cmxform .gray * {
 /* compsiteBlueprint*/
 #compositeBlueprintLoadBlueprint{
     margin: 0 auto;
-    width: 69%;
+    width: 100%;
 }
 #optionSelector, #selectorList {
     width: 100%;
     height: 250px;
 }
-.selectCookbooksandRecipesdivLeft {
-    margin: 0 0 0 10px;
-}
+
 .selectCookbooksandRecipesdivLeft, .selectCookbooksandRecipesdivRight {
     width: 79%;
 }
 .blueprintClass {
     background-repeat: no-repeat;
-    height: 24px;
+    height: 30px;
     padding-left: 34px;
-    padding-top: 6px;
-    background-position: 4px 2px !important;
+    padding-top: 10px;
+    background-position: 7px 9px !important;
     font-size: 12px;
-    background: url("../img/environment.png") no-repeat;
+    background: url("../img/rsz_layers.png") no-repeat;
 
 }
 .section-headings{
-    background: rgba(241, 241, 241, 0.77);
-    height: 29px;
-    padding: 0 16%;
-    font-weight: 700;
+    color: #444;
+    font-size: 15px;
+    font-weight: normal;
 }
 
 #btnaddToBlueprint , #btnremoveFromBlueprint {
@@ -4517,23 +4516,66 @@ form.cmxform .gray * {
 .compositeBPVersion{
     float:right;
     margin-right: 30px;
-    margin-top: 10px;
+    margin-top: 4px;
 }
-
+.compositeBPVersion select {
+    height: 26px !important;
+    display:inline !important;
+    width: auto !important;
+    padding: 0px 12px !important;
+}
 .marginTop19{
     margin-top:19px
 }
-#compBlueprint{
-    display: block;
-    -webkit-margin-start: 2px;
-    -webkit-margin-end: 2px;
-    -webkit-padding-before: 0.35em;
-    -webkit-padding-start: 0.75em;
-    -webkit-padding-end: 0.75em;
-    -webkit-padding-after: 0.625em;
-    min-width: -webkit-min-content;
-    border: 1px solid #ccc;
+fieldset#compBlueprint{
+    border: 1px groove #ddd;
+    padding: 0 1.4em 1.4em 1.4em;
+    margin: 2em 0 1.5em 0;
+    -webkit-box-shadow:  0px 0px 0px 0px #000;
+    box-shadow:  0px 0px 0px 0px #000;
 }
+fieldset#compBlueprint legend {
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: left;
+    border:none;
+    width:170px;
+    color: #3a87ad;
+    margin: 0;
+}
+.paddingleft {
+    padding-left: 20px;
+}
+.paddingleft-13{
+    padding-left: 13px;
+}
+.labelHorizontal {
+    font-size: 15px;
+    color: #444;
+    padding:5px 0 0 15px;
+}
+
+
+input, select, textarea {
+    vertical-align: middle;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, 0.6);
+
+}
+
 #compBlueprint legend {
     display: block;
     -webkit-padding-start: 2px;
@@ -4585,4 +4627,3 @@ form.cmxform .gray * {
 }
 .tooltipMargin{
     margin-top:2px; margin-left:2px;
-}

@@ -3074,7 +3074,7 @@ function addBlueprintToDom(data) {
         }
 
         var $selectVer = $('<select></select>').addClass('blueprintVer');
-        var $liVersion = $('<li class="margin-top5">Version:&nbsp;</li>').append($selectVer);
+        var $liVersion = $('<li class="margintop10">Version:&nbsp;</li>').append($selectVer);
 
         if (data.versions) {
 
