@@ -109,6 +109,7 @@ function getTreeDetails(){
         }
     }); //getTreeNew gets over here
 }
+
 var runlistCheckAttribute;
 var versionAttr = [];
 function softwareStackListing() {
@@ -303,11 +304,16 @@ function softwareStackListing() {
 
                     $('#saveCompBlup').unbind().click(function(e) {
                         if(!$('#blueprintName').val()){
-                            alert('Please enter Composite Blueprint name!');
+                            $('.blueprintName span').removeClass('hidden');
                             return true;
-                        } if($('#selectorList option').length == 0){
-                            alert('Please Select Blueprint!');
+                        }else {
+                            $('.blueprintName span').addClass('hidden');
+                        }
+                        if($('#selectorList option').length == 0){
+                            $('.selectorList-option .error').removeClass('hidden');
                             return true;
+                        }else {
+                            $('.selectorList-option .error').addClass('hidden');
                         }
                         bootbox.confirm({
                             message: "Are you sure you want to save the Composite Blueprint? Press Ok To continue",
@@ -327,7 +333,6 @@ function softwareStackListing() {
                                         });
                                     });
                                     var url;
-
                                     if(compositeBPId){
                                         url = '../composite-blueprints/' + compositeBPId;
                                         reqBody = {
@@ -346,45 +351,46 @@ function softwareStackListing() {
                                     }
                                     // for edit of composite blueprint..
                                     if(compositeBPId){
-                                        $.ajax({
-                                            method: "PATCH",
-                                            url: url,
-                                            data: reqBody,
-                                            success: function(data, success) {
-                                                bootbox.hideAll();
-                                                alert('Successfully updated the Composite Blueprint' + blueprintName);
-                                                initializeCompositeBP();
-                                            },
-                                            error: function(jxhr) {
+                                            $.ajax({
+                                                method: "PATCH",
+                                                url: url,
+                                                data: reqBody,
+                                                success: function(data, success) {
+                                                    bootbox.hideAll();
+                                                    toastr.success('Successfully updated Composite Blueprint&nbsp;-' +  blueprintName);
+                                                    initializeCompositeBP();
+                                                },
+                                                error: function(jxhr) {
+                                                    var msg = "Server Behaved Unexpectedly";
+                                                    if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                                        msg = jxhr.responseJSON.message;
+                                                    } else if (jxhr.responseText) {
+                                                        msg = jxhr.responseText;
+                                                    }
+                                                    toastr.error(msg);
+                                                }
+                                            });
+                                        }else{
+                                            //for create of composite blueprint..
+                                            $.ajax({
+                                                method: "POST",
+                                                url: url,
+                                                data: reqBody,
+                                                success: function(data, success) {
+                                                    bootbox.hideAll();
+                                                    toastr.success('Successfully created Composite Blueprint&nbsp;-' +  blueprintName);
+                                                    $('.previous').trigger('click');
+                                                    initializeCompositeBP();
+                                                },
+                                                error: function(jxhr) {
                                                 var msg = "Server Behaved Unexpectedly";
                                                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
                                                     msg = jxhr.responseJSON.message;
                                                 } else if (jxhr.responseText) {
                                                     msg = jxhr.responseText;
                                                 }
-                                                bootbox.alert(msg);
-                                            }
-                                        });
-                                    }else{
-                                        //for create of composite blueprint..
-                                        $.ajax({
-                                            method: "POST",
-                                            url: url,
-                                            data: reqBody,
-                                            success: function(data, success) {
                                                 bootbox.hideAll();
-                                                alert('Successfully created Composite Blueprint' + blueprintName);
-                                                $('.previous').trigger('click');
-                                                initializeCompositeBP();
-                                            },
-                                            error: function(jxhr) {
-                                                var msg = "Server Behaved Unexpectedly";
-                                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                                    msg = jxhr.responseJSON.message;
-                                                } else if (jxhr.responseText) {
-                                                    msg = jxhr.responseText;
-                                                }
-                                                bootbox.alert(msg);
+                                                toastr.error(msg);
                                             }
                                         });
                                     }
@@ -485,7 +491,7 @@ function createRunlistTable(runlist) {
 function editAtrributesHandlers() {
     var runlist = runlistCheckAttribute;
     if (runlist.length == 0) {
-        alert('Please choose a runlist first');
+        toastr.warning('Please choose a runlist first');
         return false;
     }
     var $modal = $('#editAttributesModalContainer');
@@ -687,7 +693,7 @@ function saveAtrributesHandler(e) {
             });
         } else {
             if ($this.attr('data-attributeRequired') === 'true') {
-                alert("Please fill in the required attributes");
+                toastr.warning("Please fill in the required attributes");
                 return false;
             }
         }
