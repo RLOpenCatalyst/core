@@ -57,6 +57,11 @@
                                   <span class="step">4</span>  <span class="title"><b></b></span> 
                                   </a>
                                 </li>
+                                <li data-target="#step5">
+                                  <a href="#tab5" data-toggle="tab">
+                                  <span class="step">5</span>  <span class="title"><b></b></span> 
+                                  </a>
+                                </li>
                               </ul>
                               <div class="clearfix"></div>
                             </div>
@@ -73,7 +78,7 @@
                                   </div>
                                   <div class="templatesCloudformation templates" style="display:none">
                                   </div>
-                                    <div id="compsiteBluprintDiv" class=" templates"  style="padding-bottom:20px;overflow-y: auto;">
+                                    <div id="compositeBlueprintDiv" class=" templates"  style="padding-bottom:20px;overflow-y: auto;">
                                     </div>
                                 </div>
                               </div>
@@ -596,6 +601,10 @@
                                   </div>
                                 </div>
                               </div>
+                              <div class="tab-pane" id="tab5" style="padding-bottom:20px;overflow-y: auto;">
+                                <input type="hidden" id="compositeBlueprintID"/>
+                                <div id="compositeEditBlueprint"></div>
+                              </div>
                               <footer class="footer">
                                 <div style="text-align:center;" class="clearfix form-actions no-padding">
                                   <div class="btn-group">
@@ -695,10 +704,6 @@
                 </div>
           </footer>
         </div>
-        
-        <!--modal for blueprint edit ends-->
-
-
         <!-- Copy bp pop-up -->
         <div class="modal fade bs-example-modal-lg" id="copyBlueprintModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
           <div class="modal-dialog">

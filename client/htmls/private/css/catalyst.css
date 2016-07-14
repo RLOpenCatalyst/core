@@ -4477,7 +4477,7 @@ form.cmxform .gray * {
     color:#40baf1 !important;
 }
 /* compsiteBlueprint*/
-#compsiteBlueprint{
+#compositeBlueprintLoadBlueprint{
     margin: 0 auto;
     width: 100%;
 }
@@ -4573,4 +4573,61 @@ input:focus, select:focus, textarea:focus {
     outline: 0;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, 0.6);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, 0.6);
+
+}
+
+#compBlueprint legend {
+    display: block;
+    -webkit-padding-start: 2px;
+    -webkit-padding-end: 2px;
+    border: none;
+    width: auto !important;
+}
+
+#createProvider .marginbottom {
+    margin-bottom: 10px;
+}
+
+#createProvider .width-60 {
+    width: 60%;
+}
+
+#createProvider .width-20 {
+    width: 20%;
+}
+
+#createProvider .addimage,.removeimage {
+    cursor: pointer;
+}
+
+#createProvider .addNewRegion {
+    border: solid gray 1px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+#createProvider .addRow,.removeRow {
+    float: left;
+    margin-top: 32px;
+    margin-left: 3.5px;
+}
+
+#createProvider .addRegion,.removeRegion {
+    position: relative;
+    top: -18px;
+    left: 17px;
+    float: right;
+}
+
+#createProvider .row {
+    margin-bottom: 0px;
+}
+.azureBlock{
+    margin-top: 0px;
+}
+.tooltipMargin{
+    margin-top:2px; margin-left:2px;
+}
+.margintop5{
+    margin-top: 5px;
 }

@@ -1828,14 +1828,14 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                 templateurl = '/vmimages';
             }
             if (gallerytype === 'composite') {
-                $("#compsiteBluprintDiv").show();
-                $("#compsiteBluprintDiv").load("ajax/compositeBlueprint.html");
+                $("#compositeBlueprintDiv").show();
+                $("#compositeBlueprintDiv").load("ajax/compositeBlueprint.html");
                 $('#nextSpecificValue').hide();
                 $('#saveCompBlup').show();
                 return true;
             } else {
                 $('#saveCompBlup').hide();
-                $("#compsiteBluprintDiv").hide();
+                $("#compositeBlueprintDiv").hide();
                 $('#nextSpecificValue').show();
             }
             $.ajax({
@@ -2833,6 +2833,16 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 
 }
 
+function loadCompositeBlueprintEdit(compositeBlueprintId) {
+    $('#myTab3 li').addClass('hidden');
+    $('#viewCreate').removeClass('active');
+    $('#l2').addClass('active');
+    $('#nextSpecificValue').hide();
+    $('#saveCompBlup').show();
+    $('#l2 a[href="#tab5"]').tab('show');
+    $('#compositeEditBlueprint').load('ajax/compositeBlueprint.html');
+}
+
 function closeblueprintedit(blueprintId) {
     isEditingBP = false;
     $('#myTab3 li').removeClass('hidden');
@@ -2912,7 +2922,7 @@ function addBlueprintToComposite(data) {
     //Find a panel-body with the template type class
     var $currRolePanelComposite = $('#accordion-3').find('.composite');
     var $itemContainer = $('<div></div>').addClass("productdiv4");
-    var $itemBody = $('<div></div>').addClass('productdiv1 cardimage').attr('data-blueprintId', data.id);
+    var $itemBodyComposite = $('<div></div>').addClass('productdiv1 cardimage').attr('data-blueprintId', data.id);
     var $ul = $('<ul></ul>').addClass('list-unstyled system-prop').css({
         'text-align': 'center'
     });
@@ -2960,10 +2970,14 @@ function addBlueprintToComposite(data) {
 
     var $liCardName = $('<li title="' + data.name + '"></li>').addClass('Cardtextoverflow').html('<u><b>' + data.name + '</b></u>');
     //Versions sections
-    var $linkVersions = $('<button class="btn btn-primary bpvicon" title="Edit"></button>');
+    var $editButton = $('<button class="btn btn-primary bpvicon" title="Edit"></button>');
     var $launchButton = $('<a href="#modalSelectEnvironment" class="btn btn-primary launchIcon" title="Launch" data-backdrop="false" data-toggle="modal"></a>');
+    
+    $editButton.append('<i class="fa fa-pencil bpvi"></i>');
     $launchButton.append('<i class="fa fa-location-arrow white"></i>');
-    $launchButton.attr('blueprintId', data.id);
+    $launchButton.attr('data-blueprintId', data.id);
+    $editButton.attr('data-blueprintId', data.id);
+
     $launchButton.click(function(e) {
         var lastversion = data.id //default version
         var $blueprintLaunch = $('#modalSelectEnvironment');
@@ -2972,14 +2986,38 @@ function addBlueprintToComposite(data) {
         $('.launchBlueprintBtn').unbind().click(function(e) {
             blueprintLaunchComposite(data);
         });
-    })
-    $ul.append($liCardName).append($launchButton);
-    $itemBody.append($ul);
-    $itemContainer.append($itemBody);
+    });
+
+    $editButton.click(function(e) {
+        var lastversion = data.id; //default version
+        //load the edit screen. Currently loaded from popup
+        if (lastversion) {
+            loadCompositeBlueprintEdit(lastversion);
+            $('#compositeBlueprintID').val(lastversion);
+        } else {
+            bootbox.alert({
+                message: 'Blueprint data error. Could not read.',
+                title: 'Warning'
+            });
+        }
+        e.preventDefault();
+    });
+
+    $ul.append($liCardName).append($launchButton).append($editButton);
+    $itemBodyComposite.append($ul);
+    $itemContainer.append($itemBodyComposite);
     $currRolePanelComposite.append($itemContainer);
     //enabling the bluepintContiner div when item added.
     $currRolePanelComposite.closest('.blueprintContainer').removeClass('hidden');
     $currRolePanelComposite.parent().parent().show();
+
+    $itemBodyComposite.click(function(e) {
+        if ($(this).hasClass('role-Selected1')) {
+            $(this).removeClass('role-Selected1');
+        } else {
+            $(this).addClass('role-Selected1');
+        }
+    });
 }
 
 
@@ -3036,7 +3074,7 @@ function addBlueprintToDom(data) {
         }
 
         var $selectVer = $('<select></select>').addClass('blueprintVer');
-        var $liVersion = $('<li class="margintop10">Version:&nbsp;</li>').append($selectVer);
+        var $liVersion = $('<li class="margintop5">Version:&nbsp;</li>').append($selectVer);
 
         if (data.versions) {
 
@@ -3277,19 +3315,26 @@ function addBlueprintToDom(data) {
 function removeSelectedBlueprint() {
 
     var blueprintId = [];
+    var compositeBlueprintId = '';
     $('.productdiv1.role-Selected1').each(function() {
-        blueprintId.push($(this).find('button[title="Edit"]').first().attr('blueprintid'));
+        blueprintId.push($(this).find('button[title="Edit"]').first().attr('blueprintId'));
+        compositeBlueprintId = $(this).find('button[title="Edit"]').attr('data-blueprintId');
     });
-    if (blueprintId.length > 0) {
+
+    if (blueprintId.length > 0 || compositeBlueprintId.length > 0) {
         bootbox.confirm("Are you sure you would like to remove the selected blueprints?", function(result) {
             if (!result) {
                 return;
             } else {
+                var url1 = '/blueprints';
+                var url2 = '/composite-blueprints/' + compositeBlueprintId;
+                var data1 = {
+                    blueprints: blueprintId
+                };
+                var data2 = compositeBlueprintId;
                 $.ajax({
-                    url: '/blueprints',
-                    data: {
-                        blueprints: blueprintId
-                    },
+                    url: (blueprintId[0] !=undefined)  ? url1 : url2,
+                    data: (blueprintId[0] !=undefined) ? data1 : data2,
                     type: 'DELETE',
                     success: function(data) {
                         if (data) {
