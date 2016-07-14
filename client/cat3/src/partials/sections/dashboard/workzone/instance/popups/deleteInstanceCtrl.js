@@ -1,7 +1,7 @@
 (function(){
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('deleteInstanceCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
+		.controller('deleteInstanceCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices','toastr', function($scope, $modalInstance, items, workzoneServices,toastr) {
 			angular.extend($scope, {
 				isChefChecked: false,
 				instance: items,
@@ -16,16 +16,17 @@
 					}
 					workzoneServices.deleteInstance(urlParams).then(function(response) {
 						if (response.data==="OK") {
+							toastr.success('Successfully deleted');
 							$modalInstance.close(items);
 						} else {
-							alert('Unexpected Behaviour');
+							toastr.error('Unexpected Behaviour');
 						}
 					}, function(error) {
 						error = error.data || error;
 						if (error.message) {
-							alert(error.message);
+							toastr.error(error.message);
 						} else {
-							alert('Unexpected Behaviour');
+							toastr.error('Unexpected Behaviour');
 						}
 					});
 				}

@@ -8,7 +8,7 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.cloudFormation')
-		.controller('removeCFTCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
+		.controller('removeCFTCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices','toastr', function($scope, $modalInstance, items, workzoneServices,toastr) {
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
@@ -20,9 +20,9 @@
 					function(error) {
 						error = error.responseText || error;
 						if (error.message) {
-							alert(error.message);
+							toastr.error(error.message);
 						} else {
-							alert(error);
+							toastr.error(error);
 						}
 					}
 				);

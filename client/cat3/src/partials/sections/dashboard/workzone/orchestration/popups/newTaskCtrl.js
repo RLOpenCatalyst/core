@@ -8,7 +8,7 @@
 (function (angular) {
 	'use strict';
 	angular.module('workzone.orchestration')
-		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
+		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q','toastr', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q,toastr) {
 			
             $scope.role={
              name : ''   
@@ -177,7 +177,7 @@
 					};
 					//checking for name of the task
 					if (!taskJSON.name.trim()) {
-						alert('Please enter the name of the task.');
+						$scope.inputValidationMsg='Please enter the name of the task.';
                         $scope.taskSaving = false;
 						return false;
 					}
@@ -190,7 +190,7 @@
 								taskJSON.assignTasks.push(selectedList[i].data._id);
 							}
 						} else {
-							alert('please select atleast one job');
+							$scope.inputValidationMsg='please select atleast one job';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -212,24 +212,24 @@
 						}
 
 						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds && !taskJSON.role ) {
-							alert('Please select a node or blueprint or role');
+							$scope.inputValidationMsg='Please select a node or blueprint or role';
                             $scope.taskSaving = false;
 							return false;
 						}
 						if (taskJSON.nodeIds.length && taskJSON.blueprintIds) {
-							alert('Please choose either nodes or blueprints or role, not all');
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
 							return false;
 						}
 
                         if (taskJSON.nodeIds.length && taskJSON.role) {
-                            alert('Please choose either nodes or blueprints or role, not all');
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
                             return false;
                         }
 
                         if (taskJSON.blueprintIds.length && taskJSON.role) {
-                            alert('Please choose either nodes or blueprints or role, not all');
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
                             return false;
                         }
@@ -246,7 +246,7 @@
 							}
 						}
 						if (!taskJSON.nodeIds.length) {
-							alert('Please select atleast one puppet node');
+							$scope.inputValidationMsg='Please select atleast one puppet node';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -254,20 +254,20 @@
 					if ($scope.taskType === "jenkins") {
 						taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
 						if (!taskJSON.jenkinsServerId.length) {
-							alert('Please select the Jenkins Server');
+							$scope.inputValidationMsg='Please select the Jenkins Server';
                             $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.autoSyncFlag = $scope.autoSync.flag;
 						taskJSON.jobName = $scope.jenkinJobSelected;
 						if (!taskJSON.jobName.length) {
-							alert('Please select one Job');
+							$scope.inputValidationMsg='Please select one Job';
                             $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.jobURL = $scope.jobUrl;
 						if (!taskJSON.jobURL.length) {
-							alert('No Job Url');
+							$scope.inputValidationMsg='No Job Url';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -286,7 +286,7 @@
 							}
 						}
 						if (!taskJSON.nodeIds.length) {
-							alert('Please select a node');
+							$scope.inputValidationMsg='Please select a node';
                             $scope.taskSaving = false;
 							return false;
 						}
