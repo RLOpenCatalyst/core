@@ -19,7 +19,6 @@ var taskDao = require('_pr/model/classes/tasks/tasks.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
-var instancesDao = require('_pr/model/classes/instance/instance');
 
 const errorType = 'taskService';
 
@@ -122,20 +121,49 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
             logger.error("Failed to fetch TaskActions: ", err);
             return callback(err, null);
         }
-        var count =0;
-        if(histories && histories.docs && histories.docs.length){
-            for(var i=0; i<histories.docs.length; i++){
-                count++;
-                if(histories.docs[i].taskType == "jenkins"){
-                    histories.docs[i] = JSON.parse(JSON.stringify(histories.docs[i]));
-                    histories.docs[i].jenkinsLog = "/jenkins/"+histories.docs[i].jenkinsServerId+"/jobs/"+histories.docs[i].jobName+"/builds/"+histories.docs[i].buildNumber+"/output";
-                }
-                if(count == histories.docs.length){
-                    return callback(null,histories);
-                }
+        var count = 0;
+        if (histories && histories.docs && histories.docs.length) {
+            for (var i = 0; i < histories.docs.length; i++) {
+                (function(i) {
+                    if (histories.docs[i].taskType == "jenkins") {
+                        histories.docs[i] = JSON.parse(JSON.stringify(histories.docs[i]));
+                        histories.docs[i].jenkinsLog = "/jenkins/" + histories.docs[i].jenkinsServerId + "/jobs/" + histories.docs[i].jobName + "/builds/" + histories.docs[i].buildNumber + "/output";
+                    }
+                    if (histories.docs[i].taskType == "composite") {
+                        if (histories.docs[i].taskHistoryIds && histories.docs[i].taskHistoryIds.length) {
+                            for (var j = 0; j < histories.docs[i].taskHistoryIds.length; j++) {
+                                TaskHistory.getHistoryByTaskIdAndHistoryId(histories.docs[i].taskHistoryIds[j].taskId, histories.docs[i].taskHistoryIds[j].historyId, function(err, data) {
+                                    if (err) {
+                                        logger.error("Failed to fetch history: ", err);
+                                    }
+                                    if (data) {
+                                        logger.debug("data: ", JSON.stringify(data));
+                                        if(data.taskType == "jenkins"){
+                                            var obj ={
+                                                jenkinsLog: "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output",
+                                                "taskName": data.taskName,
+                                                "taskType": data.taskType
+                                            }
+                                            histories.docs[i].executionResults.push(obj);
+                                        }else{
+                                            Array.prototype.push.apply(histories.docs[i].executionResults,data.executionResults);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    count++;
+
+                    if (count == histories.docs.length) {
+                        setTimeout(function() {
+                            return callback(null, histories);
+                        }, 200);
+                    }
+                })(i);
             }
-        }else{
-            return callback(null,histories);
+        } else {
+            return callback(null, histories);
         }
     });
 };
