@@ -4631,3 +4631,17 @@ input:focus, select:focus, textarea:focus {
 .margintop5{
     margin-top: 5px;
 }
+#editRunlistParam{
+    height: auto;
+}
+#attributeRunlistTable{
+    padding-left: 8px;
+}
+#tableRunlistForBlueprint{
+    text-align: center;
+    width: 100%;
+}
+#tableRunlistForBlueprint thead tr th{
+    text-align: center;
+    width: 319px;
+}
