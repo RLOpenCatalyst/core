@@ -20,6 +20,7 @@ var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
 
 var Schema = mongoose.Schema;
 var InstanceLogSchema = new Schema({
@@ -112,7 +113,7 @@ var InstanceLog = function() {
     this.getLogsByActionId = function(actionId, callback) {
         var queryObj = {
             actionId: actionId
-        }
+        };
 
         InstanceLogs.find(queryObj, function(err, data) {
             if (err) {
@@ -121,32 +122,41 @@ var InstanceLog = function() {
                 return;
             }
             if (data && data.length) {
-                return callback(null, data[0]);
+                instancesDao.getInstanceById(data[0].instanceId, function(err, instance) {
+                    if (err) {
+                        logger.error("Failed to fetch instance: ", err);
+                    }
+                    if (instance && instance.length) {
+                        data[0] = JSON.parse(JSON.stringify(data[0]));
+                        data[0].instanceName = instance[0].name;
+                    }
+
+                    return callback(null, data[0]);
+                });
             } else {
                 var error = new Error("ActionLog not found.");
                 error.status = 404;
                 callback(err, null);
             }
         });
-
-    }
+    };
 
     this.getInstanceActionList = function getInstanceActionList(jsonData, callback) {
         if (jsonData && jsonData.pageSize) {
             jsonData['searchColumns'] = ['platformId', 'status', 'bootStrap', 'orgName', 'bgName', 'projectName', 'envName', 'providerType'];
             apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
                 if (err) {
-                    var err = new Error('Internal server error');
-                    err.status = 500;
-                    return callback(err);
+                    var error = new Error('Internal server error');
+                    error.status = 500;
+                    return callback(error);
                 } else {
                     databaseCall.queryObj['$or'] = [{ "status": "running" }, { "status": "stopped" }, { "status": "pending" }];
                     InstanceLogs.paginate(databaseCall.queryObj, databaseCall.options, function(err, instanceActions) {
                         if (err) {
                             logger.error(err);
-                            var err = new Error('Internal server error');
-                            err.status = 500;
-                            return callback(err);
+                            var error = new Error('Internal server error');
+                            error.status = 500;
+                            return callback(error);
                         } else {
                             if (instanceActions && instanceActions.docs && instanceActions.docs.length) {
                                 for (var i = 0; i < instanceActions.docs.length; i++) {
@@ -174,7 +184,7 @@ var InstanceLog = function() {
     this.removeByInstanceId = function(instanceId, callback) {
         var queryObj = {
             instanceId: instanceId
-        }
+        };
 
         InstanceLogs.remove(queryObj, function(err, data) {
             if (err) {
@@ -184,10 +194,10 @@ var InstanceLog = function() {
             }
             callback(null, data);
         });
-    }
+    };
 
     this.pollInstanceActionLog = function(actionId, startTime, callback) {
-        
+
         InstanceLogs.find({
             actionId: actionId
         }, function(err, data) {
@@ -195,21 +205,21 @@ var InstanceLog = function() {
                 callback(err, null);
                 return;
             }
-            var logs =[];
-            if(data && data.length && data[0].logs.length){
-                for(var i=0; i<data[0].logs.length; i++){
-                    if(data[0].logs[i].timestamp > startTime){
+            var logs = [];
+            if (data && data.length && data[0].logs.length) {
+                for (var i = 0; i < data[0].logs.length; i++) {
+                    if (data[0].logs[i].timestamp > startTime) {
                         logs.push(data[0].logs[i]);
                     }
                 }
                 data[0].logs = logs;
                 return callback(null, data[0]);
-            }else{
+            } else {
                 return callback(null, data);
             }
         });
-    }
-}
+    };
+};
 
 
 module.exports = new InstanceLog();

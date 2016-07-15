@@ -19,7 +19,6 @@ var taskDao = require('_pr/model/classes/tasks/tasks.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
-var instancesDao = require('_pr/model/classes/instance/instance');
 
 const errorType = 'taskService';
 
@@ -122,20 +121,57 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
             logger.error("Failed to fetch TaskActions: ", err);
             return callback(err, null);
         }
-        var count =0;
-        if(histories && histories.docs && histories.docs.length){
-            for(var i=0; i<histories.docs.length; i++){
-                count++;
-                if(histories.docs[i].taskType == "jenkins"){
-                    histories.docs[i] = JSON.parse(JSON.stringify(histories.docs[i]));
-                    histories.docs[i].jenkinsLog = "/jenkins/"+histories.docs[i].jenkinsServerId+"/jobs/"+histories.docs[i].jobName+"/builds/"+histories.docs[i].buildNumber+"/output";
-                }
-                if(count == histories.docs.length){
-                    return callback(null,histories);
-                }
+        var count = 0;
+        var totalRecord = 0;
+        if (histories && histories.docs && histories.docs.length) {
+            for (var i = 0; i < histories.docs.length; i++) {
+                (function(i) {
+                    if (histories.docs[i] && histories.docs[i].taskType == "jenkins") {
+                        histories.docs[i] = JSON.parse(JSON.stringify(histories.docs[i]));
+                        histories.docs[i].jenkinsLog = "/jenkins/" + histories.docs[i].jenkinsServerId + "/jobs/" + histories.docs[i].jobName + "/builds/" + histories.docs[i].buildNumber + "/output";
+                    }
+                    if (histories.docs[i] && histories.docs[i].taskType == "composite") {
+                        totalRecord = totalRecord + histories.docs[i].taskHistoryIds.length;
+                        if (histories.docs[i].taskHistoryIds && histories.docs[i].taskHistoryIds.length) {
+                            for (var j = 0; j < histories.docs[i].taskHistoryIds.length; j++) {
+                                (function(j) {
+                                    TaskHistory.getHistoryByTaskIdAndHistoryId(histories.docs[i].taskHistoryIds[j].taskId, histories.docs[i].taskHistoryIds[j].historyId, function(err, data) {
+                                        if (err) {
+                                            logger.error("Failed to fetch history: ", err);
+                                        }
+                                        if (data) {
+                                            if (data.taskType == "jenkins") {
+                                                data = JSON.parse(JSON.stringify(data));
+                                                data.jenkinsLog = "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output";
+                                            }
+                                            histories.docs[i].executionResults.push(data);
+                                        }
+                                    });
+                                    for (var x = 0; x < histories.docs.length; x++) {
+                                        (function(x) {
+                                            if (histories.docs[x]) {
+                                                if (histories.docs[i].taskHistoryIds[j].historyId == histories.docs[x]._id) {
+                                                    delete histories.docs[x];
+                                                }
+                                            }
+                                        })(x);
+                                    }
+                                })(j);
+                            }
+                        }
+                    }
+                    count++;
+
+                    if (count == histories.docs.length) {
+                        setTimeout(function() {
+                            histories.total = histories.total - totalRecord;
+                            return callback(null, histories);
+                        }, 200);
+                    }
+                })(i);
             }
-        }else{
-            return callback(null,histories);
+        } else {
+            return callback(null, histories);
         }
     });
 };
