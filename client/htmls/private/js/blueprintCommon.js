@@ -170,8 +170,9 @@ function softwareStackListing() {
                 reqBodyNew.envId = $envList.val();
                 var blueprintTypeList = "instance_launch";
                 var compositeBPId = $('#compositeBlueprintID').val();
-                 var selectedElements = [];
-                 var selectedElementsIds=[];
+                var selectedElements = [];
+                var selectedElementsIds=[];
+                var selectAttribute=[];
                     if(compositeBPId){
                         $.ajax({
                             type: "get",
@@ -192,6 +193,7 @@ function softwareStackListing() {
                                         }
                                        // selectedElements.push(compositeRightSideListing);
                                         selectedElementsIds.push(compositeData.blueprints[i]._id);
+                                        selectAttribute[compositeData.blueprints[i]._id]=compositeData.blueprints[i];
                                     }
                                     
                                 }
@@ -215,6 +217,7 @@ function softwareStackListing() {
                         var optText=1;
                         if(data.blueprints[i].version){ optText= data.blueprints[i].version;}
                         var option='<option data-value="' + data.blueprints[i]._id + '" value="'+data.blueprints[i]._id+'" >'+optText+'</option>';
+                        bpAttributes[data.blueprints[i]._id] = data.blueprints[i];
                         if(data.blueprints[i] && data.blueprints[i].versions){
                             for (var kk = 0; kk < data.blueprints[i].versions.length; kk++) {
                                 var varLop= data.blueprints[i].versions[kk];
@@ -224,20 +227,23 @@ function softwareStackListing() {
                         versionOptions[data.blueprints[i]._id]=option;
                         if(data.blueprints[i] && data.blueprints[i].versions){
                             for (var l = 0; l < data.blueprints[i].versions.length; l++) {
+                                if(selectedElementsIds.indexOf(data.blueprints[i].versions[l].id) !== -1){
+                                    item.data.value=data.blueprints[i].versions[l].id;
+                                    bpAttributes[data.blueprints[i].versions[l].id] = selectAttribute[data.blueprints[i].versions[l].id];
+                                }
                                 versionOptions[data.blueprints[i].versions[l].id]=option;
                             }
                         }
-                        bpAttributes[data.blueprints[i]._id] = data.blueprints[i];
-                           
+
                         if(!compositeBPId){
                             list.push(item);
                         } else{
-                             if(selectedElementsIds.indexOf(data.blueprints[i]._id) === -1){
+                             if(selectedElementsIds.indexOf(item.data.value) === -1){
                                list.push(item);
                             } else{
                                  selectedElements.push(item);
                             }
-                        }                       
+                        }
                     }
                     
                     var compositeBlueprintSelector = window.chefSelectorComponent({
@@ -271,15 +277,11 @@ function softwareStackListing() {
                     });
                     $('#selectorList').change(function() {
                        // manage accordion
-                        editRunListAttribute();
-                        if (!$('#collapsed').hasClass('collapsed')) {
-                            $('#collapsed').trigger('click');
-                        }
                         $('.bpVersion').html(versionOptions[$('#selectorList').val()])
                         $('.bpVersion').val($('#selectorList').val());
+                        editRunListAttribute();
                     });
                     function editRunListAttribute () {
-                        $tasksRunlist.clear().draw();
                         var $table = $('#attributesViewListTable').removeClass('hidden');
                         var $tbody = $table.find('tbody').empty();
                         $('#attributeBlue').show();
@@ -476,15 +478,16 @@ var checkandupdateRunlistTable = function() {
 }
 
 function createRunlistTable(runlist) {
-    $tasksRunlist.clear().draw();
+    var $runlistList = $('#tableRunlistForBlueprint tbody');
+    var newtr='<tr class="runlistRow"><td>No data available</td></tr>';
     for (i = 0; i < runlist.length; i++) {
-        var $runlistList = $('#tableRunlistForBlueprint');
-        var $tr = $('<tr class="runlistRow"></tr>');
+        newtr = $('<tr class="runlistRow"></tr>');
         var $tdName = $('<td class="runlistDescription">' + runlist[i] + '</td>');
-        $tr.append($tdName);
-        $runlistList.append($tr);
-        $tasksRunlist.row.add($tr).draw();
+        newtr.append($tdName);
     }
+    $('#tableRunlistForBlueprint tbody').empty();
+    $runlistList.append(newtr);
+    $('#attributesViewListTable tbody').empty();
 }
 
 
@@ -615,9 +618,9 @@ function editAtrributesHandlers() {
 
 function createAttribTableRowFromJson(attributes) {
     var $table = $('#attributesViewListTable').removeClass('hidden');
-    var $tbody = $table.find('tbody').empty();
+    $('#attributesViewListTable tbody').empty();
+    var $tbody = $table.find('tbody');
     var versionSelectDropdown  = $('.bpVersion').val();
-    
     versionAttr[versionSelectDropdown] = attributes;
     for (var j = 0; j < attributes.length; j++) {
         var attributeObj = attributes[j].jsonObj;
@@ -654,7 +657,7 @@ function createAttribTableRowFromJson(attributes) {
                         var $tdAttributeVal = $('<td/>').html(obj[keys[i]]);
                     }
                     $tr.append($tdAttributeKey).append($tdAttributeVal);
-                    $tbody.append($tr);
+                    $('#attributesViewListTable tbody').append($tr);
                 }
             }
         }
