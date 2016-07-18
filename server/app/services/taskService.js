@@ -143,8 +143,9 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                                 data = JSON.parse(JSON.stringify(data));
                                                 data.jenkinsLog = "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output";
                                             }
-                                            histories.docs[i].executionResults.push(data);
                                         }
+                                        if (histories.docs[i] && histories.docs[i].executionResults)
+                                            histories.docs[i].executionResults.push(data);
                                     });
                                     for (var x = 0; x < histories.docs.length; x++) {
                                         (function(x) {
@@ -162,10 +163,10 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                     count++;
 
                     if (count == histories.docs.length) {
-                        histories.docs = histories.docs.filter(function(e){
-                            return !!e;
-                        });
                         setTimeout(function() {
+                            histories.docs = histories.docs.filter(function(e) {
+                                return !!e;
+                            });
                             histories.total = histories.total - totalRecord;
                             return callback(null, histories);
                         }, 200);
