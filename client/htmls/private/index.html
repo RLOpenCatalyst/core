@@ -1406,6 +1406,46 @@ if (isAngularIntegration) {
 }
 loadSettingsTree();
 foldTreeForSetting();
+
+//check this functionality as it breaks at times..
+function saveAtrributesHandler(e) {
+    var $modal = $('#editAttributesModalContainer');
+    var $tbody = $modal.find('.attributesEditTableBody');
+    var $input = $tbody.find('.attribValueInput');
+    var attributes = [];
+    for (var j = 0; j < $input.length; j++) {
+        var $this = $($input[j]);
+        var attributeKey = $this.attr('data-attribKey');
+        var attribValue = $this.val();
+        if (attribValue) {
+            var attribPathParts = attributeKey.split('/');
+            var attributeObj = {};
+            var currentObj = attributeObj;
+            for (var i = 0; i < attribPathParts.length; i++) {
+                if (!currentObj[attribPathParts[i]]) {
+                    if (i === attribPathParts.length - 1) {
+                        currentObj[attribPathParts[i]] = attribValue;
+                        continue;
+                    } else {
+                        currentObj[attribPathParts[i]] = {};
+                    }
+                }
+                currentObj = currentObj[attribPathParts[i]];
+            }
+            attributes.push({
+                name: $this.attr('data-attribName'),
+                jsonObj: attributeObj
+            });
+        } else {
+            if ($this.attr('data-attributeRequired') === 'true') {
+                toastr.warning("Please fill in the required attributes");
+                return false;
+            }
+        }
+    }
+    createAttribTableRowFromJson(attributes);
+    $modal.modal('hide');
+}
 </script>
 <script src="js/blueprintLaunch.js"></script>
 <script src="js/blueprintCommon.js"></script>

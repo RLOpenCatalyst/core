@@ -12,6 +12,9 @@
         <li class="pull-left View blueprintEditbutton hidden">
           <a href="#viewEdit" id="tabheader" data-toggle="tab">Edit</a>
         </li>
+        <li class="pull-left View compositeBlueprintHeader hidden">
+          <a href="#compoEdit" id="tabheader" data-toggle="tab">Edit Composite</a>
+        </li>
         <!--new tab for CRUD operations for Blueprint-->
         
       </ul>
@@ -57,11 +60,6 @@
                                   <span class="step">4</span>  <span class="title"><b></b></span> 
                                   </a>
                                 </li>
-                                <li data-target="#step5">
-                                  <a href="#tab5" data-toggle="tab">
-                                  <span class="step">5</span>  <span class="title"><b></b></span> 
-                                  </a>
-                                </li>
                               </ul>
                               <div class="clearfix"></div>
                             </div>
@@ -70,6 +68,7 @@
                                 <div id="templateContent" class="row " style="margin:0px;min-height:200px;">
                                 </div>
                               </div>
+                              <input type="hidden" id="compositeBlueprintID"/>
                               <div class="tab-pane" id="tab2" style="padding-bottom:20px;overflow-y: auto;">
                                 <div class="row " style="margin:0px">
                                   <div id="individualTemplateNameGrid" class="templatesAppfactory templates">
@@ -78,6 +77,7 @@
                                   </div>
                                   <div class="templatesCloudformation templates" style="display:none">
                                   </div>
+                                  <label id="compositeSpinner" class="hidden"><img width="30px" src="img/select2-spinner.gif"></label>
                                     <div id="compositeBlueprintDiv" class=" templates"  style="padding-bottom:20px;overflow-y: auto;">
                                     </div>
                                 </div>
@@ -601,19 +601,18 @@
                                   </div>
                                 </div>
                               </div>
-                              <div class="tab-pane" id="tab5" style="padding-bottom:20px;overflow-y: auto;">
-                                <input type="hidden" id="compositeBlueprintID"/>
-                                <div id="compositeEditBlueprint"></div>
-                              </div>
                               <footer class="footer">
                                 <div style="text-align:center;" class="clearfix form-actions no-padding">
                                   <div class="btn-group">
                                     <ul class="pager wizard no-margin" style="margin-left:200px">
-                                      <li class="previous disabled">
+                                      <li class="previous disabled" id="previousValue">
                                         <a style="border-radius:0px" class="btn btn-primary" href="javascript:void(0);"> Previous </a>
                                       </li>
                                       <li class="next" id="nextSpecificValue">
                                         <a style="border-radius:0px;margin-left:5px;" class="btn btn-primary" href="javascript:void(0);"> Next </a>
+                                      </li>
+                                      <li class="cancel" id="cancelSpecificValue" style="display: none;">
+                                        <a style="border-radius:0px;" class="btn btn-primary" onclick="closeCompositeEdit();">Cancel</a>
                                       </li>
                                         <li class="save" id="saveCompBlup" style="display: none;">
                                             <a style="border-radius:0px;margin-left:5px;" class="btn btn-primary" href="javascript:void(0);"> Save </a>

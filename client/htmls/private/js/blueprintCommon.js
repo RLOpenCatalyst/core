@@ -180,6 +180,7 @@ function softwareStackListing() {
                             async: false,
                             url: '/composite-blueprints/' + compositeBPId,
                             success: function(compositeData) {
+                                $('#compositeSpinner').addClass('hidden');
                                 if(compositeData){
                                     $('#blueprintName').val(compositeData.name);
                                     for(var i=0;i<compositeData.blueprints.length;i++){
@@ -191,7 +192,6 @@ function softwareStackListing() {
                                                 "value": compositeData.blueprints[i]._id
                                             }
                                         }
-                                       // selectedElements.push(compositeRightSideListing);
                                         selectedElementsIds.push(compositeData.blueprints[i]._id);
                                         selectAttribute[compositeData.blueprints[i]._id]=compositeData.blueprints[i];
                                     }
@@ -336,12 +336,14 @@ function softwareStackListing() {
                                     });
                                     var url;
                                     if(compositeBPId){
+                                        methodName = "PATCH";
                                         url = '../composite-blueprints/' + compositeBPId;
                                         reqBody = {
                                             "name": blueprintName,
                                             "blueprints": blueprintsList
                                         }
                                     }else{
+                                        methodName = "POST";
                                         url = '../composite-blueprints/';
                                         reqBody = {
                                             "name": blueprintName,
@@ -351,51 +353,32 @@ function softwareStackListing() {
                                             "blueprints": blueprintsList
                                         };    
                                     }
-                                    // for edit of composite blueprint..
-                                    if(compositeBPId){
-                                            $.ajax({
-                                                method: "PATCH",
-                                                url: url,
-                                                data: reqBody,
-                                                success: function(data, success) {
-                                                    bootbox.hideAll();
-                                                    toastr.success('Successfully updated Composite Blueprint&nbsp;-' +  blueprintName);
-                                                    initializeCompositeBP();
-                                                },
-                                                error: function(jxhr) {
-                                                    var msg = "Server Behaved Unexpectedly";
-                                                    if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                                        msg = jxhr.responseJSON.message;
-                                                    } else if (jxhr.responseText) {
-                                                        msg = jxhr.responseText;
-                                                    }
-                                                    toastr.error(msg);
-                                                }
-                                            });
-                                        }else{
-                                            //for create of composite blueprint..
-                                            $.ajax({
-                                                method: "POST",
-                                                url: url,
-                                                data: reqBody,
-                                                success: function(data, success) {
-                                                    bootbox.hideAll();
-                                                    toastr.success('Successfully created Composite Blueprint&nbsp;-' +  blueprintName);
-                                                    $('.previous').trigger('click');
-                                                    initializeCompositeBP();
-                                                },
-                                                error: function(jxhr) {
-                                                var msg = "Server Behaved Unexpectedly";
-                                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                                    msg = jxhr.responseJSON.message;
-                                                } else if (jxhr.responseText) {
-                                                    msg = jxhr.responseText;
-                                                }
-                                                bootbox.hideAll();
-                                                toastr.error(msg);
+                                    // for edit and create of composite blueprint..
+                                    $.ajax({
+                                        method: methodName,
+                                        url: url,
+                                        data: reqBody,
+                                        success: function(data, success) {
+                                            bootbox.hideAll();
+                                            if(compositeBPId){
+                                                toastr.success('Successfully updated Composite Blueprint&nbsp;-' +  blueprintName);
+                                                closeCompositeEdit();
+                                            } else{
+                                                toastr.success('Successfully created Composite Blueprint&nbsp;-' +  blueprintName); 
+                                                $('.previous').trigger('click');
                                             }
-                                        });
-                                    }
+                                                initializeCompositeBP();
+                                            },
+                                        error: function(jxhr) {
+                                            var msg = "Server Behaved Unexpectedly";
+                                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                                msg = jxhr.responseJSON.message;
+                                            } else if (jxhr.responseText) {
+                                                msg = jxhr.responseText;
+                                            }
+                                            toastr.error(msg);
+                                        }
+                                    });
                                     return false;
                                 }
                             }
@@ -665,45 +648,7 @@ function createAttribTableRowFromJson(attributes) {
     }
 }
 
-//check this functionality as it breaks at times..
-function saveAtrributesHandler(e) {
-    var $modal = $('#editAttributesModalContainer');
-    var $tbody = $modal.find('.attributesEditTableBody');
-    var $input = $tbody.find('.attribValueInput');
-    var attributes = [];
-    for (var j = 0; j < $input.length; j++) {
-        var $this = $($input[j]);
-        var attributeKey = $this.attr('data-attribKey');
-        var attribValue = $this.val();
-        if (attribValue) {
-            var attribPathParts = attributeKey.split('/');
-            var attributeObj = {};
-            var currentObj = attributeObj;
-            for (var i = 0; i < attribPathParts.length; i++) {
-                if (!currentObj[attribPathParts[i]]) {
-                    if (i === attribPathParts.length - 1) {
-                        currentObj[attribPathParts[i]] = attribValue;
-                        continue;
-                    } else {
-                        currentObj[attribPathParts[i]] = {};
-                    }
-                }
-                currentObj = currentObj[attribPathParts[i]];
-            }
-            attributes.push({
-                name: $this.attr('data-attribName'),
-                jsonObj: attributeObj
-            });
-        } else {
-            if ($this.attr('data-attributeRequired') === 'true') {
-                toastr.warning("Please fill in the required attributes");
-                return false;
-            }
-        }
-    }
-    createAttribTableRowFromJson(attributes);
-    $modal.modal('hide');
-}
+
 
 
 
