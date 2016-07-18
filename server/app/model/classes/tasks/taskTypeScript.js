@@ -40,11 +40,17 @@ java.classpath.push(D4DFolderPath + '/java/lib/commons-io-2.4.jar');
 java.classpath.push(D4DFolderPath + '/java/lib/log4j-1.2.12.jar');
 java.classpath.push(D4DFolderPath + '/java/lib/commons-logging-api-1.1.jar');
 java.classpath.push(D4DfolderPath + '/java/classes');*/
-
+var Schema = mongoose.Schema;
 
 var scriptTaskSchema = taskTypeSchema.extend({
-	nodeIds: [String],
-	scriptIds: [String]
+	nodeIds:[String],
+	scriptDetails: [{
+		scriptId:{
+			type:String,
+			requred:true
+		},
+		scriptParameters:[String]
+	}]
 });
 
 scriptTaskSchema.methods.getNodes = function() {

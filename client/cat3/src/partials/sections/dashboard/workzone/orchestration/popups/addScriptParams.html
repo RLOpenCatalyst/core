@@ -1,0 +1,39 @@
+<div id='addScriptParamsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"><i class="fa fa-th-list"></i> Add Script Params</h4>
+	</div>
+
+	<div class="modal-body">
+		<fieldset>
+			<div class="parameter-section">
+				<div class="col-lg-12 col-md-12 margintop15">
+					<table id="booleanTable" class="table tableLength " cellpadding="5px" width="100%">
+						<thead>
+							<tr>
+								<th class="headParamTable">Parameters</th>
+								<th class="headParamTable">Value</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="input in inputs">
+								<td class="booleanParam"><label class="control-label" for="choiceName">Parameter:<span class="red">*</span></label></td>
+								<td><input id="value" type="text" class="form-control" name="value" ng-model="params[$index]"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<button type="button" id="add" ng-click="add()">Add</button>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">
+			<i class="fa fa-check white"></i> Save
+		</button>		
+	</div>
+</div>
