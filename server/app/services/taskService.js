@@ -74,7 +74,7 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
             }*/
             callback(null, chefTasks);
         }
-    })
+    });
 };
 
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, callback) {
@@ -83,9 +83,9 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
     }
     taskDao.getTaskById(taskId, function(err, task) {
         if (err) {
-            var err = new Error('Failed to fetch Task.');
-            err.status = 500;
-            return callback(err, null);
+            var error = new Error('Failed to fetch Task.');
+            error.status = 500;
+            return callback(error, null);
         }
         if (task) {
             var blueprintIds = [];
@@ -94,21 +94,20 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             }
             task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
                 if (err) {
-                    var err = new Error('Failed to execute task.');
-                    err.status = 500;
-                    return callback(err, null);
+                    var error = new Error('Failed to execute task.');
+                    error.status = 500;
+                    return callback(error, null);
                 }
                 if (historyData) {
                     taskRes.historyId = historyData.id;
                 }
-                logger.debug("taskRes::::: ", JSON.stringify(taskRes));
                 callback(null, taskRes);
                 return;
             });
         } else {
-            var err = new Error('Task Not Found.');
-            err.status = 404;
-            return callback(err, null);
+            var error = new Error('Task Not Found.');
+            error.status = 404;
+            return callback(error, null);
         }
     });
 };
@@ -144,8 +143,9 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                                 data = JSON.parse(JSON.stringify(data));
                                                 data.jenkinsLog = "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output";
                                             }
-                                            histories.docs[i].executionResults.push(data);
                                         }
+                                        if (histories.docs[i] && histories.docs[i].executionResults)
+                                            histories.docs[i].executionResults.push(data);
                                     });
                                     for (var x = 0; x < histories.docs.length; x++) {
                                         (function(x) {
@@ -164,6 +164,9 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
 
                     if (count == histories.docs.length) {
                         setTimeout(function() {
+                            histories.docs = histories.docs.filter(function(e) {
+                                return !!e;
+                            });
                             histories.total = histories.total - totalRecord;
                             return callback(null, histories);
                         }, 200);
