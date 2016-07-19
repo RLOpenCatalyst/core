@@ -25,6 +25,9 @@
 					<option value="100">100</option>
 				</select> entries
 			</label>
+			<button id="refreshBtn" type="button" title="Refresh" class="btn btn-xs btn-primary refresh-btn" ng-click="refreshCurrentPage()">
+				<i class="fa fa-refresh"></i>
+			</button>
 		</div>
 		<!--Table to show all the instance actions for all the instances starts here-->
 		<table class="table table-hover table-bordered text-center" id="instanceLogTable">
@@ -181,6 +184,11 @@
 			}
 			getInstances();
 
+			$("#refreshBtn").click(function() {
+				pageSetting.page = 1;
+				getInstances();
+			});
+
 			$("#table_length_sel").change(function() {
 				pageSetting.pageSize = $(this).val();
 				getInstances();
@@ -207,7 +215,7 @@
 				var managnedData = instanceData;
 				var $tbody = $('#instanceLogTable tbody').empty();
 				if(managnedData.length == 0) {
-					var $tbody = $('.instanceLogTrail').append('<tr><td colspan="15"><span>No Instances Available</span></td></tr>');
+					var $tbody = $('.instanceLogTrail').append('<tr><td colspan="15"><span>No data available in table</span></td></tr>');
 				}
 				var $providerImg = '';
 				var $osImg = '';
