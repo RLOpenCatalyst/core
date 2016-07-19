@@ -1828,10 +1828,13 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                 templateurl = '/vmimages';
             }
             if (gallerytype === 'composite') {
+                $('#compositeSpinner').removeClass('hidden');
+                $('#compositeBlueprintID').val('');
                 $("#compositeBlueprintDiv").show();
                 $("#compositeBlueprintDiv").load("ajax/compositeBlueprint.html");
                 $('#nextSpecificValue').hide();
                 $('#saveCompBlup').show();
+                $('#compositeSpinner').addClass('hidden');
                 return true;
             } else {
                 $('#saveCompBlup').hide();
@@ -2672,6 +2675,7 @@ function displaySavedBPValues() {
 function loadblueprintedit(blueprintId, baseblueprintId) {
     $('#myTab3 li').addClass('hidden');
     $('#myTab3 li.blueprintEditbutton').removeClass('hidden');
+    $('#myTab3 li.compositeBlueprintHeader').addClass('hidden');
     $('#versionModalContainer').modal('hide');
     $('#tab3').remove();
     //removing selection of template from new screen
@@ -2834,19 +2838,48 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 }
 
 function loadCompositeBlueprintEdit(compositeBlueprintId) {
-    $('#myTab3 li').addClass('hidden');
+    $('#selectOrgName').attr('disabled', true);
+    $('#myTab3 li').removeClass('active');
     $('#viewCreate').removeClass('active');
+    $('#myTab3 li').addClass('hidden');
+    $('#myTab3 li.compositeBlueprintHeader').removeClass('hidden');
+    $('#myTab3 li.compositeBlueprintHeader').addClass('active');
+    $('#tab1').removeClass('active');
     $('#l2').addClass('active');
+    $('#tab2').addClass('active');
+    $('#tab2').tab('show');
+    $('#compositeSpinner').removeClass('hidden');
+    $('#cancelSpecificValue').show();
+    $("#compositeBlueprintDiv").show();
     $('#nextSpecificValue').hide();
+    $('#previousValue').hide();
     $('#saveCompBlup').show();
-    $('#l2 a[href="#tab5"]').tab('show');
-    $('#compositeEditBlueprint').load('ajax/compositeBlueprint.html');
+    $("#compositeBlueprintDiv").load("ajax/compositeBlueprint.html");
+}
+
+//on cancel of update composite blueprint..
+function closeCompositeEdit(){
+    $('#saveCompBlup').hide();
+    $('#cancelSpecificValue').hide();
+    $('#myTab3 li').removeClass('hidden');
+    $('#l2').removeClass('active');
+    $('#myTab3 li.compositeBlueprintHeader').addClass('hidden');
+    $('#myTab3 li.blueprintEditbutton').addClass('hidden');
+    $('#tab1').addClass('active');
+    $('#viewCreate').addClass('active');
+    $('#l2 a[href="#tab5"]').addClass('hidden');
+    $('#myTab3 a[href="#viewCreate"]').tab('show');
+    $('#previousValue').show();
+    $('#nextSpecificValue').show();
+    $("#compositeBlueprintDiv").hide();
+    $('#orgnameSelect').trigger('change');
 }
 
 function closeblueprintedit(blueprintId) {
     isEditingBP = false;
     $('#myTab3 li').removeClass('hidden');
     $('#myTab3 li.blueprintEditbutton').addClass('hidden');
+     $('#myTab3 li.compositeBlueprintHeader').addClass('hidden');
     $('#myTab3 a[href="#viewCreate"]').tab('show');
     $('#tab3').remove();
     var $newformBPNew = $formBPNew.clone();

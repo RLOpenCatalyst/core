@@ -372,7 +372,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
         };
 
-        function importNodes(nodeList) {
+        function importNodes(nodeList,chefDetail) {
             taskStatusModule.getTaskStatus(null, function(err, obj) {
                 if (err) {
                     res.send(500);
@@ -388,13 +388,16 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 updateTaskStatusNode(nodeName, "Unable to import node " + nodeName, true, count);
                                 return;
                             } else {
-
                                 logger.debug('creating env ==>', node.chef_environment);
                                 logger.debug('orgId ==>', orgId);
                                 logger.debug('bgid ==>', bgId);
                                 // logger.debug('node ===>', node);
-                                environmentsDao.createEnv(node.chef_environment, orgId, bgId, projectId, function(err, data) {
-
+                                var jsonData = {
+                                    chefName:chefDetail.configname,
+                                    chefId:chefDetail.rowid,
+                                    chefEnv:node.chef_environment
+                                };
+                                environmentsDao.createEnv(jsonData, orgId, bgId, projectId, function(err, data) {
                                     if (err) {
                                         logger.debug(err, 'occured in creating environment in mongo');
                                         updateTaskStatusNode(node.name, "Unable to import node : " + node.name, true, count);
@@ -482,7 +485,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 hostedChefUrl: chefDetails.url,
             });
             if (reqBody.selectedNodes.length) {
-                importNodes(reqBody.selectedNodes);
+                importNodes(reqBody.selectedNodes,chefDetails);
             } else {
                 res.send(400);
                 return;
