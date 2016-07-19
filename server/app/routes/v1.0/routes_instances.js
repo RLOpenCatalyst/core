@@ -402,14 +402,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.status(500).send(errorResponses.db.error);
                     return;
                 } else {
-                    instanceService.removeInstancebyId(req.params.instanceId, function(err, data) {
+                    containerDao.deleteContainerByInstanceId(req.params.instanceId, function(err, container) {
                         if (err) {
-                            logger.error("Instance deletion Failed >> ", err);
-                            res.status(500).send(errorResponses.db.error);
+                            logger.error("Container deletion Failed >> ", err);
+                            callback(err, null);
                             return;
+                        } else {
+                            instancesDao.removeInstanceById(req.params.instanceId, function(err, data) {
+                                if (err) {
+                                    logger.error("Instance deletion Failed >> ", err);
+                                    res.status(500).send(errorResponses.db.error);
+                                    return;
+                                }
+                                logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
+                                res.send(200);
+                            });
                         }
-                        logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
-                        res.send(200);
                     });
                 }
             });
@@ -936,6 +944,30 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
             logger.debug(data.length + ' ' + JSON.stringify(data));
             if (data.length) {
+                var instance = data;
+                var instanceLog = {
+                    actionId: "",
+                    instanceId: data[0]._id,
+                    orgName: data[0].orgName,
+                    bgName: data[0].bgName,
+                    projectName: data[0].projectName,
+                    envName: data[0].environmentName,
+                    status: data[0].instanceState,
+                    bootStrap: data[0].bootStrapStatus,
+                    platformId: data[0].platformId,
+                    blueprintName: data[0].blueprintData.blueprintName,
+                    data: data[0].runlist,
+                    platform: data[0].hardware.platform,
+                    os: data[0].hardware.os,
+                    size: data[0].instanceType,
+                    user: req.session.user.cn,
+                    createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
+                    providerType: data[0].providerType,
+                    action: "Docker-Run",
+                    logs: []
+                };
+
                 logger.debug(' Docker dockerEngineStatus : ' + data[0].docker.dockerEngineStatus);
                 if (data[0].docker.dockerEngineStatus) {
                     if (data[0].docker.dockerEngineStatus != "success") {
@@ -1004,9 +1036,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 logger.debug('Returning handle to browser');
                                 res.end('OK');
                             }
+                            var timestampStarded = new Date().getTime();
+                            var actionLog = instancesDao.insertBootstrapActionLog(instance[0]._id, [], req.session.user.cn, timestampStarded);
+                            instanceLog.actionId = actionLog._id;
                             _docker.runDockerCommands(cmd, req.params.instanceid,
                                 function(err, retCode) {
                                     if (err) {
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: 'Failed to Excute Docker command: . cmd : ' + cmd + '. Error: ' + err,
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         logsDao.insertLog({
                                             referenceId: instanceid,
                                             err: true,
@@ -1029,6 +1075,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 log: 'Starting execute command: . cmd : ' + execcommand + ' on ' + containername,
                                                 timestamp: new Date().getTime()
                                             });
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: 'Starting execute command: . cmd : ' + execcommand + ' on ' + containername,
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             //Execute command found 
                                             var cmd = "sudo docker exec " + containername + ' bash ' + execcommand;
                                             logger.debug('In docker exec ->' + cmd);
@@ -1044,6 +1100,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                             err: false,
                                                             log: 'Done execute command: . cmd : ' + cmd + ' on ' + containername,
                                                             timestamp: new Date().getTime()
+                                                        });
+
+                                                        instanceLog.logs = {
+                                                            err: false,
+                                                            log: 'Done execute command: . cmd : ' + cmd + ' on ' + containername,
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
                                                         });
                                                         if (imagecount < dockercomposejson.length) {
 
@@ -1069,6 +1136,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         log: 'Error executing command: . cmd : ' + cmd + ' on ' + containername + ' : Return Code ' + retCode1 + ' -' + err,
                                                         timestamp: new Date().getTime()
                                                     });
+                                                    instanceLog.logs = {
+                                                        err: true,
+                                                        log: 'Error executing command: . cmd : ' + cmd + ' on ' + containername + ' : Return Code ' + retCode1 + ' -' + err,
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
                                                 }
 
                                             });
@@ -1081,6 +1158,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     err: false,
                                                     log: 'Done image pull and run.',
                                                     timestamp: new Date().getTime()
+                                                });
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    log: "Done image pull and run.",
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
                                                 });
                                                 if (imagecount < dockercomposejson.length) {
 
@@ -1123,6 +1210,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         });
                                         logger.debug("Docker run stdout :" + instanceid + stdOutData.toString('ascii'));
                                         stdmessages += stdOutData.toString('ascii');
+
+                                        instanceLog.logs = {
+                                            err: false,
+                                            log: stdOutData.toString('ascii'),
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                     }
                                 },
                                 function(stdOutErr) {
@@ -1133,6 +1231,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         timestamp: new Date().getTime()
                                     });
                                     logger.debug("docker return ", stdOutErr);
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: stdOutErr.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                 });
                         };
 
@@ -1205,7 +1313,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 platform: data[0].hardware.platform,
                                 os: data[0].hardware.os,
                                 size: data[0].instanceType,
-                                user: data[0].catUser,
+                                user: req.session.user.cn,
                                 createdOn: new Date().getTime(),
                                 startedOn: new Date().getTime(),
                                 providerType: data[0].providerType,
@@ -1714,7 +1822,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 platform: data[0].hardware.platform,
                                 os: data[0].hardware.os,
                                 size: data[0].instanceType,
-                                user: data[0].catUser,
+                                user: req.session.user.cn,
                                 createdOn: new Date().getTime(),
                                 startedOn: new Date().getTime(),
                                 providerType: data[0].providerType,
@@ -2331,7 +2439,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 platform: data[0].hardware.platform,
                                 os: data[0].hardware.os,
                                 size: data[0].instanceType,
-                                user: data[0].catUser,
+                                user: req.session.user.cn,
                                 createdOn: new Date().getTime(),
                                 startedOn: new Date().getTime(),
                                 providerType: data[0].providerType,
