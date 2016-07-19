@@ -154,23 +154,30 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                             if (data.taskType == "jenkins") {
                                                 data = JSON.parse(JSON.stringify(data));
                                                 data.jenkinsLog = "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output";
+                                                histories.docs[i].executionResults.push(data);
                                             } else {
+                                                var c=0;
                                                 for (var k = 0; k < data.executionResults.length; k++) {
                                                     (function(k) {
                                                         instancesDao.getInstanceById(data.executionResults[k].instanceId, function(err, instance) {
+                                                            c++;
                                                             if (err) {
                                                                 logger.error("Failed to fetch instance: ", err);
                                                             }
                                                             if (instance && instance.length) {
                                                                 data.executionResults[k].instanceName = instance[0].name;
+                                                                //histories.docs[i].executionResults.push(data);
+                                                            }
+                                                            if(data.executionResults.length == c){
+                                                                histories.docs[i].executionResults.push(data);
                                                             }
                                                         });
                                                     })(k);
                                                 }
                                             }
                                         }
-                                        if (histories.docs[i] && histories.docs[i].executionResults)
-                                            histories.docs[i].executionResults.push(data);
+                                        //if (histories.docs[i] && histories.docs[i].executionResults)
+                                            //histories.docs[i].executionResults.push(data);
                                     });
                                 })(j);
                             }
@@ -181,7 +188,7 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                     if (count == histories.docs.length) {
                         setTimeout(function() {
                             return callback(null, histories);
-                        }, 200);
+                        }, 2000);
                     }
                 })(i);
             }
