@@ -8,14 +8,14 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('instanceImportByIpCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices','$rootScope','workzoneEnvironment', function($scope, $modalInstance, items, workzoneServices,$rootScope,workzoneEnvironment) {
+		.controller('instanceImportByIpCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices','$rootScope','workzoneEnvironment','toastr', function($scope, $modalInstance, items, workzoneServices,$rootScope,workzoneEnvironment,toastr) {
 			var configAvailable = items[0].data;
 			var osList = items[1].data;
 			var configList = items[2].data;
 			var reqBody = {};
 			if (!configAvailable.length) {
 				$scope.cancel();
-				alert('Chef Or Puppet is not Available');
+				toastr.error('Chef Or Puppet is not Available');
 				return false;
 			}
 			angular.extend($scope, {
@@ -37,11 +37,11 @@
 							$scope.addPemText(e.target.result);
 						};
 						fileContent.onerror = function(e) {
-							alert(e);
+							toastr.error(e);
 						};
 						fileContent.readAsText($event);
 					} else {
-						alert('HTMl5 File Reader is not Supported. Please upgrade your browser');
+						toastr.error('HTMl5 File Reader is not Supported. Please upgrade your browser');
 					}
 				},
 				ok: function() {

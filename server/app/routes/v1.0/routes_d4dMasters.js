@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 // This file act as a Controller which contains Settings related all end points.
@@ -44,6 +44,7 @@ var util = require('util');
 var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
 var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
+var	settingsService = require('_pr/services/settingsService');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -162,7 +163,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     //d4dmasters/getdockertags/centos/null
     app.get('/d4dmasters/getdockertags/:repopath/:dockerreponame', function(req, res) {
         logger.debug("Enter get() for /d4dmasters/getdockertags/%s/%s", req.params.repopath, req.params.dockerreponame);
-        //fetch the username and password from 
+        //fetch the username and password from
         //Need to populate dockerrowid in template card. - done
         logger.debug('hit getdockertags');
         configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function(err, data) {
@@ -432,7 +433,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     }
                                                 }); //end findOne
                                             }else{
-                                                masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, aEnvironment) {
+                                                masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, environment) {
                                                     if (err) {
                                                         logger.debug("Hit an errror to get Environment Name : %s", err);
                                                         res.send(500);
@@ -442,26 +443,31 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             rowid: req.params.fieldvalue
                                                         }, function (err) {
                                                             if (err) {
-                                                                    logger.debug("Hit an errror on delete : %s", err);
-                                                                    res.send(500);
-                                                                    return;
+                                                                logger.debug("Hit an errror on delete : %s", err);
+                                                                res.send(500);
+                                                                return;
                                                             }else {
-                                                                    appDeployPipelineService.updateAppDeployPipeLineEnviornment(aEnvironment,function(err,data){
-                                                                        if (err) {
-                                                                            logger.debug("Hit an errror on updating the PipeLine Configuration : %s", err);
-                                                                            res.send(500);
-                                                                            return;
-                                                                        }
-                                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
-                                                                        res.send(200);
-                                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                                settingsService.updateProjectData(environment,function(err,projectData){
+                                                                    if (err) {
+                                                                        logger.debug("Hit an error on updating the Project Master Data : %s", err);
+                                                                        res.send(500);
                                                                         return;
-
-                                                                    })
-                                                                }
-                                                            }); //end findOne
-                                                        }
-                                                    })
+                                                                    }else {
+                                                                        appDeployPipelineService.updateAppDeployPipeLineEnviornment(environment, function (err, data) {
+                                                                            if (err) {
+                                                                                logger.debug("Hit an error on updating the PipeLine Configuration : %s", err);
+                                                                                res.send(500);
+                                                                                return;
+                                                                            }
+                                                                            res.send(200);
+                                                                            return;
+                                                                        })
+                                                                    }
+                                                                })
+                                                            }
+                                                        }); //end findOne
+                                                    }
+                                                })
                                             }
                                         }
                                     }); //end configmgmtDao
@@ -1557,7 +1563,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
             if (dbtype) {
                 var query = {};
-                query[req.params.filtercolumnname] = req.params.filtercolumnvalue; //building the query 
+                query[req.params.filtercolumnname] = req.params.filtercolumnvalue; //building the query
                 query['id'] = req.params.masterid;
 
                 logger.debug("Master Type: %s", dbtype);
@@ -1679,35 +1685,33 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     function updateProjectWithEnv(projects, bodyJson) {
         for (var p = 0; p < projects.length; p++) {
-            (function(p) {
-                if (projects[p].id === '4') {
-                    var currproj = projects[p];
-                    logger.debug('Project : ' + currproj);
+            (function(project) {
+                if (project.id === '4') {
+                    logger.debug('Project : ' + project);
                     d4dModelNew.d4dModelMastersProjects.findOne({
-                        rowid: currproj.rowid,
+                        rowid: project.rowid,
                         id: '4'
-                    }, function(err, data2) {
-                        if (!err) {
-                            var newenv = bodyJson['rowid'];
-                            var envname = bodyJson['environmentname'];
-                            if (data2 != null && typeof data2.environmentname_rowid != 'undefined' && data2.environmentname_rowid != '') {
-                                if (data2.environmentname_rowid.indexOf(bodyJson['rowid']) === -1) {
-                                    newenv = data2.environmentname_rowid + ',' + bodyJson['rowid'];
-                                    envname = data2.environmentname + ',' + bodyJson['environmentname'];
-                                }
+                    }, function(err, projectData) {
+                        if(err){
+                            logger.error(err);
+                            return;
+                        }else{
+                            var newEnv ='';
+                            var envName = '';
+                            if (projectData.environmentname_rowid !== '' && projectData.environmentname !== '') {
+                                newEnv = projectData.environmentname_rowid + ',' + bodyJson['rowid'];
+                                envName = projectData.environmentname + ',' +bodyJson['environmentname'];
+                            }else{
+                                newEnv =  bodyJson['rowid'];
+                                envName = bodyJson['environmentname'];
                             }
-                            if (newenv.charAt(0) === ",") {
-                                newenv = newenv.slice(1);
-                                envname = envname.slice(1);
-                            }
-                            logger.debug('Newenv ====>', newenv);
                             d4dModelNew.d4dModelMastersProjects.update({
-                                rowid: currproj.rowid,
+                                rowid: project.rowid,
                                 id: '4'
                             }, {
                                 $set: {
-                                    environmentname_rowid: newenv,
-                                    environmentname: envname
+                                    environmentname_rowid: newEnv,
+                                    environmentname: envName
                                 }
                             }, {
                                 upsert: false
@@ -1716,52 +1720,45 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     logger.debug('Err while updating d4dModelMastersProjects' + err);
                                     return;
                                 }
-                                logger.debug('Updated project ' + currproj + ' with env : ' + newenv);
+                                logger.debug('Updated project ' + project.projectname + ' with env : ' + envName);
                                 return;
                             });
                         }
                     });
                 }
-            })(p);
+            })(projects[p]);
         }
     };
 
     function updateProjectWithAllEnv(projects, bodyJson) {
         for (var p = 0; p < projects.length; p++) {
-            (function(p) {
-                if (projects[p].id === '4') {
-                    var currproj = projects[p];
-                    logger.debug('Project : ' + currproj);
+            (function(project) {
+                if (project.id === '4') {
+                    logger.debug('Project : ' + project);
                     d4dModelNew.d4dModelMastersProjects.findOne({
-                        rowid: currproj.rowid,
+                        rowid: project.rowid,
                         id: '4'
-                    }, function(err, data2) {
-                        if (!err) {
-                            var newenv = data2.environmentname_rowid;
-                            var envname = data2.environmentname;
-                            if (data2.environmentname_rowid === null) {
-                                newenv = bodyJson['rowid'];
-                                envname = bodyJson['environmentname'];
+                    }, function(err, projectData) {
+                        if(err){
+                            logger.error(err);
+                            return;
+                        }else{
+                            var newEnv ='';
+                            var envName = '';
+                            if (projectData.environmentname_rowid !== '' && projectData.environmentname !== '') {
+                                newEnv = projectData.environmentname_rowid + ',' + bodyJson['rowid'];
+                                envName = projectData.environmentname + ',' +bodyJson['environmentname'];
+                            }else{
+                                newEnv =  bodyJson['rowid'];
+                                envName = bodyJson['environmentname'];
                             }
-                            if (data2 != null && typeof data2.environmentname_rowid != 'undefined' && data2.environmentname_rowid != null) {
-                                if (data2.environmentname_rowid.indexOf(bodyJson['rowid']) === -1) {
-                                    newenv = data2.environmentname_rowid + ',' + bodyJson['rowid'];
-                                    envname = data2.environmentname + ',' + bodyJson['environmentname'];
-                                }
-                            }
-                            if (newenv.charAt(0) === ",") {
-                                newenv = newenv.slice(1);
-                                envname = envname.slice(1);
-                            }
-
-                            logger.debug('Newenv ====>', newenv.slice(1));
                             d4dModelNew.d4dModelMastersProjects.update({
-                                rowid: currproj.rowid,
+                                rowid: project.rowid,
                                 id: '4'
                             }, {
                                 $set: {
-                                    environmentname_rowid: newenv,
-                                    environmentname: envname
+                                    environmentname_rowid: newEnv,
+                                    environmentname: envName
                                 }
                             }, {
                                 upsert: false
@@ -1770,13 +1767,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     logger.debug('Err while updating d4dModelMastersProjects' + err);
                                     return;
                                 }
-                                logger.debug('Updated project ' + currproj + ' with env : ' + newenv);
+                                logger.debug('Updated project ' + project.projectname + ' with env : ' + envName);
                                 return;
                             });
                         }
                     });
                 }
-            })(p);
+            })(projects[p]);
         }
     };
 
@@ -1797,13 +1794,31 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     }
 
+    function changeArrayToString(list,str){
+        var resultStr='';
+        for(var i = 0; i < list.length; i++){
+            if (i === list.length - 1) {
+                if(str !== list[i]) {
+                    resultStr = resultStr + list[i];
+                }
+            } else {
+                if(str !== list[i]) {
+                    resultStr = resultStr + list[i] + ',';
+                }
+            }
+        }
+        if(resultStr.slice(-1) === ','){
+            var res = resultStr.slice(0,-1);
+            return res;
+        }else{
+            return resultStr;
+        }
+    }
+
     function dissociateProjectWithEnv(projects, bodyJson) {
         for (var p = 0; p < projects.length; p++) {
             var currproj = projects[p];
             logger.debug('Project : ' + currproj);
-            var projectIds = bodyJson['projectname_rowid'].split(",");
-            var newenv = bodyJson['rowid'];
-            var newEnvName = bodyJson['environmentname'];
             d4dModelNew.d4dModelMastersEnvironments.find({
                 id: "3",
                 rowid: newenv
@@ -1811,27 +1826,24 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 if (err) {
                     logger.debug("Failed to fetch Env.", err);
                 }
-                if (envs) {
-                    var projEnvId = envs[0].projectname_rowid;
-                    var projEnvName = envs[0].projectname;
-                    if (projEnvId.charAt(0) === ",") {
-                        projEnvId = projEnvId.slice(1);
-                        projEnvName = projEnvName.slice(1);
-                    }
-                    var PreviousArray = projEnvId.split(",");
-                    var CurrentArray = projectIds;
-                    var missing = findDeselectedItem(CurrentArray, PreviousArray);
-                    var updatedEnvName = projEnvName.replace(newEnvName, '');
-                    var updatedEnvId = projEnvId.replace(newenv, '');
-                    for (var x = 0; x < missing.length; x++) {
-                        (function(x) {
+                if (envs.length > 0) {
+                    var projEnvId = envs[0].projectname_rowid.split(",");
+                    var projEnvName = envs[0].projectname.split(",");
+                    if(projEnvId.indexOf(currproj.rowid) ===-1 && projEnvName.indexOf(currproj.projectname) === -1){
+                        var envNames=currproj.environmentname.split(",");
+                        var envIds=currproj.environmentname_rowid.split(",");
+                        if(envNames.indexOf(envs[0].environmentname) === -1 && envIds.indexOf(envs[0].environmentname_rowid) === -1){
+                           return;
+                        }else{
+                            envNames = changeArrayToString(envNames,envs[0].environmentname);
+                            envIds = changeArrayToString(envIds,envs[0].rowid);
                             d4dModelNew.d4dModelMastersProjects.update({
-                                rowid: missing[x],
+                                rowid: currproj.rowid,
                                 id: '4'
                             }, {
                                 $set: {
-                                    environmentname_rowid: updatedEnvId,
-                                    environmentname: updatedEnvName
+                                    environmentname_rowid: envIds,
+                                    environmentname: envNames
                                 }
                             }, {
                                 upsert: false
@@ -1840,10 +1852,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     logger.debug('Err while updating d4dModelMastersProjects' + err);
                                     return;
                                 }
-                                logger.debug('Updated project ' + currproj + ' with env : ' + newenv);
+                                logger.debug('Disassociated project ' + currproj.projectname + ' with env : ' + envs[0].environmentname);
                                 return;
                             });
-                        })(x);
+
+                        }
                     }
                 }
             });
@@ -1913,7 +1926,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             var fil = eval('req.files.' + fi[i]);
             if (typeof fil != 'undefined') {
 
-                var data = fs.readFileSync(fil.path); //, function(err, data) { 
+                var data = fs.readFileSync(fil.path); //, function(err, data) {
                 if (folderpath == '') {
                     logger.debug("this is where file gets saved as (no folderpath): %s %s / %s %s __ %s", chefRepoPath, req.params.orgname, suffix, controlName, fil.name);
                     fs.writeFile(chefRepoPath + req.params.orgname + '/' + suffix + controlName + '__' + fil.name, data);
@@ -2607,7 +2620,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     // Update settings
                                     if (req.params.id === '4') {
                                         bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
-                                        delete rowtoedit._id; //fixing the issue of 
+                                        delete rowtoedit._id; //fixing the issue of
                                         rowtoedit["repositories"] = bodyJson['repositories'];
                                         logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                         eval('d4dModelNew.' + dbtype).update({
@@ -2630,7 +2643,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                     if (req.params.id === '26') {
                                         bodyJson['groupid'] = JSON.parse(bodyJson['groupid']);
-                                        delete rowtoedit._id; //fixing the issue of 
+                                        delete rowtoedit._id; //fixing the issue of
                                         rowtoedit["groupid"] = bodyJson['groupid'];
                                         logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                         eval('d4dModelNew.' + dbtype).update({
@@ -2664,7 +2677,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             if (anUser.length) {
                                                 if (bodyJson["password"] === '') {
 
-                                                    delete rowtoedit._id; //fixing the issue of 
+                                                    delete rowtoedit._id; //fixing the issue of
                                                     if (bodyJson["orgname"] === "") {
                                                         logger.debug("Inside if for empty for update..");
                                                         rowtoedit["orgname"] = [""];
@@ -2697,7 +2710,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             return;
                                                         }
                                                         logger.debug("hashedPassword: ", hashedPassword);
-                                                        delete rowtoedit._id; //fixing the issue of 
+                                                        delete rowtoedit._id; //fixing the issue of
                                                         if (bodyJson["orgname"] === "") {
                                                             rowtoedit["orgname"] = [""];
                                                             rowtoedit["orgname_rowid"] = [""];
@@ -2722,7 +2735,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         });
                                                     });
                                                 } else {
-                                                    delete rowtoedit._id; //fixing the issue of 
+                                                    delete rowtoedit._id; //fixing the issue of
                                                     if (bodyJson["orgname"] === "") {
                                                         rowtoedit["orgname"] = [""];
                                                         rowtoedit["orgname_rowid"] = [""];
@@ -2767,7 +2780,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                     logger.debug("Rowid: %s", bodyJson["rowid"]);
                                     var currowid = bodyJson["rowid"];
-                                    delete rowtoedit._id; //fixing the issue of 
+                                    delete rowtoedit._id; //fixing the issue of
                                     logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                     eval('d4dModelNew.' + dbtype).update({
                                         rowid: bodyJson["rowid"]

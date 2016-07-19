@@ -11,9 +11,8 @@ var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var async = require('async');
 var tagsModel = require('_pr/model/tags');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
-
+var instanceService = require('_pr/services/instanceService');
 var socketIo = require('_pr/socket.io').getInstance();
-
 var socketCloudFormationAutoScate = socketIo.of('/cloudFormationAutoScaleGroup');
 
 socketCloudFormationAutoScate.on('connection', function(socket) {
@@ -40,7 +39,6 @@ function sync() {
             logger.warn('No org found');
             return;
         }
-        logger.debug('orgs ==> ', JSON.stringify(orgs));
         for (var i = 0; i < orgs.length; i++) {
             (function(org) {
                 AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
@@ -50,7 +48,7 @@ function sync() {
                     }
                     for (var j = 0; j < providers.length; j++) {
                         (function(provider) {
-                            unassignedInstancesModel.getByProviderId(provider._id,
+                            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id,
                                 function(err, unassignedInstances) {
                                     if (err) {
                                         logger.error('Unable to fetch unassigned Instances by provider', err);
@@ -59,6 +57,7 @@ function sync() {
                                     unManagedInstancesDao.getByOrgProviderId({
                                         orgId: org.rowid,
                                         providerId: provider._id,
+                                        isDeleted: false
                                     }, function(err, unManagedInstances) {
                                         if (err) {
                                             logger.error('Unable to fetch Unmanaged Instances by org,provider', err);
@@ -67,6 +66,7 @@ function sync() {
                                         instancesDao.getByOrgProviderId({
                                             orgId: org.rowid,
                                             providerId: provider._id,
+                                            isDeleted: false
                                         }, function(err, instances) {
                                             if (err) {
                                                 logger.error('Unable to fetch instance by org,provider', err);
@@ -77,7 +77,6 @@ function sync() {
                                                     logger.error("Unable to get tags", err);
                                                     return;
                                                 }
-
                                                 var projectTag = null;
                                                 var environmentTag = null;
                                                 // @TODO enum to be used to compare against project and env
@@ -122,7 +121,6 @@ function sync() {
                                                     (function(region) {
                                                         ec2Config.region = region;
                                                         var ec2 = new EC2(ec2Config);
-
                                                         ec2.describeInstances(null, function(err, awsRes) {
                                                             regionCount++;
                                                             if (err) {
@@ -186,21 +184,13 @@ function sync() {
                                                                                 instances[n].instanceState = awsInstances[m].State.Name;
 
                                                                                 if (instances[n].instanceState === 'terminated') {
-                                                                                    instanceLogModel.removeByInstanceId(instances[n]._id, function(err, removed) {
-                                                                                        if (err) {
-                                                                                            logger.error("Failed to remove instance Log: ", err);
-                                                                                        }
-                                                                                    });
-                                                                                    instances[n].remove();
+                                                                                    removeTerminateInstance(instances[n]._id, instances[n].instanceState, 'managed');
                                                                                 } else {
                                                                                     if (instances[n].instanceState === 'running') {
                                                                                         instances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
                                                                                     }
 
                                                                                     if (assignmentFound) {
-                                                                                        /*instances[n].projectId = catalystProjectId;
-                                                                                         instances[n].projectName = catalystProjectName;
-                                                                                         instances[n].envId = catalystEnvironmentId;*/
                                                                                         instances[n].environmentName = catalystEnvironmentName;
                                                                                     }
 
@@ -215,6 +205,8 @@ function sync() {
                                                                                     instances.splice(n, 1);
                                                                                     break;
                                                                                 }
+                                                                            } else if (instances[n].instanceState === 'terminated') {
+                                                                                removeTerminateInstance(instances[n]._id, 'managed');
                                                                             }
                                                                         }
 
@@ -225,7 +217,7 @@ function sync() {
                                                                                 } else if (unManagedInstances[n].platformId === awsInstances[m].InstanceId) {
                                                                                     unManagedInstances[n].state = awsInstances[m].State.Name;
                                                                                     if (unManagedInstances[n].state === 'terminated') {
-                                                                                        unManagedInstances[n].remove();
+                                                                                        removeTerminateInstance(unManagedInstances[n]._id, unManagedInstances[n].state, 'assigned');
                                                                                     } else {
                                                                                         if (unManagedInstances[n].state === 'running') {
                                                                                             unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
@@ -242,6 +234,8 @@ function sync() {
                                                                                     foundInUnManaged = true;
                                                                                     unManagedInstances.splice(n, 1);
                                                                                     break;
+                                                                                } else if (unManagedInstances[n].state === 'terminated') {
+                                                                                    removeTerminateInstance(unManagedInstances[n]._id, 'assigned');
                                                                                 }
                                                                             }
                                                                         }
@@ -337,11 +331,10 @@ function sync() {
                                                                             if (environmentTag && (environmentTag.name in tagInfo))
                                                                                 newUnassignedInstance.environmentTag = tagInfo[environmentTag.name];
 
-                                                                            unassignedInstancesModel.createNew(newUnassignedInstance);
+                                                                            saveAndUpdateInstance(newUnassignedInstance);
                                                                         }
                                                                     }
                                                                 }
-                                                                // logger.debug('loop complete l==>',l ,' res==> ', reservations.length,' region==> ',region);
                                                             }
 
                                                             if (regionCount === regions.length) {
@@ -371,6 +364,66 @@ function sync() {
                     }
                 });
             })(orgs[i])
+        }
+    });
+}
+
+function removeTerminateInstance(instanceId, key) {
+    if (key === 'managed') {
+        instancesDao.removeTerminatedInstanceById(instanceId, function(err, data) {
+            if (err) {
+                logger.error(err);
+                return;
+            } else {
+                instanceLogModel.removeByInstanceId(instanceId, function(err, removed) {
+                    if (err) {
+                        logger.error("Failed to remove instance Log: ", err);
+                    }
+                });
+                return;
+            }
+        });
+    } else if (key === 'assigned') {
+        unManagedInstancesDao.removeInstanceById(instanceId, function(err, data) {
+            if (err) {
+                logger.error(err);
+                return;
+            } else {
+                instanceLogModel.removeByInstanceId(instanceId, function(err, removed) {
+                    if (err) {
+                        logger.error("Failed to remove instance Log: ", err);
+                    }
+                });
+                return;
+            }
+
+        });
+    }
+};
+
+function saveAndUpdateInstance(instance) {
+    unassignedInstancesModel.getByProviderIdAndPlatformId(instance.providerId, instance.platformId, function(err, data) {
+        if (err) {
+            logger.error(" Instance fetching Failed >> ", err);
+            return;
+        } else if (data === null) {
+            unassignedInstancesModel.createNew(instance, function(err, instancedata) {
+                if (err) {
+                    logger.error(" Instance creation Failed >> ", err);
+                    return;
+                } else {
+                    return;
+                }
+            });
+        } else {
+            unassignedInstancesModel.updateInstanceStatus(instance, function(err, updateInstanceData) {
+                if (err) {
+                    logger.error(" Instance update Failed >> ", err);
+                    return;
+                } else {
+                    return;
+                }
+            });
         }
     });
 }

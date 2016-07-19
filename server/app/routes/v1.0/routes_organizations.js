@@ -1036,8 +1036,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     paginationReq['instanceType'] = req.query.instanceType;
                     paginationReq['userName'] = req.session.user.cn;
                     reqData = paginationReq;
-                    instancesDao.getInstancesByOrgBgProjectAndEnvId(paginationReq, next);
+                    apiUtil.databaseUtil(paginationReq, next);
+
                 },
+                function(queryObj, next) {
+                    queryObj['pagination'] = true;
+                    instancesDao.getInstancesByOrgBgProjectAndEnvId(queryObj, next);
+                },
+
                 function(instances, next) {
                     apiUtil.paginationResponse(instances, reqData, next);
                 }

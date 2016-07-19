@@ -196,7 +196,6 @@ containerSchema.statics.deleteContainerById=function(containerId,callback){
 };
 
 containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback){
-    logger.debug("Enter deleteContainerByInstanceId (%s)", instanceId);
     container.remove({
         instanceId: instanceId
     }, function(err, data) {
@@ -205,13 +204,11 @@ containerSchema.statics.deleteContainerByInstanceId=function(instanceId,callback
             callback(err, null);
             return;
         }
-        logger.debug("Exit deleteContainerByInstanceId (%s)", instanceId);
         callback(null, data);
     });
 };
 
 containerSchema.statics.deleteContainersByContainerIds=function(instanceId,containerIds,callback){
-    logger.debug("Enter deleteContainersByContainerIds (%s)", instanceId);
     container.remove({
         instanceId: instanceId,
         Id:{ $nin: containerIds }
@@ -221,7 +218,6 @@ containerSchema.statics.deleteContainersByContainerIds=function(instanceId,conta
             callback(err, null);
             return;
         }
-        logger.debug("Exit deleteContainersByContainerIds (%s)", instanceId);
         callback(null, data);
     });
 };

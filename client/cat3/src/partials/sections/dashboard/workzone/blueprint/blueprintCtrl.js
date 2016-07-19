@@ -16,7 +16,8 @@
 						"docker": [],
 						"os_image": [],
 						"cloudFormation": [],
-						"azureARM": []
+						"azureARM": [],
+						"compositeBlueprint":[]
 					},
 					temp;
 					for (var i = 0; i < obj.length; i++) {
@@ -64,13 +65,14 @@
 				}
 			};
 		}])
-		.controller('blueprintCtrl', ['$scope', '$modal', 'formatData', 'workzoneServices', '$rootScope', 'workzoneUIUtils', function($scope, $modal, formatData, workzoneServices, $rootScope, workzoneUIUtils) {
+		.controller('blueprintCtrl', ['$scope', '$modal', 'formatData', 'workzoneServices', '$rootScope', 'workzoneUIUtils','confirmbox','toastr', function($scope, $modal, formatData, workzoneServices, $rootScope, workzoneUIUtils,confirmbox,toastr) {
 			/*Open only One Accordian-Group at a time*/
 			$scope.oneAtATime = true;
 			/*Initialising First Accordian-group open on load*/
 			$scope.isFirstOpen = true;
 
-			$rootScope.$on('WZ_ENV_CHANGE_START', function() {
+			$rootScope.$on('WZ_ENV_CHANGE_START', function(event, requestParams) {
+				$scope.requestParams=requestParams;
 				$scope.isBlueprintPageLoading = true;
 				$scope.blueprintListCards();
 			});
@@ -189,6 +191,20 @@
 						
 					});
 				},
+				compBlueInfo:function (blueprintObj) {
+					var modalInstance = $modal.open({
+						animation: true,
+						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/compositeBlueprintInfo.html',
+						controller: 'compositeBlueprintInfoCtrl as compBlue',
+						backdrop : 'static',
+						keyboard: false,
+						resolve: {
+							items: function() {
+								return blueprintObj ;
+							}
+						}
+					});
+				},
 				showDockerRepoList: function(blueprintObj) {
 					var modalInstance = $modal.open({
 						animation: true,
@@ -227,8 +243,53 @@
 					}, function() {
 						
 					});
+				},
+				getAllCompsiteBlueprint:function(){
+					workzoneServices.getAllCompsiteBlueprint().success(function(compBlue){
+						$scope.compositeBlueprints=compBlue.compositeBlueprints;
+					});
+				},
+				deleteCompositeBlueprint:function(compositeBlueprintId){
+					var modalOptions = {
+						closeButtonText: 'Cancel',
+						actionButtonText: 'Delete',
+						actionButtonStyle: 'cat-btn-delete',
+						headerText: 'Delete Composite Blueprint',
+						bodyText: 'Are you sure you want to delete this composite blueprint?'
+					};
+					confirmbox.showModal({}, modalOptions).then(function() {
+						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function(response) {
+							$scope.getAllCompsiteBlueprint();
+							toastr.success('Successfully deleted');
+						}).error(function(data) {
+							toastr.error(data.message, 'Error');
+						});
+					});
+				},
+
+				launchInstanceCompoBlueprint:function(compositeBlueprintId){
+					var modalOptions = {
+						closeButtonText: ' No ',
+						actionButtonText: ' Yes ',
+						actionButtonStyle: 'cat-btn-update',
+						headerText: 'Launch Instance Composite Blueprint',
+						bodyText: 'Are you sure you want to launch the composite blueprint? Press Yes To continue.'
+					};
+					var compBlue={
+						"blueprintId": compositeBlueprintId,
+						"environmentId": $scope.requestParams.env
+					}
+					confirmbox.showModal({}, modalOptions).then(function() {
+						workzoneServices.launchCompsiteBlueprint(compBlue).success(function(response) {
+                            toastr.success('Successfully launched composite blueprint');
+						}).error(function(data) {
+                            toastr.error(data.message, 'Error');
+						});
+					});
 				}
+
 			});
+
 		}
 	]);
 })(angular);

@@ -101,6 +101,10 @@ var RDSResourcesSchema = new BaseResourcesSchema({
             type: String,
             required: true,
             trim: true
+        },
+        accountNumber:{
+            type: Number,
+            required: false
         }
     }
 });
@@ -125,7 +129,10 @@ RDSResourcesSchema.statics.updateRDSData = function(rdsData,callback){
     queryObj['resourceDetails.dbName'] = rdsData.resourceDetails.dbName;
     RDSResources.update(queryObj, {
         $set: {
-            resourceDetails: rdsData.resourceDetails
+            resourceDetails: rdsData.resourceDetails,
+            tags: rdsData.tags,
+            projectTag: rdsData.projectTag,
+            environmentTag: rdsData.environmentTag
         }
     }, {
         upsert: false
@@ -143,6 +150,7 @@ RDSResourcesSchema.statics.getRDSData = function(rdsData,callback){
     queryObj['providerDetails.id'] = rdsData.providerDetails.id;
     queryObj['resourceType'] = rdsData.resourceType;
     queryObj['resourceDetails.dbName'] = rdsData.resourceDetails.dbName;
+    queryObj['isDeleted']=false;
     RDSResources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getRDSData", err);
