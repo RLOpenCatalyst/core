@@ -2838,6 +2838,7 @@ function loadblueprintedit(blueprintId, baseblueprintId) {
 }
 
 function loadCompositeBlueprintEdit(compositeBlueprintId) {
+    $('#selectOrgName').attr('disabled', true);
     $('#myTab3 li').removeClass('active');
     $('#viewCreate').removeClass('active');
     $('#myTab3 li').addClass('hidden');
