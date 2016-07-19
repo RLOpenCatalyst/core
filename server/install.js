@@ -93,7 +93,7 @@ function getDefaultsConfig() {
                 "trackedInstances": "providerType",
                 "resources":"createdOn",
                 "instanceLogs":"createdOn",
-                "taskLogs":"timestampStarted"
+                "taskLogs":"timestampStarted",
                 "unassignedInstances":"state"
             },
             skip_Records : 1,
