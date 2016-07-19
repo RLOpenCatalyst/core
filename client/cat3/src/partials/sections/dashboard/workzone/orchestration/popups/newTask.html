@@ -78,7 +78,8 @@
 								</span>
 							</div>
 							<!--for script adding the scriptType dropdown -->
-							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
+							<!--commented will be used in future-->
+							<!-- <div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
 								<label class="control-label">Script Type
 									<span class="control-label red">&nbsp;*</span>
 									<span ng-show="newTaskForm.scriptType.$touched && newTaskForm.scriptType.$invalid" class="inputValidationMsg">required
@@ -92,7 +93,7 @@
 										<option value="PowerShell">PowerShell</option>
 									</select>
 								</span>
-							</div>
+							</div> -->
 							<!--scriptType ending here -->
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
 								<label class="control-label">Job Description</label>
@@ -370,7 +371,9 @@
 			                                    <label for="rdInstance" class="lable-align">Nodes</label>
 			                                </div>                  
 				                        </div>
+				                        
 										<div class="select-nodes">
+											<!-- <loading name="isScriptInstanceLoading" size="large" type="block" align="center"></loading> -->
 											<ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
@@ -389,9 +392,10 @@
 										<div class="select-nodes">
 											<ul>
 												<li ng-repeat="script in scriptTaskList">
-													<label class="checkbox check-list"></label>
-														<input type="checkbox" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" class="checkbox-list">{{script.name}}
-													<button ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">Show Params</button>
+													<label class="checkbox check-list">
+														<input type="checkbox" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
+														<a class="pull-right" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Parameters</a>
+													</label>
 												</li>
 											</ul>
 										</div>
@@ -399,29 +403,25 @@
 									<!--for showing the radio buttons for script params-->
 									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="scriptParamShow">
 										
-										<div class="jenkins-job-parameter-text" ng-show="scriptObject._isScriptSelected==true">
-											<label class="lable-align">{{scriptObject.name}} Parameters</label>
-										<button type="button" name="paramScriptCheck" ng-click="addScriptParams(scriptObject)" title="Add Params">Add Params</button>
+										<div class="jenkins-job-parameter-text">
+											<label class="lable-align">{{selectedScript.name}} Parameters</label>
+											<i class="fa fa-plus-circle cursor" title="Add Script Parameters" ng-click="addScriptParams(selectedScript)"></i>
 										</div>
-									</div>
 									<!--script params ends here-->
 									<!--table for adding the script params starts here-->
-									<div class="col-lg-12 col-md-12 add-job-parameters" ng-show="scriptParamShow && scriptObject._isScriptSelected==true">
 									   <div class="col-lg-12 col-md-12 add-parameters">
 									      <table class="table table-striped table-bordered table-hover dataTable no-footer">
 									         <thead>
 									            <tr class="rowCustomStyle" role="row">
-									            	<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="History">Name</td>
-									               <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="History">Value</td>
-									               <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="History">Action</td>
+									               <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Parameter">Parameter</td>
+									               <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Action">Action</td>
 									            </tr>
 									         </thead>
-									         <tbody ng-repeat="params in scriptParamsList">
+									         <tbody>
 
-									            <tr ng-repeat="(key,value) in params">
-									               <td>{{scriptObject.name}}</td>
-									               <td>{{value}}</td>
-									               <td><button type="button" ng-click="removeScriptParams(params);"><i class=" fa fa-trash-o"></i></button></td>
+									            <tr ng-repeat="param in scriptParamsObj[selectedScript._id]">
+									               <td>{{param}}</td>
+									               <td><button type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button></td>
 									            </tr>
 									         </tbody>
 									      </table>

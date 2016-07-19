@@ -384,7 +384,7 @@ taskSchema.statics.createNew = function(taskData, callback) {
         taskConfig = new ScriptTask({
             taskType: TASK_TYPE.SCRIPT_TASK,
             nodeIds: taskData.nodeIds,
-            scriptIds: taskData.scriptIds
+            scriptDetails: taskData.scriptDetails
         });
     } else {
         callback({
@@ -543,7 +543,7 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
         taskConfig = new ScriptTask({
             taskType: TASK_TYPE.SCRIPT_TASK,
             nodeIds: taskData.nodeIds,
-            scriptIds: taskData.scriptIds
+            scriptDetails: taskData.scriptDetails
         });
     } else {
         callback({

@@ -10,24 +10,16 @@
 	angular.module('workzone.orchestration')
 		.controller('addScriptParamsCtrl',['$scope', '$modalInstance',function($scope, $modalInstance){
 			//default selection type
-			$scope.params={};
-			$scope.inputCounter = 0;
-			$scope.inputs = [{
-			  id: 'input'
-			}];
+			$scope.params=[''];
+			
+			
 			$scope.add = function() {
-			  $scope.inputTemplate = {
-			    id: 'input-' + $scope.inputCounter,
-			    name: ''
-			  };
-			  $scope.inputCounter += 1;
-			  $scope.inputs.push($scope.inputTemplate);
+			  $scope.params.push('');
 			};
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.ok=function(){
-				var v=$scope.params;
 				if($scope.params){
 					$modalInstance.close($scope.params);
 				}

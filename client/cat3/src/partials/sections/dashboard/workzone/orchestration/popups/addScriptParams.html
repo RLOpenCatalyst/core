@@ -16,8 +16,8 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr ng-repeat="input in inputs">
-								<td class="booleanParam"><label class="control-label" for="choiceName">Parameter:<span class="red">*</span></label></td>
+							<tr ng-repeat="param in params track by $index">
+								<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
 								<td><input id="value" type="text" class="form-control" name="value" ng-model="params[$index]"></td>
 							</tr>
 						</tbody>

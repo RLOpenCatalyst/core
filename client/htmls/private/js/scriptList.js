@@ -42,14 +42,21 @@ $(document).on('shown.bs.modal', function(e) {
 
 //form validation for dashboard save
 var validator = $('#scriptForm').validate({
+    ignore: [],
     rules: {
         scriptFile: {
-            extension: "sh|ps1"
+            extension: "sh"
+        },
+        scriptName: {
+            maxlength: 15
         }
     },
     messages: {
         scriptFile: {
-            extension: "Only .sh or .ps1 files can be uploaded"
+            extension: "Only .sh files can be uploaded"
+        },
+        scriptName: {
+            maxlength: "Limited to 15 chars"
         }
     },
     onkeyup: false,
