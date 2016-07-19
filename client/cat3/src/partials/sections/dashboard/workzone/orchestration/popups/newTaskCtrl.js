@@ -181,12 +181,10 @@
 					}
 				},
 				addRemoveScriptTable : function(scriptObj){
+					$scope.scriptParamShow = false;
 					$scope.checkedScript = scriptObj;
 					if(!$scope.checkedScript._isScriptSelected){
-						$scope.scriptParamShow = false;
 						$scope.scriptParamsObj[scriptObj._id] = [];	
-					}else{
-						$scope.scriptParamShow = true;
 					}
 				},
 				ok: function () {
@@ -327,11 +325,11 @@
 								taskJSON.scriptDetails.push(obj);
 							}
 						}
-						/*if (!taskJSON.scriptId.length) {
+						if (!taskJSON.scriptDetails[0].scriptId.length) {
 							alert('Please select a script');
 							$scope.taskSaving = false;
 							return false;
-						}*/
+						}
 					}
 					//checking whether its a update or a new task creation
 					if ($scope.isEditMode) {
@@ -367,7 +365,6 @@
 			$scope.description = '';
 			$scope.chefInstanceList = [];
 			$scope.scriptTaskList = [];
-			$scope.scriptParametersList = [];
 			$scope.chefBluePrintList = [];
 			$scope.puppetInstanceList = [];
 			$scope.cookbookAttributes = [];
@@ -500,7 +497,8 @@
 					var isScriptChecked = [];
 					for(var i =0;i<items.taskConfig.scriptDetails.length;i++){
 						isScriptChecked.push(items.taskConfig.scriptDetails[i].scriptId)
-						$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data, isScriptChecked);	
+						$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data, isScriptChecked);
+						$scope.scriptParamsObj[items.taskConfig.scriptDetails[i].scriptId] = items.taskConfig.scriptDetails[i].scriptParameters;		
 						$scope.isNewTaskPageLoading = false;	
 					}
 				} else{

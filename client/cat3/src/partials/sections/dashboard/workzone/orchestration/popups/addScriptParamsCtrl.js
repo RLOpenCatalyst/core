@@ -11,11 +11,13 @@
 		.controller('addScriptParamsCtrl',['$scope', '$modalInstance',function($scope, $modalInstance){
 			//default selection type
 			$scope.params=[''];
-			
-			
 			$scope.add = function() {
 			  $scope.params.push('');
 			};
+			$scope.removeScriptInputParams = function(paramInput) {
+				var idx = $scope.params.indexOf(paramInput);
+				$scope.params.splice(idx,1);
+			}
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};

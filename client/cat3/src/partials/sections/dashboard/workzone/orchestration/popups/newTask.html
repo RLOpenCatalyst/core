@@ -394,7 +394,7 @@
 												<li ng-repeat="script in scriptTaskList">
 													<label class="checkbox check-list">
 														<input type="checkbox" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
-														<a class="pull-right" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Parameters</a>
+														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Parameters</a>
 													</label>
 												</li>
 											</ul>
@@ -418,8 +418,7 @@
 									            </tr>
 									         </thead>
 									         <tbody>
-
-									            <tr ng-repeat="param in scriptParamsObj[selectedScript._id]">
+									            <tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
 									               <td>{{param}}</td>
 									               <td><button type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button></td>
 									            </tr>

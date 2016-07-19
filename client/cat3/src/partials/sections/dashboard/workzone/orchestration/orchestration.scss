@@ -286,6 +286,10 @@ $imagePath : "../../../../../../images";
 		font-weight: normal;
 	}
 
+	.check-list a:hover {
+		text-decoration: none;
+	}
+	
 	.checkbox-list {
 		margin-top: 3px;
 	}
@@ -445,4 +449,18 @@ $imagePath : "../../../../../../images";
 .composite-logs-wrapper {
 	height: 511px;
 	overflow-y: auto;
+}
+
+a.marginleft23 {
+	margin-left: 23px;
+	cursor: pointer;
+}
+
+.scriptParamsDelete {
+	margin-left: 8px;
+	margin-top: 5px;
+}
+
+.cursorPointer {
+	cursor: pointer;
 }
