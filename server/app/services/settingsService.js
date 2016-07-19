@@ -32,7 +32,7 @@ settingsService.updateProjectData = function updateProjectData(enviornment,callb
             if(masterProjectData.length > 0){
                 var envNames=masterProjectData[0].environmentname.split(",");
                 var envIds=masterProjectData[0].environmentname_rowid.split(",");
-                if(envNames.indexOf(enviornment.environmentname) === -1 && envIds.indexOf(environmentname_rowid) === -1){
+                if(envNames.indexOf(enviornment.environmentname) === -1 && envIds.indexOf(enviornment.environmentname_rowid) === -1){
                     next(null,null);
                 }else{
                     var projectObj={
@@ -79,5 +79,10 @@ function changeArrayToString(list,str){
             }
         }
     }
-    return resultStr;
+    if(resultStr.slice(-1) === ','){
+        var res = resultStr.slice(0,-1);
+        return res;
+    }else{
+        return resultStr;
+    }
 }
