@@ -325,7 +325,7 @@
 								taskJSON.scriptDetails.push(obj);
 							}
 						}
-						if (!taskJSON.scriptDetails[0].scriptId.length) {
+						if (!taskJSON.scriptDetails.length) {
 							alert('Please select a script');
 							$scope.taskSaving = false;
 							return false;
