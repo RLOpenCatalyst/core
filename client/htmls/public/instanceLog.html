@@ -165,14 +165,9 @@
 					$('#green').smartpaginator({
 						totalrecords: instances.metaData.totalRecords,
 						recordsperpage: pageSetting.pageSize,
-						datacontainer: 'mt',
-						dataelement: 'tr',
 						initval: pageSetting.page,
-						next: 'Next',
-						prev: 'Prev',
-						first: 'First',
-						last: 'Last',
-						theme: 'green',
+						controlsalways: true,
+						length: 5,
 						onchange: function(newPage) {
 							pageSetting.page = newPage;
 							getInstances();
