@@ -9,10 +9,14 @@
 	</head>
 
 	<body>
+		<div id="taskActionListLoader" style="display: none;">
+			<img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
+		</div>
 		<div class="tabContent table-responsive">
 			<div class="dataTables_filter">
 				<label>Search:&nbsp;
-					<input type="search" id="table_filter_text" class="search" placeholder="">
+					<input type="search" id="table_filter_text" class="" placeholder="">
+					<img src="../private/img/search-icon.png" title="Search" style="margin-left: -26px; cursor: pointer" id="table_filter_text" />
 				</label>
 			</div>
 			<div class="dataTables_length">
@@ -117,10 +121,12 @@
 						$taskLogModalContainer.find('.logsArea').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
 
 						for(var j=0; j<taskData.executionResults.length;j++){
-							$('#instanceList').append($('<option/>', { 
-								value: taskData.executionResults[j].actionId,
-								text : taskData.executionResults[j].instanceName 
-							}));
+							if(taskData.executionResults[j].instanceName) {
+								$('#instanceList').append($('<option/>', { 
+									value: taskData.executionResults[j].actionId,
+									text : taskData.executionResults[j].instanceName 
+								}));
+							}
 						}
 						$('#instanceList').change(function(){
 							if (timeout) {
@@ -227,12 +233,14 @@
 				};
 
 				function getTasks() {
+					$('#taskActionListLoader').show();
 					var url = '/audit-trail/task-action?page='+pageSetting.page+'&pageSize='+pageSetting.pageSize+'&sortBy='+pageSetting.sortBy+'&sortOrder='+pageSetting.sortOrder;
 					if(pageSetting.search != ''){
 						url += '&search='+pageSetting.search;
 					}
 					$.get(url, function(tasks) {
 						createTaskLogTable(tasks.taskLogs);
+						$('#taskActionListLoader').hide();
 						$('#green').smartpaginator(
 						{ 
 							totalrecords: tasks.metaData.totalRecords, 
@@ -251,7 +259,8 @@
 							}
 						});
 					}).fail(function(jxhr) {
-						var msg = "Unable to fetch Tasks.";
+						$('#taskActionListLoader').hide();
+						var msg = "Unable to fetch Tasks";
 						if (jxhr.responseJSON && jxhr.responseJSON.message) {
 							msg = jxhr.responseJSON.message;
 						} else if (jxhr.responseText) {
@@ -264,6 +273,11 @@
 
 				$("#refreshBtn").click(function() {
 					pageSetting.page = 1;
+					pageSetting.pageSize = 10;
+					pageSetting.sortBy = "timestampStarted";
+					pageSetting.sortOrder = "desc";
+					pageSetting.search = "";
+					$('#table_filter_text').val('');
 					getTasks();
 				});
 

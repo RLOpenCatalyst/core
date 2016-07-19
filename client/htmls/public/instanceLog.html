@@ -10,10 +10,14 @@
 </head>
 
 <body>
+	<div id="instanceActionListLoader" style="display: none">
+		<img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
+	</div>
 	<div class="tabContent table-responsive">
 		<div class="dataTables_filter">
 			<label>Search:&nbsp;
 				<input type="search" id="table_filter_text" class="search" placeholder="">
+				<img src="../private/img/search-icon.png" title="Search" style="margin-left: -26px; cursor: pointer" id="table_filter_text" />
 			</label>
 		</div>
 		<div class="dataTables_length">
@@ -33,7 +37,7 @@
 		<table class="table table-hover table-bordered text-center" id="instanceLogTable">
 			<thead>
 				<tr>
-					<th class="text-center">InstanceId</th>
+					<th class="text-center">Instance</th>
 					<th class="text-center">Provider</th>
 					<th class="text-center">OS</th>
 					<th class="text-center table_sort sorting_desc" data-fieldname='createdOn'>Time
@@ -150,11 +154,13 @@
 			};
 
 			function getInstances() {
+				$('#instanceActionListLoader').show();
 				var url = '/audit-trail/instance-action?page=' + pageSetting.page + '&pageSize=' + pageSetting.pageSize + '&sortBy=' + pageSetting.sortBy + '&sortOrder=' + pageSetting.sortOrder;
 				if (pageSetting.search != '') {
 					url += '&search=' + pageSetting.search;
 				}
 				$.get(url, function(instances) {
+					$('#instanceActionListLoader').hide();
 					createInstanceLogTable(instances.instanceLogs);
 					$('#green').smartpaginator({
 						totalrecords: instances.metaData.totalRecords,
@@ -173,7 +179,8 @@
 						}
 					});
 				}).fail(function(jxhr) {
-					var msg = "Unable to fetch Instances.";
+					$('#instanceActionListLoader').show();
+					var msg = "Unable to fetch Instances";
 					if (jxhr.responseJSON && jxhr.responseJSON.message) {
 						msg = jxhr.responseJSON.message;
 					} else if (jxhr.responseText) {
@@ -186,6 +193,11 @@
 
 			$("#refreshBtn").click(function() {
 				pageSetting.page = 1;
+				pageSetting.pageSize = 10;
+				pageSetting.sortBy = "createdOn";
+				pageSetting.sortOrder = "desc";
+				pageSetting.search = "";
+				$('#table_filter_text').val('');
 				getInstances();
 			});
 
