@@ -532,6 +532,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                         log: "Unable to decrypt credentials. Bootstrap Failed",
                                                                         timestamp: new Date().getTime()
                                                                     };
+                                                                    instanceLog.bootStrap = "failed";
                                                                     instanceLog.endedOn = new Date().getTime();
                                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                         if (err) {
@@ -631,7 +632,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                     log: err.message,
                                                                                     timestamp: timestampEnded
                                                                                 });
-
+                                                                                instanceLog.bootStrap = "failed";
                                                                                 instanceLog.logs = {
                                                                                     err: true,
                                                                                     log: err.message,
@@ -657,6 +658,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                 log: "Bootstrap Failed",
                                                                                 timestamp: new Date().getTime()
                                                                             };
+                                                                            instanceLog.bootStrap = "failed";
                                                                             instanceLog.endedOn = new Date().getTime();
                                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                 if (err) {
@@ -702,6 +704,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                     log: "Instance Bootstrapped Successfully",
                                                                                     timestamp: new Date().getTime()
                                                                                 };
+                                                                                instanceLog.bootStrap = "success";
                                                                                 instanceLog.endedOn = new Date().getTime();
                                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                     if (err) {
@@ -842,6 +845,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                     log: "Bootstrap Failed",
                                                                                     timestamp: new Date().getTime()
                                                                                 };
+                                                                                instanceLog.bootStrap = "failed";
                                                                                 instanceLog.endedOn = new Date().getTime();
                                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                     if (err) {

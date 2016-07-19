@@ -507,6 +507,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                         timestamp: timestampEnded
                                                                     });
                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                    instanceLog.bootStrap = "failed";
                                                                     instanceLog.logs = {
                                                                         err: true,
                                                                         log: "Bootstrap failed",
@@ -541,6 +542,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                             timestamp: timestampEnded
                                                                         });
                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                        instanceLog.bootStrap = "failed";
                                                                         instanceLog.logs = {
                                                                             err: true,
                                                                             log: "Unable to decrpt pem file. Bootstrap failed",
@@ -610,6 +612,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                     log: "Bootstrap failed",
                                                                                     timestamp: new Date().getTime()
                                                                                 };
+                                                                                instanceLog.bootStrap = "failed";
                                                                                 instanceLog.endedOn = new Date().getTime();
                                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                     if (err) {
@@ -639,6 +642,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                         log: "Instance Bootstraped successfully",
                                                                                         timestamp: new Date().getTime()
                                                                                     };
+                                                                                    instanceLog.bootStrap = "success";
                                                                                     instanceLog.endedOn = new Date().getTime();
                                                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                         if (err) {
@@ -714,6 +718,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                         log: "Bootstrap Failed",
                                                                                         timestamp: new Date().getTime()
                                                                                     };
+                                                                                    instanceLog.bootStrap = "failed";
                                                                                     instanceLog.endedOn = new Date().getTime();
                                                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                         if (err) {
