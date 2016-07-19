@@ -245,15 +245,8 @@
 						{ 
 							totalrecords: tasks.metaData.totalRecords, 
 							recordsperpage: pageSetting.pageSize, 
-							datacontainer: 'mt', 
-							dataelement: 'tr', 
 							initval: pageSetting.page,
 							controlsalways: true, 
-							next: 'Next', 
-							prev: 'Prev', 
-							first: 'First', 
-							last: 'Last', 
-							theme: 'green',
 							onchange: function(newPage){
 								pageSetting.page = newPage;
 								getTasks();
