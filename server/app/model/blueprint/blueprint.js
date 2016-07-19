@@ -237,7 +237,7 @@ BlueprintSchema.methods.getCloudProviderData = function() {
 BlueprintSchema.methods.launch = function(opts, callback) {
     var infraManager = this.getInfraManagerData();
     var self = this;
-    masterUtil.getParticularProject(self.projectId,function(err,project){
+    masterUtil.getParticularProject(self.projectId, function(err, project) {
         if (err) {
             callback({
                 message: "Failed to get project via project id"
@@ -297,14 +297,14 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                 chef.getEnvironment(envName, function(err, env) {
                     if (err) {
                         logger.error("Failed chef.getEnvironment", err);
-                        callback(err,null);
+                        callback(err, null);
                         return;
                     }
                     if (!env) {
                         chef.createEnvironment(envName, function(err) {
                             if (err) {
                                 logger.error("Failed chef.createEnvironment", err);
-                                callback(err,null);
+                                callback(err, null);
                                 return;
                             }
                             blueprintConfigType.launch({
@@ -315,11 +315,11 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 stackName: opts.stackName,
                                 blueprintName: self.name,
                                 orgId: self.orgId,
-                                orgName:project[0].orgname,
+                                orgName: project[0].orgname,
                                 bgId: self.bgId,
-                                bgName:project[0].productgroupname,
+                                bgName: project[0].productgroupname,
                                 projectId: self.projectId,
-                                projectName:project[0].projectname,
+                                projectName: project[0].projectname,
                                 appUrls: appUrls,
                                 sessionUser: opts.sessionUser,
                                 users: self.users,
@@ -337,11 +337,11 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             stackName: opts.stackName,
                             blueprintName: self.name,
                             orgId: self.orgId,
-                            orgName:project[0].orgname,
+                            orgName: project[0].orgname,
                             bgId: self.bgId,
-                            bgName:project[0].productgroupname,
+                            bgName: project[0].productgroupname,
                             projectId: self.projectId,
-                            projectName:project[0].projectname,
+                            projectName: project[0].projectname,
                             appUrls: appUrls,
                             sessionUser: opts.sessionUser,
                             users: self.users,
@@ -462,7 +462,7 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
         } else if (blueprint.length === 0) {
             callback(null, blueprint);
             return;
-        } else{
+        } else {
             var bluePrintInfo = {};
             bluePrintInfo = {
                 orgName: blueprint[0].masterData[0].orgname,
@@ -572,12 +572,12 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
 
                 })
 
-            } else if(bluePrintInfo.templateType === 'docker') {
-                bluePrintInfo['blueprintConfig'] = {dockerCompose: blueprint[0].blueprintConfig.dockerCompose};
+            } else if (bluePrintInfo.templateType === 'docker') {
+                bluePrintInfo['blueprintConfig'] = { dockerCompose: blueprint[0].blueprintConfig.dockerCompose };
                 callback(null, bluePrintInfo);
             } else if (bluePrintInfo.templateType === 'cft') {
-                if(blueprint[0].blueprintType === 'aws_cf') {
-                    AWSProvider.getAWSProviderById(blueprint[0].blueprintConfig.cloudProviderId, function (err, providerData) {
+                if (blueprint[0].blueprintType === 'aws_cf') {
+                    AWSProvider.getAWSProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
                         if (err) {
                             callback(err, null);
                             return;
@@ -587,11 +587,11 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                         bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                         callback(null, bluePrintInfo);
                     })
-                }else {
+                } else {
                     bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                     callback(null, bluePrintInfo);
                 }
-            } else if(bluePrintInfo.templateType === 'arm') {
+            } else if (bluePrintInfo.templateType === 'arm') {
                 AzureProvider.getAzureCloudProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
                     if (err) {
                         callback(err, null);
@@ -605,7 +605,7 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                     bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                     callback(null, bluePrintInfo);
                 })
-            }else {
+            } else {
                 bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                 callback(null, bluePrintInfo);
             }
@@ -932,6 +932,9 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData,
         bgId: jsonData.bgId,
         projectId: jsonData.projectId,
         $or: options
+    };
+    if ('blueprintType' in jsonData) {
+        queryObj.blueprintType = jsonData.blueprintType;
     }
 
     logger.debug("Query Obj ", JSON.stringify(queryObj));
@@ -978,7 +981,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         });
         var url = blueprint.nexus.url;
         var repoName = blueprint.nexus.repoName;
-        var groupId = blueprint.nexus.groupId.replace(/\./g,'/');
+        var groupId = blueprint.nexus.groupId.replace(/\./g, '/');
         var artifactId = blueprint.nexus.artifactId;
         var version = blueprint.nexus.version;
         objectArray.push({
@@ -1133,10 +1136,17 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
 
         });
     } else if (blueprint.docker.image) {
+        var containerValue = uuid.v4();
         if (blueprint.docker.containerId) {
             objectArray.push({
                 "rlcatalyst": {
                     "containerId": blueprint.docker.containerId
+                }
+            });
+        } else {
+            objectArray.push({
+                "rlcatalyst": {
+                    "containerId": containerValue
                 }
             });
         }
@@ -1224,10 +1234,16 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                 });
                 return;
             }
+            containerIdOrName = "";
+            if (blueprint.docker.containerId) {
+                containerIdOrName = blueprint.docker.containerId;
+            } else {
+                containerIdOrName = containerValue;
+            }
             var docker = {
                 "rowId": blueprint.docker.rowId,
                 "image": blueprint.docker.image,
-                "containerName": blueprint.docker.containerId,
+                "containerName": containerIdOrName,
                 "containerPort": blueprint.docker.containerPort,
                 "hostPort": blueprint.docker.hostPort,
                 "dockerUser": blueprint.docker.dockerUser,
@@ -1264,6 +1280,27 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
          callback(null, {});
          });*/
     }
+};
+
+BlueprintSchema.statics.getBlueprintsByProviderId = function(providerId, callback) {
+    logger.debug("Enter getBlueprintsByProviderId");
+    this.find({
+        "blueprintConfig.cloudProviderId": providerId
+    }, function(err, blueprints) {
+        if (err) {
+            logger.error(err);
+            logger.debug("Exit getBlueprintsByProviderId with error");
+            callback(err, null);
+            return;
+        } else if (blueprints.length > 0) {
+            logger.debug("Exit getBlueprintsByProviderId with Blueprints present");
+            callback(null, blueprints);
+        } else {
+            logger.debug("Exit getBlueprintsByProviderId with no Blueprints present");
+            callback(null, []);
+        }
+
+    });
 };
 var Blueprints = mongoose.model('blueprints', BlueprintSchema);
 

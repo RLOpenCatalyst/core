@@ -56,6 +56,7 @@ var GCP = require('_pr/lib/gcp.js');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var instanceService = require('_pr/services/instanceService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -401,13 +402,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.status(500).send(errorResponses.db.error);
                     return;
                 } else {
-                    instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
+                    instanceService.removeInstancebyId(req.params.instanceId, function(err, data) {
                         if (err) {
                             logger.error("Instance deletion Failed >> ", err);
                             res.status(500).send(errorResponses.db.error);
                             return;
                         }
-                        logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
+                        logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
                         res.send(200);
                     });
                 }

@@ -8,7 +8,7 @@
 (function (angular) {
 	'use strict';
 	angular.module('workzone.orchestration')
-		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
+		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q','toastr', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q,toastr) {
 			
             $scope.role={
              name : ''   
@@ -17,6 +17,14 @@
             $scope.isNewTaskPageLoading = true;
 			$scope.chefrunlist = [];
 			$scope.cookbookAttributes = [];
+			$scope.toggleAll = function() {
+				var toggleStatus = $scope.isAllSelected;
+				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus; });
+
+			};
+			$scope.optionToggled = function(){
+				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+			};
 			//default values for new task
 			angular.extend($scope, {
 				taskTypes: {
@@ -169,7 +177,7 @@
 					};
 					//checking for name of the task
 					if (!taskJSON.name.trim()) {
-						alert('Please enter the name of the task.');
+						$scope.inputValidationMsg='Please enter the name of the task.';
                         $scope.taskSaving = false;
 						return false;
 					}
@@ -182,7 +190,7 @@
 								taskJSON.assignTasks.push(selectedList[i].data._id);
 							}
 						} else {
-							alert('please select atleast one job');
+							$scope.inputValidationMsg='please select atleast one job';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -190,7 +198,7 @@
 					/*This will get the values in order to create chef type task and check for any chef node selections*/
 					if ($scope.taskType === "chef") {
 						taskJSON.nodeIds = [];
-						taskJSON.blueprintIds = [];
+						taskJSON.blueprintIds = '';
                         taskJSON.role = $scope.role.name;
 						for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
 							if ($scope.chefInstanceList[ci]._isNodeSelected) {
@@ -199,29 +207,29 @@
 						}
 						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
 							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
-								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
+								taskJSON.blueprintIds=$scope.chefBluePrintList[bi]._id;
 							}
 						}
 
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
-							alert('Please select a node or blueprint or role');
+						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds && !taskJSON.role ) {
+							$scope.inputValidationMsg='Please select a node or blueprint or role';
                             $scope.taskSaving = false;
 							return false;
 						}
-						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
-							alert('Please choose either nodes or blueprints or role, not all');
+						if (taskJSON.nodeIds.length && taskJSON.blueprintIds) {
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
 							return false;
 						}
 
                         if (taskJSON.nodeIds.length && taskJSON.role) {
-                            alert('Please choose either nodes or blueprints or role, not all');
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
                             return false;
                         }
 
                         if (taskJSON.blueprintIds.length && taskJSON.role) {
-                            alert('Please choose either nodes or blueprints or role, not all');
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
                             return false;
                         }
@@ -238,7 +246,7 @@
 							}
 						}
 						if (!taskJSON.nodeIds.length) {
-							alert('Please select atleast one puppet node');
+							$scope.inputValidationMsg='Please select atleast one puppet node';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -246,20 +254,20 @@
 					if ($scope.taskType === "jenkins") {
 						taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
 						if (!taskJSON.jenkinsServerId.length) {
-							alert('Please select the Jenkins Server');
+							$scope.inputValidationMsg='Please select the Jenkins Server';
                             $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.autoSyncFlag = $scope.autoSync.flag;
 						taskJSON.jobName = $scope.jenkinJobSelected;
 						if (!taskJSON.jobName.length) {
-							alert('Please select one Job');
+							$scope.inputValidationMsg='Please select one Job';
                             $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.jobURL = $scope.jobUrl;
 						if (!taskJSON.jobURL.length) {
-							alert('No Job Url');
+							$scope.inputValidationMsg='No Job Url';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -278,7 +286,7 @@
 							}
 						}
 						if (!taskJSON.nodeIds.length) {
-							alert('Please select a node');
+							$scope.inputValidationMsg='Please select a node';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -443,6 +451,7 @@
 						$scope.targetType="instance";
 					}
 				}
+				$scope.optionToggled();
 			});
 			workzoneServices.getJenkinsServerList().then(function (response) {
 				var data;

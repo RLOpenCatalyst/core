@@ -38,6 +38,7 @@ var masterUtil = require('../../../lib/utils/masterUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 var Docker = require('_pr/model/docker.js');
+var uuid = require('node-uuid');
 
 var chefTaskSchema = taskTypeSchema.extend({
     nodeIds: [String],
@@ -410,10 +411,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         }
                         if (appData.docker && appData.docker.nodeIds && appData.docker.nodeIds.length) {
                             logger.debug("Inside docker....");
+                            var containerValue = uuid.v4();
                             if (appData.docker.containerName) {
                                 objectArray.push({
                                     "rlcatalyst": {
                                         "containerId": appData.docker.containerName
+                                    }
+                                });
+                            } else {
+                                objectArray.push({
+                                    "rlcatalyst": {
+                                        "containerId": containerValue
                                     }
                                 });
                             }
@@ -499,9 +507,15 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             appVersion = appData.version;
                         }
                         if (appData.docker) {
+                            containerIdOrName = "";
+                            if (appData.docker.containerName) {
+                                containerIdOrName = appData.docker.containerName;
+                            }else{
+                                containerIdOrName = containerValue;
+                            }
                             docker['rowId'] = appData.docker.rowId;
                             docker['image'] = appData.docker.image;
-                            docker['containerName'] = appData.docker.containerName;
+                            docker['containerName'] = containerIdOrName;
                             docker['containerPort'] = appData.docker.containerPort;
                             docker['dockerUser'] = appData.docker.dockerUser;
                             docker['dockerPassword'] = appData.docker.dockerPassword;

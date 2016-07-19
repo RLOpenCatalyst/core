@@ -239,7 +239,7 @@ imageSchema.statics.getImageByProviderId = function(providerId, callback) {
             callback(null, images);
         } else {
             logger.debug("Exit getImageByProviderId with no Image present");
-            callback(null, null);
+            callback(null, []);
         }
 
     });
