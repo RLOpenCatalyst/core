@@ -365,7 +365,17 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         action: "Orchestration",
                         logs: []
                     };
-
+                    if (appData) {
+                        if (appData.promote) {
+                            instanceLog.action = "App Promote";
+                        } else {
+                            if (appData.upgrade) {
+                                instanceLog.action = "App Upgrade";
+                            } else {
+                                instanceLog.action = "App Deploy";
+                            }
+                        }
+                    }
 
                     var logsReferenceIds = [instance._id, actionLog._id];
                     if (!instance.instanceIP) {
@@ -510,7 +520,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             containerIdOrName = "";
                             if (appData.docker.containerName) {
                                 containerIdOrName = appData.docker.containerName;
-                            }else{
+                            } else {
                                 containerIdOrName = containerValue;
                             }
                             docker['rowId'] = appData.docker.rowId;
