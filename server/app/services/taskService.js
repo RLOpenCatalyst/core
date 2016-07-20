@@ -141,6 +141,18 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                 });
                             })(p);
                         }
+                        if (histories.docs[i] && histories.docs[i].blueprintExecutionResults && histories.docs[i].blueprintExecutionResults.length) {
+                            instancesDao.getInstanceById(histories.docs[i].blueprintExecutionResults[0].result[0].instanceId, function(err, instance) {
+                                if (err) {
+                                    logger.error("Failed to fetch instance: ", err);
+                                }
+                                if (instance && instance.length) {
+                                    histories.docs[i].blueprintExecutionResults[0].result[0].instanceName = instance[0].name;
+                                    histories.docs[i].blueprintExecutionResults[0].result[0].actionId = histories.docs[i].blueprintExecutionResults[0].result[0].actionLogId;
+                                    histories.docs[i].executionResults = histories.docs[i].blueprintExecutionResults[0].result;
+                                }
+                            });
+                        }
                     }
                     if (histories.docs[i] && histories.docs[i].taskType == "composite") {
                         if (histories.docs[i].taskHistoryIds && histories.docs[i].taskHistoryIds.length) {
@@ -156,7 +168,7 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                                 data.jenkinsLog = "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output";
                                                 histories.docs[i].executionResults.push(data);
                                             } else {
-                                                var c=0;
+                                                var c = 0;
                                                 for (var k = 0; k < data.executionResults.length; k++) {
                                                     (function(k) {
                                                         instancesDao.getInstanceById(data.executionResults[k].instanceId, function(err, instance) {
@@ -168,7 +180,7 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                                                 data.executionResults[k].instanceName = instance[0].name;
                                                                 //histories.docs[i].executionResults.push(data);
                                                             }
-                                                            if(data.executionResults.length == c){
+                                                            if (data.executionResults.length == c) {
                                                                 histories.docs[i].executionResults.push(data);
                                                             }
                                                         });
@@ -177,7 +189,7 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                             }
                                         }
                                         //if (histories.docs[i] && histories.docs[i].executionResults)
-                                            //histories.docs[i].executionResults.push(data);
+                                        //histories.docs[i].executionResults.push(data);
                                     });
                                 })(j);
                             }
