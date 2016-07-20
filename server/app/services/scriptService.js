@@ -19,7 +19,7 @@ var logger = require('_pr/logger')(module);
 var script = require('_pr/model/scripts/scripts');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
-var fileIo = require('_pr/lib/utils/fileio');
+var fileUpload = require('_pr/model/file-upload/file-upload');
 
 const errorType = 'scriptService';
 
@@ -43,7 +43,10 @@ scriptService.getScriptListWithPagination = function getScriptListWithPagination
                 script.getScripts(queryObj, next);
             },
             function (scripts, next) {
-                apiUtil.changeResponseForJqueryPagination(scripts, reqObj, next);
+                addFileDetailsForScripts(scripts,next);
+            },
+            function (formattedScripts, next) {
+                apiUtil.changeResponseForJqueryPagination(formattedScripts, reqObj, next);
             },
 
         ], function (err, results) {
@@ -62,21 +65,7 @@ scriptService.saveAndUpdateScript=function saveAndUpdateScript(scriptData,callba
         },
         function(scripts,next){
             if(scripts.length > 0){
-                var filePath = scripts[0].fileDetails.path + scripts[0].fileDetails.id +'_'+scripts[0].fileDetails.name;
-                async.waterfall([
-                    function(next){
-                        script.updateScript(scriptData,next);
-                    },
-                    function(updateScript,next){
-                        fileIo.removeFile(filePath,next);
-                    }
-                ],function(err,results){
-                    if(err){
-                        next(err,null);
-                    }else{
-                        next(null,results)
-                    }
-                })
+                script.updateScript(scriptData,next);
             }else{
                 script.createNew(scriptData, next);
             }
@@ -94,10 +83,35 @@ scriptService.saveAndUpdateScript=function saveAndUpdateScript(scriptData,callba
     })
 };
 
-scriptService.getScriptById=function saveAndUpdateScript(scriptId,callback){
+scriptService.getScriptById=function getScriptById(scriptId,callback){
     async.waterfall([
         function(next){
             script.getScriptById(scriptId,next);
+        },
+        function(scripts,next){
+            if(scripts.length > 0){
+                fileUpload.getReadStreamFileByFileId(scripts[0].fileId,function(err,file){
+                    if(err){
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        next(err,null);
+                    }else{
+                        var scriptObj= {
+                           scriptId: scripts[0]._id,
+                           name: scripts[0].name,
+                           type: scripts[0].type,
+                           description: scripts[0].description,
+                           orgDetails: scripts[0].orgDetails,
+                           fileId: scripts[0].fileId,
+                           fileName: file.fileName,
+                           file: file.fileData
+                        };
+                        next(null,scriptObj);
+                    }
+                });
+            }else{
+                next(null,scriptId);
+            }
         }
     ],function(err,results){
         if (err) {
@@ -118,10 +132,9 @@ scriptService.removeScriptById=function removeScriptById(scriptId,callback){
         },
         function(scripts,next){
             if(scripts.length > 0){
-                var filePath = scripts[0].fileDetails.path + scripts[0].fileDetails.id +'_'+scripts[0].fileDetails.name;
                 async.parallel({
                     removeFile: function(callback){
-                        fileIo.removeFile(filePath,callback);
+                        fileUpload.removeFileByFileId(scripts[0].fileId,callback);
                     },
                     removeScript: function(callback){
                         script.removeScriptById(scriptId,callback);
@@ -170,4 +183,40 @@ scriptService.getScriptListByType = function getScriptListByType(filterBy,callba
             return;
         }
     })
+};
+
+function addFileDetailsForScripts(scripts,callback){
+  if (scripts.docs.length === 0) {
+      return callback(null,scripts);
+  }else{
+      var scriptList =[];
+      var scriptObj={};
+      for(var i = 0; i <scripts.docs.length; i++){
+          (function(script){
+              fileUpload.getFileByFileId(script.fileId,function(err,file){
+                  if(err){
+                      var err = new Error('Internal server error');
+                      err.status = 500;
+                      return callback(err,null);
+                  }else{
+                     scriptObj = {
+                          scriptId:script._id,
+                          name:script.name,
+                          type:script.type,
+                          description:script.description,
+                          orgDetails:script.orgDetails,
+                          fileId:script.fileId,
+                          fileName:file.filename
+                      }
+                      scriptList.push(scriptObj);
+                      scriptObj={};
+                      if (scriptList.length === scripts.docs.length) {
+                          scripts.docs = scriptList;
+                          return callback(null, scripts);
+                      }
+                  }
+              })
+          })(scripts.docs[i]);
+      }
+  }
 }

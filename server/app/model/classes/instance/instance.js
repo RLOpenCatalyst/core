@@ -485,11 +485,10 @@ var InstancesDao = function() {
                             if (instance.taskIds.length > 0) {
                                 tasks.getTaskByIds(instance.taskIds, function(err, tasks) {
                                     if (err) {
-                                        var err = new Error('Internal server error');
-                                        err.status = 500;
-                                        return callback(err);
+                                        logger.error(err);
+                                        return ;
                                     } else if (tasks.length === 0) {
-                                        return callback(null, instances);
+                                        return;
                                     } else {
                                         count++;
                                         var taskObj = {};
