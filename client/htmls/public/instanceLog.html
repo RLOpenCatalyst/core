@@ -165,14 +165,9 @@
 					$('#green').smartpaginator({
 						totalrecords: instances.metaData.totalRecords,
 						recordsperpage: pageSetting.pageSize,
-						datacontainer: 'mt',
-						dataelement: 'tr',
 						initval: pageSetting.page,
-						next: 'Next',
-						prev: 'Prev',
-						first: 'First',
-						last: 'Last',
-						theme: 'green',
+						controlsalways: true,
+						length: 5,
 						onchange: function(newPage) {
 							pageSetting.page = newPage;
 							getInstances();
@@ -256,6 +251,10 @@
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'centos') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
+					}else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'ubuntu') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
+					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'unknown') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'windows') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
 					} else if (managnedData[i].platform == 'openstack' && managnedData[i].os == 'linux') {

@@ -169,8 +169,8 @@
 							var index = $(this).val();
 							var taskData = logData.executionResults[index];
 							if (timeout) {
-									clearTimeout(timeout);
-								}
+								clearTimeout(timeout);
+							}
 							if(taskData.taskType == 'chef') {
 								chefTask(taskData);
 							} else if (taskData.taskType == 'jenkins') {
@@ -245,14 +245,9 @@
 						{ 
 							totalrecords: tasks.metaData.totalRecords, 
 							recordsperpage: pageSetting.pageSize, 
-							datacontainer: 'mt', 
-							dataelement: 'tr', 
-							initval: pageSetting.page, 
-							next: 'Next', 
-							prev: 'Prev', 
-							first: 'First', 
-							last: 'Last', 
-							theme: 'green',
+							initval: pageSetting.page,
+							controlsalways: true, 
+							length: 5,
 							onchange: function(newPage){
 								pageSetting.page = newPage;
 								getTasks();
