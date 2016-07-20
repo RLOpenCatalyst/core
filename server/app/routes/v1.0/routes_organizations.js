@@ -2105,6 +2105,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                     logger.error(err);
                                                                                     return;
                                                                                 }
+                                                                                instanceLog.platform = nodeData.facts.values.operatingsystem;
+                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                    if (err) {
+                                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                                    }
+                                                                                });
                                                                                 // is puppet node
                                                                                 hardwareData.architecture = nodeData.facts.values.hardwaremodel;
                                                                                 hardwareData.platform = nodeData.facts.values.operatingsystem;
@@ -2133,6 +2139,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                             logger.error(err);
                                                                             return;
                                                                         }
+                                                                        instanceLog.platform = nodeData.automatic.platform;
+                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                            if (err) {
+                                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                                            }
+                                                                        });
                                                                         hardwareData.architecture = nodeData.automatic.kernel.machine;
                                                                         hardwareData.platform = nodeData.automatic.platform;
                                                                         hardwareData.platformVersion = nodeData.automatic.platform_version;
