@@ -1859,7 +1859,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 createdOn: new Date().getTime(),
                                                 startedOn: new Date().getTime(),
                                                 providerType: "",
-                                                action: "Import",
+                                                action: "ImportByIP",
                                                 logs: [{
                                                     err: false,
                                                     log: "Bootstrapping instance",

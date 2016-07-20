@@ -234,11 +234,11 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
                 function(err, data) {
                     if (err) {
                         logger.error(err);
-                        if(err.code === 'AccessDenied'){
+                        if (err.code === 'AccessDenied') {
                             var err = new Error('Update tag failed, Invalid keys or Permission Denied');
                             err.status = 500;
                             return callback(err);
-                        }else {
+                        } else {
                             var err = new Error('Internal server error');
                             err.status = 500;
                             return callback(err);
@@ -343,11 +343,11 @@ function updateAWSInstanceTag(provider, instance, tags, callback) {
         function(err, data) {
             if (err) {
                 logger.error(err);
-                if(err.code === 'AccessDenied'){
+                if (err.code === 'AccessDenied') {
                     var err = new Error('Update tag failed, Invalid keys or Permission Denied');
                     err.status = 500;
                     return callback(err);
-                }else {
+                } else {
                     var err = new Error('Internal server error');
                     err.status = 500;
                     return callback(err);
@@ -432,15 +432,15 @@ function getTrackedInstancesForProvider(provider, next) {
     );
 }
 
-function getTrackedInstances(query,category, next) {
+function getTrackedInstances(query, category, next) {
     async.parallel([
             function(callback) {
-                if(category === 'managed'){
+                if (category === 'managed') {
                     instancesModel.getAll(query, callback);
-                }else if(category === 'assigned'){
+                } else if (category === 'assigned') {
                     unManagedInstancesModel.getAll(query, callback);
-                }else{
-                    callback(null,[]);
+                } else {
+                    callback(null, []);
                 }
             }
         ],
@@ -525,7 +525,7 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.providerId = instance.providerId;
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
-        instanceObj.instanceState = instance.instanceState ? instance.instanceState:instance.state;
+        instanceObj.instanceState = instance.instanceState ? instance.instanceState : instance.state;
         instanceObj.bgId = ('bgId' in instance) ? instance.bgId : null;
 
         if (('hardware' in instance) && ('os' in instance.hardware))
@@ -542,8 +542,8 @@ function createTrackedInstancesResponse(instances, callback) {
         else
             instanceObj.ip = null;
 
-        instanceObj.usage = ('usage' in instance)?instance.usage:null;
-        instanceObj.cost = (('cost' in instance) && instance.cost)? (instance.cost.symbol + ' ' + parseFloat(instance.cost.aggregateInstanceCost).toFixed(2)):0;
+        instanceObj.usage = ('usage' in instance) ? instance.usage : null;
+        instanceObj.cost = (('cost' in instance) && instance.cost) ? (instance.cost.symbol + ' ' + parseFloat(instance.cost.aggregateInstanceCost).toFixed(2)) : 0;
         return instanceObj;
     });
 
@@ -1251,53 +1251,53 @@ instanceService.getInstanceAction = function getInstanceAction(actionId, callbac
     });
 };
 
-function removeInstanceById(instanceId,callback){
-        containerModel.deleteContainerByInstanceId(instanceId, function (err, container) {
-            if (err) {
-                logger.error("Container deletion Failed >> ", err);
-                callback(err, null);
-                return;
-            } else {
-                instancesModel.removeInstanceById(instanceId, function (err, data) {
-                    if (err) {
-                        logger.error("Instance deletion Failed >> ", err);
-                        callback(err, null);
-                        return;
-                    }
-                    callback(err, data);
-                });
-            }
-        });
-}
-
-function removeInstancesByProviderId(providerId,callback){
-    async.parallel({
-        managedInstance: function(callback){
-            instancesModel.removeInstancesByProviderId(providerId,callback);
-        },
-        assignedInstance: function(callback){
-            unManagedInstancesModel.removeInstancesByProviderId(providerId,callback);
-        },
-        unassignedInstance: function(callback){
-            unassignedInstancesModel.removeInstancesByProviderId(providerId,callback);
-        },
-        resources: function(callback){
-            resources.removeResourcesByProviderId(providerId,callback);
-        },
-        resourcesCost: function(callback){
-            resourceCost.removeResourceCostByProviderId(providerId,callback);
-        },
-        resourcesUsage: function(callback){
-            resourceUsage.removeResourceUsageByProviderId(providerId,callback);
-        },
-        resourcesTags: function(callback){
-            tagsModel.removeTagsByProviderId(providerId,callback);
+function removeInstanceById(instanceId, callback) {
+    containerModel.deleteContainerByInstanceId(instanceId, function(err, container) {
+        if (err) {
+            logger.error("Container deletion Failed >> ", err);
+            callback(err, null);
+            return;
+        } else {
+            instancesModel.removeInstanceById(instanceId, function(err, data) {
+                if (err) {
+                    logger.error("Instance deletion Failed >> ", err);
+                    callback(err, null);
+                    return;
+                }
+                callback(err, data);
+            });
         }
-    },function(err,results){
-        if(err){
-            callback(err,null);
-        }else{
-            callback(null,results);
+    });
+};
+
+function removeInstancesByProviderId(providerId, callback) {
+    async.parallel({
+        managedInstance: function(callback) {
+            instancesModel.removeInstancesByProviderId(providerId, callback);
+        },
+        assignedInstance: function(callback) {
+            unManagedInstancesModel.removeInstancesByProviderId(providerId, callback);
+        },
+        unassignedInstance: function(callback) {
+            unassignedInstancesModel.removeInstancesByProviderId(providerId, callback);
+        },
+        resources: function(callback) {
+            resources.removeResourcesByProviderId(providerId, callback);
+        },
+        resourcesCost: function(callback) {
+            resourceCost.removeResourceCostByProviderId(providerId, callback);
+        },
+        resourcesUsage: function(callback) {
+            resourceUsage.removeResourceUsageByProviderId(providerId, callback);
+        },
+        resourcesTags: function(callback) {
+            tagsModel.removeTagsByProviderId(providerId, callback);
+        }
+    }, function(err, results) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, results);
         }
     })
 }
