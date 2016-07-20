@@ -20,12 +20,12 @@
 							<tr ng-repeat="param in params track by $index">
 								<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
 								<td><input id="value" type="text" class="form-control" name="value" ng-model="params[$index]"></td>
-								<td><button class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(params[$index]);"><i class=" fa fa-trash-o"></i></button></td>
+								<td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(params[$index]);"><i class=" fa fa-trash-o"></i></button></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
-				<a id="addParams" class="marginleft23" type="button" id="add" ng-click="add()">Add More Params</a>
+				<a id="addParams" class="marginleft23" type="button" id="add" ng-click="add()">Add More</a>
 			</div>
 		</fieldset>
 	</div>

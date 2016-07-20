@@ -79,7 +79,7 @@
 							</div>
 							<!--for script adding the scriptType dropdown -->
 							<!--commented will be used in future-->
-							<!-- <div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
+							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
 								<label class="control-label">Script Type
 									<span class="control-label red">&nbsp;*</span>
 									<span ng-show="newTaskForm.scriptType.$touched && newTaskForm.scriptType.$invalid" class="inputValidationMsg">required
@@ -90,10 +90,9 @@
 									<select class="form-control" name="scriptType" ng-model="$parent.scriptTypeSelelct" ng-change="changeNodeScriptList();" required>
 										<option value="">Select</option>
 										<option value="Bash">Bash</option>
-										<option value="PowerShell">PowerShell</option>
 									</select>
 								</span>
-							</div> -->
+							</div>
 							<!--scriptType ending here -->
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
 								<label class="control-label">Job Description</label>
@@ -129,18 +128,24 @@
 				                                </div>
 				                            
 				                        </div>
+										<div ng-show="targetType==='instance'" class="">
+											<label class="checkbox check-list">
+												Select All : &nbsp;<input  type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAll()" ng-model="$parent.isAllSelected" title="Select All ">
+											</label>
+										</div>
+										<div class="clearfix"></div>
 										<div class="select-nodes">
 											<ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
+														<input type="checkbox" ng-change="optionToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
 													</label>
 												</li>
 											</ul>
 											<ul ng-show="targetType==='blueprint'">
 												<li ng-repeat="blueprint in chefBluePrintList">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="blueprint._isBlueprintSelected" ng-model="blueprint._isBlueprintSelected" class="checkbox-list">{{blueprint.name}}
+														<input name="blueprint" ng-value="blueprint._id" type="radio"  ng-model="blueprint._isBlueprintSelected" class="checkbox-list blueprint-{{blueprint._isBlueprintSelected}}">{{blueprint.name}}
 													</label>
 												</li>
 											</ul>
@@ -394,7 +399,7 @@
 												<li ng-repeat="script in scriptTaskList">
 													<label class="checkbox check-list">
 														<input type="checkbox" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
-														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Parameters</a>
+														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
 													</label>
 												</li>
 											</ul>
@@ -404,7 +409,7 @@
 									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="scriptParamShow">
 										
 										<div class="jenkins-job-parameter-text">
-											<label class="lable-align">{{selectedScript.name}} Parameters</label>
+											<span class="lable-align"><b>{{selectedScript.name}}</b>&nbsp;Parameters</span>
 											<i class="fa fa-plus-circle cursor" title="Add Script Parameters" ng-click="addScriptParams(selectedScript)"></i>
 										</div>
 									<!--script params ends here-->
@@ -436,15 +441,20 @@
 		</div>
 
 		<div class="modal-footer">
-            <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
-				<i class="fa fa-times black"></i> Cancel
-			</button>
-			<button  type="submit" class="btn cat-btn-update" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid || taskSaving">
-				<i class="fa fa-check white"></i> Save
-			</button>
-			<button type="submit" class="btn cat-btn-update" ng-if="isEditMode">
-				<i class="fa fa-check white"></i> Update
-			</button>
+			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" >
+				<span class="pull-left inputValidationMsg" ><h5 ng-bind="inputValidationMsg"></h5></span>
+			</div>
+			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" >
+				<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+					<i class="fa fa-times black"></i> Cancel
+				</button>
+				<button  type="submit" class="btn cat-btn-update" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid || taskSaving">
+					<i class="fa fa-check white"></i> Save
+				</button>
+				<button type="submit" class="btn cat-btn-update" ng-if="isEditMode">
+					<i class="fa fa-check white"></i> Update
+				</button>
+			</div>
 		</div>
 	</form>
 </div>

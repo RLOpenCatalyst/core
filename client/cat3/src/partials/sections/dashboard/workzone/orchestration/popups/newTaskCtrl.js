@@ -20,6 +20,13 @@
 			$scope.cookbookAttributes = [];
 			$scope.scriptParamShow = false;
 			$scope.scriptParamsObj = {};
+			$scope.toggleAll = function() {
+				var toggleStatus = $scope.isAllSelected;
+				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus; });
+			};
+			$scope.optionToggled = function(){
+				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+			};
 			//default values for new task
 			angular.extend($scope, {
 				taskTypes: {
@@ -103,6 +110,30 @@
 					}, function () {
 						console.log('Dismiss time is ' + new Date());
 					});
+				},
+				changeNodeScriptList: function() {
+					if($scope.scriptTypeSelelct !=""){
+						workzoneServices.getScriptList($scope.scriptTypeSelelct).then(function (response) {
+							var data;
+							if (response.data) {
+								data = response.data;
+							} else {
+								data = response;
+							}
+							if ($scope.isEditMode && items.taskType === "script") {
+								var isScriptChecked = [];
+								for(var i =0;i<items.taskConfig.scriptDetails.length;i++){
+									isScriptChecked.push(items.taskConfig.scriptDetails[i].scriptId)
+									$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data, isScriptChecked);
+									$scope.scriptParamsObj[items.taskConfig.scriptDetails[i].scriptId] = items.taskConfig.scriptDetails[i].scriptParameters;		
+									$scope.isNewTaskPageLoading = false;	
+								}
+							} else{
+								$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data,[]);
+								$scope.isScriptInstanceLoading = false;
+							}
+						});
+					}
 				},
 				addScriptParams: function (scriptObject) {
 					$modal.open({
@@ -197,7 +228,7 @@
 					};
 					//checking for name of the task
 					if (!taskJSON.name.trim()) {
-						alert('Please enter the name of the task.');
+						$scope.inputValidationMsg='Please enter the name of the task.';
                         $scope.taskSaving = false;
 						return false;
 					}
@@ -210,7 +241,7 @@
 								taskJSON.assignTasks.push(selectedList[i].data._id);
 							}
 						} else {
-							alert('please select atleast one job');
+							$scope.inputValidationMsg='please select atleast one job';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -218,7 +249,7 @@
 					/*This will get the values in order to create chef type task and check for any chef node selections*/
 					if ($scope.taskType === "chef") {
 						taskJSON.nodeIds = [];
-						taskJSON.blueprintIds = [];
+						taskJSON.blueprintIds = '';
                         taskJSON.role = $scope.role.name;
 						for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
 							if ($scope.chefInstanceList[ci]._isNodeSelected) {
@@ -227,29 +258,29 @@
 						}
 						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
 							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
-								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
+								taskJSON.blueprintIds=$scope.chefBluePrintList[bi]._id;
 							}
 						}
 
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
-							alert('Please select a node or blueprint or role');
+						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds && !taskJSON.role ) {
+							$scope.inputValidationMsg='Please select a node or blueprint or role';
                             $scope.taskSaving = false;
 							return false;
 						}
-						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
-							alert('Please choose either nodes or blueprints or role, not all');
+						if (taskJSON.nodeIds.length && taskJSON.blueprintIds) {
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
 							return false;
 						}
 
                         if (taskJSON.nodeIds.length && taskJSON.role) {
-                            alert('Please choose either nodes or blueprints or role, not all');
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
                             return false;
                         }
 
                         if (taskJSON.blueprintIds.length && taskJSON.role) {
-                            alert('Please choose either nodes or blueprints or role, not all');
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
                             return false;
                         }
@@ -266,7 +297,7 @@
 							}
 						}
 						if (!taskJSON.nodeIds.length) {
-							alert('Please select atleast one puppet node');
+							$scope.inputValidationMsg='Please select atleast one puppet node';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -274,20 +305,20 @@
 					if ($scope.taskType === "jenkins") {
 						taskJSON.jenkinsServerId = $scope.jenkinsServerSelect;
 						if (!taskJSON.jenkinsServerId.length) {
-							alert('Please select the Jenkins Server');
+							$scope.inputValidationMsg='Please select the Jenkins Server';
                             $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.autoSyncFlag = $scope.autoSync.flag;
 						taskJSON.jobName = $scope.jenkinJobSelected;
 						if (!taskJSON.jobName.length) {
-							alert('Please select one Job');
+							$scope.inputValidationMsg='Please select one Job';
                             $scope.taskSaving = false;
 							return false;
 						}
 						taskJSON.jobURL = $scope.jobUrl;
 						if (!taskJSON.jobURL.length) {
-							alert('No Job Url');
+							$scope.inputValidationMsg='No Job Url';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -306,8 +337,14 @@
 								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
 							}
 						}
+						taskJSON.scriptTypeName = $scope.scriptTypeSelelct;
+						if (!taskJSON.scriptTypeName.length) {
+							$scope.inputValidationMsg='Please select one Script Type';
+                            $scope.taskSaving = false;
+							return false;
+						}
 						if (!taskJSON.nodeIds.length) {
-							alert('Please select atleast one puppet node');
+							$scope.inputValidationMsg='Please select a node';
                             $scope.taskSaving = false;
 							return false;
 						}
@@ -326,7 +363,7 @@
 							}
 						}
 						if (!taskJSON.scriptDetails.length) {
-							alert('Please select a script');
+							$scope.inputValidationMsg = 'Please select a script';
 							$scope.taskSaving = false;
 							return false;
 						}
@@ -359,12 +396,12 @@
 			$scope.jobResultURLPattern = [];
 			$scope.jobResultURL = [];
 			$scope.jenkinsParamsList = [];
-			$scope.scriptParamsList = [];
 			$scope.jenkinsServerSelect = '';
 			$scope.jenkinJobSelected = '';
 			$scope.description = '';
 			$scope.chefInstanceList = [];
 			$scope.scriptTaskList = [];
+			$scope.scriptTypeSelelct = '';
 			$scope.chefBluePrintList = [];
 			$scope.puppetInstanceList = [];
 			$scope.cookbookAttributes = [];
@@ -468,6 +505,7 @@
 						$scope.targetType="instance";
 					}
 				}
+				$scope.optionToggled();
 			});
 			workzoneServices.getJenkinsServerList().then(function (response) {
 				var data;
@@ -485,27 +523,7 @@
 				$scope.changeJobList();
 				$scope.changeJobURL();
 			});
-
-			workzoneServices.getScriptList('Bash').then(function (response) {
-				var data;
-				if (response.data) {
-					data = response.data;
-				} else {
-					data = response;
-				}
-				if ($scope.isEditMode && items.taskType === "script") {
-					var isScriptChecked = [];
-					for(var i =0;i<items.taskConfig.scriptDetails.length;i++){
-						isScriptChecked.push(items.taskConfig.scriptDetails[i].scriptId)
-						$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data, isScriptChecked);
-						$scope.scriptParamsObj[items.taskConfig.scriptDetails[i].scriptId] = items.taskConfig.scriptDetails[i].scriptParameters;		
-						$scope.isNewTaskPageLoading = false;	
-					}
-				} else{
-					$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data,[]);
-					$scope.isScriptInstanceLoading = false;
-				}
-			}); 
+ 
 			// if new task creation then we will give chef as default selection.
 			if (!(typeof items === "string" && items === "new")) {
 				/*common properties across all task*/
@@ -522,6 +540,11 @@
 					$scope.jobResultURL = items.taskConfig.jobResultURL;
 					$scope.jenkinsParamsList = items.taskConfig.parameterized;
 					$scope.jenkinJobSelected = items.taskConfig.jobName;
+				}
+				if(items.taskType === "script") {
+					$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
+					$scope.isNewTaskPageLoading = false;
+					$scope.changeNodeScriptList();
 				}
 			}
 		}

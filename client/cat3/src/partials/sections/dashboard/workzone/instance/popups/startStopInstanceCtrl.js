@@ -8,7 +8,7 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('startStopInstanceCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
+		.controller('startStopInstanceCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices','toastr', function($scope, $modalInstance, items, workzoneServices,toastr) {
 			angular.extend($scope, {
 				instance: items.inst,
 				perm:items.hasPerm,
@@ -32,14 +32,14 @@
 							$modalInstance.close(items);
 							$scope.isStartStopInstanceLoading = false;
 						} else {
-							alert('Unexpected Behaviour');
+							toastr.error('Unexpected Behaviour');
 						}
 					}, function(error) {
 						error = error.data || error;
 						if (error.message) {
-							alert(error.message);
+							toastr.error(error.message);
 						} else {
-							alert("Unexpected Behaviour");
+							toastr.error("Unexpected Behaviour");
 						}
 					});
 				}

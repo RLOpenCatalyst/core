@@ -8,26 +8,38 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.orchestration')
-		.controller('addScriptParamsCtrl',['$scope', '$modalInstance',function($scope, $modalInstance){
+		.controller('addScriptParamsCtrl',['$scope', '$modalInstance', 'toastr',function($scope, $modalInstance, toastr){
 			//default selection type
 			$scope.params=[''];
 			$scope.add = function() {
 			  $scope.params.push('');
 			};
 			$scope.removeScriptInputParams = function(paramInput) {
-				var idx = $scope.params.indexOf(paramInput);
-				$scope.params.splice(idx,1);
+				if($scope.params.length > 1){
+					var idx = $scope.params.indexOf(paramInput);
+					$scope.params.splice(idx,1);
+				}else{
+					toastr.error('Cannot delete the row');
+				}
 			}
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.ok=function(){
-				if($scope.params){
-					$modalInstance.close($scope.params);
+				var checkParam = false;
+				for(var i =0; i<$scope.params.length; i++){
+					if($scope.params[i] === '' || $scope.params[i] === null){
+						checkParam = false;
+						toastr.error('Please enter parameters');
+						return false;
+					}else{
+						checkParam = true;
+					}
 				}
-				else{
-					alert('Please fill appropriate values.');
+				if(checkParam){
+					$modalInstance.close($scope.params);	
 				}
+				
 			};
 		}
 	]);

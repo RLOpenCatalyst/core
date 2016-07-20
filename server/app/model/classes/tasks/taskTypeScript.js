@@ -44,6 +44,7 @@ var Schema = mongoose.Schema;
 
 var scriptTaskSchema = taskTypeSchema.extend({
 	nodeIds:[String],
+	scriptTypeName:String,
 	scriptDetails: [{
 		scriptId:{
 			type:String,
