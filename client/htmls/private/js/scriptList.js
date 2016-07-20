@@ -211,6 +211,7 @@ $('#scriptForm').submit(function(e) {
                         getScriptList();
                     },
                     error: function(jxhr) {
+                        removeUploadFile(fileId);
                         var msg = "Server Behaved Unexpectedly";
                         if (jxhr.responseJSON && jxhr.responseJSON.message) {
                             msg = jxhr.responseJSON.message;
@@ -222,6 +223,7 @@ $('#scriptForm').submit(function(e) {
                         $('#saveBtnScript').removeAttr('disabled');
                     },
                     failure: function(jxhr) {
+                        removeUploadFile(fileId);
                         var msg = "Server Behaved Unexpectedly";
                         if (jxhr.responseJSON && jxhr.responseJSON.message) {
                             msg = jxhr.responseJSON.message;
@@ -238,3 +240,36 @@ $('#scriptForm').submit(function(e) {
         return false;
     }
 });
+
+function removeUploadFile(fileId){
+    $.ajax({
+        method: "DELETE",
+        url: '../fileUpload?fileId=' + fileId,
+        success: function (data, success) {
+            $('#saveItemSpinner').addClass('hidden');
+            $('#saveBtnScript').removeAttr('disabled');
+        },
+        error: function (jxhr) {
+            var msg = "Server Behaved Unexpectedly";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+            $('#saveItemSpinner').addClass('hidden');
+            $('#saveBtnScript').removeAttr('disabled');
+        },
+        failure: function (jxhr) {
+            var msg = "Server Behaved Unexpectedly";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+            $('#saveItemSpinner').addClass('hidden');
+            $('#saveBtnScript').removeAttr('disabled');
+        }
+    });
+}

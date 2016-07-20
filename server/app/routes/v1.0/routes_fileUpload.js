@@ -46,4 +46,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }
     });
 
+    app.delete('/fileUpload', function(req, res) {
+        fileUpload.uploadFile(req.files.file.originalFilename,req.files.file.path,fileId,function(err,fileData){
+            if(err){
+                res.send({message: "Unable to delete file"});
+            }else if(fileData){
+                res.send({message:"Delete successfully"});
+            }else{
+                res.send({message: "Bad Request"});
+            }
+        })
+    });
+
 };

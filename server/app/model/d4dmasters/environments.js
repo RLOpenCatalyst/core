@@ -111,28 +111,111 @@ function Env() {
             orgname_rowid: orgname,
             id: '3'
         }, function(err, envdata) {
-            logger.debug(JSON.stringify(envdata));
-            if (!envdata) {
-                var mastersrdb = new d4dModelNew.d4dModelMastersEnvironments(FLD);
-                mastersrdb.save(function(err, data) {
+            if(err){
+                callback(err, null);
+                return;
+            }else if (!envdata) {
+                var masterDb = new d4dModelNew.d4dModelMastersEnvironments(FLD);
+                masterDb.save(function(err, data) {
                     if (err) {
-                        logger.debug('Hit Save in createEnv error' + err);
+                        logger.error('Hit Save in createEnv error' + err);
                         callback(err, null);
                         return;
                     }else{
-                        logger.debug('New Env Master Saved');
-                        callback(null,data.rowid);
-                        return;
+                        d4dModelNew.d4dModelMastersProjects.findOne({
+                            orgname_rowid: orgname,
+                            productgroupname_rowid: bgname,
+                            rowid: projname,
+                            id: '4'
+                        }, function(err, data2) {
+                            if (err) {
+                                logger.error('Hit fetching project error' + err);
+                                callback(err, null);
+                                return;
+                            }else{
+                                if (data2.environmentname_rowid !== '' && data2.environmentname !== '') {
+                                    var envIds = data2.environmentname_rowid.split(',');
+                                    var envNames = data2.environmentname.split(',');
+                                    if (envIds.indexOf(uuid1) >= 0 && envNames.indexOf(jsonData.chefEnv) >= 0) {
+                                        logger.debug("In Callback Env found in list");
+                                        callback(null, uuid1);
+                                        return;
+                                    }
+                                    data2.environmentname_rowid += ',';
+                                    data2.eenvironmentname+=',';
+                                }
+                                var newEnvIds = data2.environmentname_rowid + uuid1;
+                                var newEnvNames = data2.environmentname + jsonData.chefEnv;
+                                d4dModelNew.d4dModelMastersProjects.update({
+                                    orgname_rowid: orgname,
+                                    productgroupname_rowid: bgname,
+                                    rowid: projname,
+                                    id: '4'
+                                }, {
+                                    environmentname_rowid: newEnvIds,
+                                    environmentname: newEnvNames
+                                }, function(err, data1) {
+                                    if (err) {
+                                        callback(err, null);
+                                        return;
+                                    } else {
+                                        callback(null, uuid1);
+                                        return;
+                                    }
+
+                                });
+                            }
+                        });
                     }
                 });
             } else {
-                callback(null,envdata.rowid);
-                return;
+                d4dModelNew.d4dModelMastersProjects.findOne({
+                    orgname_rowid: orgname,
+                    productgroupname_rowid: bgname,
+                    rowid: projname,
+                    id: '4'
+                }, function(err, data2) {
+                    if(err){
+                        callback(err, null);
+                        return;
+                    }else{
+                        if (data2.environmentname_rowid !== '' && data2.environmentname !== '') {
+                            var envIds = data2.environmentname_rowid.split(',');
+                            var envNames = data2.environmentname.split(',');
+                            if (envIds.indexOf(envdata.rowid) >= 0 && envNames.indexOf(envdata.environmentname) >= 0) {
+                                logger.debug("In Callback Env found in list");
+                                callback(null, envdata.rowid);
+                                return;
+                            }
+                            data2.environmentname_rowid += ',';
+                            data2.eenvironmentname+=',';
+                        }
+                        var newEnvIds = data2.environmentname_rowid + envdata.rowid;
+                        var newEnvNames = data2.environmentname + envdata.environmentname;
+                        d4dModelNew.d4dModelMastersProjects.update({
+                            orgname_rowid: orgname,
+                            productgroupname_rowid: bgname,
+                            rowid: projname,
+                            id: '4'
+                        }, {
+                            environmentname_rowid: newEnvIds,
+                            environmentname: newEnvNames
+                        }, function(err, data1) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            } else {
+                                callback(null, uuid1);
+                                return;
+                            }
+
+                        });
+                    }
+                });
             }
         });
     }
 
 }
-
 
 module.exports = new Env();
