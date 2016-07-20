@@ -67,7 +67,6 @@ CompositeBlueprintSchema.statics.getById = function getById(compositeBlueprintId
         {'_id': compositeBlueprintId, 'isDeleted': false },
         function(err, compositeBlueprints) {
             if (err) {
-                logger.error(err);
                 return callback(err, null);
             } else if(compositeBlueprints && compositeBlueprints.length > 0) {
                 return callback(null, compositeBlueprints[0]);
@@ -89,6 +88,36 @@ CompositeBlueprintSchema.statics.getAll
                 return callback(err);
             } else {
                 return callback(null, compositeBlueprints);
+            }
+        }
+    );
+};
+
+CompositeBlueprintSchema.statics.deleteById = function deleteById(compositeBlueprintId, callback) {
+    this.update(
+        {'_id': compositeBlueprintId},
+        { $set: {isDeleted: true} },
+        function(err, compositeBlueprint) {
+            if(err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, true);
+            }
+        }
+    )
+};
+
+CompositeBlueprintSchema.statics.updateById
+    = function updateById(compositeBlueprintId, fields, callback) {
+    this.update(
+        {_id: compositeBlueprintId},
+        fields,
+        function(err, result) {
+            if (err) {
+                return callback(err, null);
+            } else if(result.ok == 1 && result.n == 1)  {
+                return callback(null, true);
             }
         }
     );
