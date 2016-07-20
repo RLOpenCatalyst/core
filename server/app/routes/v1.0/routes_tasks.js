@@ -431,11 +431,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 res.send(200, history);
-
             });
-
         });
-
     });
 
     app.post('/tasks', function(req, res) {

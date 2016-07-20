@@ -27,7 +27,7 @@ var awsRDSS3ProviderSync = require('_pr/cronjobs/provider-rds-s3-sync');
 
 module.exports.start = function start() {
 	
-	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
+	/*logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
 
@@ -48,6 +48,6 @@ module.exports.start = function start() {
 
 	logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
 	var awsRDSS3ProviderSyncJobId
-		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);
+		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);*/
 
 }
