@@ -383,7 +383,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                     startedOn: new Date().getTime(),
                                     createdOn: new Date().getTime(),
                                     providerType: "",
-                                    action: "ImportByChefServer",
+                                    action: "Imported From ChefServer",
                                     logs: [{
                                         err: false,
                                         log: "Node Imported",

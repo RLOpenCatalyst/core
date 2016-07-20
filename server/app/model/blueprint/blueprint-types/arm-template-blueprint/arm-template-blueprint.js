@@ -32,7 +32,7 @@ var AzureCloud = require('_pr/lib/azure.js');
 var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var ARM = require('_pr/lib/azure-arm.js');
 var AzureARM = require('_pr/model/azure-arm');
-
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -218,6 +218,38 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         var timestampStarted = new Date().getTime();
                         var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                         var logsReferenceIds = [instance.id, actionLog._id];
+                        var instanceLog = {
+                            actionId: actionLog._id,
+                            instanceId: instance.id,
+                            orgName: launchParams.orgName,
+                            bgName: launchParams.bgName,
+                            projectName: launchParams.projectName,
+                            envName: launchParams.envName,
+                            status: "running",
+                            bootStrap: "waiting",
+                            platformId: instanceData.name,
+                            blueprintName: launchParams.blueprintData.name,
+                            data: instanceData.runlist,
+                            platform: "unknown",
+                            os: instanceData.os,
+                            size: self.instanceType,
+                            user: launchParams.sessionUser,
+                            startedOn: new Date().getTime(),
+                            createdOn: new Date().getTime(),
+                            providerType: "azure",
+                            action: "Bootstrap",
+                            logs: [{
+                                err: false,
+                                log: "Waiting for instance ok state",
+                                timestamp: new Date().getTime()
+                            }]
+                        };
+
+                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,
                             err: false,
@@ -246,7 +278,18 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     timestamp: timestampEnded
                                 });
                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                instanceLog.logs = {
+                                    err: true,
+                                    log: "Unable to decrpt pem file. Bootstrap failed",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.bootstrap = "failed";
+                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                                 if (instance.hardware.os != 'windows')
                                     return;
                             }
@@ -290,7 +333,18 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Bootstrap failed",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLog.bootstrap = "failed";
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
 
                                     } else {
                                         if (code == 0) {
@@ -310,7 +364,18 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             });
                                             instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
 
-
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: "Instance Bootstraped successfully",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLog.bootstrap = "success";
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                 if (err) {
                                                     logger.error("Failed chef.getNode", err);
@@ -373,7 +438,18 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                            instanceLog.logs = {
+                                                err: true,
+                                                log: "Bootstrap Failed",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLog.bootstrap = "failed";
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                         }
                                     }
 
@@ -384,6 +460,16 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         err: false,
                                         log: stdOutData.toString('ascii'),
                                         timestamp: new Date().getTime()
+                                    });
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: stdOutData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
                                     });
 
                                 }, function(stdErrData) {
@@ -396,6 +482,17 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         timestamp: new Date().getTime()
                                     });
 
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: stdErrData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+
 
                                 });
                             });
@@ -403,8 +500,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         });
 
                     });
-
-
 
                 });
 

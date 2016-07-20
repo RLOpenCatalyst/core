@@ -501,7 +501,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                 startedOn: new Date().getTime(),
                                                                 createdOn: new Date().getTime(),
                                                                 providerType: "aws",
-                                                                action: "ImportByProvider",
+                                                                action: "Imported From Provider",
                                                                 logs: [{
                                                                     err: false,
                                                                     log: "Bootstrapping instance",

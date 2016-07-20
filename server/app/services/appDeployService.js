@@ -461,6 +461,7 @@ appDeployService.promoteApp = function promoteApp(reqBody, callback) {
                         return callback(err, null);
                     }
                     logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
+                    applicationData['promote'] = true;
                     return callback(null, applicationData);
                 });
 
