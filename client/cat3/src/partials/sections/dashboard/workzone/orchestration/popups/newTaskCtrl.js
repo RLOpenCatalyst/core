@@ -19,14 +19,29 @@
 			$scope.chefrunlist = [];
 			$scope.cookbookAttributes = [];
 			$scope.scriptParamShow = false;
+			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
-				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus; });
+				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
 			};
 			$scope.optionToggled = function(){
 				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
 			};
+			$scope.toggleAllScriptInstance = function() {
+				var toggleStatusInstance = $scope.isAllInstanceScriptSelected;
+				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatusInstance; });
+			};
+			$scope.optionInstanceToggled = function(){
+				$scope.isAllInstanceScriptSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+			};
+			$scope.toggleAllScripts = function() {
+				var toggleStatusScript = $scope.isAllScriptSelected;
+				angular.forEach($scope.scriptTaskList, function(itm){ itm._isScriptSelected = toggleStatusScript;});
+			};
+			$scope.optionScriptToggled = function() {
+				$scope.isAllScriptSelected = $scope.scriptTaskList.every(function(itm){ return  itm._isScriptSelected; })
+			}
 			//default values for new task
 			angular.extend($scope, {
 				taskTypes: {
@@ -120,6 +135,7 @@
 							} else {
 								data = response;
 							}
+							$scope.scriptSelectAll = true;
 							if ($scope.isEditMode && items.taskType === "script") {
 								var isScriptChecked = [];
 								for(var i =0;i<items.taskConfig.scriptDetails.length;i++){
@@ -506,6 +522,7 @@
 					}
 				}
 				$scope.optionToggled();
+				$scope.optionInstanceToggled();
 			});
 			workzoneServices.getJenkinsServerList().then(function (response) {
 				var data;
@@ -545,6 +562,7 @@
 					$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
 					$scope.isNewTaskPageLoading = false;
 					$scope.changeNodeScriptList();
+					$scope.optionScriptToggled();
 				}
 			}
 		}

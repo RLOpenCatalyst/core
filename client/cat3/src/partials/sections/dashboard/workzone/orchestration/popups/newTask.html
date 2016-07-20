@@ -374,7 +374,10 @@
 			                                <div class="radio-instances col-lg-6 no-padding">
 			                                    <input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
 			                                    <label for="rdInstance" class="lable-align">Nodes</label>
-			                                </div>                  
+			                                </div>
+											<label class="checkbox check-list checkboxStyling">
+												Select All : &nbsp;<input  type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAllScriptInstance()" ng-model="$parent.isAllInstanceScriptSelected" title="Select All ">
+											</label>                  
 				                        </div>
 				                        
 										<div class="select-nodes">
@@ -382,7 +385,7 @@
 											<ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
+														<input type="checkbox" ng-change="optionInstanceToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
 													</label>
 												</li>
 											</ul>
@@ -392,13 +395,16 @@
 										<div class="row margin0">
 			                                <div class="col-lg-6 no-padding">
 			                                    <label for="scripts" class="lable-align">Script List</label>
-			                                </div>                  
+			                                </div>
+			                                <label ng-show="scriptSelectAll" class="checkbox check-list checkboxStyling">
+												Select All : &nbsp;<input type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAllScripts()" ng-model="$parent.isAllScriptSelected" title="Select All ">
+											</label>                  
 				                        </div>
 										<div class="select-nodes">
 											<ul>
 												<li ng-repeat="script in scriptTaskList">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
+														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
 														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
 													</label>
 												</li>
