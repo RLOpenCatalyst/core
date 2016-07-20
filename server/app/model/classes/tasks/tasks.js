@@ -142,7 +142,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     } else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
         task = new ScriptTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
-        taskHistoryData.scriptIds = this.taskConfig.scriptIds;
+        taskHistoryData.scriptDetails = this.taskConfig.scriptDetails;
     } else {
         callback({
             message: "Invalid Task Type"

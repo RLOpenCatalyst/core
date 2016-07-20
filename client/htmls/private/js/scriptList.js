@@ -82,7 +82,7 @@ function getScriptList() {
         "serverSide": true,
         "destroy":true,
         "createdRow": function( row, data ) {
-            $( row ).attr({"scriptId" : data._id,"scriptName":data.name,"scriptType":data.type, "scriptDesc" : data.description, "orgId" : data.orgDetails.id ,"orgName" : data.orgDetails.name,"scriptFileName" : data.fileDetails.name});
+            $( row ).attr({"scriptId" : data.scriptId,"scriptName":data.name,"scriptType":data.type, "scriptDesc" : data.description, "orgId" : data.orgDetails.id ,"orgName" : data.orgDetails.name,"scriptFileName" : data.fileName,"scriptFileId" : data.fileId});
         },
         "ajax": '/scripts',
         "columns": [
@@ -113,6 +113,7 @@ $('#scriptListTable tbody').on( 'click', 'button.editRowScriptItem', function(){
     $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
     $editModal.find('#scriptType').val($this.parents('tr').attr('scriptType')).attr('disabled','disabled');
     $editModal.find('#scriptHiddenInputId').val($this.parents('tr').attr('scriptId'));
+    $editModal.find('#fileHiddenInputId').val($this.parents('tr').attr('scriptFileId'));
     $editModal.find('#fileNameDisplay').empty().append($this.parents('tr').attr('scriptFileName'));
     return false;
 });
@@ -169,6 +170,7 @@ $('#scriptForm').submit(function(e) {
         var orgId = $form.find('#orgName').val();
         var scriptEditNew = $(this).find('#scriptEditHiddenInput').val();
         var scriptId = $form.find('#scriptHiddenInputId').val();
+        var fileId = $form.find('#fileHiddenInputId').val();
         var orgName = $form.find('#orgName :selected').text();
         var fileNameDisplay = $form.find('#scriptFile').val();
         var availableFileName = $form.find('#fileNameDisplay').text();
@@ -176,25 +178,19 @@ $('#scriptForm').submit(function(e) {
             name: orgName,
             id: orgId
         }
-        var url;
+        var url = '';
         var reqBody = {};
         var formData = new FormData();
         formData.append('file', $('input[type=file]')[0].files[0]);
         var methodName ='';
         $.ajax({
             method: "POST",
-            url: '../scripts/uploadScript',
+            url: '../fileUpload?fileId='+fileId,
             data: formData,
             cache: false,
             contentType: false,
             processData: false,
             success: function(data, success) {
-                var fileName = data.fileName;
-                var fileDetails = {
-                    id:fileName.split('_')[0],
-                    name:fileName.split('_')[1],
-                    path:data.filePath
-                }
                 if (scriptEditNew === 'edit') {
                     url = '../scripts/update/scriptData';
                     methodName = 'PUT';
@@ -204,7 +200,7 @@ $('#scriptForm').submit(function(e) {
                         "type": type,
                         "description": description,
                         "orgDetails": orgDetails,
-                        "fileDetails": fileDetails
+                        "fileId": data.fileId
                     };
                 } else {
                     url = '../scripts/save/scriptData';
@@ -214,7 +210,7 @@ $('#scriptForm').submit(function(e) {
                         "type": type,
                         "description": description,
                         "orgDetails": orgDetails,
-                        "fileDetails": fileDetails
+                        "fileId": data.fileId
                     };
                 }
                 $.ajax({

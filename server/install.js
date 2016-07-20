@@ -36,6 +36,7 @@ function getDefaultsConfig() {
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
+        javaLibDir: currentDirectory + '/app',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',

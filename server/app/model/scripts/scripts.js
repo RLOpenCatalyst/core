@@ -20,6 +20,7 @@ var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
 
+
 var Schema = mongoose.Schema;
 
 var ScriptSchema = new Schema({
@@ -50,26 +51,10 @@ var ScriptSchema = new Schema({
             trim: true
         }
     },
-    fileDetails:{
-        id: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        name: {
-            type: String,
-            required: false,
-            trim: true
-        },
-        path:{
-            type: String,
-            required: false,
-            trim: true
-        }
-    },
-    scriptCreatedOn: {
-        type: Date,
-        default: Date.now
+    fileId:{
+        type:String,
+        required:true,
+        trim:true
     }
 });
 ScriptSchema.plugin(mongoosePaginate);
@@ -80,7 +65,7 @@ ScriptSchema.statics.getScripts = function(query,callback) {
         if (err) {
             callback(err, null);
         }else{
-            callback(null, scripts);
+            callback(null,scripts);
         }
     });
 };
@@ -103,7 +88,7 @@ ScriptSchema.statics.updateScript = function(scriptData, callback) {
         $set: {
             "name": scriptData.name,
             "description": scriptData.description,
-            "fileDetails": scriptData.fileDetails
+            "fileId": scriptData.fileId
         },
     },{
         upsert: false

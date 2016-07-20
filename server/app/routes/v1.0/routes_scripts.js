@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 // The file contains all the end points for Tracks
 
 var logger = require('_pr/logger')(module);
@@ -25,6 +24,7 @@ var uuid = require('node-uuid');
 var fileIo = require('_pr/lib/utils/fileio');
 var scriptValidator =require('_pr/validators/scriptValidator.js');
 var validate = require('express-validation');
+var fileUpload = require('_pr/model/file-upload/file-upload');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/scripts/*', sessionVerificationFunc);
@@ -83,30 +83,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
-
-    app.post('/scripts/uploadScript', function(req, res) {
-        var fileName = uuid.v4();
-        if (!appConfig.scriptDir) {
-            res.send({
-                message: "Unable to upload to scriptDir"
-            });
-            return;
-        }else if (req.files && req.files.file) {
-            fileName = fileName + '_' + req.files.file.originalFilename;
-            var desPath = appConfig.scriptDir + fileName;
-            fileIo.copyFile(req.files.file.path, desPath, function(err) {
-                if (err) {
-                    res.send({message: "Unable to save file"});
-                    return;
-                }else{
-                    res.send({fileName: fileName, filePath: appConfig.scriptDir});
-                }
-            });
-        } else {
-            res.send({message: "Bad Request"});
-        }
-    });
-
+    
     app.delete('/scripts/:scriptId',validate(scriptValidator.get), function (req, res) {
         scriptService.removeScriptById(req.params.scriptId, function(err, script) {
             if (err) {
