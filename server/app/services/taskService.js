@@ -168,6 +168,11 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                                 data.jenkinsLog = "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output";
                                                 histories.docs[i].executionResults.push(data);
                                             } else {
+                                                if(data.blueprintExecutionResults && data.blueprintExecutionResults.length){
+                                                    data.blueprintExecutionResults[0].result[0].actionId = data.blueprintExecutionResults[0].result[0].actionLogId;
+                                                    data.executionResults = data.blueprintExecutionResults[0].result;
+                                                    
+                                                }
                                                 var c = 0;
                                                 for (var k = 0; k < data.executionResults.length; k++) {
                                                     (function(k) {
