@@ -251,6 +251,10 @@
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'centos') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
+					}else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'ubuntu') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
+					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'unknown') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'windows') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
 					} else if (managnedData[i].platform == 'openstack' && managnedData[i].os == 'linux') {
