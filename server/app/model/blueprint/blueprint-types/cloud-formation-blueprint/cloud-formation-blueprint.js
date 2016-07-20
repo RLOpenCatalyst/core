@@ -35,6 +35,7 @@ var CloudFormation = require('_pr/model/cloud-formation');
 var AWSCloudFormation = require('_pr/lib/awsCloudFormation.js');
 var AwsAutoScaleInstance = require('_pr/model/aws-auto-scale-instance');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 
 
@@ -461,6 +462,38 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                 log: "Waiting for instance ok state",
                                                                 timestamp: timestampStarted
                                                             });
+                                                            var instanceLog = {
+                                                                actionId: actionLog._id,
+                                                                instanceId: instance.id,
+                                                                orgName: launchParams.orgName,
+                                                                bgName: launchParams.bgName,
+                                                                projectName: launchParams.projectName,
+                                                                envName: launchParams.envName,
+                                                                status: instanceData.State.Name,
+                                                                bootStrap: "waiting",
+                                                                platformId: instanceData.InstanceId,
+                                                                blueprintName: launchParams.blueprintData.name,
+                                                                data: runlist,
+                                                                platform: "unknown",
+                                                                os: self.instanceOS,
+                                                                size: self.instanceType,
+                                                                user: launchParams.sessionUser,
+                                                                startedOn: new Date().getTime(),
+                                                                createdOn: new Date().getTime(),
+                                                                providerType: self.cloudProviderType || 'aws',
+                                                                action: "CFT Launch",
+                                                                logs: [{
+                                                                    err: false,
+                                                                    log: "Waiting for instance ok state",
+                                                                    timestamp: new Date().getTime()
+                                                                }]
+                                                            };
+
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                }
+                                                            });
                                                             ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function(err) {
                                                                 if (err) {
                                                                     instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
@@ -474,6 +507,18 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                         timestamp: timestampEnded
                                                                     });
                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                    instanceLog.bootStrap = "failed";
+                                                                    instanceLog.logs = {
+                                                                        err: true,
+                                                                        log: "Bootstrap failed",
+                                                                        timestamp: new Date().getTime()
+                                                                    };
+                                                                    instanceLog.endedOn = new Date().getTime();
+                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                        if (err) {
+                                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                                        }
+                                                                    });
                                                                     return;
                                                                 }
 
@@ -497,7 +542,18 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                             timestamp: timestampEnded
                                                                         });
                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                                                        instanceLog.bootStrap = "failed";
+                                                                        instanceLog.logs = {
+                                                                            err: true,
+                                                                            log: "Unable to decrpt pem file. Bootstrap failed",
+                                                                            timestamp: new Date().getTime()
+                                                                        };
+                                                                        instanceLog.endedOn = new Date().getTime();
+                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                            if (err) {
+                                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                                            }
+                                                                        });
                                                                         if (instance.hardware.os != 'windows')
                                                                             return;
                                                                     }
@@ -551,7 +607,18 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                     timestamp: timestampEnded
                                                                                 });
                                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                                                                instanceLog.logs = {
+                                                                                    err: true,
+                                                                                    log: "Bootstrap failed",
+                                                                                    timestamp: new Date().getTime()
+                                                                                };
+                                                                                instanceLog.bootStrap = "failed";
+                                                                                instanceLog.endedOn = new Date().getTime();
+                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                    if (err) {
+                                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                                    }
+                                                                                });
 
                                                                             } else {
                                                                                 if (code == 0) {
@@ -570,7 +637,18 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                         timestamp: timestampEnded
                                                                                     });
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
+                                                                                    instanceLog.logs = {
+                                                                                        err: false,
+                                                                                        log: "Instance Bootstraped successfully",
+                                                                                        timestamp: new Date().getTime()
+                                                                                    };
+                                                                                    instanceLog.bootStrap = "success";
+                                                                                    instanceLog.endedOn = new Date().getTime();
+                                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                        if (err) {
+                                                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                                                        }
+                                                                                    });
 
                                                                                     launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                                                         if (err) {
@@ -635,7 +713,18 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                         timestamp: timestampEnded
                                                                                     });
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                                                                    instanceLog.logs = {
+                                                                                        err: true,
+                                                                                        log: "Bootstrap Failed",
+                                                                                        timestamp: new Date().getTime()
+                                                                                    };
+                                                                                    instanceLog.bootStrap = "failed";
+                                                                                    instanceLog.endedOn = new Date().getTime();
+                                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                        if (err) {
+                                                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                                                        }
+                                                                                    });
                                                                                 }
                                                                             }
 
@@ -647,6 +736,16 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                 log: stdOutData.toString('ascii'),
                                                                                 timestamp: new Date().getTime()
                                                                             });
+                                                                            instanceLog.logs = {
+                                                                                err: false,
+                                                                                log: stdOutData.toString('ascii'),
+                                                                                timestamp: new Date().getTime()
+                                                                            };
+                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                if (err) {
+                                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                                }
+                                                                            });
 
                                                                         }, function(stdErrData) {
 
@@ -656,6 +755,16 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                 err: true,
                                                                                 log: stdErrData.toString('ascii'),
                                                                                 timestamp: new Date().getTime()
+                                                                            });
+                                                                            instanceLog.logs = {
+                                                                                err: true,
+                                                                                log: stdErrData.toString('ascii'),
+                                                                                timestamp: new Date().getTime()
+                                                                            };
+                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                if (err) {
+                                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                                }
                                                                             });
 
 
