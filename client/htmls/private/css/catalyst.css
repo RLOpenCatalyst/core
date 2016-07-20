@@ -4660,4 +4660,10 @@ input:focus, select:focus, textarea:focus {
     text-align: center;
     width: 319px;
 }
+.scriptContainerRead {
+    height:250px;
+    overflow-y:auto; 
+    background: #eff0f1;
+    font-size: 13px;
+}
 
