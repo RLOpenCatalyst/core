@@ -193,7 +193,8 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 					if (err) {
 						logger.error("launchInstance Failed >> ", err);
 						callback({
-							message: "Instance Launched Failed"
+							// message: "Instance Launched Failed"
+							message: err.message
 						});
 						return;
 					}
