@@ -11,6 +11,7 @@ $(document).ready(function(e) {
 
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
 $('.addScriptItem').click(function(e) {
+    $('#saveItemSpinner').addClass('hidden');
     $('#scriptForm').trigger('reset');
     $('#orgName').removeAttr('disabled');
     $('#scriptType').removeAttr('disabled');
@@ -41,9 +42,21 @@ $(document).on('shown.bs.modal', function(e) {
 
 //form validation for dashboard save
 var validator = $('#scriptForm').validate({
+    ignore: [],
     rules: {
-        trackUrl: {
-            url: true
+        scriptFile: {
+            extension: "sh"
+        },
+        scriptName: {
+            maxlength: 15
+        }
+    },
+    messages: {
+        scriptFile: {
+            extension: "Only .sh files can be uploaded"
+        },
+        scriptName: {
+            maxlength: "Limited to 15 chars"
         }
     },
     onkeyup: false,

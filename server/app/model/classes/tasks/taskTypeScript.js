@@ -24,20 +24,21 @@ var credentialCryptography = require('_pr/lib/credentialcryptography')
 var Chef = require('_pr/lib/chef');
 var taskTypeSchema = require('_pr/model/classes/tasks/taskTypeSchema');
 var SSHExec = require('_pr/lib/utils/sshexec');
+var Schema = mongoose.Schema;
 var appConfig = require('_pr/config');
 var fileIo = require('_pr/lib/utils/fileio');
 var uuid = require('node-uuid');
 
 var scriptTaskSchema = taskTypeSchema.extend({
 	nodeIds:[String],
+	scriptTypeName:String,
 	scriptDetails: [{
-		scriptId: {
+		scriptId:{
 			type:String,
-			required:true
+			requred:true
 		},
 		scriptParameters:[String]
-	}],
-
+	}]
 });
 
 scriptTaskSchema.methods.getNodes = function() {
