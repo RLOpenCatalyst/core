@@ -8,7 +8,7 @@
 (function (angular) {
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('cpServicesCtrl', ['$scope', '$rootScope', 'workzoneServices', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'instanceFactories', function ($scope, $rootScope, workzoneServices, $modal, $timeout, uiGridOptionsClient, uiGridConstants, instanceFactories) {
+		.controller('cpServicesCtrl', ['$scope', '$rootScope', 'workzoneServices', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'instanceFactories','toastr', function ($scope, $rootScope, workzoneServices, $modal, $timeout, uiGridOptionsClient, uiGridConstants, instanceFactories,toastr) {
 			var cpInstance = $scope.$parent.cpInstance;
 			$scope.isServicePageLoading = true;
 			var helper = {
@@ -32,7 +32,7 @@
 						},
 						function () {
 							$scope.inactiveGrid = false;
-							alert("Unable to delete service");
+							toastr.error("Unable to delete service");
 						}
 					);
 				},
@@ -64,7 +64,7 @@
 							},100);
 						}, function () {
 							$scope.isServicePageLoading = false;
-							alert('An error occurred while getting service list');
+							toastr.error('An error occurred while getting service list');
 						});
 					}else{
 						$scope.isServicePageLoading = false;
@@ -107,7 +107,7 @@
 				$scope.cpServivceListView();
 			};
 			$scope.init();
-		}]).controller('addServiceCtrl', ['$scope', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', 'serviceTabItems', 'cacheServices', 'instanceFactories', function ($scope, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, serviceTabItems, cacheServices, instanceFactories) {
+		}]).controller('addServiceCtrl', ['$scope', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', 'serviceTabItems', 'cacheServices', 'instanceFactories', 'toastr',function ($scope, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, serviceTabItems, cacheServices, instanceFactories,toastr) {
 			$scope.serviceIds = serviceTabItems.serviceIds;
 			var cpInstance = serviceTabItems.inspectInstance;
 			var cacheKey = 'chefServerServices_' + cpInstance.chef.serverId;
@@ -165,10 +165,10 @@
 								$scope.tabAddServicesData = addServiceGridData;
 							}, function () {
 								$scope.tabAddServicesData = addServiceGridData;
-								alert('An error occurred while getting service commands');
+								toastr.error('An error occurred while getting service commands');
 							});
 						}, function () {
-							alert('An error occurred while getting service list');
+							toastr.error('An error occurred while getting service list');
 						});
 					}
 				},

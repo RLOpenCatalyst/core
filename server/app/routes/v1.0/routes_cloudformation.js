@@ -44,7 +44,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
             } else {
                 res.send(404, {
-                    message: "Not Found"
+                    message: "CFT not found"
                 })
             }
         });
@@ -63,7 +63,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
             } else {
                 res.send(404, {
-                    message: "Not Found"
+                    message: "CFT not found"
                 })
             }
         });
@@ -124,7 +124,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         if (err) {
                             logger.error("Unable to delete stack from aws", err);
                             res.status(500).send({
-                                message: "Unable to delete stack from aws"
+                                // message: "Unable to delete stack from aws " + "ERROR: " + err.message
+                                message: err.message
                             });
                             return;
                         }
@@ -261,7 +262,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     awsCF.getAllStackEvents(cloudFormation.stackId, function (err, data) {
                         if (err) {
                             res.status(500).send({
-                                message: "Failed to fetch stack events from aws"
+                                // message: "Failed to fetch stack events from aws ERROR: " + err.message
+                                message: err.message
                             });
                             return;
                         }
@@ -323,7 +325,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     awsCF.listAllStackResources(cloudFormation.stackId, function (err, resources) {
                         if (err) {
                             logger.error("Unable to fetch provide", err);
-                            res.status(500).send(errorResponses.db.error);
+                            message: err.message
                         }
                         res.send(200, resources);
 
