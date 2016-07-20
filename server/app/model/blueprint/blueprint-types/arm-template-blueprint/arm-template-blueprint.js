@@ -381,6 +381,12 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     logger.error("Failed chef.getNode", err);
                                                     return;
                                                 }
+                                                instanceLog.platform = nodeData.automatic.platform;
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 var hardwareData = {};
                                                 hardwareData.architecture = nodeData.automatic.kernel.machine;
                                                 hardwareData.platform = nodeData.automatic.platform;
