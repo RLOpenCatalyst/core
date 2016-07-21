@@ -159,15 +159,15 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
     app.post('/chef/servers/:serverId/sync/nodes', function(req, res) {
-
-
         var taskStatusObj = null;
         var chef = null;
         var reqBody = req.body;
         var projectId = reqBody.projectId;
         var orgId = reqBody.orgId;
+        var orgName = reqBody.orgName;
         var bgId = reqBody.bgId;
         var envId = reqBody.envId;
+        var projectName=reqBody.projectName;
         var count = 0;
 
         var users = reqBody.users;
@@ -291,9 +291,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     var instance = {
                         name: node.name,
                         orgId: orgId,
+                        orgName: reqBody.orgName,
                         bgId: bgId,
+                        bgName: reqBody.bgName,
                         projectId: projectId,
+                        projectName: reqBody.projectName,
                         envId: node.envId,
+                        environmentName: reqBody.environmentName,
                         chefNodeName: node.name,
                         runlist: runlist,
                         platformId: platformId,
@@ -380,7 +384,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 }
                 taskstatus = obj;
                 for (var i = 0; i < nodeList.length; i++) {
-
                     (function(nodeName) {
                         chef.getNode(nodeName, function(err, node) {
                             if (err) {
@@ -392,12 +395,17 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 logger.debug('orgId ==>', orgId);
                                 logger.debug('bgid ==>', bgId);
                                 // logger.debug('node ===>', node);
-                                var jsonData = {
-                                    chefName:chefDetail.configname,
-                                    chefId:chefDetail.rowid,
-                                    chefEnv:node.chef_environment
+                                var envObj = {
+                                    projectname:projectName,
+                                    projectname_rowid:projectId,
+                                    orgname:orgName,
+                                    orgname_rowid:orgId,
+                                    configname:chefDetail.configname,
+                                    configname_rowid:chefDetail.rowid,
+                                    environmentname:node.chef_environment,
+                                    id:'3'
                                 };
-                                environmentsDao.createEnv(jsonData, orgId, bgId, projectId, function(err, data) {
+                                environmentsDao.createEnv(envObj, function(err, data) {
                                     if (err) {
                                         logger.debug(err, 'occured in creating environment in mongo');
                                         updateTaskStatusNode(node.name, "Unable to import node : " + node.name, true, count);
