@@ -98,6 +98,25 @@ var LogsDao = function() {
         });
 
     }
+
+    this.getLogsByActionId = function(referenceId, callback) {
+        logger.debug("Enter getLogsByReferenceId ", referenceId);
+        var queryObj = {
+            referenceId: {
+                $in: [referenceId]
+            }
+        }
+
+        Logs.find(queryObj, function(err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+
+            callback(null, data);
+        });
+
+    }
 }
 
 

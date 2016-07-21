@@ -28,7 +28,9 @@ var PuppetTask = require('./taskTypePuppet');
 var ScriptTask = require('./taskTypeScript');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
 var Schema = mongoose.Schema;
+
 
 var TASK_TYPE = {
     CHEF_TASK: 'chef',
@@ -95,6 +97,26 @@ var taskSchema = new Schema({
     taskCreatedOn: {
         type: Date,
         default: Date.now
+    },
+    orgName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    bgName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    projectName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    envName: {
+        type: String,
+        required: true,
+        trim: true
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -110,7 +132,12 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     var taskHistoryData = {
         taskId: self.id,
         taskType: self.taskType,
-        user: userName
+        user: userName,
+        taskName: self.name,
+        orgName: self.orgName,
+        bgName: self.bgName,
+        projectName: self.projectName,
+        envName: self.envName
     };
 
     if (this.taskType === TASK_TYPE.CHEF_TASK) {
@@ -295,6 +322,62 @@ taskSchema.methods.getPuppetTaskNodes = function() {
         return [];
     }
 };
+
+/*taskSchema.methods.getHistory = function(callback) {
+    TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        var checker;
+        var uniqueResults = [];
+        if (tHistories && tHistories.length) {
+            for (var i = 0; i < tHistories.length; ++i) {
+                if (!checker || comparer(checker, tHistories[i]) != 0) {
+                    checker = tHistories[i];
+                    uniqueResults.push(checker);
+                }
+            }
+
+            if (uniqueResults.length) {
+                var hCount = 0;
+                for (var i = 0; i < uniqueResults.length; i++) {
+                    (function(i) {
+                        if (uniqueResults[i].nodeIds && uniqueResults[i].nodeIds.length) {
+                            instancesDao.getInstancesByIDs(uniqueResults[i].nodeIds, function(err, data) {
+                                hCount++;
+                                if (err) {
+                                    return;
+                                }
+
+                                if (data && data.length) {
+                                    var pId = [];
+                                    for (var j = 0; j < data.length; j++) {
+                                        pId.push(data[j].platformId);
+                                    }
+                                    uniqueResults[i] = JSON.parse(JSON.stringify(uniqueResults[i]));
+                                    uniqueResults[i]['platformId'] = pId;
+                                }
+
+                                if (uniqueResults.length == hCount) {
+                                    return callback(null, uniqueResults);
+                                }
+                            });
+                        } else {
+                            hCount++;
+                            if (uniqueResults.length == hCount) {
+                                return callback(null, uniqueResults);
+                            }
+                        }
+                    })(i);
+                }
+            }
+
+        } else {
+            return callback(null, tHistories);
+        }
+    });
+};*/
 
 taskSchema.methods.getHistory = function(callback) {
     TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
@@ -618,16 +701,39 @@ taskSchema.statics.updateJobUrl = function(taskId, taskConfig, callback) {
 };
 
 // get task by ids
-taskSchema.statics.listTasks = function(callback) {
-    this.find(function(err, tasks) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
-        }
-        callback(null, tasks);
-    });
+taskSchema.statics.listTasks = function(jsonData, callback) {
+    if (jsonData && jsonData.pageSize) {
+        jsonData['searchColumns'] = ['name', 'orgName', 'bgName', 'projectName', 'envName'];
+        ApiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                return callback(err);
+            } else {
+                Tasks.paginate(databaseCall.queryObj, databaseCall.options, function(err, tasks) {
+                    if (err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    } else {
+                        return callback(null, tasks);
+                    }
+                });
+            }
+        });
+    } else {
+        this.find(function(err, tasks) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+            }
+            callback(null, tasks);
+        });
+    }
 };
+
+
 taskSchema.statics.getChefTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
     this.find(jsonData, { _id: 1, taskType: 1, name: 1, taskConfig: 1, blueprintIds: 1 }, function(err, chefTasks) {
         if (err) {

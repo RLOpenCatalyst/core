@@ -35,6 +35,7 @@ var waitForPort = require('wait-for-port');
 var logger = require('_pr/logger')(module);
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var Docker = require('_pr/model/docker.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 module.exports.setRoutes = function(app, verificationFunc) {
 
@@ -288,64 +289,133 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
                     logger.debug('nodeip ==> ', nodeIp);
                     logger.debug('alive ==> ', node.isAlive);
-                    var instance = {
-                        name: node.name,
-                        orgId: orgId,
-                        bgId: bgId,
-                        projectId: projectId,
-                        envId: node.envId,
-                        chefNodeName: node.name,
-                        runlist: runlist,
-                        platformId: platformId,
-                        instanceIP: nodeIp,
-                        instanceState: 'running',
-                        bootStrapStatus: 'success',
-                        hardware: hardwareData,
-                        credentials: encryptedCredentials,
-                        users: users,
-                        chef: {
-                            serverId: req.params.serverId,
-                            chefNodeName: node.name
-                        },
-                        blueprintData: {
-                            blueprintName: node.name,
-                            templateId: "chef_import",
-                            iconPath: "../private/img/templateicons/chef_import.png"
-                        }
-                    }
-
-                    instancesDao.createInstance(instance, function(err, data) {
+                    masterUtil.getParticularProject(projectId, function(err, project) {
                         if (err) {
-                            logger.debug(err, 'occured in inserting node in mongo');
-                            callback(err, null);
+                            callback({
+                                message: "Failed to get project via project id"
+                            }, null);
+                            return;
+                        };
+                        if (project.length === 0) {
+                            callback({
+                                "message": "Unable to find Project Information from project id"
+                            });
                             return;
                         }
-                        logsDao.insertLog({
-                            referenceId: data._id,
-                            err: false,
-                            log: "Node Imported",
-                            timestamp: new Date().getTime()
-                        });
-
-                        var _docker = new Docker();
-                        _docker.checkDockerStatus(data._id, function(err, retCode) {
+                        configmgmtDao.getEnvNameFromEnvId(node.envId, function(err, envName) {
                             if (err) {
-                                logger.error("Failed _docker.checkDockerStatus", err);
+                                callback({
+                                    message: "Failed to get env name from env id"
+                                }, null);
                                 return;
+                            };
+                            if (!envName) {
+                                callback({
+                                    "message": "Unable to find environment name from environment id"
+                                });
+                                return;
+                            };
+                            var instance = {
+                                name: node.name,
+                                orgId: orgId,
+                                bgId: bgId,
+                                projectId: projectId,
+                                envId: node.envId,
+                                orgName: project[0].orgname,
+                                bgName: project[0].productgroupname,
+                                projectName: project[0].projectname,
+                                environmentName: envName,
+                                chefNodeName: node.name,
+                                runlist: runlist,
+                                platformId: platformId,
+                                instanceIP: nodeIp,
+                                instanceState: 'running',
+                                bootStrapStatus: 'success',
+                                hardware: hardwareData,
+                                credentials: encryptedCredentials,
+                                users: users,
+                                chef: {
+                                    serverId: req.params.serverId,
+                                    chefNodeName: node.name
+                                },
+                                blueprintData: {
+                                    blueprintName: node.name,
+                                    templateId: "chef_import",
+                                    iconPath: "../private/img/templateicons/chef_import.png"
+                                }
                             }
-                            logger.debug('Docker Check Returned:' + retCode);
-                            if (retCode == '0') {
-                                instancesDao.updateInstanceDockerStatus(data._id, "success", '', function(data) {
-                                    logger.debug('Instance Docker Status set to Success');
+
+
+
+                            instancesDao.createInstance(instance, function(err, data) {
+                                if (err) {
+                                    logger.debug(err, 'occured in inserting node in mongo');
+                                    callback(err, null);
+                                    return;
+                                }
+                                logsDao.insertLog({
+                                    referenceId: data._id,
+                                    err: false,
+                                    log: "Node Imported",
+                                    timestamp: new Date().getTime()
+                                });
+                                var instance = data;
+                                instance.id = data._id;
+                                instance._id = data._id;
+                                var timestampStarded = new Date().getTime();
+                                var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarded);
+                                var instanceLog = {
+                                    actionId: actionLog._id,
+                                    instanceId: instance.id,
+                                    orgName: project[0].orgname,
+                                    bgName: project[0].productgroupname,
+                                    projectName: project[0].projectname,
+                                    envName: envName,
+                                    status: "running",
+                                    bootStrap: "success",
+                                    platformId: platformId,
+                                    blueprintName: node.name,
+                                    data: runlist,
+                                    platform: hardwareData.platform,
+                                    os: hardwareData.os,
+                                    size: "",
+                                    user: req.session.user.cn,
+                                    startedOn: new Date().getTime(),
+                                    createdOn: new Date().getTime(),
+                                    providerType: "",
+                                    action: "Imported From ChefServer",
+                                    logs: [{
+                                        err: false,
+                                        log: "Node Imported",
+                                        timestamp: new Date().getTime()
+                                    }]
+                                };
+
+                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
                                 });
 
-                            }
+                                var _docker = new Docker();
+                                _docker.checkDockerStatus(data._id, function(err, retCode) {
+                                    if (err) {
+                                        logger.error("Failed _docker.checkDockerStatus", err);
+                                        return;
+                                    }
+                                    logger.debug('Docker Check Returned:' + retCode);
+                                    if (retCode == '0') {
+                                        instancesDao.updateInstanceDockerStatus(data._id, "success", '', function(data) {
+                                            logger.debug('Instance Docker Status set to Success');
+                                        });
+
+                                    }
+                                });
+
+                                callback(null, data);
+
+                            });
                         });
-
-
-
-                        callback(null, data);
-
                     });
 
                 });
@@ -372,7 +442,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
         };
 
-        function importNodes(nodeList,chefDetail) {
+        function importNodes(nodeList, chefDetail) {
             taskStatusModule.getTaskStatus(null, function(err, obj) {
                 if (err) {
                     res.send(500);
@@ -393,9 +463,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 logger.debug('bgid ==>', bgId);
                                 // logger.debug('node ===>', node);
                                 var jsonData = {
-                                    chefName:chefDetail.configname,
-                                    chefId:chefDetail.rowid,
-                                    chefEnv:node.chef_environment
+                                    chefName: chefDetail.configname,
+                                    chefId: chefDetail.rowid,
+                                    chefEnv: node.chef_environment
                                 };
                                 environmentsDao.createEnv(jsonData, orgId, bgId, projectId, function(err, data) {
                                     if (err) {
@@ -485,7 +555,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 hostedChefUrl: chefDetails.url,
             });
             if (reqBody.selectedNodes.length) {
-                importNodes(reqBody.selectedNodes,chefDetails);
+                importNodes(reqBody.selectedNodes, chefDetails);
             } else {
                 res.send(400);
                 return;
