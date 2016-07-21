@@ -60,5 +60,5 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             res.send(file);
         })
     });
-
 };
+
