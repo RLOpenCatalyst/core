@@ -249,10 +249,10 @@
 					}
 					if (managnedData[i].platform == 'ubuntu') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
-					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'centos') {
+					} else if (managnedData[i].platform == 'centos') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
-					}else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'ubuntu') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
+					} else if (managnedData[i].platform == 'unknown') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'unknown') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'windows') {
@@ -263,8 +263,8 @@
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
 					} else if (managnedData[i].platform == 'unknown' && managnedData[i].os == 'unknown') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-					} else if (managnedData[i].platform == 'unknown' && managnedData[i].os == 'linux') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
+					}else{
+						$osImg = $("<img class ='imgStyle' src = '../private/img/rsz_logo.png' alt='OS'/>");
 					}
 					var $tdProvider = $('<td></td>').append($providerImg);
 					$tr.append($tdProvider);

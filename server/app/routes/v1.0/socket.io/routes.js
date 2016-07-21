@@ -88,7 +88,7 @@ module.exports.setRoutes = function(socketIo) {
                     platform: instance.hardware.platform,
                     os: instance.hardware.os,
                     size: instance.instanceType,
-                    user: instance.catUser,
+                    user: instanceData.sessionUser,
                     createdOn: new Date().getTime(),
                     startedOn: new Date().getTime(),
                     providerType: instance.providerType,

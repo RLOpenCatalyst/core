@@ -688,14 +688,67 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             user: req.session.user,
             permissionSet: req.session.user.permissionset,
         };
-        containerService.executeActionOnContainer(jsonData, function(err, containerResponse) {
+        instancesDao.getInstanceById(req.params.instanceid, function(err, instance) {
             if (err) {
-                logger.error("Failed to Execute Docker command: ", err);
+                logger.error("Instance fetch Failed >> ", err);
                 res.send(500);
                 return;
             }
-            res.status(200).send(containerResponse);
+            var timestampStarted = new Date().getTime();
+            var actionLog = instancesDao.insertStartActionLog(req.params.instanceid, req.session.user.cn, timestampStarted);
+            var instanceLog = {
+                actionId: actionLog._id,
+                instanceId: instance[0]._id,
+                orgName: instance[0].orgName,
+                bgName: instance[0].bgName,
+                projectName: instance[0].projectName,
+                envName: instance[0].environmentName,
+                status: instance[0].instanceState,
+                bootStrap: instance[0].bootStrapStatus,
+                platformId: instance[0].platformId,
+                blueprintName: instance[0].blueprintData.blueprintName,
+                data: instance[0].runlist,
+                platform: instance[0].hardware.platform,
+                os: instance[0].hardware.os,
+                size: instance[0].instanceType,
+                user: req.session.user.cn,
+                createdOn: new Date().getTime(),
+                startedOn: new Date().getTime(),
+                providerType: instance[0].providerType,
+                action: "Docker-container-" + action,
+                logs: []
+            };
+            containerService.executeActionOnContainer(jsonData, function(err, containerResponse) {
+                if (err) {
+                    instanceLog.endedOn = new Date().getTime();
+                    instanceLog.logs = {
+                        err: true,
+                        log: 'Failed to Excute Docker command: ' + err,
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+                    logger.error("Failed to Execute Docker command: ", err);
+                    res.send(500);
+                    return;
+                }
+                instanceLog.endedOn = new Date().getTime();
+                instanceLog.logs = {
+                    err: false,
+                    log: 'Docker command executed successfully.',
+                    timestamp: new Date().getTime()
+                };
+                instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
+                    }
+                });
+                res.status(200).send(containerResponse);
 
+            });
         });
     });
     app.get('/instances/checkfordocker/:instanceid', function(req, res) {
@@ -762,6 +815,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 res.send(500);
                 return;
             }
+            var instance = data;
+            instance[0].id = data._id;
             logger.debug(data.length + ' ' + JSON.stringify(data));
             if (data.length) {
                 logger.debug(' Docker dockerEngineStatus : ' + data[0].docker.dockerEngineStatus);
@@ -776,6 +831,31 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
                 configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function(err, data) {
                     if (!err) {
+                        var timestampStarted = new Date().getTime();
+                        var actionLog = instancesDao.insertStartActionLog(req.params.instanceid, req.session.user.cn, timestampStarted);
+                        var instanceLog = {
+                            actionId: "",
+                            instanceId: instance[0].id,
+                            orgName: instance[0].orgName,
+                            bgName: instance[0].bgName,
+                            projectName: instance[0].projectName,
+                            envName: instance[0].environmentName,
+                            status: instance[0].instanceState,
+                            bootStrap: instance[0].bootStrapStatus,
+                            platformId: instance[0].platformId,
+                            blueprintName: instance[0].blueprintData.blueprintName,
+                            data: instance[0].runlist,
+                            platform: instance[0].hardware.platform,
+                            os: instance[0].hardware.os,
+                            size: instance[0].instanceType,
+                            user: req.session.user.cn,
+                            createdOn: new Date().getTime(),
+                            startedOn: new Date().getTime(),
+                            providerType: instance[0].providerType,
+                            action: "Docker-Run",
+                            logs: []
+                        };
+
                         logger.debug('Docker Repo ->', JSON.stringify(data));
                         var dock = JSON.parse(data);
                         logger.debug('username:', dock.dockeruserid);
@@ -802,6 +882,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         _docker.runDockerCommands(cmd, req.params.instanceid,
                             function(err, retCode) {
                                 if (err) {
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: 'Failed to Excute Docker command: . cmd : ' + cmd + '. Error: ' + err,
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     logsDao.insertLog({
                                         referenceId: instanceid,
                                         err: true,
@@ -836,6 +927,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     logger.debug("SSH Stdout :" + stdOutData.toString('ascii'));
                                     stdmessages += stdOutData.toString('ascii');
                                 } else {
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: stdOutData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     logsDao.insertLog({
                                         referenceId: instanceid,
                                         err: false,
@@ -847,6 +948,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 }
                             },
                             function(stdOutErr) {
+                                instanceLog.logs = {
+                                    err: true,
+                                    log: stdOutErr.toString('ascii'),
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                                 logsDao.insertLog({
                                     referenceId: instanceid,
                                     err: true,
@@ -3200,6 +3311,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     type: req.params.actionType
                 }, req.session.user.cn, timestampStarted);
                 var logReferenceIds = [req.params.instanceId, actionLog._id];
+                var instanceLog = {
+                    actionId: actionLog._id,
+                    instanceId: req.params.instanceId,
+                    orgName: instance.orgName,
+                    bgName: instance.bgName,
+                    projectName: instance.projectName,
+                    envName: instance.environmentName,
+                    status: instance.instanceState,
+                    bootStrap: instance.bootStrapStatus,
+                    platformId: instance.platformId,
+                    blueprintName: instance.blueprintData.blueprintName,
+                    data: instance.runlist,
+                    platform: instance.hardware.platform,
+                    os: instance.hardware.os,
+                    size: instance.instanceType,
+                    user: req.session.user.cn,
+                    createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
+                    providerType: instance.providerType,
+                    action: "Service-"+req.params.actionType,
+                    logs: []
+                };
 
                 function onComplete(err, retCode) {
                     if (err) {
@@ -3211,6 +3344,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             timestamp: timestampEnded
                         });
                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                        instanceLog.endedOn = new Date().getTime();
+                        instanceLog.logs = {
+                            err: true,
+                            log: 'Unable to run services',
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
                         return;
                     }
                     logger.debug("ret code", retCode);
@@ -3223,6 +3367,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             log: 'Service run success',
                             timestamp: timestampEnded
                         });
+                        instanceLog.endedOn = new Date().getTime();
+                        instanceLog.logs = {
+                            err: false,
+                            log: 'Service run success',
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                     } else {
                         var timestampEnded = new Date().getTime();
@@ -3233,12 +3388,34 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 log: 'Host Unreachable',
                                 timestamp: timestampEnded
                             });
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.logs = {
+                                err: true,
+                                log: 'Host Unreachable',
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
                         } else if (retCode === -5001) {
                             logsDao.insertLog({
                                 referenceId: logReferenceIds,
                                 err: true,
                                 log: 'Invalid credentials',
                                 timestamp: timestampEnded
+                            });
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.logs = {
+                                err: true,
+                                log: 'Invalid credentials',
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
                             });
                         } else {
                             logsDao.insertLog({
@@ -3247,6 +3424,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 log: 'Unknown error occured. ret code = ' + retCode,
                                 timestamp: timestampEnded
                             });
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.logs = {
+                                err: true,
+                                log: 'Unknown error occured. ret code = ' + retCode,
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
                         }
                         timestampEnded = new Date().getTime();
                         logsDao.insertLog({
@@ -3254,6 +3442,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             err: true,
                             log: 'Unable to run services',
                             timestamp: timestampEnded
+                        });
+                        instanceLog.endedOn = new Date().getTime();
+                        instanceLog.logs = {
+                            err: true,
+                            log: 'Unable to run services',
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
                         });
                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
 
@@ -3267,6 +3466,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         log: stdOutData.toString('ascii'),
                         timestamp: new Date().getTime()
                     });
+                    instanceLog.logs = {
+                        err: false,
+                        log: stdOutData.toString('ascii'),
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
                 }
 
                 function onStdErr(stdOutErr) {
@@ -3275,6 +3484,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         err: true,
                         log: stdOutErr.toString('ascii'),
                         timestamp: new Date().getTime()
+                    });
+                    instanceLog.logs = {
+                        err: true,
+                        log: stdOutErr.toString('ascii'),
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
                     });
                 }
                 credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
@@ -3288,6 +3507,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             timestamp: timestampEnded
                         });
                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
+                        instanceLog.endedOn = new Date().getTime();
+                        instanceLog.logs = {
+                            err: true,
+                            log: 'Unable to decrypt credentials. Unable to run service',
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
 
                         res.status(500).send({
                             actionLogId: actionLog._id
@@ -3306,6 +3536,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 });
                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
 
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.logs = {
+                                    err: true,
+                                    log: 'Chef Data corrupted. Unable to run service',
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                                 res.status(500).send({
                                     actionLogId: actionLog._id
                                 });
@@ -3320,7 +3561,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     timestamp: timestampEnded
                                 });
                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
-
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.logs = {
+                                    err: true,
+                                    log: 'Chef Data corrupted. Unable to run service',
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                                 res.status(500).send({
                                     actionLogId: actionLog._id
                                 });
