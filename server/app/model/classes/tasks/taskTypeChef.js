@@ -358,7 +358,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         platform: instance.hardware.platform,
                         os: instance.hardware.os,
                         size: instance.instanceType,
-                        user: instance.catUser,
+                        user: userName,
                         createdOn: new Date().getTime(),
                         startedOn: new Date().getTime(),
                         providerType: instance.providerType,
