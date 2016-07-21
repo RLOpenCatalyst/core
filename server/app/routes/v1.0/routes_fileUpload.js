@@ -35,15 +35,30 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             fileUpload.uploadFile(req.files.file.originalFilename,req.files.file.path,fileId,function(err,fileData){
                 if(err){
                     res.send({message: "Unable to upload file"});
-                }else if(fileData){
-                    res.send({fileId:fileData});
-                }else{
-                    res.send({message: "Bad Request"});
                 }
+                res.send({fileId:fileData});
             })
         } else {
             res.send({message: "Bad Request"});
         }
+    });
+
+    app.delete('/fileUpload', function(req, res) {
+        fileUpload.removeFileByFileId(req.query.fileId,function(err,fileData){
+            if(err){
+                res.send({message: "Unable to delete file"});
+            }
+            res.send(fileData);
+        })
+    });
+
+    app.get('/fileUpload', function(req, res) {
+        fileUpload.getReadStreamFileByFileId(req.query.fileId,function(err,file){
+            if(err){
+                res.send({message: "Unable to delete file"});
+            }
+            res.send(file);
+        })
     });
 
 };
