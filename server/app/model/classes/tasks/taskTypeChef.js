@@ -355,7 +355,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         platformId: instance.platformId,
                         blueprintName: instance.blueprintData.blueprintName,
                         data: instance.runlist,
-                        platform: "unknown",
+                        platform: instance.hardware.platform,
                         os: instance.hardware.os,
                         size: instance.instanceType,
                         user: instance.catUser,
