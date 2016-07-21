@@ -224,7 +224,7 @@ $('#scriptForm').submit(function(e) {
                         getScriptList();
                     },
                     error: function(jxhr) {
-                        removeUploadFile(fileId);
+                        removeUploadFile(data.fileId);
                         var msg = "Server Behaved Unexpectedly";
                         if (jxhr.responseJSON && jxhr.responseJSON.message) {
                             msg = jxhr.responseJSON.message;
@@ -236,7 +236,7 @@ $('#scriptForm').submit(function(e) {
                         $('#saveBtnScript').removeAttr('disabled');
                     },
                     failure: function(jxhr) {
-                        removeUploadFile(fileId);
+                        removeUploadFile(data.fileId);
                         var msg = "Server Behaved Unexpectedly";
                         if (jxhr.responseJSON && jxhr.responseJSON.message) {
                             msg = jxhr.responseJSON.message;
