@@ -4661,11 +4661,12 @@ input:focus, select:focus, textarea:focus {
     width: 319px;
 }
 .scriptContainerRead {
-    height:300px;
+    height:400px;
     overflow-y:auto; 
-    /*background: #eff0f1;*/
-    background: #000;
+    background: #333;
     color:#fff;
-    font-size: 13px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    display: block;
 }
 

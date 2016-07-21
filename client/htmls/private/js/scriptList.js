@@ -92,7 +92,7 @@ function getScriptList() {
             {"data": "description" ,"orderable" : false },
             {"data": "fileId" ,"orderable" : false,
                 "render": function (data) {
-                    var $tdScriptViewer = '<a href="#viewScriptModal" data-backdrop="false" data-toggle="modal" type="button" class="scriptViewer">Script</a>';
+                    var $tdScriptViewer = '<a href="#viewScriptModal" data-backdrop="false" data-toggle="modal" type="button" class="scriptViewer">View</a>';
                     return $tdScriptViewer;
                 }
             },
@@ -113,14 +113,14 @@ $('#scriptListTable tbody').on( 'click', 'a.scriptViewer', function(){
     var $trForScript = $(this).parents('tr.scriptItemRow');
     var scriptFileId = $this.parents('tr').attr("scriptFileId");
     $.get('../fileUpload?fileId=' + scriptFileId, function(data){
-        $('.modal-header').find('.modal-title').html(data.fileName + '(ReadOnly)');  
-        console.log(data.fileData);
-        $('.modal-body.scriptContainerRead').html(data.fileData);
+        $('.modal-header').find('.modal-title').html(data.fileName + '&nbsp;(ReadOnly)');  
+        $('.modal-body .scriptContainerRead').html(data.fileData);
     })
 });
 
 $(".modal").on("hidden.bs.modal", function(){
-    $(".modal-body.scriptContainerRead").html("");
+    $('.modal-title').html('');
+    $('.modal-body .scriptContainerRead').html('');
 });
 
 $('#scriptListTable tbody').on( 'click', 'button.editRowScriptItem', function(){
