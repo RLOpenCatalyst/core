@@ -2432,9 +2432,6 @@ hr {
     width: 64%;
     cursor: pointer;
 }
-.blueprintdiv-aws {
-    width: 77% !important;
-}
 /*Added for padding top in the li*/
 
 .Padded {
@@ -4476,6 +4473,24 @@ form.cmxform .gray * {
 .custom-theme .left-projects-links > a.active i {
     color:#40baf1 !important;
 }
+
+.choose-file {
+    padding: 4px 8px;
+    background: #f1f1f1;
+    border-radius: 5px;
+    font-weight: normal;
+    border: 1px solid gray;
+}
+.file-name {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    float: left;
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
 /* compsiteBlueprint*/
 #compositeBlueprintLoadBlueprint{
     margin: 0 auto;
@@ -4645,3 +4660,13 @@ input:focus, select:focus, textarea:focus {
     text-align: center;
     width: 319px;
 }
+.scriptContainerRead {
+    height:400px;
+    overflow-y:auto; 
+    background: #333;
+    color:#fff;
+    font-size: 12px;
+    white-space: pre-wrap;
+    display: block;
+}
+

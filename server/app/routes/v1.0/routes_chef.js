@@ -160,15 +160,15 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
     app.post('/chef/servers/:serverId/sync/nodes', function(req, res) {
-
-
         var taskStatusObj = null;
         var chef = null;
         var reqBody = req.body;
         var projectId = reqBody.projectId;
         var orgId = reqBody.orgId;
+        var orgName = reqBody.orgName;
         var bgId = reqBody.bgId;
         var envId = reqBody.envId;
+        var projectName=reqBody.projectName;
         var count = 0;
 
         var users = reqBody.users;
@@ -290,6 +290,36 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     logger.debug('nodeip ==> ', nodeIp);
                     logger.debug('alive ==> ', node.isAlive);
                     masterUtil.getParticularProject(projectId, function(err, project) {
+                    var instance = {
+                        name: node.name,
+                        orgId: orgId,
+                        orgName: reqBody.orgName,
+                        bgId: bgId,
+                        bgName: reqBody.bgName,
+                        projectId: projectId,
+                        projectName: reqBody.projectName,
+                        envId: node.envId,
+                        environmentName: reqBody.environmentName,
+                        chefNodeName: node.name,
+                        runlist: runlist,
+                        platformId: platformId,
+                        instanceIP: nodeIp,
+                        instanceState: 'running',
+                        bootStrapStatus: 'success',
+                        hardware: hardwareData,
+                        credentials: encryptedCredentials,
+                        users: users,
+                        chef: {
+                            serverId: req.params.serverId,
+                            chefNodeName: node.name
+                        },
+                        blueprintData: {
+                            blueprintName: node.name,
+                            templateId: "chef_import",
+                            iconPath: "../private/img/templateicons/chef_import.png"
+                        }
+                    }
+                    instancesDao.createInstance(instance, function(err, data) {
                         if (err) {
                             callback({
                                 message: "Failed to get project via project id"
@@ -343,10 +373,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                     templateId: "chef_import",
                                     iconPath: "../private/img/templateicons/chef_import.png"
                                 }
-                            }
-
-
-
+                            };
                             instancesDao.createInstance(instance, function(err, data) {
                                 if (err) {
                                     logger.debug(err, 'occured in inserting node in mongo');
@@ -396,7 +423,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
                                 });
-
                                 var _docker = new Docker();
                                 _docker.checkDockerStatus(data._id, function(err, retCode) {
                                     if (err) {
@@ -408,30 +434,22 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                         instancesDao.updateInstanceDockerStatus(data._id, "success", '', function(data) {
                                             logger.debug('Instance Docker Status set to Success');
                                         });
-
                                     }
                                 });
-
                                 callback(null, data);
-
                             });
                         });
                     });
-
                 });
             });
-
-        }
-
+        });
         function updateTaskStatusNode(nodeName, msg, err, i) {
             count++;
             var status = {};
             status.nodeName = nodeName;
             status.message = msg;
             status.err = err;
-
             logger.debug('taskstatus updated');
-
             if (count == reqBody.selectedNodes.length) {
                 logger.debug('setting complete');
                 taskstatus.endTaskStatus(true, status);
@@ -439,9 +457,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 logger.debug('setting task status');
                 taskstatus.updateTaskStatus(status);
             }
-
         };
-
         function importNodes(nodeList, chefDetail) {
             taskStatusModule.getTaskStatus(null, function(err, obj) {
                 if (err) {
@@ -450,7 +466,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 }
                 taskstatus = obj;
                 for (var i = 0; i < nodeList.length; i++) {
-
                     (function(nodeName) {
                         chef.getNode(nodeName, function(err, node) {
                             if (err) {
@@ -461,13 +476,17 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 logger.debug('creating env ==>', node.chef_environment);
                                 logger.debug('orgId ==>', orgId);
                                 logger.debug('bgid ==>', bgId);
-                                // logger.debug('node ===>', node);
-                                var jsonData = {
-                                    chefName: chefDetail.configname,
-                                    chefId: chefDetail.rowid,
-                                    chefEnv: node.chef_environment
+                                var envObj = {
+                                    projectname:projectName,
+                                    projectname_rowid:projectId,
+                                    orgname:orgName,
+                                    orgname_rowid:orgId,
+                                    configname:chefDetail.configname,
+                                    configname_rowid:chefDetail.rowid,
+                                    environmentname:node.chef_environment,
+                                    id:'3'
                                 };
-                                environmentsDao.createEnv(jsonData, orgId, bgId, projectId, function(err, data) {
+                                environmentsDao.createEnv(envObj, function(err, data) {
                                     if (err) {
                                         logger.debug(err, 'occured in creating environment in mongo');
                                         updateTaskStatusNode(node.name, "Unable to import node : " + node.name, true, count);
@@ -480,11 +499,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                     if (node.automatic.ipaddress) {
                                         nodeIp = node.automatic.ipaddress;
                                     }
-
                                     if (node.automatic.cloud && node.automatic.cloud.public_ipv4 && node.automatic.cloud.public_ipv4 !== 'null') {
                                         nodeIp = node.automatic.cloud.public_ipv4;
                                     }
-
                                     instancesDao.getInstanceByOrgAndNodeNameOrIP(orgId, node.name, nodeIp, function(err, instances) {
                                         if (err) {
                                             logger.debug('Unable to fetch instance', err);
@@ -501,7 +518,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                             });
                                             return;
                                         }
-
                                         var openport = 22;
                                         if (node.automatic.platform === 'windows') {
                                             openport = 5985;
@@ -520,24 +536,18 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                                 }
                                                 updateTaskStatusNode(nodeName, "Node Imported : " + nodeName, false, count);
                                             });
-
                                         });
-
                                     });
                                 });
                             }
                         });
-
                     })(nodeList[i]);
                 }
-
                 res.send(200, {
                     taskId: taskstatus.getTaskId()
                 });
             });
-
         }
-
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 res.send(500);
@@ -561,14 +571,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 return;
             }
         });
-
-
-
+        }
     });
-
     app.post('/chef/environments/create/:serverId', function(req, res) {
-
-
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 res.send(500);
@@ -601,9 +606,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             });
         });
     });
-
     app.get('/chef/servers/:serverId/cookbooks', function(req, res) {
-
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 res.send(500);
@@ -620,7 +623,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-
             chef.getCookbooksList(function(err, cookbooks) {
                 logger.debug(err);
                 if (err) {
@@ -810,12 +812,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.send(404);
                 return;
             }
-
         });
-
     });
-
-
     app.post('/chef/servers/:serverId/nodes/:nodename/updateEnv', function(req, res) {
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
@@ -850,9 +848,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             });
         });
     });
-
     app.get('/chef/servers/:serverId/cookbooks/:cookbookName/metadata', function(req, res) {
-
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 res.send(500);
@@ -879,13 +875,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     return;
                 }
             });
-
-
         });
-
     });
-
-
     // Create new Data Bag.
     app.post("/chef/servers/:serverId/databag/create", function(req, res) {
         logger.debug("Enter /chef/../databag/create");
@@ -1091,8 +1082,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
             }
         });
     });
-
-
     // List all Data Bag Items for a Data Bag.
     app.get("/chef/servers/:serverId/databag/:dataBagName/item/list", function(req, res) {
         logger.debug("Enter /chef/../databag/item/list");
@@ -1132,8 +1121,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
             });
         });
     });
-
-
     // Update a Data Bag Item.
     app.post("/chef/servers/:serverId/databag/:dataBagName/item/:itemId/update", function(req, res) {
         logger.debug("Enter /chef/../databag/../item/update");
@@ -1198,7 +1185,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
             }
         });
     });
-
     // Delete a Data Bag Item from a Data Bag.
     app.delete("/chef/servers/:serverId/databag/:dataBagName/item/:itemName/delete", function(req, res) {
         logger.debug("Enter /chef/../databag/../item/delete");
@@ -1366,5 +1352,4 @@ module.exports.setRoutes = function(app, verificationFunc) {
             });
         });
     });
-
 };

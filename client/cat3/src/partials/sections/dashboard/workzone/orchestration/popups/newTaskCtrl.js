@@ -8,23 +8,40 @@
 (function (angular) {
 	'use strict';
 	angular.module('workzone.orchestration')
-		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q','toastr', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q,toastr) {
+		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
 			
             $scope.role={
              name : ''   
             };
 
             $scope.isNewTaskPageLoading = true;
+            $scope.isScriptInstanceLoading = true;
 			$scope.chefrunlist = [];
 			$scope.cookbookAttributes = [];
+			$scope.scriptParamShow = false;
+			$scope.scriptSelectAll = false;
+			$scope.scriptParamsObj = {};
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
-				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus; });
-
+				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
 			};
 			$scope.optionToggled = function(){
 				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
 			};
+			$scope.toggleAllScriptInstance = function() {
+				var toggleStatusInstance = $scope.isAllInstanceScriptSelected;
+				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatusInstance; });
+			};
+			$scope.optionInstanceToggled = function(){
+				$scope.isAllInstanceScriptSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+			};
+			$scope.toggleAllScripts = function() {
+				var toggleStatusScript = $scope.isAllScriptSelected;
+				angular.forEach($scope.scriptTaskList, function(itm){ itm._isScriptSelected = toggleStatusScript;});
+			};
+			$scope.optionScriptToggled = function() {
+				$scope.isAllScriptSelected = $scope.scriptTaskList.every(function(itm){ return  itm._isScriptSelected; })
+			}
 			//default values for new task
 			angular.extend($scope, {
 				taskTypes: {
@@ -109,9 +126,50 @@
 						console.log('Dismiss time is ' + new Date());
 					});
 				},
+				changeNodeScriptList: function() {
+					if($scope.scriptTypeSelelct !=""){
+						workzoneServices.getScriptList($scope.scriptTypeSelelct).then(function (response) {
+							var data;
+							if (response.data) {
+								data = response.data;
+							} else {
+								data = response;
+							}
+							$scope.scriptSelectAll = true;
+							if ($scope.isEditMode && items.taskType === "script") {
+								var isScriptChecked = [];
+								for(var i =0;i<items.taskConfig.scriptDetails.length;i++){
+									isScriptChecked.push(items.taskConfig.scriptDetails[i].scriptId)
+									$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data, isScriptChecked);
+									$scope.scriptParamsObj[items.taskConfig.scriptDetails[i].scriptId] = items.taskConfig.scriptDetails[i].scriptParameters;		
+									$scope.isNewTaskPageLoading = false;	
+								}
+							} else{
+								$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data,[]);
+								$scope.isScriptInstanceLoading = false;
+							}
+						});
+					}
+				},
+				addScriptParams: function (scriptObject) {
+					$modal.open({
+						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addScriptParams.html',
+						controller: 'addScriptParamsCtrl',
+						backdrop: 'static',
+						keyboard: false
+					}).result.then(function (addScriptParams) {	
+						$scope.scriptParamsObj[scriptObject._id] = $scope.scriptParamsObj[scriptObject._id].concat(addScriptParams);
+					}, function () {
+						console.log('Dismiss time is ' + new Date());
+					});
+				},
 				removeJenkinsParams: function (params) {
 					var idx = $scope.jenkinsParamsList.indexOf(params);
 					$scope.jenkinsParamsList.splice(idx,1);
+				},
+				removeScriptParams: function (scriptObject,params) {
+					var idx = $scope.scriptParamsObj[scriptObject].indexOf(params);
+					$scope.scriptParamsObj[scriptObject].splice(idx,1);
 				},
 				removeJobLink: function (jobLink) {
 					var idx = $scope.jobResultURL.indexOf(jobLink);
@@ -162,10 +220,19 @@
 						$modalInstance.close(items);
 					});
 				},
-				setFile : function(element) {
-					$scope.$apply(function($scope) {
-						$scope.currentFileMetadata = element.files[0];
-					});
+				showScriptParams : function(scriptObj){
+					$scope.scriptParamShow = true;
+					$scope.selectedScript = scriptObj;
+					if(!$scope.scriptParamsObj[scriptObj._id]){
+						$scope.scriptParamsObj[scriptObj._id] = [];
+					}
+				},
+				addRemoveScriptTable : function(scriptObj){
+					$scope.scriptParamShow = false;
+					$scope.checkedScript = scriptObj;
+					if(!$scope.checkedScript._isScriptSelected){
+						$scope.scriptParamsObj[scriptObj._id] = [];	
+					}
 				},
 				ok: function () {
                     $scope.taskSaving = true;
@@ -280,44 +347,48 @@
 					//if task type is script
 					if ($scope.taskType === "script") {
 						taskJSON.nodeIds = [];
+						taskJSON.scriptDetails = [];
 						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
 							if ($scope.chefInstanceList[si]._isNodeSelected) {
 								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
 							}
+						}
+						taskJSON.scriptTypeName = $scope.scriptTypeSelelct;
+						if (!taskJSON.scriptTypeName.length) {
+							$scope.inputValidationMsg='Please select one Script Type';
+                            $scope.taskSaving = false;
+							return false;
 						}
 						if (!taskJSON.nodeIds.length) {
 							$scope.inputValidationMsg='Please select a node';
                             $scope.taskSaving = false;
 							return false;
 						}
-						if($scope.scriptFile){//will be true if a file chosen by user 
-							var formdata = new FormData();
-							formdata.append('file',  $scope.scriptFile);
-							workzoneServices.postFileUpload(formdata,{transformRequest: angular.identity,headers: {'Content-Type': undefined}}).then(function(response){
-								var scriptFile = response.data;
-								taskJSON.scriptFileName = scriptFile.filename;//wrong name field in api, it contains generated file id.
-								if ($scope.isEditMode) {
-									$scope.updateTask(taskJSON);            
-								}else{
-									$scope.postNewTask(taskJSON);             
+						
+						for (var k = 0; k < $scope.scriptTaskList.length; k++) {
+							if ($scope.scriptTaskList[k]._isScriptSelected) {
+								var scriptId = $scope.scriptTaskList[k]._id
+								var obj = {
+									scriptId: scriptId,
+									scriptParameters:[]
+								};
+								if($scope.scriptParamsObj[scriptId]){
+									obj.scriptParameters = $scope.scriptParamsObj[scriptId];
 								}
-							});
-						}
-						else{
-							if ($scope.isEditMode) {
-								taskJSON.scriptFileName = items.taskConfig.scriptFileName;
-								$scope.updateTask(taskJSON);            
+								taskJSON.scriptDetails.push(obj);
 							}
+						}
+						if (!taskJSON.scriptDetails.length) {
+							$scope.inputValidationMsg = 'Please select a script';
+							$scope.taskSaving = false;
+							return false;
 						}
 					}
 					//checking whether its a update or a new task creation
-					var type = $scope.taskType;
-					if(type === "chef" || type === "jenkins" || type === "puppet" || type === "composite"){
-						if ($scope.isEditMode) {
-							$scope.updateTask(taskJSON);
-						} else {
-							$scope.postNewTask(taskJSON);
-						}
+					if ($scope.isEditMode) {
+						$scope.updateTask(taskJSON);
+					} else {
+						$scope.postNewTask(taskJSON);
 					}
 					$rootScope.createChefJob=false;
 				},
@@ -345,6 +416,8 @@
 			$scope.jenkinJobSelected = '';
 			$scope.description = '';
 			$scope.chefInstanceList = [];
+			$scope.scriptTaskList = [];
+			$scope.scriptTypeSelelct = '';
 			$scope.chefBluePrintList = [];
 			$scope.puppetInstanceList = [];
 			$scope.cookbookAttributes = [];
@@ -383,6 +456,7 @@
 				});
 				$scope.isNewTaskPageLoading = false;
 			});
+
             $scope.isTargetTypesLoading = true;
 			var allInstances = workzoneServices.getCurrentEnvInstances();
 			var allBlueprints = workzoneServices.getBlueprints();
@@ -392,19 +466,15 @@
 				var instances = promiseObjs[0].data;
 				var blueprints = promiseObjs[1].data;
                 var roles = Object.keys(promiseObjs[2].data.roles);
-                console.log(roles);
 				/*Identifying the chef nodes and adding a flag for identifying the selection in the angular checkbox selection*/
 				if ($scope.taskType === "chef") {
 					if($scope.isEditMode){
-
                         if(items.taskConfig && items.taskConfig.role) {
                             $scope.role.name = items.taskConfig.role;
                         }
-
-
-
 						$scope.editRunListAttributes = true;
-						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
+						$scope.isScriptInstanceLoading = false;
+						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList	(instances), items.taskConfig.nodeIds);
 						$scope.isNewTaskPageLoading = false;
 						$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
 						$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
@@ -413,7 +483,6 @@
 						
                         $scope.chefRoleList = roles;
 
-                       
                         if (items.blueprintIds.length){
 							$scope.targetType="blueprint";
 						}else if(items.taskConfig && items.taskConfig.nodeIds && items.taskConfig.nodeIds.length){
@@ -438,20 +507,22 @@
 						$scope.puppetInstanceList = responseFormatter.identifyAvailablePuppetNode(responseFormatter.getPuppetList(instances), []);
 					}
 				}
-				/*Identifying the nodes and checking for task type to be script*/
+				/*Identifying the nodes and script list and checking for task type to be script*/
 				if ($scope.taskType === "script") {
 					if($scope.isEditMode){
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
+						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;
 						$scope.targetType="instance";
-						$scope.scriptFileNameEdit = items.taskConfig.scriptFileName.split('_')[1] || 'invalid filename';
 					}else{
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
+						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;
 						$scope.targetType="instance";
 					}
 				}
 				$scope.optionToggled();
+				$scope.optionInstanceToggled();
 			});
 			workzoneServices.getJenkinsServerList().then(function (response) {
 				var data;
@@ -469,6 +540,7 @@
 				$scope.changeJobList();
 				$scope.changeJobURL();
 			});
+ 
 			// if new task creation then we will give chef as default selection.
 			if (!(typeof items === "string" && items === "new")) {
 				/*common properties across all task*/
@@ -485,6 +557,12 @@
 					$scope.jobResultURL = items.taskConfig.jobResultURL;
 					$scope.jenkinsParamsList = items.taskConfig.parameterized;
 					$scope.jenkinJobSelected = items.taskConfig.jobName;
+				}
+				if(items.taskType === "script") {
+					$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
+					$scope.isNewTaskPageLoading = false;
+					$scope.changeNodeScriptList();
+					$scope.optionScriptToggled();
 				}
 			}
 		}

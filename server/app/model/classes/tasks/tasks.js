@@ -169,7 +169,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     } else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
         task = new ScriptTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
-        taskHistoryData.scriptFileName = this.taskConfig.scriptFileName;
+        taskHistoryData.scriptDetails = this.taskConfig.scriptDetails;
     } else {
         callback({
             message: "Invalid Task Type"
@@ -290,7 +290,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     taskHistory.executionResults = resultData.instancesResults;
                 } else if (resultData.blueprintResults && resultData.blueprintResults.length) {
                     logger.debug("resultData blueprint ==>  ", JSON.stringify(resultData.blueprintResults));
-
                     taskHistory.blueprintExecutionResults = resultData.blueprintResults;
                 }
 
@@ -468,7 +467,8 @@ taskSchema.statics.createNew = function(taskData, callback) {
         taskConfig = new ScriptTask({
             taskType: TASK_TYPE.SCRIPT_TASK,
             nodeIds: taskData.nodeIds,
-            scriptFileName: taskData.scriptFileName
+            scriptTypeName: taskData.scriptTypeName,
+            scriptDetails: taskData.scriptDetails
         });
     } else {
         callback({
@@ -627,7 +627,8 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
         taskConfig = new ScriptTask({
             taskType: TASK_TYPE.SCRIPT_TASK,
             nodeIds: taskData.nodeIds,
-            scriptFileName: taskData.scriptFileName
+            scriptTypeName: taskData.scriptTypeName,
+            scriptDetails: taskData.scriptDetails
         });
     } else {
         callback({

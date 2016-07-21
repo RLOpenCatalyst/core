@@ -663,6 +663,12 @@ $(function() {
     reqBody.bgId = $bgList.val();
     reqBody.projectId = $projectList.val();
     reqBody.envID = $envList.val();
+    //Added By Durgesh
+    reqBody.orgName = $orgListInput.find('option:selected').text();
+    reqBody.bgName = $bgList.find('option:selected').text();
+    reqBody.projectName = $projectList.find('option:selected').text();
+    reqBody.environmentName = $envList.find('option:selected').text();
+    //End By Durgesh
 
 
     if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
