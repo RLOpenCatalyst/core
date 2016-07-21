@@ -232,7 +232,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.delete('/azure-arm/:armId', function(req, res) {
 
-        function removeInstanceFromDb() {
+        /*function removeInstanceFromDb() {
             instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
                 if (err) {
                     logger.error("Instance deletion Failed >> ", err);
@@ -242,7 +242,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
                 //res.send(200);
             });
-        }
+        }*/
 
         AzureArm.getById(req.params.armId, function(err, azureArm) {
             if (err) {
@@ -274,7 +274,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         resourceGroup: azureArm.resourceGroup
                     }, function(err, body) {
                         if (err == 404) {
-                            removeInstanceFromDb();
+                            //removeInstanceFromDb();
                         } else if (err) {
                             res.status(500).send({
                                 message: "Unable to delete stack from azure"
