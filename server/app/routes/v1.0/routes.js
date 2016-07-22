@@ -66,6 +66,7 @@ var serviceStatus = require('./routes_serviceStatus');
 var compositeBlueprints = require('./routes_compositeBlueprints');
 var blueprintFrames = require('./routes_blueprintFrames');
 var cors = require('cors');
+var auditTrail = require('./routes_audit_trails');
 var scripts = require('./routes_scripts');
 var fileUpload = require('./routes_fileUpload');
 /*
@@ -157,6 +158,8 @@ module.exports.setRoutes = function(app) {
     resources.setRoutes(app, sessionVerificationFunc);
 
     serviceStatus.setRoutes(app, sessionVerificationFunc);
+
+    auditTrail.setRoutes(app, sessionVerificationFunc);
 
     compositeBlueprints.setRoutes(app, sessionVerificationFunc);
 

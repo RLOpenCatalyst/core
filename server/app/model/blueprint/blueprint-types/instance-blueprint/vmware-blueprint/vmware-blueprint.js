@@ -36,6 +36,7 @@ var credentialcryptography = require('_pr/lib/credentialcryptography');
 var VmwareCloud = require('_pr/lib/vmware.js');
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var fs = require('fs');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 
 var Schema = mongoose.Schema;
@@ -171,7 +172,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                     }
                     if (!err) {
                         //send the response back and create the instance 
-                        
+
 
                         var credentials = {
                             username: anImage.userName,
@@ -202,7 +203,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                             var instance = {
                                 name: launchParams.blueprintName,
                                 orgId: launchParams.orgId,
-                                orgName:launchParams.orgName,
+                                orgName: launchParams.orgName,
                                 bgId: launchParams.bgId,
                                 bgName: launchParams.bgName,
                                 projectId: launchParams.projectId,
@@ -212,7 +213,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 providerId: self.cloudProviderId,
                                 providerType: self.cloudProviderType,
                                 keyPairId: 'unknown',
-                                region:self.region,
+                                region: self.region,
                                 chefNodeName: createserverdata["vm_name"],
                                 runlist: paramRunList,
                                 platformId: createserverdata["vm_name"],
@@ -221,6 +222,8 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 instanceState: 'pending',
                                 bootStrapStatus: 'waiting',
                                 users: launchParams.users,
+                                instanceType: "unknown",
+                                catUser: launchParams.sessionUser,
                                 hardware: {
                                     platform: 'unknown',
                                     platformVersion: 'unknown',
@@ -272,6 +275,40 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     timestamp: timestampStarted
                                 });
 
+                                var instanceLog = {
+                                    actionId: actionLog._id,
+                                    instanceId: instance.id,
+                                    orgName: launchParams.orgName,
+                                    bgName: launchParams.bgName,
+                                    projectName: launchParams.projectName,
+                                    envName: launchParams.envName,
+                                    status: "pending",
+                                    bootStrap: "waiting",
+                                    platformId: createserverdata["vm_name"],
+                                    blueprintName: launchParams.blueprintData.name,
+                                    data: paramRunList,
+                                    platform: "unknown",
+                                    os: self.instanceOS,
+                                    size: "unknown",
+                                    user: launchParams.sessionUser,
+                                    createdOn: new Date().getTime(),
+                                    startedOn: new Date().getTime(),
+                                    providerType: self.cloudProviderType,
+                                    action: "Bootstrap",
+                                    logs: [{
+                                        err: false,
+                                        log: "Waiting for instance ok state",
+                                        timestamp: new Date().getTime()
+                                    }]
+                                };
+
+                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+
+
                                 logger.debug('Returned from Create Instance. About to wait for instance ready state');
 
 
@@ -301,7 +338,18 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.bootStrap = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Instance not responding. Bootstrap failed",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         return;
                                     }
                                     if (!err) {
@@ -331,6 +379,17 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                             log: "Instance Ready..about to bootstrap",
                                             timestamp: timestampStarted
                                         });
+                                        instanceLog.status = "running";
+                                        instanceLog.logs = {
+                                            err: false,
+                                            log: "Instance Ready..about to bootstrap",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         var repoData = {
                                             "projectId": launchParams.blueprintData.projectId,
                                             "repoName": launchParams.blueprintData.nexus.repoName
@@ -355,7 +414,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                     instanceIp: publicip,
                                                     runlist: runlist,
                                                     instanceUsername: anImage.userName,
-                                                    instancePassword: decryptedCredentials.password, 
+                                                    instancePassword: decryptedCredentials.password,
                                                     nodeName: createserverdata["vm_name"],
                                                     environment: launchParams.envName,
                                                     instanceOS: instance.hardware.os,
@@ -379,6 +438,18 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                        instanceLog.endedOn = new Date().getTime();
+                                                        instanceLog.bootStrap = "failed";
+                                                        instanceLog.logs = {
+                                                            err: true,
+                                                            log: "Bootstrap failed",
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
+                                                        });
                                                         return;
                                                     }
                                                     if (code == 0) {
@@ -399,6 +470,12 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                 logger.error("Failed chef.getNode", err);
                                                                 return;
                                                             }
+                                                            instanceLog.platform = nodeData.automatic.platform;
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                }
+                                                            });
                                                             var hardwareData = {};
                                                             hardwareData.architecture = nodeData.automatic.kernel.machine;
                                                             hardwareData.platform = nodeData.automatic.platform;
@@ -447,7 +524,18 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
+                                                        instanceLog.endedOn = new Date().getTime();
+                                                        instanceLog.bootStrap = "success";
+                                                        instanceLog.logs = {
+                                                            err: false,
+                                                            log: "Instance Bootstraped Successfully.",
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
+                                                        });
 
 
                                                     } else {
@@ -467,6 +555,18 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                        instanceLog.endedOn = new Date().getTime();
+                                                        instanceLog.bootStrap = "failed";
+                                                        instanceLog.logs = {
+                                                            err: true,
+                                                            log: "Bootstrap failed.",
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                            }
+                                                        });
                                                         return;
 
                                                     }
@@ -478,6 +578,16 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         log: stdOutData.toString('ascii'),
                                                         timestamp: new Date().getTime()
                                                     });
+                                                    instanceLog.logs = {
+                                                        err: false,
+                                                        log: stdOutData.toString('ascii'),
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
 
 
                                                 }, function(stdErrData) {
@@ -488,6 +598,16 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         err: true,
                                                         log: stdErrData.toString('ascii'),
                                                         timestamp: new Date().getTime()
+                                                    });
+                                                    instanceLog.logs = {
+                                                        err: true,
+                                                        log: stdErrData.toString('ascii'),
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
                                                     });
 
                                                 });

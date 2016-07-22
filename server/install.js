@@ -93,6 +93,9 @@ function getDefaultsConfig() {
                 "appDeploy" : "envId",
                 "trackedInstances": "providerType",
                 "resources":"createdOn",
+                "instanceLogs":"createdOn",
+                "taskLogs":"timestampStarted",
+                "unassignedInstances":"state",
                 "unassignedInstances":"state",
                 "scripts":"name"
             },
