@@ -607,3 +607,220 @@ option.script {
 		color: #d58512;
 	}
 }
+
+// left-panel
+#left-panel {
+	position: absolute;
+	z-index: 1;
+	width: 254px;
+	display: block;
+	background: #2c3638;
+	background: -webkit-gradient(linear, left top, right top, color-stop(99%, #2c3638), color-stop(100%, #2c3638));
+	background: -webkit-linear-gradient(left, #2c3638 99%, #2c3638 100%);
+	background: -webkit-gradient(linear, top left, top right, from(#2c3638), to(#2c3638));
+	background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
+	height: 91.4%!important;
+	float: left;
+}
+.minifyme {
+	background: #D7DAE2;
+	border-bottom: 1px solid #818181;
+	color: #7E7E7E;
+	z-index: 100;
+	text-align: center;
+	padding: 0;
+	width: 38px;
+	height: 28px;
+	display: block;
+	position: absolute;
+	right: 0px;
+	border-radius: 5px 0 0 5px;
+	cursor: pointer;
+	font-size: 19px;
+	-webkit-transition: all .1s linear 0s;
+	transition: all .1s linear 0s;
+	left: 216px;
+}
+.panelRight {
+		width: calc(100% - 258px);
+		background: linear-gradient(to right, #ffffff 99%, #ffffff 100%) repeat scroll 0 0 transparent;
+		padding-right: 0px;
+		float: right;
+}
+.panelLeft {
+	width: 100%;
+	padding-left: 0px;
+}
+#navigPage {
+	background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
+	z-index: 1;
+	position: fixed;
+	width: 254px;
+	height: 100%;
+
+	#navigPage-inner {
+		background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
+		color: #fff;
+		z-index: 1;
+		width: 100%;
+		overflow-y: auto;
+	}
+}
+#deisgn ul {
+	.active>a {
+		color: #fff!important;
+		position: relative;
+	}
+	li {
+		li {
+			border-bottom: 0;
+			position: relative;
+		}
+		a{
+		line-height: normal;
+		font-size: 14px;
+		padding: 16px 10px 10px 11px;
+		color: #a8a8a8;
+		display: block;
+		font-weight: 400;
+		text-decoration: none!important;
+		:active {
+			background: #616161 !important;
+		}
+		:focus {
+			color: #c9c9c9;
+		}
+		a:hover {
+			color: #fff;
+			text-decoration: none;
+		}
+	}}
+	li.active>a:before {
+		font-family: FontAwesome;
+		display: block;
+		height: 27px;
+		line-height: normal;
+		width: 27px;
+		position: absolute;
+		right: -21px;
+		font-size: 20px;
+		color: #eee;
+	}
+	span.menu-item-parent {
+		display: inline-block;
+		margin: 0;
+		padding: 0;
+	}
+}
+#deisgn>ul>li>a>i {
+	margin-right: 5px;
+	width: 15px;
+	display: inline-block;
+	text-align: center;
+	position: relative;
+}
+
+#deisgn>ul>li>ul::before {
+	content: "";
+	display: block;
+	position: absolute;
+	z-index: 1;
+	left: 23px;
+	top: 0;
+	bottom: 0;
+	border-left: 1px solid #7A7A7A;
+}
+.tree-close {
+	width: 35px !important;
+}
+.onbody-loading{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 99999;
+}
+.loading-body{
+	opacity: 0.4;
+}
+.header-content .active {
+	font-weight: bold;
+	border-top: 3px solid #40BAF1;
+}
+.tab-btn{
+	margin: 10px 12px;
+	padding: 0px !important;
+	border-radius: 4px !important;
+}
+
+#sidebar-wrapper {
+	padding: 21px 7px 0 7px;
+	right: -279px ;
+	width: 273px;
+	background: #F5F5F5;
+	position: fixed;
+	height: auto;
+	min-height: 50%;
+	z-index: 10000;
+	transition: all .4s ease 0s;
+	box-shadow: 0px 10px 10px 5px #888888;
+}
+.show-wrapper{
+	right:5px !important;
+}
+.repo-job-details-wrapper {
+	border: 1px solid #dddddd;
+	margin: 0 2px;
+	padding: 0.35em 0.625em 0.75em;
+}
+.repo-job-details-wrapper-inner {
+	border: 0 none;
+	padding: 0;
+	width: auto;
+	margin-bottom: 0;
+	font-size: 15px;
+	color: #666;
+}
+#designHtml{
+	margin: auto;
+	padding: 2px 0 0 0;
+}
+#navigPage{
+	.nav>li>a:focus, .nav>li>a:hover{
+		background-color: inherit;
+		color: #FFF !important;
+		font-weight: 600;
+	}
+	.nav>li>a.active{
+		color: #FFF !important;
+		font-weight: 600;
+	}
+	.nav-stacked{
+		li{
+			border-bottom: solid #4A4848 1px;
+			a{
+				color: #CCC7C7;
+				cursor: pointer;
+			}
+			img{
+				width: 30px;
+				height: 30px;
+			}
+			ul{
+				background: #3b4142 !important;
+				li{
+					padding-left: 25px;
+					border-bottom: solid #4B4F50 1px;
+					img{
+						width: 22px;
+						height: 20px;
+						-webkit-filter: invert(100%);
+					}
+					a{
+						color: #CCC7C7;
+					}
+				}
+			}
+
+		}
+	}
+}

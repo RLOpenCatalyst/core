@@ -65,7 +65,7 @@
 				}
 			};
 		}])
-		.controller('blueprintCtrl', ['$scope', '$modal', 'formatData', 'workzoneServices', '$rootScope', 'workzoneUIUtils','confirmbox','toastr', function($scope, $modal, formatData, workzoneServices, $rootScope, workzoneUIUtils,confirmbox,toastr) {
+		.controller('blueprintCtrl', ['$scope', '$modal', 'formatData', 'workzoneServices', '$rootScope', 'workzoneUIUtils','confirmbox','toastr','genericServices', function($scope, $modal, formatData, workzoneServices, $rootScope, workzoneUIUtils,confirmbox,toastr,gencSevs) {
 			/*Open only One Accordian-Group at a time*/
 			$scope.oneAtATime = true;
 			/*Initialising First Accordian-group open on load*/
@@ -173,37 +173,10 @@
 					}); 
 				},
 				moreInfo: function(blueprintObj) {
-					var modalInstance = $modal.open({
-						animation: true,
-						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/blueprintInfo.html',
-						controller: 'blueprintInfoCtrl',
-						backdrop : 'static',
-						keyboard: false,
-						resolve: {
-							items: function() {
-								return blueprintObj;
-							}
-						}
-					});
-					modalInstance.result.then(function(selectedItem) {
-						$scope.selected = selectedItem;
-					}, function() {
-						
-					});
+					gencSevs.moreInfo(blueprintObj,null);
 				},
 				compBlueInfo:function (blueprintObj) {
-					var modalInstance = $modal.open({
-						animation: true,
-						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/compositeBlueprintInfo.html',
-						controller: 'compositeBlueprintInfoCtrl as compBlue',
-						backdrop : 'static',
-						keyboard: false,
-						resolve: {
-							items: function() {
-								return blueprintObj ;
-							}
-						}
-					});
+					gencSevs.moreInfo(blueprintObj,'compBlueInfo');
 				},
 				showDockerRepoList: function(blueprintObj) {
 					var modalInstance = $modal.open({
@@ -224,25 +197,8 @@
 						
 					});
 				},
-				removeBlueprint: function(blueprintObj, bpType) { 
-					$modal.open({
-						animate: true,
-						templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/removeBlueprint.html",
-						controller: "removeBlueprintCtrl",
-						backdrop : 'static',
-						keyboard: false,
-						resolve: {
-							items: function() {
-								return blueprintObj;
-							}
-						}
-					}).
-					result.then(function() { 
-						var idx = $scope.blueprints[bpType].indexOf(blueprintObj);
-						$scope.blueprints[bpType].splice(idx, 1);
-					}, function() {
-						
-					});
+				removeBlueprint: function(blueprintObj, bpType) {
+					gencSevs.removeBlueprint(blueprintObj, bpType);
 				},
 				getAllCompsiteBlueprint:function(){
 					workzoneServices.getAllCompsiteBlueprint().success(function(compBlue){
@@ -250,23 +206,8 @@
 					});
 				},
 				deleteCompositeBlueprint:function(compositeBlueprintId){
-					var modalOptions = {
-						closeButtonText: 'Cancel',
-						actionButtonText: 'Delete',
-						actionButtonStyle: 'cat-btn-delete',
-						headerText: 'Delete Composite Blueprint',
-						bodyText: 'Are you sure you want to delete this composite blueprint?'
-					};
-					confirmbox.showModal({}, modalOptions).then(function() {
-						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function(response) {
-							$scope.getAllCompsiteBlueprint();
-							toastr.success('Successfully deleted');
-						}).error(function(data) {
-							toastr.error(data.message, 'Error');
-						});
-					});
+					gencSevs.removeBlueprint(compositeBlueprintId, 'compositeBlueprint');
 				},
-
 				launchInstanceCompoBlueprint:function(compositeBlueprintId){
 					var modalOptions = {
 						closeButtonText: ' No ',

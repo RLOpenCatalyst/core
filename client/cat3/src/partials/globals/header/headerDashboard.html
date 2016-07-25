@@ -21,10 +21,10 @@
 					</div>
 				</li>
 				<li>
-					<div id="design" class="headNavigItem" ng-if="designBool" ui-sref-active='activeSection'>
-						<a href="/private/index.html#ajax/Aws-Production.html">
+					<div id="design" class="headNavigItem" ng-if="designBool" ng-class="{ 'active': dashboardChild === 'design' }" ui-sref='dashboard.design' ui-sref-active='activeSection'>
+						<!--<a href="/private/index.html#ajax/Aws-Production.html">-->
 							<i class="fa fa-puzzle-piece white"></i> DESIGN
-						</a>
+						<!--</a>-->
 					</div>
 				</li>
 				<li>
