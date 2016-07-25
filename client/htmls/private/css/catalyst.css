@@ -2433,6 +2433,9 @@ hr {
     width: 64%;
     cursor: pointer;
 }
+.blueprintdiv-aws {
+    width: 77% !important;
+}
 /*Added for padding top in the li*/
 
 .Padded {
@@ -4470,4 +4473,71 @@ form.cmxform .gray * {
 /*Class added in Dev Angular to show the blue color for active classes.*/
 .custom-theme .left-projects-links > a.active i {
     color:#40baf1 !important;
+}
+/* compsiteBlueprint*/
+#compsiteBlueprint{
+    margin: 0 auto;
+    width: 69%;
+}
+#optionSelector, #selectorList {
+    width: 100%;
+    height: 250px;
+}
+.selectCookbooksandRecipesdivLeft {
+    margin: 0 0 0 10px;
+}
+.selectCookbooksandRecipesdivLeft, .selectCookbooksandRecipesdivRight {
+    width: 79%;
+}
+.blueprintClass {
+    background-repeat: no-repeat;
+    height: 24px;
+    padding-left: 34px;
+    padding-top: 6px;
+    background-position: 4px 2px !important;
+    font-size: 12px;
+    background: url("../img/environment.png") no-repeat;
+
+}
+.section-headings{
+    background: rgba(241, 241, 241, 0.77);
+    height: 29px;
+    padding: 0 16%;
+    font-weight: 700;
+}
+
+#btnaddToBlueprint , #btnremoveFromBlueprint {
+    padding: 5px 10px;
+}
+
+#btnBlueprintItemUp, #btnBlueprintItemDown {
+    padding: 5px 8px;
+}
+
+.compositeBPVersion{
+    float:right;
+    margin-right: 30px;
+    margin-top: 10px;
+}
+
+.marginTop19{
+    margin-top:19px
+}
+#compBlueprint{
+    display: block;
+    -webkit-margin-start: 2px;
+    -webkit-margin-end: 2px;
+    -webkit-padding-before: 0.35em;
+    -webkit-padding-start: 0.75em;
+    -webkit-padding-end: 0.75em;
+    -webkit-padding-after: 0.625em;
+    min-width: -webkit-min-content;
+    border: 1px solid #ccc;
+}
+#compBlueprint legend {
+    display: block;
+    -webkit-padding-start: 2px;
+    -webkit-padding-end: 2px;
+    border: none;
+    width: auto !important;
 }

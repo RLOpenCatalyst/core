@@ -18,84 +18,69 @@
 	</div>
 
 	<div class="modal-body">
-		<div class="cp-container">
-			<div class="row">
-				<div class="cp-cards" ng-show="tileView">
-					<div class="cp-card" ng-click="tab.setTab('Information')">
-						<div class="cp-card-info-wrapper">
-							<div>
-								<i class="fa fa-fw fa-info"></i>
-							</div>
-							<div>
-								<span class="cp-card-page-name">Information</span>
-							</div>
+		<fieldset>
+			<div class="cp-cards">
+				<div class="cp-card selected-cp-card" title="Information" ng-class="{'selected-cp-card': selectedTab == 'Information'}" ng-click="tab.setTab('Information')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-fw fa-info"></i>
 						</div>
-					</div>
-					<div class="cp-card" ng-click="tab.setTab('Actionhistory')">
-						<div class="cp-card-info-wrapper">
-							<div>
-								<i class="fa fa-sun-o"></i>
-							</div>
-							<div>
-								<span class="cp-card-page-name">Action History</span>
-							</div>
-						</div>
-					</div>
-					<div class="cp-card" ng-click="tab.setTab('Services')">
-						<div class="cp-card-info-wrapper">
-							<div>
-								<i class="fa fa-share-square-o"></i>
-							</div>
-							<div>
-								<span class="cp-card-page-name">Services</span>
-							</div>
-						</div>
-					</div>
-					<div class="cp-card" ng-click="tab.setTab('Logs')">
-						<div class="cp-card-info-wrapper">
-							<div>
-								<i class="fa fa-clock-o"></i>
-							</div>
-							<div>
-								<span class="cp-card-page-name">Logs</span>
-							</div>
-						</div>
-					</div>
-					<div class="cp-card" ng-click="tab.setTab('Instanceactions')">
-						<div class="cp-card-info-wrapper">
-							<div>
-								<i class="fa fa-list-ol"></i>
-							</div>
-							<div>
-								<span class="cp-card-page-name">Actions</span>
-							</div>
+						<div>
+							<span class="cp-card-page-name">Information</span>
 						</div>
 					</div>
 				</div>
-				
-				<div class="{{tab.isSet('Actionhistory')? 'show-grid':'hide-grid'}}">
-					<div ng-include="tab.templates.actionhistory.url"></div>
+				<div class="cp-card" title="Action History" ng-class="{'selected-cp-card': selectedTab == 'Actionhistory'}" ng-click="tab.setTab('Actionhistory')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-sun-o"></i>
+						</div>
+						<div>
+							<span class="cp-card-page-name">Action History</span>
+						</div>
+					</div>
 				</div>
-				<div ng-show="tab.isSet('Information')">
-					<div ng-include="tab.templates.information.url"></div>
+				<div class="cp-card" title="Services" ng-class="{'selected-cp-card': selectedTab == 'Services'}" ng-click="tab.setTab('Services')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-share-square-o"></i>
+						</div>
+						<div>
+							<span class="cp-card-page-name">Services</span>
+						</div>
+					</div>
 				</div>
-				<div class="{{tab.isSet('Services')? 'show-grid':'hide-grid'}}">
-					<div ng-include="tab.templates.services.url"></div>
-				</div>
-				<div ng-show="tab.isSet('Logs')">
-					<div ng-include="tab.templates.logs.url"></div>
-				</div>
-				<div ng-show="tab.isSet('Instanceactions')">
-					<div ng-include="tab.templates.instanceactions.url"></div>
+				<div class="cp-card" title="Logs" ng-class="{'selected-cp-card': selectedTab == 'Logs'}" ng-click="tab.setTab('Logs')">
+					<div class="cp-card-info-wrapper">
+						<div>
+							<i class="fa fa-clock-o"></i>
+						</div>
+						<div>
+							<span class="cp-card-page-name">Logs</span>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
+			<div class="cp-container">
+				<div class="row">
+					<div ng-show="tab.isSet('Information')">
+						<div ng-include="tab.templates.information.url"></div>
+					</div>
+					<div class="{{tab.isSet('Actionhistory')? 'show-grid':'hide-grid'}}">
+						<div ng-include="tab.templates.actionhistory.url"></div>
+					</div>
+					<div class="{{tab.isSet('Services')? 'show-grid':'hide-grid'}}">
+						<div ng-include="tab.templates.services.url"></div>
+					</div>
+					<div ng-show="tab.isSet('Logs')">
+						<div ng-include="tab.templates.logs.url"></div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
 	</div>
 
 	<div class="modal-footer">
-		<button type="button" class="btn cat-btn-close pull-left" ng-click="back()" ng-show="!tileView">
-			<i class="fa fa-chevron-left black"></i> Back
-		</button>
  		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
  			<i class="fa fa-times black"></i> Close
  		</button>

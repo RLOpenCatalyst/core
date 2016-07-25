@@ -61,7 +61,6 @@ var Chef = function(settings) {
     var bootstrapattemptcount = 0;
 
     function initializeChefClient(callback) {
-        logger.debug('User Pem file:', settings.chefUserPemFile);
         if (!chefClient) {
             fileIo.readFile(settings.chefUserPemFile, function(err, key) {
                 if (err) {
@@ -117,7 +116,6 @@ var Chef = function(settings) {
                     callback(true, null);
                     return;
                 }
-
                 var nodeNames = Object.keys(chefResBody);
                 callback(null, nodeNames);
             });

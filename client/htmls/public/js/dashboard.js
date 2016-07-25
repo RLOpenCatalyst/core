@@ -1,7 +1,7 @@
 $(document).ready(function() {
   var managedTotal = 0,
-    unmanagedTotal = 0,
-    managedunmanagedTotal = 0;
+      unmanagedTotal = 0,
+      managedunmanagedTotal = 0;
 
   function updateTotalCount(type, id, count) {
     if (type === "managed") {
@@ -39,15 +39,16 @@ $(document).ready(function() {
       $presentProviderView.show();
       $('#totalProviders').append(totalcountproviders);
 
-      $('#providerMoreInfo').on('click',function(){
+      $('#totalManagedInstancesMoreInfo').on('click',function(){
         $('#mainPanelId').hide();
-        $('#trackedInstancesAllProviderTableContainer').show();
-        $.get('../tracked-instances', function(data) {
-          loadtrackedallProviderInstances(data);
-        }).fail(function() {
-            //TO DO
-            alert("Tracked Instances not properly Loaded");
-        }); 
+        $('#trackedManagedInstancesAllProviderTableContainer').show();
+        loadAllManagedInstances();
+      });
+
+      $('#totalAssignedInstancesMoreInfo').on('click',function(){
+        $('#mainPanelId').hide();
+        $('#trackedAssignedInstancesAllProviderTableContainer').show();
+        loadAllAssignedInstances();
       });
 
       var awstotalinstancecount = 0;
@@ -78,25 +79,24 @@ $(document).ready(function() {
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-green');
 
           $.get('../providers/' + providerid + '/managedInstances', function(dataManaged) {
-            var managedInstancesLength = dataManaged.managedInstances.length;
+            var managedInstancesLength = dataManaged.metaData.totalRecords;
             $childManagedInstanceTemplate.find('.countMangedInstance').empty().append(managedInstancesLength);
 
             var totalManagedUnmanagedData;
-            var managedData = dataManaged.managedInstances.length;
+            var managedData = dataManaged.metaData.totalRecords;
             updateTotalCount("managed", providerid, managedData);
 
-            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+            $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(awsSpecificProvName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loadManagedInstances(providerid);
             });
 
             $.get('../providers/' + providerid + '/unmanagedInstances', function(dataUnmanaged) {
-              var unmanagedData = dataUnmanaged.unmanagedInstances.length;
+              var unmanagedData = dataUnmanaged.metaData.totalRecords;
               $childUnmanagedInstanceTemplate.find('.countUnmangedInstance').empty().append(unmanagedData);
-              
+
 
               updateTotalCount("unmanaged", providerid, unmanagedData);
 
@@ -106,29 +106,14 @@ $(document).ready(function() {
               awstotalinstancecount = awstotalinstancecount + totalManagedUnmanagedData;
 
               $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
-              $childUnmanagedInstanceTemplate.find('.unmanagedInstSpecificMoreInfo').click(function() {
+              $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function() {
                 $('#mainPanelId').hide();
                 $('#unmanagedTableContainer').show();
                 $('#providerforunManagedInstId').empty().append(awsSpecificProvName);
-                //Managned data passed to loadManagedInstances function to populate data in table.
-                loadunManagedInstances(dataUnmanaged.unmanagedInstances);
+                loadAssignedInstances(providerid);
               });
             });
           });
-
-          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
-            $('#mainPanelId').hide();
-            $('#trackedInstancesSpecProviderTableContainer').show();
-
-            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              //var trackedInstancesData = data.trackedInstances;
-              loadtrackedspecProviderInstances(data);
-            }).fail(function() {
-                //TO DO
-                alert("Tracked Instances for specific provider not properly Loaded");
-            }); 
-          });
-
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
@@ -168,7 +153,7 @@ $(document).ready(function() {
           var $childManagedInstanceTemplate = $('.childManagedInstanceTemplate').clone();
           $childManagedInstanceTemplate.removeClass('childManagedInstanceTemplate');
           $childManagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-yellow');
-          
+
           var $childUnmanagedInstanceTemplate = $('.childUnmanagedInstanceTemplate').clone();
           $childUnmanagedInstanceTemplate.removeClass('childUnmanagedInstanceTemplate');
           $childUnmanagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-yellow');
@@ -185,12 +170,11 @@ $(document).ready(function() {
             var managedData = dataManaged.managedInstances.length;
             updateTotalCount("managed", providerid, managedData);
 
-            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+            $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(azureProvidersName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loadManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -200,29 +184,14 @@ $(document).ready(function() {
             updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
 
             $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
-            $childUnmanagedInstanceTemplate.find('.unmanagedInstSpecificMoreInfo').click(function() {
+            $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(azureProvidersName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              //There is no API call for unmanagedInstances so creating the dummyArray.
-              var dummyArray = [];
-              loadunManagedInstances(dummyArray);
-              //loadunManagedInstances(dataUnmanaged.unmanagedInstances);
+              loadAssignedInstances(providerid);
             });
           });
 
-          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
-            $('#mainPanelId').hide();
-            $('#trackedInstancesSpecProviderTableContainer').show();
-            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              loadtrackedspecProviderInstances(data);
-            }).fail(function() {
-                //TO DO
-                alert("Tracked Instances for specific provider not properly Loaded");
-            }); 
-          });
-          
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
@@ -248,7 +217,7 @@ $(document).ready(function() {
           $childProviderTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-blue');
 
           var providerid = totalProviders.vmwareProviders[k]._id;
-          
+
           var $childManagedInstanceTemplate = $('.childManagedInstanceTemplate').clone();
           $childManagedInstanceTemplate.removeClass('childManagedInstanceTemplate');
           $childManagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-blue');
@@ -269,12 +238,11 @@ $(document).ready(function() {
             var managedData = dataManaged.managedInstances.length;
             updateTotalCount("managed", providerid, managedData);
 
-            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+            $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(vmwareProvidersName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loadManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -284,29 +252,13 @@ $(document).ready(function() {
             updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
 
             $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
-            $childUnmanagedInstanceTemplate.find('.unmanagedInstSpecificMoreInfo').click(function() {
+            $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(vmwareProvidersName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              //There is no API call for unmanagedInstances so creating the dummyArray.
-              var dummyArray = [];
-              loadunManagedInstances(dummyArray);
-              //loadunManagedInstances(dataUnmanaged.unmanagedInstances);
+              loadAssignedInstances(providerid);
             });
           });
-
-          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
-            $('#mainPanelId').hide();
-            $('#trackedInstancesSpecProviderTableContainer').show();
-            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              loadtrackedspecProviderInstances(data);
-            }).fail(function() {
-                //TO DO
-                alert("Tracked Instances for specific provider not properly Loaded");
-            }); 
-          });
-          
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
@@ -333,7 +285,7 @@ $(document).ready(function() {
 
           var providerid = totalProviders.hpPlublicCloudProviders[l]._id;
           var totalInstances;
-          
+
           var providerSpecificHref = "/private/index.html#ajax/Settings/CreateProviders.html?"+providerid;
           $childProviderTemplate.find('.providerSpecificMoreInfo').click(function(){
             if (top.location != location) {
@@ -346,7 +298,7 @@ $(document).ready(function() {
           var $childManagedInstanceTemplate = $('.childManagedInstanceTemplate').clone();
           $childManagedInstanceTemplate.removeClass('childManagedInstanceTemplate');
           $childManagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-teal');
-          
+
           var $childUnmanagedInstanceTemplate = $('.childUnmanagedInstanceTemplate').clone();
           $childUnmanagedInstanceTemplate.removeClass('childUnmanagedInstanceTemplate');
           $childUnmanagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-teal');
@@ -354,7 +306,7 @@ $(document).ready(function() {
           var $childTotalInstanceTemplate = $('.childTotalInstanceTemplate').clone();
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-teal');
-          
+
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
@@ -380,15 +332,15 @@ $(document).ready(function() {
           $childProviderTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-red');
 
           var providerid = totalProviders.openstackProviders[m]._id;
-    
+
           var $childManagedInstanceTemplate = $('.childManagedInstanceTemplate').clone();
           $childManagedInstanceTemplate.removeClass('childManagedInstanceTemplate');
           $childManagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-red');
-          
+
           var $childUnmanagedInstanceTemplate = $('.childUnmanagedInstanceTemplate').clone();
           $childUnmanagedInstanceTemplate.removeClass('childUnmanagedInstanceTemplate');
           $childUnmanagedInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-red');
-          
+
           var $childTotalInstanceTemplate = $('.childTotalInstanceTemplate').clone();
           $childTotalInstanceTemplate.removeClass('childTotalInstanceTemplate');
           $childTotalInstanceTemplate.find('.small-box').removeClass('bg-aqua').addClass('bg-red');
@@ -401,12 +353,11 @@ $(document).ready(function() {
             var managedData = dataManaged.managedInstances.length;
             updateTotalCount("managed", providerid, managedData);
 
-            $childManagedInstanceTemplate.find('.managedInstSpecificMoreInfo').click(function() {
+            $childManagedInstanceTemplate.find('#managedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#managedTableContainer').show();
               $('#providerforManagedInstId').empty().append(openstackSpecificProvName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-              loadManagedInstances(dataManaged.managedInstances);
+              loadManagedInstances(providerid);
             });
 
             var unmanagedData = 0;
@@ -416,30 +367,13 @@ $(document).ready(function() {
             updateTotalCount("managedunmanaged", providerid, totalManagedUnmanagedData);
 
             $childTotalInstanceTemplate.find('.countTotalInstance').empty().append(totalManagedUnmanagedData);
-            $childUnmanagedInstanceTemplate.find('.unmanagedInstSpecificMoreInfo').click(function() {
+            $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function() {
               $('#mainPanelId').hide();
               $('#unmanagedTableContainer').show();
               $('#providerforunManagedInstId').empty().append(openstackSpecificProvName);
-              //Managned data passed to loadManagedInstances function to populate data in table.
-
-              //There is no API call for unmanagedInstances so creating the dummyArray.
-              var dummyArray = [];
-              loadunManagedInstances(dummyArray);
-              //loadunManagedInstances(dataUnmanaged.unmanagedInstances);
+              loadAssignedInstances(providerid);
             });
           });
-
-          $childTotalInstanceTemplate.find('.providerSpecificMoreInfo').click(function() {
-            $('#mainPanelId').hide();
-            $('#trackedInstancesSpecProviderTableContainer').show();
-            $.get('../tracked-instances?filterBy=providerId:'+providerid, function(data) {
-              loadtrackedspecProviderInstances(data);
-            }).fail(function() {
-                //TO DO
-                alert("Tracked Instances for specific provider not properly Loaded");
-            }); 
-          });
-          
           $rowTemplate.append($childProviderTemplate);
           $rowTemplate.append($childTotalInstanceTemplate);
           $rowTemplate.append($childManagedInstanceTemplate);
@@ -464,72 +398,7 @@ $(document).ready(function() {
     $('#managedTableContainer').hide();
   });
 
-  function loadManagedInstances(managnedData) {
-    $instanceManagedDatatable.clear().draw();
-    var $tbody = $('#managedInstance tbody').empty();
-    for (var i = 0; i < managnedData.length; i++) {
-      var $tr = $('<tr class="managedInstance"></tr>').attr('data-id', managnedData[i]._id);
-      var $tdId = $('<td></td>').append(managnedData[i].platformId);
-      $tr.append($tdId);
 
-      if(managnedData[i].hardware.os){
-        var $tdOs = $('<td></td>').append(managnedData[i].hardware.os);
-        $tr.append($tdOs);
-      }else{
-        var $tdOs = $('<td></td>').append('');
-        $tr.append($tdOs);
-      }
-      
-      var $tdIpAddress = $('<td></td>').append(managnedData[i].instanceIP);
-      $tr.append($tdIpAddress);
-
-      var region = '';
-      if (managnedData[i].providerData && managnedData[i].providerData.region) {
-        region = managnedData[i].providerData.region;
-      }else{
-        region = managnedData[i].region;
-      }
-      var $tdRegion = $('<td></td>').append(region);
-      $tr.append($tdRegion);
-      var $tdStatus = $('<td></td>').append(managnedData[i].instanceState);
-      $tr.append($tdStatus);
-
-      var $tdProjectName = $('<td></td>').append(managnedData[i].projectName);
-      $tr.append($tdProjectName);
-
-      $tbody.append($tr);
-      $instanceManagedDatatable.row.add($tr).draw();
-    }
-  }
-  
-  if (!$.fn.dataTable.isDataTable('#managedinstanceListTable')) {
-    var $instanceManagedDatatable = $('#managedinstanceListTable').DataTable({
-      "pagingType": "full_numbers",
-      "bInfo": true,
-      "bLengthChange": true,
-      "paging": true,
-      "bFilter": true,
-      "aaSorting": [
-        [4, "asc"]
-      ],
-      "aoColumns": [{
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      },{
-        "bSortable": false
-      }]
-
-    });
-  }
-  $('#managedinstanceListTable_info').addClass('font-size12');
-  $('#managedinstanceListTable_paginate').addClass('font-size12');
 
   //From unmanaged instances
   $('#backfrmunManagedInstance').click(function() {
@@ -537,268 +406,226 @@ $(document).ready(function() {
     $('#unmanagedTableContainer').hide();
   });
 
-  function loadunManagedInstances(unmanagnedData) {
-    $instanceunManagedDatatable.clear().draw();
-    var $tbody = $('#unmanagedInstance tbody').empty();
-    for (var i = 0; i < unmanagnedData.length; i++) {
-      var $tr = $('<tr class="unmanagedInstance"></tr>').attr('data-id', unmanagnedData[i]._id);
-      var $tdId = $('<td></td>').append(unmanagnedData[i].platformId);
-      $tr.append($tdId);
-      
-      if(unmanagnedData[i].os){
-        var $tdOs = $('<td></td>').append(unmanagnedData[i].os);
-        $tr.append($tdOs);
-      }else{
-        var $tdOs = $('<td></td>').append('');
-        $tr.append($tdOs);
-      }
-    
-      var $tdIpAddress = $('<td></td>').append(unmanagnedData[i].ip);
-      $tr.append($tdIpAddress);
 
-      var region = '';
-      if (unmanagnedData[i].providerData && unmanagnedData[i].providerData.region) {
-        region = unmanagnedData[i].providerData.region;
-      }
-      var $tdRegion = $('<td></td>').append(region);
-      $tr.append($tdRegion);
-      var $tdStatus = $('<td></td>').append(unmanagnedData[i].state);
-      $tr.append($tdStatus);
-
-      var $tdProjectName = $('<td></td>').append(unmanagnedData[i].projectName);
-      $tr.append($tdProjectName);
-
-      $tbody.append($tr);
-      $instanceunManagedDatatable.row.add($tr).draw();
-    }
-  }
-  
-  if (!$.fn.dataTable.isDataTable('#unmanagedinstanceListTable')) {
-    var $instanceunManagedDatatable = $('#unmanagedinstanceListTable').DataTable({
-      "pagingType": "full_numbers",
-      "bInfo": true,
-      "bLengthChange": true,
-      "paging": true,
-      "bFilter": true,
-      "aaSorting": [
-        [4, "asc"]
-      ],
-      "aoColumns": [{
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      },{
-        "bSortable": false
-      }]
-
+  function loadManagedInstances(providerId){
+    $('#managedinstanceListTable').DataTable({
+      "processing": true,
+      "serverSide": true,
+      "destroy":true,
+      "ajax": '/providers/' + providerId + '/managedInstanceList',
+      "columns": [
+        {"data": "platformId","orderable" : true},
+        {"data": "orgName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "projectName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "environmentName","orderable" : true,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "hardware.os","orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "instanceIP","orderable" : true},
+        {"data": "","orderable" : true,
+          "render":function(data, type, full, meta) {
+            return full.region?full.region:full.providerData?full.providerData.region:'-';
+          }
+        },
+        {"data": "instanceState","orderable" : true  },
+        {"data": "","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
+          }
+        },
+        {"data": "usage","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
+            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
+          }
+        }
+      ]
     });
   }
-  $('#unmanagedinstanceListTable_info').addClass('font-size12');
-  $('#unmanagedinstanceListTable_paginate').addClass('font-size12');
 
-  //For all provider tracked instances.
-  $('#backfrmallprovidertrackedInstance').click(function() {
+  function loadAllManagedInstances(){
+    $('#allProviderTrackedManagedInstanceListTable').DataTable({
+      "processing": true,
+      "serverSide": true,
+      "destroy":true,
+      "ajax": '/tracked-instances?category=managed',
+      "columns": [
+        {"data": "platformId","orderable" : true},
+        {"data": "orgName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "projectName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "environmentName","orderable" : true,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "hardware.os","orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "instanceIP","orderable" : true},
+        {"data": "instanceState","orderable" : true},
+        {"data": "providerType","orderable" : true,
+          "render": function(data){
+            if(data === 'aws'){
+              return 'AWS';
+            }else if(data === 'azure'){
+              return 'Azure';
+            }else if(data === 'vmware'){
+              return 'VMWare';
+            }else if(data === 'openstack'){
+              return 'OpenStack';
+            }
+          }
+        }
+      ]
+    });
+  }
+
+  function loadAssignedInstances(providerId){
+    $('#unmanagedinstanceListTable').DataTable( {
+      "processing": true,
+      "serverSide": true,
+      "destroy":true,
+      "createdRow": function( row, data ) {
+        $( row ).attr({"data-id" : data._id})
+      },
+      "ajax": '/providers/' + providerId + '/unmanagedInstanceList',
+      "columns": [
+        {"data": "platformId","orderable" : true  },
+        {"data": "orgName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "projectName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "environmentName","orderable" : true,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "os","orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "ip","orderable" : true  },
+        {"data": "","orderable" : true,
+          "render":function(data, type, full, meta) {
+            return full.region?full.region:full.providerData?full.providerData.region:'-';
+          }
+        },
+        {"data": "state","orderable" : true  },
+        {"data": "","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
+          }
+        },
+        {"data": "usage","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
+            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
+          }
+        }
+      ]
+    });
+  }
+
+  function loadAllAssignedInstances(){
+    $('#allProviderTrackedAssignedInstanceListTable').DataTable( {
+      "processing": true,
+      "serverSide": true,
+      "destroy":true,
+      "createdRow": function( row, data ) {
+        $( row ).attr({"data-id" : data._id})
+      },
+      "ajax": '/tracked-instances?category=assigned',
+      "columns": [
+        {"data": "platformId","orderable" : true  },
+        {"data": "orgName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "projectName" ,"orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "environmentName","orderable" : true,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "os","orderable" : false,
+          "render": function(data){
+            return data?data:'';
+          }
+        },
+        {"data": "ip","orderable" : true  },
+        {"data": "state","orderable" : true  },
+        {"data": "providerType","orderable" : true,
+          "render": function(data){
+            if(data === 'aws'){
+              return 'AWS';
+            }else if(data === 'azure'){
+              return 'Azure';
+            }else if(data === 'vmware'){
+              return 'VMWare';
+            }else if(data === 'openstack'){
+              return 'OpenStack';
+            }
+          }
+        }
+      ]
+    });
+  }
+
+  $('#unmanagedinstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
+  $('#managedinstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
+  //For all Managed  tracked instances.
+  $('#backfrmallprovidertrackedManagedInstance').click(function() {
     $('#mainPanelId').show();
-    $('#trackedInstancesAllProviderTableContainer').hide();
+    $('#trackedManagedInstancesAllProviderTableContainer').hide();
   });
 
-  function loadtrackedallProviderInstances(allProviderData) {
-    $allProviderTrackedInstanceDatatable.clear().draw();
-    var $tbody = $('#allProviderTrackedInstance tbody').empty();
-    for (var i = 0; i < allProviderData.trackedInstances.length; i++) {
-      var $tr = $('<tr class="allproviderTrackedInstance"></tr>').attr('data-id', allProviderData.trackedInstances[i].id);
-      
-      var $tdinstancePlatformId = $('<td></td>').append(allProviderData.trackedInstances[i].instancePlatformId);
-      $tr.append($tdinstancePlatformId);
-
-      var $tdorgId = $('<td></td>').append(allProviderData.trackedInstances[i].orgName);
-      $tr.append($tdorgId);
-
-      /*var $tdbgId = $('<td></td>').append(allProviderData.trackedInstances[i].bgName);
-      $tr.append($tdbgId);*/
-
-      var $tdprojectName = $('<td></td>').append(allProviderData.trackedInstances[i].projectName);
-      $tr.append($tdprojectName);
-
-      var $tdenvironmentName = $('<td></td>').append(allProviderData.trackedInstances[i].environmentName);
-      $tr.append($tdenvironmentName);
-
-      var $tdos = $('<td></td>').append(allProviderData.trackedInstances[i].os);
-      $tr.append($tdos);
-
-      var $tdip = $('<td></td>').append(allProviderData.trackedInstances[i].ip);
-      $tr.append($tdip);
-
-      if(allProviderData.trackedInstances[i].providerType){
-        var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType.toUpperCase());
-        $tr.append($tdproviderType);
-      }else{
-        var $tdproviderType = $('<td></td>').append(allProviderData.trackedInstances[i].providerType);
-        $tr.append($tdproviderType);
-      }
-
-      if(allProviderData.trackedInstances[i].cost)
-        var $tdcost = $('<td></td>').append('$ '+allProviderData.trackedInstances[i].cost);
-      else
-        var $tdcost = $('<td></td>').append('-');
-      $tr.append($tdcost);
-
-      if(allProviderData.trackedInstances[i].usage)
-        $tdavgCpuUtilization = '<span>'+allProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
-        '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(allProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
-      else
-        $tdavgCpuUtilization = '<span>&nbsp;-&nbsp;</span>';
-      var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
-      $tr.append($tdusage);
-
-      $tbody.append($tr);
-      $allProviderTrackedInstanceDatatable.row.add($tr).draw();
-      $allProviderTrackedInstanceDatatable.on('click', '.specProviderUsages', specProviderUsagesClickHandler);
-    }
-  }
-
-  if (!$.fn.dataTable.isDataTable('#allProviderTrackedInstanceListTable')) {
-    var $allProviderTrackedInstanceDatatable = $('#allProviderTrackedInstanceListTable').DataTable({
-      "pagingType": "full_numbers",
-      "bInfo": true,
-      "bLengthChange": true,
-      "paging": true,
-      "bFilter": true,
-      "aaSorting": [
-        [4, "asc"]
-      ],
-      "aoColumns": [{
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      }]
-
-    });
-  }
-  $('#allProviderTrackedInstanceListTable_info').addClass('font-size12');
-  $('#allProviderTrackedInstanceListTable_paginate').addClass('font-size12');
-
-
-
-  //For Specific Provider details
-
-  $('#backfrmspecprovidertrackedInstance').click(function() {
+  //For all Assigned  tracked instances.
+  $('#backfrmallprovidertrackedAssignedInstance').click(function() {
     $('#mainPanelId').show();
-    $('#trackedInstancesSpecProviderTableContainer').hide();
+    $('#trackedAssignedInstancesAllProviderTableContainer').hide();
   });
-
-  function loadtrackedspecProviderInstances(specProviderData) {
-    $specProviderTrackedInstanceDatatable.clear().draw();
-    var $tbody = $('#specProviderTrackedInstance tbody').empty();
-    for (var i = 0; i < specProviderData.trackedInstances.length; i++) {
-      var $tr = $('<tr class="specproviderTrackedInstance"></tr>').attr('data-id', specProviderData.trackedInstances[i].id);
-      
-      var $tdinstancePlatformId = $('<td></td>').append(specProviderData.trackedInstances[i].instancePlatformId);
-      $tr.append($tdinstancePlatformId);
-
-      var $tdorgId = $('<td></td>').append(specProviderData.trackedInstances[i].orgName);
-      $tr.append($tdorgId);
-
-      /*var $tdbgId = $('<td></td>').append(specProviderData.trackedInstances[i].bgName);
-      $tr.append($tdbgId);*/
-
-      var $tdprojectName = $('<td></td>').append(specProviderData.trackedInstances[i].projectName);
-      $tr.append($tdprojectName);
-
-      var $tdenvironmentName = $('<td></td>').append(specProviderData.trackedInstances[i].environmentName);
-      $tr.append($tdenvironmentName);
-
-      var $tdos = $('<td></td>').append(specProviderData.trackedInstances[i].os);
-      $tr.append($tdos);
-
-      var $tdip = $('<td></td>').append(specProviderData.trackedInstances[i].ip);
-      $tr.append($tdip);
-
-      var $tdproviderType = $('<td></td>').append(specProviderData.trackedInstances[i].providerType.toUpperCase());
-      $tr.append($tdproviderType);
-
-      if(specProviderData.trackedInstances[i].cost)
-        var $tdcost = $('<td></td>').append('$ '+specProviderData.trackedInstances[i].cost);
-      else
-        var $tdcost = $('<td></td>').append('-');
-      $tr.append($tdcost);
-
-      if(specProviderData.trackedInstances[i].usage)
-        $tdavgCpuUtilization = '<span>'+specProviderData.trackedInstances[i].usage.CPUUtilization.average+'&nbsp;%</span>'+
-        '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(specProviderData.trackedInstances[i].usage)+'><i class="fa fa-list"></i></a>';
-      else
-        $tdavgCpuUtilization = '<span>&nbsp;-&nbsp;</span>';
-      var $tdusage = $('<td></td>').append($tdavgCpuUtilization);
-      $tr.append($tdusage);
-
-      $tbody.append($tr);
-      $specProviderTrackedInstanceDatatable.row.add($tr).draw();
-      $specProviderTrackedInstanceDatatable.on('click', '.specProviderUsages', specProviderUsagesClickHandler);
-    }
-  }
-
-  if (!$.fn.dataTable.isDataTable('#specProviderTrackedInstanceListTable')) {
-    var $specProviderTrackedInstanceDatatable = $('#specProviderTrackedInstanceListTable').DataTable({
-      "pagingType": "full_numbers",
-      "bInfo": true,
-      "bLengthChange": true,
-      "paging": true,
-      "bFilter": true,
-      "aaSorting": [
-        [4, "asc"]
-      ],
-      "aoColumns": [{
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      }, {
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      },{
-        "bSortable": false
-      }]
-
-    });
-  }
-  $('#specProviderTrackedInstanceListTable_info').addClass('font-size12');
-  $('#specProviderTrackedInstanceListTable_paginate').addClass('font-size12');
-
 
   //Function to get the specific provider usages.
   function specProviderUsagesClickHandler(){
     var $specUsageModalContainer = $('#specUsageModalContainer');
     var dataStr = $(this).attr("data-usage");
     var $data = JSON.parse(dataStr);
-
     $specUsageModalContainer.find('#specCpuUtilAvg').html($data.CPUUtilization.average);
     $specUsageModalContainer.find('#specCpuUtilMin').html($data.CPUUtilization.minimum);
     $specUsageModalContainer.find('#specCpuUtilMax').html($data.CPUUtilization.maximum);
