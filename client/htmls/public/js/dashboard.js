@@ -438,10 +438,21 @@ $(document).ready(function() {
         {"data": "instanceIP","orderable" : true},
         {"data": "","orderable" : true,
           "render":function(data, type, full, meta) {
-              return full.region?full.region:full.providerData?full.providerData.region:'-';
+            return full.region?full.region:full.providerData?full.providerData.region:'-';
           }
         },
-        {"data": "instanceState","orderable" : true  }
+        {"data": "instanceState","orderable" : true  },
+        {"data": "","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
+          }
+        },
+        {"data": "usage","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
+            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
+          }
+        }
       ]
     });
   }
@@ -456,7 +467,7 @@ $(document).ready(function() {
         {"data": "platformId","orderable" : true},
         {"data": "orgName" ,"orderable" : false,
           "render": function(data){
-              return data?data:'';
+            return data?data:'';
           }
         },
         {"data": "projectName" ,"orderable" : false,
@@ -487,17 +498,6 @@ $(document).ready(function() {
             }else if(data === 'openstack'){
               return 'OpenStack';
             }
-          }
-        },
-        {"data": "","orderable" : false,
-          "render":function(data, type, full, meta) {
-              return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
-          }
-        },
-        {"data": "usage","orderable" : false,
-          "render":function(data, type, full, meta) {
-            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
-                  '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
           }
         }
       ]
@@ -541,7 +541,18 @@ $(document).ready(function() {
             return full.region?full.region:full.providerData?full.providerData.region:'-';
           }
         },
-        {"data": "state","orderable" : true  }
+        {"data": "state","orderable" : true  },
+        {"data": "","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
+          }
+        },
+        {"data": "usage","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
+            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
+          }
+        }
       ]
     });
   }
@@ -580,35 +591,24 @@ $(document).ready(function() {
         {"data": "ip","orderable" : true  },
         {"data": "state","orderable" : true  },
         {"data": "providerType","orderable" : true,
-            "render": function(data){
-              if(data === 'aws'){
-                return 'AWS';
-              }else if(data === 'azure'){
-                return 'Azure';
-              }else if(data === 'vmware'){
-                return 'VMWare';
-              }else if(data === 'openstack'){
-                return 'OpenStack';
-              }
+          "render": function(data){
+            if(data === 'aws'){
+              return 'AWS';
+            }else if(data === 'azure'){
+              return 'Azure';
+            }else if(data === 'vmware'){
+              return 'VMWare';
+            }else if(data === 'openstack'){
+              return 'OpenStack';
             }
-        },
-        {"data": "","orderable" : false,
-          "render":function(data, type, full, meta) {
-            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
-          }
-        },
-        {"data": "usage","orderable" : false,
-          "render":function(data, type, full, meta) {
-            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
-            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
           }
         }
       ]
     });
   }
 
-  $('#allProviderTrackedManagedInstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
-  $('#allProviderTrackedAssignedInstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
+  $('#unmanagedinstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
+  $('#managedinstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
   //For all Managed  tracked instances.
   $('#backfrmallprovidertrackedManagedInstance').click(function() {
     $('#mainPanelId').show();
@@ -626,7 +626,6 @@ $(document).ready(function() {
     var $specUsageModalContainer = $('#specUsageModalContainer');
     var dataStr = $(this).attr("data-usage");
     var $data = JSON.parse(dataStr);
-
     $specUsageModalContainer.find('#specCpuUtilAvg').html($data.CPUUtilization.average);
     $specUsageModalContainer.find('#specCpuUtilMin').html($data.CPUUtilization.minimum);
     $specUsageModalContainer.find('#specCpuUtilMax').html($data.CPUUtilization.maximum);
@@ -646,7 +645,7 @@ $(document).ready(function() {
     $specUsageModalContainer.find('#specNetworkInAvg').html($data.NetworkIn.average);
     $specUsageModalContainer.find('#specNetworkInMin').html($data.NetworkIn.minimum);
     $specUsageModalContainer.find('#specNetworkInMax').html($data.NetworkIn.maximum);
-   
+
     $specUsageModalContainer.modal('show');
   }
 });

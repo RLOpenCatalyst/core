@@ -92,7 +92,8 @@ function getDefaultsConfig() {
                 "appDeploy" : "envId",
                 "trackedInstances": "providerType",
                 "resources":"createdOn",
-                "unassignedInstances":"state"
+                "unassignedInstances":"state",
+                "chefNodes":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,
