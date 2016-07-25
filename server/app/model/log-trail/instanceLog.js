@@ -143,7 +143,7 @@ var InstanceLog = function() {
 
     this.getInstanceActionList = function getInstanceActionList(jsonData, callback) {
         if (jsonData && jsonData.pageSize) {
-            jsonData['searchColumns'] = ['platformId', 'status', 'actionStatus', 'orgName', 'bgName', 'projectName', 'envName', 'providerType'];
+            jsonData['searchColumns'] = ['platformId', 'status', 'action', 'user', 'size', 'actionStatus', 'orgName', 'bgName', 'projectName', 'envName', 'blueprintName'];
             apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
                 if (err) {
                     var error = new Error('Internal server error');
