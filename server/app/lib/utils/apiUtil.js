@@ -49,6 +49,16 @@ var ApiUtil = function() {
         return;
     };
 
+    this.changeResponseForJqueryPagination=function(data,req,callback){
+        var resObj= {
+            "draw": req.draw,
+            "recordsTotal": data.total,
+            "recordsFiltered": data.total,
+            "data":data.docs
+        };
+        callback(null,resObj);
+    };
+
     this.databaseUtil=function(jsonData,callback){
         var queryObj={};
         var queryArr=[];
@@ -61,7 +71,7 @@ var ApiUtil = function() {
         var key=Object.keys(sortField)[0];
 
         if(fields.indexOf(key) !== -1){
-            if(jsonData.id === 'tasks' || jsonData.id === 'instances'){
+            if(jsonData.id === 'tasks' || jsonData.id === 'instances' || jsonData.id === 'instanceLogs' || jsonData.id === 'taskLogs'){
                 normalizedUtil.normalizedSort(jsonData,key);
                 var sortBy={};
                 sortBy['normalized'] = sortField[key];
@@ -85,17 +95,17 @@ var ApiUtil = function() {
             queryArr.push(objAnd);
             for(var i = 0; i < jsonData.searchColumns.length; i++){
                 var searchParam={};
-                searchParam[jsonData.searchColumns[i]]=jsonData.search;
+                searchParam[jsonData.searchColumns[i]]={
+                  $regex:jsonData.search
+                };
                 objOr.push(searchParam);
             }
             queryArr.push({$or:objOr});
         }
-        else{
-            if(jsonData.filterBy) {
-                objAnd = jsonData.filterBy;
-            }
-            queryArr.push(objAnd);
+        if(jsonData.filterBy) {
+            objAnd = jsonData.filterBy;
         }
+        queryArr.push(objAnd);
         queryObj['$and']=queryArr;
         var options = {
             sort: jsonData.sortBy,
@@ -109,6 +119,21 @@ var ApiUtil = function() {
         return;
     };
 
+    this.changeRequestForJqueryPagination=function(req,callback){
+        var columnIndex = parseInt(req.order[0].column);
+        var reqObj={
+            'pageSize': req.length,
+            'page' : req.start === 0 ? 1 : Math.ceil(req.start/req.length)+1,
+            'draw' : req.draw,
+            'filterBy' : req.filterBy,
+            'sortOrder':req.order[0].dir,
+            'sortBy':req.columns[columnIndex].data
+        }
+        if(req.search.value !== ''){
+         reqObj['search'] =   req.search.value;
+        }
+        callback(null,reqObj);
+    };
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {

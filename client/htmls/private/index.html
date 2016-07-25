@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="css/jqueryUI.min.css">
     <link rel="stylesheet" type="text/css" media="screen" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="js/jquery-filetree/jqueryFileTree.css" />
+    <link rel="stylesheet" type="text/css"  href="css/toastr.min.css">
   </head>
   <body class="custom-theme">
     <!-- HEADER -->
@@ -630,6 +631,47 @@
   </div>
 </div>
 
+<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="editAttributesModalContainer" class="modal fade" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">
+                    x
+                </button>
+                <h4 class="modal-title">
+                <i class="fa fa-eraser txt-color-blue"></i>&nbsp;&nbsp;Edit Attributes
+                </h4>
+            </div>
+            <div class="modal-body no-padding">
+                <div class="loadingContainer">
+                    <img class="center-block loadingContainerimageCSS" src="img/loading.gif" />
+                </div>
+                <div class="errorMsgContainer loadingerrorMsgContainerCSS"></div>
+                <form class="attributesEditFormArea padding10" action="">
+                    <table id="attributesEditListArea" class="table table-striped table-bordered table-hover dataTable no-footer table-condensed tablesorter" cellpadding="5px" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Attributes</th>
+                                <th>Values</th>
+                            </tr>
+                        </thead>
+                        <tbody class="attributesEditTableBody">
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-default" data-dismiss="modal">Close</a>
+                <a type="submit" class="btn btn-primary saveAttribBtn">Save</a>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+
     
 <script src="js/libs/jquery-2.0.2.min.js"></script>
 <!--Authentication Setup through token-->
@@ -655,9 +697,13 @@
 <script src="js/app.js"></script>
 
 <script src="js/dev/dev.js"></script>
+<script src="js/toastr.min.js"></script>
     
 <!-- MAIN APP JS FILE -->
 <script type="text/javascript">
+  //toastr config
+  toastr.options.closeButton = true;
+  toastr.options.closeDuration = 2000;
 var a, b, x;
 String.prototype.capitalizeFirstLetter = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
@@ -985,6 +1031,14 @@ var SettingTreeJson = [{
             "href": "#ajax/Settings/ImagesList.html",
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-image"
+
+        }, {
+            "name": "organizations",
+            "text": "Script Gallery",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/scriptList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa fa-folder-o"
 
         }],
         "borderColor": "#000",
@@ -1360,10 +1414,52 @@ if (isAngularIntegration) {
 }
 loadSettingsTree();
 foldTreeForSetting();
+
+//check this functionality as it breaks at times..
+function saveAtrributesHandler(e) {
+    var $modal = $('#editAttributesModalContainer');
+    var $tbody = $modal.find('.attributesEditTableBody');
+    var $input = $tbody.find('.attribValueInput');
+    var attributes = [];
+    for (var j = 0; j < $input.length; j++) {
+        var $this = $($input[j]);
+        var attributeKey = $this.attr('data-attribKey');
+        var attribValue = $this.val();
+        if (attribValue) {
+            var attribPathParts = attributeKey.split('/');
+            var attributeObj = {};
+            var currentObj = attributeObj;
+            for (var i = 0; i < attribPathParts.length; i++) {
+                if (!currentObj[attribPathParts[i]]) {
+                    if (i === attribPathParts.length - 1) {
+                        currentObj[attribPathParts[i]] = attribValue;
+                        continue;
+                    } else {
+                        currentObj[attribPathParts[i]] = {};
+                    }
+                }
+                currentObj = currentObj[attribPathParts[i]];
+            }
+            attributes.push({
+                name: $this.attr('data-attribName'),
+                jsonObj: attributeObj
+            });
+        } else {
+            if ($this.attr('data-attributeRequired') === 'true') {
+                toastr.warning("Please fill in the required attributes");
+                return false;
+            }
+        }
+    }
+    createAttribTableRowFromJson(attributes);
+    $modal.modal('hide');
+}
 </script>
 <script src="js/blueprintLaunch.js"></script>
+<script src="js/blueprintCommon.js"></script>
 <script src="js/chefmodalcommon.js"></script>
 <script src="js/jquerytemplatemin.js"></script>
 <script src="/private/js/settingscommon.js"></script>
+<script src="/private/js/selectorCompnetBlueprint.js" type="application/javascript"></script>
 </body>
 </html>

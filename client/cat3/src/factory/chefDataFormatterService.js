@@ -31,172 +31,181 @@
                                 }
                             }
 
-                            if (c) {
-                                var className = '';
-                                for (var key in c) {
-                                    if (key.toLowerCase().indexOf('deploy') !== -1) {
-                                        className = 'deploy';
-                                    } else {
-                                        className = 'cookbook';
-                                    }
-                                    t = {
-                                        className: className,
-                                        value: key,
-                                        data: {
-                                            key: key,
-                                            value: c[key]
-                                        }
-                                    };
-                                    total.push(t);
-                                    if (className === "deploy") {
-                                        deploy.push(t);
-                                    } else {
-                                        cookbook.push(t);
-                                    }
-                                }
-                            }
-                            return total;
-                        },
-                        formatTemplateDataForChefClient: function (list) {
-                            if (list.length) {
-                                var t = [], l = list.length;
-                                for (var i = 0; i < l; i++) {
-                                    t.push({
-                                        className: "template",
-                                        value: list[i].templatename,
-                                        data: {
-                                            key: list[i].templatename,
-                                            value: list[i]
-                                        }
-                                    });
-                                }
-                                return t;
-                            }
-                            return [];
-                        },
-                        merge: function () {
-                            var totalArray = arguments;
-                            var l = totalArray.length;
-                            var mergeArray = [];
-                            for (var i = 0; i < l; i++) {
-                                var t = totalArray[i];
-                                if (t && typeof t === "object" && t instanceof Array) {
-                                    for (var x = 0; x < t.length; x++) {
-                                        mergeArray.push(t[x]);
-                                    }
-                                }
-                            }
-                            return mergeArray;
-                        },
-                        formatTaskList: function (obj) {
-                            var list = [];
-                            for (var i = 0; i < obj.length; i++) {
-                                if (obj[i].taskType !== "composite") {
-                                    list.push({
-                                        className: obj[i].taskType,
-                                        value: obj[i].name,
-                                        data: obj[i]
-                                    });
-                                }
-                            }
-                            return list;
-                        },
-                        formatRunListFromComponent: function (nodesList) {
-                            var reqBody = {
-                                cookbooks: [],
-                                roles: [],
-                                deploy: [],
-                                templates: []
-                            };
-                            for (var i = 0; i < nodesList.length; i++) {
-                                if (nodesList[i].type === 'template') {
-                                    reqBody.templates.push(nodesList[i].val);
-                                } else if (nodesList[i].type === 'deploy') {
-                                    reqBody.deploy.push(nodesList[i].val);
-                                } else if (nodesList[i].type === 'recipe') {
-                                    reqBody.cookbooks.push(nodesList[i].val);
-                                } else if (nodesList[i].type === 'role') {
-                                    reqBody.roles.push(nodesList[i].val);
-                                }
-                            }
-                            return reqBody;
-                        },
-                        formatJenkinsServerList: function (list) {
-                            list = typeof list === "string" ? JSON.parse(list) : list;
-                            var newList = [];
-                            for (var i = 0; i < list.length; i++) {
-                                /*jslint forin: true */
-                                for (var key in list[i]) {
-                                    newList.push({
-                                        name: key,
-                                        id: list[i][key]
-                                    });
-                                }
-                            }
-                            return newList;
-                        },
-                        getChefList: function (list) {
-                            var temp = [];
-                            for (var i = 0; i < list.length; i++) {
-                                if (list[i].chef) {
-                                    temp.push(list[i]);
-                                }
-                            }
-                            return temp;
-                        },
-                        getBlueprintList: function (list) {
-                            var temp = [];
-                            for (var i = 0; i < list.length; i++) {
-                                if (list[i]._id) {
-                                    temp.push(list[i]);
-                                }
-                            }
-                            return temp;
-                        },
-                        getPuppetList: function (list) {
-                            var temp = [];
-                            for (var i = 0; i < list.length; i++) {
-                                if (list[i].puppet) {
-                                    temp.push(list[i]);
-                                }
-                            }
-                            return temp;
-                        },
-                        identifyAvailableChefNode: function (totalNodeList, selectedNode) {
-                            for (var i = 0; i < totalNodeList.length; i++) {
-                                console.log(arrayUtil.isValueAvailable(selectedNode, totalNodeList[i]._id));
-                                if (_.indexOf(selectedNode, totalNodeList[i]._id) !== -1) {
-                                    totalNodeList[i]._isNodeSelected = true;
-                                } else {
-                                    totalNodeList[i]._isNodeSelected = false;
-                                }
-                            }
-                            return totalNodeList;
-                        },
-                        identifyAvailableBlueprint: function (totalBlueprintList, selectedBlueprint) {
-                            for (var i = 0; i < totalBlueprintList.length; i++) {
-                                if (_.indexOf(selectedBlueprint, totalBlueprintList[i]._id) !== -1) {
-                                    totalBlueprintList[i]._isBlueprintSelected = true;
-                                } else {
-                                    totalBlueprintList[i]._isBlueprintSelected = false;
-                                }
-                            }
-                            return totalBlueprintList;
-                        },
-                        identifyAvailablePuppetNode: function (totalNodeList, selectedNode) {
-                            return this.identifyAvailableChefNode(totalNodeList, selectedNode);
-                        },
-                        formatSelectedChefRunList: function (list) {
-                            var l = list && list.length ? list.length : 0, t = [];
-                            for (var i = 0; i < l; i++) {
-                                if (list[i].className === "cookbook" || list[i].className === "deploy") {
-                                    t.push('recipe[' + list[i].value + ']');
-                                } else if (list[i].className === "role") {
-                                    t.push('role[' + list[i].value + ']');
-                                } else if (list[i].className === "template") {
-                                    //todo
-                                    t.push('template[' + list[i].value + ':-:' + list[i].data.value.templatescookbooks + ']');
-                                }
+					if (c) {
+						var className = '';
+						for (var key in c) {
+							if (key.toLowerCase().indexOf('deploy') !== -1) {
+								className = 'deploy';
+							} else {
+								className = 'cookbook';
+							}
+							t = {
+								className: className,
+								value: key,
+								data: {
+									key: key,
+									value: c[key]
+								}
+							};
+							total.push(t);
+							if (className === "deploy") {
+								deploy.push(t);
+							} else {
+								cookbook.push(t);
+							}
+						}
+					}
+					return total;
+				},
+				formatTemplateDataForChefClient: function (list) {
+					if (list.length) {
+						var t = [], l = list.length;
+						for (var i = 0; i < l; i++) {
+							t.push({
+								className: "template",
+								value: list[i].templatename,
+								data: {
+									key: list[i].templatename,
+									value: list[i]
+								}
+							});
+						}
+						return t;
+					}
+					return [];
+				},
+				merge: function () {
+					var totalArray = arguments;
+					var l = totalArray.length;
+					var mergeArray = [];
+					for (var i = 0; i < l; i++) {
+						var t = totalArray[i];
+						if (t && typeof t === "object" && t instanceof Array) {
+							for (var x = 0; x < t.length; x++) {
+								mergeArray.push(t[x]);
+							}
+						}
+					}
+					return mergeArray;
+				},
+				formatTaskList: function (obj) {
+					var list = [];
+					for (var i = 0; i < obj.length; i++) {
+						if (obj[i].taskType !== "composite") {
+							list.push({
+								className: obj[i].taskType,
+								value: obj[i].name,
+								data: obj[i]
+							});
+						}
+					}
+					return list;
+				},
+				formatRunListFromComponent: function (nodesList) {
+					var reqBody = {
+						cookbooks: [],
+						roles: [],
+						deploy: [],
+						templates: []
+					};
+					for (var i = 0; i < nodesList.length; i++) {
+						if (nodesList[i].type === 'template') {
+							reqBody.templates.push(nodesList[i].val);
+						} else if (nodesList[i].type === 'deploy') {
+							reqBody.deploy.push(nodesList[i].val);
+						} else if (nodesList[i].type === 'recipe') {
+							reqBody.cookbooks.push(nodesList[i].val);
+						} else if (nodesList[i].type === 'role') {
+							reqBody.roles.push(nodesList[i].val);
+						}
+					}
+					return reqBody;
+				},
+				formatJenkinsServerList: function (list) {
+					list = typeof list === "string" ? JSON.parse(list) : list;
+					var newList = [];
+					for (var i = 0; i < list.length; i++) {
+						/*jslint forin: true */
+						for (var key in list[i]) {
+							newList.push({
+								name: key,
+								id: list[i][key]
+							});
+						}
+					}
+					return newList;
+				},
+				getChefList: function (list) {
+					var temp = [];
+					for (var i = 0; i < list.length; i++) {
+						if (list[i].chef) {
+							temp.push(list[i]);
+						}
+					}
+					return temp;
+				},
+				getBlueprintList: function (list) {
+					var temp = [];
+					for (var i = 0; i < list.length; i++) {
+						if (list[i]._id) {
+							temp.push(list[i]);
+						}
+					}
+					return temp;
+				},
+				getPuppetList: function (list) {
+					var temp = [];
+					for (var i = 0; i < list.length; i++) {
+						if (list[i].puppet) {
+							temp.push(list[i]);
+						}
+					}
+					return temp;
+				},
+				identifyAvailableChefNode: function (totalNodeList, selectedNode) {
+					for (var i = 0; i < totalNodeList.length; i++) {
+						if (_.indexOf(selectedNode, totalNodeList[i]._id) !== -1) {
+							totalNodeList[i]._isNodeSelected = true;
+						} else {
+							totalNodeList[i]._isNodeSelected = false;
+						}
+					}
+					return totalNodeList;
+				},
+				identifyAvailableBlueprint: function (totalBlueprintList, selectedBlueprint) {
+					for (var i = 0; i < totalBlueprintList.length; i++) {
+						if (_.indexOf(selectedBlueprint, totalBlueprintList[i]._id) !== -1) {
+							totalBlueprintList[i]._isBlueprintSelected = totalBlueprintList[i]._id;
+						} else {
+							totalBlueprintList[i]._isBlueprintSelected = false;
+						}
+					}
+					return totalBlueprintList;
+				},
+				identifyAvailablePuppetNode: function (totalNodeList, selectedNode) {
+					return this.identifyAvailableChefNode(totalNodeList, selectedNode);
+				},
+				identifyAvailableScript: function (totalScriptList, selectedScript) {
+					for (var i = 0; i < totalScriptList.length; i++) {
+						if (_.indexOf(selectedScript, totalScriptList[i]._id) !== -1) {
+							totalScriptList[i]._isScriptSelected = true;
+						} else {
+							totalScriptList[i]._isScriptSelected = false;
+						}
+					}
+					return totalScriptList;
+				},
+				formatSelectedChefRunList: function (list) {
+					var l = list && list.length ? list.length : 0, t = [];
+					for (var i = 0; i < l; i++) {
+						if (list[i].className === "cookbook" || list[i].className === "deploy") {
+							t.push('recipe[' + list[i].value + ']');
+						} else if (list[i].className === "role") {
+							t.push('role[' + list[i].value + ']');
+						} else if (list[i].className === "template") {
+							//todo
+							t.push('template[' + list[i].value + ':-:' + list[i].data.value.templatescookbooks + ']');
+						}
 
 					}
 					return t;

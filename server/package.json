@@ -69,7 +69,9 @@
 		"adm-zip":"0.4.7",
 		"fast-csv":"2.0.0",
 		"fs":"0.0.2",
-        "cors": "2.7.1"
+        "cors": "2.7.1",
+        "events": "1.1.1",
+        "gridfs-stream":"1.1.1"
     },
     "devDependencies": {
         "grunt": "0.4.5",

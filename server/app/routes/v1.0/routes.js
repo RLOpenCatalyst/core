@@ -63,7 +63,12 @@ var deployPermission = require('./routes_deploypermission');
 var trackedInstances = require('./routes_trackedInstances');
 var resources = require('./routes_resources');
 var serviceStatus = require('./routes_serviceStatus');
+var compositeBlueprints = require('./routes_compositeBlueprints');
+var blueprintFrames = require('./routes_blueprintFrames');
 var cors = require('cors');
+var auditTrail = require('./routes_audit_trails');
+var scripts = require('./routes_scripts');
+var fileUpload = require('./routes_fileUpload');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -154,6 +159,17 @@ module.exports.setRoutes = function(app) {
 
     serviceStatus.setRoutes(app, sessionVerificationFunc);
 
+    auditTrail.setRoutes(app, sessionVerificationFunc);
+
+    compositeBlueprints.setRoutes(app, sessionVerificationFunc);
+
+    blueprintFrames.setRoutes(app, sessionVerificationFunc);
+
+    scripts.setRoutes(app, sessionVerificationFunc);
+
+    fileUpload.setRoutes(app, sessionVerificationFunc);
+
+
     app.get('/', function(req, res) {
         res.redirect('/cat3');
     });
@@ -230,7 +246,6 @@ module.exports.setRoutes = function(app) {
                         errorResponse.errors.push(err.errors[i].messages);
                 }
             }
-
             return res.status(err.status).send(errorResponse);
         }
     }
