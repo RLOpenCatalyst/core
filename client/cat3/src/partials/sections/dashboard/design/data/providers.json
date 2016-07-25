@@ -1,0 +1,20 @@
+[
+  {
+    "name": "AWS",
+    "parent": "design",
+    "abstract": true,
+    "icon":"aws.png"
+  },
+  {
+    "name": "AZURE",
+    "parent": "design",
+    "abstract": true,
+    "icon":"openstak.png"
+  },
+  {
+    "name": "OPENSTACK",
+    "parent": "design",
+    "abstract": true,
+    "icon":"azure-card.png"
+  }
+]

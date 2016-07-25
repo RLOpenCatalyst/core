@@ -21,7 +21,7 @@
                                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                 SoftwareStack
                             </accordion-heading>
-                            <div class="productdiv4" ng-repeat="launcher in blueprints.software_stack">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.software_stack" id="{{launcher._id}}">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
                                         <div class="bp-more-info-section">
@@ -69,7 +69,7 @@
                                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                 OSImage
                             </accordion-heading>
-                            <div class="productdiv4" ng-repeat="launcher in blueprints.os_image">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.os_image" id="{{launcher._id}}">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
                                         <div class="bp-more-info-section">
@@ -116,7 +116,7 @@
                                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                 CloudFormation
                             </accordion-heading>
-                            <div class="productdiv4" ng-repeat="launcher in blueprints.cloudFormation">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.cloudFormation" id="{{launcher._id}}">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
                                         <div class="bp-more-info-section">
@@ -157,7 +157,7 @@
                                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                 Docker
                             </accordion-heading>
-                            <div class="productdiv4" ng-repeat="launcher in blueprints.docker">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.docker" id="{{launcher._id}}">
                                 <div class="productdiv1 cardimage role-Selected1" data-blueprinttype="instance_launch" data-templatetype="chef">
                                     <ul class="list-unstyled system-prop">
                                         <div class="bp-more-info-section-docker">
@@ -208,7 +208,7 @@
                                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                 ArmTemplate
                             </accordion-heading>
-                            <div class="productdiv4" ng-repeat="launcher in blueprints.azureARM">
+                            <div class="productdiv4" ng-repeat="launcher in blueprints.azureARM" id="{{launcher._id}}">
                                 <div class="productdiv1 cardimage role-Selected1">
                                     <ul class="list-unstyled system-prop">
                                         <div class="bp-more-info-section">
@@ -250,7 +250,7 @@
                                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                 Composite Blueprint
                             </accordion-heading>
-                            <div class="productdiv4" ng-repeat="compBlue in compositeBlueprints">
+                            <div class="productdiv4" ng-repeat="compBlue in compositeBlueprints" id="{{compBlue.id}}">
                                 <div class="productdiv1 cardimage role-Selected1" data-templatetype="compositeBlueprint">
                                     <ul class="list-unstyled system-prop">
                                         <div class="bp-more-info-section">
