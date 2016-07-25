@@ -1293,7 +1293,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     apiUtil.paginationRequest(reqData, 'chefNodes', next);
                 },
                 function (paginationReq, next) {
-                    paginationReq['searchColumns'] = ['chefNodeIp', 'chefNodeName'];
+                    paginationReq['searchColumns'] = ['chefNodeIp', 'chefNodeName',"chefNodePlatform"];
                     apiUtil.databaseUtil(paginationReq, next);
                 },
                 function (queryObj, next) {
