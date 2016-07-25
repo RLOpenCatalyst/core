@@ -28,7 +28,7 @@ var chefSync = require('_pr/cronjobs/chef-sync/chef-sync.js');
 
 module.exports.start = function start() {
 
-	/*logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
+	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
 
@@ -49,7 +49,7 @@ module.exports.start = function start() {
 
 	logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
 	var awsRDSS3ProviderSyncJobId
-		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);*/
+		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);
 
 	logger.info('Chef Sync started with interval ==> '+ chefSync.getInterval());
 	var chefSyncJobId
