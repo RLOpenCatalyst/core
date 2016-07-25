@@ -36,6 +36,7 @@ function getDefaultsConfig() {
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
+        javaLibDir: currentDirectory + '/app',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
@@ -94,7 +95,9 @@ function getDefaultsConfig() {
                 "resources":"createdOn",
                 "instanceLogs":"createdOn",
                 "taskLogs":"timestampStarted",
-                "unassignedInstances":"state"
+                "unassignedInstances":"state",
+                "unassignedInstances":"state",
+                "scripts":"name"
             },
             skip_Records : 1,
             max_record_limit : 200,

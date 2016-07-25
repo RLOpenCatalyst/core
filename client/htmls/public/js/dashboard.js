@@ -441,7 +441,18 @@ $(document).ready(function() {
               return full.region?full.region:full.providerData?full.providerData.region:'-';
           }
         },
-        {"data": "instanceState","orderable" : true  }
+        {"data": "instanceState","orderable" : true  },
+        {"data": "","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
+          }
+        },
+        {"data": "usage","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
+            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
+          }
+        }
       ]
     });
   }
@@ -488,17 +499,6 @@ $(document).ready(function() {
               return 'OpenStack';
             }
           }
-        },
-        {"data": "","orderable" : false,
-          "render":function(data, type, full, meta) {
-              return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
-          }
-        },
-        {"data": "usage","orderable" : false,
-          "render":function(data, type, full, meta) {
-            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
-                  '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
-          }
         }
       ]
     });
@@ -541,7 +541,18 @@ $(document).ready(function() {
             return full.region?full.region:full.providerData?full.providerData.region:'-';
           }
         },
-        {"data": "state","orderable" : true  }
+        {"data": "state","orderable" : true  },
+        {"data": "","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
+          }
+        },
+        {"data": "usage","orderable" : false,
+          "render":function(data, type, full, meta) {
+            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
+            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
+          }
+        }
       ]
     });
   }
@@ -591,24 +602,13 @@ $(document).ready(function() {
                 return 'OpenStack';
               }
             }
-        },
-        {"data": "","orderable" : false,
-          "render":function(data, type, full, meta) {
-            return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2):'-';
-          }
-        },
-        {"data": "usage","orderable" : false,
-          "render":function(data, type, full, meta) {
-            return full.usage ? '<span>'+full.usage.CPUUtilization.average+'&nbsp;%</span>'+
-            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage='+JSON.stringify(full.usage)+'><i class="fa fa-list"></i></a>':'-';
-          }
         }
       ]
     });
   }
 
-  $('#allProviderTrackedManagedInstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
-  $('#allProviderTrackedAssignedInstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
+  $('#unmanagedinstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
+  $('#managedinstanceListTable tbody').on( 'click', '.specProviderUsages', specProviderUsagesClickHandler);
   //For all Managed  tracked instances.
   $('#backfrmallprovidertrackedManagedInstance').click(function() {
     $('#mainPanelId').show();
