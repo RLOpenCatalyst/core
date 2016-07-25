@@ -1848,7 +1848,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 projectName: project[0].projectname,
                                                 envName: envName,
                                                 status: nodeAlive,
-                                                bootStrap: "waiting",
+                                                actionStatus: "waiting",
                                                 platformId: req.body.fqdn,
                                                 blueprintName: "",
                                                 data: [],
@@ -1990,7 +1990,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instanceLog.endedOn = new Date().getTime();
-                                                                instanceLog.bootStrap = "failed";
+                                                                instanceLog.actionStatus = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,
                                                                     log: err.message,
@@ -2012,7 +2012,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             });
                                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                             instanceLog.endedOn = new Date().getTime();
-                                                            instanceLog.bootStrap = "failed";
+                                                            instanceLog.actionStatus = "failed";
                                                             instanceLog.logs = {
                                                                 err: true,
                                                                 log: "Bootstrap Failed",
@@ -2058,7 +2058,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     timestamp: timestampEnded
                                                                 });
                                                                 instanceLog.endedOn = new Date().getTime();
-                                                                instanceLog.bootStrap = "success";
+                                                                instanceLog.actionStatus = "success";
                                                                 instanceLog.logs = {
                                                                     err: false,
                                                                     log: "Instance Bootstrapped Successfully",
@@ -2211,7 +2211,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                 instanceLog.endedOn = new Date().getTime();
-                                                                instanceLog.bootStrap = "failed";
+                                                                instanceLog.actionStatus = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,
                                                                     log: "Bootstrap Failed",

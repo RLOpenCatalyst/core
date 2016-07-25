@@ -43,7 +43,6 @@
 					<th class="text-center table_sort sorting_desc" data-fieldname='createdOn'>Time
 					</th>
 					<th class="text-center">Status</th>
-					<th class="text-center">BootStrapStatus</th>
 					<th class="text-center">Size</th>
 					<th class="text-center">User</th>
 					<th class="text-center">Org</th>
@@ -52,6 +51,7 @@
 					<th class="text-center">Env</th>
 					<th class="text-center">BluePrint</th>
 					<th class="text-center">Action</th>
+					<th class="text-center">ActionStatus</th>
 					<th class="text-center">Log</th>
 				</tr>
 			</thead>
@@ -275,8 +275,9 @@
 					$tr.append($tdCreatedOn);
 					var $tdStatus = $('<td></td>').append(managnedData[i].status);
 					$tr.append($tdStatus);
-					var $tdBootStrapStatus = $('<td></td>').append(managnedData[i].bootStrap);
-					$tr.append($tdBootStrapStatus);
+					if (managnedData[i].size == 'unknown') {
+						var $tdSize = $('<td></td>').append('NA');
+					}
 					if (managnedData[i].size) {
 						var $tdSize = $('<td></td>').append(managnedData[i].size);
 					} else {
@@ -301,6 +302,8 @@
 					$tr.append($bluePrint);
 					var $tdData = $('<td></td>').append(managnedData[i].action);
 					$tr.append($tdData);
+					var $tdActionStatus = $('<td></td>').append(managnedData[i].actionStatus);
+					$tr.append($tdActionStatus);
 					var $logIcon = $("<a data-original-title='MoreInfo' class='moreInfoLog' data-placement='top' rel='tooltip' href='javascript:void(0)' data-toggle='modal' data-id=" + managnedData[i].actionId + "><img class='moreInfo' src = '../private/img/galleryIcons/moreinfo.png' alt='moreInfo'/></a>");
 					var $tdLog = $('<td></td>').append($logIcon);
 					$tr.append($tdLog);
