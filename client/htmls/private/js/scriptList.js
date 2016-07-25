@@ -203,6 +203,7 @@ $('#scriptForm').submit(function(e) {
         var url = '';
         var reqBody = {};
         var formData = new FormData();
+        alert($('input[type=file]')[0].files[0]);
         formData.append('file', $('input[type=file]')[0].files[0]);
         var methodName ='';
         $.ajax({

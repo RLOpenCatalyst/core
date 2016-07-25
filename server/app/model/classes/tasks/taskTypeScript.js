@@ -154,106 +154,91 @@ scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nex
 		}
 	}
 	function executeBashScript(script, sshOptions, logsReferenceIds, scriptParameters) {
-		var desPath = appConfig.scriptDir + uuid.v4() + '_'+script.fileName;
 		var sshExec = new SSHExec(sshOptions);
-		logger.debug(desPath);
-		fileIo.writeFile(desPath, script.file, false, function (err) {
+		var cmdScript = script.file;
+		var cmdLine = 'eval ' + cmdScript.toString().trim();
+		if (scriptParameters.length > 0) {
+			for (var j = 0; j < scriptParameters.length; j++) {
+				cmdLine = cmdLine + ' "' + scriptParameters[j] + '"';
+			}
+		}
+		sshExec.exec(cmdLine, function (err, retCode) {
 			if (err) {
-				logger.error("Unable to write file");
+				var timestampEnded = new Date().getTime();
+				logsDao.insertLog({
+					referenceId: logsReferenceIds,
+					err: true,
+					log: 'Unable to run script ' + script.name,
+					timestamp: timestampEnded
+				});
+				instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+				instanceOnCompleteHandler(err, 1, logsReferenceIds[0], null, logsReferenceIds[1]);
+				return;
+			}
+			if (retCode == 0) {
+				var timestampEnded = new Date().getTime();
+				logsDao.insertLog({
+					referenceId: logsReferenceIds,
+					err: false,
+					log: 'Task execution success for script ' + script.name,
+					timestamp: timestampEnded
+				});
+				instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], true, timestampEnded);
+				instanceOnCompleteHandler(null, 0, logsReferenceIds[0], null, logsReferenceIds[1]);
 				return;
 			} else {
-				var cmdLine = 'bash ' + desPath;
-				if (scriptParameters.length > 0) {
-					for (var j = 0; j < scriptParameters.length; j++) {
-						cmdLine = cmdLine + ' ' + scriptParameters[j];
-					}
-				}
-				sshExec.exec(cmdLine, function (err, retCode) {
-					if (err) {
-						var timestampEnded = new Date().getTime();
-						logsDao.insertLog({
-							referenceId: logsReferenceIds,
-							err: true,
-							log: 'Unable to run script ' + script.name,
-							timestamp: timestampEnded
-						});
-						instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-						instanceOnCompleteHandler(err, 1, logsReferenceIds[0], null, logsReferenceIds[1]);
-						removeScriptFile(desPath);
-						return;
-					}
-					if (retCode == 0) {
-						var timestampEnded = new Date().getTime();
-						logsDao.insertLog({
-							referenceId: logsReferenceIds,
-							err: false,
-							log: 'Task execution success for script ' + script.name,
-							timestamp: timestampEnded
-						});
-						instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], true, timestampEnded);
-						instanceOnCompleteHandler(null, 0, logsReferenceIds[0], null, logsReferenceIds[1]);
-						removeScriptFile(desPath);
-						return;
-					} else {
-						instanceOnCompleteHandler(null, retCode, logsReferenceIds[0], null, logsReferenceIds[1]);
-						if (retCode === -5000) {
-							logsDao.insertLog({
-								referenceId: logsReferenceIds,
-								err: true,
-								log: 'Host Unreachable',
-								timestamp: new Date().getTime()
-							});
-							removeScriptFile(desPath);
-							return;
-						} else if (retCode === -5001) {
-							logsDao.insertLog({
-								referenceId: logsReferenceIds,
-								err: true,
-								log: 'Invalid credentials',
-								timestamp: new Date().getTime()
-							});
-							removeScriptFile(desPath);
-							return;
-						} else {
-							logsDao.insertLog({
-								referenceId: logsReferenceIds,
-								err: true,
-								log: 'Unknown error occured. ret code = ' + retCode,
-								timestamp: new Date().getTime()
-							});
-							removeScriptFile(desPath);
-							return;
-						}
-						var timestampEnded = new Date().getTime();
-						logsDao.insertLog({
-							referenceId: logsReferenceIds,
-							err: true,
-							log: 'Error in running script ' + script.name,
-							timestamp: timestampEnded
-						});
-						instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-						removeScriptFile(desPath);
-						return;
-					}
-				}, function (stdOut) {
-					logsDao.insertLog({
-						referenceId: logsReferenceIds,
-						err: false,
-						log: stdOut.toString('ascii'),
-						timestamp: new Date().getTime()
-					});
-				}, function (stdErr) {
+				instanceOnCompleteHandler(null, retCode, logsReferenceIds[0], null, logsReferenceIds[1]);
+				if (retCode === -5000) {
 					logsDao.insertLog({
 						referenceId: logsReferenceIds,
 						err: true,
-						log: stdErr.toString('ascii'),
+						log: 'Host Unreachable',
 						timestamp: new Date().getTime()
 					});
+					return;
+				} else if (retCode === -5001) {
+					logsDao.insertLog({
+						referenceId: logsReferenceIds,
+						err: true,
+						log: 'Invalid credentials',
+						timestamp: new Date().getTime()
+					});
+					return;
+				} else {
+					logsDao.insertLog({
+						referenceId: logsReferenceIds,
+						err: true,
+						log: 'Unknown error occured. ret code = ' + retCode,
+						timestamp: new Date().getTime()
+					});
+					return;
+				}
+				var timestampEnded = new Date().getTime();
+				logsDao.insertLog({
+					referenceId: logsReferenceIds,
+					err: true,
+					log: 'Error in running script ' + script.name,
+					timestamp: timestampEnded
 				});
+				instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+				return;
 			}
-			;
+		}, function (stdOut) {
+			logsDao.insertLog({
+				referenceId: logsReferenceIds,
+				err: false,
+				log: stdOut.toString('ascii'),
+				timestamp: new Date().getTime()
+			});
+		}, function (stdErr) {
+			logsDao.insertLog({
+				referenceId: logsReferenceIds,
+				err: true,
+				log: stdErr.toString('ascii'),
+				timestamp: new Date().getTime()
+			});
 		});
-	};
+	}
 };
 
 function removeScriptFile(filePath){
