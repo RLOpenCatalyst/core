@@ -278,7 +278,7 @@
 
             $.get('../chef/envList?serverId=' + urlParams.chefId, function (envList) {
                 if (envList.length > 0) {
-                    var $envSelect = '<select class ="width100 padding0" id="chefEnv" currentEnv="">';
+                    var $envSelect = '<select class ="width100 " id="chefEnv" currentEnv="">';
                     for (var j = 0; j < envList.length; j++) {
                         $envSelect = $envSelect + '<option value="' + envList[j] + '">' + envList[j] + '</option>';
                     }
@@ -293,15 +293,30 @@
                         },
                         "columns": [
                             {"data": "chefNodeName", "orderable": true},
-                            {"data": "chefNodeIp", "orderable": false},
+                            {
+                                "data": "", "orderable": false,
+                                "render": function (data, type, full, meta) {
+                                    return full.chefNodeIp ? full.chefNodeIp : '-';
+                                }
+                            },
                             {
                                 "data": "chefNodeFqdn", "orderable": false,
                                 "render": function (data, type, full, meta) {
                                     return full.chefNodeFqdn ? full.chefNodeFqdn : '-';
                                 }
                             },
-                            {"data": "chefNodePlatform", "orderable": false},
-                            {"data": "chefNodeUpTime", "orderable": false},
+                            {
+                                "data": "", "orderable": false,
+                                "render": function (data, type, full, meta) {
+                                    return full.chefNodePlatform ? full.chefNodePlatform : '-';
+                                }
+                            },
+                            {
+                                "data": "", "orderable": false,
+                                "render": function (data, type, full, meta) {
+                                    return full.chefNodeUpTime ? full.chefNodeUpTime : '-';
+                                }
+                            },
                             {
                                 "data": "", "orderable": false,
                                 "render": function (data, type, full, meta) {
@@ -329,15 +344,30 @@
                         },
                         "columns": [
                             {"data": "chefNodeName", "orderable": true},
-                            {"data": "chefNodeIp", "orderable": false},
+                            {
+                                "data": "", "orderable": false,
+                                "render": function (data, type, full, meta) {
+                                    return full.chefNodeIp ? full.chefNodeIp : '-';
+                                }
+                            },
                             {
                                 "data": "chefNodeFqdn", "orderable": false,
                                 "render": function (data, type, full, meta) {
                                     return full.chefNodeFqdn ? full.chefNodeFqdn : '-';
                                 }
                             },
-                            {"data": "chefNodePlatform", "orderable": false},
-                            {"data": "chefNodeUpTime", "orderable": false},
+                            {
+                                "data": "", "orderable": false,
+                                "render": function (data, type, full, meta) {
+                                    return full.chefNodePlatform ? full.chefNodePlatform : '-';
+                                }
+                            },
+                            {
+                                "data": "", "orderable": false,
+                                "render": function (data, type, full, meta) {
+                                    return full.chefNodeUpTime ? full.chefNodeUpTime : '-';
+                                }
+                            },
                             {
                                 "data": "", "orderable": false,
                                 "render": function (data, type, full, meta) {

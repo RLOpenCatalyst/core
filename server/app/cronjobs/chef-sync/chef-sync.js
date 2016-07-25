@@ -7,7 +7,6 @@ var async = require('async');
 var Chef = require('_pr/lib/chef');
 var chefDao = require('_pr/model/dao/chefDao.js');
 var appConfig = require('_pr/config');
-var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 
 var ChefSync = Object.create(CatalystCronJob);
 ChefSync.interval = '*/2 * * * *';
@@ -70,8 +69,14 @@ function aggregateChefSync(chefDetail){
                         (function(filterNode){
                             chef.getNode(filterNode,function(err,nodeChefBody){
                                 if(err){
-                                    logger.error(err);
                                     nodeDetailList.push({error:err});
+                                    if(nodeDetailList.length === filterNodeList.length){
+                                        callback(null,nodeDetailList);
+                                    }else{
+                                        return;
+                                    }
+                                }else if(nodeChefBody.err){
+                                    nodeDetailList.push({error:nodeChefBody.err});
                                     if(nodeDetailList.length === filterNodeList.length){
                                         callback(null,nodeDetailList);
                                     }else{

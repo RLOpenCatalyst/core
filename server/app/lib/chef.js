@@ -132,14 +132,13 @@ var Chef = function(settings) {
                 if (err) {
                     callback(err, null);
                     return;
-                }
-                if (chefRes.statusCode === 200) {
+                }else if (chefRes.statusCode === 200) {
                     callback(null, chefResBody);
-                } else {
-                    callback({
+                }else {
+                    callback(null,{
                         err: "not found",
                         chefStatusCode: chefRes.statusCode
-                    }, null);
+                    });
                 }
             });
         });
