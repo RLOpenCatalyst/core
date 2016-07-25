@@ -17,11 +17,13 @@
                     Selected Blueprint Name
                 </div>
                 <div class="col-lg-6 col-md-6 pull-right" >
-                    <span class="pull-right"><a ng-click="$parent.isOpenSidebar = !$parent.isOpenSidebar" class=""><i class="fa fa-filter fa-2" aria-hidden="true"></i>&nbsp;Filter</a></span>
-                    <span class="pull-right"><a type="button" class=""><i class="fa fa-refresh fa-2" aria-hidden="true"></i>&nbsp;Refresh</a></span>
-                    <span class="pull-right"><a  class=""><i class="fa fa-trash-o fa-2" aria-hidden="true"></i>&nbsp;Delete</a></span>
-                    <span class="pull-right"><a type="button" class=""><i class="fa fa-pencil fa-2" aria-hidden="true"></i>&nbsp;Edit</a></span>
-                    <span class="pull-right"><a  class=""><i class="fa fa-clone fa-2" aria-hidden="true"></i>&nbsp;Copy</a></span>
+                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="$parent.isOpenSidebar = !$parent.isOpenSidebar">
+                        <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
+                    </button>
+                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" >&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
+                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i>&nbsp;Delete</button>
+                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ><i class="fa fa-pencil fa-2 white" aria-hidden="true"></i>&nbsp;Edit</button>
+                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ><i class="fa fa-clone fa-2 white" aria-hidden="true"></i>&nbsp;Copy</button>
                 </div>
             </div>
             <div ng-if="stateItems.params.view === 'new'">{{stateItems.params.subItem}} > {{stateItems.params.templateName}}</div>

@@ -3,14 +3,13 @@
 	angular.module('dashboard.design', [])//'services.blueprint'
 	.controller('designCtrl',['$scope','$rootScope','$http','$q','toastr','$state','designServices', function ($scope,$rootScope,$http,$q,toastr,$state,designServices) {
 		var design= {};
-		var state=$state;
 		$rootScope.dashboardChild='design';
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'DESIGN');
 		$scope.showProviders = true;
 			design.providersList= function () {
 				var params = {
 					url: 'src/partials/sections/dashboard/design/data/providers.json'
-				}
+				};
 				designServices.promiseGet(params).then(function (data){
 					$rootScope.providersMenu=data;
 					design.tempType(data);
@@ -21,7 +20,7 @@
 			design.tempType=function (providers) {
 				var params = {
 					url: '/d4dMasters/readmasterjsonnew/16'
-				}
+				};
 				designServices.promiseGet(params).then(function (template){
 					template.push({
 						_id: "54bde11187f86fa0130asasc7563",

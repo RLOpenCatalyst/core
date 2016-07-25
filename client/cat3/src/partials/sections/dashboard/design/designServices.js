@@ -15,6 +15,6 @@
                     });
                     return deferred.promise;
             }
-        }
+        };
         }]);
 })(angular);

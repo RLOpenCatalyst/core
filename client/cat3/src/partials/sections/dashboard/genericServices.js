@@ -11,7 +11,7 @@
         var genericServices=this;
         genericServices.moreInfo= function(blueprintObj,bpType){
             if(bpType === 'compBlueInfo'){
-                var modalInstance = $modal.open({
+                $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/compositeBlueprintInfo.html',
                     controller: 'compositeBlueprintInfoCtrl as compBlue',
@@ -24,7 +24,7 @@
                     }
                 });
             } else {
-                var modalInstance = $modal.open({
+               $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/blueprintInfo.html',
                     controller: 'blueprintInfoCtrl',
@@ -35,11 +35,6 @@
                             return blueprintObj;
                         }
                     }
-                });
-                modalInstance.result.then(function(selectedItem) {
-                    // $scope.selected = selectedItem;
-                }, function() {
-
                 });
             }
 
@@ -54,7 +49,7 @@
             };
             if(bpType === 'compositeBlueprint'){
                 confirmbox.showModal({}, modalOptions).then(function() {
-                    workSvs.deleteCompsiteBlueprint(blueprintObj).success(function(response) {
+                    workSvs.deleteCompsiteBlueprint(blueprintObj).success(function() {
                         angular.element('#'+blueprintObj).hide();
                         toastr.success('Successfully deleted');
                     }).error(function(data) {
@@ -63,7 +58,7 @@
                 });
             } else {
                 confirmbox.showModal({}, modalOptions).then(function() {
-                    workSvs.deleteBlueprint(blueprintObj._id).success(function(response) {
+                    workSvs.deleteBlueprint(blueprintObj._id).success(function() {
                         angular.element('#'+blueprintObj._id).hide();
                         toastr.success('Successfully deleted');
                     }).error(function(data) {
