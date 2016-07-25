@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('chefDataFormatter', [])
-            .service('responseFormatter', ['arrayUtil', function (arrayUtil) {
+            .service('responseFormatter', [function () {
                     return {
                         formatDataForChefClientRun: function (obj) {
                             var roles = [];

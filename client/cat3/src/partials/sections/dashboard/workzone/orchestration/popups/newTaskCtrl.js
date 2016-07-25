@@ -26,22 +26,22 @@
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
 			};
 			$scope.optionToggled = function(){
-				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; });
 			};
 			$scope.toggleAllScriptInstance = function() {
 				var toggleStatusInstance = $scope.isAllInstanceScriptSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatusInstance; });
 			};
 			$scope.optionInstanceToggled = function(){
-				$scope.isAllInstanceScriptSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+				$scope.isAllInstanceScriptSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; });
 			};
 			$scope.toggleAllScripts = function() {
 				var toggleStatusScript = $scope.isAllScriptSelected;
 				angular.forEach($scope.scriptTaskList, function(itm){ itm._isScriptSelected = toggleStatusScript;});
 			};
 			$scope.optionScriptToggled = function() {
-				$scope.isAllScriptSelected = $scope.scriptTaskList.every(function(itm){ return  itm._isScriptSelected; })
-			}
+				$scope.isAllScriptSelected = $scope.scriptTaskList.every(function(itm){ return  itm._isScriptSelected; });
+			};
 			//default values for new task
 			angular.extend($scope, {
 				taskTypes: {
@@ -127,7 +127,7 @@
 					});
 				},
 				changeNodeScriptList: function() {
-					if($scope.scriptTypeSelelct !=""){
+					if($scope.scriptTypeSelelct !== ""){
 						workzoneServices.getScriptList($scope.scriptTypeSelelct).then(function (response) {
 							var data;
 							if (response.data) {
@@ -139,7 +139,7 @@
 							if ($scope.isEditMode && items.taskType === "script") {
 								var isScriptChecked = [];
 								for(var i =0;i<items.taskConfig.scriptDetails.length;i++){
-									isScriptChecked.push(items.taskConfig.scriptDetails[i].scriptId)
+									isScriptChecked.push(items.taskConfig.scriptDetails[i].scriptId);
 									$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data, isScriptChecked);
 									$scope.scriptParamsObj[items.taskConfig.scriptDetails[i].scriptId] = items.taskConfig.scriptDetails[i].scriptParameters;		
 									$scope.isNewTaskPageLoading = false;	
@@ -367,7 +367,7 @@
 						
 						for (var k = 0; k < $scope.scriptTaskList.length; k++) {
 							if ($scope.scriptTaskList[k]._isScriptSelected) {
-								var scriptId = $scope.scriptTaskList[k]._id
+								var scriptId = $scope.scriptTaskList[k]._id;
 								var obj = {
 									scriptId: scriptId,
 									scriptParameters:[]

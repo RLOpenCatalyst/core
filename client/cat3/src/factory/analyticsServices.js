@@ -21,8 +21,8 @@
                         setEnvParams: env.setParams,
                         getEnvParams: env.getParams
                     };
-                }]).service('analyticsServices', ['$http', 'session', 'analyticsEnvironment', 'paginationUtil',
-        function ($http, Auth, analyticsEnvironment, paginationUtil) {
+                }]).service('analyticsServices', ['$http', 'session', 'analyticsEnvironment',
+        function ($http, Auth, analyticsEnvironment) {
             var baseAPIUrl = uiConfigs.serverUrl;
             function fullUrl(relUrl){
                 return baseAPIUrl + relUrl;

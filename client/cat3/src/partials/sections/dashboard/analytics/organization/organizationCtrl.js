@@ -75,7 +75,7 @@
             //Data is represented as an array of {x,y} pairs.
             for (var i = 0; i < 100; i++) {
                 sin.push({x: i, y: Math.sin(i/10)});
-                sin2.push({x: i, y: i % 10 == 5 ? null : Math.sin(i/10) *0.25 + 0.5});
+                sin2.push({x: i, y: i % 10 === 5 ? null : Math.sin(i/10) *0.25 + 0.5});
                 cos.push({x: i, y: .5 * Math.cos(i/10+ 2) + Math.random() / 10});
             }
 
@@ -100,7 +100,7 @@
                     area: true      //area - set to true if you want this line to turn into a filled area chart.
                 }
             ];
-        };
+        }
         
         $scope.graph2Options = {
         chart: {
