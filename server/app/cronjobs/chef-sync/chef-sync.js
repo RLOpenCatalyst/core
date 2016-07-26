@@ -174,16 +174,17 @@ function getNodeListFilterWithChefNodes(serverId,nodeList,next){
                     (function(nodeName){
                         chefDao.removeChefNodeByChefName(nodeName,function(err,data) {
                             if (err) {
-                                next(err, null);
+                                return next(err, null);
                             }else{
                                 count++;
-                                return;
+                                if(count === chefNodeList.length){
+                                    return next(null,filterNodesList);
+                                }else{
+                                    return;
+                                }
                             }
                         });
                     })(chefNodeList[i]);
-                }
-                if(count === chefNodeList.length){
-                    next(null,filterNodesList);
                 }
             }else{
                 next(null,filterNodesList);
