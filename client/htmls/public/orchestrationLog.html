@@ -115,7 +115,7 @@
 					$taskLogModalContainer.modal('show');
 					$('#selectTaskFromDropdown').hide();
 					var lastTimestamp;
-					var chefTask = function(taskData) {
+					var chefPuppetScriptTask = function(taskData) {
 						$('#selectInstanceFromDropdown').show();
 						$('#instanceList').empty();
 						$taskLogModalContainer.find('.logsArea').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
@@ -152,8 +152,8 @@
 							jenkinLogBody.empty().append($('<p class="jenkinsLogText">' + log + '</p>'));
 						});
 					}
-					if(logData.taskType == 'chef') {
-						chefTask(logData);
+					if(logData.taskType == 'chef' || logData.taskType == 'puppet' || logData.taskType == 'script') {
+						chefPuppetScriptTask(logData);
 					} else if (logData.taskType == 'jenkins') {
 						jenkinsTask(logData);
 					} else if (logData.taskType == 'composite') {
@@ -171,8 +171,8 @@
 							if (timeout) {
 								clearTimeout(timeout);
 							}
-							if(taskData.taskType == 'chef') {
-								chefTask(taskData);
+							if(taskData.taskType == 'chef' || taskData.taskType == 'puppet' || taskData.taskType == 'script') {
+								chefPuppetScriptTask(taskData);
 							} else if (taskData.taskType == 'jenkins') {
 								jenkinsTask(taskData);
 							}
@@ -182,8 +182,6 @@
 
 					//Showing the log for Tasks
 					function pollLogs(timestamp, delay, clearData) {
-						console.log(timestamp);
-						console.log(delay);
 						var url = '/audit-trail/task-action/' + taskActionId+'/logs';
 						url = url + '?timestamp=' + timestamp;
 						timeout = setTimeout(function() {
@@ -191,7 +189,6 @@
 							  url: url,
 							  cache: false
 							}).done(function(data) {
-								//console.log(data.logs);
 								var $modalBody = $taskLogModalContainer.find('.logsArea')
 								if (clearData) {
 									$modalBody.empty();
@@ -200,12 +197,10 @@
 								for (var i = 0; i < data.logs.length; i++) {
 									var $rowDiv = $('<tr class="row rowSpacing"></tr>');
 									var timeString;
-									console.log(data.logs[i].timestamp);
 									if(data.logs[i].timestamp){
 										timeString = new Date().setTime(data.logs[i].timestamp);
 									}
 									var date = new Date(timeString).toLocaleString();
-									console.log(date);
 									var logStr ="";
 									if(data.logs[i].log){
 										logStr = data.logs[i].log;
@@ -300,7 +295,6 @@
 
 				function createTaskLogTable(taskData) {
 					var managnedData = taskData;
-					console.log(managnedData);
 					var $tbody = $('#taskLogTable tbody').empty();
 					var $taskLogTable = $('#taskLogTable');
 					if(managnedData.length == 0) {
