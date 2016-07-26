@@ -65,73 +65,59 @@ function aggregateChefSync(chefDetail){
             getNodeListFilterWithChefNodes(chefDetail.rowid,filterNodeLists,next);
         },
         function(filterNodeList,next){
-            async.parallel({
-                nodes: function(callback){
-                    var nodeDetailList=[];
-                    if(filterNodeList.length > 0) {
-                        for (var i = 0; i < filterNodeList.length; i++) {
-                            (function (filterNode) {
-                                chef.getNode(filterNode, function (err, nodeChefBody) {
-                                    if (err) {
-                                        nodeDetailList.push({error: err});
-                                        if (nodeDetailList.length === filterNodeList.length) {
-                                            return callback(null, nodeDetailList);
-                                        } else {
-                                            return;
-                                        }
-                                    } else if (nodeChefBody.err) {
-                                        nodeDetailList.push({error: nodeChefBody.err});
-                                        if (nodeDetailList.length === filterNodeList.length) {
-                                            return callback(null, nodeDetailList);
-                                        } else {
-                                            return;
-                                        }
-                                    } else {
-                                        var chefNodeObj = {
-                                            chefServerId: chefDetail.rowid,
-                                            chefNodeName: nodeChefBody.name,
-                                            chefNodeEnv: nodeChefBody.chef_environment,
-                                            chefJsonClass: nodeChefBody.json_class,
-                                            chefType: nodeChefBody.chef_type,
-                                            chefNodeIp: nodeChefBody.automatic.ipaddress,
-                                            chefNodeFqdn: nodeChefBody.automatic.fqdn,
-                                            chefNodePlatform: nodeChefBody.automatic.platform,
-                                            chefNodeUpTime: nodeChefBody.automatic.uptime
-                                        };
-                                        nodeDetailList.push(chefNodeObj);
-                                        chefNodeObj = {};
-                                        if (nodeDetailList.length === filterNodeList.length) {
-                                            return callback(null, nodeDetailList);
-                                        } else {
-                                            return;
-                                        }
-                                    }
-                                });
-                            })(filterNodeList[i]);
-                        }
-                    }else{
-                        callback(null,filterNodeList);
-                    }
-                },
-                environments: function(callback){
-                    chef.getEnvironmentsList(callback);
+            var nodeDetailList=[];
+            if(filterNodeList.length > 0) {
+                for (var i = 0; i < filterNodeList.length; i++) {
+                    (function (filterNode) {
+                        chef.getNode(filterNode, function (err, nodeChefBody) {
+                            if (err) {
+                                nodeDetailList.push({error: err});
+                                if (nodeDetailList.length === filterNodeList.length) {
+                                    return next(null, nodeDetailList);
+                                } else {
+                                    return;
+                                }
+                            } else if (nodeChefBody.err) {
+                                nodeDetailList.push({error: nodeChefBody.err});
+                                if (nodeDetailList.length === filterNodeList.length) {
+                                    return next(null, nodeDetailList);
+                                } else {
+                                    return;
+                                }
+                            } else {
+                                var chefNodeObj = {
+                                    chefServerId: chefDetail.rowid,
+                                    chefNodeName: nodeChefBody.name,
+                                    chefNodeEnv: nodeChefBody.chef_environment,
+                                    chefJsonClass: nodeChefBody.json_class,
+                                    chefType: nodeChefBody.chef_type,
+                                    chefNodeIp: nodeChefBody.automatic.ipaddress,
+                                    chefNodeFqdn: nodeChefBody.automatic.fqdn,
+                                    chefNodePlatform: nodeChefBody.automatic.platform,
+                                    chefNodeUpTime: nodeChefBody.automatic.uptime
+                                };
+                                nodeDetailList.push(chefNodeObj);
+                                chefNodeObj = {};
+                                if (nodeDetailList.length === filterNodeList.length) {
+                                    return next(null, nodeDetailList);
+                                } else {
+                                    return;
+                                }
+                            }
+                        });
+                    })(filterNodeList[i]);
                 }
-
-            },function(err,results){
-                if(err){
-                    next(err,null);
-                }else{
-                    next(null,results);
-                }
-            })
+            }else{
+                return next(null,filterNodeList);
+            }
         },
-        function(nodeDetails,next){
-            saveChefNodeDetails(nodeDetails.nodes,nodeDetails.environments,chefDetail.rowid,next);
+        function(nodeDetailsList,next){
+            saveChefNodeDetails(nodeDetailsList,next);
         }
     ], function (err, results) {
         if (err) {
             logger.error("Error in chef Sync");
-            chefDao.removeChefNodeByChefServerId(chefDetail.rowid,false,function(err,data){
+            chefDao.removeChefNodeByChefServerId(chefDetail.rowid,function(err,data){
                 if(err){
                     logger.error(err);
                     return;
@@ -139,18 +125,8 @@ function aggregateChefSync(chefDetail){
                     return;
                 }
             })
-            return;
         } else {
             logger.info("Chef Sync completed");
-            chefDao.removeChefNodeByChefServerId(chefDetail.rowid,true,function(err,data){
-                if(err){
-                    logger.error(err);
-                    return;
-                }else{
-                    return;
-                }
-            })
-            return;
             return;
         }
     });
@@ -243,12 +219,11 @@ function getNodeListFilterWithManagedInstances(serverId,nodeList,callback){
     });
 };
 
-function saveChefNodeDetails(nodeDetailList,envList,serverId,callback){
+function saveChefNodeDetails(nodeDetailList,callback){
     var count = 0;
     if(nodeDetailList.length > 0) {
         for (var i = 0; i < nodeDetailList.length; i++) {
             (function (nodeDetails) {
-                nodeDetails.chefEnvironments = envList;
                 if (nodeDetails.error) {
                     count++;
                     if (count === nodeDetailList.length) {
@@ -273,15 +248,6 @@ function saveChefNodeDetails(nodeDetailList,envList,serverId,callback){
                 }
             })(nodeDetailList[i]);
         }
-    }else if(envList.length > 0){
-        chefDao.updateChefNodeEnvList(serverId,envList, function (err, data) {
-            if (err) {
-                logger.error(err);
-                callback(err, null);
-            } else {
-                callback(null, data);
-            }
-        })
     }else{
         callback(null,null);
     }

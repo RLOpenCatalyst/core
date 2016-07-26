@@ -113,8 +113,8 @@
     </li>
 </ul>
 
-<div class="tab-content">
-    <div  class="tab-pane active nodesContainer" id="nodesId">
+<div class="tab-content nodesContainer">
+    <div  class="tab-pane active" id="nodesId" style="display: none">
         <div class="col-lg-12 margin-top10">
                 <div  class="tab-pane active nodesListContainer" id="organiz">
                     <div  class="tabContent table-responsive" id="nodeListDiv" >
@@ -144,6 +144,10 @@
                 </div>
         </div>
     </div>
+</div>
+<div class="alert alert-warning dataBagFailure hidden">
+    <img style="width:50px;height:40px" src="img/warning.png" alt="warning"/>
+    <span style="margin-left:40px;">The ChefServer credentials are incorrect.</span>
 </div>
 
 <!--import instance modal-->
@@ -275,129 +279,68 @@
                 urlParams.chefId = sub;
             }
         })();
-
-        $.get('../chef/envList?serverId=' + urlParams.chefId, function (envList) {
-                if (envList.length > 0) {
-                    var $envSelect = '<select class ="width100 " id="chefEnv" currentEnv="">';
-                    for (var j = 0; j < envList.length; j++) {
-                        $envSelect = $envSelect + '<option value="' + envList[j] + '">' + envList[j] + '</option>';
-                    }
-                    $envSelect = $envSelect + '</select>';
-                    $('#nodeListTable').DataTable({
-                        "processing": true,
-                        "serverSide": true,
-                        "destroy": true,
-                        "ajax": '/chef/nodeList?filterBy=chefServerId:' + urlParams.chefId,
-                        "createdRow": function (row, data) {
-                            $(row).attr({"nodeName": data.chefNodeName})
-                        },
-                        "columns": [
-                            {"data": "chefNodeName", "orderable": true},
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return full.chefNodeIp ? full.chefNodeIp : '-';
-                                }
-                            },
-                            {
-                                "data": "chefNodeFqdn", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return full.chefNodeFqdn ? full.chefNodeFqdn : '-';
-                                }
-                            },
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return full.chefNodePlatform ? full.chefNodePlatform : '-';
-                                }
-                            },
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return full.chefNodeUpTime ? full.chefNodeUpTime : '-';
-                                }
-                            },
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    if (full.chefNodeEnv) {
-                                        return $envSelect;
-                                    }
-                                }
-                            },
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full.chefNodeName).html() + '">';
-                                }
-                            },
-
-                        ]
-                    });
-                }else{
-                    $('#nodeListTable').DataTable({
-                        "processing": true,
-                        "serverSide": true,
-                        "destroy": true,
-                        "ajax": '/chef/nodeList?filterBy=chefServerId:' + urlParams.chefId,
-                        "createdRow": function (row, data) {
-                            $(row).attr({"nodeName": data.chefNodeName})
-                        },
-                        "columns": [
-                            {"data": "chefNodeName", "orderable": true},
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return full.chefNodeIp ? full.chefNodeIp : '-';
-                                }
-                            },
-                            {
-                                "data": "chefNodeFqdn", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return full.chefNodeFqdn ? full.chefNodeFqdn : '-';
-                                }
-                            },
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return full.chefNodePlatform ? full.chefNodePlatform : '-';
-                                }
-                            },
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return full.chefNodeUpTime ? full.chefNodeUpTime : '-';
-                                }
-                            },
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    if (full.chefNodeEnv) {
-                                        return $envSelect;
-                                    }
-                                }
-                            },
-                            {
-                                "data": "", "orderable": false,
-                                "render": function (data, type, full, meta) {
-                                    return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full.chefNodeName).html() + '">';
-                                }
-                            }
-                        ]
-                    });
-                }
-            }).fail(function(jxhr){
-            var $nodesContainer = $('.nodesContainer');
-            $nodesContainer.find('img').remove();
-            var $spanError = $('<span></span>').css({color:'red', 'margin-left': '39%'});
-            if(jxhr.responseJSON) {
-                $spanError.html(jxhr.responseJSON.message);
-            } else {
-                $spanError.html("Server Behaved Unexpectedly");
+        $('.nodesContainer').append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+        $.get('../chef/servers/' + urlParams.chefId + '/environments', function(envList) {
+            $('.nodesContainer img').remove();
+            $("#nodesId").toggle();
+            var $envSelect = '<select class ="width100 " id="chefEnv" currentEnv="">';
+            for (var j = 0; j < envList.length; j++) {
+                $envSelect = $envSelect + '<option value="' + envList[j] + '">' + envList[j] + '</option>';
             }
-            $nodesContainer.append($spanError);
+            $envSelect = $envSelect + '</select>';
+            $('#nodeListTable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "destroy": true,
+                "ajax": '/chef/nodeList?filterBy=chefServerId:' + urlParams.chefId,
+                "createdRow": function (row, data) {
+                    $(row).attr({"nodeName": data.chefNodeName})
+                },
+                "columns": [
+                    {"data": "chefNodeName", "orderable": true},
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.chefNodeIp ? full.chefNodeIp : '-';
+                        }
+                    },
+                    {
+                        "data": "chefNodeFqdn", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.chefNodeFqdn ? full.chefNodeFqdn : '-';
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.chefNodePlatform ? full.chefNodePlatform : '-';
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.chefNodeUpTime ? full.chefNodeUpTime : '-';
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            if (full.chefNodeEnv) {
+                                return $envSelect;
+                            }
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full.chefNodeName).html() + '">';
+                        }
+                    },
+                ]});
+        }).fail(function(jxhr){
+            $('.nodesContainer img').remove();
+            $('.dataBagFailure').removeClass('hidden');
         });
-
 
         var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
         $.get('../users', function(userList) {
