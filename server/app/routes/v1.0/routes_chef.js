@@ -329,19 +329,26 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 log: "Node Imported",
                                 timestamp: new Date().getTime()
                             });
-                            var _docker = new Docker();
-                            _docker.checkDockerStatus(data._id, function (err, retCode) {
+                            chefDao.removeChefNodeByChefName(node.name,function(err,data) {
                                 if (err) {
-                                    logger.error("Failed _docker.checkDockerStatus", err);
+                                    logger.error(err, 'occured in removing chef node in mongo');
+                                    callback(err, null);
                                     return;
                                 }
-                                logger.debug('Docker Check Returned:' + retCode);
-                                if (retCode == '0') {
-                                    instancesDao.updateInstanceDockerStatus(data._id, "success", '', function (data) {
-                                        logger.debug('Instance Docker Status set to Success');
-                                    });
+                                var _docker = new Docker();
+                                _docker.checkDockerStatus(data._id, function (err, retCode) {
+                                    if (err) {
+                                        logger.error("Failed _docker.checkDockerStatus", err);
+                                        return;
+                                    }
+                                    logger.debug('Docker Check Returned:' + retCode);
+                                    if (retCode == '0') {
+                                        instancesDao.updateInstanceDockerStatus(data._id, "success", '', function (data) {
+                                            logger.debug('Instance Docker Status set to Success');
+                                        });
 
-                                }
+                                    }
+                                });
                             });
                             callback(null, data);
                         });
@@ -730,7 +737,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
 
-    app.post('/chef/servers/:serverId/nodes/:nodename/updateEnv', function(req, res) {
+    app.post('/chef/servers/:serverId/nodes/:nodeName/updateEnv', function(req, res) {
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 logger.debug(err);
@@ -748,18 +755,23 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.updateNodeEnvironment(req.params.nodename, req.body.envName, function(err, success) {
+            chef.updateNodeEnvironment(req.params.nodeName, req.body.envName, function(err, success) {
                 if (err) {
                     res.send(500);
                     return;
-                } else {
-                    if (success) {
-                        res.send(200);
-                        return;
-                    } else {
-                        res.send(500);
-                        return;
-                    }
+                }else if (success) {
+                        chefDao.updateChefNodeEnv(req.params.nodeName,req.body.envName,function(err,data){
+                            if(err){
+                                res.send(500);
+                                return;
+                            }else{
+                                res.send(200);
+                                return;
+                            }
+                        })
+                }else {
+                    res.send(500);
+                    return;
                 }
             });
         });

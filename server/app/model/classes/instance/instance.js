@@ -1582,7 +1582,6 @@ var InstancesDao = function() {
         if (!nodeNames) {
             nodeNames = [];
         }
-        logger.debug('serverId -->', chefServerId);
         Instances.find({
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
@@ -1596,12 +1595,10 @@ var InstancesDao = function() {
                 logger.error("getInstancesFilterByNotChefServerIdAndNodeNames", err);
                 callback(err, null);
                 return;
-            }
-            logger.debug("Exit getInstancesFilterByNotChefServerIdAndNodeNames ");
-            if (data) {
+            }else if(data){
                 callback(null, data);
             } else {
-                callback(null, null);
+                callback(null, []);
             }
         });
     };

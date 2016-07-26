@@ -130,15 +130,15 @@ var Chef = function(settings) {
             }
             chefClient.get('/nodes/' + nodeName, function(err, chefRes, chefResBody) {
                 if (err) {
-                    callback(err, null);
-                    return;
+                    return callback(err, null);
                 }else if (chefRes.statusCode === 200) {
-                    callback(null, chefResBody);
+                    return  callback(null, chefResBody);
                 }else {
-                    callback(null,{
+                    return callback(null,{
                         err: "not found",
                         chefStatusCode: chefRes.statusCode
                     });
+
                 }
             });
         });
