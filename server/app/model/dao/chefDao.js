@@ -72,6 +72,12 @@ var chefNodeSchema = new Schema({
         type:Date,
         required:false,
         default:Date.now
+    },
+    chefSync:{
+        type:Boolean,
+        required:false,
+        default:true
+
     }
 });
 chefNodeSchema.plugin(mongoosePaginate);
@@ -113,7 +119,15 @@ var chefDao = function() {
     };
 
     this.removeChefNodeByChefServerId = function(serverId, callback) {
-        chefNodes.remove({chefServerId:serverId},function(err, chefData) {
+        chefNodes.update({chefServerId:serverId},
+            {
+                $set: {
+                    chefSync:false
+                }
+            }, {
+                upsert: false
+            },
+            function(err, chefData) {
             if (err) {
                 logger.error(err);
                 callback(err,null);
@@ -160,6 +174,7 @@ var chefDao = function() {
     };
 
     this.getNodesByServerId = function(query,callback){
+        query.queryObj.chefSync = true;
         chefNodes.paginate(query.queryObj, query.options,
             function(err, nodes) {
                 if (err) {
@@ -169,18 +184,6 @@ var chefDao = function() {
                 }
             });
     };
-
-    this.getChefEnvByServerId = function(serverId,callback){
-        chefNodes.findOne({chefServerId:serverId}, function(err, node) {
-                if (err) {
-                    return callback(err);
-                } else if(node) {
-                    return callback(null, node.chefEnvironments);
-                } else{
-                    return callback(null, []);
-                }
-            });
-    }
 
     this.getChefNodesByServerId = function(serverId,callback){
         chefNodes.find({chefServerId:serverId}, function(err, nodes) {
