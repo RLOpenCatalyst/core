@@ -329,7 +329,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 log: "Node Imported",
                                 timestamp: new Date().getTime()
                             });
-                            chefDao.removeChefNodeByChefName(node.name,function(err,data) {
+                            chefDao.removeChefNodeByChefName(node.name,function(err,chefdata) {
                                 if (err) {
                                     logger.error(err, 'occured in removing chef node in mongo');
                                     callback(err, null);

@@ -97,7 +97,7 @@ var chefDao = function() {
     };
 
     this.getChefNodeByChefName = function(chefName, callback) {
-        chefNodes.find({chefName:chefName},function(err, chefData) {
+        chefNodes.find({chefNodeName:chefName},function(err, chefData) {
             if (err) {
                 logger.error(err);
                 callback(err,null);
@@ -108,7 +108,7 @@ var chefDao = function() {
     };
 
     this.removeChefNodeByChefName = function(chefName, callback) {
-        chefNodes.remove({chefName:chefName},function(err, chefData) {
+        chefNodes.remove({chefNodeName:chefName},function(err, chefData) {
             if (err) {
                 logger.error(err);
                 callback(err,null);
@@ -118,11 +118,11 @@ var chefDao = function() {
         });
     };
 
-    this.removeChefNodeByChefServerId = function(serverId, callback) {
+    this.removeChefNodeByChefServerId = function(serverId,chefSyncStatus, callback) {
         chefNodes.update({chefServerId:serverId},
             {
                 $set: {
-                    chefSync:false
+                    chefSync:chefSyncStatus
                 }
             }, {
                 upsert: false
@@ -156,8 +156,8 @@ var chefDao = function() {
         });
     };
 
-    this.updateChefNodeEnvList = function(newEnvList, callback) {
-        chefNodes.update({}, {
+    this.updateChefNodeEnvList = function(serverId,newEnvList, callback) {
+        chefNodes.update({chefServerId:serverId}, {
             $set: {
                 chefEnvironments:newEnvList
             }
