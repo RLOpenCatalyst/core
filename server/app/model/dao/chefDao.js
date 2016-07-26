@@ -112,14 +112,29 @@ var chefDao = function() {
         });
     };
 
-    this.updateChefNode = function(chefId,chefNodeDetails, callback) {
+    this.updateChefNodeEnv = function(chefNodeName,newEnv, callback) {
         chefNodes.update({
-            "_id": new ObjectId(chefId)
+            "chefNodeName": chefNodeName
         }, {
             $set: {
-                chefEnv:chefNodeDetails.chefEnv,
-                chefJsonClass:chefNodeDetails.chefJsonClass,
-                chefType:chefNodeDetails.chefType
+                chefEnv:newEnv
+            }
+        }, {
+            upsert: false
+        },function(err, data) {
+            if (err) {
+                logger.error(err);
+                callback(err,null);
+            }else{
+                callback(null, data);
+            }
+        });
+    };
+
+    this.updateChefNodeEnvList = function(newEnvList, callback) {
+        chefNodes.update({}, {
+            $set: {
+                chefEnvironments:newEnvList
             }
         }, {
             upsert: false
@@ -154,6 +169,18 @@ var chefDao = function() {
                     return callback(null, []);
                 }
             });
+    }
+
+    this.getChefNodesByServerId = function(serverId,callback){
+        chefNodes.find({chefServerId:serverId}, function(err, nodes) {
+            if (err) {
+                return callback(err);
+            } else if(nodes.length > 0) {
+                return callback(null, nodes);
+            } else{
+                return callback(null, []);
+            }
+        });
     }
 }
 module.exports = new chefDao();

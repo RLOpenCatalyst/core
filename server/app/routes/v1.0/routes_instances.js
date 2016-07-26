@@ -54,6 +54,7 @@ var providerService = require('_pr/services/providerService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
 var instanceService=require('_pr/services/instanceService');
+var chefDao = require('_pr/model/dao/chefDao.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -299,7 +300,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             }
 
                             if (infraManagerDetails.configType === 'chef') {
-
                                 var chef = new Chef({
                                     userChefRepoLocation: infraManagerDetails.chefRepoLocation,
                                     chefUserName: infraManagerDetails.loginname,
@@ -316,8 +316,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             res.send(500);
                                         }
                                     } else {
-                                        removeInstanceFromDb();
-                                        logger.debug("Successfully removed instance from db.");
+                                        chefDao.removeChefNodeByChefName(instance.chef.chefNodeName,function(err,data) {
+                                            if (err) {
+                                                logger.error(err, 'occured in removing chef node in mongo');
+                                                callback(err, null);
+                                                return;
+                                            }
+                                            removeInstanceFromDb();
+                                            logger.debug("Successfully removed instance from db.");
+                                        });
                                     }
                                 });
                             } else {
