@@ -24,7 +24,7 @@ var providerSync = require('_pr/cronjobs/provider-sync');
 var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');
 var dockerContainerSync = require('_pr/cronjobs/docker-container-sync');
 var awsRDSS3ProviderSync = require('_pr/cronjobs/provider-rds-s3-sync');
-var chefSync = require('_pr/cronjobs/chef-sync/chef-sync.js');
+var chefSync = require('_pr/cronjobs/chef-sync');
 
 module.exports.start = function start() {
 

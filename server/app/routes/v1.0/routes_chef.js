@@ -1325,11 +1325,19 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     app.get("/chef/envList", function(req, res) {
-        chefDao.getChefEnvByServerId(req.query.serverId, function(err,envList){
+        chefDao.getChefNodesByServerId(req.query.serverId, function(err,nodes){
             if (err){
                 res.send(err);
+            }else if(nodes.length > 0){
+                if(nodes[0].chefSync){
+                    res.send(nodes[0].chefEnvironments);
+                    return;
+                }else{
+                    res.status(500).send(errorResponses.chef.connectionError);
+                    return;
+                }
             }else{
-                res.send(envList);
+                res.send([]);
             }
         });
     });

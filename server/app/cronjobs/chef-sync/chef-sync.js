@@ -131,6 +131,14 @@ function aggregateChefSync(chefDetail){
     ], function (err, results) {
         if (err) {
             logger.error("Error in chef Sync");
+            chefDao.removeChefNodeByChefServerId(chefDetail.rowid,function(err,data){
+                if(err){
+                    logger.error(err);
+                    return;
+                }else{
+                    return;
+                }
+            })
             return;
         } else {
             logger.info("Chef Sync completed");
@@ -231,17 +239,11 @@ function saveChefNodeDetails(nodeDetailList,envList,callback){
     if(nodeDetailList.length > 0) {
         for (var i = 0; i < nodeDetailList.length; i++) {
             (function (nodeDetails) {
+                nodeDetails.chefEnvironments = envList;
                 if (nodeDetails.error) {
                     count++;
                     if (count === nodeDetailList.length) {
-                        chefDao.updateChefNodeEnvList(envList, function (err, data) {
-                            if (err) {
-                                logger.error(err);
-                                callback(err, null);
-                            } else {
-                                callback(null, data);
-                            }
-                        })
+                        callback(nodeDetails.error, null);
                     } else {
                         return;
                     }
@@ -253,14 +255,7 @@ function saveChefNodeDetails(nodeDetailList,envList,callback){
                         } else {
                             count++;
                             if (count === nodeDetailList.length) {
-                                chefDao.updateChefNodeEnvList(envList, function (err, data) {
-                                    if (err) {
-                                        logger.error(err);
-                                        callback(err, null);
-                                    } else {
-                                        callback(null, data);
-                                    }
-                                })
+                                callback(null, data);
                             } else {
                                 return;
                             }
@@ -269,7 +264,7 @@ function saveChefNodeDetails(nodeDetailList,envList,callback){
                 }
             })(nodeDetailList[i]);
         }
-    }else{
+    }else if(envList.length > 0){
         chefDao.updateChefNodeEnvList(envList, function (err, data) {
             if (err) {
                 logger.error(err);
@@ -278,6 +273,8 @@ function saveChefNodeDetails(nodeDetailList,envList,callback){
                 callback(null, data);
             }
         })
+    }else{
+        callback(null,null);
     }
 }
 
