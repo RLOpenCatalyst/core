@@ -292,7 +292,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                     projectName: launchParams.projectName,
                     envName: launchParams.envName,
                     status: "pending",
-                    bootStrap: "waiting",
+                    actionStatus: "waiting",
                     platformId: instanceData.server.id,
                     blueprintName: launchParams.blueprintData.name,
                     data: paramRunList,
@@ -454,7 +454,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.bootStrap = "failed";
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.logs = {
                                             err: true,
                                             log: "Bootstrap failed",
@@ -486,7 +486,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.bootStrap = "success";
+                                        instanceLog.actionStatus = "success";
                                         instanceLog.logs = {
                                             err: false,
                                             log: "Instance Bootstraped successfully",
@@ -549,7 +549,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.bootStrap = "failed";
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.logs = {
                                             err: false,
                                             log: "Bootstrap Failed",
