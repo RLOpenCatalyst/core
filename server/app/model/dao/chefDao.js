@@ -112,6 +112,17 @@ var chefDao = function() {
         });
     };
 
+    this.removeChefNodeByChefServerId = function(serverId, callback) {
+        chefNodes.remove({chefServerId:serverId},function(err, chefData) {
+            if (err) {
+                logger.error(err);
+                callback(err,null);
+            }else{
+                callback(null, chefData);
+            }
+        });
+    };
+
     this.updateChefNodeEnv = function(chefNodeName,newEnv, callback) {
         chefNodes.update({
             "chefNodeName": chefNodeName

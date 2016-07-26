@@ -276,7 +276,7 @@
             }
         })();
 
-            $.get('../chef/envList?serverId=' + urlParams.chefId, function (envList) {
+        $.get('../chef/envList?serverId=' + urlParams.chefId, function (envList) {
                 if (envList.length > 0) {
                     var $envSelect = '<select class ="width100 " id="chefEnv" currentEnv="">';
                     for (var j = 0; j < envList.length; j++) {
@@ -330,7 +330,8 @@
                                 "render": function (data, type, full, meta) {
                                     return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full.chefNodeName).html() + '">';
                                 }
-                            }
+                            },
+
                         ]
                     });
                 }else{
@@ -385,7 +386,17 @@
                         ]
                     });
                 }
-            });
+            }).fail(function(jxhr){
+            var $nodesContainer = $('.nodesContainer');
+            $nodesContainer.find('img').remove();
+            var $spanError = $('<span></span>').css({color:'red', 'margin-left': '39%'});
+            if(jxhr.responseJSON) {
+                $spanError.html(jxhr.responseJSON.message);
+            } else {
+                $spanError.html("Server Behaved Unexpectedly");
+            }
+            $nodesContainer.append($spanError);
+        });
 
 
         var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
