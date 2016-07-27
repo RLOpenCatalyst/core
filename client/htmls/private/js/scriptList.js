@@ -17,10 +17,11 @@ $('.addScriptItem').click(function(e) {
     $('#scriptType').removeAttr('disabled');
     $('#orgName').val('');
     $('#fileNameDisplay').empty();
+    $('#scriptHiddenInputId').val('');
+    $('#fileHiddenInputId').val('');
     $('.modal-header').find('.modal-title').html('Create New Script Item');
     $('#scriptEditHiddenInput').val('new');
     getOrganizationList();
-    
 });
 //to list down the organization for creating the script item.
 function getOrganizationList() {
