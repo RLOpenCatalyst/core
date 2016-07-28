@@ -155,7 +155,6 @@ $('#scriptListTable tbody').on( 'click', 'button.deleteScript', function(){
                         getScriptList();
                     },
                     error: function(jxhr) {
-                        bootbox.alert(result);
                         var msg = "Unable to Delete URL please try again later";
                         if (jxhr.responseJSON && jxhr.responseJSON.message) {
                             msg = jxhr.responseJSON.message;
