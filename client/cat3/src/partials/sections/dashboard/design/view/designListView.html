@@ -1,20 +1,45 @@
-<div class="productdiv4" ng-repeat="ar in myArray">
-    <div class="productdiv1 cardimage" data-blueprintid="566135e9bfc2bf511faaaf79" data-projectid="895990bc-2dc8-43bf-ab65-d75d8e5f5f07" data-templatetype="chef">
-        <ul class="list-unstyled system-prop" style="text-align: center;">
-            <li>
-                <img src="./images/templateicons/appFact4.png" alt="Zabix and Logstash" class="cardLogo">
-            </li>
-            <li title="Zabix and Logstash" class="Cardtextoverflow"><u><h5>Zabix </h5></u>
-            </li>
-            <li class="margin-top5">Version:&nbsp;
-                <select class="blueprintVer">
-                    <option value="566135e9bfc2bf511faaaf79">1</option>
-                </select>
-            </li>
-            <hr class="blue-hr"/>
-            <button class="btn btn-primary bpvicon pull-right" title="Edit" blueprintid="5613507da0dea502290b5253" versions="[]"><i class="fa fa-location-arrow fa-2 white"></i></button>
-            <button class="btn btn-primary bpvicon pull-left" title="Edit" blueprintid="5613507da0dea502290b5253" versions="[]"><i class="fa fa-info fa-2 white"></i></button>
-        </ul>
+<div ng-controller="blueprintListCtrl as bpList" >
+    <div ng-show="bpList.blueprintList.length <= 0" class="alert alert-info text-center"> No Data Found!</div>
+    <div ng-show="bpList.blueprintType === 'Composite'">
+        <div class="productdiv4" id="{{blueprint.id}}" ng-repeat="blueprint in bpList.blueprintList" ng-init="desSubItm[blueprint.id] === false ">
+            <div class="productdiv1 cardimage" ng-class="{'selected' :desSubItm[blueprint.id] === true }" >
+                <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="desSubItm.selectCard(blueprint);">
+                    <li>
+                        <img src="./images/composite.png" alt="Zabix and Logstash" class="cardLogo">
+                    </li>
+                    <li title="Zabix and Logstash" class="Cardtextoverflow"><u><h5>{{blueprint.name}}</h5></u>
+                    </li>
+                    <hr class="blue-hr"/>
+                    <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="desSubItm.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-right" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-left" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i></button>
+                </ul>
 
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="bpList.blueprintType !== 'Composite'">
+        <div class="productdiv4" id="{{blueprint.id}}" ng-repeat="blueprint in bpList.blueprintList" ng-init="desSubItm[blueprint.id] === false ">
+            <div class="productdiv1 cardimage" ng-class="{'selected' :desSubItm[blueprint.id] === true }" >
+                <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="desSubItm.selectCard(blueprint);">
+                    <li>
+                        <img src="./images/templateicons/appFact4.png" alt="Zabix and Logstash" >
+                    </li>
+                    <li title="Zabix and Logstash" class="Cardtextoverflow"><u><h5>{{blueprint.name}}</h5></u>
+                    </li>
+                    <li class="margin-top5">Version:&nbsp;
+                        <select class="blueprintVer">
+                            <option value="566135e9bfc2bf511faaaf79">1</option>
+                        </select>
+                    </li>
+                    <hr class="blue-hr"/>
+                    <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="desSubItm.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-right" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-left" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i></button>
+                </ul>
+
+            </div>
+        </div>
     </div>
 </div>
