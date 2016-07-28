@@ -1,4 +1,9 @@
 
+3.2.1 - July 8th , 2016
+----------------------------
+* Composite blueprints implementation - To design and launch a complete application stack
+* Critical Bug Fixes
+
 3.1.0 - June 14th, 2016
 ----------------------------
 * Improved GUI with AngularJS
