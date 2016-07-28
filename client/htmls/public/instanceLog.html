@@ -91,7 +91,6 @@
 
 			var instanceLogsHandler = function(e) {
 				var instanceActionId = $(this).attr('data-id');
-				console.log(instanceActionId);
 				var timeout;
 				var $instanceLogModalContainer = $('#instanceLogsModalContainer');
 				$instanceLogModalContainer.on('hidden.bs.modal', function(e) {
@@ -105,8 +104,6 @@
 				var lastTimestamp;
 				//Showing the log for Instances
 				function pollLogs(timestamp, delay, clearData) {
-					console.log(timestamp);
-					console.log(delay);
 					var url = '/audit-trail/instance-action/' + instanceActionId+'/logs';
 					url = url + '?timestamp=' + timestamp;
 					timeout = setTimeout(function() {
@@ -243,7 +240,7 @@
 					} else if (managnedData[i].providerType == 'openstack') {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/openstack.png' alt='provider'/>");
 					} else if (managnedData[i].providerType == 'vmware') {
-						$providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/vmware.png' alt='provider'/>");
+						$providerImg = $("<img class ='imgStyle' src = '../private/img/vmware-card.png' alt='provider'/>");
 					} else {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/rsz_logo.png' alt='provider'/>");
 					}
