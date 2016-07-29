@@ -21,6 +21,7 @@ var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 
+
 const errorType = 'scriptService';
 
 var scriptService = module.exports = {};
@@ -128,7 +129,31 @@ scriptService.getScriptById=function getScriptById(scriptId,callback){
 scriptService.removeScriptById=function removeScriptById(scriptId,callback){
     async.waterfall([
         function(next){
-            script.getScriptById(scriptId,next);
+            var taskDao = require('_pr/model/classes/tasks/tasks.js');
+            taskDao.getScriptTypeTask(next);
+        },
+        function(tasks,next){
+            if(tasks.length > 0){
+                var count = 0;
+                for(var i = 0; i < tasks.length; i++){
+                    (function(task){
+                        count++;
+                        for(var j = 1;j < task.taskConfig.scriptDetails.length;j++){
+                            (function(scriptDetail){
+                                if(scriptDetail.scriptId === scriptId){
+                                    next({message:"Script already associated with Some Task.To delete script please delete respective Task first.",code:403},null);
+                                }else{
+                                    if(count === tasks.length){
+                                        script.getScriptById(scriptId, next);
+                                    }
+                                }
+                            })(task.taskConfig.scriptDetails[j]);
+                        }
+                    })(tasks[i]);
+                }
+            }else {
+                script.getScriptById(scriptId, next);
+            }
         },
         function(scripts,next){
             if(scripts.length > 0){

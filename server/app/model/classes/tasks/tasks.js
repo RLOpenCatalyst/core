@@ -530,7 +530,20 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
             callback(null, data);
         });
     }
-}
+};
+
+taskSchema.statics.getScriptTypeTask = function(callback){
+    this.find({
+        "taskConfig.taskType": "script"
+    }, function(err, tasks) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+        }else{
+            callback(null,tasks);
+        }
+    });
+};
 
 taskSchema.statics.getTaskById = function(taskId, callback) {
     this.find({
