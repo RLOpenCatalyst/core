@@ -351,18 +351,18 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         projectName: instance.projectName,
                         envName: instance.environmentName,
                         status: instance.instanceState,
-                        bootStrap: instance.bootStrapStatus,
+                        actionStatus: "pending",
                         platformId: instance.platformId,
                         blueprintName: instance.blueprintData.blueprintName,
                         data: instance.runlist,
-                        platform: "unknown",
+                        platform: instance.hardware.platform,
                         os: instance.hardware.os,
                         size: instance.instanceType,
-                        user: instance.catUser,
+                        user: userName,
                         createdOn: new Date().getTime(),
                         startedOn: new Date().getTime(),
                         providerType: instance.providerType,
-                        action: "Orchestration",
+                        action: "Chef-Task-Run",
                         logs: []
                     };
                     if (appData) {
@@ -388,6 +388,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         });
                         instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                         instanceLog.endedOn = new Date().getTime();
+                        instanceLog.actionStatus = "failed";
                         instanceLog.logs = {
                             err: true,
                             log: "Instance IP is not defined. Chef Client run failed",
@@ -563,6 +564,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         configmgmtDao.getChefServerDetails(instance.chef.serverId, function(err, chefDetails) {
                             if (err) {
                                 instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: true,
                                     log: "Chef Data Corrupted. Chef Client run failed",
@@ -586,6 +588,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             }
                             if (!chefDetails) {
                                 instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: true,
                                     log: "Chef Data Corrupted. Chef Client run failed",
@@ -613,6 +616,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
                                 if (err) {
                                     instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
                                     instanceLog.logs = {
                                         err: true,
                                         log: "Unable to decrypt pem file. Chef run failed",
@@ -641,6 +645,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 }, function(err, chefClientExecution) {
                                     if (err) {
                                         instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.logs = {
                                             err: true,
                                             log: "Unable to generate chef run execution id. Chef run failed",
@@ -724,6 +729,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         }
                                         if (err) {
                                             instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
                                             instanceLog.logs = {
                                                 err: true,
                                                 log: "Unable to run chef-client",
@@ -747,6 +753,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         }
                                         if (retCode == 0) {
                                             instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "success";
                                             instanceLog.logs = {
                                                 err: true,
                                                 log: "Task execution success",
@@ -787,6 +794,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
                                             if (retCode === -5000) {
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Host Unreachable",
@@ -805,6 +813,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                 });
                                             } else if (retCode === -5001) {
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Invalid credentials",
@@ -844,6 +853,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
 
                                             } else {
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Unknown error occured. ret code = " + retCode,
@@ -870,6 +880,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
                                             instanceLog.logs = {
                                                 err: true,
                                                 log: "Error in running chef-client",
@@ -934,6 +945,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 });
                                 instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                 instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: true,
                                     log: "Chef Data Corrupted. Chef Client run failed",
@@ -957,6 +969,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                 });
                                 instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                 instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: true,
                                     log: "Chef Data Corrupted. Chef Client run failed",
@@ -984,6 +997,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                     });
                                     instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                     instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
                                     instanceLog.logs = {
                                         err: true,
                                         log: "Unable to decrypt pem file. Chef run failed",
@@ -1012,6 +1026,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                         });
                                         instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.logs = {
                                             err: true,
                                             log: "Unable to generate chef run execution id. Chef run failed",
@@ -1095,6 +1110,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
                                             instanceLog.logs = {
                                                 err: true,
                                                 log: "Unable to run chef-client",
@@ -1118,6 +1134,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "success";
                                             instanceLog.logs = {
                                                 err: false,
                                                 log: "Task execution success",
@@ -1139,6 +1156,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     timestamp: new Date().getTime()
                                                 });
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Host Unreachable",
@@ -1157,6 +1175,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     timestamp: new Date().getTime()
                                                 });
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Invalid credentials",
@@ -1175,6 +1194,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                                     timestamp: new Date().getTime()
                                                 });
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: 'Unknown error occured. ret code = ' + retCode,
@@ -1195,6 +1215,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
                                             instanceLog.logs = {
                                                 err: true,
                                                 log: "Error in running chef-client",

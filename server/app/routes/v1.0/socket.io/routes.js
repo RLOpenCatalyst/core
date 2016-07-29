@@ -81,14 +81,14 @@ module.exports.setRoutes = function(socketIo) {
                     projectName: instance.projectName,
                     envName: instance.environmentName,
                     status: instance.instanceState,
-                    bootStrap: instance.bootStrapStatus,
+                    actionStatus: "pending",
                     platformId: instance.platformId,
                     blueprintName: instance.blueprintData.blueprintName,
                     data: instance.runlist,
                     platform: instance.hardware.platform,
                     os: instance.hardware.os,
                     size: instance.instanceType,
-                    user: instance.catUser,
+                    user: instanceData.sessionUser,
                     createdOn: new Date().getTime(),
                     startedOn: new Date().getTime(),
                     providerType: instance.providerType,
@@ -119,6 +119,7 @@ module.exports.setRoutes = function(socketIo) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: "Host Unreachable",
@@ -141,6 +142,7 @@ module.exports.setRoutes = function(socketIo) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: "The username or password/pemfile you entered is incorrect",
@@ -163,6 +165,7 @@ module.exports.setRoutes = function(socketIo) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: "Unable to connect to instance, error code = " + err.errCode + ".",
@@ -207,6 +210,7 @@ module.exports.setRoutes = function(socketIo) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: "Host Unreachable",
@@ -229,6 +233,7 @@ module.exports.setRoutes = function(socketIo) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: "The username or password/pemfile you entered is incorrect",
@@ -251,6 +256,7 @@ module.exports.setRoutes = function(socketIo) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: "Something went wrong, error code = " + err.errCode + ".",
@@ -284,6 +290,7 @@ module.exports.setRoutes = function(socketIo) {
                     });
                     instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
+                    instanceLog.actionStatus = "success";
                     instanceLog.logs = {
                         err: false,
                         log: "SSH Shell initiated",

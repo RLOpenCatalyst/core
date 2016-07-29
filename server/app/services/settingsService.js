@@ -24,46 +24,59 @@ const errorType = 'settingsService';
 var settingsService = module.exports = {};
 
 settingsService.updateProjectData = function updateProjectData(enviornment,callback){
-    async.waterfall([
-        function(next){
-            masterUtil.getParticularProject(enviornment.projectname_rowid,next);
-        },
-        function(masterProjectData,next){
-            if(masterProjectData.length > 0){
-                var envNames=masterProjectData[0].environmentname.split(",");
-                var envIds=masterProjectData[0].environmentname_rowid.split(",");
-                if(envNames.indexOf(enviornment.environmentname) === -1 && envIds.indexOf(enviornment.environmentname_rowid) === -1){
-                    next(null,null);
-                }else{
-                    var projectObj={
-                        projectId:enviornment.projectname_rowid,
-                        envNames:changeArrayToString(envNames,enviornment.environmentname),
-                        envIds:changeArrayToString(envIds,enviornment.rowid)
+    var projectIds = enviornment.projectname_rowid.split(",");
+    var count = 0;
+    for(var i = 0; i < projectIds.length; i++){
+        (function(projectId){
+            async.waterfall([
+                function(next){
+                    count++;
+                    masterUtil.getParticularProject(projectId,next);
+                },
+                function(masterProjectData,next){
+                    if(masterProjectData.length > 0){
+                        var envNames=masterProjectData[0].environmentname.split(",");
+                        var envIds=masterProjectData[0].environmentname_rowid.split(",");
+                        if(envNames.indexOf(enviornment.environmentname) === -1 && envIds.indexOf(enviornment.environmentname_rowid) === -1){
+                            next(null,null);
+                        }else{
+                            var projectObj={
+                                projectId:projectId,
+                                envNames:changeArrayToString(envNames,enviornment.environmentname),
+                                envIds:changeArrayToString(envIds,enviornment.rowid)
+                            }
+                            next(null,projectObj);
+                        }
+                    }else{
+                        next(null,null);
                     }
-                    next(null,projectObj);
+                },
+                function(updatedMasterProjectObj,next){
+                    if(updatedMasterProjectObj){
+                        masterUtil.updateParticularProject(updatedMasterProjectObj,next);
+                    }else{
+                        next(null,updatedMasterProjectObj);
+                    }
                 }
-            }else{
-                next(null,null);
-            }
-        },
-        function(updatedMasterProjectObj,next){
-            if(updatedMasterProjectObj){
-                masterUtil.updateParticularProject(updatedMasterProjectObj,next);
-            }else{
-                next(null,updatedMasterProjectObj);
-            }
-        }
-    ],function(err,results){
-        if (err) {
-            logger.error("Error while updating Environments in Master Data Project "+err);
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
+            ],function(err,results){
+                if (err) {
+                    logger.error("Error while updating Environments in Master Data Project "+err);
+                    callback(err,null);
+                    return;
+                }else{
+                    if(projectIds.length ===  count) {
+                        logger.debug("+++++++++++++++++++++++++++projectId+++++++++"+projectId);
+                        callback(null, results);
+                        return;
+                    }else{
+                        return;
+                    }
+                }
 
-    })
+            })
+        })(projectIds[i]);
+    }
+
 };
 
 function changeArrayToString(list,str){

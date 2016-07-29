@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 var logger = require('_pr/logger')(module);
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
@@ -40,12 +39,9 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
-
-
 // @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/providers/*", sessionVerificationFunc);
-
     // @TODO To be refactored
     app.get('/providers/:providerId', function(req, res) {
         AWSProvider.getAWSProviderById(req.params.providerId, function(err, provider) {
@@ -490,7 +486,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                 projectName: project[0].projectname,
                                                                 envName: envName,
                                                                 status: unmanagedInstance.state,
-                                                                bootStrap: "waiting",
+                                                                actionStatus: "waiting",
                                                                 platformId: unmanagedInstance.platformId,
                                                                 blueprintName: unmanagedInstance.platformId,
                                                                 data: [],
@@ -532,8 +528,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                         log: "Unable to decrypt credentials. Bootstrap Failed",
                                                                         timestamp: new Date().getTime()
                                                                     };
-                                                                    instanceLog.bootStrap = "failed";
                                                                     instanceLog.endedOn = new Date().getTime();
+                                                                    instanceLog.actionStatus = "failed";
                                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                         if (err) {
                                                                             logger.error("Failed to create or update instanceLog: ", err);
@@ -632,7 +628,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                     log: err.message,
                                                                                     timestamp: timestampEnded
                                                                                 });
-                                                                                instanceLog.bootStrap = "failed";
+                                                                                instanceLog.actionStatus = "failed";
                                                                                 instanceLog.logs = {
                                                                                     err: true,
                                                                                     log: err.message,
@@ -658,7 +654,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                 log: "Bootstrap Failed",
                                                                                 timestamp: new Date().getTime()
                                                                             };
-                                                                            instanceLog.bootStrap = "failed";
+                                                                            instanceLog.actionStatus = "failed";
                                                                             instanceLog.endedOn = new Date().getTime();
                                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                 if (err) {
@@ -704,7 +700,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                     log: "Instance Bootstrapped Successfully",
                                                                                     timestamp: new Date().getTime()
                                                                                 };
-                                                                                instanceLog.bootStrap = "success";
+                                                                                instanceLog.actionStatus = "success";
                                                                                 instanceLog.endedOn = new Date().getTime();
                                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                     if (err) {
@@ -851,7 +847,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                     log: "Bootstrap Failed",
                                                                                     timestamp: new Date().getTime()
                                                                                 };
-                                                                                instanceLog.bootStrap = "failed";
+                                                                                instanceLog.actionStatus = "failed";
                                                                                 instanceLog.endedOn = new Date().getTime();
                                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                     if (err) {
@@ -1789,3 +1785,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 };
+

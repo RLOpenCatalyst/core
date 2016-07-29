@@ -189,7 +189,8 @@ $imagePath : "../../../../../../images";
 	font-size: 12px;
 
 	.new-task-wrapper {
-		height: 325px;
+	/*Changing height from 325px to 394px*/
+		height: 394px;
 		overflow-y: auto;
 	}
 
@@ -285,6 +286,10 @@ $imagePath : "../../../../../../images";
 		font-weight: normal;
 	}
 
+	.check-list a:hover {
+		text-decoration: none;
+	}
+	
 	.checkbox-list {
 		margin-top: 3px;
 	}
@@ -445,6 +450,27 @@ $imagePath : "../../../../../../images";
 	height: 511px;
 	overflow-y: auto;
 }
-.checkboxall-right{
+
+a.marginleft23 {
+	margin-left: 23px;
+	cursor: pointer;
+}
+
+.scriptParamsDelete {
+	margin-left: 8px;
+	margin-top: 5px;
+}
+
+.cursorPointer {
+	cursor: pointer;
+}
+
+.checkboxall-right {
 	margin-left: 2px !important;
+}
+
+.checkboxStyling {
+	float: right;
+	margin-right: 14px !important;
+	margin-top: 2px !important;
 }

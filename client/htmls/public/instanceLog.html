@@ -43,7 +43,6 @@
 					<th class="text-center table_sort sorting_desc" data-fieldname='createdOn'>Time
 					</th>
 					<th class="text-center">Status</th>
-					<th class="text-center">BootStrapStatus</th>
 					<th class="text-center">Size</th>
 					<th class="text-center">User</th>
 					<th class="text-center">Org</th>
@@ -52,6 +51,7 @@
 					<th class="text-center">Env</th>
 					<th class="text-center">BluePrint</th>
 					<th class="text-center">Action</th>
+					<th class="text-center">ActionStatus</th>
 					<th class="text-center">Log</th>
 				</tr>
 			</thead>
@@ -252,6 +252,10 @@
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
 					} else if (managnedData[i].platform == 'centos') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
+					} else if (managnedData[i].platform == 'unknown') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
+					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'unknown') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'windows') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
 					} else if (managnedData[i].platform == 'ubuntu' && managnedData[i].bootStrap == 'success') {
@@ -279,8 +283,6 @@
 					var $tdCreatedOn = $('<td></td>').append(createdOn);
 					$tr.append($tdCreatedOn);
 					var $tdStatus = $('<td></td>').append(managnedData[i].status);
-					var $tdBootStrapStatus = $('<td></td>').append(managnedData[i].bootStrap);
-					$tr.append($tdBootStrapStatus);
 					$tr.append($tdStatus);
 					if (managnedData[i].size == 'unknown') {
 						var $tdSize = $('<td></td>').append('NA');
@@ -309,6 +311,8 @@
 					$tr.append($bluePrint);
 					var $tdData = $('<td></td>').append(managnedData[i].action);
 					$tr.append($tdData);
+					var $tdActionStatus = $('<td></td>').append(managnedData[i].actionStatus);
+					$tr.append($tdActionStatus);
 					var $logIcon = $("<a data-original-title='MoreInfo' class='moreInfoLog' data-placement='top' rel='tooltip' href='javascript:void(0)' data-toggle='modal' data-id=" + managnedData[i].actionId + "><img class='moreInfo' src = '../private/img/galleryIcons/moreinfo.png' alt='moreInfo'/></a>");
 					var $tdLog = $('<td></td>').append($logIcon);
 					$tr.append($tdLog);
