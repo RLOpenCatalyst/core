@@ -333,6 +333,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         log: "Instance ready state wait failed. Unable to bootstrap",
                                         timestamp: new Date().getTime()
                                     };
+                                    instanceLog.actionStatus = "failed";
                                     instanceLog.endedOn = new Date().getTime();
                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                         if (err) {
@@ -393,6 +394,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             log: "Instance ok state wait failed. Unable to bootstrap",
                                             timestamp: new Date().getTime()
                                         };
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                             if (err) {
