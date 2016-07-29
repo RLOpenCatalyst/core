@@ -192,7 +192,7 @@
 					});
 				},
 				compBlueInfo:function (blueprintObj) {
-					var modalInstance = $modal.open({
+					$modal.open({
 						animation: true,
 						templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/compositeBlueprintInfo.html',
 						controller: 'compositeBlueprintInfoCtrl as compBlue',
@@ -258,7 +258,7 @@
 						bodyText: 'Are you sure you want to delete this composite blueprint?'
 					};
 					confirmbox.showModal({}, modalOptions).then(function() {
-						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function(response) {
+						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function() {
 							$scope.getAllCompsiteBlueprint();
 							toastr.success('Successfully deleted');
 						}).error(function(data) {
@@ -278,9 +278,9 @@
 					var compBlue={
 						"blueprintId": compositeBlueprintId,
 						"environmentId": $scope.requestParams.env
-					}
+					};
 					confirmbox.showModal({}, modalOptions).then(function() {
-						workzoneServices.launchCompsiteBlueprint(compBlue).success(function(response) {
+						workzoneServices.launchCompsiteBlueprint(compBlue).success(function() {
                             toastr.success('Successfully launched composite blueprint');
 						}).error(function(data) {
                             toastr.error(data.message, 'Error');

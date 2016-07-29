@@ -6,30 +6,30 @@
  */
 
 (function (angular) {
-	"use strict";
-	angular.module('chefDataFormatter', [])
-		.service('responseFormatter', ['arrayUtil', function (arrayUtil) {
-			return {
-				formatDataForChefClientRun: function (obj) {
-					var roles = [];
-					var deploy = [];
-					var cookbook = [];
-					var r = obj.roles;
-					var c = obj.cookbooks;
-					var total = [];
-					var t;
-					if (r) {
-						/*jslint forin: true */
-						for (var roleKey in r) {
-							t = {
-								className: "role",
-								value: roleKey,
-								data: {key: roleKey, value: r[roleKey]}
-							};
-							total.push(t);
-							roles.push(t);
-						}
-					}
+    "use strict";
+    angular.module('chefDataFormatter', [])
+            .service('responseFormatter', [function () {
+                    return {
+                        formatDataForChefClientRun: function (obj) {
+                            var roles = [];
+                            var deploy = [];
+                            var cookbook = [];
+                            var r = obj.roles;
+                            var c = obj.cookbooks;
+                            var total = [];
+                            var t;
+                            if (r) {
+                                /*jslint forin: true */
+                                for (var roleKey in r) {
+                                    t = {
+                                        className: "role",
+                                        value: roleKey,
+                                        data: {key: roleKey, value: r[roleKey]}
+                                    };
+                                    total.push(t);
+                                    roles.push(t);
+                                }
+                            }
 
 					if (c) {
 						var className = '';
