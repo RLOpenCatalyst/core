@@ -2,7 +2,6 @@
 var logger = require('_pr/logger')(module);
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
-var instancesDao = require('_pr/model/classes/instance/instance');
 var async = require('async');
 var Chef = require('_pr/lib/chef');
 var chefDao = require('_pr/model/dao/chefDao.js');
@@ -47,68 +46,27 @@ function chefSync(){
 function aggregateChefSync(chefDetail){
     logger.info("Chef Sync started");
     var chefSettings = appConfig.chef;
-    var chef = new Chef({
-        userChefRepoLocation: chefSettings.chefReposLocation + chefDetail.orgname_rowid[0] + '/' +  chefDetail.loginname +' /',
+    var chefRepoLocation = chefSettings.chefReposLocation + chefDetail.orgname_rowid[0];
+    var chefObj = {
+        userChefRepoLocation: chefRepoLocation + '/' + chefDetail.loginname +'/',
         chefUserName: chefDetail.loginname,
-        chefUserPemFile: chefSettings.chefReposLocation + chefDetail.orgname_rowid[0]  +  chefDetail.folderpath + chefDetail.userpemfile_filename,
-        chefValidationPemFile: chefSettings.chefReposLocation + chefDetail.orgname_rowid[0] +  chefDetail.folderpath + chefDetail.validatorpemfile_filename,
+        chefUserPemFile: chefRepoLocation + chefDetail.folderpath + chefDetail.userpemfile_filename,
+        chefValidationPemFile: chefRepoLocation + chefDetail.folderpath + chefDetail.validatorpemfile_filename,
         hostedChefUrl: chefDetail.url
-    });
+    }
+    var chef = new Chef(chefObj);
     async.waterfall([
         function(next){
             chef.getNodesList(next);
         },
         function(nodeList,next){
-            getNodeListFilterWithManagedInstances(chefDetail.rowid,nodeList,next);
-        },
-        function(filterNodeLists,next){
-            getNodeListFilterWithChefNodes(chefDetail.rowid,filterNodeLists,next);
+            getNodeListFilterWithChefNodes(chefDetail.rowid,nodeList,next);
         },
         function(filterNodeList,next){
-            var nodeDetailList=[];
             if(filterNodeList.length > 0) {
-                for (var i = 0; i < filterNodeList.length; i++) {
-                    (function (filterNode) {
-                        chef.getNode(filterNode, function (err, nodeChefBody) {
-                            if (err) {
-                                nodeDetailList.push({error: err});
-                                if (nodeDetailList.length === filterNodeList.length) {
-                                    return next(null, nodeDetailList);
-                                } else {
-                                    return;
-                                }
-                            } else if (nodeChefBody.err) {
-                                nodeDetailList.push({error: nodeChefBody.err});
-                                if (nodeDetailList.length === filterNodeList.length) {
-                                    return next(null, nodeDetailList);
-                                } else {
-                                    return;
-                                }
-                            } else {
-                                var chefNodeObj = {
-                                    chefServerId: chefDetail.rowid,
-                                    chefNodeName: nodeChefBody.name,
-                                    chefNodeEnv: nodeChefBody.chef_environment,
-                                    chefJsonClass: nodeChefBody.json_class,
-                                    chefType: nodeChefBody.chef_type,
-                                    chefNodeIp: nodeChefBody.automatic.ipaddress,
-                                    chefNodeFqdn: nodeChefBody.automatic.fqdn,
-                                    chefNodePlatform: nodeChefBody.automatic.platform,
-                                    chefNodeUpTime: nodeChefBody.automatic.uptime
-                                };
-                                nodeDetailList.push(chefNodeObj);
-                                chefNodeObj = {};
-                                if (nodeDetailList.length === filterNodeList.length) {
-                                    return next(null, nodeDetailList);
-                                } else {
-                                    return;
-                                }
-                            }
-                        });
-                    })(filterNodeList[i]);
-                }
+                getChefNodeDetails(filterNodeList,chefObj,chefDetail.rowid,next);
             }else{
-                return next(null,filterNodeList);
+                next(null,filterNodeList);
             }
         },
         function(nodeDetailsList,next){
@@ -117,14 +75,7 @@ function aggregateChefSync(chefDetail){
     ], function (err, results) {
         if (err) {
             logger.error("Error in chef Sync");
-            chefDao.removeChefNodeByChefServerId(chefDetail.rowid,function(err,data){
-                if(err){
-                    logger.error(err);
-                    return;
-                }else{
-                    return;
-                }
-            })
+            return;
         } else {
             logger.info("Chef Sync completed");
             return;
@@ -192,32 +143,50 @@ function getNodeListFilterWithChefNodes(serverId,nodeList,next){
     });
 };
 
-function getNodeListFilterWithManagedInstances(serverId,nodeList,callback){
-    instancesDao.getInstancesFilterByChefServerIdAndNodeNames(serverId,nodeList,function(err, instances) {
-        if (err) {
-            callback(err,null);
-            return;
-        }else if (instances.length > 0) {
-            var count = 0;
-            for (var i = 0; i < instances.length; i++) {
-                (function(instance){
-                    count++;
-                    if(nodeList.indexOf(instance.chef.chefNodeName) >= 0){
-                        nodeList.splice(nodeList.indexOf(instance.chef.chefNodeName),1);
-                        return;
-                    }else{
+function getChefNodeDetails(filterNodeList,chefObj,chefServerId,callback){
+    var chef = new Chef(chefObj);
+    var nodeDetailList=[];
+    for (var i = 0; i < filterNodeList.length; i++) {
+        (function (filterNode) {
+            chef.getNode(filterNode, function (err, nodeChefBody) {
+                if (err) {
+                    nodeDetailList.push({error: err});
+                    if (nodeDetailList.length === filterNodeList.length) {
+                        return callback(null, nodeDetailList);
+                    } else {
                         return;
                     }
-                })(instances[i]);
-            }
-            if(count === instances.length){
-                callback (null,nodeList);
-            }
-        }else {
-            callback (null,nodeList);
-        }
-    });
-};
+                } else if (nodeChefBody.err) {
+                    nodeDetailList.push({error: nodeChefBody.err});
+                    if (nodeDetailList.length === filterNodeList.length) {
+                        return callback(null, nodeDetailList);
+                    } else {
+                        return;
+                    }
+                } else {
+                    var chefNodeObj = {
+                        chefServerId: chefServerId,
+                        chefNodeName: nodeChefBody.name,
+                        chefNodeEnv: nodeChefBody.chef_environment,
+                        chefJsonClass: nodeChefBody.json_class,
+                        chefType: nodeChefBody.chef_type,
+                        chefNodeIp: nodeChefBody.automatic.ipaddress,
+                        chefNodeFqdn: nodeChefBody.automatic.fqdn,
+                        chefNodePlatform: nodeChefBody.automatic.platform,
+                        chefNodeUpTime: nodeChefBody.automatic.uptime
+                    };
+                    nodeDetailList.push(chefNodeObj);
+                    chefNodeObj = {};
+                    if (nodeDetailList.length === filterNodeList.length) {
+                        return callback(null, nodeDetailList);
+                    } else {
+                        return;
+                    }
+                }
+            });
+        })(filterNodeList[i]);
+    }
+}
 
 function saveChefNodeDetails(nodeDetailList,callback){
     var count = 0;

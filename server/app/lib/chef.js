@@ -539,7 +539,6 @@ var Chef = function(settings) {
             logger.debug('knife command ==> ', 'knife ' + argList.join(' '));
             var proc = new Process('knife', argList, options);
             proc.start();
-
         });
     };
 

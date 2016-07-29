@@ -36,6 +36,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var Docker = require('_pr/model/docker.js');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var SSHExec = require('_pr/lib/utils/sshexec');
 
 module.exports.setRoutes = function(app, verificationFunc) {
 
@@ -176,7 +177,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             res.send(400);
             return;
         }
-        var insertNodeInMongo = function(node, callback) {
+        var insertNodeInMongo = function(node,chefDetails, callback) {
             var platformId = '';
             if (!node.automatic) {
                 node.automatic = {};
@@ -288,70 +289,78 @@ module.exports.setRoutes = function(app, verificationFunc) {
                             });
                             return;
                         };
-                        var instance = {
-                            name: node.name,
-                            orgId: orgId,
-                            bgId: bgId,
-                            projectId: projectId,
-                            envId: node.envId,
-                            orgName: reqBody.orgName,
-                            bgName: reqBody.bgName,
-                            projectName: reqBody.projectName,
-                            environmentName: envName,
-                            chefNodeName: node.name,
-                            runlist: runlist,
-                            platformId: platformId,
-                            instanceIP: nodeIp,
-                            instanceState: 'running',
-                            bootStrapStatus: 'success',
-                            hardware: hardwareData,
-                            credentials: encryptedCredentials,
-                            users: users,
-                            chef: {
-                                serverId: req.params.serverId,
-                                chefNodeName: node.name
-                            },
-                            blueprintData: {
-                                blueprintName: node.name,
-                                templateId: "chef_import",
-                                iconPath: "../private/img/templateicons/chef_import.png"
-                            }
+                        var nodeDetails = {
+                            nodeIp : nodeIp,
+                            nodeOs:hardwareData.os,
+                            nodeName:node.name,
+                            nodeEnv:envName
                         }
-                        instancesDao.createInstance(instance, function (err, data) {
+                        checkNodeCredentials(credentials,chefDetails,nodeDetails,function(err,credentialStatus) {
                             if (err) {
-                                logger.debug(err, 'occured in inserting node in mongo');
+                                logger.debug("Invalid Credentials  ", err);
                                 callback(err, null);
                                 return;
-                            }
-                            logsDao.insertLog({
-                                referenceId: data._id,
-                                err: false,
-                                log: "Node Imported",
-                                timestamp: new Date().getTime()
-                            });
-                            chefDao.removeChefNodeByChefName(node.name,function(err,chefdata) {
-                                if (err) {
-                                    logger.error(err, 'occured in removing chef node in mongo');
-                                    callback(err, null);
-                                    return;
+                            } else if (credentialStatus) {
+                                var instance = {
+                                    name: node.name,
+                                    orgId: orgId,
+                                    bgId: bgId,
+                                    projectId: projectId,
+                                    envId: node.envId,
+                                    orgName: reqBody.orgName,
+                                    bgName: reqBody.bgName,
+                                    projectName: reqBody.projectName,
+                                    environmentName: envName,
+                                    chefNodeName: node.name,
+                                    runlist: runlist,
+                                    platformId: platformId,
+                                    instanceIP: nodeIp,
+                                    instanceState: 'running',
+                                    bootStrapStatus: 'success',
+                                    hardware: hardwareData,
+                                    credentials: encryptedCredentials,
+                                    users: users,
+                                    chef: {
+                                        serverId: req.params.serverId,
+                                        chefNodeName: node.name
+                                    },
+                                    blueprintData: {
+                                        blueprintName: node.name,
+                                        templateId: "chef_import",
+                                        iconPath: "../private/img/templateicons/chef_import.png"
+                                    }
                                 }
-                                var _docker = new Docker();
-                                _docker.checkDockerStatus(data._id, function (err, retCode) {
+                                instancesDao.createInstance(instance, function (err, data) {
                                     if (err) {
-                                        logger.error("Failed _docker.checkDockerStatus", err);
+                                        logger.debug(err, 'occured in inserting node in mongo');
+                                        callback(err, null);
                                         return;
                                     }
-                                    logger.debug('Docker Check Returned:' + retCode);
-                                    if (retCode == '0') {
-                                        instancesDao.updateInstanceDockerStatus(data._id, "success", '', function (data) {
-                                            logger.debug('Instance Docker Status set to Success');
-                                        });
-
-                                    }
+                                    logsDao.insertLog({
+                                        referenceId: data._id,
+                                        err: false,
+                                        log: "Node Imported",
+                                        timestamp: new Date().getTime()
+                                    });
+                                    var _docker = new Docker();
+                                    _docker.checkDockerStatus(data._id, function (err, retCode) {
+                                        if (err) {
+                                            logger.error("Failed _docker.checkDockerStatus", err);
+                                            return;
+                                        }
+                                        logger.debug('Docker Check Returned:' + retCode);
+                                        if (retCode == '0') {
+                                            instancesDao.updateInstanceDockerStatus(data._id, "success", '', function (data) {
+                                                logger.debug('Instance Docker Status set to Success');
+                                            });
+                                        }
+                                    });
+                                    callback(null, data);
                                 });
-                            });
-                            callback(null, data);
-                        });
+                            } else {
+                                callback({message: "Invalid Credentials"}, null);
+                            }
+                        })
                     });
                 });
             });
@@ -362,9 +371,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             status.nodeName = nodeName;
             status.message = msg;
             status.err = err;
-
             logger.debug('taskstatus updated');
-
             if (count == reqBody.selectedNodes.length) {
                 logger.debug('setting complete');
                 taskstatus.endTaskStatus(true, status);
@@ -372,9 +379,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 logger.debug('setting task status');
                 taskstatus.updateTaskStatus(status);
             }
-
         };
-
         function importNodes(nodeList, chefDetail) {
             taskStatusModule.getTaskStatus(null, function(err, obj) {
                 if (err) {
@@ -447,10 +452,15 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                                 updateTaskStatusNode(node.name, "Unable to ssh/winrm into node " + node.name + ". Cannot import this node.", true, count);
                                                 return;
                                             }
-                                            insertNodeInMongo(node, function(err, nodeData) {
+                                            insertNodeInMongo(node,chefDetail, function(err, nodeData) {
                                                 if (err) {
-                                                    updateTaskStatusNode(nodeName, "Unknown error occured while importing " + node.name + ". Cannot import this node.", true, count);
-                                                    return;
+                                                    if(err.message){
+                                                        updateTaskStatusNode(nodeName, "The username or password/pemfile you entered is incorrect.", true, count);
+                                                        return;
+                                                    }else {
+                                                        updateTaskStatusNode(nodeName, "Unknown error occured while importing " + node.name + ". Cannot import this node.", true, count);
+                                                        return;
+                                                    }
                                                 }
                                                 updateTaskStatusNode(nodeName, "Node Imported : " + nodeName, false, count);
                                             });
@@ -494,6 +504,70 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 return;
             }
         });
+
+        function checkNodeCredentials(credentials,chefDetails,nodeDetail,callback){
+            if(nodeDetail.nodeOs !== 'windows') {
+                var sshOptions = {
+                    username: credentials.username,
+                    host: nodeDetail.nodeIp,
+                    port: 22,
+                }
+                if (credentials.pemFileLocation) {
+                    sshOptions.privateKey = credentials.pemFileLocation;
+                } else {
+                    sshOptions.password = credentials.password;
+                }
+                var sshExec = new SSHExec(sshOptions);
+
+                sshExec.exec('echo Welcome', function (err, retCode) {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    } else if (retCode === 0) {
+                        callback(null, true);
+                    } else {
+                        callback(null, false);
+                    }
+                }, function (stdOut) {
+                    logger.debug(stdOut.toString('ascii'));
+                }, function (stdErr) {
+                    logger.error(stdErr.toString('ascii'));
+                });
+            }
+            else
+                {
+                    var infraManager = new Chef({
+                        userChefRepoLocation: chefDetails.chefRepoLocation,
+                        chefUserName: chefDetails.loginname,
+                        chefUserPemFile: chefDetails.userpemfile,
+                        chefValidationPemFile: chefDetails.validatorpemfile,
+                        hostedChefUrl: chefDetails.url
+                    });
+                    var bootStrapOption = {
+                        instanceIp: nodeDetail.nodeIp,
+                        pemFilePath: credentials.pemFileLocation,
+                        instancePassword: credentials.password,
+                        instanceUsername: credentials.username,
+                        nodeName: nodeDetail.nodeName,
+                        environment: nodeDetail.envName,
+                        instanceOS: nodeDetail.nodeOs
+                    };
+                    infraManager.bootstrapInstance(bootStrapOption, function (err, code, bootstrapData) {
+                        if (err) {
+                            logger.error(err);
+                            callback(err, null);
+                        } else if (code === 0) {
+                            callback(null, true);
+                        } else {
+                            callback(null, false);
+                        }
+                    }, function (stdOutData) {
+                        logger.debug(stdOutData.toString('ascii'));
+                    }, function (stdErrData) {
+                        logger.error(stdErrData.toString('ascii'));
+                    });
+                }
+            }
     });
 
     app.post('/chef/environments/create/:serverId', function(req, res) {
