@@ -154,98 +154,14 @@ scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nex
 		}
 	}
 	function executeBashScript(script, sshOptions, logsReferenceIds, scriptParameters) {
-<<<<<<< HEAD
-		var sshExec = new SSHExec(sshOptions);
-		var cmdScript = script.file;
-		var cmdLine = 'eval ' + cmdScript.toString().trim();
-		if (scriptParameters.length > 0) {
-			for (var j = 0; j < scriptParameters.length; j++) {
-				cmdLine = cmdLine + ' "' + scriptParameters[j] + '"';
-			}
-		}
-		sshExec.exec(cmdLine, function (err, retCode) {
-=======
 		var fileName = uuid.v4() + '_'+script.fileName
 		var desPath = appConfig.scriptDir + fileName;
 		var sshExec = new SSHExec(sshOptions);
 		fileIo.writeFile(desPath, script.file, false, function (err) {
->>>>>>> topic-script-gallery
 			if (err) {
-				var timestampEnded = new Date().getTime();
-				logsDao.insertLog({
-					referenceId: logsReferenceIds,
-					err: true,
-					log: 'Unable to run script ' + script.name,
-					timestamp: timestampEnded
-				});
-				instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-				instanceOnCompleteHandler(err, 1, logsReferenceIds[0], null, logsReferenceIds[1]);
-				return;
-			}
-			if (retCode == 0) {
-				var timestampEnded = new Date().getTime();
-				logsDao.insertLog({
-					referenceId: logsReferenceIds,
-					err: false,
-					log: 'Task execution success for script ' + script.name,
-					timestamp: timestampEnded
-				});
-				instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], true, timestampEnded);
-				instanceOnCompleteHandler(null, 0, logsReferenceIds[0], null, logsReferenceIds[1]);
+				logger.error("Unable to write file");
 				return;
 			} else {
-<<<<<<< HEAD
-				instanceOnCompleteHandler(null, retCode, logsReferenceIds[0], null, logsReferenceIds[1]);
-				if (retCode === -5000) {
-					logsDao.insertLog({
-						referenceId: logsReferenceIds,
-						err: true,
-						log: 'Host Unreachable',
-						timestamp: new Date().getTime()
-					});
-					return;
-				} else if (retCode === -5001) {
-					logsDao.insertLog({
-						referenceId: logsReferenceIds,
-						err: true,
-						log: 'Invalid credentials',
-						timestamp: new Date().getTime()
-					});
-					return;
-				} else {
-					logsDao.insertLog({
-						referenceId: logsReferenceIds,
-						err: true,
-						log: 'Unknown error occured. ret code = ' + retCode,
-						timestamp: new Date().getTime()
-					});
-					return;
-				}
-				var timestampEnded = new Date().getTime();
-				logsDao.insertLog({
-					referenceId: logsReferenceIds,
-					err: true,
-					log: 'Error in running script ' + script.name,
-					timestamp: timestampEnded
-				});
-				instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-				return;
-			}
-		}, function (stdOut) {
-			logsDao.insertLog({
-				referenceId: logsReferenceIds,
-				err: false,
-				log: stdOut.toString('ascii'),
-				timestamp: new Date().getTime()
-			});
-		}, function (stdErr) {
-			logsDao.insertLog({
-				referenceId: logsReferenceIds,
-				err: true,
-				log: stdErr.toString('ascii'),
-				timestamp: new Date().getTime()
-			});
-=======
 				var scp = new SCP(sshOptions);
 				scp.upload(desPath, '/tmp', function(err) {
 					if (err) {
@@ -350,9 +266,8 @@ scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nex
 					});
 				})
 			};
->>>>>>> topic-script-gallery
 		});
-	}
+	};
 };
 
 function removeScriptFile(filePath){
