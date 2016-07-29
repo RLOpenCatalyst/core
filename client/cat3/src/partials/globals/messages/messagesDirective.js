@@ -7,7 +7,7 @@
             scope: {
                 msgConfig:'=',
             },
-            link: function (scope,element) {
+            link: function (scope) {
                 $timeout(function(){
                     if(scope.msgConfig.role){
                     $('[data-toggle="tooltip"]').tooltip({
