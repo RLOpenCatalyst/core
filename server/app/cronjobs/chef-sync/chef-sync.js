@@ -8,7 +8,7 @@ var chefDao = require('_pr/model/dao/chefDao.js');
 var appConfig = require('_pr/config');
 
 var ChefSync = Object.create(CatalystCronJob);
-ChefSync.interval = '*/2 * * * *';
+ChefSync.interval = '*/5 * * * *';
 ChefSync.execute = chefSync;
 
 module.exports = ChefSync;
