@@ -823,6 +823,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 				if (credentials.pemFileLocation) {
 					sshOptions.privateKey = credentials.pemFileLocation;
+					sshOptions.pemFileData = credentials.pemFileData;
 				} else {
 					sshOptions.password = credentials.password;
 				}
@@ -842,39 +843,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}, function (stdErr) {
 					logger.error(stdErr.toString('ascii'));
 				});
-			}
-			else
-			{
-				var infraManager = new Chef({
-					userChefRepoLocation: chefDetails.chefRepoLocation,
-					chefUserName: chefDetails.loginname,
-					chefUserPemFile: chefDetails.userpemfile,
-					chefValidationPemFile: chefDetails.validatorpemfile,
-					hostedChefUrl: chefDetails.url
-				});
-				var bootStrapOption = {
-					instanceIp: nodeDetail.nodeIp,
-					pemFilePath: credentials.pemFileLocation,
-					instancePassword: credentials.password,
-					instanceUsername: credentials.username,
-					nodeName: nodeDetail.nodeName,
-					environment: nodeDetail.envName,
-					instanceOS: nodeDetail.nodeOs
-				};
-				infraManager.bootstrapInstance(bootStrapOption, function (err, code, bootstrapData) {
-					if (err) {
-						logger.error(err);
-						callback(err, null);
-					} else if (code === 0) {
-						callback(null, true);
-					} else {
-						callback(null, false);
-					}
-				}, function (stdOutData) {
-					logger.debug(stdOutData.toString('ascii'));
-				}, function (stdErrData) {
-					logger.error(stdErrData.toString('ascii'));
-				});
+			} else {
+				callback(null, true);
 			}
 		}
 	});

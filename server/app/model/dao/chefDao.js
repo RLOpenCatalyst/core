@@ -101,7 +101,7 @@ var chefDao = function() {
     };
 
     this.removeChefNodeByChefName = function(chefName, callback) {
-        chefNodes.remove({chefNodeName:chefName},function(err, chefData) {
+        chefNodes.remove({"chefNodeName":{'$in':chefName}},function(err, chefData) {
             if (err) {
                 logger.error(err);
                 callback(err,null);
