@@ -12,7 +12,7 @@ var assignedDao = require('_pr/model/unmanaged-instance');
 var unassignedDao = require('_pr/model/unassigned-instances');
 
 var ChefSync = Object.create(CatalystCronJob);
-ChefSync.interval = '*/2 * * * *';
+ChefSync.interval = '*/5 * * * *';
 ChefSync.execute = chefSync;
 
 module.exports = ChefSync;
