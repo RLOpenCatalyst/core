@@ -56,6 +56,42 @@
   margin: 0 5px;
 }
 #create-bp {
-  min-height: 430px;
+  height: 430px;
   overflow-y: auto;
+  margin-top : -20px;
+}
+
+.blueprintTemplate {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  height: 152px;
+  padding: 4px;
+  width: 152px;
+  cursor: pointer;
+  margin-left:15px;
+}
+
+.blueprintTemplateSelected {
+  border: 2px solid #40baf1;
+  border-radius: 4px;
+}
+
+label {
+  color: #444;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.form-control {
+  font-size: 13px;
+  height:36px;
+}
+
+.securityGroupComponent {
+  height: 140px;
+  overflow-y: scroll;
+  border:1px solid gray;
+  padding: 0px;
+  width:100%
 }

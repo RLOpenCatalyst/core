@@ -1,6 +1,6 @@
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.design', [])//'services.blueprint'
+	angular.module('dashboard.design', ['design.bpCreate'])//'services.blueprint'
 	.controller('designCtrl',['$scope','$rootScope','$http','$q','toastr','$state','designServices', function ($scope,$rootScope,$http,$q,toastr,$state,designServices) {
 		var design= {};
 		$rootScope.dashboardChild='design';
