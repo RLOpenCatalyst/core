@@ -17,7 +17,7 @@ limitations under the License.
 // The file contains all the end points for Tracks
 
 var logger = require('_pr/logger')(module);
-var https = require("https");
+var request = require("request");
 var errorResponses = require('./error_responses');
 
 
@@ -34,36 +34,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             "hosts": req.body.hosts
         };
 
-        post_data = JSON.stringify(post_data);
-
-
-        var post_options = {
-            host: '',//(Please enter the host - Ex: stackstorm/xyz.com).
-            port: 443,
-            path: '',//(Please enter the Path and the key - Ex: /api/v1/webhooks/remotecmd?st2-api-key=yyyyyy).
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Content-Length': Buffer.byteLength(post_data)
-            }
-        };
-        var post_req = https.request(post_options, function(httpsRes) {
-            httpsRes.setEncoding('utf8');
-            var data = '';
-            httpsRes.on('data', function(chunk) {
-                data = data + chunk
-                console.log('Response: ' + chunk);
-            });
-            httpsRes.on('end', function(chunk) {
-                res.status(200).send(data);
-            });
-            httpsRes.on('error', function(err) {
+        request({
+            url: 'https://52.8.208.191/api/v1/webhooks/remotecmd?st2-api-key=YTU0M2RlNmMwMjdhMzFlNzVmMTExZDA4YWExMWY5MmFjOTUyYzc2Nzk5YjMzYmM4ZjAwNWJiYjc2NjFmZjY1MA',
+            body: post_data,
+            method: 'post',
+            json: true,
+        }, function(err, httpResponse, body) {
+            if (err) {
                 res.status(500).send(err);
-            });
+                return;
+            }
+            res.status(200).send(body);
         });
-
-        post_req.write(post_data);
-        post_req.end();
 
     });
 };
