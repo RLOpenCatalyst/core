@@ -283,6 +283,28 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    network: {
+        subnetId: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        vpcId: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        privateIpAddress: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        publicIpAddress: {
+            type: String,
+            required: false,
+            trim: true
+        }
+    },
     isDeleted:{
         type: Boolean,
         required:false,
