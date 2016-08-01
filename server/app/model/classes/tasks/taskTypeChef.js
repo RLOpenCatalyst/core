@@ -362,7 +362,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         createdOn: new Date().getTime(),
                         startedOn: new Date().getTime(),
                         providerType: instance.providerType,
-                        action: "Orchestration",
+                        action: "Chef-Task-Run",
                         logs: []
                     };
                     if (appData) {
