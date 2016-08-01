@@ -19,6 +19,9 @@
                 </button>
             </span>
 			<span class="pull-right">
+                <button type="button" title="Filters" class="btn btn-xs cat-btn-update" ng-click="fnShowFilters()">
+					<i class="fa fa-fw fa-filter white"></i>
+				</button>
                 <button type="button" title="Import By Ip" class="btn btn-xs cat-btn-update" 
 				ng-click="isImportClickEnabled && instanceImportByIP()" ng-show="perms.launch">
 					<i class="fa fa-plus white"></i>
@@ -32,7 +35,60 @@
 		<div class="alert alert-info text-center" ng-show="instanceList.length===0">
 			No Instances Available
 		</div>
-		<section id="cardView" class="scrollContent" ng-show="isCardViewActive">
+        <div class="box box-default instance-filter" ng-class="{'active':showFilters}"  ng-show="instanceList.length > 0">
+            <div class="box-header with-border">
+                <h3 class="box-title"><i class="fa fa-fw fa-filter"></i>Filter By</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" ng-click="resetFilter()" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-fw fa-refresh"></i>Reset</button>
+
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body form-horizontal">
+                <div class="row">
+                    <div class="col-md-4">
+                                               <div class="form-group">
+                                <label for="selectState" class="col-sm-3 control-label">Provider:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control select2 select2-hidden-accessible" id="selectState" ng-model="filter.state">
+                                        <option selected="selected" value=''>All</option>
+                                        <option ng-value="running">Running</option>
+                                        <option ng-value="stopped">Stopped</option>
+                                        <option ng-value="terminated">Terminated</option>
+                                    </select>
+                                </div>
+                            </div>                                        
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                                <label for="selectState" class="col-sm-3 control-label">Region:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control select2 select2-hidden-accessible" id="selectMonitoring" ng-model="filter.monitoring">
+                                        <option selected="selected" value=''>All</option>
+                                        <option ng-value="true">Yes</option>
+                                        <option ng-value="false">No</option>
+                                    </select>
+                                </div>
+                            </div> 
+                    </div>
+                    <div class="col-md-4">
+                       <div class="form-group">
+                                <label for="selectState" class="col-sm-3 control-label">VPC:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control select2 select2-hidden-accessible" id="selectRemediation" ng-model="filter.remediation">
+                                        <option selected="selected" value=''>All</option>
+                                        <option ng-value="true">Yes</option>
+                                        <option ng-value="false">No</option>
+                                    </select>
+                                </div>
+                            </div> 
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+        </div>
+    
+        <section id="cardView" class="scrollContent" ng-show="isCardViewActive">
 			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
 				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
 					<div class="card-title">

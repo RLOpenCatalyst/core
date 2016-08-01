@@ -76,6 +76,7 @@
 			$scope.instancePageLevelLoader = true;
 			$scope.instStartStopFlag = false;
 			$scope.isImportClickEnabled = true;
+			$scope.showFilters = false;
 			$scope.openContainersTab = function() {
 				$scope.$parent.$parent.activateTab('Containers');
 			};
@@ -108,22 +109,18 @@
 				$scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption,{
 				data:'tabData',
 					columnDefs : [
-						{ name:'Logo',width: 100, enableSorting: false ,  cellTemplate:'<img class="instanceRoleLogo" ng-src="{{grid.appScope.getRoleLogo(row.entity)}}" />'+
+						{ name:'Logo', displayName:'',width: 100, enableSorting: false ,  cellTemplate:'<img class="instanceRoleLogo" ng-src="{{grid.appScope.getRoleLogo(row.entity)}}" />'+
 						'<img class="instanceRoleLogoDocker" src="images/global/docker.png" ng-show="row.entity.docker && row.entity.docker.dockerEngineStatus === \'success\'" ng-click="grid.appScope.openContainersTab()">', cellTooltip: true},
 						{ name:'Name', field: 'name', cellTemplate:'<span>{{row.entity.name}}</span>'+
 						'<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">'+
 						'<i title="Edit Instance Name" class="pull-right fa fa-pencil edit-instance-name cursor"></i>'+
 						'</span>', cellTooltip: true},
+						{ name:'Provider Name', displayName:'Provider Name', field:'providerId',cellTooltip: true},
 						{ name:'Ip Address', displayName:'IP Address', field:'instanceIP',cellTooltip: true},
-						{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
+						{ name:'RunLists', width: 90, enableSorting: false , cellTemplate:'<span ng-if="row.entity.runlist.length > 0"><i class="fa fa-eye fa-2x cursor" "View All RunList" ng-click="grid.appScope.operationSet.viewRunList(row.entity)"></i></span><span ng-if="row.entity.runlist.length === 0">NA</span>', cellTooltip: true},
 						{ name:'Status', width: 90,enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
-						{ name:'Log Info', width: 90,enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
-						{ name:'Chef Run', width: 100,enableSorting: false ,  cellTemplate:'<div ng-show="grid.appScope.actionSet.isChefEnabled(row.entity) && grid.appScope.perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="grid.appScope.operationSet.updateCookbook(row.entity);"></div>'+
-						'<div ng-show="grid.appScope.actionSet.isChefDisabled(row.entity) && grid.appScope.perms.chefClientRun" class="btn-icons icon-chef-disabled"></div>'+
-						'<div ng-show="grid.appScope.actionSet.isPuppetEnabled(row.entity) && grid.appScope.perms.puppet" title="Puppet Client Run" class="btn-icons icon-puppet" ng-click="grid.appScope.operationSet.puppetRunClient(row.entity);"></div>'+
-						'<div ng-show="grid.appScope.actionSet.isPuppetDisabled(row.entity) && grid.appScope.perms.puppet"class="btn-icons icon-puppet-disabled">'+
-						'</div>', cellTooltip: true},
-						{ name:'Action',width: 140, enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}
+						{ name:'Log Info', width: 90,enableSorting: false , cellTemplate:'<i class="fa fa-info-circle fa-2x cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
+						{ name:'Action',width: 160, enableSorting: false , cellTemplate:'src/partials/sections/dashboard/workzone/instance/popups/instanceActionGridTemplate.html'}
 					],
 				});
 			};
@@ -537,6 +534,9 @@
 			};
 			$scope.refreshCurrentPage = function(){
 				$rootScope.$emit('WZ_INSTANCES_REFRESH_CURRENT');    
+			};
+            $scope.fnShowFilters = function(){
+				$scope.showFilters = !$scope.showFilters;  
 			};
 			$scope.init = function(){
 				helper.setInitPaginationDefaults();

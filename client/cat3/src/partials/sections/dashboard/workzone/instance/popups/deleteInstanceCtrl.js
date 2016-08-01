@@ -3,7 +3,7 @@
 	angular.module('workzone.instance')
 		.controller('deleteInstanceCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
 			angular.extend($scope, {
-				isChefChecked: false,
+				isChefChecked: true,
 				instance: items,
 				serverType: (items.puppet ? "puppet" : "chef"),
 				cancel: function() {
