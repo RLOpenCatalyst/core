@@ -73,6 +73,7 @@ var validator = $('#scriptForm').validate({
         }
     },
 });
+
 $('a.addScriptItem[type="reset"]').on('click', function(e) {
     validator.resetForm();
 });
@@ -129,6 +130,9 @@ $('#scriptListTable tbody').on( 'click', 'button.editRowScriptItem', function(){
     var $tr = $(this).parents('tr.scriptItemRow');
     var $editModal = $('#modalForScriptEdit');
     $editModal.modal('show');
+    $('#scriptFile').val('');
+    $('#scriptFile').removeClass('required');
+    $editModal.find('#fileNameDisplay').empty();
     $editModal.find('#scriptEditHiddenInput').val('edit');
     $editModal.find('h4.modal-title').html('Edit Script &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('scriptName'));
     $editModal.find('#scriptName').val($this.parents('tr').attr('scriptName'));
@@ -137,7 +141,8 @@ $('#scriptListTable tbody').on( 'click', 'button.editRowScriptItem', function(){
     $editModal.find('#scriptType').val($this.parents('tr').attr('scriptType')).attr('disabled','disabled');
     $editModal.find('#scriptHiddenInputId').val($this.parents('tr').attr('scriptId'));
     $editModal.find('#fileHiddenInputId').val($this.parents('tr').attr('scriptFileId'));
-    $editModal.find('#fileNameDisplay').empty().append($this.parents('tr').attr('scriptFileName'));
+    $editModal.find('#fileNameDisplay').append($this.parents('tr').attr('scriptFileName'));
+    $editModal.find('#scriptFileNameHidden').empty().append($this.parents('tr').attr('scriptFileName'));
     return false;
 });
 
@@ -174,58 +179,100 @@ $('#scriptListTable tbody').on( 'click', 'button.deleteScript', function(){
     return false;
 });
 
+function formSave(methodName,url,reqBody) {
+    $.ajax({
+        method: methodName,
+        url: url,
+        data: reqBody,
+        success: function(data, success) {
+            $('#modalForScriptEdit').modal('hide');
+            $('#saveItemSpinner').addClass('hidden');
+            $('#saveBtnScript').removeAttr('disabled');
+            getScriptList();
+        },
+        error: function(jxhr) {
+            removeUploadFile(data.fileId);
+            var msg = "Server Behaved Unexpectedly";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+            $('#saveItemSpinner').addClass('hidden');
+            $('#saveBtnScript').removeAttr('disabled');
+        },
+        failure: function(jxhr) {
+            removeUploadFile(data.fileId);
+            var msg = "Server Behaved Unexpectedly";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+            $('#saveItemSpinner').addClass('hidden');
+            $('#saveBtnScript').removeAttr('disabled');
+        }
+    });
+    return false;
+}
+
 
 //save form for creating a new script item and updation of the script item(name, description etc)..
 $('#scriptForm').submit(function(e) {
-    var isValidator = $('#scriptForm').valid();
-    if (!isValidator) {
-        e.preventDefault();
-        return false;
-    } else {
-        e.preventDefault();
-        $('#saveItemSpinner').removeClass('hidden');
-        var $form = $('#scriptForm');
-        var scriptData = {};
-        var $this = $(this);
-        var name = $this.find('#scriptName').val().trim();
-        var description = $this.find('#scriptDescription').val().trim();
-        var type = $form.find('#scriptType').val();
-        var orgId = $form.find('#orgName').val();
-        var scriptEditNew = $(this).find('#scriptEditHiddenInput').val();
-        var scriptId = $form.find('#scriptHiddenInputId').val();
-        var fileId = $form.find('#fileHiddenInputId').val();
-        var orgName = $form.find('#orgName :selected').text();
-        var fileNameDisplay = $form.find('#scriptFile').val();
-        var availableFileName = $form.find('#fileNameDisplay').text();
-        var orgDetails = {
-            name: orgName,
-            id: orgId
+    var $form = $('#scriptForm');
+    var scriptData = {};
+    var $this = $(this);
+    var name = $this.find('#scriptName').val().trim();
+    var description = $this.find('#scriptDescription').val().trim();
+    var type = $form.find('#scriptType').val();
+    var orgId = $form.find('#orgName').val();
+    var scriptEditNew = $(this).find('#scriptEditHiddenInput').val();
+    var scriptId = $form.find('#scriptHiddenInputId').val();
+    var fileId = $form.find('#fileHiddenInputId').val();
+    var orgName = $form.find('#orgName :selected').text();
+    var fileNameDisplay = $form.find('#scriptFile').val();
+    var availableFileName = $form.find('#fileNameDisplay').text();
+    var hiddenFileName = $form.find('#scriptFileNameHidden').text();
+    var orgDetails = {
+        name: orgName,
+        id: orgId
+    }
+    var url = '';
+    var reqBody = {};
+    var formData = new FormData();
+    formData.append('file', $('input[type=file]')[0].files[0]);
+    var methodName ='';
+    if(scriptEditNew === "edit") {
+        if(hiddenFileName === availableFileName) {
+            url = '../scripts/update/scriptData';
+            methodName = 'PUT';
+            reqBody = {
+                "scriptId": scriptId,
+                "name": name,
+                "type": type,
+                "description": description,
+                "orgDetails": orgDetails,
+                "fileId": fileId
+            };
+            formSave(methodName,url,reqBody);
+            return false;          
         }
-        var url = '';
-        var reqBody = {};
-        var formData = new FormData();
-        formData.append('file', $('input[type=file]')[0].files[0]);
-        var methodName ='';
+    }
+
+    var isValidator = $('#scriptForm').valid();
+    if(isValidator){
+        e.preventDefault();
         $.ajax({
-            method: "POST",
-            url: '../fileUpload?fileId='+fileId,
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false,
+        method: "POST",
+        url: '../fileUpload?fileId='+fileId,
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
             success: function(data, success) {
-                if (scriptEditNew === 'edit') {
-                    url = '../scripts/update/scriptData';
-                    methodName = 'PUT';
-                    reqBody = {
-                        "scriptId": scriptId,
-                        "name": name,
-                        "type": type,
-                        "description": description,
-                        "orgDetails": orgDetails,
-                        "fileId": data.fileId
-                    };
-                } else {
+                if (scriptEditNew === 'new'){
                     url = '../scripts/save/scriptData';
                     methodName = 'POST';
                     reqBody = {
@@ -235,45 +282,25 @@ $('#scriptForm').submit(function(e) {
                         "orgDetails": orgDetails,
                         "fileId": data.fileId
                     };
+                } else {
+                    url = '../scripts/update/scriptData';
+                    methodName = 'PUT';
+                    reqBody = {
+                        "scriptId": scriptId,
+                        "name": name,
+                        "type": type,
+                        "description": description,
+                        "orgDetails": orgDetails,
+                        "fileId": data.fileId
+                    };    
                 }
-                $.ajax({
-                    method: methodName,
-                    url: url,
-                    data: reqBody,
-                    success: function(data, success) {
-                        $('#modalForScriptEdit').modal('hide');
-                        $('#saveItemSpinner').addClass('hidden');
-                        $('#saveBtnScript').removeAttr('disabled');
-                        getScriptList();
-                    },
-                    error: function(jxhr) {
-                        removeUploadFile(data.fileId);
-                        var msg = "Server Behaved Unexpectedly";
-                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                            msg = jxhr.responseJSON.message;
-                        } else if (jxhr.responseText) {
-                            msg = jxhr.responseText;
-                        }
-                        bootbox.alert(msg);
-                        $('#saveItemSpinner').addClass('hidden');
-                        $('#saveBtnScript').removeAttr('disabled');
-                    },
-                    failure: function(jxhr) {
-                        removeUploadFile(data.fileId);
-                        var msg = "Server Behaved Unexpectedly";
-                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                            msg = jxhr.responseJSON.message;
-                        } else if (jxhr.responseText) {
-                            msg = jxhr.responseText;
-                        }
-                        bootbox.alert(msg);
-                        $('#saveItemSpinner').addClass('hidden');
-                        $('#saveBtnScript').removeAttr('disabled');
-                    }
-                });
+                formSave(methodName,url,reqBody);      
             }
         });
-        return false;
+    return false;
+    } else {
+    e.preventDefault();
+    return false;
     }
 });
 
