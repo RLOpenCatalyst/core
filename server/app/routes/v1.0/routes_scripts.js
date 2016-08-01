@@ -87,8 +87,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.delete('/scripts/:scriptId',validate(scriptValidator.get), function (req, res) {
         scriptService.removeScriptById(req.params.scriptId, function(err, script) {
             if (err) {
-                res.send("Error while removing script:");
-                return;
+                if(err.code === 403){
+                    res.send(err.code, err.message);
+                    return;
+                }else {
+                    res.send("Error while removing script:");
+                    return;
+                }
             }else{
                 res.send("Successfully Removed script From the Database");
                 return;
