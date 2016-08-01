@@ -1910,6 +1910,16 @@ var InstancesDao = function() {
         });
 
     }
+
+    this.getAllTerminatedInstances = function(orgId,callback) {
+        Instances.find({"orgId":orgId,"instanceState":"terminated"}, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
 };
 
 module.exports = new InstancesDao();

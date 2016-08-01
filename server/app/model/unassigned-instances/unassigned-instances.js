@@ -224,6 +224,16 @@ UnassignedInstancesSchema.statics.removeInstancesByProviderId = function(provide
     });
 };
 
+UnassignedInstancesSchema.statics.getAllTerminatedInstances = function(orgId,callback) {
+    this.find({"orgId":orgId,"state":"terminated"}, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
 
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);
 module.exports = UnassignedInstances;

@@ -7,8 +7,12 @@ var Chef = require('_pr/lib/chef');
 var chefDao = require('_pr/model/dao/chefDao.js');
 var appConfig = require('_pr/config');
 
+var instancesDao = require('_pr/model/classes/instance/instance');
+var assignedDao = require('_pr/model/unmanaged-instance');
+var unassignedDao = require('_pr/model/unassigned-instances');
+
 var ChefSync = Object.create(CatalystCronJob);
-ChefSync.interval = '*/5 * * * *';
+ChefSync.interval = '*/2 * * * *';
 ChefSync.execute = chefSync;
 
 module.exports = ChefSync;
@@ -60,27 +64,53 @@ function aggregateChefSync(chefDetail){
             chef.getNodesList(next);
         },
         function(nodeList,next){
-            getNodeListFilterWithChefNodes(chefDetail.rowid,nodeList,next);
+            async.parallel({
+                chefSyncWithNewNode: function(callback){
+                    async.waterfall([
+                        function(next){
+                            getNodeListFilterWithChefNodes(chefDetail.rowid,nodeList,next);
+                        },
+                        function(filterNodeList,next){
+                            if(filterNodeList.length > 0) {
+                                getChefNodeDetails(filterNodeList,chefObj,chefDetail.rowid,next);
+                            }else{
+                                next(null,filterNodeList);
+                            }
+                        },
+                        function(nodeDetailsList,next){
+                            saveChefNodeDetails(nodeDetailsList,next);
+                        }
+                    ], function (err, results) {
+                        if (err) {
+                            callback(err,null);
+                            return;
+                        } else {
+                            callback(null,results);
+                            return;
+                        }
+                    });
+                },
+                chefSyncWithTerminatedNode: function(callback){
+                    chefSyncWithTerminatedInstance(chefObj,chefDetail.orgname_rowid,nodeList,callback);
+                },
+
+            },function(err,results){
+                if (err) {
+                    next(err,null);
+                } else {
+                    next(null,results);
+                }
+            })
         },
-        function(filterNodeList,next){
-            if(filterNodeList.length > 0) {
-                getChefNodeDetails(filterNodeList,chefObj,chefDetail.rowid,next);
-            }else{
-                next(null,filterNodeList);
-            }
-        },
-        function(nodeDetailsList,next){
-            saveChefNodeDetails(nodeDetailsList,next);
-        }
-    ], function (err, results) {
+    ],function(err,results){
         if (err) {
-            logger.error("Error in chef Sync");
+            logger.error("Error in chef Sync "+err);
             return;
         } else {
             logger.info("Chef Sync completed");
             return;
         }
-    });
+    })
 };
 
 function getNodeListFilterWithChefNodes(serverId,nodeList,next){
@@ -142,6 +172,157 @@ function getNodeListFilterWithChefNodes(serverId,nodeList,next){
         }
     });
 };
+
+function getAllTerminatedNodes(orgId,callback){
+    async.parallel({
+        managedNodes: function (callback) {
+            instancesDao.getAllTerminatedInstances(orgId,function(err,instances){
+                if(err){
+                    callback(err,null);
+                }else{
+                    var nodeNameList=[];
+                    for(var i = 0; i < instances.length;i++){
+                        (function(instance){
+                            nodeNameList.push(instance.chef.chefNodeName);
+                        })(instances[i]);
+                    }
+                    if(nodeNameList.length === instances.length)
+                    {
+                        callback(null,nodeNameList);
+                    }
+                }
+            })
+        },
+        assignedNodes: function (callback) {
+            assignedDao.getAllTerminatedInstances(orgId,function(err,instances){
+                if(err){
+                    callback(err,null);
+                }else{
+                    var nodeNameList=[];
+                    for(var i = 0; i < instances.length;i++){
+                        (function(instance){
+                            nodeNameList.push(instance.platformId);
+                        })(instances[i]);
+                    }
+                    if(nodeNameList.length === instances.length)
+                    {
+                        callback(null,nodeNameList);
+                    }
+                }
+            })
+        },
+        unassignedNodes: function (callback) {
+            unassignedDao.getAllTerminatedInstances(orgId,function(err,instances){
+                if(err){
+                    callback(err,null);
+                }else{
+                    var nodeNameList=[];
+                    for(var i = 0; i < instances.length;i++){
+                        (function(instance){
+                            nodeNameList.push(instance.platformId);
+                        })(instances[i]);
+                    }
+                    if(nodeNameList.length === instances.length)
+                    {
+                        callback(null,nodeNameList);
+                    }
+                }
+            })
+        }
+    }, function (err, results) {
+        if (err) {
+            callback(err,null);
+            return;
+        } else {
+            var resultList = [];
+            if(results.managedNodes.length > 0){
+                resultList = resultList.concat(results.managedNodes);
+            }
+            if(results.assignedNodes.length > 0){
+                resultList = resultList.concat(results.assignedNodes);
+            }
+            if(results.unassignedNodes.length > 0){
+                resultList = resultList.concat(results.unassignedNodes);
+            }
+            callback(null,resultList);
+            return;
+        }
+    });
+}
+
+
+function chefSyncWithTerminatedInstance(chefObj,orgId,nodeNameList,callback){
+    var chef = new Chef(chefObj);
+    async.waterfall([
+        function(next){
+            getAllTerminatedNodes(orgId,next);
+        },
+        function(terminatedNode,next){
+            if(terminatedNode.length > 0){
+                var nodeList = [];
+                var count = 0;
+                for(var i = 0; i < terminatedNode.length;i++){
+                    (function(node){
+                        if(nodeNameList.indexOf(node) !== -1){
+                            count++;
+                            nodeList.push(node);
+                            return;
+                        }else{
+                            count++;
+                            return;
+                        }
+
+                    })(terminatedNode[i]);
+                }
+                if(count === terminatedNode.length){
+                    next(null,nodeList);
+                }
+            }else{
+                next(null,terminatedNode)
+            }
+        },
+        function(nodeNameList,next) {
+            if (nodeNameList.length > 0) {
+                async.parallel({
+                        deleteTerminatedNodeFromDB: function (callback) {
+                            chefDao.removeChefNodeByChefName(nodeNameList, callback);
+                        },
+                        deleteTerminatedNodeFromChefServer: function (callback) {
+                            var count = 0;
+                            for (var i = 0; i < nodeNameList.length; i++) {
+                                (function (nodeName) {
+                                    chef.deleteNode(nodeName, function (err, data) {
+                                        count++;
+                                        if (count === nodeNameList.length) {
+                                            return callback(null, data);
+                                        } else {
+                                            return;
+                                        }
+                                    })
+                                })(nodeNameList[i]);
+                            }
+                        }
+                    },
+                    function (err, results) {
+                        if (err) {
+                            next(err, null);
+                        } else {
+                            next(null, results);
+                        }
+                    })
+            } else{
+                next(null,nodeNameList);
+            }
+        }], function (err, results) {
+        if (err) {
+            callback(err,null);
+            return;
+        } else {
+            callback(null,results);
+            return;
+        }
+    });
+}
 
 function getChefNodeDetails(filterNodeList,chefObj,chefServerId,callback){
     var chef = new Chef(chefObj);

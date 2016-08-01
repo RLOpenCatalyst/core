@@ -239,5 +239,15 @@ UnmanagedInstanceSchema.statics.removeInstanceById = function(instanceId, callba
 	});
 };
 
+UnmanagedInstanceSchema.statics.getAllTerminatedInstances = function(orgId,callback) {
+	this.find({"orgId":orgId,"state":"terminated"}, function(err, data) {
+		if (err) {
+			return callback(err, null);
+		} else {
+			callback(null, data);
+		}
+	});
+};
+
 var UnmanagedInstance = mongoose.model('unmanagedinstances', UnmanagedInstanceSchema);
 module.exports = UnmanagedInstance;
