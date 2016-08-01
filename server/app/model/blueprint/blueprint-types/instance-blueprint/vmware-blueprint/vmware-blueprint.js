@@ -283,7 +283,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     projectName: launchParams.projectName,
                                     envName: launchParams.envName,
                                     status: "pending",
-                                    bootStrap: "waiting",
+                                    actionStatus: "waiting",
                                     platformId: createserverdata["vm_name"],
                                     blueprintName: launchParams.blueprintData.name,
                                     data: paramRunList,
@@ -339,7 +339,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.bootStrap = "failed";
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.logs = {
                                             err: true,
                                             log: "Instance not responding. Bootstrap failed",
@@ -439,7 +439,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
-                                                        instanceLog.bootStrap = "failed";
+                                                        instanceLog.actionStatus = "failed";
                                                         instanceLog.logs = {
                                                             err: true,
                                                             log: "Bootstrap failed",
@@ -525,7 +525,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
-                                                        instanceLog.bootStrap = "success";
+                                                        instanceLog.actionStatus = "success";
                                                         instanceLog.logs = {
                                                             err: false,
                                                             log: "Instance Bootstraped Successfully.",
@@ -556,7 +556,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
-                                                        instanceLog.bootStrap = "failed";
+                                                        instanceLog.actionStatus = "failed";
                                                         instanceLog.logs = {
                                                             err: true,
                                                             log: "Bootstrap failed.",

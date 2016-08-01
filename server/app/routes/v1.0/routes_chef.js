@@ -351,7 +351,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 projectName: reqBody.projectName,
                                 envName: envName,
                                 status: "running",
-                                bootStrap: "success",
+                                actionStatus: "success",
                                 platformId: platformId,
                                 blueprintName: node.name,
                                 data: runlist,

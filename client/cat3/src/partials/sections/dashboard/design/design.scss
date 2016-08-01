@@ -59,3 +59,16 @@
   min-height: 430px;
   overflow-y: auto;
 }
+.cardLogo {
+  height: 52px;
+  padding-top: 11px;
+  margin-top: 20px;
+  margin-left: 8px;
+}
+.scroll-bluePrints {
+  max-height: 400px;
+  overflow: auto;
+}
+.selected{
+  border: 2px solid #40BAF1 !important;
+}
