@@ -664,6 +664,12 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                 },
                                 os: self.instanceOS
                             },
+                            network: {
+                                vpcId: instanceData.VpcId,
+                                subnetId: instanceData.SubnetId,
+                                privateIpAddress: instanceData.PrivateIpAddress,
+                                publicIpAddress: instanceData.PublicIpAddress || null
+                            },
                             credentials: {
                                 username: anImage.userName,
                                 pemFileLocation: encryptedPemFileLocation,

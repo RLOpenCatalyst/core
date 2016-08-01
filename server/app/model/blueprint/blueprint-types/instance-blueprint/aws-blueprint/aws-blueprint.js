@@ -202,6 +202,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 					var newinstanceIDs = [];
 
 					function addinstancewrapper(instanceData, instancesLength) {
+						console.log(instanceData);
 						logger.debug('Entered addinstancewrapper ++++++' + instancesLength);
 						var instance = {
 							name: launchParams.blueprintName,
@@ -235,6 +236,12 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 									free: 'unknown',
 								},
 								os: self.instanceOS
+							},
+							network: {
+								vpcId: instanceData.VpcId,
+								subnetId: instanceData.SubnetId,
+								privateIpAddress: instanceData.PrivateIpAddress,
+								publicIpAddress: instanceData.PublicIpAddress || null
 							},
 							credentials: {
 								username: anImage.userName,
@@ -472,6 +479,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 																	logger.debug("Instance hardware details set successessfully");
 																}
 															});
+
 															//Checking docker status and updating
 															var _docker = new Docker();
 															_docker.checkDockerStatus(instance.id,
