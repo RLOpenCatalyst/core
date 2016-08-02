@@ -73,7 +73,11 @@
 							}
 						},function(response){
 							$scope.isSubmitLoading = false;
-							$scope.importErrorMessage = response.data.message;
+                            if(response.data.message){
+                                $scope.importErrorMessage = response.data.message;
+                            }else{
+                                $scope.importErrorMessage = response.data;
+                            }
 						});
 					};
 					if ($scope.isPemActive === "password") {
