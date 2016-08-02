@@ -347,7 +347,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 projectName: launchParams.projectName,
                                                 envName: launchParams.envName,
                                                 status: "pending",
-                                                bootStrap: "waiting",
+                                                actionStatus: "waiting",
                                                 platformId: launchparamsazure.VMName,
                                                 blueprintName: launchParams.blueprintData.name,
                                                 data: paramRunList,
@@ -493,7 +493,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                 instanceLog.endedOn = new Date().getTime();
-                                                                instanceLog.bootStrap = "failed";
+                                                                instanceLog.actionStatus = "failed";
                                                                 instanceLog.logs = {
                                                                     err: true,
                                                                     log: "Bootstrap failed",
@@ -527,7 +527,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                 instanceLog.endedOn = new Date().getTime();
-                                                                instanceLog.bootStrap = "success";
+                                                                instanceLog.actionStatus = "success";
                                                                 instanceLog.logs = {
                                                                     err: false,
                                                                     log: "Instance Bootstraped successfully",
@@ -591,7 +591,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 });
                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                 instanceLog.endedOn = new Date().getTime();
-                                                                instanceLog.bootStrap = "failed";
+                                                                instanceLog.actionStatus = "failed";
                                                                 instanceLog.logs = {
                                                                     err: false,
                                                                     log: "Bootstrap Failed",

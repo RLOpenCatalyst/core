@@ -10,6 +10,12 @@
 				};
 				return designServices.promiseGet(params);
 			};
+			blueprintServices.getImages = function () {
+				var params = {
+					url: '/vmimages'
+				};
+				return designServices.promiseGet(params);
+			}
 			//list of operatig systems supported.
 			blueprintServices.getOperatingSytems = function () {
 				var params = {
@@ -62,7 +68,7 @@
 	                    "region": region
                 	}
 				};
-				return designServices.test(params);
+				return designServices.promisePost(params);
 			};
 			//listing down the subnets based upon the VPC ID.(set the instance count to 10 from Ctrl)
 			blueprintServices.postSubnets = function (vpcId,providerId,region) {
@@ -73,7 +79,7 @@
 	                    "region": region
                 	}
 				};
-				return designServices.test(params);
+				return designServices.promisePost(params);
 			};
 			//listing down the security groups based upon the VPC ID.
 			blueprintServices.postSecurityGroups = function (vpcId,providerId,region) {
@@ -84,7 +90,7 @@
 	                    "region": region
                 	}
 				};
-				return designServices.test(params);
+				return designServices.promisePost(params);
 			};
 			//listing down the subnets based upon the VPC ID.(set the instance count to 10 from Ctrl)
 			blueprintServices.getOrgBuProj = function () {
@@ -135,13 +141,20 @@
 				};
 				return designServices.promiseGet(params);
 			};
+			//list down the chefServer. 
+			blueprintServices.getChefServer = function () {
+				var params = {
+					url: '/d4dMasters/readmasterjsonnew/10'
+				};
+				return designServices.promiseGet(params);
+			};
 			//save api for creating a blueprint
 			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
 				var params = {
 					url: '/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/blueprints',
 					data: blueprintData
 				};
-				return designServices.test(params);
+				return designServices.promisePost(params);
 			};
         }]);
 })(angular);

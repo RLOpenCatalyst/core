@@ -13,20 +13,32 @@
                         <li style="font-size:10px;" ng-repeat="item in templateDetail.templatescookbooks.split(',')">{{item}}</li>
                      </ul>
                   </div>
-               </div>
-               <div ng-show="steps[1].isDisplayed">
-                  <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename == 'SoftwareStack' || templateSelected.templatetypename == 'OSImage'">
+                  <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in imageList" ng-if="bpType == 'OSImage'" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li>
+                           <img style="height:40px;width:auto;" alt="templateLogo" ng-src="{{osImageLogo}}">
+                        </li>
+                        <li style="font-size:12px;"><u><b>{{templateDetail.name}}</b></u></li>
+                     </ul>
+                  </div>
+               </div>
+               <div ng-show="steps[1].isDisplayed">
+                  <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename !== 'Docker'">
+                     <ul class="list-unstyled system-prop" style="text-align:center;">
+                        <li ng-if="templateSelected.templatetypename == 'SoftwareStack'">
                            <img style="height:40px;width:auto;" alt="templateLogo" ng-src="{{logo}}">
                         </li>
-                        <li style="font-size:12px;"><u><b>{{templateSelected.templatename}}</b></u></li>
-                        <li style="font-size:10px;" ng-repeat="item in templateSelected.templatescookbooks.split(',')">{{item}}</li>
+                        <li ng-if="templateSelected.osType">
+                           <img style="height:40px;width:auto;" alt="OSImage" ng-src="{{osImageLogo}}">
+                        </li>
+                        <li ng-if="templateSelected.templatetypename == 'SoftwareStack'" style="font-size:12px;"><u><b>{{templateSelected.templatename}}</b></u></li>
+                        <li ng-if="templateSelected.osType" style="font-size:12px;"><u><b>{{templateSelected.name}}</b></u></li>
+                        <li ng-if="templateSelected.templatetypename == 'SoftwareStack'" style="font-size:10px;" ng-repeat="item in templateSelected.templatescookbooks.split(',')">{{item}}</li>
                      </ul>
                   </div>
                   <div class="col-sm-10 col-lg-10 col-md-10">
                      <accordion>
-                        <accordion-group is-open="isFirstOpen" ng-if="templateSelected.templatetypename == 'SoftwareStack' || templateSelected.templatetypename == 'OSImage'">
+                        <accordion-group is-open="isFirstOpen" ng-if="templateSelected.templatetypename !== 'Docker'">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Provider Parameters
@@ -35,9 +47,11 @@
                               <label for="instanceOS">Choose Operating System:<span class="red">&nbsp;*</span>
                                  <loading size="small" name="isOSLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.osListing" name="instanceOS" class="required chooseOS width-100 form-control" ng-change="bpCreate.changeImageOS();">
-                                 <option value="">Select OS</option>
-                                 <option ng-repeat="name in bpCreate.osListing" value="{{name.osType}}">{{name.os_name}}</option>
+                              <select ng-model="bpCreate.newEnt.osListing" name="instanceOS" class="required chooseOS width-100 form-control" ng-disabled="isOSImage" ng-change="bpCreate.changeImageOS();">
+                                 <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" value="">Select OS</option>
+                                 <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" ng-repeat="name in bpCreate.osListing" value="{{name.osType}}">{{name.os_name}}</option>
+                                 {{bpCreate.osListing}}
+                                 <option ng-if="templateSelected.osType" value="{{templateSelected.osType}}">{{templateSelected.osName}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6">
@@ -55,7 +69,7 @@
                               </label>
                               <select ng-model="bpCreate.newEnt.images" name="imageId" class="required chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();">
                                  <option value="">Select Image</option>
-                                 <option ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail.imageIdentifier}}">{{imageDetail.name}}</option>
+                                 <option ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
@@ -108,7 +122,7 @@
                               </label>
                               <div class="col-lg-6 securityGroupComponent">
                                  <ul>
-                                    <li ng-repeat="securityGroupDetails in bpCreate.securityGroupListing" id="securityGroupIds" name="securityGroupIds"  class="input-group col-md-12 widthBox"><label class="checkbox check-list"><input class="checkbox-list" type="checkbox"ng-checked="securityGroupDetails._isChecked" ng-model="securityGroupDetails._isChecked" name="bpCreate.newEnt.securityGroupCheck"/>{{securityGroupDetails.GroupId}} | {{securityGroupDetails.GroupName}} </label></li>
+                                    <li ng-repeat="securityGroupDetails in bpCreate.securityGroupListing" id="securityGroupIds" name="securityGroupIds"  class="input-group col-md-12 widthBox"><label class="checkbox check-list"><input class="checkbox-list" type="checkbox" ng-checked="securityGroupDetails._isChecked" ng-model="securityGroupDetails._isChecked" name="bpCreate.newEnt.securityGroupCheck"/>{{securityGroupDetails.GroupId}} | {{securityGroupDetails.GroupName}} </label></li>
                                  </ul>
                               </div>
                            </div>
@@ -187,7 +201,7 @@
                            <!-- End Docker Image selection table -->
                         </accordion-group>
                         <!--configure runlist collapse starts here-->
-                        <accordion-group ng-show="templateSelected.templatetypename == 'SoftwareStack' || templateSelected.templatetypename == 'OSImage'">
+                        <accordion-group ng-if="templateSelected.templatetypename !=='Docker'">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Runlist Parameters
@@ -221,7 +235,7 @@
                         <!--execute modal starts here-->
                         <!--configure runlist collapse ends here-->                  
                         <!--adding new collapse-->
-                        <accordion-group ng-show="templateSelected.templatetypename == 'SoftwareStack' || templateSelected.templatetypename == 'OSImage'">
+                        <accordion-group ng-if="templateSelected.templatetypename !=='Docker'">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Application

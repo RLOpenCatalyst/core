@@ -7,7 +7,8 @@
 
 (function(angular){
 	"use strict";
-	function loginFunct($scope, $location, auth, $timeout) {
+	function loginFunct($rootScope,$scope, $location, auth, $timeout) {
+		$rootScope.dashboardChild='';
 		function changeAddress(){
 			$location.path('/dashboard');
 		}
@@ -29,5 +30,5 @@
 		};
 	}
 	angular.module('global.login', [])
-		.controller('loginCtrl', ['$scope', '$location','auth', '$timeout', loginFunct]);
+		.controller('loginCtrl', ['$rootScope','$scope', '$location','auth', '$timeout', loginFunct]);
 })(angular);

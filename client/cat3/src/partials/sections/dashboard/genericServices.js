@@ -7,8 +7,23 @@
 
 (function (angular) {
     "use strict";
-    angular.module('dashboard.genericServices',['authentication', 'utility.pagination']).service('genericServices',['$rootScope',  'workzoneServices', '$modal','confirmbox','toastr',function($rootScope,workSvs,$modal,confirmbox,toastr){
+    angular.module('dashboard.genericServices',['authentication', 'utility.pagination']).service('genericServices',['$rootScope', '$q','$http', 'workzoneServices', '$modal','confirmbox','toastr',function($rootScope,$q,$http,workSvs,$modal,confirmbox,toastr){
         var genericServices=this;
+        genericServices.getTreeNew = function () {
+            $rootScope.onBodyLoading=true;
+            var deferred = $q.defer();
+            $http.get('/organizations/getTreeNew')
+                .success(function(data) {
+                    $rootScope.onBodyLoading=false;
+                    deferred.resolve(data);
+                })
+                .error(function(data, status) {
+                    $rootScope.onBodyLoading=false;
+                    deferred.reject();
+                    toastr.error(data.message, status);
+                });
+            return deferred.promise;
+        };
         genericServices.moreInfo= function(blueprintObj,bpType){
             if(bpType === 'compBlueInfo'){
                 $modal.open({

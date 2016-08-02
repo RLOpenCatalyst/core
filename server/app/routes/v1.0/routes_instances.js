@@ -704,7 +704,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 projectName: instance[0].projectName,
                 envName: instance[0].environmentName,
                 status: instance[0].instanceState,
-                bootStrap: instance[0].bootStrapStatus,
+                actionStatus: "pending",
                 platformId: instance[0].platformId,
                 blueprintName: instance[0].blueprintData.blueprintName,
                 data: instance[0].runlist,
@@ -720,6 +720,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             };
             containerService.executeActionOnContainer(jsonData, function(err, containerResponse) {
                 if (err) {
+                    instanceLog.actionStatus = "failed";
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.logs = {
                         err: true,
@@ -735,6 +736,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(500);
                     return;
                 }
+                instanceLog.actionStatus = "success";
                 instanceLog.endedOn = new Date().getTime();
                 instanceLog.logs = {
                     err: false,
@@ -841,7 +843,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             projectName: instance[0].projectName,
                             envName: instance[0].environmentName,
                             status: instance[0].instanceState,
-                            bootStrap: instance[0].bootStrapStatus,
+                            actionStatus: "pending",
                             platformId: instance[0].platformId,
                             blueprintName: instance[0].blueprintData.blueprintName,
                             data: instance[0].runlist,
@@ -882,6 +884,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         _docker.runDockerCommands(cmd, req.params.instanceid,
                             function(err, retCode) {
                                 if (err) {
+                                    instanceLog.actionStatus = "failed";
                                     instanceLog.endedOn = new Date().getTime();
                                     instanceLog.logs = {
                                         err: true,
@@ -906,6 +909,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
                                 logger.debug("docker return ", retCode);
                                 if (retCode == 0) {
+                                    instanceLog.actionStatus = "success";
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     instancesDao.updateInstanceDockerStatus(instanceid, "success", '', function(data) {
                                         logger.debug('Instance Docker Status set to Success');
                                         res.send(200);
@@ -1064,7 +1073,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     projectName: data[0].projectName,
                     envName: data[0].environmentName,
                     status: data[0].instanceState,
-                    bootStrap: data[0].bootStrapStatus,
+                    actionStatus: "pending",
                     platformId: data[0].platformId,
                     blueprintName: data[0].blueprintData.blueprintName,
                     data: data[0].runlist,
@@ -1153,6 +1162,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             _docker.runDockerCommands(cmd, req.params.instanceid,
                                 function(err, retCode) {
                                     if (err) {
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLog.logs = {
                                             err: true,
@@ -1212,7 +1222,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                             log: 'Done execute command: . cmd : ' + cmd + ' on ' + containername,
                                                             timestamp: new Date().getTime()
                                                         });
-
+                                                        instanceLog.actionStatus = "success";
                                                         instanceLog.logs = {
                                                             err: false,
                                                             log: 'Done execute command: . cmd : ' + cmd + ' on ' + containername,
@@ -1247,6 +1257,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         log: 'Error executing command: . cmd : ' + cmd + ' on ' + containername + ' : Return Code ' + retCode1 + ' -' + err,
                                                         timestamp: new Date().getTime()
                                                     });
+                                                    instanceLog.actionStatus = "failed";
                                                     instanceLog.logs = {
                                                         err: true,
                                                         log: 'Error executing command: . cmd : ' + cmd + ' on ' + containername + ' : Return Code ' + retCode1 + ' -' + err,
@@ -1270,6 +1281,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     log: 'Done image pull and run.',
                                                     timestamp: new Date().getTime()
                                                 });
+                                                instanceLog.actionStatus = "success";
                                                 instanceLog.logs = {
                                                     err: false,
                                                     log: "Done image pull and run.",
@@ -1417,7 +1429,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 projectName: data[0].projectName,
                                 envName: data[0].environmentName,
                                 status: data[0].instanceState,
-                                bootStrap: data[0].bootStrapStatus,
+                                actionStatus: "pending",
                                 platformId: data[0].platformId,
                                 blueprintName: data[0].blueprintData.blueprintName,
                                 data: data[0].runlist,
@@ -1465,6 +1477,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                     instanceLog.actionId = actionLog._id;
+                                    instanceLog.actionStatus = "failed";
                                     instanceLog.endedOn = new Date().getTime();
                                     instanceLog.logs = {
                                         err: true,
@@ -1491,6 +1504,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     });
                                     instanceLog.actionId = actionLog._id;
                                     instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
                                     instanceLog.logs = {
                                         err: true,
                                         log: "InfraManager information is corrupt. client run failed",
@@ -1522,6 +1536,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                         instanceLog.actionId = actionLog._id;
                                         instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.logs = {
                                             err: true,
                                             log: "Unable to decrypt pem file. client run failed",
@@ -1551,6 +1566,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                             instanceLog.actionId = actionLog._id;
                                             instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
                                             instanceLog.logs = {
                                                 err: true,
                                                 log: "Unable to generate client run execution id. client run failed",
@@ -1676,6 +1692,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                 instanceLog.actionId = actionLog._id;
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Unable to run client",
@@ -1708,6 +1725,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                         instanceLog.actionId = actionLog._id;
                                                         instanceLog.endedOn = new Date().getTime();
+                                                        instanceLog.actionStatus = "success";
                                                         instanceLog.logs = {
                                                             err: false,
                                                             log: "instance runlist updated",
@@ -1754,6 +1772,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     });
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                     instanceLog.endedOn = new Date().getTime();
+                                                    instanceLog.actionStatus = "success";
                                                     instanceLog.logs = {
                                                         err: false,
                                                         log: "puppet client ran successfully",
@@ -1774,6 +1793,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         timestamp: new Date().getTime()
                                                     });
                                                     instanceLog.endedOn = new Date().getTime();
+                                                    instanceLog.actionStatus = "failed";
                                                     instanceLog.logs = {
                                                         err: true,
                                                         log: "Host Unreachable",
@@ -1791,6 +1811,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         log: 'Invalid credentials',
                                                         timestamp: new Date().getTime()
                                                     });
+                                                    instanceLog.actionStatus = "failed";
                                                     instanceLog.logs = {
                                                         err: true,
                                                         log: "Invalid credentials ",
@@ -1809,6 +1830,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         log: 'Unknown error occured. ret code = ' + retCode,
                                                         timestamp: new Date().getTime()
                                                     });
+                                                    instanceLog.actionStatus = "failed";
                                                     instanceLog.logs = {
                                                         err: true,
                                                         log: "Unknown error occured. ret code = " + retCode,
@@ -1830,6 +1852,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 });
                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Unable to run client",
@@ -1926,7 +1949,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 projectName: data[0].projectName,
                                 envName: data[0].environmentName,
                                 status: data[0].instanceState,
-                                bootStrap: data[0].bootStrapStatus,
+                                actionStatus: "pending",
                                 platformId: data[0].platformId,
                                 blueprintName: data[0].blueprintData.blueprintName,
                                 data: data[0].runlist,
@@ -1977,6 +2000,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     timestamp: new Date().getTime()
                                 });
                                 instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: false,
                                     log: "Insufficient provider details, to complete the operation",
@@ -2027,6 +2051,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 });
                                                 instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.status = "stopped";
+                                                instanceLog.actionStatus = "success";
                                                 instanceLog.logs = {
                                                     err: false,
                                                     log: "Instance Stopping",
@@ -2055,6 +2080,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "success";
                                                 instanceLog.logs = {
                                                     err: false,
                                                     log: "Instance Stopped",
@@ -2080,6 +2106,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: false,
                                                     log: "Unable to stop instance",
@@ -2111,6 +2138,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     timestamp: timestampEnded
                                 });
                                 instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: true,
                                     log: "Unable to stop openstack instance",
@@ -2184,6 +2212,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         });
                                                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
+                                                        instanceLog.actionStatus = "failed";
                                                         instanceLog.logs = {
                                                             err: true,
                                                             log: "Unable to stop instance",
@@ -2241,6 +2270,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                                     instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.status = "stopped";
+                                                    instanceLog.actionStatus = "success";
                                                     instanceLog.logs = {
                                                         err: false,
                                                         log: "Instance Stopped",
@@ -2304,6 +2334,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Unable to stop instance",
@@ -2349,6 +2380,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLog.status = "stopped";
+                                            instanceLog.actionStatus = "success";
                                             instanceLog.logs = {
                                                 err: false,
                                                 log: "Instance Stopped",
@@ -2437,6 +2469,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: false,
                                                     log: "Unable to stop instance",
@@ -2488,6 +2521,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLog.status = "stopped";
+                                            instanceLog.actionStatus = "success";
                                             instanceLog.logs = {
                                                 err: false,
                                                 log: "Instance Stopped",
@@ -2543,7 +2577,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 projectName: data[0].projectName,
                                 envName: data[0].environmentName,
                                 status: data[0].instanceState,
-                                bootStrap: data[0].bootStrapStatus,
+                                actionStatus: "pending",
                                 platformId: data[0].platformId,
                                 blueprintName: data[0].blueprintData.blueprintName,
                                 data: data[0].runlist,
@@ -2629,6 +2663,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.status = "running";
+                                                instanceLog.actionStatus = "success";
                                                 instanceLog.logs = {
                                                     err: false,
                                                     log: "Instance Started",
@@ -2654,6 +2689,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     timestamp: timestampEnded
                                                 });
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Unable to start instance",
@@ -2718,6 +2754,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         timestamp: new Date().getTime()
                                     });
                                     instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
                                     instanceLog.logs = {
                                         err: true,
                                         log: "Insufficient provider details, to complete the operation",
@@ -2787,6 +2824,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         });
                                                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
+                                                        instanceLog.actionStatus = "failed";
                                                         instanceLog.logs = {
                                                             err: true,
                                                             log: "Unable to start instance",
@@ -2844,6 +2882,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                                     instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.status = "running";
+                                                    instanceLog.actionStatus = "success";
                                                     instanceLog.logs = {
                                                         err: false,
                                                         log: "Instance Started",
@@ -2937,6 +2976,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 });
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Unable to start instance",
@@ -2986,6 +3026,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLog.status = "running";
+                                            instanceLog.actionStatus = "success";
                                             instanceLog.logs = {
                                                 err: false,
                                                 log: "Instance Started",
@@ -3099,6 +3140,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.actionId = actionLog._id;
+                                                instanceLog.actionStatus = "failed";
                                                 instanceLog.logs = {
                                                     err: true,
                                                     log: "Unable to start instance",
@@ -3149,6 +3191,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             instancesDao.updateActionLog(req.params.instanceId, actionLog._id, true, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLog.status = state;
+                                            instanceLog.actionStatus = "success";
                                             instanceLog.logs = {
                                                 err: false,
                                                 log: "Instance Started",
@@ -3319,7 +3362,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     projectName: instance.projectName,
                     envName: instance.environmentName,
                     status: instance.instanceState,
-                    bootStrap: instance.bootStrapStatus,
+                    actionStatus: "pending",
                     platformId: instance.platformId,
                     blueprintName: instance.blueprintData.blueprintName,
                     data: instance.runlist,
@@ -3330,7 +3373,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     createdOn: new Date().getTime(),
                     startedOn: new Date().getTime(),
                     providerType: instance.providerType,
-                    action: "Service-"+req.params.actionType,
+                    action: "Service-" + req.params.actionType,
                     logs: []
                 };
 
@@ -3345,6 +3388,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         });
                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                         instanceLog.endedOn = new Date().getTime();
+                        instanceLog.actionStatus = "failed";
                         instanceLog.logs = {
                             err: true,
                             log: 'Unable to run services',
@@ -3368,6 +3412,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             timestamp: timestampEnded
                         });
                         instanceLog.endedOn = new Date().getTime();
+                        instanceLog.actionStatus = "success";
                         instanceLog.logs = {
                             err: false,
                             log: 'Service run success',
@@ -3389,6 +3434,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: 'Host Unreachable',
@@ -3407,6 +3453,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: 'Invalid credentials',
@@ -3425,6 +3472,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 timestamp: timestampEnded
                             });
                             instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
                             instanceLog.logs = {
                                 err: true,
                                 log: 'Unknown error occured. ret code = ' + retCode,
@@ -3444,6 +3492,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             timestamp: timestampEnded
                         });
                         instanceLog.endedOn = new Date().getTime();
+                        instanceLog.actionStatus = "failed";
                         instanceLog.logs = {
                             err: true,
                             log: 'Unable to run services',
@@ -3508,6 +3557,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         });
                         instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                         instanceLog.endedOn = new Date().getTime();
+                        instanceLog.actionStatus = "failed";
                         instanceLog.logs = {
                             err: true,
                             log: 'Unable to decrypt credentials. Unable to run service',
@@ -3537,6 +3587,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
 
                                 instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: true,
                                     log: 'Chef Data corrupted. Unable to run service',
@@ -3562,6 +3613,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 });
                                 instancesDao.updateActionLog(req.params.instanceId, actionLog._id, false, timestampEnded);
                                 instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: true,
                                     log: 'Chef Data corrupted. Unable to run service',

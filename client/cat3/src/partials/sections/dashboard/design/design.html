@@ -4,28 +4,31 @@
         <li ng-class="{'active':stateItems.params.view === 'list'}"><a  ui-sref="dashboard.designSubView({subItem:stateItems.params.subItem,view:'list'})"><i class="fa fa-list fa-2" aria-hidden="true"></i> List</a></li>
         <li ng-show="!stateItems.current.params.blueId" ng-class="{'active':stateItems.params.view === 'new'}"><a  ui-sref="dashboard.designSubView({subItem:stateItems.params.subItem,view:'new'})" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> New</a></li>
         <li ng-show="stateItems.current.params.blueId" ng-class="{'active':stateItems.params.view === 'edit'}"><a  ui-sref="dashboard.designSubView({subItem:stateItems.params.subItem,view:'edit'})"><i class="fa fa-pencil-square fa-2 " aria-hidden="true"></i> Edit</a></li>
-       <li class="form-group pull-right" style="margin-right: 18px;">
-            <select id="projectListInputExisting" class="chooseProjectExisting width-100 form-control">
-                <option value="">Organization</option>
+       <li class="form-group pull-right" style="margin-right: 18px;" >
+            <select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
+                <option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
             </select>
         </li>
 
     </ul>
         <div id="well" class="well well-sm">
-            <div ng-if="stateItems.params.view === 'list'">
-                <div class="col-lg-6 col-md-6">
-                    Selected Blueprint Name
+                <div class="col-lg-8 col-md-8" ng-if="stateItems.params.view !== 'new'">
+                   <b><i>{{stateItems.params.templateName}} blueprints</i></b> <span ng-if="desSubItm.selectedCards.length > 0"> : - <span class="badge">{{desSubItm.selectedCards.length}}</span> Selected Blueprints </span>
                 </div>
-                <div class="col-lg-6 col-md-6 pull-right" >
-                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="$parent.isOpenSidebar = !$parent.isOpenSidebar">
-                        <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
-                    </button>
-                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" >&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
-                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i>&nbsp;Delete</button>
-                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ><i class="fa fa-pencil fa-2 white" aria-hidden="true"></i>&nbsp;Edit</button>
-                    <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ><i class="fa fa-clone fa-2 white" aria-hidden="true"></i>&nbsp;Copy</button>
+
+                <div class="col-lg-4 col-md-4 pull-right" >
+                    <div ng-if="stateItems.params.view === 'list'">
+                        <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="$parent.isOpenSidebar = !$parent.isOpenSidebar">
+                            <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
+                        </button>
+                        <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" >&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
+                        <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="desSubItm.selectedCards.length > 0" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i>&nbsp;Delete</button>
+                        <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="desSubItm.selectedCards.length > 0" ng-click="desSubItm.copyBp(desSubItm.selectedCards)" ><i class="fa fa-clone fa-2 white" aria-hidden="true"></i>&nbsp;Copy</button>
+                    </div>
+                    <div ng-if="stateItems.params.view === 'edit'">
+                        <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="desSubItm.cancelEdit()"><i class="fa fa-ban white" aria-hidden="true"></i></i>&nbsp;Cancel</button>
+                    </div>
                 </div>
-            </div>
             <div ng-if="stateItems.params.view === 'new'">{{stateItems.params.subItem}} > {{stateItems.params.templateName}}</div>
         </div>
     <div class="col-lg-12">
@@ -42,14 +45,15 @@
                 <div class="col-lg-12 ">
                     <div class="col-lg-12 col-md-12 form-group">
                         <label for="">Business Group</label>
-                        <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control">
-                            <option value="">Select Business</option>
+                        <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
+                            <option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
                         </select>
                     </div>
                     <div class="col-lg-12 col-md-12 form-group">
-                        <label for="category">Project
-                        </label>
-                        <select id="projectListInputExisting" class="chooseProjectExisting width-100 form-control"><option value="895990bc-2dc8-43bf-ab65-d75d8e5f5f07">Catalyst</option><option value="8a78ef68-0862-4673-87f9-32326b654d5d">RL</option></select>
+                        <label >Project</label>
+                        <select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+                            <option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+                        </select>
                     </div>
                     <div class="col-lg-12 col-md-12 form-group">
                         <button type="button" class="btn btn-primary"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>

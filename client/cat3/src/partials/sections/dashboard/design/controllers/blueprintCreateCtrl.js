@@ -6,6 +6,8 @@
             //to get the templates listing.
             $scope.bpType = $state.params.templateName;
             $scope.logo = 'images/global/cat-logo.png';
+            $scope.osImageLogo = 'images/global/linux.png';
+            $scope.isOSImage = false;
             blueprintCreation.newEnt = [];
             blueprintCreation.osListing = [];
             blueprintCreation.providerListing = [];
@@ -25,10 +27,23 @@
                 });
             };
 
+            blueprintCreation.getImages = function(){
+                bpCreateSer.getImages().then(function(data){
+                    $scope.imageList = data;
+                });
+            };
+
+            if($scope.bpType == 'OSImage'){
+                blueprintCreation.getImages();
+            }
+
             blueprintCreation.getOperatingSytems = function(){
                 $scope.isOSLoading = true;
                 bpCreateSer.getOperatingSytems().then(function(data){
                     blueprintCreation.osListing = data;
+                    if($scope.bpType == 'OSImage'){
+                        $scope.isOSImage = true;
+                    }
                     $scope.isOSLoading = false;
                 });
             };
@@ -44,7 +59,7 @@
                 $scope.isRegionKeyPairLoading = true;
                 bpCreateSer.getImageLists(blueprintCreation.newEnt.providers).then(function(data){
                     if(blueprintCreation.newEnt.providers){
-                        blueprintCreation.imageListing = data;    
+                        blueprintCreation.imageListing = data;
                         $scope.isImageLoading = false;
                         blueprintCreation.instanceCount = function(max, step) {
                             step = step || 1;
@@ -66,6 +81,12 @@
             };
 
             blueprintCreation.getInstanceType = function(){
+                var imageDetails = blueprintCreation.imageListing;
+                for(var i= 0; i<imageDetails.length;i++){
+                    if(blueprintCreation.newEnt.images == imageDetails[i]._id){
+                        $scope.imageIdentifier = imageDetails[i].imageIdentifier; 
+                    }
+                }
                 $scope.isInstanceTypeLoading = true;
                 bpCreateSer.getInstanceType().then(function(data){
                     if(blueprintCreation.newEnt.images){
@@ -116,6 +137,7 @@
                     var buProjDetails = blueprintCreation.orgBUProjListing;
                     blueprintCreation.bgListing = buProjDetails;
                 }
+                blueprintCreation.getChefServer();
             };
 
             blueprintCreation.getProject = function() {
@@ -135,7 +157,18 @@
                 if(blueprintCreation.newEnt.nexusDockerServer) {
                     $scope.showRepoDetails = true;
                 }
-            };                        
+            };
+
+            blueprintCreation.getChefServer = function() {
+                bpCreateSer.getChefServer().then(function(data){
+                    for(var i =0;i<data.length;i++){
+                        if(blueprintCreation.newEnt.orgList == data[i].orgname_rowid[0]){
+                            console.log(data[i].rowid);
+                            $scope.getChefServerId = data[i].rowid;
+                        }
+                    }
+                });
+            }                        
 
             blueprintCreation.templateListing();
             blueprintCreation.getOperatingSytems();
@@ -218,82 +251,52 @@
                 }
             };
 
-            /*method added for allowing the user to move the 
-            table row up  in dockerLaunchParams section*/
-            $scope.moveUpChoice = function(arr, index) {
-                var currItem = index;
-                if (currItem > 0) {
-                    arr.splice(currItem - 1, 0, arr.splice(currItem, 1)[0]);
-                }
-            };
-            /*method added for allowing the user to move the
-             table row down in dockerLaunchParams section*/
-            $scope.moveDownChoice = function(arr, index) {
-                var currItem = index;
-                var newPosition = index + 1;
-                if (currItem < arr.length) {
-                    arr.splice(newPosition, 0, arr.splice(currItem, 1)[0]);
-                }
-            };
-
             $scope.submit = function() {
                 var blueprintCreateJSON = {
                     templateId: $scope.templateSelected.templatename,
-                    templateType: $scope.templateSelected.templateType,
+                    templateType: $scope.templateSelected.templatetypename,
                     templateComponents: 'component0',
                     dockercontainerpathstitle: '',
                     dockerlaunchparameters: '',
                     dockerreponame: '',
-                    runlist:$scope.templateSelected.templatescookbooks.split(','),
-                    dockercompose[0][dockercontainerpathstitle]:'',
-                    dockercompose[0][dockercontainerpaths]:'',
-                    dockercompose[0][dockerrepotags]:'',
-                    dockercompose[0][dockerlaunchparameters]: '',
-                    dockercompose[0][dockerreponame]:'',
-                    chefServerId:
-                    instanceType:t2.micro
-                    instanceOS:linux
-                    instanceCount:1
-                    instanceAmiid:ami-06116566
-                    instanceUsername:root
+                    dockercompose : [],
+                    chefServerId:$scope.getChefServerId,
+                    instanceType:blueprintCreation.newEnt.instanceType,
+                    instanceOS:blueprintCreation.newEnt.osListing,
+                    instanceCount:blueprintCreation.newEnt.instanceCount,
+                    instanceAmiid:$scope.imageIdentifier,
+                    instanceUsername:'root',
                     dockerimagename:'',
-                    orgId:
-                    bgId:
-                    projectId:
-                    keyPairId:
-                    securityGroupIds[]:sg-99a3bcfb
-                    vpcId:
-                    subnetId:
-                    imageId:5795f13862ff7b3b6f1e3ee6
-                    providerId:
-                    region:
-                    name:
+                    orgId:blueprintCreation.newEnt.orgList,
+                    bgId:blueprintCreation.newEnt.bgList,
+                    projectId:blueprintCreation.newEnt.projectList,
+                    keyPairId:blueprintCreation.newEnt.keyPair,
+                    vpcId:blueprintCreation.newEnt.vpcId,
+                    subnetId:blueprintCreation.newEnt.subnetId,
+                    imageId:blueprintCreation.newEnt.images,
+                    providerId:blueprintCreation.newEnt.providers,
+                    region:blueprintCreation.newEnt.region,
+                    name:blueprintCreation.newEnt.blueprintName,
+                    blueprintType:'instance_launch',
+                    appUrls:[]
                 }
-                bpCreate.postBlueprintSave(orgId,bgId,projectId,blueprintCreateJSON).then(function(){
-
+                blueprintCreateJSON.runlist = [];
+                blueprintCreateJSON.runlist = $scope.templateSelected.templatescookbooks.split(',');
+                
+                blueprintCreateJSON.securityGroupIds = [];
+                for(var i =0;i<blueprintCreation.securityGroupListing.length;i++){
+                    console
+                    if(blueprintCreation.securityGroupListing[i]._isChecked){
+                        blueprintCreateJSON.securityGroupIds.push(blueprintCreation.securityGroupListing[i].GroupId);
+                    }
+                }
+                var reqBody = {
+                    blueprintData: blueprintCreateJSON
+                };
+                console.log(reqBody);
+                bpCreateSer.postBlueprintSave(blueprintCreateJSON.orgId,blueprintCreateJSON.bgId,blueprintCreateJSON.projectId,reqBody).then(function(){
+                    toastr.success('success');
                 });
             };
-
-            /*//modal to show the Docker Parameters Popup
-            $scope.launchParam = function(launchObj, idx) {
-                var modalInstance = $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/dockerParams.html',
-                    controller: 'dockerParamsCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return launchObj.dockerlaunchparameters;
-                        }
-                    }
-                });
-                modalInstance.result.then(function(paramStr) {
-                    $scope.dockerDetails[idx].dockerlaunchparameters = paramStr;
-                    //updating the dockerLaunchParameters for the particular index.
-                }, function() {
-                    console.log('Modal Dismissed at ' + new Date());
-                });
-            };*/
     }]);
 })(angular);
