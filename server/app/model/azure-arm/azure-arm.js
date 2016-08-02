@@ -19,8 +19,6 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('_pr/model/utils/schema-validator');
-var uniqueValidator = require('mongoose-unique-validator');
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var mongoosePaginate = require('mongoose-paginate');
 
 var ChefInfraManager = require('./chef-infra-manager/chef-infra-manager');
@@ -166,30 +164,14 @@ ARMSchema.statics.createNew = function(cfData, callback) {
 
 
 ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
-    if(jsonData.pageSize) {
-        jsonData['searchColumns'] = ['cloudProviderId', 'deploymentName'];
-        ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+    if(jsonData.pagination) {
+        azureARM.paginate(jsonData.queryObj, jsonData.options, function (err, azureArms) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
-                return callback(err);
+                return callback(err,null);
             }
-            else {
-                azureARM.paginate(databaseCall.queryObj, databaseCall.options, function (err, cftData) {
-                    if (err) {
-                        var err = new Error('Internal server error');
-                        err.status = 500;
-                        return callback(err);
-                    }
-                    else if (cftData.length === 0) {
-                        var err = new Error('Cloud Formation is not found');
-                        err.status = 404;
-                        return callback(err);
-                    }
-                    else
-                        return callback(null, cftData);
-                });
-            }
+            return callback(null, azureArms);
         });
     }
     else{

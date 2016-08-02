@@ -16,6 +16,7 @@
 var mongoose = require('mongoose');
 var util = require('util');
 var Schema = mongoose.Schema;
+var mongoosePaginate = require('mongoose-paginate');
 
 //@TODO Unique validation for name to be added
 var CompositeBlueprintSchema = new Schema({
@@ -39,6 +40,11 @@ var CompositeBlueprintSchema = new Schema({
         required: true,
         trim: false
     },
+    cloudProviderType:{
+        type: String,
+        required: true,
+        trim: false
+    },
     blueprints: [{
         type: Schema.Types.Mixed,
         _id: false
@@ -49,6 +55,8 @@ var CompositeBlueprintSchema = new Schema({
         default: false
     }
 });
+
+CompositeBlueprintSchema.plugin(mongoosePaginate);
 
 CompositeBlueprintSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
@@ -121,6 +129,18 @@ CompositeBlueprintSchema.statics.updateById
             }
         }
     );
+};
+
+CompositeBlueprintSchema.statics.getCompositeBlueprintByOrgBgProject = function getCompositeBlueprintByOrgBgProject(query, callback) {
+    query.queryObj.isDeleted = false;
+    CompositeBlueprints.paginate(query.queryObj, query.options, function(err, compositeBlueprints) {
+        if (err) {
+            logger.error("Failed to getCompositeBlueprintByOrgBgProject", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, compositeBlueprints);
+    });
 };
 
 var CompositeBlueprints = mongoose.model('compositeBlueprints', CompositeBlueprintSchema);

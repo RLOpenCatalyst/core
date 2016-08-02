@@ -20,6 +20,7 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
+var mongoosePaginate = require('mongoose-paginate');
 
 var Chef = require('_pr/lib/chef.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
@@ -152,6 +153,8 @@ var BlueprintSchema = new Schema({
     }
 
 });
+
+BlueprintSchema.plugin(mongoosePaginate);
 
 function getBlueprintConfigType(blueprint) {
     var BlueprintConfigType;
@@ -1300,6 +1303,16 @@ BlueprintSchema.statics.getBlueprintsByProviderId = function(providerId, callbac
             callback(null, []);
         }
 
+    });
+};
+this.getBlueprintByOrgBgProjectProviderType = function(query, callback) {
+    Blueprints.paginate(query.queryObj, query.options, function(err, blueprints) {
+        if (err) {
+            logger.error("Failed to getBlueprintByOrgBgProjectProviderType", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, blueprints);
     });
 };
 var Blueprints = mongoose.model('blueprints', BlueprintSchema);

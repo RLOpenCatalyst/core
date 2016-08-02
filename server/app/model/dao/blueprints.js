@@ -17,10 +17,9 @@ limitations under the License.
 
 var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
-var validate = require('mongoose-validator');
 var logger = require('_pr/logger')(module);
 var schemaValidator = require('./schema-validator');
-var configmgmtDao = require('../d4dmasters/configmgmt.js');
+var mongoosePaginate = require('mongoose-paginate');
 
 var Schema = mongoose.Schema;
 
@@ -193,6 +192,7 @@ var BlueprintSchema = new Schema({
 
 });
 
+BlueprintSchema.plugin(mongoosePaginate);
 var Blueprint = mongoose.model('blueprints_old', BlueprintSchema);
 
 function generateBlueprintVersionNumber(prevVersion) {
@@ -550,6 +550,17 @@ var BlueprintsDao = function() {
             logger.debug("Exit getBlueprintByTemplateType (templateType = %s)", templateType);
             callback(null, data);
 
+        });
+    };
+
+    this.getBlueprintByOrgBgProjectProviderType = function(query, callback) {
+        Blueprint.paginate(query.queryObj, query.options, function(err, blueprints) {
+            if (err) {
+                logger.error("Failed to getBlueprintByOrgBgProjectProviderType", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, blueprints);
         });
     };
 }

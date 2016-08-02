@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
-var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var schemaValidator = require('_pr/model/dao/schema-validator.js');
 
 var containerSchema = new Schema({
@@ -84,31 +83,14 @@ var containerSchema = new Schema({
 containerSchema.plugin(mongoosePaginate);
 
 containerSchema.statics.getContainerListByOrgBgProjectAndEnvId = function(jsonData, callback) {
-    if(jsonData.pageSize) {
-        jsonData['searchColumns'] = ['instanceIP', 'state'];
-        apiUtil.databaseUtil(jsonData, function (err, databaseCall) {
+    if(jsonData.pagination) {
+        container.paginate(jsonData.queryObj, jsonData.options, function (err, containerList) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
-                return callback(err);
+                callback(err,null);
             }
-            else {
-                container.paginate(databaseCall.queryObj, databaseCall.options, function (err, containerList) {
-                    if (err) {
-                        var err = new Error('Internal server error');
-                        err.status = 500;
-                        callback(err);
-                    }
-                    else if (containerList.length === 0) {
-                        var err = new Error('Container List is not found');
-                        err.status = 404;
-                        callback(err);
-                    }
-                    else {
-                        callback(null, containerList);
-                    }
-                });
-            }
+            callback(null, containerList);
         });
     }
     else{
