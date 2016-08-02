@@ -189,7 +189,7 @@ function sync() {
 																					removeTerminateInstance(instances[n]._id,instances[n].instanceState, 'managed');
 																				} else {
 																					if (instances[n].instanceState === 'running') {
-																						instances[n].instanceIP = awsInstances[m].PublicIpAddress;
+																						instances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
 																						instances[n].privateIpAddress = awsInstances[m].privateIpAddress;
 																						instances[n].vpcId = awsInstances[m].VpcId;
 																						instances[n].subnetId = awsInstances[m].SubnetId;
@@ -226,8 +226,8 @@ function sync() {
 																						removeTerminateInstance(unManagedInstances[n]._id,unManagedInstances[n].state, 'assigned');
 																					} else {
 																						if (unManagedInstances[n].state === 'running') {
-																							unManagedInstances[n].ip = awsInstances[m].PublicIpAddress;
-																							unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress;
+																							unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || null;
+																							unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
 																							unManagedInstances[n].privateIpAddress = awsInstances[m].privateIpAddress;
 																							unManagedInstances[n].vpcId = awsInstances[m].VpcId;
 																							unManagedInstances[n].subnetId = awsInstances[m].SubnetId;
@@ -292,7 +292,7 @@ function sync() {
 																						unassignedInstances[n].remove();
 																					} else {
 																						if (unassignedInstances[n].state === 'running') {
-																							unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress;
+																							unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
 																							unassignedInstances[n].privateIpAddress = awsInstances[m].privateIpAddress;
 																							unassignedInstances[n].vpcId = awsInstances[m].VpcId;
 																							unassignedInstances[n].subnetId = awsInstances[m].SubnetId;

@@ -223,7 +223,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 							attributes: paramAttributes,
 							platformId: instanceData.InstanceId,
 							appUrls: launchParams.appUrls,
-							instanceIP: instanceData.PublicIpAddress,
+							instanceIP: instanceData.PublicIpAddress || null,
 							instanceState: instanceData.State.Name,
 							bootStrapStatus: 'waiting',
 							users: launchParams.users,
