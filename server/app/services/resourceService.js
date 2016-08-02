@@ -22,6 +22,7 @@ var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
+var EC2 = require('_pr/lib/ec2.js');
 var RDS = require('_pr/lib/rds.js');
 var resourceCost = require('_pr/model/resource-costs');
 var csv = require("fast-csv");
@@ -39,6 +40,7 @@ resourceService.getRDSDBInstanceMetrics=getRDSDBInstanceMetrics;
 resourceService.bulkUpdateResourceProviderTags=bulkUpdateResourceProviderTags;
 resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTags;
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
+resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 
 
 function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
@@ -171,7 +173,7 @@ function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInst
             r53Cost += Number(data[costIndex]);
         }else if(data[prodIndex] === "Amazon Simple Storage Service") {
             s3Cost += Number(data[costIndex]);
-           if (bucketNames.indexOf(data[21]) >=0) {
+            if (bucketNames.indexOf(data[21]) >=0) {
                 var bucketCostMetricsObj = {};
                 bucketCostMetricsObj['usageCost'] = Number(data[costIndex]);
                 bucketCostMetricsObj['resourceId'] = data[21];
@@ -363,77 +365,77 @@ function getTotalCost(provider,callback)
 
 
 function getCostForServices(provider,callback) {
-        var cryptoConfig = appConfig.cryptoSettings;
-        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-        var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
-            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-        var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
-            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-        var cwConfig = {
-            access_key: decryptedAccessKey,
-            secret_key: decryptedSecretKey,
-            region:"us-east-1"
-        };
-        cw = new CW(cwConfig);
-        var endDate= new Date();
-        var startDate = new Date(endDate.getTime() - (1000*60*60*6));
-        var startDateOne = new Date(endDate.getTime() - (1000*60*60*24));
-        /*This the Dimension that is required to passed for different services*/
-        var ec2Dim = [ { Name: 'ServiceName',Value: 'AmazonEC2'},{ Name: 'Currency', Value: 'USD'} ];
-        var rdsDim = [ { Name: 'ServiceName',Value: 'AmazonRDS'},{ Name: 'Currency', Value: 'USD'} ];
-        var ec2Cost = 0, rdsCost = 0;
-        /*Getting the cost of EC2 & RDS for the current day*/
-        cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentCost)
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var cwConfig = {
+        access_key: decryptedAccessKey,
+        secret_key: decryptedSecretKey,
+        region:"us-east-1"
+    };
+    cw = new CW(cwConfig);
+    var endDate= new Date();
+    var startDate = new Date(endDate.getTime() - (1000*60*60*6));
+    var startDateOne = new Date(endDate.getTime() - (1000*60*60*24));
+    /*This the Dimension that is required to passed for different services*/
+    var ec2Dim = [ { Name: 'ServiceName',Value: 'AmazonEC2'},{ Name: 'Currency', Value: 'USD'} ];
+    var rdsDim = [ { Name: 'ServiceName',Value: 'AmazonRDS'},{ Name: 'Currency', Value: 'USD'} ];
+    var ec2Cost = 0, rdsCost = 0;
+    /*Getting the cost of EC2 & RDS for the current day*/
+    cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentCost)
+    {
+        if(err){
+            callback(err,null);
+        }
+        cw.getTotalCost(startDateOne,endDate,'Minimum',ec2Dim,function(err,yesterdayCost)
         {
             if(err){
                 callback(err,null);
             }
-            cw.getTotalCost(startDateOne,endDate,'Minimum',ec2Dim,function(err,yesterdayCost)
+            ec2Cost = presentCost['Maximum'] - yesterdayCost['Minimum'];
+        });
+        cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRdsCost)
+        {
+            if(err){
+                callback(err,null);
+            }
+            cw.getTotalCost(startDateOne,endDate,'Minimum',rdsDim,function(err,yesterdayRdsCost)
             {
                 if(err){
                     callback(err,null);
                 }
-                ec2Cost = presentCost['Maximum'] - yesterdayCost['Minimum'];
-            });
-            cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRdsCost)
-            {
-                if(err){
-                    callback(err,null);
-                }
-                cw.getTotalCost(startDateOne,endDate,'Minimum',rdsDim,function(err,yesterdayRdsCost)
-                {
+                rdsCost = presentRdsCost['Maximum'] - yesterdayRdsCost['Minimum'];
+                var awsResourceCostObject = {
+                    organisationId: provider.orgId,
+                    providerId: provider._id,
+                    providerType: provider.providerType,
+                    providerName: provider.providerName,
+                    resourceType: "serviceCost",
+                    resourceId: "serviceCost",
+                    aggregateResourceCost:ec2Cost + rdsCost,
+                    costMetrics : {
+                        ec2Cost:ec2Cost,
+                        rdsCost:rdsCost,
+                        currency:'USD',
+                        symbol:"$"
+                    },
+                    updatedTime : Date.parse(endDate),
+                    startTime: Date.parse(endDate),
+                    endTime: Date.parse(startDateOne)
+                };
+                resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
                     if(err){
                         callback(err,null);
+                    } else{
+                        callback(null,resourceCostData);
                     }
-                    rdsCost = presentRdsCost['Maximum'] - yesterdayRdsCost['Minimum'];
-                    var awsResourceCostObject = {
-                        organisationId: provider.orgId,
-                        providerId: provider._id,
-                        providerType: provider.providerType,
-                        providerName: provider.providerName,
-                        resourceType: "serviceCost",
-                        resourceId: "serviceCost",
-                        aggregateResourceCost:ec2Cost + rdsCost,
-                        costMetrics : {
-                            ec2Cost:ec2Cost,
-                            rdsCost:rdsCost,
-                            currency:'USD',
-                            symbol:"$"
-                        },
-                        updatedTime : Date.parse(endDate),
-                        startTime: Date.parse(endDate),
-                        endTime: Date.parse(startDateOne)
-                    };
-                    resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                        if(err){
-                            callback(err,null);
-                        } else{
-                            callback(null,resourceCostData);
-                        }
-                    })
-                });
+                })
             });
         });
+    });
 }
 
 function getEC2InstanceUsageMetrics(provider, instances, callback) {
@@ -563,36 +565,36 @@ function getS3BucketsMetrics(provider, buckets, callback) {
     var startTime = new Date(endTime.getTime() - (1000*60*60*24));
     for(var i = 0; i < buckets.length; i++) {
         (function(bucket) {
-                cw = new CW(amazonConfig);
-                async.parallel({
-                        BucketSizeBytes: function (callback) {
-                            cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, callback);
-                        },
-                        NumberOfObjects: function (callback) {
-                            cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, callback);
-                        }
+            cw = new CW(amazonConfig);
+            async.parallel({
+                    BucketSizeBytes: function (callback) {
+                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, callback);
                     },
-                    function (err, results) {
-                        if(err) {
-                            logger.error(err)
-                        } else {
-                            bucketUsageMetrics.push({
-                                providerId: provider._id,
-                                providerType: provider.providerType,
-                                orgId: provider.orgId[0],
-                                resourceId: bucket._id,
-                                platform: 'AWS',
-                                platformId: bucket.resourceDetails.bucketName,
-                                resourceType: 'S3',
-                                startTime: startTime,
-                                endTime: endTime,
-                                metrics: results
-                            });
-                        }
-                        if(bucketUsageMetrics.length == bucketWithMetrics) {
-                            callback(null, bucketUsageMetrics);
-                        }
-                    });
+                    NumberOfObjects: function (callback) {
+                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, callback);
+                    }
+                },
+                function (err, results) {
+                    if(err) {
+                        logger.error(err)
+                    } else {
+                        bucketUsageMetrics.push({
+                            providerId: provider._id,
+                            providerType: provider.providerType,
+                            orgId: provider.orgId[0],
+                            resourceId: bucket._id,
+                            platform: 'AWS',
+                            platformId: bucket.resourceDetails.bucketName,
+                            resourceType: 'S3',
+                            startTime: startTime,
+                            endTime: endTime,
+                            metrics: results
+                        });
+                    }
+                    if(bucketUsageMetrics.length == bucketWithMetrics) {
+                        callback(null, bucketUsageMetrics);
+                    }
+                });
         })(buckets[i]);
     }
 };
@@ -788,6 +790,78 @@ function getBucketsInfo(provider,orgName,callback) {
     })
 };
 
+function getEC2InstancesInfo(provider,orgName,callback) {
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var ec2Config = {
+        access_key: decryptedAccessKey,
+        secret_key: decryptedSecretKey
+    };
+    var regionCount = 0;
+    var regions = appConfig.aws.regions;
+    var awsInstanceList=[];
+    for (var i = 0; i < regions.length; i++) {
+        (function (region) {
+            ec2Config.region = region.region;
+            var ec2 = new EC2(ec2Config);
+            ec2.describeInstances(null, function(err, awsRes) {
+                if (err) {
+                    logger.error("Unable to fetch instances from aws", err);
+                    return;
+                }
+                var reservations = awsRes.Reservations;
+                if(reservations.length >0) {
+                    regionCount++;
+                    for (var j = 0; j < reservations.length; j++) {
+                        if (reservations[j].Instances && reservations[j].Instances.length) {
+                            var awsInstances = reservations[j].Instances;
+                            for (var k = 0; k < awsInstances.length; k++) {
+                                (function (instance) {
+                                    var tags = instance.Tags;
+                                    var tagInfo = {};
+                                    for (var l = 0; l < tags.length; l++) {
+                                        var jsonData = tags[l];
+                                        tagInfo[jsonData.Key] = jsonData.Value;
+                                    }
+                                    var instanceObj = {
+                                        orgId: provider.orgId[0],
+                                        orgName:orgName,
+                                        providerId: provider._id,
+                                        providerType: 'aws',
+                                        providerData: region,
+                                        platformId: instance.InstanceId,
+                                        ip: instance.PublicIpAddress || instance.PrivateIpAddress,
+                                        os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
+                                        state: instance.State.Name,
+                                        network:{
+                                            subnet:instance.SubnetId,
+                                            vpc:instance.VpcId
+                                        },
+                                        tags:tagInfo,
+                                        environmentTag:tagInfo.Environment,
+                                        projectTag:tagInfo.Owner
+                                    }
+                                    awsInstanceList.push(instanceObj);
+                                    instanceObj = {};
+                                })(awsInstances[k]);
+                            }
+                        }
+                    }
+                }else{
+                    regionCount++;
+                }
+                if (regionCount === regions.length) {
+                    callback(null, awsInstanceList);
+                }
+            });
+        })(regions[i]);
+    }
+};
+
 function getRDSInstancesInfo(provider,orgName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -946,7 +1020,7 @@ function bulkUpdateResourceProviderTags(provider, bulkResources, callback){
 }
 
 function bulkUpdateUnassignedResourceTags(bulkResources, callback){
-   for (var i = 0; i < bulkResources.length; i++) {
+    for (var i = 0; i < bulkResources.length; i++) {
         (function(j) {
             var params = {
                 '_id': bulkResources[j].id
