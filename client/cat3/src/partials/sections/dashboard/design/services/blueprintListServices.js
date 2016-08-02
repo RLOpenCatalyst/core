@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('design.BpList',[])
-        .service('blueprintService',['$rootScope','$http','$q','toastr','$state','$modal','designServices',function ($rootScope,$http,$q,toastr,$state,$modal,designServices) {
+        .service('blueprintService',['$rootScope','$http','$q','toastr','$state','$modal','confirmbox','designServices',function ($rootScope,$http,$q,toastr,$state,$modal,confirmbox,designServices) {
             var bpServ={};
             bpServ.createList = function(){
                 var organObjectId=[];
@@ -40,11 +40,11 @@
                         }
                     };
                     designServices.promisePost(params).then(function () {
-                        toastr.success('Successfully launched that blueprint');
+                        toastr.success('Successfully launched.');
                     });
                 });
             };
-            bpServ.copyBp = function (id) {
+            bpServ.copyBp = function (ids) {
                 $modal.open({
                     animate: true,
                     templateUrl: "src/partials/sections/dashboard/design/view/popups/blueprintCopy.html",
@@ -54,21 +54,46 @@
                     resolve: {
                         bpItem: function() {
                             return {
-                                id:id,
+                                ids:ids,
                                 organObject:$rootScope.organObject
                             }
                         }
                     }
-                }).result.then(function(env) {
+                }).result.then(function(orgDetails) {
                     var params = {
-                        url: '/blueprint-frames/',
+                        url: '/blueprints/copy/',
                         data:{
-                            "blueprintId": id,
-                            "environmentId": env
+                            "orgid": $rootScope.organObject[orgDetails.copyOrg].rowid,
+                            "buid": $rootScope.organObject[orgDetails.copyOrg].businessGroups[orgDetails.copyBuss].rowid,
+                            "projid": $rootScope.organObject[orgDetails.copyOrg].businessGroups[orgDetails.copyBuss].projects[orgDetails.copyProj].rowid,
+                            "blueprints":ids
                         }
                     };
                     designServices.promisePost(params).then(function () {
-                        toastr.success('Successfully launched that blueprint');
+                        toastr.success('Successfully copied.');
+                    });
+                });
+            };
+            bpServ.deleteBp = function (ids) {
+                var modalOptions = {
+                    closeButtonText: 'Cancel',
+                    actionButtonText: 'Delete',
+                    actionButtonStyle: 'cat-btn-delete',
+                    headerText: 'Delete  Blueprint',
+                    bodyText: 'Are you sure you would like to remove the selected blueprints ?'
+                };
+                confirmbox.showModal({}, modalOptions).then(function() {
+                    var params = {
+                        url: '/blueprints',
+                        data:{
+                            "blueprints":ids
+                        }
+                    };
+                    designServices.promiseDelete(params).then(function(){
+                        angular.each(ids,function (val,ind) {
+                            angular.element('#'+val).hide();
+                        });
+                        toastr.success('Successfully deleted');
                     });
                 });
             };

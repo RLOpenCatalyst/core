@@ -47,8 +47,8 @@
 					$rootScope.templateTypes=template;
 					var treeNames=['DESIGN', $state.params.subItem,template[0].templateName,'list'];
 					$rootScope.$emit('treeNameUpdate', treeNames);
-					$state.go('dashboard.designSubView',{subItem:providers[0].name,view:'list',templateId:template[0]._id,templateName:template[0].templatetypename});
-					
+					$state.go('dashboard.designSubView',{subItem:providers[0].name,view:'list',templateObj:template[0]});
+
 				});
 				// get organigetion
 				genericServices.getTreeNew().then(function (orgs) {
@@ -60,33 +60,19 @@
 	}]).controller('designSubItemCtrl',['$rootScope','$scope','$state','designServices','blueprintService', function ($rootScope,$scope,$state,designServices,blueprintService) {
 			var subDes=this;
 			$rootScope.stateItems=$state;
-			$scope.isOpenSidebar = false;
+			$rootScope.isOpenSidebar = false;
 			subDes.selectedCards=[];
 			subDes.newEnt=[];
-			var treeNames=['DESIGN', $state.params.subItem,$state.params.templateName,$state.params.view];
+			var treeNames=['DESIGN', $state.params.subItem,$state.params.templateObj.templatetypename,$state.params.view];
 			$rootScope.$emit('treeNameUpdate', treeNames);
+			if($state.params.view === 'list'){
+				$rootScope.stateItems.current.params.blueId = null;
+			}
 			$rootScope.organNewEnt=[];
 			$rootScope.organNewEnt.org = '0';
 			$rootScope.organNewEnt.buss='0';
 			$rootScope.organNewEnt.proj='0';
-			subDes.selectCard = function (cardObj){
-				subDes[cardObj.id] = !subDes[cardObj.id];
-				if(subDes.selectedCards.indexOf(cardObj.id) === -1){
-					subDes.selectedCards.push(cardObj.id);
-				} else {
-					subDes.selectedCards.splice(subDes.selectedCards.indexOf(cardObj.id),1);
-				}
 
-			};
-			subDes.copyBp =function($event,pbId){
-				blueprintService.copyBp(pbId);
-			};
-			subDes.editBlueprint =function($event,pbId){
-				$event.stopPropagation();
-				$rootScope.stateItems.current.params.blueId=pbId;
-				$state.go('dashboard.designSubView',{subItem:$state.params.subItem,view:'edit'});
-
-			};
 			subDes.cancelEdit = function () {
 				$rootScope.stateItems.current.params.blueId=null;
 				$state.go('dashboard.designSubView',{subItem:$state.params.subItem,view:'list'});
