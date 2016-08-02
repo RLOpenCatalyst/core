@@ -126,6 +126,7 @@ $(".modal").on("hidden.bs.modal", function(){
 });
 
 $('#scriptListTable tbody').on( 'click', 'button.editRowScriptItem', function(){
+    validator.resetForm();
     var $this = $(this);
     var $tr = $(this).parents('tr.scriptItemRow');
     var $editModal = $('#modalForScriptEdit');
