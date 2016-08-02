@@ -1646,7 +1646,6 @@ var InstancesDao = function() {
         if (!nodeNames) {
             nodeNames = [];
         }
-        logger.debug('serverId -->', chefServerId);
         Instances.find({
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
@@ -1660,12 +1659,10 @@ var InstancesDao = function() {
                 logger.error("getInstancesFilterByNotChefServerIdAndNodeNames", err);
                 callback(err, null);
                 return;
-            }
-            logger.debug("Exit getInstancesFilterByNotChefServerIdAndNodeNames ");
-            if (data) {
+            }else if(data){
                 callback(null, data);
             } else {
-                callback(null, null);
+                callback(null, []);
             }
         });
     };
@@ -2058,6 +2055,15 @@ var InstancesDao = function() {
         );
     };
 
+    this.getAllTerminatedInstances = function(orgId,callback) {
+        Instances.find({"orgId":orgId,"instanceState":"terminated"}, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
 };
 
 module.exports = new InstancesDao();

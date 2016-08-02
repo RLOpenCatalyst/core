@@ -97,7 +97,9 @@ function getDefaultsConfig() {
                 "taskLogs":"timestampStarted",
                 "unassignedInstances":"state",
                 "unassignedInstances":"state",
-                "scripts":"name"
+                "scripts":"name",
+                "unassignedInstances":"state",
+                "chefNodes":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,

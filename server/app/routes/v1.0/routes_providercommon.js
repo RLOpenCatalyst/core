@@ -39,6 +39,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var SSHExec = require('_pr/lib/utils/sshexec');
 // @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/providers/*", sessionVerificationFunc);
@@ -383,70 +384,66 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 if (unmanagedInstance.os === 'windows') {
                                                     openport = 5985;
                                                 }
-
                                                 waitForPort(unmanagedInstance.ip, openport, function(err) {
                                                     if (err) {
                                                         logger.debug(err);
                                                         updateTaskStatusNode(unmanagedInstance.platformId, "Unable to ssh/winrm into instance " + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
                                                         return;
                                                     }
-                                                    MasterUtils.getParticularProject(req.body.projectId, function(err, project) {
+                                                    var nodeDetails = {
+                                                        nodeIp : unmanagedInstance.ip,
+                                                        nodeOs:unmanagedInstance.os,
+                                                        nodeName:unmanagedInstance.platformId,
+                                                        nodeEnv:req.body.environmentName
+                                                    }
+                                                    checkNodeCredentials(credentials,nodeDetails,function(err,credentialStatus) {
                                                         if (err) {
-
-                                                            res.status(500).send({
-                                                                message: "Failed to get project via project id"
+                                                            logger.error(err);
+                                                            res.status(400).send({
+                                                                message: "Invalid Credentials"
                                                             });
                                                             return;
-                                                        };
-                                                        if (project.length === 0) {
-
-                                                            res.status(500).send({
-                                                                message: "Unable to find Project Information from project id"
-                                                            });
-                                                            return;
-                                                        }
-
-                                                        var instance = {
-                                                            name: unmanagedInstance.platformId,
-                                                            orgId: req.body.orgId,
-                                                            orgName: project[0].orgname,
-                                                            bgName: project[0].productgroupname,
-                                                            environmentName: envName,
-                                                            bgId: req.body.bgId,
-                                                            projectId: req.body.projectId,
-                                                            //Added by Durgesh For Project Name
-                                                            projectName: req.body.projectName,
-                                                            //End By Durgesh
-                                                            envId: req.body.envId,
-                                                            providerId: provider._id,
-                                                            providerType: 'aws',
-                                                            providerData: {
-                                                                region: unmanagedInstance.providerData.region
-                                                            },
-                                                            chefNodeName: unmanagedInstance.platformId,
-                                                            runlist: [],
-                                                            platformId: unmanagedInstance.platformId,
-                                                            appUrls: appUrls,
-                                                            instanceIP: unmanagedInstance.ip,
-                                                            instanceState: unmanagedInstance.state,
-                                                            bootStrapStatus: 'waiting',
-                                                            hardware: {
-                                                                platform: 'unknown',
-                                                                platformVersion: 'unknown',
-                                                                architecture: 'unknown',
-                                                                memory: {
-                                                                    total: 'unknown',
-                                                                    free: 'unknown',
+                                                        } else if (credentialStatus) {
+                                                            var instance = {
+                                                                name: unmanagedInstance.platformId,
+                                                                orgId: req.body.orgId,
+                                                                orgName: req.body.orgName,
+                                                                bgName: req.body.bgName,
+                                                                environmentName: req.body.environmentName,
+                                                                bgId: req.body.bgId,
+                                                                projectId: req.body.projectId,
+                                                                projectName: req.body.projectName,
+                                                                envId: req.body.envId,
+                                                                providerId: provider._id,
+                                                                providerType: 'aws',
+                                                                providerData: {
+                                                                    region: unmanagedInstance.providerData.region
                                                                 },
-                                                                os: unmanagedInstance.os
-                                                            },
-                                                            credentials: encryptedCredentials,
-                                                            blueprintData: {
-                                                                blueprintName: unmanagedInstance.platformId,
-                                                                templateId: "chef_import",
-                                                                iconPath: "../private/img/templateicons/chef_import.png"
-                                                            }
-                                                        };
+                                                                chefNodeName: unmanagedInstance.platformId,
+                                                                runlist: [],
+                                                                platformId: unmanagedInstance.platformId,
+                                                                appUrls: appUrls,
+                                                                instanceIP: unmanagedInstance.ip,
+                                                                instanceState: unmanagedInstance.state,
+                                                                network:unmanagedInstance.network,
+                                                                bootStrapStatus: 'waiting',
+                                                                hardware: {
+                                                                    platform: 'unknown',
+                                                                    platformVersion: 'unknown',
+                                                                    architecture: 'unknown',
+                                                                    memory: {
+                                                                        total: 'unknown',
+                                                                        free: 'unknown',
+                                                                    },
+                                                                    os: unmanagedInstance.os
+                                                                },
+                                                                credentials: encryptedCredentials,
+                                                                blueprintData: {
+                                                                    blueprintName: unmanagedInstance.platformId,
+                                                                    templateId: "chef_import",
+                                                                    iconPath: "../private/img/templateicons/chef_import.png"
+                                                                }
+                                                            };
 
                                                         if (infraManagerDetails.configType === 'chef') {
                                                             instance.chef = {
@@ -481,10 +478,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                             var instanceLog = {
                                                                 actionId: actionLog._id,
                                                                 instanceId: instance.id,
-                                                                orgName: project[0].orgname,
-                                                                bgName: project[0].productgroupname,
-                                                                projectName: project[0].projectname,
-                                                                envName: envName,
+                                                                orgName: req.body.orgName,
+                                                                bgName: req.body.bgName,
+                                                                projectName: req.body.projectname,
+                                                                envName: req.body.environmentName,
                                                                 status: unmanagedInstance.state,
                                                                 actionStatus: "waiting",
                                                                 platformId: unmanagedInstance.platformId,
@@ -901,33 +898,60 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                 unmanagedInstance.remove({});
 
                                                             });
-
-
                                                         });
+                                                        }else{
+                                                            updateTaskStatusNode(unmanagedInstance.platformId, "The username or password/pemfile you entered is incorrect " + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
+                                                            return;
+                                                        }
                                                     });
                                                 });
 
                                             })(unmanagedInstances[i])
                                         }
-
                                         res.status(200).send({
                                             taskId: taskstatus.getTaskId()
                                         });
                                     });
-
-
                                 });
-
-
-
                             });
                         }
                     });
-
-
                 });
             });
         });
+        function checkNodeCredentials(credentials,nodeDetail,callback){
+            if(nodeDetail.nodeOs !== 'windows') {
+                var sshOptions = {
+                    username: credentials.username,
+                    host: nodeDetail.nodeIp,
+                    port: 22,
+                }
+                if (credentials.pemFileLocation) {
+                    sshOptions.privateKey = credentials.pemFileLocation;
+                    sshOptions.pemFileData = credentials.pemFileData;
+                } else {
+                    sshOptions.password = credentials.password;
+                }
+                var sshExec = new SSHExec(sshOptions);
+
+                sshExec.exec('echo Welcome', function (err, retCode) {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    } else if (retCode === 0) {
+                        callback(null, true);
+                    } else {
+                        callback(null, false);
+                    }
+                }, function (stdOut) {
+                    logger.debug(stdOut.toString('ascii'));
+                }, function (stdErr) {
+                    logger.error(stdErr.toString('ascii'));
+                });
+            } else {
+                callback(null, true);
+            }
+        }
     });
 
     /*app.param('providerId', providerService.providerExists);

@@ -247,10 +247,21 @@ UnassignedInstancesSchema.statics.removeInstancesByProviderId = function(provide
     });
 };
 
+
 UnassignedInstancesSchema.statics.removeInstanceById = function(instanceId,callback) {
     this.remove({
         _id: new ObjectId(instanceId)
-    }, function(err, data) {
+    }, function (err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+UnassignedInstancesSchema.statics.getAllTerminatedInstances = function(orgId,callback) {
+    this.find({"orgId":orgId,"state":"terminated"}, function(err, data) {
         if (err) {
             return callback(err, null);
         } else {
@@ -278,7 +289,6 @@ UnassignedInstancesSchema.statics.getInstancesByProviderIdOrgIdAndPlatformId = f
         }
     );
 };
-
 
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);
 module.exports = UnassignedInstances;
