@@ -21,6 +21,7 @@ var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 
+
 const errorType = 'scriptService';
 
 var scriptService = module.exports = {};
@@ -128,7 +129,14 @@ scriptService.getScriptById=function getScriptById(scriptId,callback){
 scriptService.removeScriptById=function removeScriptById(scriptId,callback){
     async.waterfall([
         function(next){
-            script.getScriptById(scriptId,next);
+            checkScriptAssociatedWithTask(scriptId,next);
+        },
+        function(taskStatus,next){
+            if(taskStatus) {
+                next({message:"Script already associated with Some Task.To delete script please delete respective Task first.",code:403},null);
+            }else{
+                script.getScriptById(scriptId, next);
+            }
         },
         function(scripts,next){
             if(scripts.length > 0){
@@ -219,4 +227,39 @@ function addFileDetailsForScripts(scripts,callback){
           })(scripts.docs[i]);
       }
   }
+}
+
+function checkScriptAssociatedWithTask(scriptId,callback){
+    var taskDao = require('_pr/model/classes/tasks/tasks.js');
+    taskDao.getScriptTypeTask(function(err,tasks){
+        if(err){
+            callback(err,null);
+            return;
+        }else if(tasks.length > 0){
+            var count = 0;
+            var checkTaskStatus =false;
+            for(var i = 0; i < tasks.length; i++){
+                (function(task){
+                    count++;
+                    for(var j = 0;j < task.taskConfig.scriptDetails.length;j++){
+                        (function(scriptDetails){
+                            if(scriptDetails.scriptId === scriptId){
+                                checkTaskStatus = true;
+                                return;
+                            }else{
+                                return;
+                            }
+                        })(task.taskConfig.scriptDetails[j]);
+                    }
+                })(tasks[i]);
+            }
+            if(count === tasks.length){
+                callback(null,checkTaskStatus);
+            }
+
+        }else{
+            callback(null,checkTaskStatus);
+        }
+    });
+
 }
