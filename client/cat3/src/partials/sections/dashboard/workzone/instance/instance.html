@@ -19,7 +19,7 @@
                 </button>
             </span>
 			<span class="pull-right">
-                <button type="button" title="Filters" class="btn btn-xs cat-btn-update" ng-click="fnShowFilters()">
+                <button type="button" title="Filters" class="btn btn-xs cat-btn-update" ng-click="fnShowFilters()" ng-show="instanceList.length > 0">
 					<i class="fa fa-fw fa-filter white"></i>
 				</button>
                 <button type="button" title="Import By Ip" class="btn btn-xs cat-btn-update" 
@@ -46,42 +46,50 @@
             <!-- /.box-header -->
             <div class="box-body form-horizontal">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                                                <div class="form-group">
-                                <label for="selectState" class="col-sm-3 control-label">Provider:</label>
+                                <label for="selectProvider" class="col-sm-3 control-label">Provider:</label>
                                 <div class="col-sm-9">
-                                    <select class="form-control select2 select2-hidden-accessible" id="selectState" ng-model="filter.state">
-                                        <option selected="selected" value=''>All</option>
-                                        <option ng-value="running">Running</option>
-                                        <option ng-value="stopped">Stopped</option>
-                                        <option ng-value="terminated">Terminated</option>
-                                    </select>
+                                    <select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="filter.providerId" ng-options="provider._id as provider.providerName for provider in providers" ng-change="fnProviderChange()">
+                                        <option value=''>All</option>
+                                   </select>
                                 </div>
                             </div>                                        
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-1 loader-container">
+                       <span ng-show="providerLoading">
+                        <i class="fa fa-spinner fa-pulse fa-fw black"></i> 
+                       </span>
+                    </div>
+                    <div class="col-md-3">
                         <div class="form-group">
-                                <label for="selectState" class="col-sm-3 control-label">Region:</label>
+                                <label for="selectRegion" class="col-sm-3 control-label">Region:</label>
                                 <div class="col-sm-9">
-                                    <select class="form-control select2 select2-hidden-accessible" id="selectMonitoring" ng-model="filter.monitoring">
-                                        <option selected="selected" value=''>All</option>
-                                        <option ng-value="true">Yes</option>
-                                        <option ng-value="false">No</option>
+                                    <select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
+                                        <option value=''>All</option>
                                     </select>
                                 </div>
                             </div> 
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-1 loader-container">
+                       <span ng-show="regionLoading">
+                        <i class="fa fa-spinner fa-pulse fa-fw black"></i> 
+                       </span>
+                    </div>
+                    <div class="col-md-3">
                        <div class="form-group">
-                                <label for="selectState" class="col-sm-3 control-label">VPC:</label>
+                                <label for="selectVPC" class="col-sm-3 control-label">VPC:</label>
                                 <div class="col-sm-9">
-                                    <select class="form-control select2 select2-hidden-accessible" id="selectRemediation" ng-model="filter.remediation">
-                                        <option selected="selected" value=''>All</option>
-                                        <option ng-value="true">Yes</option>
-                                        <option ng-value="false">No</option>
+                                    <select class="form-control select2 select2-hidden-accessible" id="selectVPC" ng-options="vpc.VpcId as vpc.VpcId +' ('+vpc.CidrBlock+')' for vpc in vpcs" ng-model="filter.vpcId">
+                                        <option value=''>All</option>
                                     </select>
                                 </div>
                             </div> 
+                    </div>
+                    <div class="col-md-1">
+                       <button type="button" title="Search" class="btn btn-xs cat-btn-update" ng-click="fnSearchFilters()">
+					<i class="fa fa-fw fa-filter white"></i>
+				</button>
                     </div>
                 </div>
                 <!-- /.row -->

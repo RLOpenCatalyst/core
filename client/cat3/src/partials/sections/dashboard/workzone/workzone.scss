@@ -26,14 +26,19 @@
         border-top-color: #d2d6de;
         &.instance-filter {
             height: 0;
-            transition: all 2s;
-            position: relative;
+            transition: height 1s;
+            position: absolute;
             overflow: hidden;
             border: none;
             border: 1px solid #d2d6de;
             margin-top: 2px;
+            width: 80%;
+            right: 5px;
+            z-index: 2;
+            opacity: 0;
             &.active {
-                height: 120px;
+                height: 110px;
+                opacity: 1;
             }
             .box-header {
                 background: #F3F3F3;
@@ -43,6 +48,13 @@
             }
             .box-body {
                 background: #fff;
+                .cat-btn-update{
+                    margin-top: 5px;
+                }
+                .loader-container{
+                    padding: 0;
+                    margin-top: 5px;
+                }
             }
         }
     }
