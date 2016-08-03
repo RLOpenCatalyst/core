@@ -56,9 +56,10 @@
                            </div>
                            <div class="col-lg-6 col-md-6">
                               <label for="providerId">Choose Provider:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isOSLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.providers" name="providerId" class="required chooseOSProvider width-100 form-control" ng-change="bpCreate.getAWSProviderImage();" ng-disabled="isOSImage">
+                              <select name="providerId" ng-model="bpCreate.newEnt.providers" class="chooseOSProvider width-100 form-control" ng-change="bpCreate.getAWSProviderImage();" ng-disabled="isOSImage" required>
                                  <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" value="">Select Provider</option>
                                  <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
                                  <option ng-if="templateSelected.osType" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
@@ -66,9 +67,10 @@
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
                               <label for="imageId">Choose Available Images:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.imageId.$touched && newBlueprintForm.imageId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isImageLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.images" name="imageId" class="required chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();" ng-disabled="isOSImage">
+                              <select ng-model="bpCreate.newEnt.images" name="imageId" class="chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();" ng-disabled="isOSImage" required>
                                  <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" value="">Select Image</option>
                                  <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
                                   <option ng-if="templateSelected.osType" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
@@ -76,50 +78,56 @@
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
                               <label for="region">Choose Region:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.region.$touched && newBlueprintForm.region.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.region" name="region" class="required chooseSecurity width-100 form-control" ng-change="bpCreate.postVpcs();">
+                              <select ng-model="bpCreate.newEnt.region" name="region" class="chooseSecurity width-100 form-control" ng-change="bpCreate.postVpcs();" required>
                                  <option value="">Select Region</option>
                                  <option value="{{bpCreate.regionListing}}">{{bpCreate.regionListing}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
                               <label for="vpcId">Choose VPC:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.vpcId.$touched && newBlueprintForm.vpcId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isVPCLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.vpcId" name="vpcId" class="required chooseSelect chooseImage width-100 form-control" ng-change="bpCreate.postSubnets();">
+                              <select ng-model="bpCreate.newEnt.vpcId" name="vpcId" class="chooseSelect chooseImage width-100 form-control" ng-change="bpCreate.postSubnets();" required>
                                  <option value="">Select VPC</option>
                                  <option ng-repeat="vpcDetails in bpCreate.vpcListing" value="{{vpcDetails.VpcId}}">{{vpcDetails.VpcId}} ({{vpcDetails.CidrBlock}}) {{vpcDetails.Tags[0].Value}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
                               <label for="subnetId">Choose Subnet:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.subnetId.$touched && newBlueprintForm.subnetId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isSubnetLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.subnetId" name="subnetId" class="required chooseSelect chooseImage width-100 form-control" ng-change="bpCreate.postSecurityGroups();">
+                              <select ng-model="bpCreate.newEnt.subnetId" name="subnetId" class="chooseSelect chooseImage width-100 form-control" ng-change="bpCreate.postSecurityGroups();" required>
                                  <option value="">Select Subnet</option>
                                  <option ng-repeat="subnetDetails in bpCreate.subnetListing" value="{{subnetDetails.SubnetId}}">{{subnetDetails.SubnetId}} ({{subnetDetails.AvailabilityZone}}) | {{subnetDetails.Tags[0].Value}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
-                              <label for="keypairId">Choose KeyPair :<span class="red">&nbsp;*</span><loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              <label for="keypairId">Choose KeyPair:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.keypairId.$touched && newBlueprintForm.keypairId.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.keyPair" name="keypairId" class="required instanceType chooseInstance width-100 form-control">
+                              <select ng-model="bpCreate.newEnt.keyPair" name="keypairId" class="instanceType chooseInstance width-100 form-control" required>
                                  <option value="">Select KeyPair </option>
                                  <option value="{{bpCreate.keyPairListing}}">{{bpCreate.keyPairListing}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
-                              <label for="instancesize">Instance Type:<span class="control-label redSpan">&nbsp;*</span>
+                              <label for="instancesize">Instance Type:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.instancesize.$touched && newBlueprintForm.instancesize.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isInstanceTypeLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.instanceType" name="instancesize" class="required chooseOrganization width-100 chooseSelect form-control">
+                              <select ng-model="bpCreate.newEnt.instanceType" name="instancesize" class="chooseOrganization width-100 chooseSelect form-control" required>
                                  <option value="">Select Instanace Type</option>
                                  <option ng-repeat="instanceType in bpCreate.instanceType[0].hvm" value="{{instanceType}}">{{instanceType}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
-                              <label for="checkbox-toggle">Security Group:<span class="control-label redSpan">&nbsp;*</span>
+                              <label for="checkbox-toggle">Security Group:<span class="red">&nbsp;*</span>
                                  <loading size="small" name="isSecurityGroupLoading" type="inline"></loading>
                               </label>
                               <div class="col-lg-6 securityGroupComponent">
@@ -130,9 +138,10 @@
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
                               <label for="instanceCount">Instances to Launch:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.instanceCount.$touched && newBlueprintForm.instanceCount.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isImageLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="required chooseOrganization width-100 chooseSelect form-control" style="vertical-align:central">
+                              <select ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="chooseOrganization width-100 chooseSelect form-control" required>
                                  <option value="">Select No. Of Instances</option>
                                  <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
                               </select>
@@ -146,29 +155,34 @@
                               Configure Organization Parameters
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6">
-                              <label for="orgnameSelect">Choose Organization <span class="red">&nbsp;*</span></label>
-                              <select ng-model="bpCreate.newEnt.orgList" name="orgnameSelect" class="required chooseOrgselect2 width-100 form-control" ng-change="bpCreate.getBG();">
+                              <label for="orgnameSelect">Choose Organization <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.orgnameSelect.$touched && newBlueprintForm.orgnameSelect.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.orgList" name="orgnameSelect" class="chooseOrgselect2 width-100 form-control" ng-change="bpCreate.getBG();" required>
                                  <option value="">Select Organization</option>
                                  <option ng-repeat="config in bpCreate.orgBUProjListing" value="{{config.orgid}}">{{config.name}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6">
                               <label for="blueprintNameInput">Enter Blueprint Name:<span class="red"  >&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.blueprintNameInput.$touched && newBlueprintForm.blueprintNameInput.$invalid" class="inputValidationMsg">Required</span>
                               </label>
-                              <input ng-model="bpCreate.newEnt.blueprintName" name="blueprintNameInput" class="required form-control" type="text" autofocus="autofocus">
+                              <input ng-model="bpCreate.newEnt.blueprintName" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
                               <label for="bgListInput">Choose Business Group <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.bgListInput.$touched && newBlueprintForm.bgListInput.$invalid" class="inputValidationMsg">Required</span>
                               </label>
-                              <select ng-model="bpCreate.newEnt.bgList" name="bgListInput" class="required chooseBG width-100 form-control" ng-change="bpCreate.getProject();">
+                              <select ng-model="bpCreate.newEnt.bgList" name="bgListInput" class="chooseBG width-100 form-control" ng-change="bpCreate.getProject();" required>
                                  <option value="">Select Business Group</option>
                                  <option ng-repeat="config in bpCreate.bgListing" value="{{config.businessGroups[0].rowid}}">{{config.businessGroups[0].name}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
                               <label for="projectListInput">Choose Project <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.projectList.$touched && newBlueprintForm.projectList.$invalid" class="inputValidationMsg">Required</span>
                               </label>
-                              <select ng-model="bpCreate.newEnt.projectList" name="projectListInput" class="required chooseProject width-100 form-control" ng-change="bpCreate.enableAppDeploy();">
+                              <select ng-model="bpCreate.newEnt.projectList" name="projectListInput" class="chooseProject width-100 form-control" ng-change="bpCreate.enableAppDeploy();" required>
                                  <option value="">Select Project</option>
                                  <option ng-repeat="config in bpCreate.projListing" value="{{config.businessGroups[0].projects[0].rowid}}">{{config.businessGroups[0].projects[0].name}}</option>
                               </select>
@@ -403,17 +417,20 @@
                               Configure Stack Parameters
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6">
-                              <label for="orgnameSelect">Choose Provider <span class="red">&nbsp;*</span></label>
-                              <select ng-model="bpCreate.newEnt.providers" name="providerId" class="required chooseOSProvider width-100 form-control" ng-change="bpCreate.getAWSProviderImage();" ng-disabled="isOSImage">
+                              <label for="orgnameSelect">Choose Provider <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.providers" name="providerId" class="chooseOSProvider width-100 form-control" ng-change="bpCreate.getAWSProviderImage();" ng-disabled="isOSImage" required>
                                  <option value="">Select Provider</option>
                                  <option ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6">
                               <label for="region">Choose Region:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.region.$touched && newBlueprintForm.region.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.region" name="region" class="required chooseSecurity width-100 form-control">
+                              <select ng-model="bpCreate.newEnt.region" name="region" class="chooseSecurity width-100 form-control" required>
                                  <option value="">Select Region</option>
                                  <option value="{{bpCreate.regionListing}}">{{bpCreate.regionListing}}</option>
                               </select>
@@ -422,9 +439,10 @@
                               <label for="cftResources">{{key}}<span class="red">&nbsp;*</span>&nbsp;&nbsp;<span title="{{value.Description}}"><i class="fa fa-question-circle"></i></span></label>
                               <input type="text" name="resource" class="form-control" required  value="{{value.Default}}"/>
                            </div>
-
-                           <accordion>
-                              <accordion-group ng-repeat="(key,value) in getCFTDetails.Resources">
+                           <div class="accordionClear"></div>
+                           <br/>
+                           <accordion ng-repeat="(key,value) in getCFTDetails.Resources">
+                              <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                                  <accordion-heading>
                                     <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                     Configure Resource : {{key}}

@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.design')
-        .controller('blueprintCreateCtrl',['$scope','$rootScope','$http','$q','toastr','$state','designServices', 'blueprintCreateService', function ($scope,$rootScope,$http,$q,toastr,$state,desServ,bpCreateSer) {
+        .controller('blueprintCreateCtrl',['$scope','$rootScope','$http','$q','toastr','$state','designServices', 'blueprintCreateService','confirmbox', function ($scope,$rootScope,$http,$q,toastr,$state,desServ,bpCreateSer,confirmbox) {
             var blueprintCreation = this;
             //to get the templates listing.
             $scope.bpType = $state.params.templateName;
@@ -334,13 +334,23 @@
                 var reqBody = {
                     blueprintData: blueprintCreateJSON
                 };
-                console.log(reqBody);
-                bpCreateSer.postBlueprintSave(blueprintCreateJSON.orgId,blueprintCreateJSON.bgId,blueprintCreateJSON.projectId,reqBody).then(function(){
-                    if($scope.bpType == 'OSImage'){
-                        toastr.success('OSImage Blueprint Created');
-                    } else {
-                        toastr.success('success');
-                    }
+                var modalOptions = {
+                    closeButtonText: 'Cancel',
+                    actionButtonText: 'Submit',
+                    actionButtonStyle: 'bp-btn-create',
+                    headerText: 'Confirm Blueprint Creation',
+                    bodyText: 'Are you sure want to submit this Blueprint Data? Press Ok to Continue'
+                };
+                confirmbox.showModal({}, modalOptions).then(function() {
+                    bpCreateSer.postBlueprintSave(blueprintCreateJSON.orgId,blueprintCreateJSON.bgId,blueprintCreateJSON.projectId,reqBody).then(function(){
+                        if($scope.bpType == 'OSImage'){
+                            toastr.success('OSImage Blueprint Created Successfully');
+                        } else {
+                            toastr.success('Software Blueprint Created Successfully');
+                        }
+                    }, function(data) {
+                        toastr.error('error:: ' + data.toString());
+                    });
                 });
             };
     }]);
