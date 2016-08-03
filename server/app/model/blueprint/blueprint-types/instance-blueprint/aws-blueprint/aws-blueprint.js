@@ -223,7 +223,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 							attributes: paramAttributes,
 							platformId: instanceData.InstanceId,
 							appUrls: launchParams.appUrls,
-							instanceIP: instanceData.PublicIpAddress || instanceData.PrivateIpAddress,
+							instanceIP: instanceData.PublicIpAddress || null,
 							instanceState: instanceData.State.Name,
 							bootStrapStatus: 'waiting',
 							users: launchParams.users,
@@ -237,12 +237,9 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 								},
 								os: self.instanceOS
 							},
-							network: {
-								vpcId: instanceData.VpcId,
-								subnetId: instanceData.SubnetId,
-								privateIpAddress: instanceData.PrivateIpAddress,
-								publicIpAddress: instanceData.PublicIpAddress || null
-							},
+							vpcId: instanceData.VpcId,
+							subnetId: instanceData.SubnetId,
+							privateIpAddress: instanceData.PrivateIpAddress,
 							credentials: {
 								username: anImage.userName,
 								pemFileLocation: encryptedPemFileLocation,
