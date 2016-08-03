@@ -189,7 +189,10 @@ function sync() {
 																					removeTerminateInstance(instances[n]._id,instances[n].instanceState, 'managed');
 																				} else {
 																					if (instances[n].instanceState === 'running') {
-																						instances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+																						instances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
+																						instances[n].privateIpAddress = awsInstances[m].PrivateIpAddress;
+																						instances[n].vpcId = awsInstances[m].VpcId;
+																						instances[n].subnetId = awsInstances[m].SubnetId;
 																					}
 
 																					if (assignmentFound) {
@@ -223,8 +226,13 @@ function sync() {
 																						removeTerminateInstance(unManagedInstances[n]._id,unManagedInstances[n].state, 'assigned');
 																					} else {
 																						if (unManagedInstances[n].state === 'running') {
-																							unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+																							unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || null;
+																							unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
+																							unManagedInstances[n].privateIpAddress = awsInstances[m].PrivateIpAddress;
+																							unManagedInstances[n].vpcId = awsInstances[m].VpcId;
+																							unManagedInstances[n].subnetId = awsInstances[m].SubnetId;
 																						}
+
 																						unManagedInstances[n].projectId = catalystProjectId;
 																						unManagedInstances[n].projectName = catalystProjectName;
 																						unManagedInstances[n].environmentId = catalystEnvironmentId;
@@ -265,7 +273,7 @@ function sync() {
 																						region: region
 																					},
 																					platformId: awsInstances[m].InstanceId,
-																					ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
+																					ip: awsInstances[m].PublicIpAddress || null,
 																					os: os,
 																					state: awsInstances[m].State.Name,
 																					tags: tagInfo
@@ -284,7 +292,10 @@ function sync() {
 																						unassignedInstances[n].remove();
 																					} else {
 																						if (unassignedInstances[n].state === 'running') {
-																							unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress;
+																							unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
+																							unassignedInstances[n].privateIpAddress = awsInstances[m].PrivateIpAddress;
+																							unassignedInstances[n].vpcId = awsInstances[m].VpcId;
+																							unassignedInstances[n].subnetId = awsInstances[m].SubnetId;
 																						}
 
 																						if (projectTag && (projectTag.name in tagInfo))
