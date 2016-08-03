@@ -28,7 +28,7 @@
                             return {
                                 id:id,
                                 organObject:$rootScope.organObject
-                            }
+                            };
                         }
                     }
                 }).result.then(function(env) {
@@ -56,7 +56,7 @@
                             return {
                                 ids:ids,
                                 organObject:$rootScope.organObject
-                            }
+                            };
                         }
                     }
                 }).result.then(function(orgDetails) {
@@ -90,7 +90,7 @@
                         }
                     };
                     designServices.promiseDelete(params).then(function(){
-                        angular.each(ids,function (val,ind) {
+                        angular.each(ids,function (val) {
                             angular.element('#'+val).hide();
                         });
                         toastr.success('Successfully deleted');

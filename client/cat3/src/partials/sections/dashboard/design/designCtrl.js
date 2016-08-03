@@ -58,7 +58,7 @@
 			};
 		design.providersList();
 		return design;
-	}]).controller('designSubItemCtrl',['$rootScope','$scope','$state','designServices','blueprintService', function ($rootScope,$scope,$state,designServices,blueprintService) {
+	}]).controller('designSubItemCtrl',['$rootScope','$scope','$state', function ($rootScope,$scope,$state) {
 			var subDes=this;
 			$rootScope.stateItems=$state;
 			$rootScope.isOpenSidebar = false;

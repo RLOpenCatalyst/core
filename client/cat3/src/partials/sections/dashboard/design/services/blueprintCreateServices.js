@@ -15,7 +15,7 @@
 					url: '/vmimages'
 				};
 				return designServices.promiseGet(params);
-			}
+			};
 			//list of operatig systems supported.
 			blueprintServices.getOperatingSytems = function () {
 				var params = {
@@ -154,7 +154,7 @@
 					url: '/d4dMasters/cftTemplate?templateFile=' + cftTemplateFileName
 				};
 				return designServices.promiseGet(params);
-			}
+			};
 			//save api for creating a blueprint
 			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
 				var params = {
