@@ -580,7 +580,9 @@
     }
 
     function setValuesvmware(data) {
-        $('#providertype').val(data.providerType).select2();
+        $('.foraws').hide();
+        $('.forvmware').show();
+        $('#providertype').val(data.providerType.toUpperCase()).select2();
         $('#providertype').trigger('change');
         $('#name').val(data.providerName);
         $('#vmwareusername').val(data.username);

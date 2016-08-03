@@ -391,6 +391,14 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         if (!instanceUsername) {
                                                             instanceUsername = 'ubuntu'; // hack for default username
                                                         }
+                                                        var instanceSize;
+                                                        for (var i = 0; i < self.stackParameters.length; i++) {
+                                                            if (self.stackParameters[i].ParameterKey == "InstanceType") {
+                                                                instanceSize = self.stackParameters[i].ParameterValue;
+                                                            }
+                                                        }
+
+                                                        logger.debug("instanceSize: ",instanceSize);
 
                                                         var instance = {
                                                             name: instanceName,
@@ -414,7 +422,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             instanceState: instanceData.State.Name,
                                                             bootStrapStatus: 'waiting',
                                                             users: launchParams.users,
-                                                            instanceType: self.instanceType,
+                                                            instanceType: instanceSize,
                                                             catUser: launchParams.sessionUser,
                                                             hardware: {
                                                                 platform: 'unknown',
@@ -462,6 +470,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                 log: "Waiting for instance ok state",
                                                                 timestamp: timestampStarted
                                                             });
+
                                                             var instanceLog = {
                                                                 actionId: actionLog._id,
                                                                 instanceId: instance.id,
@@ -476,7 +485,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                 data: runlist,
                                                                 platform: "unknown",
                                                                 os: self.instanceOS,
-                                                                size: self.instanceType,
+                                                                size: instanceSize,
                                                                 user: launchParams.sessionUser,
                                                                 startedOn: new Date().getTime(),
                                                                 createdOn: new Date().getTime(),
