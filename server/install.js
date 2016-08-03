@@ -68,7 +68,7 @@ function getDefaultsConfig() {
             }
         },
         constantData: {
-            common_field: ['envId', 'providerId', 'orgId', 'bgId', 'projectId'],
+            common_field: ['envId', 'providerId', 'orgId', 'bgId','organizationId','businessGroupId', 'projectId','templateType','blueprintConfig.cloudProviderType','cloudProviderType'],
             sort_field: ['name', 'description'],
             filterReferanceData: {
                 "unmanagedInstances": [{
@@ -97,7 +97,10 @@ function getDefaultsConfig() {
                 "taskLogs":"timestampStarted",
                 "unassignedInstances":"state",
                 "unassignedInstances":"state",
-                "scripts":"name"
+                "scripts":"name",
+                "unassignedInstances":"state",
+                "chefNodes":"createdOn",
+                "blueprints":"name"
             },
             skip_Records : 1,
             max_record_limit : 200,

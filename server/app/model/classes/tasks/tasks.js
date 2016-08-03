@@ -495,23 +495,14 @@ taskSchema.statics.createNew = function(taskData, callback) {
 
 
 taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback) {
-    if (jsonData.pageSize) {
-        jsonData['searchColumns'] = ['taskType', 'name'];
-        ApiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+    if (jsonData.pagination) {
+        Tasks.paginate(jsonData.queryObj, jsonData.options, function(err, tasks) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
-                return callback(err);
-            } else {
-                Tasks.paginate(databaseCall.queryObj, databaseCall.options, function(err, tasks) {
-                    if (err) {
-                        var err = new Error('Internal server error');
-                        err.status = 500;
-                        return callback(err);
-                    }
-                    callback(null, tasks);
-                });
+                return callback(err,null);
             }
+            callback(null, tasks);
         });
     } else {
         var queryObj = {

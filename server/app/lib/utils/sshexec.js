@@ -101,22 +101,25 @@ module.exports = function(opts) {
             port: options.port,
             username: options.username
         };
-
         if (options.privateKey) {
             if (options.passphrase) {
                 connectionParamsObj.passphrase = options.passphrase;
             }
-            fileIo.readFile(options.privateKey, function(err, key) {
-                if (err) {
-                    callback(err, PEM_FILE_READ_ERROR);
-                    return;
-                }
-                connectionParamsObj.privateKey = key;
+            if(options.pemFileData){
+                connectionParamsObj.privateKey = options.pemFileData;
                 connect(connectionParamsObj, callback);
-            });
+            }else {
+                fileIo.readFile(options.privateKey, function (err, key) {
+                    if (err) {
+                        callback(err, PEM_FILE_READ_ERROR);
+                        return;
+                    }
+                    connectionParamsObj.privateKey = key;
+                    connect(connectionParamsObj, callback);
+                });
+            }
         } else {
             logger.debug("SSh password...");
-
             if (options.interactiveKeyboard) {
                 connectionParamsObj.tryKeyboard = true;
                 connect(connectionParamsObj, callback);
