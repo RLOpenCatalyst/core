@@ -421,9 +421,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 															},
 															os: unmanagedInstance.os
 														},
-														vpcId: instanceData.VpcId,
-														subnetId: instanceData.SubnetId,
-														privateIpAddress: instanceData.PrivateIpAddress,
+														vpcId: unmanagedInstance.vpcId,
+														subnetId: unmanagedInstance.subnetId,
+														privateIpAddress: unmanagedInstance.privateIpAddress,
 														credentials: encryptedCredentials,
 														blueprintData: {
 															blueprintName: unmanagedInstance.platformId,

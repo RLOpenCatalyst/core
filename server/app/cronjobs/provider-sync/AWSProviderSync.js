@@ -190,7 +190,7 @@ function sync() {
 																				} else {
 																					if (instances[n].instanceState === 'running') {
 																						instances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
-																						instances[n].privateIpAddress = awsInstances[m].privateIpAddress;
+																						instances[n].privateIpAddress = awsInstances[m].PrivateIpAddress;
 																						instances[n].vpcId = awsInstances[m].VpcId;
 																						instances[n].subnetId = awsInstances[m].SubnetId;
 																					}
@@ -228,7 +228,7 @@ function sync() {
 																						if (unManagedInstances[n].state === 'running') {
 																							unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || null;
 																							unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
-																							unManagedInstances[n].privateIpAddress = awsInstances[m].privateIpAddress;
+																							unManagedInstances[n].privateIpAddress = awsInstances[m].PrivateIpAddress;
 																							unManagedInstances[n].vpcId = awsInstances[m].VpcId;
 																							unManagedInstances[n].subnetId = awsInstances[m].SubnetId;
 																						}
@@ -273,7 +273,7 @@ function sync() {
 																						region: region
 																					},
 																					platformId: awsInstances[m].InstanceId,
-																					ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
+																					ip: awsInstances[m].PublicIpAddress || null,
 																					os: os,
 																					state: awsInstances[m].State.Name,
 																					tags: tagInfo
@@ -293,7 +293,7 @@ function sync() {
 																					} else {
 																						if (unassignedInstances[n].state === 'running') {
 																							unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
-																							unassignedInstances[n].privateIpAddress = awsInstances[m].privateIpAddress;
+																							unassignedInstances[n].privateIpAddress = awsInstances[m].PrivateIpAddress;
 																							unassignedInstances[n].vpcId = awsInstances[m].VpcId;
 																							unassignedInstances[n].subnetId = awsInstances[m].SubnetId;
 																						}

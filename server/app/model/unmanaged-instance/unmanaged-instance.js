@@ -37,6 +37,21 @@ var UnmanagedInstanceSchema = new Schema({
 		type:Boolean,
 		default:false,
 		required:false
+	},
+	subnetId: {
+		type: String,
+		required: false,
+		trim: true
+	},
+	vpcId: {
+		type: String,
+		required: false,
+		trim: true
+	},
+	privateIpAddress: {
+		type: String,
+		required: false,
+		trim: true
 	}
 });
 UnmanagedInstanceSchema.plugin(mongoosePaginate);

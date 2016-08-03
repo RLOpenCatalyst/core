@@ -58,7 +58,22 @@ var UnassignedInstancesSchema = new Schema({
         default:false,
         required:false
     },
-    tags: Schema.Types.Mixed
+    tags: Schema.Types.Mixed,
+    subnetId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    vpcId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    privateIpAddress: {
+        type: String,
+        required: false,
+        trim: true
+    }
 });
 UnassignedInstancesSchema.plugin(mongoosePaginate);
 UnassignedInstancesSchema.index({platformId: 1, providerId: 1}, {unique: true});
