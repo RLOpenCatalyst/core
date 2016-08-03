@@ -82,5 +82,27 @@
                 });
             }
         };
+        /*genericServices.editRunlist = function(chefRunlist, chefAttribute) {
+            $modal.open({
+                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
+                controller: 'orchestrationUpdateChefRunlistCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve : {
+                    cookbookRunlistAttr: function(){
+                        return {
+                            chefrunlist: chefRunlist,
+                            attributes: chefAttribute
+                        };
+                    }
+                }
+            }).result.then(function (selectedCookBooks) {
+                //$rootScope.editRunListAttributes = false;
+               // $rootScope.chefrunlist = selectedCookBooks.list;
+               // $rootScope.cookbookAttributes = selectedCookBooks.cbAttributes;
+            }, function () {
+                console.log('Dismiss time is ' + new Date());
+            });
+        };*/
     }]);
 })(angular);

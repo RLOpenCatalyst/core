@@ -48,6 +48,6 @@
                         });
                     return deferred.promise;
                 }
-        };
+            };
         }]);
 })(angular);

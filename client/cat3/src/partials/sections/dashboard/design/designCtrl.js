@@ -1,6 +1,7 @@
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.design', ['design.BpList'])//'services.blueprint'
+
+	angular.module('dashboard.design', ['design.bpCreate','design.BpList'])//'services.blueprint'
 		.filter('inArray',['$filter', function($filter){
 			return function(list, arrayFilter, element){
 				if(arrayFilter){
@@ -57,7 +58,7 @@
 			};
 		design.providersList();
 		return design;
-	}]).controller('designSubItemCtrl',['$rootScope','$scope','$state','designServices','blueprintService', function ($rootScope,$scope,$state,designServices,blueprintService) {
+	}]).controller('designSubItemCtrl',['$rootScope','$scope','$state', function ($rootScope,$scope,$state) {
 			var subDes=this;
 			$rootScope.stateItems=$state;
 			$rootScope.isOpenSidebar = false;

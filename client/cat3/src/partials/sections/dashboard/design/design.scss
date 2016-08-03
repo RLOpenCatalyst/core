@@ -56,19 +56,73 @@
   margin: 0 5px;
 }
 #create-bp {
-  min-height: 430px;
+  height: 490px;
   overflow-y: auto;
 }
+
+.blueprintTemplate {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  height: 152px;
+  padding: 4px;
+  width: 152px;
+  cursor: pointer;
+  margin-left:15px;
+}
+
+.blueprintTemplateSelected {
+  border: 2px solid #40baf1;
+  border-radius: 4px;
+}
+
+label {
+  color: #444;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.form-control {
+  font-size: 13px;
+  height:36px;
+}
+
+.securityGroupComponent {
+  height: 140px;
+  overflow-y: scroll;
+  border:1px solid gray;
+  padding: 0px;
+  width:100%;
+}
+
 .cardLogo {
   height: 52px;
   padding-top: 11px;
   margin-top: 20px;
   margin-left: 8px;
 }
+
 .scroll-bluePrints {
   max-height: 400px;
   overflow: auto;
 }
+
 .selected{
   border: 2px solid #40BAF1 !important;
+}
+
+.fa-question-circle {
+  font-size: 18px;
+}
+
+.accordionClear {
+  clear:both;
+}
+
+.applicationUrl-text {
+  margin-top: 20px;
+}
+
+.appCreateBtn {
+  margin-bottom: 10px; 
 }
