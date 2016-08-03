@@ -192,7 +192,6 @@ var InstanceSchema = new Schema({
     users: [{
         type: String,
         trim: true,
-        //required: true,
         validate: schemaValidator.catalystUsernameValidator
     }],
     hardware: {
@@ -204,6 +203,18 @@ var InstanceSchema = new Schema({
             free: String,
         },
         os: String,
+    },
+    network:{
+        subnet:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        vpc:{
+            type: String,
+            required: false,
+            trim: true
+        }
     },
     chef: {
         serverId: {
@@ -1635,7 +1646,6 @@ var InstancesDao = function() {
         if (!nodeNames) {
             nodeNames = [];
         }
-        logger.debug('serverId -->', chefServerId);
         Instances.find({
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
@@ -1649,12 +1659,10 @@ var InstancesDao = function() {
                 logger.error("getInstancesFilterByNotChefServerIdAndNodeNames", err);
                 callback(err, null);
                 return;
-            }
-            logger.debug("Exit getInstancesFilterByNotChefServerIdAndNodeNames ");
-            if (data) {
+            }else if(data){
                 callback(null, data);
             } else {
-                callback(null, null);
+                callback(null, []);
             }
         });
     };
@@ -1995,6 +2003,65 @@ var InstancesDao = function() {
             }
             logger.debug("Exit getActionLogById ", JSON.stringify(data));
             return callback(null, data);
+        });
+    };
+
+    this.updateInstanceStatus = function(instance,callback) {
+        var updateObj={};
+        if(instance.state === 'terminated'){
+            updateObj['state'] = instance.state;
+            updateObj['isDeleted'] = true;
+            updateObj['tags'] = instance.tags;
+            updateObj['environmentTag'] = instance.environmentTag;
+            updateObj['projectTag'] = instance.projectTag;
+        }else{
+            updateObj['state'] = instance.state;
+            updateObj['isDeleted'] = false;
+            updateObj['tags'] = instance.tags;
+            updateObj['environmentTag'] = instance.environmentTag;
+            updateObj['projectTag'] = instance.projectTag;
+        }
+        Instances.update({
+            "platformId": instance.platformId,
+        }, {
+            $set: updateObj
+        }, function(err, data) {
+            if (err) {
+                logger.error("Failed to update managed Instance status data", err);
+                callback(err,null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
+
+    this.getInstancesByProviderIdOrgIdAndPlatformId = function (orgId,providerId, platformId, callback) {
+        var params = {
+            'orgId': orgId,
+            'providerId': providerId,
+            'platformId': platformId
+        };
+        Instances.find(params,
+            function(err, instances) {
+                if (err) {
+                    logger.error("Could not get instance for ",orgId, providerId, platformId, err);
+                    return callback(err, null);
+                } else if(instances.length > 0) {
+                    return callback(null, instances);
+                } else {
+                    return callback(null, []);
+                }
+            }
+        );
+    };
+
+    this.getAllTerminatedInstances = function(orgId,callback) {
+        Instances.find({"orgId":orgId,"instanceState":"terminated"}, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
         });
     };
 };

@@ -57,6 +57,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var instanceService = require('_pr/services/instanceService');
+var chefDao = require('_pr/model/dao/chefDao.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -329,7 +330,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             }
 
                             if (infraManagerDetails.configType === 'chef') {
-
                                 var chef = new Chef({
                                     userChefRepoLocation: infraManagerDetails.chefRepoLocation,
                                     chefUserName: infraManagerDetails.loginname,
@@ -346,8 +346,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             res.send(500);
                                         }
                                     } else {
-                                        removeInstanceFromDb();
-                                        logger.debug("Successfully removed instance from db.");
+                                        chefDao.removeChefNodeByChefName(instance.chef.chefNodeName,function(err,data) {
+                                            if (err) {
+                                                logger.error(err, 'occured in removing chef node in mongo');
+                                                callback(err, null);
+                                                return;
+                                            }
+                                            removeInstanceFromDb();
+                                            logger.debug("Successfully removed instance from db.");
+                                        });
                                     }
                                 });
                             } else {

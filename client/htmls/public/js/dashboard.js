@@ -438,7 +438,7 @@ $(document).ready(function() {
         {"data": "instanceIP","orderable" : true},
         {"data": "","orderable" : true,
           "render":function(data, type, full, meta) {
-              return full.region?full.region:full.providerData?full.providerData.region:'-';
+            return full.region?full.region:full.providerData?full.providerData.region:'-';
           }
         },
         {"data": "instanceState","orderable" : true  },
@@ -467,7 +467,7 @@ $(document).ready(function() {
         {"data": "platformId","orderable" : true},
         {"data": "orgName" ,"orderable" : false,
           "render": function(data){
-              return data?data:'';
+            return data?data:'';
           }
         },
         {"data": "projectName" ,"orderable" : false,
@@ -591,17 +591,18 @@ $(document).ready(function() {
         {"data": "ip","orderable" : true  },
         {"data": "state","orderable" : true  },
         {"data": "providerType","orderable" : true,
-            "render": function(data){
-              if(data === 'aws'){
-                return 'AWS';
-              }else if(data === 'azure'){
-                return 'Azure';
-              }else if(data === 'vmware'){
-                return 'VMWare';
-              }else if(data === 'openstack'){
-                return 'OpenStack';
-              }
+          "render": function(data){
+            if(data === 'aws'){
+              return 'AWS';
+            }else if(data === 'azure'){
+              return 'Azure';
+            }else if(data === 'vmware'){
+              return 'VMWare';
+            }else if(data === 'openstack'){
+              return 'OpenStack';
             }
+          }
+
         }
       ]
     });
@@ -626,7 +627,6 @@ $(document).ready(function() {
     var $specUsageModalContainer = $('#specUsageModalContainer');
     var dataStr = $(this).attr("data-usage");
     var $data = JSON.parse(dataStr);
-
     $specUsageModalContainer.find('#specCpuUtilAvg').html($data.CPUUtilization.average);
     $specUsageModalContainer.find('#specCpuUtilMin').html($data.CPUUtilization.minimum);
     $specUsageModalContainer.find('#specCpuUtilMax').html($data.CPUUtilization.maximum);
@@ -646,7 +646,7 @@ $(document).ready(function() {
     $specUsageModalContainer.find('#specNetworkInAvg').html($data.NetworkIn.average);
     $specUsageModalContainer.find('#specNetworkInMin').html($data.NetworkIn.minimum);
     $specUsageModalContainer.find('#specNetworkInMax').html($data.NetworkIn.maximum);
-   
+
     $specUsageModalContainer.modal('show');
   }
 });

@@ -17,10 +17,11 @@ $('.addScriptItem').click(function(e) {
     $('#scriptType').removeAttr('disabled');
     $('#orgName').val('');
     $('#fileNameDisplay').empty();
+    $('#scriptHiddenInputId').val('');
+    $('#fileHiddenInputId').val('');
     $('.modal-header').find('.modal-title').html('Create New Script Item');
     $('#scriptEditHiddenInput').val('new');
     getOrganizationList();
-    
 });
 //to list down the organization for creating the script item.
 function getOrganizationList() {
@@ -155,7 +156,6 @@ $('#scriptListTable tbody').on( 'click', 'button.deleteScript', function(){
                         getScriptList();
                     },
                     error: function(jxhr) {
-                        bootbox.alert(result);
                         var msg = "Unable to Delete URL please try again later";
                         if (jxhr.responseJSON && jxhr.responseJSON.message) {
                             msg = jxhr.responseJSON.message;
