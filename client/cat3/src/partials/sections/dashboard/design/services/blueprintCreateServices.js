@@ -148,6 +148,13 @@
 				};
 				return designServices.promiseGet(params);
 			};
+			//get the cft file details.
+			blueprintServices.getCFTParams = function (cftTemplateFileName) {
+				var params = {
+					url: '/d4dMasters/cftTemplate?templateFile=' + cftTemplateFileName
+				};
+				return designServices.promiseGet(params);
+			}
 			//save api for creating a blueprint
 			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
 				var params = {

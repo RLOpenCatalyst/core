@@ -27,6 +27,19 @@
                 });
             };
 
+            $scope.blueprintTemplateClick = function(templateDetail) {
+                templateDetail.selected = true;
+                $scope.nextEnabled = true;
+                blueprintCreation.getOperatingSytems();
+                blueprintCreation.getAWSProviders();
+                blueprintCreation.getOrgBUProjDetails();
+                $scope.templateSelected = templateDetail;
+                console.log($scope.templateSelected);
+                if($scope.bpType == 'CloudFormation'){
+                    blueprintCreation.getCFTParams();
+                }   
+            };
+
             blueprintCreation.getImages = function(){
                 bpCreateSer.getImages().then(function(data){
                     $scope.imageList = data;
@@ -35,6 +48,8 @@
 
             if($scope.bpType == 'OSImage'){
                 blueprintCreation.getImages();
+            } else {
+                blueprintCreation.templateListing();
             }
 
             blueprintCreation.getOperatingSytems = function(){
@@ -42,6 +57,7 @@
                 bpCreateSer.getOperatingSytems().then(function(data){
                     blueprintCreation.osListing = data;
                     if($scope.bpType == 'OSImage'){
+                        blueprintCreation.newEnt.osListing = $scope.templateSelected.osType;
                         $scope.isOSImage = true;
                     }
                     $scope.isOSLoading = false;
@@ -51,6 +67,11 @@
             blueprintCreation.getAWSProviders = function(){
                 bpCreateSer.getAWSProviders().then(function(data){
                     blueprintCreation.providerListing = data;
+                    if($scope.bpType == 'OSImage'){
+                        blueprintCreation.newEnt.providers = $scope.templateSelected.providerId;
+                        $scope.isOSImage = true;
+                        blueprintCreation.getAWSProviderImage();
+                    }
                 });
             };
 
@@ -60,6 +81,11 @@
                 bpCreateSer.getImageLists(blueprintCreation.newEnt.providers).then(function(data){
                     if(blueprintCreation.newEnt.providers){
                         blueprintCreation.imageListing = data;
+                        if($scope.bpType == 'OSImage'){
+                            blueprintCreation.newEnt.images = $scope.templateSelected._id;
+                            $scope.isOSImage = true;
+                            blueprintCreation.getInstanceType();
+                        }
                         $scope.isImageLoading = false;
                         blueprintCreation.instanceCount = function(max, step) {
                             step = step || 1;
@@ -163,23 +189,25 @@
                 bpCreateSer.getChefServer().then(function(data){
                     for(var i =0;i<data.length;i++){
                         if(blueprintCreation.newEnt.orgList == data[i].orgname_rowid[0]){
-                            console.log(data[i].rowid);
                             $scope.getChefServerId = data[i].rowid;
                         }
                     }
                 });
-            }                        
+            }; 
 
-            blueprintCreation.templateListing();
-            blueprintCreation.getOperatingSytems();
-            blueprintCreation.getAWSProviders();
-            blueprintCreation.getOrgBUProjDetails();                        
+            
 
-            $scope.blueprintTemplateClick = function(templateDetail) {
-                templateDetail.selected = true;
-                $scope.nextEnabled = true;
-                $scope.templateSelected = templateDetail;
-            };
+            blueprintCreation.getCFTParams = function() {
+                var cftTemplate = $scope.templateSelected;
+                console.log(cftTemplate);
+                cftTemplate = $scope.templateSelected.rowid + "__template__" + $scope.templateSelected.template_filename;
+                console.log(cftTemplate);
+                bpCreateSer.getCFTParams(cftTemplate).then(function(data){
+                    $scope.getCFTDetails = data;
+                    console.log($scope.getCFTDetails);
+                });
+            };                                             
+
             //wizard data setting for step 1 and step 2.
             var index = 0, // points to the current step in the steps array
             steps = $scope.steps = [{
@@ -199,7 +227,12 @@
             $scope.oneAtATime = true;
             /*Initialising First Accordian-group open on load*/
             $scope.isFirstOpen = true;
-
+            if($scope.bpType == "Docker" || $scope.bpType == "CloudFormation"){
+                $scope.isOrgOpen = true;    
+            } else {
+                $scope.isOrgOpen = false;    
+            }
+            
             $scope.next = function() {
                 if (steps.length === 0) {
                     console.debug('No steps provided.');
@@ -233,6 +266,7 @@
             $scope.setButtons = function() {
                 if (index === steps.length - 1) {
                     $scope.isFirstOpen = true;
+                    $scope.isOrgOpen = true;
                     $scope.isNextVisible = false;
                     $scope.previousEnabled = true;
                     $scope.isSubmitVisible = true;
@@ -253,8 +287,6 @@
 
             $scope.submit = function() {
                 var blueprintCreateJSON = {
-                    templateId: $scope.templateSelected.templatename,
-                    templateType: $scope.templateSelected.templatetypename,
                     templateComponents: 'component0',
                     dockercontainerpathstitle: '',
                     dockerlaunchparameters: '',
@@ -280,12 +312,21 @@
                     blueprintType:'instance_launch',
                     appUrls:[]
                 }
+
+                if($scope.bpType == 'OSImage'){
+                    blueprintCreateJSON.templateId = $scope.templateSelected.name;
+                    blueprintCreateJSON.templateType = $scope.bpType;
+                } else {
+                    blueprintCreateJSON.templateId = $scope.templateSelected.templatename;
+                    blueprintCreateJSON.templateType = $scope.templateSelected.templatetypename;
+                }
                 blueprintCreateJSON.runlist = [];
-                blueprintCreateJSON.runlist = $scope.templateSelected.templatescookbooks.split(',');
-                
+                if($scope.templateSelected.templatescookbooks){
+                    blueprintCreateJSON.runlist = $scope.templateSelected.templatescookbooks.split(',');    
+                }
+
                 blueprintCreateJSON.securityGroupIds = [];
                 for(var i =0;i<blueprintCreation.securityGroupListing.length;i++){
-                    console
                     if(blueprintCreation.securityGroupListing[i]._isChecked){
                         blueprintCreateJSON.securityGroupIds.push(blueprintCreation.securityGroupListing[i].GroupId);
                     }
@@ -295,7 +336,11 @@
                 };
                 console.log(reqBody);
                 bpCreateSer.postBlueprintSave(blueprintCreateJSON.orgId,blueprintCreateJSON.bgId,blueprintCreateJSON.projectId,reqBody).then(function(){
-                    toastr.success('success');
+                    if($scope.bpType == 'OSImage'){
+                        toastr.success('OSImage Blueprint Created');
+                    } else {
+                        toastr.success('success');
+                    }
                 });
             };
     }]);

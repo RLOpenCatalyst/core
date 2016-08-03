@@ -2,7 +2,7 @@
    <div id="create-bp" class="col-lg-12">
       <div id="content">
          <div next-text="Next" previous-text="Previous">
-            <form>
+            <form name="newBlueprintForm" novalidate>
                <div ng-show="steps[0].isDisplayed">
                   <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in templateList" ng-if="bpType == templateDetail.templatetypename" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
@@ -25,32 +25,32 @@
                <div ng-show="steps[1].isDisplayed">
                   <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename !== 'Docker'">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
-                        <li ng-if="templateSelected.templatetypename == 'SoftwareStack'">
+                        <li ng-if="templateSelected.templatetypename == 'SoftwareStack' || templateSelected.templatetypename == 'CloudFormation'">
                            <img style="height:40px;width:auto;" alt="templateLogo" ng-src="{{logo}}">
                         </li>
                         <li ng-if="templateSelected.osType">
                            <img style="height:40px;width:auto;" alt="OSImage" ng-src="{{osImageLogo}}">
                         </li>
-                        <li ng-if="templateSelected.templatetypename == 'SoftwareStack'" style="font-size:12px;"><u><b>{{templateSelected.templatename}}</b></u></li>
+                        <li ng-if="templateSelected.templatetypename == 'SoftwareStack' || templateSelected.templatetypename == 'CloudFormation'" style="font-size:12px;"><u><b>{{templateSelected.templatename}}</b></u></li>
                         <li ng-if="templateSelected.osType" style="font-size:12px;"><u><b>{{templateSelected.name}}</b></u></li>
                         <li ng-if="templateSelected.templatetypename == 'SoftwareStack'" style="font-size:10px;" ng-repeat="item in templateSelected.templatescookbooks.split(',')">{{item}}</li>
                      </ul>
                   </div>
                   <div class="col-sm-10 col-lg-10 col-md-10">
                      <accordion>
-                        <accordion-group is-open="isFirstOpen" ng-if="templateSelected.templatetypename !== 'Docker'">
+                        <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Provider Parameters
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6">
                               <label for="instanceOS">Choose Operating System:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.osListing.$touched && newBlueprintForm.osListing.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isOSLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.osListing" name="instanceOS" class="required chooseOS width-100 form-control" ng-disabled="isOSImage" ng-change="bpCreate.changeImageOS();">
+                              <select name="osListing" ng-model="bpCreate.newEnt.osListing" class="chooseOS width-100 form-control" ng-disabled="isOSImage" ng-change="bpCreate.changeImageOS();" required>
                                  <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" value="">Select OS</option>
                                  <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" ng-repeat="name in bpCreate.osListing" value="{{name.osType}}">{{name.os_name}}</option>
-                                 {{bpCreate.osListing}}
                                  <option ng-if="templateSelected.osType" value="{{templateSelected.osType}}">{{templateSelected.osName}}</option>
                               </select>
                            </div>
@@ -58,18 +58,20 @@
                               <label for="providerId">Choose Provider:<span class="red">&nbsp;*</span>
                                  <loading size="small" name="isOSLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.providers" name="providerId" class="required chooseOSProvider width-100 form-control" ng-change="bpCreate.getAWSProviderImage();">
-                                 <option value="">Select Provider</option>
-                                 <option ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                              <select ng-model="bpCreate.newEnt.providers" name="providerId" class="required chooseOSProvider width-100 form-control" ng-change="bpCreate.getAWSProviderImage();" ng-disabled="isOSImage">
+                                 <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" value="">Select Provider</option>
+                                 <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                                 <option ng-if="templateSelected.osType" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
                               <label for="imageId">Choose Available Images:<span class="red">&nbsp;*</span>
                                  <loading size="small" name="isImageLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.images" name="imageId" class="required chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();">
-                                 <option value="">Select Image</option>
-                                 <option ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
+                              <select ng-model="bpCreate.newEnt.images" name="imageId" class="required chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();" ng-disabled="isOSImage">
+                                 <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" value="">Select Image</option>
+                                 <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
+                                  <option ng-if="templateSelected.osType" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
@@ -138,7 +140,7 @@
                            <!--To add the Swipe Functionality-->                            
                         </accordion-group>
                         <!--adding organisation parameters starts here-->
-                        <accordion-group>
+                        <accordion-group ng-init="accGroupStatus = {opened: isOrgOpen}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Organization Parameters
@@ -201,7 +203,7 @@
                            <!-- End Docker Image selection table -->
                         </accordion-group>
                         <!--configure runlist collapse starts here-->
-                        <accordion-group ng-if="templateSelected.templatetypename !=='Docker'">
+                        <accordion-group ng-if="templateSelected.templatetypename !=='Docker' && templateSelected.templatetypename !=='CloudFormation'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Runlist Parameters
@@ -235,7 +237,7 @@
                         <!--execute modal starts here-->
                         <!--configure runlist collapse ends here-->                  
                         <!--adding new collapse-->
-                        <accordion-group ng-if="templateSelected.templatetypename !=='Docker'">
+                        <accordion-group ng-if="templateSelected.templatetypename !=='Docker' && templateSelected.templatetypename !=='CloudFormation'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Application
@@ -395,20 +397,64 @@
                            </div>
                         </accordion-group>
                         <!--adding new collapse-->
-                        <div class="panel panel-default notForDocker forCFT cftStackParameterArea" style="display:none">
-                           <div class="panel-heading">
-                              <h4 class="panel-title">
-                                 <a data-toggle="collapse" data-parent="#accordion-Design" href="#CollapseStackParameters" class="collapsed">
-                                 <i class="fa fa-fw fa-plus-circle txt-color-blue"></i> 
-                                 <i class="fa fa-fw fa-minus-circle txt-color-red"></i>Configure Stack Parameters
-                                 </a>
-                              </h4>
+                        <accordion-group ng-if="templateSelected.templatetypename =='CloudFormation'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                           <accordion-heading>
+                              <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                              Configure Stack Parameters
+                           </accordion-heading>
+                           <div class="col-lg-6 col-md-6">
+                              <label for="orgnameSelect">Choose Provider <span class="red">&nbsp;*</span></label>
+                              <select ng-model="bpCreate.newEnt.providers" name="providerId" class="required chooseOSProvider width-100 form-control" ng-change="bpCreate.getAWSProviderImage();" ng-disabled="isOSImage">
+                                 <option value="">Select Provider</option>
+                                 <option ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                              </select>
                            </div>
-                           <div id="CollapseStackParameters" class="panel-collapse collapse">
-                              <div class="panel-body" style="padding-left: 20px;">
-                              </div>
+                           <div class="col-lg-6 col-md-6">
+                              <label for="region">Choose Region:<span class="red">&nbsp;*</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.region" name="region" class="required chooseSecurity width-100 form-control">
+                                 <option value="">Select Region</option>
+                                 <option value="{{bpCreate.regionListing}}">{{bpCreate.regionListing}}</option>
+                              </select>
                            </div>
-                        </div>
+                           <div class="col-lg-6 col-md-6 margintop15" ng-repeat="(key,value) in getCFTDetails.Parameters">
+                              <label for="cftResources">{{key}}<span class="red">&nbsp;*</span>&nbsp;&nbsp;<span title="{{value.Description}}"><i class="fa fa-question-circle"></i></span></label>
+                              <input type="text" name="resource" class="form-control" required  value="{{value.Default}}"/>
+                           </div>
+
+                           <accordion>
+                              <accordion-group ng-repeat="(key,value) in getCFTDetails.Resources">
+                                 <accordion-heading>
+                                    <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                                    Configure Resource : {{key}}
+                                 </accordion-heading>
+                                 <div class="col-lg-6 col-md-6 margintop15">
+                                    <label for="cftUserName">Instance Username<span class="red">&nbsp;*</span></label>
+                                    <input type="text" ng-model="bpCreate.newEnt.UserName" name="cftUserName" class="form-control" required/>
+                                 </div>
+                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <span class="cursor pull-right">
+                                       <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook()"></i>
+                                    </span>
+                                    <div class="view-runlist">
+                                       <table class="table table-bordered text-center">
+                                          <thead>
+                                             <tr>
+                                                <th class="text-center">View Runlist</th>
+                                             </tr>
+                                          </thead>
+                                          <!-- <tbody>
+                                             <tr ng-repeat="item in templateSelected.templatescookbooks.split(',')">
+                                                <td>{{item}}</td>
+                                             </tr>
+                                          </tbody> -->
+                                       </table>
+                                    </div>
+                                 </div>
+                              </accordion-group>
+                           </accordion>
+                        </accordion-group>
                      </accordion>
                   </div>
                </div>
@@ -419,6 +465,6 @@
    <div class="pager">
       <button class="btn" ng-click="previous()" ng-disabled="!previousEnabled">Previous</button>
       <button class="btn" ng-show="isNextVisible" ng-click="next()" ng-disabled="!nextEnabled">Next</button>
-      <button class="btn" ng-show="isSubmitVisible" ng-click="submit()">Save</button>
+      <button class="btn" ng-show="isSubmitVisible" ng-disabled="newBlueprintForm.$invalid" ng-click="submit()">Save</button>
    </div>
 </div>
