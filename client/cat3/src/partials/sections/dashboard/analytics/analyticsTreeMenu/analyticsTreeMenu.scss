@@ -13,39 +13,43 @@
 		overflow-y: auto;
 	}
 
-	div[data-angular-treeview] {
+	div[data-analytics-tree-view] {
 		color: #fff;
 		font-size: 12px;
 		font-family: "Open Sans", Arial, Helvetica, Sans-Serif;
 	}
 
-	div[data-tree-model] li .selected {
+	div[data-analytics-tree-model] li .selected {
 		padding: 0px;
 	}
 
-	div[data-tree-model] li span:hover {
+	div[data-analytics-tree-model] li i {
+		cursor: pointer;
+	}
+
+	div[data-analytics-tree-model] li span:hover {
 		text-decoration: underline;
 	}
 
-	div[data-tree-model] li {
+	div[data-analytics-tree-model] li {
 		line-height: 2.2;
 		padding: 0;
 	}
 		
-	div[data-tree-model] ul {
-		margin-left:-10px;
+	div[data-analytics-tree-model] ul {
+		margin-left:-50px;
 		ul {
-			margin-left:-20px;
+			margin-left:-60px;
 			ul {
-				margin-left:-30px;
+				margin-left:-70px;
 				ul {
-					margin-left:-40px;
+					margin-left:-80px;
 				}
 			}
 		}
 	}
 
-	div[data-tree-model] .liContents {
+	div[data-analytics-tree-model] .liContents {
 		margin-left: 20px;
 		.liContents  {
 			margin-left: 30px;
@@ -58,7 +62,7 @@
 		}
 	}
 
-	div[data-tree-model] li.selected{
+	div[data-analytics-tree-model] li.selected{
 		background:#3b4142;
 	}
 
@@ -75,6 +79,9 @@
 	}
 
 	i {
+		color:#fff;
+	}
+	span {
 		color:#fff;
 	}
 }
