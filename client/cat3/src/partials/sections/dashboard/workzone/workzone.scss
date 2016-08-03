@@ -26,24 +26,27 @@
         border-top-color: #d2d6de;
         &.instance-filter {
             height: 0;
-            transition: height 1s;
+            transition: height 1s ease-in-out;
             position: absolute;
             overflow: hidden;
-            border: none;
-            border: 1px solid #d2d6de;
-            margin-top: 2px;
-            width: 80%;
-            right: 5px;
+            border: 1px solid #cdd1d9;
+            box-shadow: 0 3px 0 #e4e4e4;
+            border-radius: 5px;
+            margin-top: -5px;
+            width: 70%;
+            right: 100px;
             z-index: 2;
-            opacity: 0;
             &.active {
                 height: 110px;
-                opacity: 1;
+                margin-top: 2px;
             }
             .box-header {
                 background: #F3F3F3;
                 .box-title {
-                    font-size: 15px;
+                    font-size: 16px;
+                    .fa {
+                        color:  #219bd1;
+                    }
                 }
             }
             .box-body {
@@ -187,6 +190,14 @@
         height: 100%;
     }
 }
+.control-label {
+    padding: 7px;
+}
+.form-group {
+    select{
+        padding: 5px;
+    }
+}
 .overlay-wrapper > .overlay,
 .box > .loading-img,
 .overlay-wrapper > .loading-img {
@@ -233,7 +244,7 @@
 .box-header {
     color: #444;
     display: block;
-    padding: 10px;
+    padding: 13px 10px;
     position: relative;
     &.with-border {
         border-bottom: 1px solid #f4f4f4;
@@ -245,7 +256,8 @@
     }
 }
 .collapsed-box .box-header.with-border {
-    border-bottom: none;
+    border-bottom: 1px solid #ffffff;
+    box-shadow: 0 1px 0 #dbdbdb, 0 0 10px #d6d6d6 inset;
 }
 .box-header {
     > {
@@ -282,7 +294,7 @@
 }
 .btn-box-tool {
     padding: 5px;
-    font-size: 12px;
+    font-size: 13px;
     background: transparent;
     color: #97a0b3;
 }
@@ -302,7 +314,7 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
-    padding: 10px;
+    padding: 14px 0 0 10px;
 }
 .no-header .box-body {
     border-top-right-radius: 3px;
@@ -342,6 +354,14 @@
     border-top: 1px solid #f4f4f4;
     padding: 10px;
     background-color: #ffffff;
+}
+.chip{
+    font-size: 12px;
+    border: 1px solid #ccc;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: #eee;
+    margin-right: 3px;  
 }
 .chart-legend {
     margin: 10px 0;

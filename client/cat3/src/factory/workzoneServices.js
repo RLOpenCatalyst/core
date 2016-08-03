@@ -124,10 +124,13 @@
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				/*instanceCtrl*/
-				getPaginatedInstances: function(envParams,paginationParams) {
+				getPaginatedInstances: function(envParams,paginationParams,filterBy) {
 					var pageStr = paginationUtil.pageObjectToString(paginationParams);
 					var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
 					'/projects/' + envParams.proj + '/environments/' + envParams.env + '/instanceList'+pageStr;                    
+                    if(filterBy){
+                       url += '&filterBy=' + filterBy;
+                    }
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				getCheckIfConfigListAvailable: function () {

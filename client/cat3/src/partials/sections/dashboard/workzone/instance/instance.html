@@ -19,7 +19,11 @@
                 </button>
             </span>
 			<span class="pull-right">
-                <button type="button" title="Filters" class="btn btn-xs cat-btn-update" ng-click="fnShowFilters()" ng-show="instanceList.length > 0">
+                <span ng-if="filterBy">
+                    <span ng-repeat="chip in filterChips" class="chip"><strong>{{chip.key}}:&nbsp;</strong>{{chip.value}}</span>
+                    <span class="chip"><i class="fa fa-fw fa-close black cursor" ng-click="resetFilter()"></i></span>
+                </span>
+                <button type="button" title="Filters" class="btn btn-xs cat-btn-update" ng-click="fnShowFilters()">
 					<i class="fa fa-fw fa-filter white"></i>
 				</button>
                 <button type="button" title="Import By Ip" class="btn btn-xs cat-btn-update" 
@@ -32,10 +36,7 @@
 				</button>
 			</span>
 		</div>
-		<div class="alert alert-info text-center" ng-show="instanceList.length===0">
-			No Instances Available
-		</div>
-        <div class="box box-default instance-filter" ng-class="{'active':showFilters}"  ng-show="instanceList.length > 0">
+        <div class="box box-default instance-filter" ng-class="{'active':showFilters}">
             <div class="box-header with-border">
                 <h3 class="box-title"><i class="fa fa-fw fa-filter"></i>Filter By</h3>
                 <div class="box-tools pull-right">
@@ -88,7 +89,7 @@
                     </div>
                     <div class="col-md-1">
                        <button type="button" title="Search" class="btn btn-xs cat-btn-update" ng-click="fnSearchFilters()">
-					<i class="fa fa-fw fa-filter white"></i>
+					<i class="fa fa-fw fa-search white"></i>
 				</button>
                     </div>
                 </div>
@@ -96,6 +97,10 @@
             </div>
         </div>
     
+		<div class="alert alert-info text-center" ng-show="instanceList.length===0">
+			No Instances Available
+		</div>
+        
         <section id="cardView" class="scrollContent" ng-show="isCardViewActive">
 			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
 				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
