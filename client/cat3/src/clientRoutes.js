@@ -85,7 +85,7 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 		url: "/design/:subItem/:view",
 		templateUrl: "src/partials/sections/dashboard/design/design.html",
 		controller:'designSubItemCtrl as desSubItm',
-		params:{templateId:null,templateName:null,blueId:null},
+		params:{templateObj:null,blueId:null},
 		data:{
 			menuName:'design',
 			subChild: function($stateParams){

@@ -4,7 +4,7 @@
         .controller('blueprintCreateCtrl',['$scope','$rootScope','$http','$q','toastr','$state','designServices', 'blueprintCreateService','confirmbox', function ($scope,$rootScope,$http,$q,toastr,$state,desServ,bpCreateSer,confirmbox) {
             var blueprintCreation = this;
             //to get the templates listing.
-            $scope.bpType = $state.params.templateName;
+            $scope.bpType = $state.params.templateObj.templatetypename;
             $scope.logo = 'images/global/cat-logo.png';
             $scope.osImageLogo = 'images/global/linux.png';
             $scope.isOSImage = false;
@@ -34,7 +34,6 @@
                 blueprintCreation.getAWSProviders();
                 blueprintCreation.getOrgBUProjDetails();
                 $scope.templateSelected = templateDetail;
-                console.log($scope.templateSelected);
                 if($scope.bpType == 'CloudFormation'){
                     blueprintCreation.getCFTParams();
                 }   
@@ -199,12 +198,9 @@
 
             blueprintCreation.getCFTParams = function() {
                 var cftTemplate = $scope.templateSelected;
-                console.log(cftTemplate);
                 cftTemplate = $scope.templateSelected.rowid + "__template__" + $scope.templateSelected.template_filename;
-                console.log(cftTemplate);
                 bpCreateSer.getCFTParams(cftTemplate).then(function(data){
                     $scope.getCFTDetails = data;
-                    console.log($scope.getCFTDetails);
                 });
             };                                             
 
@@ -315,10 +311,10 @@
 
                 if($scope.bpType == 'OSImage'){
                     blueprintCreateJSON.templateId = $scope.templateSelected.name;
-                    blueprintCreateJSON.templateType = $scope.bpType;
+                    blueprintCreateJSON.templateType = $state.params.templateObj.templatetype;
                 } else {
                     blueprintCreateJSON.templateId = $scope.templateSelected.templatename;
-                    blueprintCreateJSON.templateType = $scope.templateSelected.templatetypename;
+                    blueprintCreateJSON.templateType = $state.params.templateObj.templatetype;
                 }
                 blueprintCreateJSON.runlist = [];
                 if($scope.templateSelected.templatescookbooks){

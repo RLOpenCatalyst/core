@@ -32,6 +32,21 @@
                             toastr.error(data.message, status);
                         });
                     return deferred.promise;
+                },
+                promiseDelete : function (paramsObject) {
+                    $rootScope.onBodyLoading=true;
+                    var deferred = $q.defer();
+                    $http.delete(paramsObject.url,paramsObject.data)
+                        .success(function(data) {
+                            $rootScope.onBodyLoading=false;
+                            deferred.resolve(data);
+                        })
+                        .error(function(data, status) {
+                            $rootScope.onBodyLoading=false;
+                            deferred.reject();
+                            toastr.error(data.message, status);
+                        });
+                    return deferred.promise;
                 }
             };
         }]);
