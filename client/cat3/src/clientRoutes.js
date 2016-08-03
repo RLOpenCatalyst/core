@@ -4,7 +4,6 @@
  * Written by Relevance UI Team,
  * Aug 2015
  */
-
 function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
 	"use strict";
 	var val = window.localStorage.getItem('catAuthToken');
@@ -23,11 +22,17 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 	}).state('signin', {
 		url: "/signin",
 		templateUrl: "src/partials/sections/login/login.html",
-		controller: "loginCtrl"
+		controller: "loginCtrl",
+		data:{
+			menuName:''
+		}
 	}).state('dashboard', {
 		url: "/dashboard",
 		template: "<div ui-view></div>",
 		controller: "dashboardCtrl",
+		data:{
+			menuName:'dashboard'
+		},
 		onEnter: function () {
 		},
 		onExit: function () {
@@ -36,6 +41,9 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 		url: "/workzone",
 		templateUrl: "src/partials/sections/dashboard/workzone/workzone.html",
 		controller: "workzoneCtrl",
+		data:{
+			menuName:'workzone'
+		},
 		onEnter: function () {
 		},
 		onExit: function () {
@@ -57,6 +65,9 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 		url: "/design",
 		templateUrl: "src/partials/sections/dashboard/design/design.html",
 		controller: "designCtrl",
+		data:{
+			menuName:'design'
+		},
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();
@@ -70,7 +81,35 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 				return deferred.promise;
 			}]
 		}
-	}).state('dashboard.settings', {
+	}).state('dashboard.designSubView', {
+		url: "/design/:subItem/:view",
+		templateUrl: "src/partials/sections/dashboard/design/design.html",
+		controller:'designSubItemCtrl as desSubItm',
+		params:{templateObj:null,blueId:null},
+		data:{
+			menuName:'design',
+			subChild: function($stateParams){
+				return{
+					item:$stateParams.subItem,
+					view:$stateParams.view
+				}
+			}
+		},
+		resolve: {
+			auth: ["$q", function ($q) {
+				var deferred = $q.defer();
+				// instead, go to a different page
+				if (modulePerms.designAccess()) {
+					// everything is fine, proceed
+					deferred.resolve();
+				} else {
+					deferred.reject({redirectTo: 'dashboard'});
+				}
+				return deferred.promise;
+			}]
+		}
+	}).
+	state('dashboard.settings', {
 		url: "/settings",
 		templateUrl: "src/partials/sections/dashboard/setting/setting.html",
 		controller: "settingCtrl",

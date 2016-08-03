@@ -27,11 +27,13 @@
 					blueprintName = 'Azure ARM';
 				break;
 			}
-			
+			$scope.onBodyLoading=true;
 			workzoneServices.blueprintInfo(items.selectedVersionBpId).then(function(response) {
 				$scope.blueprintInfo = response.data;
+					$scope.onBodyLoading=false;
 			},
 			function(error) {
+				$scope.onBodyLoading=false;
 				$scope.BPInfoerrorMessage = error.data.errMessage;
 			});
 

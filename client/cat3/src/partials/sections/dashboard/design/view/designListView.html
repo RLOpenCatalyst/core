@@ -1,0 +1,158 @@
+<div ng-controller="blueprintListCtrl as bpList" >
+<div id="well" class="well well-sm">
+    <div class="col-lg-8 col-md-8">
+        <b><i>{{stateItems.params.templateObj.templatetypename}} blueprints</i></b> <span ng-if="bpList.selectedCards.length > 0"> : - <span class="badge">{{bpList.selectedCards.length}}</span> Selected Blueprints </span>
+    </div>
+    <div class="col-lg-4 col-md-4 pull-right" >
+            <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
+                <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
+            </button>
+            <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" >&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
+            <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="bpList.selectedCards.length > 0" ng-click="bpList.deleteBp(bpList.selectedCards)" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i>&nbsp;Delete</button>
+            <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="bpList.selectedCards.length > 0" ng-click="bpList.copyBp(bpList.selectedCards)" ><i class="fa fa-clone fa-2 white" aria-hidden="true"></i>&nbsp;Copy</button>
+    </div>
+</div>
+<div class="col-lg-12">
+    <br>
+    <div ng-show="bpList.blueprintList.length <= 0" class="alert alert-info text-center"> No Data Found!</div>
+    <div ng-show="bpList.blueprintType === 'Composite'">
+        <div class="productdiv4" id="{{blueprint.id}}" ng-repeat="blueprint in bpList.blueprintList" ng-init="bpList[blueprint.id] === false ">
+            <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint.id] === true }" >
+                <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="bpList.selectCard(blueprint);">
+                    <li>
+                        <img src="./images/composite.png" alt="Zabix and Logstash" class="cardLogo">
+                    </li>
+                    <li title="Zabix and Logstash" class="Cardtextoverflow"><u><h5>{{blueprint.name}}</h5></u>
+                    </li>
+                    <hr class="blue-hr"/>
+                    <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="desSubItm.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-right" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-left" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i></button>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="bpList.blueprintType !== 'Composite'">
+        <div class="productdiv4" id="{{blueprint.id}}" ng-repeat="blueprint in bpList.blueprintList" ng-init="bpList[blueprint.id] === false ">
+            <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint.id] === true }" >
+                <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="bpList.selectCard(blueprint);">
+                    <li>
+                        <img src="./images/templateicons/appFact4.png" alt="Zabix and Logstash" >
+                    </li>
+                    <li title="Zabix and Logstash" class="Cardtextoverflow"><u><h5>{{blueprint.name}}</h5></u>
+                    </li>
+                    <li class="margin-top5">Version:&nbsp;
+                        <select class="blueprintVer">
+                            <option value="566135e9bfc2bf511faaaf79">1</option>
+                        </select>
+                    </li>
+                    <hr class="blue-hr"/>
+                    <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="bpList.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-right" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-left" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i></button>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+
+<!--<div class="row" ng-repeat="blueprint in bpList.blueprintList" >-->
+    <!--<div class="col-lg-3 col-xs-6" >-->
+        <!--&lt;!&ndash; small box &ndash;&gt;-->
+        <!--<div class="small-box bg-aqua">-->
+            <!--<div class="inner">-->
+                <!--<h4>Server Load</h4>-->
+                <!--<p>Version:&nbsp;-->
+                    <!--<select class="blueprintVer">-->
+                    <!--<option value="566135e9bfc2bf511faaaf79">1</option>-->
+                    <!--</select>-->
+                <!--</p>-->
+            <!--</div>-->
+            <!--<div class="icon">-->
+                <!--<img src="./images/composite.png" alt="Zabix and Logstash" class="cardLogo">-->
+            <!--</div>-->
+            <!--<div class="small-box-footer">-->
+                <!--<a class=" white " style="margin: 0 5px;" title="Edit" ng-click="desSubItm.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i> Edit</a>-->
+                <!--<a class=" white pull-right" style="margin: 0 5px;" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i> Launch</a>-->
+                <!--<a class=" white pull-left" style="margin: 0 5px;" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i> Info</a>-->
+
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--&lt;!&ndash; ./col &ndash;&gt;-->
+    <!--<div class="col-lg-3 col-xs-6">-->
+        <!--&lt;!&ndash; small box &ndash;&gt;-->
+        <!--<div class="small-box bg-green">-->
+            <!--<div class="inner">-->
+                <!--<h4>Server Load</h4>-->
+                <!--<p>Version:&nbsp;-->
+                    <!--<select class="blueprintVer">-->
+                        <!--<option value="566135e9bfc2bf511faaaf79">1</option>-->
+                    <!--</select>-->
+                <!--</p>-->
+            <!--</div>-->
+            <!--<div class="icon">-->
+                <!--<img src="./images/composite.png" alt="Zabix and Logstash" class="cardLogo">-->
+            <!--</div>-->
+            <!--<div class="small-box-footer">-->
+                <!--<a class=" white " style="margin: 0 5px;" title="Edit" ng-click="desSubItm.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i> Edit</a>-->
+                <!--<a class=" white pull-right" style="margin: 0 5px;" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i> Launch</a>-->
+                <!--<a class=" white pull-left" style="margin: 0 5px;" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i> Info</a>-->
+
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--&lt;!&ndash; ./col &ndash;&gt;-->
+    <!--<div class="col-lg-3 col-xs-6">-->
+        <!--&lt;!&ndash; small box &ndash;&gt;-->
+        <!--<div class="small-box bg-yellow">-->
+            <!--<div class="inner">-->
+                <!--<h4>Server Load</h4>-->
+                <!--<p>Version:&nbsp;-->
+                    <!--<select class="blueprintVer">-->
+                        <!--<option value="566135e9bfc2bf511faaaf79">1</option>-->
+                    <!--</select>-->
+                <!--</p>-->
+            <!--</div>-->
+            <!--<div class="icon">-->
+                <!--<img src="./images/composite.png" alt="Zabix and Logstash" class="cardLogo">-->
+            <!--</div>-->
+            <!--<div class="small-box-footer">-->
+                <!--<a class=" white " style="margin: 0 5px;" title="Edit" ng-click="desSubItm.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i> Edit</a>-->
+                <!--<a class=" white pull-right" style="margin: 0 5px;" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i> Launch</a>-->
+                <!--<a class=" white pull-left" style="margin: 0 5px;" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i> Info</a>-->
+
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--&lt;!&ndash; ./col &ndash;&gt;-->
+    <!--<div class="col-lg-3 col-xs-6">-->
+        <!--&lt;!&ndash; small box &ndash;&gt;-->
+        <!--<div class="small-box bg-red">-->
+            <!--<div class="inner">-->
+                <!--<h4>Server Load</h4>-->
+                <!--<p>Version:&nbsp;-->
+                    <!--<select class="blueprintVer">-->
+                        <!--<option value="566135e9bfc2bf511faaaf79">1</option>-->
+                    <!--</select>-->
+                <!--</p>-->
+            <!--</div>-->
+            <!--<div class="icon">-->
+                <!--<img src="./images/composite.png" alt="Zabix and Logstash" class="cardLogo">-->
+            <!--</div>-->
+            <!--<div class="small-box-footer">-->
+                <!--<a class=" white " style="margin: 0 5px;" title="Edit" ng-click="desSubItm.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i> Edit</a>-->
+                <!--<a class=" white pull-right" style="margin: 0 5px;" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i> Launch</a>-->
+                <!--<a class=" white pull-left" style="margin: 0 5px;" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i> Info</a>-->
+
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--&lt;!&ndash; ./col &ndash;&gt;-->
+<!--</div>-->
+    </div>
+    <span ng-if="stateItems.params.view === 'list'"  ng-include="'src/partials/sections/dashboard/design/view/filterSidebar.html'"></span>
+    </div>

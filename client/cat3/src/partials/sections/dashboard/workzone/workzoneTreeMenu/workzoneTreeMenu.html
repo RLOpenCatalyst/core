@@ -2,12 +2,6 @@
 <link rel="stylesheet" type="text/css" href="catalyst/partials/globals/treeComponent/treeDirective.css"/>
 
 <div id='workzoneTreeMenuPage' ng-controller="workzoneTreeCtrl">
-	<span ng-show="!isLoading" class="tree-wrapper">
-		<span ng-click="showTreeOverlay()" class="minifyme cursor"> <i class="fa fa-arrow-circle-right black hit"></i> </span>
-		<span ng-click="hideTreeOverlay()" class="minifyme cursor" title="Hide Tree" ng-show="showTree"> <i class="fa fa-arrow-circle-left black hit"></i> </span>
-	</span>
-	<div id='navigPage'>
-		<div id='navigPage-inner' ng-show="showTree">
 			<div id="treeParent"
 				data-angular-treeview="true"
 				data-tree-model="roleList"
@@ -15,8 +9,6 @@
 				data-node-label="text"
 				data-node-children="nodes">
 			</div>
-		</div>
-	</div>
 </div>
 
 <script>

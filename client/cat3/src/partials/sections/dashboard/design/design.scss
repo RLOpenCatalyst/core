@@ -1,0 +1,74 @@
+#well{
+  min-height: 35px;
+  padding: 9px;
+  margin: 11px 0 0 0;
+  background-color: #FDFDFD;
+  border-bottom: 1px solid #e3e3e3;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  span{
+    margin-left: 13px;
+  }
+}
+
+// create card
+.productdiv4 {
+  width: 156px;
+  float: left;
+  padding-top: 7px;
+  margin-left: 10px;
+}
+.productdiv1 {
+  position: relative;
+  border-width: 1px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.cardimage {
+  background-repeat: no-repeat;
+  height: 163px;
+  margin-left: 15px;
+}
+.moreInfoabsolute {
+  position: absolute;
+  margin-left: -28px;
+}
+.moreInfo {
+  background-position: -15px -12px;
+  width: 27px;
+  height: 27px;
+}
+.blue-hr {
+  margin-top: 20px;
+  margin-bottom: 6px;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+.bpvicon {
+  border-radius: 11px !important;
+  height: 25px;
+  width: 25px;
+  padding: 0px 5px;
+  margin: 0 5px;
+}
+#create-bp {
+  min-height: 430px;
+  overflow-y: auto;
+}
+.cardLogo {
+  height: 52px;
+  padding-top: 11px;
+  margin-top: 20px;
+  margin-left: 8px;
+}
+.scroll-bluePrints {
+  max-height: 400px;
+  overflow: auto;
+}
+.selected{
+  border: 2px solid #40BAF1 !important;
+}
