@@ -2430,9 +2430,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     function getBluePrintList(req, res, next) {
         var reqData = {};
-        async.waterfall(
-            [
-
+        async.waterfall([
                 function(next) {
                     apiUtil.paginationRequest(req.query, 'blueprints', next);
                 },
@@ -2441,13 +2439,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         paginationReq['organizationId'] = req.params.orgId;
                         paginationReq['businessGroupId'] = req.params.bgId;
                         paginationReq['projectId'] = req.params.projectId;
-                        paginationReq['cloudProviderType'] = req.params.providerType;
+                        paginationReq['cloudProviderType'] = req.query.providerType;
+                        paginationReq['searchColumns'] = ['name'];
                     }else{
                         paginationReq['orgId'] = req.params.orgId;
                         paginationReq['bgId'] = req.params.bgId;
                         paginationReq['projectId'] = req.params.projectId;
                         paginationReq['templateType'] = req.query.templateType;
                         paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
+                        paginationReq['searchColumns'] = ['name'];
                     }
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
@@ -2457,19 +2457,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     if(req.query.templateType === 'composite'){
                         compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next)
                     }else {
-                        blueprintsDao.getBlueprintByOrgBgProjectProviderType(queryObj, next);
+                        Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj, next);
                     }
                 },
                 function(blueprints, next) {
-                    if(req.query.pagination === true){
+                    if(req.query.pagination === 'true'){
                         apiUtil.paginationResponse(blueprints, reqData, next);
                     }else{
                         next(null,blueprints.docs);
                     }
-                }
-
-            ],
-            function(err, results) {
+                }], function(err, results) {
                 if (err) {
                     res.send({
                         "errorCode": 500,

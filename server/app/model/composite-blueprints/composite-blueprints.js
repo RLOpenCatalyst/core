@@ -42,7 +42,7 @@ var CompositeBlueprintSchema = new Schema({
     },
     cloudProviderType:{
         type: String,
-        required: true,
+        required: false,
         trim: false
     },
     blueprints: [{
@@ -133,7 +133,7 @@ CompositeBlueprintSchema.statics.updateById
 
 CompositeBlueprintSchema.statics.getCompositeBlueprintByOrgBgProject = function getCompositeBlueprintByOrgBgProject(query, callback) {
     query.queryObj.isDeleted = false;
-    CompositeBlueprints.paginate(query.queryObj, query.options, function(err, compositeBlueprints) {
+    this.paginate(query.queryObj, query.options, function(err, compositeBlueprints) {
         if (err) {
             logger.error("Failed to getCompositeBlueprintByOrgBgProject", err);
             callback(err, null);
