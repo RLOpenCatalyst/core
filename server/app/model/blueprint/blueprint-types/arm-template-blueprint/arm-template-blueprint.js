@@ -226,7 +226,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             projectName: launchParams.projectName,
                             envName: launchParams.envName,
                             status: "running",
-                            bootStrap: "waiting",
+                            actionStatus: "waiting",
                             platformId: instanceData.name,
                             blueprintName: launchParams.blueprintData.name,
                             data: instanceData.runlist,
@@ -284,7 +284,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     timestamp: new Date().getTime()
                                 };
                                 instanceLog.endedOn = new Date().getTime();
-                                instanceLog.bootstrap = "failed";
+                                instanceLog.actionStatus = "failed";
                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
@@ -338,7 +338,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             log: "Bootstrap failed",
                                             timestamp: new Date().getTime()
                                         };
-                                        instanceLog.bootstrap = "failed";
+                                        instanceLog.actionStatus = "failed";
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                             if (err) {
@@ -369,7 +369,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 log: "Instance Bootstraped successfully",
                                                 timestamp: new Date().getTime()
                                             };
-                                            instanceLog.bootstrap = "success";
+                                            instanceLog.actionStatus = "success";
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                 if (err) {
@@ -449,7 +449,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 log: "Bootstrap Failed",
                                                 timestamp: new Date().getTime()
                                             };
-                                            instanceLog.bootstrap = "failed";
+                                            instanceLog.actionStatus = "failed";
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                 if (err) {

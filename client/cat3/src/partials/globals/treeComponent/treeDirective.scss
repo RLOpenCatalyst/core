@@ -45,10 +45,10 @@ div[data-tree-model] li .normal {
 	background-repeat: no-repeat;
 }
 
-div[data-tree-model] li i, div[data-tree-model] li span {
+div[data-tree-model] li i, div[data-tree-model] li span, div[data-analytics-tree-model] li i, div[data-analytics-tree-model] li span {
 	cursor: pointer;
 }
 
-div[data-tree-model] li .selected {
+div[data-tree-model] li .selected, div[data-analytics-tree-model] li .selected {
 	font-weight: bold;
 }

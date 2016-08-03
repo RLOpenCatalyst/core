@@ -370,30 +370,26 @@ function sync() {
 
 function removeTerminateInstance(instanceId, key) {
     if (key === 'managed') {
+        instanceLogModel.removeByInstanceId(instanceId, function(err, removed) {
+            if (err) {
+                logger.error("Failed to remove instance Log: ", err);
+            }
+        });
         instancesDao.removeTerminatedInstanceById(instanceId, function(err, data) {
             if (err) {
                 logger.error(err);
                 return;
-            } else {
-                instanceLogModel.removeByInstanceId(instanceId, function(err, removed) {
-                    if (err) {
-                        logger.error("Failed to remove instance Log: ", err);
-                    }
-                });
-                return;
             }
         });
     } else if (key === 'assigned') {
+        instanceLogModel.removeByInstanceId(instanceId, function(err, removed) {
+            if (err) {
+                logger.error("Failed to remove instance Log: ", err);
+            }
+        });
         unManagedInstancesDao.removeInstanceById(instanceId, function(err, data) {
             if (err) {
                 logger.error(err);
-                return;
-            } else {
-                instanceLogModel.removeByInstanceId(instanceId, function(err, removed) {
-                    if (err) {
-                        logger.error("Failed to remove instance Log: ", err);
-                    }
-                });
                 return;
             }
 

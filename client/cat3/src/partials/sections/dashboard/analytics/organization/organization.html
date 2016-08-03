@@ -1,491 +1,247 @@
 <link rel='stylesheet' href='src/partials/sections/dashboard/analytics/organization/organization.css'>
-<div class="page-title">
-    <div class="title_left">
-        <h3>Organization Dashboard</h3>
+<div class="container">
+<div class="col-xs-12 headingDashboard">
+    <div class="pull-left">
+        <h2>Organization Dashboard</h2>
     </div>
-
-    <div class="title_right">
-        <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
-            <div class="input-group">
-
-            </div>
-        </div>
+    <div class="pull-right">
+        <h3>ENVIRONMENT 1</h3>
+        <h4>Cost center:   Cost Center Relevance Lab (15008)</h4>
     </div>
 </div>
-<div class="row tile_count">
-    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-        <span class="count_top"><i class="fa fa-user"></i> Total Users</span>
-        <div class="count">2500</div>
-        <span class="count_bottom"><i class="green">4% </i> From last Week</span>
+</div>
+<div class="clear"></div>
+<section class="col-lg-12" style="margin:20px 10px;">
+    <div>
+    <div class="col-xs-6 pull-left" style="padding: 20px;">
+        <div class="btn-group" role="group" aria-label="...">
+          <button type="button" class="btn btn-sm btn-warning">DAY</button>
+          <button type="button" class="btn btn-sm btn-warning">WEEK</button>
+          <button type="button" class="btn btn-sm btn-warning">MONTH</button>
+          <button type="button" class="btn btn-sm btn-warning">YEAR</button>
+        </div>
     </div>
-    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-        <span class="count_top"><i class="fa fa-clock-o"></i> Average Time</span>
-        <div class="count">123.50</div>
-        <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span>
-    </div>
-    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-        <span class="count_top"><i class="fa fa-user"></i> Total Males</span>
-        <div class="count green">2,500</div>
-        <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span>
-    </div>
-    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-        <span class="count_top"><i class="fa fa-user"></i> Total Females</span>
-        <div class="count">4,567</div>
-        <span class="count_bottom"><i class="red"><i class="fa fa-sort-desc"></i>12% </i> From last Week</span>
-    </div>
-    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-        <span class="count_top"><i class="fa fa-user"></i> Total Collections</span>
-        <div class="count">2,315</div>
-        <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span>
-    </div>
-    <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-        <span class="count_top"><i class="fa fa-user"></i> Total Connections</span>
-        <div class="count">7,325</div>
-        <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span>
+    
+    <div class="col-xs-6 pull-right" style="text-align:right; padding:20px;">
+    <div class="btn-group" role="group" aria-label="...">
+      <button type="button" class="btn btn-sm btn-info">COST</button>
+      <button type="button" class="btn btn-sm btn-info">USAGE</button>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        <div class="dashboard_graph">
-
-            <div class="row x_title">
-                <div class="col-md-6">
-                    <h3>Network Activities <small>Graph title sub-title</small></h3>
-                </div>
-                <div class="col-md-6">
-                    <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
-                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                        <span>May 17, 2016 - June 15, 2016</span> <b class="caret"></b>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-12 col-sm-12 col-xs-12">
-                <div id="placeholder33" style="height: 260px; display: none" class="demo-placeholder"></div>
-                <div style="width: 100%;">
-                    <nvd3 options="graph1Options" data="graph1Data"></nvd3>
-                </div>
-            </div>
-            <div class="clearfix"></div>
-        </div>
-    </div>
-
 </div>
-<div class="row">
-    <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="x_panel fixed_height_320">
-            <div class="x_title">
-                <h2>App Devices <small>Sessions</small></h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Settings 1</a>
-                            </li>
-                            <li><a href="#">Settings 2</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                </ul>
-                <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
-                <nvd3 options="graph2Options" data="graph2Data"></nvd3>
-
-            </div>
+<div class="clear"></div>
+<div class="row col-lg-12 table-width">
+    <div class="col-lg-6 x1">
+        <h2> Aug 2</h2>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Spent</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">$0.00
+        </span>
+        </span>
         </div>
+        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">24-hour rolling average</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">$0.00/hour
+        </span>
+        </span>
+        </div>
+        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Day Estimate</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">~ $0.00
+        </span>
+        </span>
+        </div>
+
+        
     </div>
-
-    <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="x_panel fixed_height_320">
-            <div class="x_title">
-                <h2>Daily users <small>Sessions</small></h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Settings 1</a>
-                            </li>
-                            <li><a href="#">Settings 2</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                </ul>
-                <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
-                <table class="" style="width:100%">
-                    <tbody><tr>
-                            <th style="width:37%;">
-                                <p>Top 5</p>
-                            </th>
-                            <th>
-                                <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
-                                    <p class="">Device</p>
-                                </div>
-                                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                                    <p class="">Progress</p>
-                                </div>
-                            </th>
-                        </tr>
-                        <tr>
-                            <td><iframe class="chartjs-hidden-iframe" style="width: 100%; display: block; border: 0px; height: 0px; margin: 0px; position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;"></iframe>
-                                <canvas id="canvas1" height="140" width="140" style="margin: 15px 10px 10px 0px; width: 140px; height: 140px;"></canvas>
-                            </td>
-                            <td>
-                                <table class="tile_info">
-                                    <tbody><tr>
-                                            <td>
-                                                <p><i class="fa fa-square blue"></i>IOS </p>
-                                            </td>
-                                            <td>30%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <p><i class="fa fa-square green"></i>Android </p>
-                                            </td>
-                                            <td>10%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <p><i class="fa fa-square purple"></i>Blackberry </p>
-                                            </td>
-                                            <td>20%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <p><i class="fa fa-square aero"></i>Symbian </p>
-                                            </td>
-                                            <td>15%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <p><i class="fa fa-square red"></i>Others </p>
-                                            </td>
-                                            <td>30%</td>
-                                        </tr>
-                                    </tbody></table>
-                            </td>
-                        </tr>
-                    </tbody></table>
-            </div>
+    <div class="col-lg-5 x1 col-lg-offset-1">
+        <h2> Cost distribution</h2>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Compute</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">N/A
+        </span>
+        </span>
         </div>
-    </div>
-
-    <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="x_panel fixed_height_320">
-            <div class="x_title">
-                <h2>Profile Settings <small>Sessions</small></h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Settings 1</a>
-                            </li>
-                            <li><a href="#">Settings 2</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                </ul>
-                <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
-                <div class="dashboard-widget-content">
-                    <ul class="quick-list">
-                        <li><i class="fa fa-line-chart"></i><a href="#">Achievements</a></li>
-                        <li><i class="fa fa-thumbs-up"></i><a href="#">Favorites</a></li>
-                        <li><i class="fa fa-calendar-o"></i><a href="#">Activities</a></li>
-                        <li><i class="fa fa-cog"></i><a href="#">Settings</a></li>
-                        <li><i class="fa fa-area-chart"></i><a href="#">Logout</a></li>
-                    </ul>
-
-                    <div class="sidebar-widget">
-                        <h4>Profile Completion</h4>
-                        <canvas width="150" height="80" id="foo" class="" style="width: 160px; height: 100px;"></canvas>
-                        <div class="goal-wrapper">
-                            <span id="gauge-text" class="gauge-value pull-left">80</span>
-                            <span class="gauge-value pull-left">%</span>
-                            <span id="goal-text" class="goal-value pull-right">100%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Bandwidth</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">N/A
+        </span>
+        </span>
         </div>
-    </div>
-
-    <div class="col-md-4 col-sm-6 col-xs-12 widget_tally_box">
-        <div class="x_panel">
-            <div class="x_title">
-                <h2>User Uptake</h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Settings 1</a>
-                            </li>
-                            <li><a href="#">Settings 2</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                </ul>
-                <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
-
-                <div id="graph_bar" style="width: 100%; height: 200px; position: relative; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"><svg height="200" version="1.1" width="301" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="overflow: hidden; position: relative;"><desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël @@VERSION</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs><text x="32.515625" y="122.35775487981249" text-anchor="end" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">0</tspan></text><path fill="none" stroke="#aaaaaa" d="M45.015625,122.35775487981249H276" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="32.515625" y="98.01831615985937" text-anchor="end" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal"><tspan dy="4.002691159859367" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">100</tspan></text><path fill="none" stroke="#aaaaaa" d="M45.015625,98.01831615985937H276" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="32.515625" y="73.67887743990624" text-anchor="end" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal"><tspan dy="4.007002439906245" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">200</tspan></text><path fill="none" stroke="#aaaaaa" d="M45.015625,73.67887743990624H276" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="32.515625" y="49.33943871995312" text-anchor="end" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal"><tspan dy="4.011313719953122" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">300</tspan></text><path fill="none" stroke="#aaaaaa" d="M45.015625,49.33943871995312H276" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="32.515625" y="25" text-anchor="end" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: end; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal"><tspan dy="4" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">400</tspan></text><path fill="none" stroke="#aaaaaa" d="M45.015625,25H276" stroke-width="0.5" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="264.45078125" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,10.763,308.0177)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Oct</tspan></text><text x="241.35234375" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-1.4557,289.1816)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Sep</tspan></text><text x="218.25390625" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-13.0182,269.1683)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Aug</tspan></text><text x="195.15546875" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-23.0495,246.5705)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Jul</tspan></text><text x="172.05703125" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-35.6041,228.3027)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Jun</tspan></text><text x="148.95859375" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-47.987,209.7238)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">May</tspan></text><text x="125.86015625" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-58.5416,188.1408)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Apr</tspan></text><text x="102.76171875" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-70.5807,169.0071)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Mar</tspan></text><text x="79.66328125" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-82.1354,148.8584)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Feb</tspan></text><text x="56.56484375" y="134.8577548798125" text-anchor="middle" font-family="sans-serif" font-size="12px" stroke="none" fill="#888888" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: sans-serif; font-size: 12px; font-weight: normal;" font-weight="normal" transform="matrix(0.5,-0.866,0.866,0.5,-93.3463,128.2903)"><tspan dy="4.014004879812489" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Jan</tspan></text><rect x="47.9029296875" y="102.88620390384999" width="7.161914062499999" height="19.4715509759625" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="71.00136718750001" y="91.93345647987108" width="7.161914062499999" height="30.424298399941407" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="94.09980468750001" y="79.520342732695" width="7.161914062499999" height="42.83741214711749" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="117.1982421875" y="67.8374121471175" width="7.161914062499999" height="54.520342732694985" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="140.29667968750002" y="57.85824227193672" width="7.161914062499999" height="64.49951260787577" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="163.3951171875" y="45.93191729915969" width="7.161914062499999" height="76.4258375806528" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="186.4935546875" y="37.89990252157516" width="7.161914062499999" height="84.45785235823733" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="209.5919921875" y="52.503565753547036" width="7.161914062499999" height="69.85418912626545" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="232.6904296875" y="63.943101951925" width="7.161914062499999" height="58.41465292788749" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect><rect x="255.7888671875" y="71.0015391807114" width="7.161914062499999" height="51.356215699101085" rx="0" ry="0" fill="#26b99a" stroke="none" fill-opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); fill-opacity: 1;"></rect></svg><div class="morris-hover morris-default-style" style="display: none;"></div></div>
-
-                <div class="col-xs-12 bg-white progress_summary">
-
-                    <div class="row">
-                        <div class="progress_title">
-                            <span class="left">Escudor Wireless 1.0</span>
-                            <span class="right">This sis</span>
-                            <div class="clearfix"></div>
-                        </div>
-
-                        <div class="col-xs-2">
-                            <span>SSD</span>
-                        </div>
-                        <div class="col-xs-8">
-                            <div class="progress progress_sm">
-                                <div class="progress-bar bg-green" role="progressbar" data-transitiongoal="89" aria-valuenow="88" style="width: 89%;"></div>
-                            </div>
-                        </div>
-                        <div class="col-xs-2 more_info">
-                            <span>89%</span>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="progress_title">
-                            <span class="left">Mobile Access</span>
-                            <span class="right">Smart Phone</span>
-                            <div class="clearfix"></div>
-                        </div>
-
-                        <div class="col-xs-2">
-                            <span>App</span>
-                        </div>
-                        <div class="col-xs-8">
-                            <div class="progress progress_sm">
-                                <div class="progress-bar bg-green" role="progressbar" data-transitiongoal="79" aria-valuenow="78" style="width: 79%;"></div>
-                            </div>
-                        </div>
-                        <div class="col-xs-2 more_info">
-                            <span>79%</span>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="progress_title">
-                            <span class="left">WAN access users</span>
-                            <span class="right">Total 69%</span>
-                            <div class="clearfix"></div>
-                        </div>
-
-                        <div class="col-xs-2">
-                            <span>Usr</span>
-                        </div>
-                        <div class="col-xs-8">
-                            <div class="progress progress_sm">
-                                <div class="progress-bar bg-green" role="progressbar" data-transitiongoal="69" aria-valuenow="68" style="width: 69%;"></div>
-                            </div>
-                        </div>
-                        <div class="col-xs-2 more_info">
-                            <span>69%</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- start of weather widget -->
-    <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="x_panel">
-            <div class="x_title">
-                <h2>Today's Weather <small>Sessions</small></h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Settings 1</a>
-                            </li>
-                            <li><a href="#">Settings 2</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                </ul>
-                <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="temperature"><b>Monday</b>, 07:30 AM
-                            <span>F</span>
-                            <span><b>C</b>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="weather-icon">
-                            <span>
-                                <canvas height="84" width="84" id="partly-cloudy-day"></canvas>
-                            </span>
-
-                        </div>
-                    </div>
-                    <div class="col-sm-8">
-                        <div class="weather-text">
-                            <h2>Texas
-                                <br><i>Partly Cloudy Day</i>
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-12">
-                    <div class="weather-text pull-right">
-                        <h3 class="degrees">23</h3>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-
-
-                <div class="row weather-days">
-                    <div class="col-sm-2">
-                        <div class="daily-weather">
-                            <h2 class="day">Mon</h2>
-                            <h3 class="degrees">25</h3>
-                            <span>
-                                <canvas id="clear-day" width="32" height="32">
-                                </canvas>
-
-                            </span>
-                            <h5>15
-                                <i>km/h</i>
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="daily-weather">
-                            <h2 class="day">Tue</h2>
-                            <h3 class="degrees">25</h3>
-                            <canvas height="32" width="32" id="rain"></canvas>
-                            <h5>12
-                                <i>km/h</i>
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="daily-weather">
-                            <h2 class="day">Wed</h2>
-                            <h3 class="degrees">27</h3>
-                            <canvas height="32" width="32" id="snow"></canvas>
-                            <h5>14
-                                <i>km/h</i>
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="daily-weather">
-                            <h2 class="day">Thu</h2>
-                            <h3 class="degrees">28</h3>
-                            <canvas height="32" width="32" id="sleet"></canvas>
-                            <h5>15
-                                <i>km/h</i>
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="daily-weather">
-                            <h2 class="day">Fri</h2>
-                            <h3 class="degrees">28</h3>
-                            <canvas height="32" width="32" id="wind"></canvas>
-                            <h5>11
-                                <i>km/h</i>
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="col-sm-2">
-                        <div class="daily-weather">
-                            <h2 class="day">Sat</h2>
-                            <h3 class="degrees">26</h3>
-                            <canvas height="32" width="32" id="cloudy"></canvas>
-                            <h5>10
-                                <i>km/h</i>
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-            </div>
+        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Storage</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">N/A
+        </span>
+        </span>
         </div>
 
-    </div>
-    <!-- end of weather widget -->
-
-    <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="x_panel fixed_height_320">
-            <div class="x_title">
-                <h2>Incomes <small>Sessions</small></h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Settings 1</a>
-                            </li>
-                            <li><a href="#">Settings 2</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                </ul>
-                <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
-                <div class="dashboard-widget-content">
-                    <ul class="quick-list">
-                        <li><i class="fa fa-bars"></i><a href="#">Subscription</a></li>
-                        <li><i class="fa fa-bar-chart"></i><a href="#">Auto Renewal</a> </li>
-                        <li><i class="fa fa-support"></i><a href="#">Help Desk</a> </li>
-                        <li><i class="fa fa-heart"></i><a href="#">Donations</a> </li>
-                    </ul>
-
-                    <div class="sidebar-widget">
-                        <h4>Goal</h4>
-                        <canvas width="150" height="80" id="foo2" class="" style="width: 160px; height: 100px;"></canvas>
-                        <div class="goal-wrapper">
-                            <span class="gauge-value pull-left">$</span>
-                            <span id="gauge-text2" class="gauge-value pull-left">4,200</span>
-                            <span id="goal-text2" class="goal-value pull-right">$5,000</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>
+
+</section>
+
+<section>
+    <div class="row col-lg-12" style="margin-bottom: 20px">
+        <section class="col-lg-12">
+        <div class="box-header">
+            <h3>Graphs <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
+            <img src="images/cloudAnalytics/line-chart-main-1.png" style="margin-left: 160px;height: 400px;margin-top: 10px;"/>
+        </div>
+
+        </section>
+
+    </div>
+</section>
+
+
+<section>
+    <div class="row col-lg-12" style="margin-bottom: 20px">
+        <section class="col-lg-6 col-graph">
+        <div class="box-header">
+            <h3>Graphs <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
+            <img src="images/cloudAnalytics/line-chart.png" style="margin-left: 80px;height: 240px"/>
+        </div>
+
+        </section>
+        <section class="col-lg-6 col-lg-offset-1 col-graph">
+            <div class="box-header">
+            <h3>Sales <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
+            <img src="images/cloudAnalytics/graph1-new.png" style="margin-left: 107px;height: 240px"/>
+        </div>
+
+        </section>
+
+    </div>
+</section>
+
+
+<style>
+.col-graph {
+    width: 49%;
+}
+.col-lg-offset-1 {
+    margin-left: 1.333%;
+}
+.table-width {
+    background: #f1f5f8;
+    float: none;
+    margin: auto;
+    width: 96%;
+    padding: 10px 0;
+    border: 1px solid #e4e6e6;
+}
+.x1 h2{
+    text-align: center;
+    color: #224164;
+    font-size: 1.2em;
+    border-bottom: 1px dotted #e9e9e9;
+    padding-bottom: 20px;
+}
+.x-form-item-label-default {
+    font-size: 1em;
+    font-weight: 600;
+    color: #3e709d;
+}
+.title1 {
+    font-size: 1.4em;
+    color: #224164;
+    font-weight: bold;
+}
+section.col-lg-6, section.col-lg-5, section.col-lg-12 {
+    border-radius: 3px;
+    box-shadow: 0 2px 2px #ccc;
+    min-height: 300px;
+    background: #fff;
+    border-top: 4px solid #46b8da;
+    padding:0 0 20px 0;
+}
+
+.box-header h3 {
+    background: #46b8da;
+    color: #fff;
+    font-size: 1em;
+    padding: 10px;
+    margin: 0;
+}
+
+    .panelRight {
+       margin: 0 5px;
+    }
+
+    .stats-count-wrapper {
+        padding-bottom: 10px;
+    }
+
+    .tile_stats_count {
+        border-right: 1px solid #ddd;
+    }
+
+    .count-min {
+        font-size: 14px;
+    }
+
+    .widget-fa {
+        font-size: 60px;
+        color: #fff;
+    }
+
+    .active {
+        background: #3e648e;
+    }
+
+    .navbar-nav > li {
+        line-height: 30px;
+        padding: 0 12px;
+        cursor: pointer;
+    }
+    .headingDashboard {
+        text-align: right;
+        border-bottom: 1px dashed #bbb;
+    }
+    .headingDashboard h3{
+        font-size: 1em;
+    }
+    .headingDashboard h4{
+        font-size: .9em;
+        color: #aaa;
+    }
+
+
+.fa.pull-right {
+    margin-left: 0.1em;   
+}
+
+
+
+
+.list-group a{
+    padding: 30px 0;
+}
+
+.widget-12 {
+    border: 1px solid #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 1px #e8e8e8, 0 0 15px #f2f2f2 inset;
+    margin: 20px 0;
+    padding: 20px;
+}
+
+
+
+
+
+</style>
+
+
+
