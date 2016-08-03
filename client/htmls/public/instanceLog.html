@@ -57,29 +57,29 @@
 			</thead>
 			<tbody class="instanceLogTrail"></tbody>
 		</table>
-		<div id="green">
-		</div>
-		<!--Modal popup to show the logs for selected instance action starts here-->
-		<div class="modal fade" id="instanceLogsModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-						<h4 class="modal-title" id="myModalLabel">
-							<i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Logs
-						</h4>
-					</div>
-					<div class="modal-body">
-						<div class="logsArea"></div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					</div>
+		<div id="green"></div>
+	</div>
+	<!--Modal popup to show the logs for selected instance action starts here-->
+	<div class="modal fade" id="instanceLogsModalContainer" tabindex="-1" style='z-index:1800' role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="myModalLabel">
+						<i class="fa fa-bar-chart-o txt-color-blue"></i>&nbsp;&nbsp;Logs
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="logsArea"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				</div>
 			</div>
 		</div>
-		<!--Modal popup to show the logs for selected inst.ance action ends here-->
-		<script>
+	</div>
+	<!--Modal popup to show the logs for selected inst.ance action ends here-->
+	<script>
 		$(document).ready(function(e) {
 			var pageSetting = {
 				page: 1,
@@ -91,7 +91,6 @@
 
 			var instanceLogsHandler = function(e) {
 				var instanceActionId = $(this).attr('data-id');
-				console.log(instanceActionId);
 				var timeout;
 				var $instanceLogModalContainer = $('#instanceLogsModalContainer');
 				$instanceLogModalContainer.on('hidden.bs.modal', function(e) {
@@ -105,8 +104,6 @@
 				var lastTimestamp;
 				//Showing the log for Instances
 				function pollLogs(timestamp, delay, clearData) {
-					console.log(timestamp);
-					console.log(delay);
 					var url = '/audit-trail/instance-action/' + instanceActionId+'/logs';
 					url = url + '?timestamp=' + timestamp;
 					timeout = setTimeout(function() {
@@ -243,9 +240,13 @@
 					} else if (managnedData[i].providerType == 'openstack') {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/openstack.png' alt='provider'/>");
 					} else if (managnedData[i].providerType == 'vmware') {
-						$providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/vmware.png' alt='provider'/>");
+						$providerImg = $("<img class ='imgStyle' src = '../private/img/vmware-card.png' alt='provider'/>");
+					} else if (managnedData[i].action == 'Imported From ChefServer') {
+						$providerImg = $("<img class ='imgStyle' src = '../private/img/chef.png' alt='provider'/>");
+					} else if (managnedData[i].action == 'Imported From Provider') {
+						$providerImg = $("<img class ='imgStyle' src = '../private/img/aws.png' alt='provider'/>");
 					} else {
-						$providerImg = $("<img class ='imgStyle' src = '../private/img/rsz_logo.png' alt='provider'/>");
+						$providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/aws.png' alt='provider'/>");
 					}
 					if (managnedData[i].platform == 'ubuntu') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
@@ -257,13 +258,21 @@
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'windows') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
-					} else if (managnedData[i].platform == 'openstack' && managnedData[i].os == 'linux') {
+					} else if (managnedData[i].platform == 'ubuntu' && managnedData[i].bootStrap == 'success') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
+					} else if (managnedData[i].platform == 'ubuntu' && managnedData[i].bootStrap != 'success') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-					} else if (managnedData[i].platform == 'openstack' && managnedData[i].os == 'windows') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
+					} else if (managnedData[i].platform == 'centos' && managnedData[i].bootStrap != 'success') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
+					} else if (managnedData[i].platform == 'centos' && managnedData[i].bootStrap == 'success') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
+					} else if (managnedData[i].platform == 'unknown') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
+					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'unknown') {
+						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
 					} else if (managnedData[i].platform == 'unknown' && managnedData[i].os == 'unknown') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-					}else{
+					} else {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/rsz_logo.png' alt='OS'/>");
 					}
 					var $tdProvider = $('<td></td>').append($providerImg);
@@ -312,7 +321,7 @@
 				}
 			}
 		});
-		</script>
+	</script>
 </body>
 
 </html>

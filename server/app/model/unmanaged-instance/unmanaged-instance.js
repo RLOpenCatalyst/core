@@ -33,6 +33,18 @@ var UnmanagedInstanceSchema = new Schema({
 	tags: Schema.Types.Mixed,
 	usage: Schema.Types.Mixed,
 	cost: Schema.Types.Mixed,
+	network:{
+		subnet:{
+			type: String,
+			required: false,
+			trim: true
+		},
+		vpc:{
+			type: String,
+			required: false,
+			trim: true
+		}
+	},
 	isDeleted:{
 		type:Boolean,
 		default:false,
@@ -58,7 +70,7 @@ UnmanagedInstanceSchema.statics.createNew = function createNew(data, callback) {
 
 	});
 };
-//Added By Durgesh
+
 UnmanagedInstanceSchema.statics.updateInstance = function updateInstance(instanceId,data,callBack) {
 	this.update({
 		"platformId": instanceId,
@@ -77,7 +89,6 @@ UnmanagedInstanceSchema.statics.updateInstance = function updateInstance(instanc
 		}
 	});
 };
-//End By Durgesh
 
 UnmanagedInstanceSchema.statics.getAll = function getAll(query, callback) {
 	query.queryObj.isDeleted =  false;
@@ -236,6 +247,64 @@ UnmanagedInstanceSchema.statics.removeInstanceById = function(instanceId, callba
 			return;
 		}
 		callback(null, data);
+	});
+};
+
+UnmanagedInstanceSchema.statics.getInstancesByProviderIdOrgIdAndPlatformId = function getInstancesByProviderIdOrgIdAndPlatformId(orgId,providerId, platformId, callback) {
+	var params = {
+		'orgId': orgId,
+		'providerId': providerId,
+		'platformId': platformId
+	};
+	this.find(params,
+		function(err, instances) {
+			if (err) {
+				logger.error("Could not get instance for ",orgId, providerId, platformId, err);
+				return callback(err, null);
+			} else if(instances.length > 0) {
+				return callback(null, instances);
+			} else {
+				return callback(null, []);
+			}
+		}
+	);
+};
+
+UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceStatus(instance,callback) {
+	var updateObj = {};
+	if (instance.state === 'terminated') {
+		updateObj['state'] = instance.state;
+		updateObj['isDeleted'] = true;
+		updateObj['tags'] = instance.tags;
+		updateObj['environmentTag'] = instance.environmentTag;
+		updateObj['projectTag'] = instance.projectTag;
+	} else {
+		updateObj['state'] = instance.state;
+		updateObj['isDeleted'] = false;
+		updateObj['tags'] = instance.tags;
+		updateObj['environmentTag'] = instance.environmentTag;
+		updateObj['projectTag'] = instance.projectTag;
+	}
+	this.update({
+		"platformId": instance.platformId,
+	}, {
+		$set: updateObj
+	}, function (err, data) {
+		if (err) {
+			logger.error("Failed to update assigned Instance status data", err);
+			callback(err, null);
+			return;
+		}
+		callback(null, data);
+	});
+}
+UnmanagedInstanceSchema.statics.getAllTerminatedInstances = function(orgId,callback) {
+	this.find({"orgId":orgId,"state":"terminated"}, function(err, data) {
+		if (err) {
+			return callback(err, null);
+		} else {
+			callback(null, data);
+		}
 	});
 };
 
