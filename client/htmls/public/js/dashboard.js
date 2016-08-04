@@ -85,8 +85,8 @@ $(document).ready(function () {
                     loadAssignedInstances(providerid);
                 });
                 $.get('../providers/' + providerid + '/unassigned-instances', function (dataUnmanaged) {
-                    var unassignedData = dataUnmanaged.metaData.totalRecords;
-                    $childUnassignedInstanceTemplate.find('.countUnassignedInstance').empty().append(unmanagedData);
+                    var unassignedData = dataUnmanaged.recordsTotal;
+                    $childUnassignedInstanceTemplate.find('.countUnassignedInstance').empty().append(unassignedData);
 
 
                     updateTotalCount("unassigned", providerid, unassignedData);
