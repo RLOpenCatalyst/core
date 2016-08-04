@@ -51,6 +51,8 @@ var validate = require('express-validation');
 var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
+var compositeBlueprintService = require('_pr/services/compositeBlueprintService');
+var userService = require('_pr/services/userService');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -2455,7 +2457,24 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 },
                 function(queryObj, next) {
                     if(req.query.templateType === 'composite'){
-                        compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next)
+                        var data = {};
+                        async.waterfall([
+                            function(next){
+                                compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next);
+                            },
+                            function(compositeBlueprints,next){
+                                data = compositeBlueprints;
+                                userService.updateOwnerDetailsOfList(compositeBlueprints.docs,next);
+                            },
+                            compositeBlueprintService.formatCompositeBlueprintsList
+                        ],function(err,results){
+                            if(err){
+                                next(err,null);
+                            }else{
+                                data.docs = results.compositeBlueprints;+
+                                next(null,data);
+                            }
+                        })
                     }else {
                         Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj, next);
                     }
