@@ -2471,7 +2471,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             if(err){
                                 next(err,null);
                             }else{
-                                data.docs = results.compositeBlueprints;+
+                                data.docs = results.compositeBlueprints;
                                 next(null,data);
                             }
                         })
