@@ -390,22 +390,16 @@ $(document).ready(function () {
                         return data ? data : '';
                     }
                 },
-                {"data": "projectName", "orderable": false,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
-                {"data": "environmentName", "orderable": true,
-                    "render": function (data) {
-                        return data ? data : '';
-                    }
-                },
                 {"data": "os", "orderable": false,
                     "render": function (data) {
                         return data ? data : '';
                     }
                 },
-                {"data": "ip", "orderable": true},
+                {"data": "ip", "orderable": true,
+                    "render": function (data) {
+                        return data ? data : '';
+                    }
+                },
                 {"data": "", "orderable": true,
                     "render": function (data, type, full, meta) {
                         return full.region ? full.region : full.providerData ? full.providerData.region : '-';
