@@ -99,7 +99,9 @@ function startup() {
     var tab = 'envtable';
     $('#envtable').dataTable({
         "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
-        "pagingType": "full_numbers"
+        "pagingType": "full_numbers",
+        "retrieve": true,
+        "destroy":true
     });
 
     $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
