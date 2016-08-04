@@ -124,10 +124,13 @@
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				/*instanceCtrl*/
-				getPaginatedInstances: function(envParams,paginationParams) {
+				getPaginatedInstances: function(envParams,paginationParams,filterBy) {
 					var pageStr = paginationUtil.pageObjectToString(paginationParams);
 					var url = '/organizations/' + envParams.org + '/businessgroups/' + envParams.bg + 
 					'/projects/' + envParams.proj + '/environments/' + envParams.env + '/instanceList'+pageStr;                    
+                    if(filterBy){
+                       url += '&filterBy=' + filterBy;
+                    }
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				getCheckIfConfigListAvailable: function () {
@@ -491,6 +494,26 @@
 				getCompsiteBlueprintInfo:function (compositeBlueprintId) {
 					var url ='/composite-blueprints/'+compositeBlueprintId;
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+                getAllRegionsList: function () {
+					var url = '/vmimages/regions/list';
+					return $http.get(fullUrl(url), Auth.getHeaderObject());
+				},
+				getProviders:function () {
+					var url ='/aws/providers';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+                getProviderRegions:function (providerId) {
+					var url ='/aws/providers/'+providerId;
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+                getProviderVPCs:function (providerId, region) {
+                    var reqBody = {
+						providerId: providerId,
+                        region: region
+					};
+                    var url ='/aws/providers/describe/vpcs';
+					return $http.post(fullUrl(url),reqBody, Auth.getHeaderObject());
 				}
 			};
 			return serviceInterface;
