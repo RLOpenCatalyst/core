@@ -27,4 +27,3 @@ server/app/vspheretest.js
 *.svn
 server/config
 server/logs
-.project
