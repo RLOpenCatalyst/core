@@ -378,6 +378,9 @@ function sync() {
 													for (var r = 0; r < unManagedInstances.length; r++) {
 														unManagedInstances[r].remove();
 													}
+													for (var r = 0; r < unassignedInstances.length; r++) {
+														unassignedInstances[r].remove();
+													}
 												}
 											});
 
