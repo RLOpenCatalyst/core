@@ -227,7 +227,6 @@ function sync() {
 																					} else {
 																						if (unManagedInstances[n].state === 'running') {
 																							unManagedInstances[n].ip = awsInstances[m].PublicIpAddress || null;
-																							unManagedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
 																							unManagedInstances[n].privateIpAddress = awsInstances[m].PrivateIpAddress;
 																							unManagedInstances[n].vpcId = awsInstances[m].VpcId;
 																							unManagedInstances[n].subnetId = awsInstances[m].SubnetId;
@@ -276,7 +275,10 @@ function sync() {
 																					ip: awsInstances[m].PublicIpAddress || null,
 																					os: os,
 																					state: awsInstances[m].State.Name,
-																					tags: tagInfo
+																					tags: tagInfo,
+																					privateIpAddress: awsInstances[m].PrivateIpAddress || null,
+																					vpcId: awsInstances[m].VpcId || null,
+																					subnetId: awsInstances[m].SubnetId|| null
 																				});
 
 																				addedToUnmanaged = true;
@@ -291,8 +293,12 @@ function sync() {
 																					if (unassignedInstances[n].state === 'terminated') {
 																						unassignedInstances[n].remove();
 																					} else {
+																						if(unassignedInstances[n].orgName == null) {
+																							unassignedInstances[n].orgName = org.orgname;
+																						}
+
 																						if (unassignedInstances[n].state === 'running') {
-																							unassignedInstances[n].instanceIP = awsInstances[m].PublicIpAddress || null;
+																							unassignedInstances[n].ip = awsInstances[m].PublicIpAddress || null;
 																							unassignedInstances[n].privateIpAddress = awsInstances[m].PrivateIpAddress;
 																							unassignedInstances[n].vpcId = awsInstances[m].VpcId;
 																							unassignedInstances[n].subnetId = awsInstances[m].SubnetId;
@@ -327,16 +333,20 @@ function sync() {
 
 																			var newUnassignedInstance = {
 																				orgId: org.rowid,
+																				orgName: org.orgname,
 																				providerId: provider._id,
 																				providerType: 'aws',
 																				providerData: {
 																					region: region
 																				},
 																				platformId: awsInstances[m].InstanceId,
-																				ip: awsInstances[m].PublicIpAddress || awsInstances[m].PrivateIpAddress,
+																				ip: awsInstances[m].PublicIpAddress || null,
 																				os: os,
 																				state: awsInstances[m].State.Name,
-																				tags: tagInfo
+																				tags: tagInfo,
+																				privateIpAddress: awsInstances[m].PrivateIpAddress || null,
+																				vpcId: awsInstances[m].VpcId || null,
+																				subnetId: awsInstances[m].SubnetId|| null
 																			};
 
 																			if (projectTag && (projectTag.name in tagInfo))
