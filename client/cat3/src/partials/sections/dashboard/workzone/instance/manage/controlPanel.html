@@ -10,7 +10,7 @@
 			<span> | </span>
 			<span class="instance-state">{{instInfo.instanceState}}</span>
 			<span> | </span>
-			<span class="instance-ip">{{instInfo.instanceIP}}</span>
+            <span class="instance-ip"><span ng-if="instInfo.instanceIP">{{instInfo.instanceIP}}</span><span ng-if="!instInfo.instanceIP && instInfo.privateIpAddress">{{instInfo.privateIpAddress}}</span></span>
 			<span ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'"> | </span>
 			<img class="cp-docker-image" alt="Docker"
 			src="images/global/docker.png" ng-if="instInfo.docker && instInfo.docker.dockerEngineStatus === 'success'" />

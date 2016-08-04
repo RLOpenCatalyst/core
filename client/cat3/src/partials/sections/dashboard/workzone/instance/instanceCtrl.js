@@ -132,7 +132,7 @@
                                     '<i title="Edit Instance Name" class="pull-right fa fa-pencil edit-instance-name cursor"></i>' +
                                     '</span>', cellTooltip: true},
                             {name: 'Provider Name', displayName: 'Provider Name', field: 'providerId', cellTooltip: true},
-                            {name: 'Ip Address', displayName: 'IP Address', cellTemplate: '<span ng-if="row.entity.runlist.length > 0"><i class="fa fa-eye fa-2x cursor" "View All RunList" ng-click="grid.appScope.operationSet.viewRunList(row.entity)"></i></span><span ng-if="row.entity.runlist.length === 0">NA</span>', cellTooltip: true},
+                            {name: 'Ip Address', displayName: 'IP Address', cellTemplate: '<span ng-if="row.entity.instanceIP"><strong>Public:</strong> {{row.entity.instanceIP}}<br /></span><span ng-if="row.entity.privateIpAddress"><strong>Private:</strong> {{row.entity.privateIpAddress}}</span>', cellTooltip: true},
                             {name: 'RunLists', width: 90, enableSorting: false, cellTemplate: '<span ng-if="row.entity.runlist.length > 0"><i class="fa fa-eye fa-2x cursor" "View All RunList" ng-click="grid.appScope.operationSet.viewRunList(row.entity)"></i></span><span ng-if="row.entity.runlist.length === 0">NA</span>', cellTooltip: true},
                             {name: 'Status', width: 90, enableSorting: false, cellTemplate: '<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
                             {name: 'Log Info', width: 90, enableSorting: false, cellTemplate: '<i class="fa fa-info-circle fa-2x cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
@@ -651,7 +651,7 @@
                         $scope.filterChips.push({'key':'Region','value':$scope.filter.regionId});
                     }
                     if ($scope.filter.vpcId && $scope.filter.vpcId !== '') {
-                        $scope.filterBy += '+network.vpcId:'+$scope.filter.vpcId;
+                        $scope.filterBy += '+vpcId:'+$scope.filter.vpcId;
                         $scope.filterChips.push({'key':'VPC','value':$scope.filter.vpcId});
                     }
                     $scope.instancesListCardView();

@@ -125,7 +125,7 @@
 						</div>
 					</div>
 					<div class="instance-ip">
-						<strong>{{inst.instanceIP}}</strong>
+						<strong ng-if="inst.instanceIP">{{inst.instanceIP}}</strong><strong ng-if="!inst.instanceIP && inst.privateIpAddress">{{inst.privateIpAddress}}</strong>
 					</div>
 					<div class="provider-id" title="{{getPlatformId(inst.providerType,inst.platformId)}}">
 						{{getPlatformId(inst.providerType,inst.platformId)}}
