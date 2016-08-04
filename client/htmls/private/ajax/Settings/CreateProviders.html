@@ -510,7 +510,7 @@
 
         $('#orgId').val(data.orgId[0]).attr({
             'answer': data.orgId[0]
-        }).select2();
+        }).select2().attr('disabled', 'disabled');
 
         $('#openstackendpointec2').val(data.serviceendpoints.ec2);
 
@@ -544,7 +544,7 @@
         $keyRow.find('input.fileAzureKey').val(data.keyFileName);
         $('#orgId').val(data.orgId[0]).attr({
             'answer': data.orgId[0]
-        }).select2();
+        }).select2().attr('disabled', 'disabled');
 
     }
 
@@ -560,7 +560,7 @@
         $('#providertype').val(data.providerType).select2();
         $('#orgId').val(data.orgId[0]).attr({
             'answer': data.orgId[0]
-        }).select2();
+        }).select2().attr('disabled', 'disabled');
 
         $('#openstackendpointec2').val(data.serviceendpoints.ec2);
 
@@ -589,7 +589,7 @@
         $('#vmwaredc').val(data.dc);
         $('#orgId').val(data.orgId[0]).attr({
             'answer': data.orgId[0]
-        }).select2();
+        }).select2().attr('disabled', 'disabled');
 
     }
 
@@ -601,7 +601,7 @@
         $('#s3BucketName').val(data.s3BucketName);
         $('#orgId').val(data.orgId[0]).attr({
             'answer': data.orgId[0]
-        }).select2();
+        }).select2().attr('disabled', 'disabled');
         var createTemplateInstance = new createTemplate($('#appender'));
         for (var i = 0; i < data.keyPairs.length; i++) {
             if (i == 0) {
