@@ -26,6 +26,11 @@ var UnassignedInstancesSchema = new Schema({
         required: true,
         trim: true,
     },
+    orgName: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     providerId: {
         type: String,
         required: false,
