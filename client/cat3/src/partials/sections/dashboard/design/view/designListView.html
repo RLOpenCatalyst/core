@@ -15,7 +15,7 @@
 <div class="col-lg-12">
     <br>
     <div ng-show="bpList.blueprintList.length <= 0" class="alert alert-info text-center"> No Data Found!</div>
-    <div ng-show="bpList.blueprintType === 'Composite'">
+    <div ng-show="stateItems.params.templateObj.templatetypename === 'Composite'">
         <div class="productdiv4" id="{{blueprint.id}}" ng-repeat="blueprint in bpList.blueprintList" ng-init="bpList[blueprint.id] === false ">
             <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint.id] === true }" >
                 <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="bpList.selectCard(blueprint);">
@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <div ng-show="bpList.blueprintType !== 'Composite'">
+    <div ng-show="stateItems.params.templateObj.templatetypename !== 'Composite'">
         <div class="productdiv4" id="{{blueprint.id}}" ng-repeat="blueprint in bpList.blueprintList" ng-init="bpList[blueprint.id] === false ">
             <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint.id] === true }" >
                 <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="bpList.selectCard(blueprint);">

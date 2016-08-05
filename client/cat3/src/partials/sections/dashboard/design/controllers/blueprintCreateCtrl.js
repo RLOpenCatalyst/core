@@ -324,14 +324,13 @@
 
                     if($scope.bpTypeName === 'OSImage'){
                         blueprintCreateJSON.templateId = $scope.templateSelected.name;
-                        blueprintCreateJSON.templateType = $state.params.templateObj.templatetype;
                     } else {
                         blueprintCreateJSON.templateId = $scope.templateSelected.templatename;
-                        blueprintCreateJSON.templateType = $state.params.templateObj.templatetype;
                     }
 
                     if($scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'SoftwareStack') {
                         blueprintCreateJSON.blueprintType = "instance_launch";
+                        blueprintCreateJSON.templateType = $state.params.templateObj.templatetype;
                     }
 
                     if($scope.bpTypeName === 'CloudFormation'){

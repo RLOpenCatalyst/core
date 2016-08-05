@@ -10,7 +10,8 @@
                 var getResult = bpServ.createList();
                 if(getResult){
                     getResult.then(function (result){
-                        pbList.blueprintList=result.compositeBlueprints;
+                        pbList.blueprintList=result.blueprints;
+                        pbList.pager=result.metaData;
                     });
                 }
             };
@@ -47,13 +48,12 @@
     }]).controller('bpLaunchInstanceCtrl',['$rootScope','$modalInstance',function ($rootScope,$modalInstance) {
         var lanIns = this;
         lanIns.newEnt=[];
-        lanIns.envOptions=$rootScope.organObject[$rootScope.organNewEnt.org].environments;
-        lanIns.newEnt.org =$rootScope.organObject[$rootScope.organNewEnt.org].name;
-        lanIns.newEnt.buss=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].name;
-        lanIns.newEnt.proj=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].projects[$rootScope.organNewEnt.proj].name;
-        lanIns.cancel = function (){
-            $modalInstance.dismiss('cancel');
-        };
+        if($rootScope.organObject){
+            lanIns.envOptions=$rootScope.organObject[$rootScope.organNewEnt.org].environments;
+            lanIns.newEnt.org =$rootScope.organObject[$rootScope.organNewEnt.org].name;
+            lanIns.newEnt.buss=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].name;
+            lanIns.newEnt.proj=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].projects[$rootScope.organNewEnt.proj].name;
+        }
         lanIns.launch = function (){
             $modalInstance.close(lanIns.newEnt.env);
         };
