@@ -1683,99 +1683,59 @@ module.exports.setRoutes = function(app, sessionVerification) {
         } catch (e) {}
     }
 
-    function updateProjectWithEnv(projects, bodyJson) {
-        for (var p = 0; p < projects.length; p++) {
-            (function(project) {
-                if (project.id === '4') {
-                    logger.debug('Project : ' + project);
-                    d4dModelNew.d4dModelMastersProjects.findOne({
-                        rowid: project.rowid,
-                        id: '4'
-                    }, function(err, projectData) {
-                        if(err){
-                            logger.error(err);
-                            return;
-                        }else{
-                            var newEnv ='';
-                            var envName = '';
-                            if (projectData.environmentname_rowid !== '' && projectData.environmentname !== '') {
-                                newEnv = projectData.environmentname_rowid + ',' + bodyJson['rowid'];
-                                envName = projectData.environmentname + ',' +bodyJson['environmentname'];
-                            }else{
-                                newEnv =  bodyJson['rowid'];
-                                envName = bodyJson['environmentname'];
-                            }
-                            d4dModelNew.d4dModelMastersProjects.update({
-                                rowid: project.rowid,
-                                id: '4'
-                            }, {
-                                $set: {
-                                    environmentname_rowid: newEnv,
-                                    environmentname: envName
-                                }
-                            }, {
-                                upsert: false
-                            }, function(err, data1) {
-                                if (err) {
-                                    logger.debug('Err while updating d4dModelMastersProjects' + err);
-                                    return;
-                                }
-                                logger.debug('Updated project ' + project.projectname + ' with env : ' + envName);
-                                return;
-                            });
-                        }
-                    });
+    function updateProjectWithEnv(project, bodyJson) {
+        d4dModelNew.d4dModelMastersEnvironments.find({
+            id: "3",
+            rowid: bodyJson['rowid']
+        }, function(err, envs) {
+            if (err) {
+                logger.debug("Failed to fetch Env.", err);
+            } else if (envs.length > 0) {
+                var newEnv = '';
+                var envName = '';
+                if (project.environmentname_rowid !== '' && project.environmentname !== '') {
+                    var projectEnvId = project.environmentname_rowid.split(",");
+                    var projectEnvName = project.environmentname.split(",");
+                    if (projectEnvId.indexOf(bodyJson['rowid']) !== -1 && projectEnvName.indexOf(bodyJson['environmentname']) !== -1) {
+                        newEnv = project.environmentname_rowid + ',' + bodyJson['rowid'];
+                        envName = project.environmentname + ',' + bodyJson['environmentname'];
+                    } else if (projectEnvId.indexOf(bodyJson['rowid']) !== -1) {
+                        var index = projectEnvId.indexOf(bodyJson['rowid']);
+                        projectEnvName[index] = bodyJson['environmentname'];
+                        newEnv = project.environmentname_rowid;
+                        envName = changeArrayToString(projectEnvName);
+                    } else {
+                        return;
+                    }
+                } else {
+                    newEnv = bodyJson['rowid'];
+                    envName = bodyJson['environmentname'];
                 }
-            })(projects[p]);
-        }
+                d4dModelNew.d4dModelMastersProjects.update({
+                    rowid: project.rowid,
+                    id: '4'
+                }, {
+                    $set: {
+                        environmentname_rowid: newEnv,
+                        environmentname: envName
+                    }
+                }, {
+                    upsert: false
+                }, function (err, data1) {
+                    if (err) {
+                        logger.debug('Err while updating d4dModelMastersProjects' + err);
+                        return;
+                    }
+                    logger.debug('Updated project ' + project.projectname + ' with env : ' + envName);
+                    return;
+                });
+            }else {
+                return;
+            }
+        });
     };
 
-    function updateProjectWithAllEnv(projects, bodyJson) {
-        for (var p = 0; p < projects.length; p++) {
-            (function(project) {
-                if (project.id === '4') {
-                    logger.debug('Project : ' + project);
-                    d4dModelNew.d4dModelMastersProjects.findOne({
-                        rowid: project.rowid,
-                        id: '4'
-                    }, function(err, projectData) {
-                        if(err){
-                            logger.error(err);
-                            return;
-                        }else{
-                            var newEnv ='';
-                            var envName = '';
-                            if (projectData.environmentname_rowid !== '' && projectData.environmentname !== '') {
-                                newEnv = projectData.environmentname_rowid + ',' + bodyJson['rowid'];
-                                envName = projectData.environmentname + ',' +bodyJson['environmentname'];
-                            }else{
-                                newEnv =  bodyJson['rowid'];
-                                envName = bodyJson['environmentname'];
-                            }
-                            d4dModelNew.d4dModelMastersProjects.update({
-                                rowid: project.rowid,
-                                id: '4'
-                            }, {
-                                $set: {
-                                    environmentname_rowid: newEnv,
-                                    environmentname: envName
-                                }
-                            }, {
-                                upsert: false
-                            }, function(err, data1) {
-                                if (err) {
-                                    logger.debug('Err while updating d4dModelMastersProjects' + err);
-                                    return;
-                                }
-                                logger.debug('Updated project ' + project.projectname + ' with env : ' + envName);
-                                return;
-                            });
-                        }
-                    });
-                }
-            })(projects[p]);
-        }
-    };
+
 
     function findDeselectedItem(CurrentArray, PreviousArray) {
         var CurrentArrSize = CurrentArray.length;
@@ -1794,7 +1754,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     }
 
-    function changeArrayToString(list,str){
+    function changeArrayToString(list){
+        var resultStr='';
+        for(var i = 0; i < list.length; i++){
+            resultStr = resultStr + list[i] + ',';
+        }
+        if(resultStr.slice(-1) === ','){
+            var res = resultStr.slice(0,-1);
+            return res;
+        }else{
+            return resultStr;
+        }
+    }
+
+
+    function removeStringFromArray(list,str){
         var resultStr='';
         for(var i = 0; i < list.length; i++){
             if (i === list.length - 1) {
@@ -1815,52 +1789,33 @@ module.exports.setRoutes = function(app, sessionVerification) {
         }
     }
 
-    function dissociateProjectWithEnv(projects, bodyJson) {
-        for (var p = 0; p < projects.length; p++) {
-            var currproj = projects[p];
-            logger.debug('Project : ' + currproj);
-            d4dModelNew.d4dModelMastersEnvironments.find({
-                id: "3",
-                rowid: newenv
-            }, function(err, envs) {
-                if (err) {
-                    logger.debug("Failed to fetch Env.", err);
-                }
-                if (envs.length > 0) {
-                    var projEnvId = envs[0].projectname_rowid.split(",");
-                    var projEnvName = envs[0].projectname.split(",");
-                    if(projEnvId.indexOf(currproj.rowid) ===-1 && projEnvName.indexOf(currproj.projectname) === -1){
-                        var envNames=currproj.environmentname.split(",");
-                        var envIds=currproj.environmentname_rowid.split(",");
-                        if(envNames.indexOf(envs[0].environmentname) === -1 && envIds.indexOf(envs[0].environmentname_rowid) === -1){
-                           return;
-                        }else{
-                            envNames = changeArrayToString(envNames,envs[0].environmentname);
-                            envIds = changeArrayToString(envIds,envs[0].rowid);
-                            d4dModelNew.d4dModelMastersProjects.update({
-                                rowid: currproj.rowid,
-                                id: '4'
-                            }, {
-                                $set: {
-                                    environmentname_rowid: envIds,
-                                    environmentname: envNames
-                                }
-                            }, {
-                                upsert: false
-                            }, function(err, data1) {
-                                if (err) {
-                                    logger.debug('Err while updating d4dModelMastersProjects' + err);
-                                    return;
-                                }
-                                logger.debug('Disassociated project ' + currproj.projectname + ' with env : ' + envs[0].environmentname);
-                                return;
-                            });
 
-                        }
+
+    function dissociateProjectWithEnv(projects, bodyJson) {
+        for(var i = 0; i < projects.length; i++) {
+            (function(project) {
+                var projectEnvId = project.environmentname_rowid.split(",");
+                var projectEnvName = project.environmentname.split(",");
+                d4dModelNew.d4dModelMastersProjects.update({
+                    rowid: project.rowid,
+                    id: '4'
+                }, {
+                    $set: {
+                        environmentname_rowid: removeStringFromArray(projectEnvId, bodyJson['rowid']),
+                        environmentname: removeStringFromArray(projectEnvName, bodyJson['environmentname'])
                     }
-                }
-            });
-        }
+                }, {
+                    upsert: false
+                }, function (err, data1) {
+                    if (err) {
+                        logger.debug('Err while updating d4dModelMastersProjects' + err);
+                        return;
+                    }
+                    logger.debug('Updated project ' + project.projectname + ' with env : ' + envName);
+                    return;
+                });
+            })(projects[i]);
+        };
     };
 
     function saveuploadedfile(suffix, folderpath, req) {
@@ -2592,14 +2547,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                             //if env is saved then it should be associated with project.
                                             if (req.params.id == '3') {
-                                                var projId = bodyJson['projectname_rowid'].split(",");
-                                                for (var proj = 0; proj < projId.length; proj++) {
-                                                    d4dModelNew.d4dModelMastersProjects.find({
-                                                        rowid: projId[proj],
+                                                var projectIds = bodyJson['projectname_rowid'].split(",");
+                                                for (var i = 0; i < projectIds.length; i++) {
+                                                    d4dModelNew.d4dModelMastersProjects.findOne({
+                                                        rowid: projectIds[i],
                                                         id: "4"
-                                                    }, function(err, projs_) {
+                                                    }, function(err,project) {
                                                         if (!err) {
-                                                            updateProjectWithEnv(projs_, bodyJson);
+                                                            updateProjectWithEnv(project, bodyJson);
                                                         }
                                                     });
                                                 }
@@ -2764,20 +2719,18 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                         });
                                     }
-
                                     if (req.params.id === "3") {
                                         d4dModelNew.d4dModelMastersProjects.find({
                                             environmentname_rowid: {
                                                 $regex: bodyJson['rowid']
                                             },
                                             id: "4"
-                                        }, function(err, projs) {
+                                        }, function(err,project) {
                                             if (!err) {
-                                                dissociateProjectWithEnv(projs, bodyJson);
+                                                dissociateProjectWithEnv(project, bodyJson);
                                             }
                                         });
                                     }
-
                                     logger.debug("Rowid: %s", bodyJson["rowid"]);
                                     var currowid = bodyJson["rowid"];
                                     delete rowtoedit._id; //fixing the issue of
@@ -2802,14 +2755,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                         //if env is saved then it should be associated with project.
                                         if (req.params.id == '3') {
-                                            var projId = bodyJson['projectname_rowid'].split(",");
-                                            for (var proj = 0; proj < projId.length; proj++) {
-                                                d4dModelNew.d4dModelMastersProjects.find({
-                                                    rowid: projId[proj],
+                                            var projectIds = bodyJson['projectname_rowid'].split(",");
+                                            for (var i = 0; i < projectIds.length; i++) {
+                                                d4dModelNew.d4dModelMastersProjects.findOne({
+                                                    rowid: projectIds[i],
                                                     id: "4"
-                                                }, function(err, projs) {
+                                                }, function(err,project) {
                                                     if (!err) {
-                                                        updateProjectWithAllEnv(projs, bodyJson);
+                                                        updateProjectWithEnv(project, bodyJson);
                                                     }
                                                 });
                                             }
