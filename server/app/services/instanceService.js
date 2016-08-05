@@ -417,6 +417,9 @@ function getTrackedInstancesForProvider(provider, next) {
             unmanaged: function(callback) {
                 //@TODO Duplicate function of  getByProviderId, to be cleaned up
                 unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
+            },
+            unassigned: function(callback) {
+                unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
             }
         },
         function(err, results) {

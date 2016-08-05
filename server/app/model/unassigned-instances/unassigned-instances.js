@@ -64,6 +64,8 @@ var UnassignedInstancesSchema = new Schema({
         required:false
     },
     tags: Schema.Types.Mixed,
+    usage: Schema.Types.Mixed,
+    cost: Schema.Types.Mixed,
     subnetId: {
         type: String,
         required: false,
@@ -143,7 +145,8 @@ UnassignedInstancesSchema.statics.getAllByIds = function getByProviderId(instanc
     });
 };
 
-UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
+UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
+    = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
     var params = {
         'providerId': providerId,
         'platformId': platformId
@@ -162,7 +165,8 @@ UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId = function getByP
     );
 };
 
-UnassignedInstancesSchema.statics.getUnAssignedInstancesByProviderId = function getByProviderId(providerId, callback) {
+UnassignedInstancesSchema.statics.getUnAssignedInstancesByProviderId
+    = function getByProviderId(providerId, callback) {
     var params = {
         providerId: providerId
     };
@@ -214,7 +218,8 @@ UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstance
     });
 };
 
-UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId = function deleteByPlatformAndProviderId(providerId, platformId, callback) {
+UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId
+    = function deleteByPlatformAndProviderId(providerId, platformId, callback) {
     this.remove({
         providerId: providerId,
         platformId: platformId
@@ -244,6 +249,42 @@ UnassignedInstancesSchema.statics.removeInstancesByProviderId = function(provide
     });
 };
 
+UnassignedInstancesSchema.statics.updateUsage = function updateUsage(instanceId, usage, callBack) {
+    this.update({
+        _id: new ObjectId(instanceId)
+    }, {
+        $set: {usage: usage}
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to update Unmanaged Instance data", err);
+            if (typeof callBack == 'function') {
+                callBack(err, null);
+            }
+            return;
+        }
+        if (typeof callBack == 'function') {
+            callBack(null, data);
+        }
+    });
+};
+
+UnassignedInstancesSchema.statics.updateInstanceCost = function(instanceCostData, callback) {
+    this.update({
+        platformId: instanceCostData.resourceId
+    }, {
+        $set: {
+            cost: instanceCostData.cost
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
 
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);
 module.exports = UnassignedInstances;

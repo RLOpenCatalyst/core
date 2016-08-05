@@ -20,6 +20,7 @@ var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var appConfig = require('_pr/config');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
+var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var resourceMetricsModel = require('_pr/model/resource-metrics');
 var instanceService = require('_pr/services/instanceService');
 var async = require('async');
@@ -39,7 +40,7 @@ function aggregateAWSUsage() {
         if(err) {
             logger.error(err);
         }else if(orgs.length > 0){
-            for(var i = 0; i < orgs.length; i++){
+            for(var i = 0; i < orgs.length; i++) {
                 (function(org){
                     AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
                         if(err) {
@@ -58,7 +59,8 @@ function aggregateAWSUsage() {
                             }
 
                         }else{
-                            logger.info("Please configure Provider in Organization " +org.orgname+" for AWS Usage Aggregation");
+                            logger.info("Please configure Provider in Organization "
+                                +org.orgname+" for AWS Usage Aggregation");
                             return;
                         }
                     });
@@ -91,6 +93,9 @@ function aggregateEC2UsageForProvider(provider) {
                 unmanaged: function (callback) {
                     generateEC2UsageMetricsForProvider(provider, instances.unmanaged, callback);
                 },
+                unassigned: function (callback) {
+                    generateEC2UsageMetricsForProvider(provider, instances.unassigned, callback);
+                },
                 s3BucketUsageMetrics: function (callback) {
                     generateS3UsageMetricsForProvider(provider, callback);
                 },
@@ -112,6 +117,9 @@ function aggregateEC2UsageForProvider(provider) {
                 },
                 unmanaged: function (callback) {
                     updateUnmanagedInstanceUsage(usageMetrics.unmanaged, callback);
+                },
+                unassigned: function (callback) {
+                    updateUnassignedInstanceUsage(usageMetrics.unassigned, callback);
                 },
                 s3BucketUsageMetrics: function (callback) {
                     updateResourceUsage(usageMetrics.s3BucketUsageMetrics, callback);
@@ -230,6 +238,7 @@ function saveResourceUsageMetrics (resourceMetrics, next) {
     };
 }
 
+// @TODO Resource abstraction to be redefined to include all instances, to reduce code duplication
 /**
  *
  * @param instanceUsageMetrics
@@ -297,6 +306,33 @@ function updateUnmanagedInstanceUsage(instanceUsageMetrics, next) {
     };
 }
 
+function updateUnassignedInstanceUsage(instanceUsageMetrics, next) {
+    var results = [];
+    if(instanceUsageMetrics.length == 0)
+        return next(null, results);
+    // @TODO get rid of nesting
+    for(var i = 0; i < instanceUsageMetrics.length; i++) {
+        (function (j) {
+            formatUsageData(instanceUsageMetrics[j], function(err, formattedUsageMetrics) {
+                if(err) {
+                    next(err);
+                } else {
+                    unassignedInstancesModel.updateUsage(formattedUsageMetrics.resourceId,
+                        formattedUsageMetrics.metrics, function(err, result) {
+                            if(err)
+                                next(err);
+                            else
+                                results.push(result);
+
+                            if(results.length == instanceUsageMetrics.length)
+                                next(null, results);
+                        }
+                    );
+                }
+            });
+        })(i);
+    };
+}
 
 function updateResourceUsage(resourcesUsageMetrics,next){
     var results = [];
