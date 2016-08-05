@@ -379,8 +379,9 @@
 							</header>
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-										<div class="row margin0">
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 script-task">
+										<loading name="isScriptNodesLoading" size="medium" type="block" align="left"></loading>
+										<div class="row margin0" ng-show="!isScriptNodesLoading">
 			                                <div class="radio-instances col-lg-6 no-padding">
 			                                    <input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
 			                                    <label for="rdInstance" class="lable-align">Nodes</label>

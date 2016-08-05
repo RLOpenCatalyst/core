@@ -347,6 +347,12 @@ $imagePath : "../../../../../../images";
 	input[type="file"] { 
 		display: none; 
 	}
+
+	.script-task {
+		loading h1 {
+			margin: 3px 0 0 0;
+		}
+	}
 }
 
 #viewNodesPage {
