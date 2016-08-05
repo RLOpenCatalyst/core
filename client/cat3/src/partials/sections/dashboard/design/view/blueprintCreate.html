@@ -70,7 +70,7 @@
                                  <span ng-show="newBlueprintForm.imageId.$touched && newBlueprintForm.imageId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isImageLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.images" name="imageId" class="chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();" ng-disabled="isOSImage" required>
+                              <select  ng-model="bpCreate.newEnt.images" name="imageId" class="chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();" ng-disabled="isOSImage" required>
                                  <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" value="">Select Image</option>
                                  <option ng-if="templateSelected.templatetypename == 'SoftwareStack'" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
                                   <option ng-if="templateSelected.osType" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
@@ -141,7 +141,7 @@
                                  <span ng-show="newBlueprintForm.instanceCount.$touched && newBlueprintForm.instanceCount.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isImageLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="chooseOrganization width-100 chooseSelect form-control" required>
+                              <select  ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="chooseOrganization width-100 chooseSelect form-control" required>
                                  <option value="">Select No. Of Instances</option>
                                  <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
                               </select>
@@ -387,13 +387,13 @@
                                  <option value="{{bpCreate.regionListing}}">{{bpCreate.regionListing}}</option>
                               </select>
                            </div>
-                           <div class="col-lg-6 col-md-6 margintop15" ng-repeat="(key,value) in getCFTDetails.Parameters">
+                           <div class="col-lg-6 col-md-6 margintop15" ng-repeat="(key,value) in bpCreate.getCFTDetails.Parameters">
                               <label for="cftResources">{{key}}<span class="red">&nbsp;*</span>&nbsp;&nbsp;<span title="{{value.Description}}"><i class="fa fa-question-circle"></i></span></label>
-                              <input type="text" name="resource" class="form-control" required  value="{{value.Default}}"/>
+                              <input type="text" name="resource" ng-model="value.Default" class="form-control"/>
                            </div>
                            <div class="accordionClear"></div>
                            <br/>
-                           <accordion ng-repeat="(key,value) in getCFTDetails.Resources">
+                           <accordion ng-repeat="(key,value) in bpCreate.getCFTDetails.Resources">
                               <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                                  <accordion-heading>
                                     <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
@@ -401,7 +401,7 @@
                                  </accordion-heading>
                                  <div class="col-lg-6 col-md-6 margintop15">
                                     <label for="cftUserName">Instance Username<span class="red">&nbsp;*</span></label>
-                                    <input type="text" ng-model="bpCreate.newEnt.UserName" name="cftUserName" class="form-control" required/>
+                                    <input type="text" ng-model="bpCreate.newEnt.cftModelResources[key]" name="cftUserName" class="form-control"/>
                                  </div>
                                  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <span class="cursor pull-right">
