@@ -47,7 +47,9 @@
 						'<a target="_blank" title="Jenkins" ng-href="{{row.entity.taskConfig.jobURL}}">'+
 						'<img class="chefImage-size" src="images/orchestration/joburl.jpg" /> </a>'+
 						'</span>'+
-						'<span ng-show="row.entity.taskType===\'composite\'"> NA </span>'+
+						'<span ng-show="row.entity.taskType===\'composite\'">'+
+						'<span title="assigned Scripts" class="fa fa-list-ul assigned-runlists cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
+						'</span>'+
 						'<span ng-show="row.entity.taskType==\'puppet\'">'+
 						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
 						'</span>'+

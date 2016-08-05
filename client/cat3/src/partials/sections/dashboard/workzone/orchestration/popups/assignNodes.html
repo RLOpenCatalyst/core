@@ -4,6 +4,7 @@
 		<h4 class="modal-title"> 
 			<i class="fa fa-list"></i>&nbsp;
 			<span ng-show="taskType == 'chef'">Assigned Runlists</span>
+			<span ng-show="taskType == 'composite'">Assigned Tasks</span>
 			<span ng-show="taskType == 'script'">Assigned Scripts</span>
 		</h4>
 	</div>
@@ -30,10 +31,23 @@
 					</div>
 				</div>
 			</section>
+			<section class="col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-show = "taskType == 'composite'">
+				<label>
+					<i class="fa fa-list"></i>&nbsp;&nbsp;
+					<strong>Tasks</strong>
+				</label>
+				<div class="row">
+					<div class="col col-10">
+						<ul class="assignedRunlists">
+							<li class="runlist" ng-repeat="task in taskCollection">{{task}}</li>
+						</ul>
+					</div>
+				</div>
+			</section>
 			<section class="col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-show = "taskType == 'script'">
 				<label>
 					<i class="fa fa-list"></i>&nbsp;&nbsp;
-					<strong>Assigned Scripts</strong>
+					<strong>Scripts</strong>
 				</label>
 				<div class="row">
 					<div class="col col-10">

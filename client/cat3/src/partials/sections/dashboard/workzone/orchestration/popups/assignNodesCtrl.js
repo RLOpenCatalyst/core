@@ -10,11 +10,26 @@
 	angular.module('workzone.orchestration')
 		.controller('assignNodesCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function($scope, $modalInstance, items, workzoneServices) {
 			$scope.runlistCollection = items.taskConfig.runlist || [];
-			$scope.taskCollection = items.taskConfig.assignTasks;
+			$scope.taskIdCollection = items.taskConfig.assignTasks;
 			$scope.scriptIdCollection = items.taskConfig.scriptDetails;
 			$scope.taskType = items.taskConfig.taskType;
 			$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
 			$scope.scriptCollection = [];
+			$scope.taskCollection = [];
+			if(items.taskConfig.taskType == 'composite') {
+				workzoneServices.getEnvironmentTaskList().then(function (response) {
+					if (response.data) {
+						$scope.taskDetails = response.data;
+						for(var i=0;i<$scope.taskDetails.length;i++){
+							for (var j = 0; j < $scope.taskIdCollection.length; j++) {
+								if ($scope.taskDetails[i]._id === $scope.taskIdCollection[j]){
+									$scope.taskCollection.push($scope.taskDetails[i].name);
+								}
+							}
+						}
+					}
+				});
+			}
 			if(items.taskConfig.taskType == 'script') {
 				workzoneServices.getScriptList($scope.scriptTypeSelelct).then(function (response) {
 					if (response.data) {
