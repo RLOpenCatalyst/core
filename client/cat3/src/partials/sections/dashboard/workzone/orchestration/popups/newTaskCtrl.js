@@ -234,6 +234,14 @@
 						$scope.scriptParamsObj[scriptObj._id] = [];	
 					}
 				},
+				clearRoleSelection : function(){
+					$scope.role.name = '';
+				},
+				clearBluePrintSelection : function(){
+					for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
+							$scope.chefBluePrintList[bi]._isBlueprintSelected = false;
+						}
+				},
 				ok: function () {
                     $scope.taskSaving = true;
 					//these values are common across all task types
@@ -277,7 +285,6 @@
 								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
 							}
 						}
-
 						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
 							$scope.inputValidationMsg='Please select a node or blueprint or role';
                             $scope.taskSaving = false;
