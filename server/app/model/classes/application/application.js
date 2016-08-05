@@ -22,7 +22,6 @@ var validate = require('mongoose-validator');
 var logger = require('_pr/logger')(module);
 var schemaValidator = require('../../dao/schema-validator');
 var utils = require('../utils/utils');
-var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 
 var Build = require('./build/build.js');
 var AppInstance = require('./appinstance/appInstance');
@@ -384,29 +383,13 @@ ApplicationSchema.statics.createNew = function(appData, callback) {
 };
 
 ApplicationSchema.statics.getAppCardsByOrgBgAndProjectId = function(jsonData, callback) {
-    jsonData['searchColumns']=['name','buildId'];
-    ApiUtils.databaseUtil(jsonData,function(err,databaseCall){
+    Application.paginate(jsonData.queryObj, jsonData.options, function(err, applications) {
         if(err){
             var err = new Error('Internal server error');
             err.status = 500;
             return callback(err);
         }
-        else{
-            Application.paginate(databaseCall.queryObj, databaseCall.options, function(err, applications) {
-                if(err){
-                    var err = new Error('Internal server error');
-                    err.status = 500;
-                    return callback(err);
-                }
-                else if(applications.length === 0) {
-                    var err = new Error('Applications are not found');
-                    err.status = 404;
-                    return callback(err);
-                }
-                else
-                    return callback(null, applications);
-            });
-        }
+        return callback(null, applications);
     });
 };
 
