@@ -50,7 +50,8 @@ var compositeBlueprintService = module.exports = {};
 compositeBlueprintService.SUCCESS_EVENT = 'success';
 compositeBlueprintService.FAILED_EVENT = 'failed';
 
-compositeBlueprintService.checkCompositeBlueprintAccess = function checkCompositeBlueprintAccess(orgs, compositeBlueprintId, callback) {
+compositeBlueprintService.checkCompositeBlueprintAccess
+    = function checkCompositeBlueprintAccess(orgs, compositeBlueprintId, callback) {
     compositeBlueprintService.getCompositeBlueprint(compositeBlueprintId, function(err, compositeBlueprint) {
         if (err) {
             return callback(err);
@@ -73,7 +74,8 @@ compositeBlueprintService.checkCompositeBlueprintAccess = function checkComposit
     });
 };
 
-compositeBlueprintService.populateComposedBlueprints = function populateComposedBlueprints(compositeBlueprint, callback) {
+compositeBlueprintService.populateComposedBlueprints
+    = function populateComposedBlueprints(compositeBlueprint, callback) {
     if (!('blueprints' in compositeBlueprint)) {
         return callback(null, compositeBlueprint);
     }
@@ -107,7 +109,8 @@ compositeBlueprintService.populateComposedBlueprints = function populateComposed
             for (var j = 0; j < blueprints.length; j++) {
                 (function(blueprintEntry) {
                     var tempBlueprint = blueprintEntry;
-                    tempBlueprint.blueprintConfig.infraManagerData.versionsList[0].attributes = compositeBlueprint.blueprints[blueprintsMap[blueprintEntry._id]].attributes;
+                    tempBlueprint.blueprintConfig.infraManagerData.versionsList[0].attributes
+                        = compositeBlueprint.blueprints[blueprintsMap[blueprintEntry._id]].attributes;
                     compositeBlueprint.blueprints[blueprintsMap[blueprintEntry._id]] = tempBlueprint;
                 })(blueprints[j]);
             }
@@ -117,7 +120,8 @@ compositeBlueprintService.populateComposedBlueprints = function populateComposed
     });
 };
 
-compositeBlueprintService.validateCompositeBlueprintCreateRequest = function validateCompositeBlueprintCreateRequest(compositeBlueprint, callback) {
+compositeBlueprintService.validateCompositeBlueprintCreateRequest
+    = function validateCompositeBlueprintCreateRequest(compositeBlueprint, callback) {
     if (!('blueprints' in compositeBlueprint)) {
         var err = new Error('Bad Request');
         err.status = 400;
@@ -137,7 +141,8 @@ compositeBlueprintService.validateCompositeBlueprintCreateRequest = function val
 
     for (var i = 0; i < compositeBlueprint.blueprints.length; i++) {
         (function(blueprint) {
-            if ((blueprint.blueprintType != blueprintType) || (blueprint.blueprintConfig.cloudProviderId != providerId)) {
+            if ((blueprint.blueprintType != blueprintType)
+                || (blueprint.blueprintConfig.cloudProviderId != providerId)) {
                 var err = new Error('Bad Request');
                 err.status = 400;
                 return callback(err);
@@ -148,7 +153,8 @@ compositeBlueprintService.validateCompositeBlueprintCreateRequest = function val
     return callback(null, compositeBlueprint);
 };
 
-compositeBlueprintService.createCompositeBlueprint = function createCompositeBlueprint(compositeBlueprint, callback) {
+compositeBlueprintService.createCompositeBlueprint
+    = function createCompositeBlueprint(compositeBlueprint, callback) {
     compositeBlueprintModel.createNew(compositeBlueprint, function(err, compositeBlueprint) {
         //@TODO To be generalized
         if (err && err.name == 'ValidationError') {
@@ -167,7 +173,8 @@ compositeBlueprintService.createCompositeBlueprint = function createCompositeBlu
     });
 };
 
-compositeBlueprintService.getCompositeBlueprint = function getCompositeBlueprint(compositeBlueprintId, callback) {
+compositeBlueprintService.getCompositeBlueprint
+    = function getCompositeBlueprint(compositeBlueprintId, callback) {
     compositeBlueprintModel.getById(compositeBlueprintId, function(err, compositeBlueprint) {
         if (err) {
             var err = new Error('Internal Server Error');
@@ -183,22 +190,12 @@ compositeBlueprintService.getCompositeBlueprint = function getCompositeBlueprint
     });
 };
 
-compositeBlueprintService.getCompositeBlueprintsList = function getCompositeBlueprintsList(userOrganizationIds, filterParameters, callback) {
+// @TODO authorization based on user organization should be handled
+compositeBlueprintService.getCompositeBlueprintsList
+    = function getCompositeBlueprintsList(userOrganizationIds, filterParameters, callback) {
     var query = {};
 
-    if ('organizationId' in filterParameters) {
-        query.organizationId = filterParameters.organizationId;
-    } else {
-        query.organizationId = { $in: userOrganizationIds };
-    }
-
-    /*query.businessGroupId
-        = ('businessGroupId' in filterParameters)?filterParameters.businessGroupId:null;
-
-    query.projectId
-        = ('projectId' in filterParameters)?filterParameters.projectId:null;*/
-
-    compositeBlueprintModel.getAll(query, function(err, compositeBlueprints) {
+    compositeBlueprintModel.getAll(filterParameters, function(err, compositeBlueprints) {
         if (err) {
             var err = new Error('Internal Server Error');
             err.status = 500;
@@ -209,7 +206,8 @@ compositeBlueprintService.getCompositeBlueprintsList = function getCompositeBlue
     });
 };
 
-compositeBlueprintService.updateCompositeBlueprint = function updateCompositeBlueprint(compositeBlueprint, updateFields, callback) {
+compositeBlueprintService.updateCompositeBlueprint
+    = function updateCompositeBlueprint(compositeBlueprint, updateFields, callback) {
     var fields = {};
     if ('name' in updateFields) {
         fields.name = updateFields.name;
@@ -233,7 +231,8 @@ compositeBlueprintService.updateCompositeBlueprint = function updateCompositeBlu
 };
 
 // @TODO State of blueprintframes to be accounted for while developing blueprintframe state APIs
-compositeBlueprintService.deleteCompositeBlueprint = function deleteCompositeBlueprint(compositeBlueprintId, callback) {
+compositeBlueprintService.deleteCompositeBlueprint
+    = function deleteCompositeBlueprint(compositeBlueprintId, callback) {
     compositeBlueprintModel.deleteById(compositeBlueprintId, function(err, deleted) {
         if (err) {
             var err = new Error('Internal server error');
@@ -250,7 +249,8 @@ compositeBlueprintService.deleteCompositeBlueprint = function deleteCompositeBlu
     });
 };
 
-compositeBlueprintService.formatCompositeBlueprint = function formatCompositeBlueprint(compositeBlueprint, callback) {
+compositeBlueprintService.formatCompositeBlueprint
+    = function formatCompositeBlueprint(compositeBlueprint, callback) {
     var compositeBlueprintObject = {
         id: compositeBlueprint.id,
         name: compositeBlueprint.name,
@@ -277,13 +277,14 @@ compositeBlueprintService.formatCompositeBlueprint = function formatCompositeBlu
     callback(null, compositeBlueprintObject);
 };
 
-compositeBlueprintService.formatCompositeBlueprintsList = function formatCompositeBlueprintsList(compositeBlueprints, callback) {
+compositeBlueprintService.formatCompositeBlueprintsList
+    = function formatCompositeBlueprintsList(ownerUpdatedList, compositeBlueprints, callback) {
     var compositeBlueprintsList = [];
 
-    if (compositeBlueprints.length == 0)
-        return callback(null, compositeBlueprintsList);
+    if (ownerUpdatedList.length == 0)
+        return callback(null, {compositeBlueprints: {}, metadata: compositeBlueprints.metadata});
 
-    for (var i = 0; i < compositeBlueprints.length; i++) {
+    for (var i = 0; i < ownerUpdatedList.length; i++) {
         (function(compositeBlueprint) {
             compositeBlueprintService.formatCompositeBlueprint(compositeBlueprint,
                 function(err, formattedCompositeBlueprint) {
@@ -293,18 +294,20 @@ compositeBlueprintService.formatCompositeBlueprintsList = function formatComposi
                         compositeBlueprintsList.push(formattedCompositeBlueprint);
                     }
 
-                    if (compositeBlueprintsList.length == compositeBlueprints.length) {
+                    if (compositeBlueprintsList.length == ownerUpdatedList.length) {
                         var compositeBlueprintsListObject = {
-                            'compositeBlueprints': compositeBlueprintsList
+                            'compositeBlueprints': compositeBlueprintsList,
+                            'metadata': compositeBlueprints.metaData
                         };
                         return callback(null, compositeBlueprintsListObject);
                     }
                 });
-        })(compositeBlueprints[i]);
+        })(ownerUpdatedList[i]);
     }
 };
 
-compositeBlueprintService.launchComposedBlueprint = function launchComposedBlueprint(blueprintFrameId, blueprint, environmentId, userName) {
+compositeBlueprintService.launchComposedBlueprint
+    = function launchComposedBlueprint(blueprintFrameId, blueprint, environmentId, userName) {
     var options = {
         blueprintFrameId: blueprintFrameId,
         envId: environmentId,
@@ -323,7 +326,8 @@ compositeBlueprintService.launchComposedBlueprint = function launchComposedBluep
 };
 
 // @TODO FSM module should be generic
-compositeBlueprintService.createBlueprintFrame = function createBlueprintFrame(compositeBlueprint, environmentId, userName, callback) {
+compositeBlueprintService.createBlueprintFrame
+    = function createBlueprintFrame(compositeBlueprint, environmentId, userName, callback) {
     if ((compositeBlueprint == null) || !('blueprints' in compositeBlueprint)) {
         var err = new Error('Bad Request');
         err.status = 400;
@@ -405,7 +409,8 @@ compositeBlueprintService.successEventHandler = function successEventHandler(eve
                 blueprintFrame.stateMap[blueprintFrame.state].instances = eventData.instances;
             }
 
-            blueprintFrame.state = blueprintFrame.stateMap[blueprintFrame.state].transitions[compositeBlueprintService.SUCCESS_EVENT];
+            blueprintFrame.state
+                = blueprintFrame.stateMap[blueprintFrame.state].transitions[compositeBlueprintService.SUCCESS_EVENT];
 
             if (blueprintFrame.state != '#') {
                 compositeBlueprintService.launchComposedBlueprint(blueprintFrame._id,
