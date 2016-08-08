@@ -64,8 +64,10 @@
 			$rootScope.isOpenSidebar = false;
 			subDes.selectedCards=[];
 			subDes.newEnt=[];
-			var treeNames=['DESIGN', $state.params.subItem,$state.params.templateObj.templatetypename,$state.params.view];
-			$rootScope.$emit('treeNameUpdate', treeNames);
+			if($state.params  && $state.params.subItem && $state.params.templateObj && $state.params.templateObj.templatetypename && $state.params.view){
+				var treeNames=['DESIGN', $state.params.subItem,$state.params.templateObj.templatetypename,$state.params.view];
+				$rootScope.$emit('treeNameUpdate', treeNames);
+			}
 			if($state.params.view === 'list'){
 				$rootScope.stateItems.current.params.blueId = null;
 			}

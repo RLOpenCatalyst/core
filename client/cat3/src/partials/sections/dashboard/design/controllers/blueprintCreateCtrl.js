@@ -21,6 +21,7 @@
             blueprintCreation.buProjListing = [];
             blueprintCreation.projListing = [];
             blueprintCreation.appUrlList = [];
+            blueprintCreation.getCFTDetails = [];
 
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
@@ -190,10 +191,12 @@
             }; 
 
             blueprintCreation.getCFTParams = function() {
-                var cftTemplate = $scope.templateSelected;
-                cftTemplate = $scope.templateSelected.rowid + "__template__" + $scope.templateSelected.template_filename;
-                bpCreateSer.getCFTParams(cftTemplate).then(function(data){
-                    $scope.getCFTDetails = data;
+                $scope.cftTemplate = $scope.templateSelected;
+                $scope.cftTemplate = $scope.templateSelected.rowid + "__template__" + $scope.templateSelected.template_filename;
+                bpCreateSer.getCFTParams($scope.cftTemplate).then(function(data){
+                    blueprintCreation.getCFTDetails = data;
+                    blueprintCreation.newEnt.cftModel = data.Parameters;
+                    blueprintCreation.newEnt.cftModelResources = {};
                 });
             };                                             
 
@@ -316,17 +319,45 @@
                         imageId:blueprintCreation.newEnt.images,
                         providerId:blueprintCreation.newEnt.providers,
                         region:blueprintCreation.newEnt.region,
-                        name:blueprintCreation.newEnt.blueprintName,
-                        blueprintType:'instance_launch'
+                        name:blueprintCreation.newEnt.blueprintName
                     };
 
                     if($scope.bpTypeName === 'OSImage'){
                         blueprintCreateJSON.templateId = $scope.templateSelected.name;
-                        blueprintCreateJSON.templateType = $state.params.templateObj.templatetype;
                     } else {
                         blueprintCreateJSON.templateId = $scope.templateSelected.templatename;
+                    }
+
+                    if($scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'SoftwareStack') {
+                        blueprintCreateJSON.blueprintType = "instance_launch";
                         blueprintCreateJSON.templateType = $state.params.templateObj.templatetype;
                     }
+
+                    if($scope.bpTypeName === 'CloudFormation'){
+                        var cftParameters = [];
+                        angular.forEach(blueprintCreation.newEnt.cftModel , function(value, key) {
+                            var parameterObj = {
+                                ParameterKey: key,
+                                ParameterValue: value.Default
+                            }
+                            cftParameters.push(parameterObj);
+                            blueprintCreateJSON.cftStackParameters = cftParameters;
+                            blueprintCreateJSON.blueprintType = "aws_cf";
+                        });
+                        blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
+                        var cftInstances = [];
+                        angular.forEach(blueprintCreation.newEnt.cftModelResources , function(value, key) {
+                            console.log(key , value);
+                            var instanceObj = {
+                                logicalId: key,
+                                username: value,
+                                runlist: []
+                            };
+                            cftInstances.push(instanceObj);
+                            blueprintCreateJSON.cftInstances = cftInstances;
+                        });
+                    }
+
                     blueprintCreateJSON.runlist = [];
                     if($scope.templateSelected.templatescookbooks){
                         blueprintCreateJSON.runlist = $scope.templateSelected.templatescookbooks.split(',');    
@@ -356,8 +387,12 @@
                         bpCreateSer.postBlueprintSave(blueprintCreateJSON.orgId,blueprintCreateJSON.bgId,blueprintCreateJSON.projectId,reqBody).then(function(){
                             if($scope.bpTypeName === 'OSImage'){
                                 toastr.success('OSImage Blueprint Created Successfully');
-                            } else {
+                            } else if($scope.bpTypeName === 'SoftwareStack') {
                                 toastr.success('Software Blueprint Created Successfully');
+                            } else if($scope.bpTypeName === 'CloudFormation') {
+                                toastr.success('CFT Blueprint Created Successfully');
+                            } else {
+                                toastr.success('Docker Blueprint Created Successfully');
                             }
                         }, function(data) {
                             toastr.error('error:: ' + data.toString());

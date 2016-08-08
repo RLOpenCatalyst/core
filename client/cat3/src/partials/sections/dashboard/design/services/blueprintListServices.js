@@ -3,17 +3,18 @@
     angular.module('design.BpList',[])
         .service('blueprintService',['$rootScope','$http','$q','toastr','$state','$modal','confirmbox','designServices',function ($rootScope,$http,$q,toastr,$state,$modal,confirmbox,designServices) {
             var bpServ={};
-            bpServ.createList = function(){
+             bpServ.createList = function(){
                 var organObjectId=[];
                 ///organObjectId.envOptions=$rootScope.organObject[$rootScope.organNewEnt.org].environments;
-                organObjectId.org =$rootScope.organObject[$rootScope.organNewEnt.org].rowid;
-                organObjectId.buss=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].rowid;
-                organObjectId.proj=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].projects[$rootScope.organNewEnt.proj].rowid;
-                var params = {
-                    url:'/composite-blueprints'
-                    //url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/?provider='+$state.params.subItem+'&templatetype='+$state.params.templateId
-                };
-                return designServices.promiseGet(params);
+                if($rootScope.organObject){
+                    organObjectId.org =$rootScope.organObject[$rootScope.organNewEnt.org].rowid;
+                    organObjectId.buss=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].rowid;
+                    organObjectId.proj=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].projects[$rootScope.organNewEnt.proj].rowid;
+                    var params = {
+                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination=true&templateType='+$state.params.templateObj.templatetype+'&providerType='+angular.lowercase($state.params.subItem)
+                    };
+                    return designServices.promiseGet(params);
+                }
 
             };
             bpServ.launchBp = function (id) {
