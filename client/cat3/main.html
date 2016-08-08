@@ -33,7 +33,8 @@
 		<!-- Application configuration -->
 		<script src="uiConfig.js"></script>
 	</head>
-	<body>
+	<body ng-class="{ 'loading-body': onBodyLoading === true }">
+	<loading size="large" name="onBodyLoading"  class="onbody-loading"></loading>
 		<div class="globalPopup" id="globalSuccessMessage">
 			<span class="close green" ng-click="hideGlobalMessage()">×</span> 
 			<p>{{globalSuccessMessage}}</p>           
@@ -58,8 +59,27 @@
 				</div>
 			</div>
 		</div>
-		<div ui-view></div>
+	<div ng-controller="dashboardCtrl">
+		<div class='row'  ng-if="dashboardChild !==''">
+			<div class=' panelLeft' >
+				<span class="tree-wrapper" >
+					<span ng-click="showTreeOverlay()" class="minifyme cursor"> <i class="fa fa-arrow-circle-right black hit"></i> </span>
+					<span ng-click="hideTreeOverlay()" class="minifyme cursor" title="Hide Tree" ng-show="showTreeMenu"> <i class="fa fa-arrow-circle-left black hit"></i> </span>
+				</span>
+				<div id='navigPage'>
+					<div id='navigPage-inner' ng-show="showTreeMenu">
+						<div ng-if="dashboardChild=== 'workzone'"><span  ng-include="'src/partials/sections/dashboard/workzone/workzoneTreeMenu/workzoneTreeMenu.html'"></span></div>
 
+						<div ng-if="dashboardChild === 'design'"><span ng-include="'src/partials/sections/dashboard/design/view/designSubMenu.html'"></span></div>
+					</div>
+				</div>
+			</div>
+			<div class='panelRight'>
+				<div ui-view></div>
+			</div>
+		</div>
+		<div ng-if="dashboardChild ===''" ui-view></div>
+	</div>
 		<!-- build:remove:qa,prod,dist -->
 		<script src="src/main.js"></script>
 		<script src="src/clientRoutes.js"></script>
@@ -84,7 +104,15 @@
 		<script src="src/partials/globals/messages/messagesDirective.js" ></script>
 		<script src="src/partials/globals/treeComponent/treeDirective.js"></script>
 		<script src="src/partials/globals/ui-gridOptions/uiGridOptionsServices.js"></script>
+		<script src="src/partials/sections/dashboard/dashboardCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/genericServices.js"></script>
 		<script src="src/partials/sections/dashboard/design/designCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/designServices.js"></script>
+		<script src="src/partials/sections/dashboard/design/services/blueprintCreateServices.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/appUrlCreateCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/blueprintCreateCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/blueprintListCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/services/blueprintListServices.js"></script>
 		<script src="src/partials/sections/dashboard/help/helpCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationListCtrl.js"></script>

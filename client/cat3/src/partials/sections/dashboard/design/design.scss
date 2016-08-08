@@ -1,0 +1,128 @@
+#well{
+  min-height: 35px;
+  padding: 9px;
+  margin: 11px 0 0 0;
+  background-color: #FDFDFD;
+  border-bottom: 1px solid #e3e3e3;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  span{
+    margin-left: 13px;
+  }
+}
+
+// create card
+.productdiv4 {
+  width: 156px;
+  float: left;
+  padding-top: 7px;
+  margin-left: 10px;
+}
+.productdiv1 {
+  position: relative;
+  border-width: 1px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.cardimage {
+  background-repeat: no-repeat;
+  height: 163px;
+  margin-left: 15px;
+}
+.moreInfoabsolute {
+  position: absolute;
+  margin-left: -28px;
+}
+.moreInfo {
+  background-position: -15px -12px;
+  width: 27px;
+  height: 27px;
+}
+.blue-hr {
+  margin-top: 20px;
+  margin-bottom: 6px;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+.bpvicon {
+  border-radius: 11px !important;
+  height: 25px;
+  width: 25px;
+  padding: 0px 5px;
+  margin: 0 5px;
+}
+#create-bp {
+  height: 490px;
+  overflow-y: auto;
+}
+
+.blueprintTemplate {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  height: 152px;
+  padding: 4px;
+  width: 152px;
+  cursor: pointer;
+  margin-left:15px;
+}
+
+.blueprintTemplateSelected {
+  border: 2px solid #40baf1;
+  border-radius: 4px;
+}
+
+label {
+  color: #444;
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.form-control {
+  font-size: 13px;
+  height:36px;
+}
+
+.securityGroupComponent {
+  height: 140px;
+  overflow-y: scroll;
+  border:1px solid gray;
+  padding: 0px;
+  width:100%;
+}
+
+.cardLogo {
+  height: 52px;
+  padding-top: 11px;
+  margin-top: 20px;
+  margin-left: 8px;
+}
+
+.scroll-bluePrints {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.selected{
+  border: 2px solid #40BAF1 !important;
+}
+
+.fa-question-circle {
+  font-size: 18px;
+}
+
+.accordionClear {
+  clear:both;
+}
+
+.applicationUrl-text {
+  margin-top: 20px;
+}
+
+.appCreateBtn {
+  margin-bottom: 10px; 
+}

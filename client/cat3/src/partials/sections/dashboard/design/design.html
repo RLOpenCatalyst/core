@@ -1,3 +1,19 @@
-<div>
-	<strong>{{Text}}</strong>
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/design/design.css">
+<div id='designHtml' class='fluid-container'>
+    <ul class="nav nav-tabs">
+        <li ng-class="{'active':stateItems.params.view === 'list'}"><a  ui-sref="dashboard.designSubView({subItem:stateItems.params.subItem,view:'list'})"><i class="fa fa-list fa-2" aria-hidden="true"></i> List</a></li>
+        <li ng-show="!stateItems.current.params.blueId" ng-class="{'active':stateItems.params.view === 'new'}"><a  ui-sref="dashboard.designSubView({subItem:stateItems.params.subItem,view:'new'})" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> New</a></li>
+        <li ng-show="stateItems.current.params.blueId" ng-class="{'active':stateItems.params.view === 'edit'}"><a  ui-sref="dashboard.designSubView({subItem:stateItems.params.subItem,view:'edit'})"><i class="fa fa-pencil-square fa-2 " aria-hidden="true"></i> Edit</a></li>
+       <li class="form-group pull-right" style="margin-right: 18px;" >
+            <select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
+                <option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+            </select>
+        </li>
+
+    </ul>
+        <span ng-if="stateItems.params.view === 'list'"  ng-include="'src/partials/sections/dashboard/design/view/designListView.html'"></span>
+        <span ng-if="stateItems.params.view === 'new'" ng-include="'src/partials/sections/dashboard/design/view/blueprintCreate.html'">new</span>
+        <span ng-if="stateItems.params.view === 'edit'">edit</span>
+    <!-- Sidebar -->
+
 </div>
