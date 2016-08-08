@@ -17,6 +17,7 @@ var mongoose = require('mongoose');
 var util = require('util');
 var Schema = mongoose.Schema;
 var mongoosePaginate = require('mongoose-paginate');
+var logger = require('_pr/logger')(module);
 
 //@TODO Unique validation for name to be added
 var CompositeBlueprintSchema = new Schema({
@@ -85,11 +86,10 @@ CompositeBlueprintSchema.statics.getById = function getById(compositeBlueprintId
     );
 };
 
-CompositeBlueprintSchema.statics.getAll
-    = function getAll(query, callback) {
-    query.isDeleted = false;
+CompositeBlueprintSchema.statics.getAll = function getAll(filter, callback) {
+    filter.queryObj.isDeleted = false;
 
-    this.find(query,
+    this.paginate(filter.queryObj, filter.options,
         function(err, compositeBlueprints) {
             if (err) {
                 logger.error(err);
@@ -131,7 +131,8 @@ CompositeBlueprintSchema.statics.updateById
     );
 };
 
-CompositeBlueprintSchema.statics.getCompositeBlueprintByOrgBgProject = function getCompositeBlueprintByOrgBgProject(query, callback) {
+CompositeBlueprintSchema.statics.getCompositeBlueprintByOrgBgProject
+    = function getCompositeBlueprintByOrgBgProject(query, callback) {
     query.queryObj.isDeleted = false;
     this.paginate(query.queryObj, query.options, function(err, compositeBlueprints) {
         if (err) {
