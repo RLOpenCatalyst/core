@@ -18,150 +18,124 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	
 	/**
      * @api {get} /analytics/trend/usage?resource=<resourceId>&fromTimeStamp=<startDate>&toTimeStamp=<endDate>&seggregateBy=<INTERVAL>&metric=<METRIC>
-     * 										                    									Get usage trend
+     * 										                    									Get usage trend.
      * @apiName getTrendUsage
      * @apiGroup analytics
      * @apiVersion 1.0.0
+     * @apiDescription  The api returns only 500 data points. If your query exceeds the limit, you will get an error response. Try resubmitting the query with smaller range
      * 
      * @apiParam {String} resource																	ResourceId
-     * @apiParam {Date} fromTimeStamp																Start Time Stamp. Format YYYY-MM-DDTHH:MM:SS. For Ex: 2016-07-29T00:00:00
-     * @apiParam {Date} toTimeStamp																	End Time Stamp. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-07-29T00:05:00																
-     * @apiParam {String} [seggregateBy="All Intervals"]											Filter only particular interval. For Ex: 1_MINUTE, 5_MINUTES, 1_HOUR, 6_HOURS, 1_MONTH, 6_MONTHS, 1_YEAR
-     * @apiParam {String} [metric="All Metrics"]													Filter only particular metric. For Ex: CPUUtilization
-     * @apiParam {Number} [page=1] 																	Page
-     * @apiParam {Number} [pageSize=500]															Records per metric 
+     * @apiParam {Date} fromTimeStamp																Start Time Stamp, inclusive. Format YYYY-MM-DDTHH:MM:SS. For Ex: 2016-07-29T00:00:00
+     * @apiParam {Date} toTimeStamp																	End Time Stamp, exclusive. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-07-29T00:05:00																
+     * @apiParam {String} period																	Frequency. For Ex: 1_MINUTE, 5_MINUTES, 1_HOUR, 6_HOURS, 1_MONTH, 6_MONTHS, 1_YEAR
+     * @apiParam {String} [metric="All Metrics"]													Filter particular metrics. For Ex: CPUUtilization,DiskReadBytes
+     * @apiParam {String} [statistics="All Statistics"]												Filter particular statistics. For Ex: Average,Minimum
      *
      * @apiExample Sample_Request_1
-     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00 
+     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&period=1_MINUTE 
      * 
      * @apiExample Sample_Request_2
-     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&seggregateBy=1_MINUTE
+     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&period=1_MINUTE&metric=CPUUtilization
      * 
      * @apiExample Sample_Request_3
-     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&seggregateBy=1_MINUTE&metric=CPUUtilization
+     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&period=1_MINUTE&metric=CPUUtilization&statistics=Average,Minimum
      * 
-     * @apiSuccess {Object}   trend 	                 				   Trend
-     * @apiSuccess {Object}   trend.INTERVAL		    				   Interval, For Ex: 1_MINUTE, 5_MINUTES, 1_HOUR, 6_HOURS, 1_MONTH, 6_MONTHS, 1_YEAR 
-     * @apiSuccess {Object}   trend.INTERVAL.METRIC	    				   Usage Metric Name
-     * @apiSuccess {String}   trend.INTERVAL.METRIC.unit	    		   Usage Metric Unit
-     * @apiSuccess {Object[]} trend.INTERVAL.METRIC.datePoints  		   Usage Metric DataPoints
-     * @apiSuccess {Date}     trend.INTERVAL.METRIC.datePoints.fromTime    Usage Metric Start Time
-     * @apiSuccess {Date}     trend.INTERVAL.METRIC.datePoints.toTime      Usage Metric End Time
-     * @apiSuccess {Number}   trend.INTERVAL.METRIC.datePoints.minimum     Usage Metric Minimum
-     * @apiSuccess {Number}   trend.INTERVAL.METRIC.datePoints.maximum     Usage Metric Maximum
-     * @apiSuccess {Number}   trend.INTERVAL.METRIC.datePoints.average     Usage Metric Average
+     * @apiExample Sample_Request_4
+     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T24:00:00&period=1_HOUR&metric=CPUUtilization
+     * 
+     * @apiSuccess {Object}   trend 	                 		  Trend
+     * @apiSuccess {Object}   trend.METRIC	    				  Usage Metric Name
+     * @apiSuccess {String}   trend.METRIC.unit	    		      Usage Metric Unit
+     * @apiSuccess {Object[]} trend.METRIC.datePoints  		      Usage Metric DataPoints
+     * @apiSuccess {Date}     trend.METRIC.datePoints.fromTime    Usage Metric Start Time
+     * @apiSuccess {Date}     trend.METRIC.datePoints.toTime      Usage Metric End Time
+     * @apiSuccess {Number}   trend.METRIC.datePoints.minimum     Usage Metric Minimum
+     * @apiSuccess {Number}   trend.METRIC.datePoints.maximum     Usage Metric Maximum
+     * @apiSuccess {Number}   trend.METRIC.datePoints.average     Usage Metric Average
      * 
      * @apiSuccessExample {json} Sample_Response_1:
      * 	HTTP/1.1 200 OK
      * 
      *  {
-		  "1_MINUTE": {
-		    "CPUUtilization": {
-		      "unit": "Percentage",
-		      "dataPoints": [
-		        {
-		          "fromTime": "2016-07-29T00:00:00",
-		          "toTime": "2016-07-29T00:00:59",
-		          "maximum": 0.83,
-		          "minimum": 0,
-		          "average": 0.03549128919860638
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        }
-		      ]
-		    },
-		    "DiskReadBytes": {
-		      "unit": "Bytes",
-		      "dataPoints": [
-		        {
-		          "fromTime": "2016-07-29T00:00:00",
-		          "toTime": "2016-07-29T00:00:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:02:00",
-		          "toTime": "2016-07-29T00:02:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:03:00",
-		          "toTime": "2016-07-29T00:03:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:04:00",
-		          "toTime": "2016-07-29T00:04:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        }
-		      ]
-		    }
+		  "CPUUtilization": {
+		    "unit": "Percentage",
+		    "dataPoints": [
+		      {
+		        "fromTime": "2016-07-29T00:00:01",
+		        "toTime": "2016-07-29T00:01:00",
+		        "maximum": 0.83,
+		        "minimum": 0,
+		        "average": 0.035
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:01:01",
+		        "toTime": "2016-07-29T00:02:00",
+		        "maximum": 0.82,
+		        "minimum": 0.81,
+		        "average": 0.81
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:02:01",
+		        "toTime": "2016-07-29T00:03:00",
+		        "maximum": 0.35,
+		        "minimum": 0.33,
+		        "average": 0.34
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:03:01",
+		        "toTime": "2016-07-29T00:04:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:04:01",
+		        "toTime": "2016-07-29T00:05:00",
+		        "maximum": 0.12,
+		        "minimum": 0.12,
+		        "average": 0.12
+		      }
+		    ]
 		  },
-		  "5_MINUTES": {
-		    "CPUUtilization": {
-		      "unit": "Percentage",
-		      "dataPoints": [
-		        {
-		          "fromTime": "2016-07-29T00:00:00",
-		          "toTime": "2016-07-29T00:04:59",
-		          "maximum": 0.83,
-		          "minimum": 0,
-		          "average": 0.03549128919860638
-		        }
-		      ]
-		    },
-		    "DiskReadBytes": {
-		      "unit": "Bytes",
-		      "dataPoints": [
-		        {
-		          "fromTime": "2016-07-29T00:00:00",
-		          "toTime": "2016-07-29T00:04:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        }
-		      ]
-		    }
+		  "DiskReadBytes": {
+		    "unit": "Bytes",
+		    "dataPoints": [
+		      {
+		        "fromTime": "2016-07-29T00:00:01",
+		        "toTime": "2016-07-29T00:01:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:01:01",
+		        "toTime": "2016-07-29T00:02:00",
+		        "maximum": 200,
+		        "minimum": 200,
+		        "average": 200
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:02:01",
+		        "toTime": "2016-07-29T00:03:00",
+		        "maximum": 1000,
+		        "minimum": 500,
+		        "average": 750
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:03:01",
+		        "toTime": "2016-07-29T00:04:00",
+		        "maximum": 400,
+		        "minimum": 400,
+		        "average": 400
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:04:01",
+		        "toTime": "2016-07-29T00:05:00",
+		        "maximum": 625,
+		        "minimum": 620,
+		        "average": 623
+		      }
+		    ]
 		  }
 		}
 	 *
@@ -169,87 +143,45 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * 	HTTP/1.1 200 OK
      * 
      * {
-		  "1_MINUTE": {
-		    "CPUUtilization": {
-		      "unit": "Percentage",
-		      "dataPoints": [
-		        {
-		          "fromTime": "2016-07-29T00:00:00",
-		          "toTime": "2016-07-29T00:00:59",
-		          "maximum": 0.83,
-		          "minimum": 0,
-		          "average": 0.03549128919860638
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        }
-		      ]
-		    },
-		    "DiskReadBytes": {
-		      "unit": "Bytes",
-		      "dataPoints": [
-		        {
-		          "fromTime": "2016-07-29T00:00:00",
-		          "toTime": "2016-07-29T00:00:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:02:00",
-		          "toTime": "2016-07-29T00:02:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:03:00",
-		          "toTime": "2016-07-29T00:03:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:04:00",
-		          "toTime": "2016-07-29T00:04:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        }
-		      ]
-		    }
+		  "CPUUtilization": {
+		    "unit": "Percentage",
+		    "dataPoints": [
+		      {
+		        "fromTime": "2016-07-29T00:00:01",
+		        "toTime": "2016-07-29T00:01:00",
+		        "maximum": 0.83,
+		        "minimum": 0,
+		        "average": 0.035
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:01:01",
+		        "toTime": "2016-07-29T00:02:00",
+		        "maximum": 0.82,
+		        "minimum": 0.81,
+		        "average": 0.81
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:02:01",
+		        "toTime": "2016-07-29T00:03:00",
+		        "maximum": 0.35,
+		        "minimum": 0.33,
+		        "average": 0.34
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:03:01",
+		        "toTime": "2016-07-29T00:04:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:04:01",
+		        "toTime": "2016-07-29T00:05:00",
+		        "maximum": 0.12,
+		        "minimum": 0.12,
+		        "average": 0.12
+		      }
+		    ]
 		  }
 		}
 	 *
@@ -257,50 +189,221 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * 	HTTP/1.1 200 OK
      * 
      * {
-		  "1_MINUTE": {
-		    "CPUUtilization": {
-		      "unit": "Percentage",
-		      "dataPoints": [
-		        {
-		          "fromTime": "2016-07-29T00:00:00",
-		          "toTime": "2016-07-29T00:00:59",
-		          "maximum": 0.83,
-		          "minimum": 0,
-		          "average": 0.03549128919860638
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        },
-		        {
-		          "fromTime": "2016-07-29T00:01:00",
-		          "toTime": "2016-07-29T00:01:59",
-		          "maximum": 0,
-		          "minimum": 0,
-		          "average": 0
-		        }
-		      ]
-		    }
+		  "CPUUtilization": {
+		    "unit": "Percentage",
+		    "dataPoints": [
+		      {
+		        "fromTime": "2016-07-29T00:00:01",
+		        "toTime": "2016-07-29T00:01:00",
+		        "minimum": 0,
+		        "average": 0.035
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:01:01",
+		        "toTime": "2016-07-29T00:02:00",
+		        "minimum": 0.81,
+		        "average": 0.81
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:02:01",
+		        "toTime": "2016-07-29T00:03:00",
+		        "minimum": 0.33,
+		        "average": 0.34
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:03:01",
+		        "toTime": "2016-07-29T00:04:00",
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T00:04:01",
+		        "toTime": "2016-07-29T00:05:00",
+		        "minimum": 0.12,
+		        "average": 0.12
+		      }
+		    ]
 		  }
 		}
 	 *
+	 *@apiSuccessExample {json} Sample_Response_4:
+     * 	HTTP/1.1 200 OK
+     * 
+     * {
+		  "CPUUtilization": {
+		    "unit": "Percentage",
+		    "dataPoints": [
+		      {
+		        "fromTime": "2016-07-29T00:00:01",
+		        "toTime": "2016-07-29T01:00:00",
+		        "maximum": 0.83,
+		        "minimum": 0,
+		        "average": 0.035
+		      },
+		      {
+		        "fromTime": "2016-07-29T01:00:01",
+		        "toTime": "2016-07-29T02:00:00",
+		        "maximum": 0.82,
+		        "minimum": 0.81,
+		        "average": 0.81
+		      },
+		      {
+		        "fromTime": "2016-07-29T02:00:01",
+		        "toTime": "2016-07-29T03:00:00",
+		        "maximum": 0.35,
+		        "minimum": 0.33,
+		        "average": 0.34
+		      },
+		      {
+		        "fromTime": "2016-07-29T03:00:01",
+		        "toTime": "2016-07-29T04:00:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T04:00:01",
+		        "toTime": "2016-07-29T05:00:00",
+		        "maximum": 0.12,
+		        "minimum": 0.12,
+		        "average": 0.12
+		      },
+		      {
+		        "fromTime": "2016-07-29T05:00:01",
+		        "toTime": "2016-07-29T06:00:00",
+		        "maximum": 0.83,
+		        "minimum": 0,
+		        "average": 0.035
+		      },
+		      {
+		        "fromTime": "2016-07-29T06:00:01",
+		        "toTime": "2016-07-29T07:00:00",
+		        "maximum": 0.82,
+		        "minimum": 0.81,
+		        "average": 0.81
+		      },
+		      {
+		        "fromTime": "2016-07-29T07:00:01",
+		        "toTime": "2016-07-29T08:00:00",
+		        "maximum": 0.35,
+		        "minimum": 0.33,
+		        "average": 0.34
+		      },
+		      {
+		        "fromTime": "2016-07-29T08:00:01",
+		        "toTime": "2016-07-29T09:00:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T09:00:01",
+		        "toTime": "2016-07-29T10:00:00",
+		        "maximum": 0.12,
+		        "minimum": 0.12,
+		        "average": 0.12
+		      },
+		      {
+		        "fromTime": "2016-07-29T10:00:01",
+		        "toTime": "2016-07-29T11:00:00",
+		        "maximum": 0.83,
+		        "minimum": 0,
+		        "average": 0.035
+		      },
+		      {
+		        "fromTime": "2016-07-29T11:00:01",
+		        "toTime": "2016-07-29T12:00:00",
+		        "maximum": 0.82,
+		        "minimum": 0.81,
+		        "average": 0.81
+		      },
+		      {
+		        "fromTime": "2016-07-29T12:00:01",
+		        "toTime": "2016-07-29T13:00:00",
+		        "maximum": 0.35,
+		        "minimum": 0.33,
+		        "average": 0.34
+		      },
+		      {
+		        "fromTime": "2016-07-29T13:00:01",
+		        "toTime": "2016-07-29T14:00:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T14:00:01",
+		        "toTime": "2016-07-29T15:00:00",
+		        "maximum": 0.12,
+		        "minimum": 0.12,
+		        "average": 0.12
+		      },
+		      {
+		        "fromTime": "2016-07-29T15:00:01",
+		        "toTime": "2016-07-29T16:00:00",
+		        "maximum": 0.83,
+		        "minimum": 0,
+		        "average": 0.035
+		      },
+		      {
+		        "fromTime": "2016-07-29T16:00:01",
+		        "toTime": "2016-07-29T17:00:00",
+		        "maximum": 0.82,
+		        "minimum": 0.81,
+		        "average": 0.81
+		      },
+		      {
+		        "fromTime": "2016-07-29T17:00:01",
+		        "toTime": "2016-07-29T18:00:00",
+		        "maximum": 0.35,
+		        "minimum": 0.33,
+		        "average": 0.34
+		      },
+		      {
+		        "fromTime": "2016-07-29T18:00:01",
+		        "toTime": "2016-07-29T19:00:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T19:00:01",
+		        "toTime": "2016-07-29T20:00:00",
+		        "maximum": 0.12,
+		        "minimum": 0.12,
+		        "average": 0.12
+		      },
+		      {
+		        "fromTime": "2016-07-29T20:00:01",
+		        "toTime": "2016-07-29T21:00:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T21:00:01",
+		        "toTime": "2016-07-29T22:00:00",
+		        "maximum": 0.12,
+		        "minimum": 0.12,
+		        "average": 0.12
+		      },
+		      {
+		        "fromTime": "2016-07-29T22:00:01",
+		        "toTime": "2016-07-29T23:00:00",
+		        "maximum": 0,
+		        "minimum": 0,
+		        "average": 0
+		      },
+		      {
+		        "fromTime": "2016-07-29T23:00:01",
+		        "toTime": "2016-07-29T24:00:00",
+		        "maximum": 0.12,
+		        "minimum": 0.12,
+		        "average": 0.12
+		      }
+		    ]
+		  }
+		}
 	 *
 	 * @apiErrorExample {json} Error-Response:
 	 *     HTTP/1.1 404 Not Found
