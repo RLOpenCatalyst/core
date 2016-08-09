@@ -1,7 +1,7 @@
 <div ng-controller="blueprintListCtrl as bpList" >
 <div id="well" class="well well-sm">
     <div class="col-lg-8 col-md-8">
-        <b><i>{{stateItems.params.templateObj.templatetypename}} blueprints</i></b> <span ng-if="bpList.selectedCards.length > 0"> : - <span class="badge">{{bpList.selectedCards.length}}</span> Selected Blueprints </span>
+        <b><i>{{stateItems.params.templateObj.templatetypename}} blueprints</i></b> <!--<span ng-if="bpList.selectedCards.length > 0"> : - <span class="badge">{{bpList.selectedCards.length}}</span> Selected Blueprints </span>-->
     </div>
     <div class="col-lg-4 col-md-4 pull-right" >
             <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
@@ -16,8 +16,10 @@
     <br>
     <div ng-show="bpList.blueprintList.length <= 0" class="alert alert-info text-center"> No Data Found!</div>
     <div ng-show="stateItems.params.templateObj.templatetypename === 'Composite'">
-        <div class="productdiv4" id="{{blueprint.id}}" ng-repeat="blueprint in bpList.blueprintList" ng-init="bpList[blueprint.id] === false ">
-            <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint.id] === true }" >
+        <div ng-repeat="blueprint in bpList.blueprintList" ng-init="bpList[blueprint._id]= false " style="width: 160px; margin: auto; padding: 0px;position: relative; float: left;">
+            <div class="anm" style="background: #FFF; position: absolute; z-index: 1;width: 100%; bottom: 0px;margin: 0 8px;"></div>
+            <div class="productdiv4" id="{{blueprint._id}}" >
+            <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint._id] === true }" >
                 <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="bpList.selectCard(blueprint);">
                     <li>
                         <img src="./images/composite.png" alt="Zabix and Logstash" class="cardLogo">
@@ -27,16 +29,19 @@
                     <hr class="blue-hr"/>
                     <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="desSubItm.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i></button>
                     <button class="btn btn-xs cat-btn-update bpvicon pull-right" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i></button>
-                    <button class="btn btn-xs cat-btn-update bpvicon pull-left" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-left" title="Info" ng-click="bpList.blueprintInfo($event,blueprint,'compBlueInfo')"><i class="fa fa-info fa-2 white"></i></button>
                 </ul>
 
             </div>
         </div>
+            </div>
     </div>
 
     <div ng-show="stateItems.params.templateObj.templatetypename !== 'Composite'">
-        <div class="productdiv4" id="{{blueprint.id}}" ng-repeat="blueprint in bpList.blueprintList" ng-init="bpList[blueprint.id] === false ">
-            <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint.id] === true }" >
+        <div ng-repeat="blueprint in bpList.blueprintList" ng-init="bpList[blueprint._id]= false " style="width: 160px; margin: auto; padding: 0px;position: relative; float: left;">
+        <div class="anm" style="background: #FFF; position: absolute; z-index: 1;width: 100%; bottom: 0px;margin: 0 8px;"></div>
+        <div class="productdiv4" id="{{blueprint._id}}" >
+            <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint._id] === true }" >
                 <ul class="list-unstyled system-prop" style="text-align: center;" ng-click="bpList.selectCard(blueprint);">
                     <li>
                         <img src="./images/templateicons/appFact4.png" alt="Zabix and Logstash" >
@@ -49,14 +54,27 @@
                         </select>
                     </li>
                     <hr class="blue-hr"/>
-                    <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="bpList.editBlueprint($event,blueprint.id);"><i class="fa fa-pencil fa-2 white"></i></button>
-                    <button class="btn btn-xs cat-btn-update bpvicon pull-right" title="Launch" ng-click="bpList.launchInstance($event,blueprint.id);"><i class="fa fa-location-arrow fa-2 white"></i></button>
-                    <button class="btn btn-xs cat-btn-update bpvicon pull-left" title="Info" ng-click="bpList.blueprintInfo($event,blueprint)"><i class="fa fa-info fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="bpList.editBlueprint($event,blueprint._id);"><i class="fa fa-pencil fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-right" title="Launch" ng-click="bpList.launchInstance($event,blueprint._id);"><i class="fa fa-location-arrow fa-2 white"></i></button>
+                    <button class="btn btn-xs cat-btn-update bpvicon pull-left" title="Info" ng-click="bpList.blueprintInfo($event,blueprint,null)"><i class="fa fa-info fa-2 white"></i></button>
                 </ul>
 
             </div>
         </div>
+        </div>
     </div>
+    <style>
+        @keyframes example {
+            from {height: 100%;}
+            to {height: 0%;}
+        }
+        .anm {
+            height:0%;
+            animation-name: example;
+            animation-duration: 3s;
+        }
+
+    </style>
 
 
 <!--<div class="row" ng-repeat="blueprint in bpList.blueprintList" >-->
