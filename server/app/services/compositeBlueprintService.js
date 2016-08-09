@@ -65,11 +65,36 @@ compositeBlueprintService.checkCompositeBlueprintAccess
         }, false);
 
         if (!authorized) {
-            var err = new Error('Forbidden');
+            var err = new Error('Forbidden. Access denied to delete composite blueprint');
             err.status = 403;
             return callback(err);
         } else {
             return callback(null, compositeBlueprint);
+        }
+    });
+};
+
+compositeBlueprintService.checkCompositeBlueprintsAccess
+    = function checkCompositeBlueprintsAccess(orgIds, compositeBlueprintIds, callback) {
+    var query = {
+        '_id': {'$in': compositeBlueprintIds},
+        'organizationId': {'$in': orgIds}
+    };
+
+    compositeBlueprintModel.countByQuery(query, function(err, compositeBlueprintsCount) {
+        if (err) {
+            return callback(err);
+        }
+
+        console.log(compositeBlueprintsCount);
+        var authorized = (compositeBlueprintsCount == compositeBlueprintIds.length);
+
+        if (!authorized) {
+            var err = new Error('Forbidden. Access denied to delete all composite blueprints specified');
+            err.status = 403;
+            return callback(err);
+        } else {
+            return callback(null, compositeBlueprintIds);
         }
     });
 };
@@ -249,6 +274,24 @@ compositeBlueprintService.deleteCompositeBlueprint
     });
 };
 
+compositeBlueprintService.deleteCompositeBlueprints
+    = function deleteCompositeBlueprints(compositeBlueprintIds, callback) {
+    compositeBlueprintModel.deleteAll(compositeBlueprintIds, function(err, deleted) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if (!deleted) {
+            var err = new Error('Composite blueprints not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
+        }
+    });
+};
+
 compositeBlueprintService.formatCompositeBlueprint
     = function formatCompositeBlueprint(compositeBlueprint, callback) {
     var compositeBlueprintObject = {
@@ -282,7 +325,7 @@ compositeBlueprintService.formatCompositeBlueprintsList
     var compositeBlueprintsList = [];
 
     if (ownerUpdatedList.length == 0)
-        return callback(null, {compositeBlueprints: {}, metadata: compositeBlueprints.metadata});
+        return callback(null, {compositeBlueprints: {}, metadata: compositeBlueprints.metaData});
 
     for (var i = 0; i < ownerUpdatedList.length; i++) {
         (function(compositeBlueprint) {
