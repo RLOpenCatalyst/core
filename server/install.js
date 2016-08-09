@@ -213,8 +213,8 @@ function getDefaultsConfig() {
             port: '27017'
         },
         authStrategy: {
-            local: false,
-            externals: true
+            local: true,
+            externals: false
         },
         logServerUrl: '',
         features: {
@@ -289,6 +289,10 @@ function parseArguments() {
         name: "ldap",
         type: String,
         description: "Setup Ldap Crudentials"
+    },{
+        name: "authStrategy",
+        type: String,
+        description: "Setup authStrategy"
     }]);
 
     var options = cli.parse();
@@ -310,6 +314,9 @@ function getConfig(config, options) {
     if (options['ldap']) {
         options['ldap'] = JSON.parse(options['ldap']);
     }
+    if(options['authStrategy']){
+        options['authStrategy'] = JSON.parse(options['authStrategy']);
+    }
     //parsing arguments
     if (options['catalyst-port']) {
         var catalystPort = parseInt(options['catalyst-port']);
@@ -324,6 +331,9 @@ function getConfig(config, options) {
     //config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
     //config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
     config.ldap = options['ldap'];
+    if(options['authStrategy']){
+        config.authStrategy = options['authStrategy'];
+    }
     if (options['max-instance-count']) {
         var maxInstanceCount = parseInt(options['max-instance-count']);
         if (maxInstanceCount) {
