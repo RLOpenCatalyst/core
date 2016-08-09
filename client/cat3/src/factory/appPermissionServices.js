@@ -17,6 +17,9 @@
 		this.settingsAccess = function(){
 			return uac.hasPermission('settings', 'read','module');
 		};
+		this.analyticsAccess = function(){
+			return true;
+		};
 		this.trackAccess = function() {
 			//permission response not available in the api response.
 			//return uac.hasPermission('track','read','module');

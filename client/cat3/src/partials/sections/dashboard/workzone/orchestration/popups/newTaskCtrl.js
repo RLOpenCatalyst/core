@@ -234,6 +234,14 @@
 						$scope.scriptParamsObj[scriptObj._id] = [];	
 					}
 				},
+				clearRoleSelection : function(){
+					$scope.role.name = '';
+				},
+				clearBluePrintSelection : function(){
+					for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
+							$scope.chefBluePrintList[bi]._isBlueprintSelected = false;
+						}
+				},
 				ok: function () {
                     $scope.taskSaving = true;
 					//these values are common across all task types
@@ -265,7 +273,7 @@
 					/*This will get the values in order to create chef type task and check for any chef node selections*/
 					if ($scope.taskType === "chef") {
 						taskJSON.nodeIds = [];
-						taskJSON.blueprintIds = '';
+						taskJSON.blueprintIds = [];
                         taskJSON.role = $scope.role.name;
 						for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
 							if ($scope.chefInstanceList[ci]._isNodeSelected) {
@@ -274,16 +282,15 @@
 						}
 						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
 							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
-								taskJSON.blueprintIds=$scope.chefBluePrintList[bi]._id;
+								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
 							}
 						}
-
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds && !taskJSON.role ) {
+						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
 							$scope.inputValidationMsg='Please select a node or blueprint or role';
                             $scope.taskSaving = false;
 							return false;
 						}
-						if (taskJSON.nodeIds.length && taskJSON.blueprintIds) {
+						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
 							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
                             $scope.taskSaving = false;
 							return false;
@@ -458,11 +465,13 @@
 			});
 
             $scope.isTargetTypesLoading = true;
+            $scope.isScriptNodesLoading = true;
 			var allInstances = workzoneServices.getCurrentEnvInstances();
 			var allBlueprints = workzoneServices.getBlueprints();
             var allRunlist = workzoneServices.getCookBookListForOrg();
 			$q.all([allInstances,allBlueprints,allRunlist]).then(function(promiseObjs) {
                 $scope.isTargetTypesLoading = false;
+                $scope.isScriptNodesLoading = false;
 				var instances = promiseObjs[0].data;
 				var blueprints = promiseObjs[1].data;
                 var roles = Object.keys(promiseObjs[2].data.roles);
@@ -523,6 +532,7 @@
 				}
 				$scope.optionToggled();
 				$scope.optionInstanceToggled();
+				$scope.optionScriptToggled();
 			});
 			workzoneServices.getJenkinsServerList().then(function (response) {
 				var data;
@@ -562,7 +572,6 @@
 					$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
 					$scope.isNewTaskPageLoading = false;
 					$scope.changeNodeScriptList();
-					$scope.optionScriptToggled();
 				}
 			}
 		}

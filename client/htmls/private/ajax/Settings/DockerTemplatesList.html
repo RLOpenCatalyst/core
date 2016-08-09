@@ -109,7 +109,9 @@
                                         CreateTableFromJsonNew(18,'dockerreponame' , 'CreateDockerTemplates.html'); //7 is for users
                                         var tab = 'envtable';
                                         $('#' + tab).dataTable({
-                                            "pagingType": "full_numbers"
+                                            "pagingType": "full_numbers",
+                                            "retrieve": true,
+                                            "destroy":true
                                         });
                                         $('#' + tab + '_info').detach().appendTo('#tableFooterLeft'); 
                                         $('#' + tab + '_paginate').detach().appendTo('#tableFooterRight');

@@ -47,11 +47,16 @@
 						'<a target="_blank" title="Jenkins" ng-href="{{row.entity.taskConfig.jobURL}}">'+
 						'<img class="chefImage-size" src="images/orchestration/joburl.jpg" /> </a>'+
 						'</span>'+
-						'<span ng-show="row.entity.taskType===\'composite\'"> NA </span>'+
+						'<span ng-show="row.entity.taskType===\'composite\'">'+
+						'<span title="assigned Tasks" class="fa fa-list-ul assigned-runlists cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
+						'</span>'+
 						'<span ng-show="row.entity.taskType==\'puppet\'">'+
 						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
 						'</span>'+
-						'<span ng-show="row.entity.taskType===\'script\'"> NA </span>'+
+						'<span ng-show="row.entity.taskType===\'script\'">'+
+						'<span title="View Nodes" class="fa fa-sitemap chef-view-nodes cursor" ng-click="grid.appScope.viewNodes(row.entity);"></span>'+
+						'<span title="assigned Scripts" class="fa fa-list-ul assigned-runlists cursor" ng-click="grid.appScope.assignedRunList(row.entity);"></span>'+
+						'</span>'+
 						'</div>' ,cellTooltip: true},
 						{ name:'Execute',width: 90, enableSorting: false , cellTemplate:'<span title="Execute" class="fa fa-play btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.execute(row.entity)"></span>', cellTooltip: true},
 						{ name:'History',width: 90, enableSorting: false , cellTemplate:'<span title="History" class="fa fa-header btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.getHistory(row.entity)"></span>', cellTooltip: true},

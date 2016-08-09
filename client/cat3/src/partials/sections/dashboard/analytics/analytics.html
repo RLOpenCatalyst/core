@@ -1,0 +1,22 @@
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/analytics/analytics.css'>
+
+<div id="analyticsPage" class='fluid-container'>
+    <div id="well" class="well well-sm">
+        <div class="col-lg-8 col-md-8">
+           name
+        </div>
+        <div class="col-lg-4 col-md-4 pull-right" >
+            <span class="pull-right"> ENVIRONMENT :
+                <select  name="evn" ng-model="analytic.env" ng-change="analytic.envChange()" ng-options="opt as opt.name for opt in stateParams.org.env">>
+                 <option value="" selected>Select</option>
+                </select>
+            </span>
+        </div>
+    </div>
+    <br>
+    <div ng-if="!analytic.stateParams.bus && !analytic.stateParams.env"> org </div>
+    <div ng-if="analytic.stateParams.bus && !analytic.stateParams.proj"> bus </div>
+    <div ng-if="analytic.stateParams.bus && analytic.stateParams.proj &&  !analytic.stateParams.env"> project </div>
+    <div ng-if="analytic.stateParams.env"> env </div>
+
+</div>

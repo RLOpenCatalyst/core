@@ -1,0 +1,247 @@
+<link rel='stylesheet' href='src/partials/sections/dashboard/analytics/organization/organization.css'>
+<div class="container">
+<div class="col-xs-12 headingDashboard">
+    <div class="pull-left">
+        <h2>Organization Dashboard</h2>
+    </div>
+    <div class="pull-right">
+        <h3>ENVIRONMENT 1</h3>
+        <h4>Cost center:   Cost Center Relevance Lab (15008)</h4>
+    </div>
+</div>
+</div>
+<div class="clear"></div>
+<section class="col-lg-12" style="margin:20px 10px;">
+    <div>
+    <div class="col-xs-6 pull-left" style="padding: 20px;">
+        <div class="btn-group" role="group" aria-label="...">
+          <button type="button" class="btn btn-sm btn-warning">DAY</button>
+          <button type="button" class="btn btn-sm btn-warning">WEEK</button>
+          <button type="button" class="btn btn-sm btn-warning">MONTH</button>
+          <button type="button" class="btn btn-sm btn-warning">YEAR</button>
+        </div>
+    </div>
+    
+    <div class="col-xs-6 pull-right" style="text-align:right; padding:20px;">
+    <div class="btn-group" role="group" aria-label="...">
+      <button type="button" class="btn btn-sm btn-info">COST</button>
+      <button type="button" class="btn btn-sm btn-info">USAGE</button>
+    </div>
+</div>
+</div>
+<div class="clear"></div>
+<div class="row col-lg-12 table-width">
+    <div class="col-lg-6 x1">
+        <h2> Aug 2</h2>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Spent</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">$0.00
+        </span>
+        </span>
+        </div>
+        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">24-hour rolling average</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">$0.00/hour
+        </span>
+        </span>
+        </div>
+        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Day Estimate</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">~ $0.00
+        </span>
+        </span>
+        </div>
+
+        
+    </div>
+    <div class="col-lg-5 x1 col-lg-offset-1">
+        <h2> Cost distribution</h2>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Compute</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">N/A
+        </span>
+        </span>
+        </div>
+        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Bandwidth</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">N/A
+        </span>
+        </span>
+        </div>
+        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
+        <div style="margin:16px 0;">
+        <span class="x-form-item-label-default">Storage</span>
+        <span class="title1 pull-right">
+        <span class="scalr-currency">N/A
+        </span>
+        </span>
+        </div>
+
+        
+    </div>
+</div>
+
+</section>
+
+<section>
+    <div class="row col-lg-12" style="margin-bottom: 20px">
+        <section class="col-lg-12">
+        <div class="box-header">
+            <h3>Graphs <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
+            <img src="images/cloudAnalytics/line-chart-main-1.png" style="margin-left: 160px;height: 400px;margin-top: 10px;"/>
+        </div>
+
+        </section>
+
+    </div>
+</section>
+
+
+<section>
+    <div class="row col-lg-12" style="margin-bottom: 20px">
+        <section class="col-lg-6 col-graph">
+        <div class="box-header">
+            <h3>Graphs <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
+            <img src="images/cloudAnalytics/line-chart.png" style="margin-left: 80px;height: 240px"/>
+        </div>
+
+        </section>
+        <section class="col-lg-6 col-lg-offset-1 col-graph">
+            <div class="box-header">
+            <h3>Sales <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
+            <img src="images/cloudAnalytics/graph1-new.png" style="margin-left: 107px;height: 240px"/>
+        </div>
+
+        </section>
+
+    </div>
+</section>
+
+
+<style>
+.col-graph {
+    width: 49%;
+}
+.col-lg-offset-1 {
+    margin-left: 1.333%;
+}
+.table-width {
+    background: #f1f5f8;
+    float: none;
+    margin: auto;
+    width: 96%;
+    padding: 10px 0;
+    border: 1px solid #e4e6e6;
+}
+.x1 h2{
+    text-align: center;
+    color: #224164;
+    font-size: 1.2em;
+    border-bottom: 1px dotted #e9e9e9;
+    padding-bottom: 20px;
+}
+.x-form-item-label-default {
+    font-size: 1em;
+    font-weight: 600;
+    color: #3e709d;
+}
+.title1 {
+    font-size: 1.4em;
+    color: #224164;
+    font-weight: bold;
+}
+section.col-lg-6, section.col-lg-5, section.col-lg-12 {
+    border-radius: 3px;
+    box-shadow: 0 2px 2px #ccc;
+    min-height: 300px;
+    background: #fff;
+    border-top: 4px solid #46b8da;
+    padding:0 0 20px 0;
+}
+
+.box-header h3 {
+    background: #46b8da;
+    color: #fff;
+    font-size: 1em;
+    padding: 10px;
+    margin: 0;
+}
+
+    .panelRight {
+       margin: 0 5px;
+    }
+
+    .stats-count-wrapper {
+        padding-bottom: 10px;
+    }
+
+    .tile_stats_count {
+        border-right: 1px solid #ddd;
+    }
+
+    .count-min {
+        font-size: 14px;
+    }
+
+    .widget-fa {
+        font-size: 60px;
+        color: #fff;
+    }
+
+    .active {
+        background: #3e648e;
+    }
+
+    .navbar-nav > li {
+        line-height: 30px;
+        padding: 0 12px;
+        cursor: pointer;
+    }
+    .headingDashboard {
+        text-align: right;
+        border-bottom: 1px dashed #bbb;
+    }
+    .headingDashboard h3{
+        font-size: 1em;
+    }
+    .headingDashboard h4{
+        font-size: .9em;
+        color: #aaa;
+    }
+
+
+.fa.pull-right {
+    margin-left: 0.1em;   
+}
+
+
+
+
+.list-group a{
+    padding: 30px 0;
+}
+
+.widget-12 {
+    border: 1px solid #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 1px #e8e8e8, 0 0 15px #f2f2f2 inset;
+    margin: 20px 0;
+    padding: 20px;
+}
+
+
+
+
+
+</style>
+
+
+

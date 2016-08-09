@@ -67,10 +67,10 @@
 					<span ng-click="hideTreeOverlay()" class="minifyme cursor" title="Hide Tree" ng-show="showTreeMenu"> <i class="fa fa-arrow-circle-left black hit"></i> </span>
 				</span>
 				<div id='navigPage'>
-					<div id='navigPage-inner' ng-show="showTreeMenu">
-						<div ng-if="dashboardChild=== 'workzone'"><span  ng-include="'src/partials/sections/dashboard/workzone/workzoneTreeMenu/workzoneTreeMenu.html'"></span></div>
-
-						<div ng-if="dashboardChild === 'design'"><span ng-include="'src/partials/sections/dashboard/design/view/designSubMenu.html'"></span></div>
+					<div id='navigPage-inner' ng-show="showTreeMenu" ng-switch="dashboardChild">
+						<div ng-switch-when="workzone"><span  ng-include="'src/partials/sections/dashboard/workzone/workzoneTreeMenu/workzoneTreeMenu.html'"></span></div>
+						<div ng-switch-when="analytics"><span  ng-include="'src/partials/sections/dashboard/analytics/view/analyticsTreeMenu.html'"></span></div>
+						<div ng-switch-when="design"><span ng-include="'src/partials/sections/dashboard/design/view/designSubMenu.html'"></span></div>
 					</div>
 				</div>
 			</div>
@@ -106,6 +106,8 @@
 		<script src="src/partials/globals/ui-gridOptions/uiGridOptionsServices.js"></script>
 		<script src="src/partials/sections/dashboard/dashboardCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/genericServices.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/analyticsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/analyticsServices.js"></script>
 		<script src="src/partials/sections/dashboard/design/designCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/designServices.js"></script>
 		<script src="src/partials/sections/dashboard/design/services/blueprintCreateServices.js"></script>

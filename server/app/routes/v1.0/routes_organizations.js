@@ -2320,7 +2320,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 });
             });
         });
-            function checkNodeCredentials(credentials,chefDetails,nodeDetail,callback){
+            function checkNodeCredentials(credentials,nodeDetail,callback){
                 if(nodeDetail.nodeOs !== 'windows') {
                     var sshOptions = {
                         username: credentials.username,
