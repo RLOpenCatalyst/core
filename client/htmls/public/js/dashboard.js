@@ -75,7 +75,7 @@ $(document).ready(function () {
 
                 updateTotalCount("unmanaged", providerid, unmanagedData);
 
-                
+
                 awstotalinstancecount = awstotalinstancecount + totalInstances;
 
                 $childUnmanagedInstanceTemplate.find('#assignedInstSpecificMoreInfo').click(function () {
@@ -212,6 +212,12 @@ $(document).ready(function () {
         $('#unmanagedTableContainer').hide();
     });
 
+    //From unassigned instances
+    $('#backfrmunAssignedInstance').click(function () {
+        $('#mainPanelId').show();
+        $('#unassignedTableContainer').hide();
+    });
+
 
     function loadManagedInstances(providerId) {
         $('#managedinstanceListTable').DataTable({
@@ -256,7 +262,7 @@ $(document).ready(function () {
                 {"data": "usage", "orderable": false,
                     "render": function (data, type, full, meta) {
                         return full.usage ? '<span>' + full.usage.CPUUtilization.average + '&nbsp;%</span>' +
-                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + JSON.stringify(full.usage) + '><i class="fa fa-list"></i></a>' : '-';
+                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + full._id + '><i class="fa fa-list"></i></a>' : '-';
                     }
                 }
             ]
@@ -314,7 +320,7 @@ $(document).ready(function () {
                 {"data": "usage", "orderable": false,
                     "render": function (data, type, full, meta) {
                         return full.usage ? '<span>' + full.usage.CPUUtilization.average + '&nbsp;%</span>' +
-                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + JSON.stringify(full.usage) + '><i class="fa fa-list"></i></a>' : '-';
+                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + full._id + '><i class="fa fa-list"></i></a>' : '-';
                     }
                 }
             ]
@@ -367,13 +373,13 @@ $(document).ready(function () {
                 {"data": "usage", "orderable": false,
                     "render": function (data, type, full, meta) {
                         return full.usage ? '<span>' + full.usage.CPUUtilization.average + '&nbsp;%</span>' +
-                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + JSON.stringify(full.usage) + '><i class="fa fa-list"></i></a>' : '-';
+                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + full._id + '><i class="fa fa-list"></i></a>' : '-';
                     }
                 }
             ]
         });
     }
-    
+
     function loadUnassignedInstances(providerId) {
         $('#unassignedinstanceListTable').DataTable({
             "processing": true,
@@ -414,7 +420,7 @@ $(document).ready(function () {
                 {"data": "usage", "orderable": false,
                     "render": function (data, type, full, meta) {
                         return full.usage ? '<span>' + full.usage.CPUUtilization.average + '&nbsp;%</span>' +
-                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + JSON.stringify(full.usage) + '><i class="fa fa-list"></i></a>' : '-';
+                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + full._id + '><i class="fa fa-list"></i></a>' : '-';
                     }
                 }
             ]
@@ -475,15 +481,16 @@ $(document).ready(function () {
                 {"data": "usage", "orderable": false,
                     "render": function (data, type, full, meta) {
                         return full.usage ? '<span>' + full.usage.CPUUtilization.average + '&nbsp;%</span>' +
-                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage=' + JSON.stringify(full.usage) + '><i class="fa fa-list"></i></a>' : '-';
+                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right"  title="Usage Details" data-usage=' + full._id + '><i class="fa fa-list"></i></a>' : '-';
                     }
                 }
             ]
         });
     }
 
-    $('#allProviderTrackedManagedInstanceListTable tbody').on('click', '.specProviderUsages', specProviderUsagesClickHandler);
-    $('#allProviderTrackedAssignedInstanceListTable tbody').on('click', '.specProviderUsages', specProviderUsagesClickHandler);
+    $('#managedinstanceListTable tbody').on('click', '.specProviderUsages', specProviderUsagesClickHandler);
+    $('#unmanagedinstanceListTable tbody').on('click', '.specProviderUsages', specProviderUsagesClickHandler);
+    $('#unassignedinstanceListTable tbody').on('click', '.specProviderUsages', specProviderUsagesClickHandler);
     //For all Managed  tracked instances.
     $('#backfrmallprovidertrackedManagedInstance').click(function () {
         $('#mainPanelId').show();
@@ -496,31 +503,304 @@ $(document).ready(function () {
         $('#trackedAssignedInstancesAllProviderTableContainer').hide();
     });
 
+    $('#metricSelector').change(function () {
+        var chartId = $(this).val();
+        $('.chartContainer').hide();
+        $('#' + chartId).show();
+        $(window).trigger('resize');
+    });
+
     //Function to get the specific provider usages.
     function specProviderUsagesClickHandler() {
         var $specUsageModalContainer = $('#specUsageModalContainer');
-        var dataStr = $(this).attr("data-usage");
-        var $data = JSON.parse(dataStr);
+        var instanceId = $(this).attr("data-usage");
+        var toTimeString = new Date().toISOString().slice(0, 19);
+        var ts = Math.round(new Date().getTime() / 1000);
+        var tsYesterday = ts - (24 * 3600);
+        var fromTimeString = new Date(tsYesterday * 1000).toISOString().slice(0, 19);
 
-        $specUsageModalContainer.find('#specCpuUtilAvg').html($data.CPUUtilization.average);
-        $specUsageModalContainer.find('#specCpuUtilMin').html($data.CPUUtilization.minimum);
-        $specUsageModalContainer.find('#specCpuUtilMax').html($data.CPUUtilization.maximum);
-
-        $specUsageModalContainer.find('#specDiskReadAvg').html($data.DiskReadBytes.average);
-        $specUsageModalContainer.find('#specDiskReadMin').html($data.DiskReadBytes.minimum);
-        $specUsageModalContainer.find('#specDiskReadMax').html($data.DiskReadBytes.maximum);
-
-        $specUsageModalContainer.find('#specDiskWriteAvg').html($data.DiskWriteBytes.average);
-        $specUsageModalContainer.find('#specDiskWriteMin').html($data.DiskWriteBytes.minimum);
-        $specUsageModalContainer.find('#specDiskWriteMax').html($data.DiskWriteBytes.maximum);
-
-        $specUsageModalContainer.find('#specNetworkOutAvg').html($data.NetworkOut.average);
-        $specUsageModalContainer.find('#specNetworkOutMin').html($data.NetworkOut.minimum);
-        $specUsageModalContainer.find('#specNetworkOutMax').html($data.NetworkOut.maximum);
-
-        $specUsageModalContainer.find('#specNetworkInAvg').html($data.NetworkIn.average);
-        $specUsageModalContainer.find('#specNetworkInMin').html($data.NetworkIn.minimum);
-        $specUsageModalContainer.find('#specNetworkInMax').html($data.NetworkIn.maximum);
+        //1_MINUTE, 5_MINUTES, 1_HOUR, 6_HOURS, 1_MONTH, 6_MONTHS, 1_YEAR
+        var seggregateBy = '1_HOUR';
+        var url = '/analytics/trend/usage?resource=' + instanceId + '&fromTimeStamp=' + fromTimeString + '&toTimeStamp=' + toTimeString + '&seggregateBy=' + seggregateBy;
+        $.ajax(url)
+            .done(function () {
+                $('#chartCPUUtilization').empty();
+                var chartCPUUtilization = new Morris.Line({
+                    element: 'chartCPUUtilization',
+                    resize: true,
+                    data: [
+                        {
+                            "fromTime": "2016-07-29T00:00:01",
+                            "toTime": "2016-07-29T01:00:00",
+                            "maximum": 0.83,
+                            "minimum": 0,
+                            "average": 0.035
+                        },
+                        {
+                            "fromTime": "2016-07-29T01:00:01",
+                            "toTime": "2016-07-29T02:00:00",
+                            "maximum": 0.82,
+                            "minimum": 0.81,
+                            "average": 0.81
+                        },
+                        {
+                            "fromTime": "2016-07-29T02:00:01",
+                            "toTime": "2016-07-29T03:00:00",
+                            "maximum": 0.35,
+                            "minimum": 0.33,
+                            "average": 0.34
+                        },
+                        {
+                            "fromTime": "2016-07-29T03:00:01",
+                            "toTime": "2016-07-29T04:00:00",
+                            "maximum": 0,
+                            "minimum": 0,
+                            "average": 0
+                        },
+                        {
+                            "fromTime": "2016-07-29T04:00:01",
+                            "toTime": "2016-07-29T05:00:00",
+                            "maximum": 0.12,
+                            "minimum": 0.12,
+                            "average": 0.12
+                        },
+                        {
+                            "fromTime": "2016-07-29T05:00:01",
+                            "toTime": "2016-07-29T06:00:00",
+                            "maximum": 0.83,
+                            "minimum": 0,
+                            "average": 0.035
+                        },
+                        {
+                            "fromTime": "2016-07-29T06:00:01",
+                            "toTime": "2016-07-29T07:00:00",
+                            "maximum": 0.82,
+                            "minimum": 0.81,
+                            "average": 0.81
+                        },
+                        {
+                            "fromTime": "2016-07-29T07:00:01",
+                            "toTime": "2016-07-29T08:00:00",
+                            "maximum": 0.35,
+                            "minimum": 0.33,
+                            "average": 0.34
+                        },
+                        {
+                            "fromTime": "2016-07-29T08:00:01",
+                            "toTime": "2016-07-29T09:00:00",
+                            "maximum": 0,
+                            "minimum": 0,
+                            "average": 0
+                        },
+                        {
+                            "fromTime": "2016-07-29T09:00:01",
+                            "toTime": "2016-07-29T10:00:00",
+                            "maximum": 0.12,
+                            "minimum": 0.12,
+                            "average": 0.12
+                        },
+                        {
+                            "fromTime": "2016-07-29T10:00:01",
+                            "toTime": "2016-07-29T11:00:00",
+                            "maximum": 0.83,
+                            "minimum": 0,
+                            "average": 0.035
+                        },
+                        {
+                            "fromTime": "2016-07-29T11:00:01",
+                            "toTime": "2016-07-29T12:00:00",
+                            "maximum": 0.82,
+                            "minimum": 0.81,
+                            "average": 0.81
+                        },
+                        {
+                            "fromTime": "2016-07-29T12:00:01",
+                            "toTime": "2016-07-29T13:00:00",
+                            "maximum": 0.35,
+                            "minimum": 0.33,
+                            "average": 0.34
+                        },
+                        {
+                            "fromTime": "2016-07-29T13:00:01",
+                            "toTime": "2016-07-29T14:00:00",
+                            "maximum": 0,
+                            "minimum": 0,
+                            "average": 0
+                        },
+                        {
+                            "fromTime": "2016-07-29T14:00:01",
+                            "toTime": "2016-07-29T15:00:00",
+                            "maximum": 0.12,
+                            "minimum": 0.12,
+                            "average": 0.12
+                        },
+                        {
+                            "fromTime": "2016-07-29T15:00:01",
+                            "toTime": "2016-07-29T16:00:00",
+                            "maximum": 0.83,
+                            "minimum": 0,
+                            "average": 0.035
+                        },
+                        {
+                            "fromTime": "2016-07-29T16:00:01",
+                            "toTime": "2016-07-29T17:00:00",
+                            "maximum": 0.82,
+                            "minimum": 0.81,
+                            "average": 0.81
+                        },
+                        {
+                            "fromTime": "2016-07-29T17:00:01",
+                            "toTime": "2016-07-29T18:00:00",
+                            "maximum": 0.35,
+                            "minimum": 0.33,
+                            "average": 0.34
+                        },
+                        {
+                            "fromTime": "2016-07-29T18:00:01",
+                            "toTime": "2016-07-29T19:00:00",
+                            "maximum": 0,
+                            "minimum": 0,
+                            "average": 0
+                        },
+                        {
+                            "fromTime": "2016-07-29T19:00:01",
+                            "toTime": "2016-07-29T20:00:00",
+                            "maximum": 0.12,
+                            "minimum": 0.12,
+                            "average": 0.12
+                        },
+                        {
+                            "fromTime": "2016-07-29T20:00:01",
+                            "toTime": "2016-07-29T21:00:00",
+                            "maximum": 0,
+                            "minimum": 0,
+                            "average": 0
+                        },
+                        {
+                            "fromTime": "2016-07-29T21:00:01",
+                            "toTime": "2016-07-29T22:00:00",
+                            "maximum": 0.12,
+                            "minimum": 0.12,
+                            "average": 0.12
+                        },
+                        {
+                            "fromTime": "2016-07-29T22:00:01",
+                            "toTime": "2016-07-29T23:00:00",
+                            "maximum": 0,
+                            "minimum": 0,
+                            "average": 0
+                        },
+                        {
+                            "fromTime": "2016-07-29T23:00:01",
+                            "toTime": "2016-07-29T24:00:00",
+                            "maximum": 0.12,
+                            "minimum": 0.12,
+                            "average": 0.12
+                        }
+                    ],
+                    xkey: 'toTime',
+                    ykeys: ['average'],
+                    labels: ['Utilization'],
+                    lineColors: ['#3c8dbc'],
+                    postUnits: '%',
+                    hideHover: 'auto'
+                });
+                $('#chartNetworkOut').empty();
+                var NetworkOut = new Morris.Line({
+                    element: 'chartNetworkOut',
+                    resize: true,
+                    data: [
+                        {y: '2011 Q1', item1: 2666},
+                        {y: '2011 Q2', item1: 2778},
+                        {y: '2011 Q3', item1: 4912},
+                        {y: '2011 Q4', item1: 3767},
+                        {y: '2012 Q1', item1: 6810},
+                        {y: '2012 Q2', item1: 5670},
+                        {y: '2012 Q3', item1: 4820},
+                        {y: '2012 Q4', item1: 15073},
+                        {y: '2013 Q1', item1: 10687},
+                        {y: '2013 Q2', item1: 8432}
+                    ],
+                    xkey: 'y',
+                    ykeys: ['item1'],
+                    labels: ['Item 1'],
+                    lineColors: ['#A52A2A'],
+                    hideHover: 'auto'
+                });
+                $('#chartNetworkIn').empty();
+                var NetworkIn = new Morris.Line({
+                    element: 'chartNetworkIn',
+                    resize: true,
+                    data: [
+                        {y: '2011 Q1', item1: 2666},
+                        {y: '2011 Q2', item1: 2778},
+                        {y: '2011 Q3', item1: 4912},
+                        {y: '2011 Q4', item1: 3767},
+                        {y: '2012 Q1', item1: 6810},
+                        {y: '2012 Q2', item1: 5670},
+                        {y: '2012 Q3', item1: 4820},
+                        {y: '2012 Q4', item1: 15073},
+                        {y: '2013 Q1', item1: 10687},
+                        {y: '2013 Q2', item1: 8432}
+                    ],
+                    xkey: 'y',
+                    ykeys: ['item1'],
+                    labels: ['Item 1'],
+                    lineColors: ['#00008B'],
+                    hideHover: 'auto'
+                });
+                $('#chartDiskReadBytes').empty();
+                var DiskReadBytes = new Morris.Line({
+                    element: 'chartDiskReadBytes',
+                    resize: true,
+                    data: [
+                        {y: '2011 Q1', item1: 2666},
+                        {y: '2011 Q2', item1: 2778},
+                        {y: '2011 Q3', item1: 4912},
+                        {y: '2011 Q4', item1: 3767},
+                        {y: '2012 Q1', item1: 6810},
+                        {y: '2012 Q2', item1: 5670},
+                        {y: '2012 Q3', item1: 4820},
+                        {y: '2012 Q4', item1: 15073},
+                        {y: '2013 Q1', item1: 10687},
+                        {y: '2013 Q2', item1: 8432}
+                    ],
+                    xkey: 'y',
+                    ykeys: ['item1'],
+                    labels: ['Item 1'],
+                    lineColors: ['#006400'],
+                    hideHover: 'auto'
+                });
+                $('#chartDiskWriteBytes').empty();
+                var DiskWriteBytes = new Morris.Line({
+                    element: 'chartDiskWriteBytes',
+                    resize: true,
+                    data: [
+                        {y: '2011 Q1', item1: 2666},
+                        {y: '2011 Q2', item1: 2778},
+                        {y: '2011 Q3', item1: 4912},
+                        {y: '2011 Q4', item1: 3767},
+                        {y: '2012 Q1', item1: 6810},
+                        {y: '2012 Q2', item1: 5670},
+                        {y: '2012 Q3', item1: 4820},
+                        {y: '2012 Q4', item1: 15073},
+                        {y: '2013 Q1', item1: 10687},
+                        {y: '2013 Q2', item1: 8432}
+                    ],
+                    xkey: 'y',
+                    ykeys: ['item1'],
+                    labels: ['Item 1'],
+                    lineColors: ['#2F4F4F'],
+                    hideHover: 'auto'
+                });
+                $('#metricSelector').trigger('change');
+            })
+            .fail(function () {
+                console.log("error");
+            })
+            .always(function () {
+                console.log("complete");
+            });
 
         $specUsageModalContainer.modal('show');
     }
