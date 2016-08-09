@@ -628,4 +628,51 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     }
+
+    /**
+     * @api {post} /composite-blueprints/delete             Delete composite blueprints
+     * @apiName deleteBlueprints
+     * @apiGroup composite-blueprints
+     *
+     * @apiParam {Object} deleteRequest
+     * @apiParam {String[]} deleteRequest. compositeBlueprint             Composite blueprint list
+     * @apiParamExample {json} Request-Example:
+     *      {
+     *          "composite-blueprints": [
+     *              "<MongoID>",
+     *              "<MongoID>"
+     *          ]
+     *      }
+     *
+     * @apiSuccess {Object} Empty response object
+     *
+     */
+    app.post('/composite-blueprints/delete',
+        validate(compositeBlueprintValidator.multiDelete), deleteCompositeBlueprints);
+
+    function deleteCompositeBlueprints(req, res, next) {
+        async.waterfall([
+            // @TODO Authorization checks to be addded
+            function(next) {
+                if('user' in req.session) {
+                    userService.getUserOrgIds(req.session.user, next);
+                } else {
+                    next(null, req.user.orgIds);
+                }
+            },
+            function(orgs, next) {
+                compositeBlueprintService.checkCompositeBlueprintsAccess(orgs,
+                    req.body.compositeBlueprints, next);
+            },
+            function(compositeBlueprintsList, next) {
+                compositeBlueprintService.deleteCompositeBlueprints(compositeBlueprintsList, next);
+            }
+        ], function(err, compositeBlueprint) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send({});
+            }
+        });
+    }
 };
