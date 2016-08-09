@@ -8,9 +8,9 @@ table {
 }
 
 .page-name {
-	font-size: 22px;
-    text-align: center;
-    margin: 5px 0;
+	font-size: 18px;
+    margin: 5px 0 15px 10px;
+    border-bottom: 1px dashed #ddd;
 }
 
 .imgStyle {
