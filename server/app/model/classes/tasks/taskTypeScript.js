@@ -34,7 +34,7 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var scriptTaskSchema = taskTypeSchema.extend({
     nodeIds: [String],
     scriptTypeName: String,
-	scriptRunAsSudo:{
+	isSudo:{
 		type:Boolean,
 		required:false,
 		default:false
@@ -55,7 +55,7 @@ scriptTaskSchema.methods.getNodes = function() {
 scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
 	var self = this;
 	var instanceIds = this.nodeIds;
-	var sudoFlag = this.scriptRunAsSudo;
+	var sudoFlag = this.isSudo;
 	var scriptDetails = this.scriptDetails;
 	if (!(instanceIds && instanceIds.length)) {
 		if (typeof onExecute === 'function') {

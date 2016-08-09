@@ -93,6 +93,22 @@
 									</select>
 								</span>
 							</div>
+							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
+								<label class="control-label">Run script as Sudo?</label>
+								<div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+									<span class="jenkins-auto-sync-radio">
+										<input type="radio" id="radio_yes" name="sudo_sync" ng-value="true" ng-model="isSudo.flag"> 
+										<label class="lable-align">Yes</label>
+									</span>
+									<span class="jenkins-auto-sync-radio">
+										<input type="radio" id="radio_no" name="sudo_sync" ng-value="false" checked="checked" ng-model="isSudo.flag"> 
+										<label class="lable-align">No</label>
+									</span>
+								</div>
+								<div class="col-lg-1 col-md-1">
+									<i class="fa fa-question-circle" title="This feature allows the user to run the script as sudo"></i>
+								</div>
+							</div>
 							<!--scriptType ending here -->
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
 								<label class="control-label">Job Description</label>
