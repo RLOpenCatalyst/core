@@ -20,6 +20,7 @@ var compositeBlueprintValidator = require('_pr/validators/compositeBlueprintVali
 var compositeBlueprintService = require('_pr/services/compositeBlueprintService');
 var userService = require('_pr/services/userService');
 var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all("/composite-blueprints/*", sessionVerificationFunc);
@@ -132,9 +133,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get('/composite-blueprints/', getCompositeBlueprintsList);
 
     function getCompositeBlueprintsList(req, res, next) {
+        var reqObject = {};
+        var dbReqData = {};
         async.waterfall([
             // @TODO Check if user has access to the specified organization
             function(next) {
+                apiUtil.paginationRequest(req.query, 'compositeBlueprints', next);
+            },
+            function(paginationRequest, next) {
+                reqObject = paginationRequest;
+                apiUtil.databaseUtil(paginationRequest, next);
+            },
+            function(paginationRequest, next) {
+                dbReqData = paginationRequest;
                 if('user' in req.session) {
                     userService.getUserOrgIds(req.session.user, next);
                 } else {
@@ -142,10 +153,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
             },
             function(organizationIds, next) {
-                compositeBlueprintService.getCompositeBlueprintsList(organizationIds, {}, next);
+                compositeBlueprintService.getCompositeBlueprintsList(organizationIds, dbReqData, next);
             },
-            userService.updateOwnerDetailsOfList,
-            compositeBlueprintService.formatCompositeBlueprintsList
+            function(results, next) {
+                apiUtil.paginationResponse(results, reqObject, next);
+            },
+            function(results, next) {
+                userService.updateOwnerDetailsOfList(results.compositeBlueprints, function (err, ownerUpdatedList) {
+                    compositeBlueprintService.formatCompositeBlueprintsList(ownerUpdatedList, results, next);
+                })
+            }
         ], function(err, compositeBlueprints) {
             if(err) {
                 next(err);
@@ -603,6 +620,53 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             function(compositeBlueprint, next) {
                 compositeBlueprintService.deleteCompositeBlueprint(compositeBlueprint._id, next);
             },
+        ], function(err, compositeBlueprint) {
+            if(err) {
+                next(err);
+            } else {
+                res.status(200).send({});
+            }
+        });
+    }
+
+    /**
+     * @api {post} /composite-blueprints/delete             Delete composite blueprints
+     * @apiName deleteBlueprints
+     * @apiGroup composite-blueprints
+     *
+     * @apiParam {Object} deleteRequest
+     * @apiParam {String[]} deleteRequest. compositeBlueprint             Composite blueprint list
+     * @apiParamExample {json} Request-Example:
+     *      {
+     *          "composite-blueprints": [
+     *              "<MongoID>",
+     *              "<MongoID>"
+     *          ]
+     *      }
+     *
+     * @apiSuccess {Object} Empty response object
+     *
+     */
+    app.post('/composite-blueprints/delete',
+        validate(compositeBlueprintValidator.multiDelete), deleteCompositeBlueprints);
+
+    function deleteCompositeBlueprints(req, res, next) {
+        async.waterfall([
+            // @TODO Authorization checks to be addded
+            function(next) {
+                if('user' in req.session) {
+                    userService.getUserOrgIds(req.session.user, next);
+                } else {
+                    next(null, req.user.orgIds);
+                }
+            },
+            function(orgs, next) {
+                compositeBlueprintService.checkCompositeBlueprintsAccess(orgs,
+                    req.body.compositeBlueprints, next);
+            },
+            function(compositeBlueprintsList, next) {
+                compositeBlueprintService.deleteCompositeBlueprints(compositeBlueprintsList, next);
+            }
         ], function(err, compositeBlueprint) {
             if(err) {
                 next(err);

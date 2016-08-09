@@ -14,6 +14,7 @@
 		<img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
 	</div>
 	<div class="tabContent table-responsive">
+		<h2 class="page-name">Instance Audit Trail Logs</h2>
 		<div class="dataTables_filter">
 			<label>Search:&nbsp;
 				<input type="search" id="table_filter_text" class="search" placeholder="">
@@ -37,11 +38,11 @@
 		<table class="table table-hover table-bordered text-center" id="instanceLogTable">
 			<thead>
 				<tr>
-					<th class="text-center">Instance</th>
-					<th class="text-center">Provider</th>
-					<th class="text-center">OS</th>
 					<th class="text-center table_sort sorting_desc" data-fieldname='createdOn'>Time
 					</th>
+					<th class="text-center">Instance</th>
+					<th class="text-center">Provider</th>
+					<th class="text-center">OS</th>		
 					<th class="text-center">Status</th>
 					<th class="text-center">Size</th>
 					<th class="text-center">User</th>
@@ -49,7 +50,7 @@
 					<th class="text-center">BU</th>
 					<th class="text-center">Project</th>
 					<th class="text-center">Env</th>
-					<th class="text-center">BluePrint</th>
+					<th class="text-center">Blueprint</th>
 					<th class="text-center">Action</th>
 					<th class="text-center">ActionStatus</th>
 					<th class="text-center">Log</th>
@@ -231,6 +232,9 @@
 						instanceId = managnedData[i].instanceId;
 					}
 					var $tr = $('<tr class="instanceLogTrail"></tr>').attr('data-id', instanceId);
+					var createdOn = new Date(managnedData[i].createdOn).toLocaleString();
+					var $tdCreatedOn = $('<td></td>').append(createdOn);
+					$tr.append($tdCreatedOn);
 					var $tdInstanceId = $('<td></td>').append(instanceId);
 					$tr.append($tdInstanceId);
 					if (managnedData[i].providerType == 'aws') {
@@ -279,10 +283,18 @@
 					$tr.append($tdProvider);
 					var $tdOs = $('<td></td>').append($osImg);
 					$tr.append($tdOs);
-					var createdOn = new Date(managnedData[i].createdOn).toLocaleString();
-					var $tdCreatedOn = $('<td></td>').append(createdOn);
-					$tr.append($tdCreatedOn);
-					var $tdStatus = $('<td></td>').append(managnedData[i].status);
+					if (managnedData[i].status == 'running') {
+						$tdStatus = $("<img title='running' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+					} else if (managnedData[i].status == 'pending' || managnedData[i].status == 'unknown') {
+						$tdStatus = $("<img title='pending' class ='statusIcon' src = '../private/img/aws_logo_inactive.png' alt='statusType'/>");
+					} else if (managnedData[i].status == 'stopping' || managnedData[i].status == 'paused') {
+						$tdStatus = $("<img title='stopping' class ='statusIcon' src = '../private/img/aws_logo_paused.png' alt='statusType'/>");
+					} else if (managnedData[i].status == 'stopped' || managnedData[i].status == 'terminated') {
+						$tdStatus = $("<img title='stopped' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					} else {
+						$tdStatus = $("<img title='unknown' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					}
+					var $tdStatus = $('<td></td>').append($tdStatus);
 					$tr.append($tdStatus);
 					if (managnedData[i].size == 'unknown') {
 						var $tdSize = $('<td></td>').append('NA');
@@ -311,7 +323,14 @@
 					$tr.append($bluePrint);
 					var $tdData = $('<td></td>').append(managnedData[i].action);
 					$tr.append($tdData);
-					var $tdActionStatus = $('<td></td>').append(managnedData[i].actionStatus);
+					if (managnedData[i].actionStatus == 'success') {
+						$tdActionStatus = $("<img title='success' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+					} else if (managnedData[i].actionStatus == 'failed') {
+						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					} else {
+						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					}
+					var $tdActionStatus = $('<td></td>').append($tdActionStatus);
 					$tr.append($tdActionStatus);
 					var $logIcon = $("<a data-original-title='MoreInfo' class='moreInfoLog' data-placement='top' rel='tooltip' href='javascript:void(0)' data-toggle='modal' data-id=" + managnedData[i].actionId + "><img class='moreInfo' src = '../private/img/galleryIcons/moreinfo.png' alt='moreInfo'/></a>");
 					var $tdLog = $('<td></td>').append($logIcon);

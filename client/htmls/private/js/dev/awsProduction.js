@@ -200,7 +200,6 @@ $(document).ready(function() {
     $('.versionClass').hide();
     $('#selectOrgName').trigger('change');
     getTreeDetails();
-    initializeCompositeBP();
     if (isAngularIntegration) {
         $('#workZoneNew').attr('href', '#');
         $('#workZoneNew').removeClass('active');
@@ -2925,8 +2924,10 @@ function initializeCompositeBP() {
     var $containerCompoTemp = "";
     $containerCompoTemp = '<div class="panel panel-default blueprintContainer hidden">' + '<div class="panel-heading">' + '<h4 class="panel-title">' + '<a href="#collapseCompo" data-parent="#accordion-3" data-toggle="collapse" class="collapsed"> ' + '<i class="fa fa-fw fa-plus-circle txt-color-blue"></i> ' + '<i class="fa fa-fw fa-minus-circle txt-color-red"></i>Composite</a>' + '</h4></div><div class="panel-collapse collapse bpeditas" id="collapseCompo">' + '<div class="panel-body composite"></div>' + '</div>';
     $('#accordion-3').append($containerCompoTemp);
-
-    $.get('../composite-blueprints', function(compositeData) {
+    var orgId = $("#orgnameSelectExisting option:selected").val();
+    var bgId = $('#bgListInputExisting option:selected').val();
+    var projId = $('#projectListInputExisting option:selected').val();
+    $.get('../composite-blueprints?filterBy=organizationId:'+orgId+'+businessGroupId:'+bgId+'+projectId:'+projId, function(compositeData) {
         if (compositeData && compositeData.compositeBlueprints) {
             for (var j = 0; j < compositeData.compositeBlueprints.length; j++) {
                 addBlueprintToComposite(compositeData.compositeBlueprints[j]);
@@ -3348,10 +3349,10 @@ function addBlueprintToDom(data) {
 function removeSelectedBlueprint() {
 
     var blueprintId = [];
-    var compositeBlueprintId = '';
+    var compositeBlueprintId = [];
     $('.productdiv1.role-Selected1').each(function() {
         blueprintId.push($(this).find('button[title="Edit"]').first().attr('blueprintId'));
-        compositeBlueprintId = $(this).find('button[title="Edit"]').attr('data-blueprintId');
+        compositeBlueprintId.push($(this).find('button[title="Edit"]').attr('data-blueprintId'));
     });
 
     if (blueprintId.length > 0 || compositeBlueprintId.length > 0) {
@@ -3360,15 +3361,17 @@ function removeSelectedBlueprint() {
                 return;
             } else {
                 var url1 = '/blueprints';
-                var url2 = '/composite-blueprints/' + compositeBlueprintId;
+                var url2 = '/composite-blueprints/delete';
                 var data1 = {
                     blueprints: blueprintId
                 };
-                var data2 = compositeBlueprintId;
+                var data2 = {
+                    compositeBlueprints: compositeBlueprintId
+                };
                 $.ajax({
                     url: (blueprintId[0] !=undefined)  ? url1 : url2,
                     data: (blueprintId[0] !=undefined) ? data1 : data2,
-                    type: 'DELETE',
+                    type: (blueprintId[0] !=undefined) ? 'DELETE' : 'POST',
                     success: function(data) {
                         if (data) {
                             var $bcc = $('.productdiv1.role-Selected1').closest('.blueprintContainer');

@@ -465,11 +465,13 @@
 			});
 
             $scope.isTargetTypesLoading = true;
+            $scope.isScriptNodesLoading = true;
 			var allInstances = workzoneServices.getCurrentEnvInstances();
 			var allBlueprints = workzoneServices.getBlueprints();
             var allRunlist = workzoneServices.getCookBookListForOrg();
 			$q.all([allInstances,allBlueprints,allRunlist]).then(function(promiseObjs) {
                 $scope.isTargetTypesLoading = false;
+                $scope.isScriptNodesLoading = false;
 				var instances = promiseObjs[0].data;
 				var blueprints = promiseObjs[1].data;
                 var roles = Object.keys(promiseObjs[2].data.roles);
