@@ -7,9 +7,19 @@ table {
 	height: 96%;
 }
 
+.page-name {
+	font-size: 22px;
+    text-align: center;
+    margin: 5px 0;
+}
+
 .imgStyle {
 	width: 25px;
 	height: 25px;
+}
+
+.statusIcon {
+	height: 30px;
 }
 
 .logsArea {
