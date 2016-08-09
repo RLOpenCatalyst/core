@@ -50,7 +50,7 @@ var mongoose = require('mongoose');
 logger.debug('Starting Catalyst');
 logger.debug('Logger Initialized');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
-LDAPUser.getLdapUser(function(err, ldapData) {
+/*LDAPUser.getLdapUser(function(err, ldapData) {
     if (err) {
         logger.error("Failed to get ldap-user: ", err);
         return;
@@ -69,7 +69,19 @@ LDAPUser.getLdapUser(function(err, ldapData) {
     } else {
         logger.debug("No Ldap User found.");
     }
-});
+});*/
+
+// setting up up passport authentication strategy
+if (appConfig.authStrategy.externals && appConfig.ldap) {
+    passport.use(new passportLdapStrategy({
+        host: appConfig.ldap.host,
+        port: appConfig.ldap.port,
+        baseDn: appConfig.ldap.baseDn,
+        ou: appConfig.ldap.ou,
+        usernameField: 'username',
+        passwordField: 'pass'
+    }));
+}
 
 passport.serializeUser(function(user, done) {
     done(null, user);
