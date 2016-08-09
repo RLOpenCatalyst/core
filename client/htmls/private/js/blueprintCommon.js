@@ -55,6 +55,7 @@ function getTreeDetails(){
                 reqBodyNew.bgId = $bgList.val();
                 reqBodyNew.projectId = $projectList.val();
                 reqBodyNew.envId = $envList.val();
+                initializeCompositeBP();
                 var blueprintTypeList = ["docker", "aws_cf", "instance_launch"];
                 for(var i =0;i<blueprintTypeList.length;i++){
                     $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws?blueprintType='+blueprintTypeList[i]+'', function(data) {
