@@ -115,22 +115,32 @@
 										<div ng-show="!isTargetTypesLoading" class="row margin0">
 				                            
 				                                <div class="radio-instances col-lg-4 no-padding">
-				                                    <input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
+				                                    <input type="radio" name="nodesSpecification" id="rdInstance" ng-click="onChangeTargetType('instance')" value="instance" ng-model="targetType" />
 				                                    <label for="rdInstance" class="lable-align">Nodes</label>
 				                                </div>
 				                                <div class="radio-blueprints col-lg-5 no-padding">
-				                                    <input type="radio" name="nodesSpecification" value="blueprint" ng-model="targetType" id="rdBlueprint"/>
+				                                    <input type="radio" name="nodesSpecification" value="blueprint"  ng-click="onChangeTargetType('blueprint')" ng-model="targetType" id="rdBlueprint"/>
 				                                    <label for="rdBlueprint" class="lable-align">Blueprints</label>
 				                                </div>
 				                                <div class="radio-roles col-lg-3 no-padding">
-				                                    <input type="radio" name="nodesSpecification" value="role" ng-model="targetType" id="rdRole"/>
+				                                    <input type="radio" name="nodesSpecification" value="role" ng-click="onChangeTargetType('role')" ng-model="targetType" id="rdRole"/>
 				                                    <label for="rdRole" class="lable-align">Roles</label>
 				                                </div>
 				                            
 				                        </div>
-										<div ng-show="targetType==='instance'" class="">
+										<div ng-show="targetType==='instance'">
 											<label class="checkbox check-list">
-												Select All : &nbsp;<input  type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAll()" ng-model="$parent.isAllSelected" title="Select All ">
+												Select All : &nbsp;<input type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAll()" ng-model="$parent.isAllSelected" title="Select All">
+											</label>
+										</div>
+										<div ng-show="targetType==='blueprint'">
+											<label class="checkbox check-list cursor" ng-click="clearBluePrintSelection()">
+												<span class="clear-selection blue">Clear Selection</span>
+											</label>
+										</div>
+										<div ng-show="targetType==='role'">
+											<label class="checkbox check-list cursor" ng-click="clearRoleSelection()">
+												<span class="clear-selection blue">Clear Selection</span>
 											</label>
 										</div>
 										<div class="clearfix"></div>
@@ -145,7 +155,7 @@
 											<ul ng-show="targetType==='blueprint'">
 												<li ng-repeat="blueprint in chefBluePrintList">
 													<label class="checkbox check-list">
-														<input name="blueprint" ng-value="blueprint._id" type="radio"  ng-model="blueprint._isBlueprintSelected" class="checkbox-list blueprint-{{blueprint._isBlueprintSelected}}">{{blueprint.name}}
+														<input name="blueprint" ng-value="blueprint._id" type="radio" ng-model="blueprint._isBlueprintSelected" class="radiobutton-list blueprint-{{blueprint._isBlueprintSelected}}">{{blueprint.name}}
 													</label>
 												</li>
 											</ul>
@@ -153,7 +163,7 @@
 											<ul ng-show="targetType==='role'">
 												<li ng-repeat="r in chefRoleList">
 													<label class="checkbox check-list">
-														<input name="roleRadioBtn" type="radio" ng-checked="role.name === r " ng-model="role.name" class="checkbox-list" value="{{r}}">{{r}}
+														<input name="roleRadioBtn" type="radio" ng-checked="role.name === r " ng-model="role.name" class="radiobutton-list" value="{{r}}">{{r}}
 													</label>
 												</li>
 											</ul>
@@ -369,8 +379,9 @@
 							</header>
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-										<div class="row margin0">
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 script-task">
+										<loading name="isScriptNodesLoading" size="medium" type="block" align="left"></loading>
+										<div class="row margin0" ng-show="!isScriptNodesLoading">
 			                                <div class="radio-instances col-lg-6 no-padding">
 			                                    <input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
 			                                    <label for="rdInstance" class="lable-align">Nodes</label>

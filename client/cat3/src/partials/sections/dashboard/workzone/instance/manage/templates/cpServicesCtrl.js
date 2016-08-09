@@ -47,7 +47,7 @@
 				$scope.cpServicesGridOptions.data='tabData';
 				$scope.cpServicesGridOptions.columnDefs = [
 					{ name:'Service Name',field:'servicename',cellTooltip: true},
-					{ name:'Actions',cellTemplate:'<span ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon cursor {{actionItem.bg}}" ng-click="grid.appScope.serviceAction(row.entity, actionItem.actionType);">'+
+					{ name:'Actions',cellTemplate:'<span title="{{actionItem.actionType}}" ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon cursor {{actionItem.bg}}" ng-click="grid.appScope.serviceAction(row.entity, actionItem.actionType);">'+
 					'<i class="fa {{actionItem.icon}} white"></i></span>' ,cellTooltip: true, enableSorting: false},
 					{ name:'Options',cellTemplate: '<span title="Delete" class="cp-service-icon btn-danger cursor" ng-click="grid.appScope.deleteService(row.entity, rowRenderIndex);">'+
 					'<i class="fa fa-trash-o white"></i></span>',cellTooltip: true, enableSorting: false}
@@ -136,7 +136,7 @@
 				$scope.cpAddServicesGridOptions.columnDefs = [
 					{ name:'Select',cellTemplate:'<input type="checkbox" ng-click="grid.appScope.toggleSelection(row.entity.rowid)" />',cellTooltip: true},
 					{ name:'Name',field:'servicename',cellTooltip: true},
-					{ name:'Actions',cellTemplate:'<span ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon {{actionItem.bg}}">'+
+					{ name:'Actions',cellTemplate:'<span title="{{actionItem.actionType}}" ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon {{actionItem.bg}}">'+
 					'<i class="fa {{actionItem.icon}} white"></i></span>',cellTooltip: true}
 				];
 			};

@@ -280,6 +280,10 @@ $imagePath : "../../../../../../images";
 		vertical-align: middle;
 	}
 
+	.clear-selection {
+		text-decoration: underline;
+	}
+
 	.check-list {
 		margin: 5px;
 		font-size: 13px;
@@ -292,6 +296,11 @@ $imagePath : "../../../../../../images";
 	
 	.checkbox-list {
 		margin-top: 3px;
+	}
+
+	.radiobutton-list {
+		margin: 2px 4px 0 0;
+		vertical-align: top;
 	}
 
 	.addRunList-icon {
@@ -337,6 +346,12 @@ $imagePath : "../../../../../../images";
 
 	input[type="file"] { 
 		display: none; 
+	}
+
+	.script-task {
+		loading h1 {
+			margin: 3px 0 0 0;
+		}
 	}
 }
 

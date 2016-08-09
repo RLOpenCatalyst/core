@@ -15,20 +15,20 @@
                     });
                 }
             };
-            pbList.blueprintInfo =function($event,bpDetails){
+            pbList.blueprintInfo =function($event,bpDetails,bpType){
                 $event.stopPropagation();
-                gencSers.moreInfo(bpDetails,'compBlueInfo');
+                gencSers.moreInfo(bpDetails,bpType);
             };
             pbList.launchInstance  =function($event,pbId){
                 $event.stopPropagation();
                 bpServ.launchBp(pbId);
             };
             pbList.selectCard = function (cardObj){
-                pbList[cardObj.id] = !pbList[cardObj.id];
-                if(pbList.selectedCards.indexOf(cardObj.id) === -1){
-                    pbList.selectedCards.push(cardObj.id);
+                pbList[cardObj._id] = !pbList[cardObj._id];
+                if(pbList.selectedCards.indexOf(cardObj._id) === -1){
+                    pbList.selectedCards.push(cardObj._id);
                 } else {
-                    pbList.selectedCards.splice(pbList.selectedCards.indexOf(cardObj.id),1);
+                    pbList.selectedCards.splice(pbList.selectedCards.indexOf(cardObj._id),1);
                 }
 
             };

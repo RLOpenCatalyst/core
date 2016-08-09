@@ -83,12 +83,14 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 			workzone: modulePerms.workzoneAccess(),
 			design: modulePerms.designAccess(),
 			settings: modulePerms.settingsAccess(),
-			track: modulePerms.trackAccess()
+			track: modulePerms.trackAccess(),
+			analyticsBool:modulePerms.analyticsAccess()
 		};
 		$rootScope.workZoneBool = _permSet.workzone;
 		$rootScope.designBool = _permSet.design;
 		$rootScope.settingsBool = _permSet.settings;
 		$rootScope.trackBool = _permSet.track;
+		$rootScope.analyticsBool = _permSet.analyticsBool;
 	});
 	$rootScope.$emit('SET_HEADER', $rootScope.appDetails);
 	$scope.showLogoutConfirmationSection = false;

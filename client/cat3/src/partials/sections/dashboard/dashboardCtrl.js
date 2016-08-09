@@ -9,7 +9,7 @@
         'dashboard.settings',
         'dashboard.design',
         'apis.workzone',
-        'services.design'])
+        'services.design','dashboard.analytics'])
         .controller('dashboardCtrl', ['$rootScope', '$scope', '$http', 'uac', '$location', '$state', function ($rootScope, $scope, $http, uac, $location, $state) {
     'use strict';
     $rootScope.isBreadCrumbAvailable = true;

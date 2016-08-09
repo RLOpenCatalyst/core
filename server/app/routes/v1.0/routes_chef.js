@@ -296,7 +296,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                             nodeName:node.name,
                             nodeEnv:envName
                         }
-                        checkNodeCredentials(credentials,chefDetails,nodeDetails,function(err,credentialStatus) {
+                        checkNodeCredentials(credentials,nodeDetails,function(err,credentialStatus) {
                             if (err) {
                                 logger.debug("Invalid Credentials  ", err);
                                 callback(err, null);
