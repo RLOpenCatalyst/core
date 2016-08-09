@@ -10,6 +10,7 @@
 				};
 				return designServices.promiseGet(params);
 			};
+			//services listed for aws blueprints save and update.
 			blueprintServices.getImages = function () {
 				var params = {
 					url: '/vmimages'
@@ -163,5 +164,32 @@
 				};
 				return designServices.promisePost(params);
 			};
+
+			//services listed for azure blueprints save and update.
+
+			//listing down the azure providers
+			blueprintServices.getAzureProviders = function() {
+				var params = {
+					url: '/azure/providers'
+				};
+				return designServices.promiseGet(params);
+			};
+
+			//listing down azure locations
+			blueprintServices.getAzureLocations = function (azureProviderId) {
+				var params = {
+					//displayName
+					url: '/azure/' + azureProviderId + '/locations'
+				};
+				return designServices.promiseGet(params);
+			};
+
+			//listing down the azure networks(VPC)
+			blueprintServices.getAzureVPC = function (azureProviderId) {
+				var params = {
+					url: '/azure/'+ azureProviderId +'/networks'
+				};
+				return designServices.promiseGet(params);
+			}
         }]);
 })(angular);
