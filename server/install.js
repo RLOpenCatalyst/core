@@ -39,7 +39,7 @@ function getDefaultsConfig() {
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
-        scriptDirName :'scriptDir',
+        scriptDirName: 'scriptDir',
         staticUploadDir: '/var/chef/cache/uploads',
         app_run_secure_port: 443,
         cryptoSettings: {
@@ -79,24 +79,24 @@ function getDefaultsConfig() {
                     "instanceState": "running"
                 }]
             },
-            sort_order : "asc",
-            sortReferanceData : {
-                "unmanagedInstances" : "state",
-                "managedInstances" : "instanceState",
-                "instances" : "instanceCreatedOn",
-                "tasks" : "taskCreatedOn",
-                "applications" : "name",
-                "azureArms" : "status",
-                "containerList" : "Status",
-                "cftList" : "status",
-                "appDeploy" : "envId",
+            sort_order: "asc",
+            sortReferanceData: {
+                "unmanagedInstances": "state",
+                "managedInstances": "instanceState",
+                "instances": "instanceCreatedOn",
+                "tasks": "taskCreatedOn",
+                "applications": "name",
+                "azureArms": "status",
+                "containerList": "Status",
+                "cftList": "status",
+                "appDeploy": "envId",
                 "trackedInstances": "providerType",
-                "resources":"createdOn",
-                "unassignedInstances":"state"
+                "resources": "createdOn",
+                "unassignedInstances": "state"
             },
-            skip_Records : 1,
-            max_record_limit : 200,
-            record_limit : 50
+            skip_Records: 1,
+            max_record_limit: 200,
+            record_limit: 50
         },
         puppet: {
             puppetReposDirName: 'puppet-repos',
@@ -109,9 +109,9 @@ function getDefaultsConfig() {
         aws: {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
-            s3BucketFileName:'rlBilling.zip',
-            s3AccountNumber:"549974527830",
-            s3CSVFileName:"-aws-billing-detailed-line-items-with-resources-and-tags-",
+            s3BucketFileName: 'rlBilling.zip',
+            s3AccountNumber: "549974527830",
+            s3CSVFileName: "-aws-billing-detailed-line-items-with-resources-and-tags-",
             pemFile: "catalyst.pem",
             instanceUserName: "root",
             virtualizationType: [{
@@ -180,8 +180,8 @@ function getDefaultsConfig() {
                 DiskWriteBytes: 'Megabytes',
                 NetworkIn: 'Megabytes',
                 NetworkOut: 'Megabytes',
-                BucketSizeBytes:"Bytes",
-                NumberOfObjects:"Count",
+                BucketSizeBytes: "Bytes",
+                NumberOfObjects: "Count",
                 NetworkPacketsIn: 'Count',
                 NetworkPacketsOut: 'Count',
                 StatusCheckFailed: 'Count',
@@ -198,10 +198,10 @@ function getDefaultsConfig() {
                 NetworkIn: 'MB',
                 NetworkOut: 'MB'
             },
-            costData:{
-                regions:['us-east-1','us-west-2','us-west-1','eu-west-1','eu-central-1','ap-southeast-1','ap-northeast-1','ap-southeast-2','sa-east-1'],
-                productName1:['Amazon Elastic Compute Cloud','Amazon RDS Service','Amazon Redshift','Amazon ElastiCache'],
-                productName2:['Amazon CloudFront','Amazon Route 53','Amazon Simple Storage Service','Amazon Virtual Private Cloud']
+            costData: {
+                regions: ['us-east-1', 'us-west-2', 'us-west-1', 'eu-west-1', 'eu-central-1', 'ap-southeast-1', 'ap-northeast-1', 'ap-southeast-2', 'sa-east-1'],
+                productName1: ['Amazon Elastic Compute Cloud', 'Amazon RDS Service', 'Amazon Redshift', 'Amazon ElastiCache'],
+                productName2: ['Amazon CloudFront', 'Amazon Route 53', 'Amazon Simple Storage Service', 'Amazon Virtual Private Cloud']
             }
         },
         vmware: {
@@ -213,8 +213,8 @@ function getDefaultsConfig() {
             port: '27017'
         },
         authStrategy: {
-            local: true,
-            externals: false
+            local: false,
+            externals: true
         },
         logServerUrl: '',
         features: {
@@ -285,6 +285,10 @@ function parseArguments() {
         name: "max-instance-count",
         type: Number,
         description: "Maximum number of instance allowed to be launch"
+    }, {
+        name: "ldap",
+        type: String,
+        description: "Setup Ldap Crudentials"
     }]);
 
     var options = cli.parse();
@@ -303,6 +307,9 @@ function parseArguments() {
 }
 
 function getConfig(config, options) {
+    if (options['ldap']) {
+        options['ldap'] = JSON.parse(options['ldap']);
+    }
     //parsing arguments
     if (options['catalyst-port']) {
         var catalystPort = parseInt(options['catalyst-port']);
@@ -316,6 +323,7 @@ function getConfig(config, options) {
     config.db.dbName = options['db-name'] ? options['db-name'] : config.db.dbName;
     //config.ldap.host = options['ldap-host'] ? options['ldap-host'] : config.ldap.host;
     //config.ldap.port = options['ldap-port'] ? options['ldap-port'] : config.ldap.port;
+    config.ldap = options['ldap'];
     if (options['max-instance-count']) {
         var maxInstanceCount = parseInt(options['max-instance-count']);
         if (maxInstanceCount) {
@@ -402,7 +410,7 @@ function setupLdapUser(config, callback) {
             attrsOnly: true
         };
 
-        client.search('cn=' + ldapUser + ',dc=d4d-ldap,dc=relevancelab,dc=com', searchOpts, function(err, res) {
+        client.search('cn=' + ldapUser + ','+config.ldap.baseDn, searchOpts, function(err, res) {
             if (err) {
                 console.error("Unable to preform search in ldap");
                 throw err;

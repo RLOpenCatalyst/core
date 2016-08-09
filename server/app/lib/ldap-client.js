@@ -17,12 +17,12 @@ limitations under the License.
 var logger = require('_pr/logger')(module);
 var ldap = require('ldapjs');
 var setDefaults = function(options) {
-    options.host || (options.host = 'localhost');
-    options.port || (options.port = '389');
-    options.baseDn || (options.baseDn = 'dc=d4d-ldap,dc=relevancelab,dc=com');
-    options.ou || (options.ou = '');
-    options.adminUser || (options.adminUser = 'admin');
-    options.adminPass || (options.adminPass = 'SomePass');
+    options.host;
+    options.port;
+    options.baseDn;
+    options.ou;
+    options.adminUser;
+    options.adminPass;
     return options;
 };
 
