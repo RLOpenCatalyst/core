@@ -71,7 +71,7 @@
     padding: 0;
 }
 .small-box p {
-    font-size: 14px;
+    font-size: 13px;
 }
 .small-box p > small {
     display: block;
@@ -464,4 +464,13 @@ table.dataTable thead .sorting_asc{
 .form-select option {
     line-height: 30px;
     color: #333;
+}
+.modal-dialog.modal-trends{
+   margin: 10px auto; 
+}
+.cursor-pointer{
+    cursor: pointer;
+}
+.chartOuter{
+    height: 400px;
 }
