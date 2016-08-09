@@ -502,16 +502,28 @@ $(document).ready(function () {
         $('#mainPanelId').show();
         $('#trackedAssignedInstancesAllProviderTableContainer').hide();
     });
-
+    var previousChartId = null;
+    function setCurrentChart(chartId){
+        $('#' + chartId).slideDown("slow");
+        previousChartId =  chartId;       
+        $(window).trigger('resize');
+    }
     $('#metricSelector').change(function () {
         var chartId = $(this).val();
-        $('.chartContainer').hide();
-        $('#' + chartId).show();
-        $(window).trigger('resize');
+        if (previousChartId) {
+            $('#' + previousChartId).slideUp("slow", function () {
+                setCurrentChart(chartId);
+            });
+        }else{
+            setCurrentChart(chartId);
+        }        
     });
 
     //Function to get the specific provider usages.
     function specProviderUsagesClickHandler() {
+        previousChartId = null;
+        $('#metricSelector').val('CPUUtilization');
+        $('.chartContainer').hide();
         var $specUsageModalContainer = $('#specUsageModalContainer');
         var instanceId = $(this).attr("data-usage");
         var toTimeString = new Date().toISOString().slice(0, 19);
