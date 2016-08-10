@@ -194,7 +194,6 @@
 				};
 				return designServices.promiseGet(params);
 			};
-
 			//listing down azure locations
 			blueprintServices.getAzureLocations = function (azureProviderId) {
 				var params = {
@@ -204,7 +203,6 @@
 				};
 				return designServices.promiseGet(params);
 			};
-
 			//listing down the azure networks(VPC)
 			blueprintServices.getAzureVPC = function (azureProviderId) {
 				var params = {
@@ -212,6 +210,58 @@
 					inlineLoader:true
 				};
 				return designServices.promiseGet(params);
-			}
+			};
+
+			//services listed for openstack blueprints save and update.
+			//listing down openstack providers
+			blueprintServices.getOpenStackProviders = function() {
+				var params = {
+					url: '/openstack/providers',
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+			//listing down the openstack flavors related to provider
+			blueprintServices.getProviderFlavors = function(providerId) {
+				var params = {
+					url: '/openstack/' + providerId + '/flavors',
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+			//listing down the openstack networks related to provider
+			blueprintServices.getProviderNetwork = function(providerId) {
+				var params = {
+					url: '/openstack/' + providerId + '/networks',
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+			//listing down the security groups related to provider
+			blueprintServices.getProviderSecurityGroup = function(providerId) {
+				var params = {
+					url: '/openstack/' + providerId + '/securityGroups',
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+
+			//services listed for vmware blueprints save and update.
+			//listing down vmware providers.
+			blueprintServices.getVmWareProviders = function() {
+				var params = {
+					url: '/vmware/providers',
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+			//listing down dataStore related to Provider.
+			blueprintServices.getProviderDataStore = function(providerId) {
+				var params = {
+					url: '/vmware/' + providerId + '/datastores',
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
         }]);
 })(angular);

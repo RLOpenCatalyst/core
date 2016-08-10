@@ -30,6 +30,7 @@
             blueprintCreation.providerListingAzure = [];
             blueprintCreation.regionListingAzure = []; 
             blueprintCreation.subnetListingAzure = [];
+            blueprintCreation.dataStore = [];
 
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
@@ -73,28 +74,29 @@
                 });
             };
 
-            blueprintCreation.getAWSProviders = function(){
-                bpCreateSer.getAWSProviders().then(function(data){
-                    blueprintCreation.providerListing = data;
-                    if($scope.bpTypeName === 'OSImage'){
-                        blueprintCreation.newEnt.providers = $scope.templateSelected.providerId;
-                        $scope.isOSImage = true;
-                        blueprintCreation.getProviderImage();
-                    }
-                });
-            };
-
-            //get azure providers.
-
-            blueprintCreation.getAzureProviders = function(){
-                bpCreateSer.getAzureProviders().then(function(data){
-                    blueprintCreation.providerListingAzure = data;
-                    if($scope.bpTypeName === 'OSImage'){
-                        blueprintCreation.newEnt.providers = $scope.templateSelected.providerId;
-                        $scope.isOSImage = true;
-                        blueprintCreation.getProviderImage();
-                    }
-                });
+            blueprintCreation.getAllProviders = function(){
+                if($scope.providerType === 'AWS'){
+                    bpCreateSer.getAWSProviders().then(function(data){
+                        blueprintCreation.providerListing = data;
+                    });    
+                } else if($scope.providerType === 'AZURE'){
+                    bpCreateSer.getAzureProviders().then(function(data){
+                        blueprintCreation.providerListing = data;
+                    });    
+                } else if($scope.providerType === 'OPENSTACK'){
+                    bpCreateSer.getOpenStackProviders().then(function(data){
+                        blueprintCreation.providerListing = data;
+                    });
+                } else if($scope.providerType === 'VMWARE'){
+                    bpCreateSer.getVmWareProviders().then(function(data){
+                        blueprintCreation.providerListing = data;
+                    });
+                }
+                if($scope.bpTypeName === 'OSImage'){
+                    blueprintCreation.newEnt.providers = $scope.templateSelected.providerId;
+                    $scope.isOSImage = true;
+                    blueprintCreation.getProviderImage();
+                }
             };
 
             blueprintCreation.getProviderImage = function(){
@@ -131,6 +133,13 @@
                     bpCreateSer.getAzureLocations(blueprintCreation.newEnt.providers).then(function(data){
                         if(blueprintCreation.newEnt.providers){
                             blueprintCreation.regionListingAzure = data.Locations.Location;
+                            $scope.isRegionKeyPairLoading = false;
+                        }
+                    })
+                } else if($scope.providerType === 'VMWARE'){
+                    bpCreateSer.getProviderDataStore(blueprintCreation.newEnt.providers).then(function(data){
+                           if(blueprintCreation.newEnt.providers){
+                            blueprintCreation.dataStore = data.datastores;
                             $scope.isRegionKeyPairLoading = false;
                         }
                     })
@@ -335,11 +344,7 @@
                         $scope.previousEnabled = true;
                         $scope.isSubmitVisible = true;
                         blueprintCreation.getOperatingSytems();
-                        if($scope.providerType === 'AWS'){
-                            blueprintCreation.getAWSProviders();    
-                        } else if ($scope.providerType === 'AZURE'){
-                            blueprintCreation.getAzureProviders();    
-                        }
+                        blueprintCreation.getAllProviders();    
                         blueprintCreation.getOrgBUProjDetails();
                         if($scope.bpTypeName === 'CloudFormation'){
                             blueprintCreation.getCFTParams();
@@ -384,7 +389,6 @@
                         chefServerId:$scope.getChefServerId,
                         instanceType:blueprintCreation.newEnt.instanceType,
                         instanceOS:blueprintCreation.newEnt.osListing,
-                        instanceCount:blueprintCreation.newEnt.instanceCount,
                         instanceAmiid:$scope.imageIdentifier,
                         instanceUsername:'root',
                         dockerimagename:'',
@@ -409,10 +413,21 @@
 
                     if($scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'SoftwareStack') {
                         if($scope.providerType === 'AWS'){
-                            blueprintCreateJSON.blueprintType = "instance_launch";    
+                            blueprintCreateJSON.blueprintType = 'instance_launch';
+                            blueprintCreateJSON.instanceCount = blueprintCreation.newEnt.instanceCount;    
                         } else if($scope.providerType === 'AZURE'){
-                            blueprintCreateJSON.blueprintType = "azure_launch";    
-                        } 
+                            blueprintCreateJSON.blueprintType = 'azure_launch';
+                            blueprintCreateJSON.instanceCount = blueprintCreation.newEnt.instanceCount;
+                        } else if($scope.providerType === 'VMWARE'){
+                            blueprintCreateJSON.blueprintType = 'vmware_launch';
+                            blueprintCreateJSON.instanceCount = '1';
+                            //not required as it is already getting used. Need to check for new API.
+                            blueprintCreateJSON.instanceImageName = $scope.imageIdentifier;
+                            blueprintCreateJSON.datastore = blueprintCreation.newEnt.dataStore;        
+                        } else if($scope.providerType === 'OPENSTACK'){
+                            blueprintCreateJSON.blueprintType = 'openstack_launch';
+                            blueprintCreateJSON.instanceCount = '1';
+                        }
                     }
 
                     if($scope.bpTypeName === 'CloudFormation'){
