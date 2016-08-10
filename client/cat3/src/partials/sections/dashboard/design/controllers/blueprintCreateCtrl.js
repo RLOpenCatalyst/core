@@ -4,8 +4,10 @@
         .controller('blueprintCreateCtrl',['$scope','$modal','toastr','$state', 'blueprintCreateService','confirmbox', function ($scope,$modal,toastr,$state,bpCreateSer,confirmbox) {
             var blueprintCreation = this;
             //to get the templates listing.
-            $scope.providerType = $state.params.subItem;
-            $scope.bpTypeName = $state.params.templateObj.templatetypename;
+            if($state.params && $state.params.subItem && $state.params.templateObj){
+                $scope.providerType = $state.params.subItem;
+                $scope.bpTypeName = $state.params.templateObj.templatetypename;    
+            }
             $scope.logo = 'images/global/cat-logo.png';
             $scope.osImageLogo = 'images/global/linux.png';
             $scope.isOSImage = false;
@@ -43,6 +45,7 @@
 
             blueprintCreation.getImages = function(){
                 bpCreateSer.getImages().then(function(data){
+                    //Note: The provider type should come in lowercase from the API.
                     var providerType = $scope.providerType.toLowerCase();
                     for(var i=0;i<data.length;i++){
                         if(providerType === data[i].providerType){

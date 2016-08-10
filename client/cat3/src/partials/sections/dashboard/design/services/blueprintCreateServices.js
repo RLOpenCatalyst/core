@@ -189,7 +189,8 @@
 			//listing down the azure providers
 			blueprintServices.getAzureProviders = function() {
 				var params = {
-					url: '/azure/providers'
+					url: '/azure/providers',
+					inlineLoader:true
 				};
 				return designServices.promiseGet(params);
 			};
@@ -198,7 +199,8 @@
 			blueprintServices.getAzureLocations = function (azureProviderId) {
 				var params = {
 					//displayName
-					url: '/azure/' + azureProviderId + '/locations'
+					url: '/azure/' + azureProviderId + '/locations',
+					inlineLoader:true
 				};
 				return designServices.promiseGet(params);
 			};
@@ -206,7 +208,8 @@
 			//listing down the azure networks(VPC)
 			blueprintServices.getAzureVPC = function (azureProviderId) {
 				var params = {
-					url: '/azure/'+ azureProviderId +'/networks'
+					url: '/azure/'+ azureProviderId +'/networks',
+					inlineLoader:true
 				};
 				return designServices.promiseGet(params);
 			}
