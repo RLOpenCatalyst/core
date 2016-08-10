@@ -4,10 +4,14 @@
         .controller('blueprintCreateCtrl',['$scope','$modal','toastr','$state', 'blueprintCreateService','confirmbox', function ($scope,$modal,toastr,$state,bpCreateSer,confirmbox) {
             var blueprintCreation = this;
             //to get the templates listing.
-            $scope.bpTypeName = $state.params.templateObj.templatetypename;
+            if($state.params && $state.params.subItem && $state.params.templateObj){
+                $scope.providerType = $state.params.subItem.toUpperCase();
+                $scope.bpTypeName = $state.params.templateObj.templatetypename;    
+            }
             $scope.logo = 'images/global/cat-logo.png';
             $scope.osImageLogo = 'images/global/linux.png';
             $scope.isOSImage = false;
+            $scope.imageList = [];
             blueprintCreation.newEnt = [];
             blueprintCreation.osListing = [];
             blueprintCreation.providerListing = [];
@@ -17,11 +21,15 @@
             blueprintCreation.vpcListing = [];
             blueprintCreation.subnetListing = [];
             blueprintCreation.securityGroupListing = [];
+            blueprintCreation.instanceType = [];
             blueprintCreation.orgBUProjListing = [];
             blueprintCreation.buProjListing = [];
             blueprintCreation.projListing = [];
             blueprintCreation.appUrlList = [];
             blueprintCreation.getCFTDetails = [];
+            blueprintCreation.providerListingAzure = [];
+            blueprintCreation.regionListingAzure = []; 
+            blueprintCreation.subnetListingAzure = [];
 
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
@@ -37,7 +45,13 @@
 
             blueprintCreation.getImages = function(){
                 bpCreateSer.getImages().then(function(data){
-                    $scope.imageList = data;
+                    //Note: The provider type should come in lowercase from the API.
+                    var providerType = $scope.providerType.toLowerCase();
+                    for(var i=0;i<data.length;i++){
+                        if(providerType === data[i].providerType){
+                            $scope.imageList.push(data[i]);        
+                        }
+                    }
                 });
             };
 
@@ -65,14 +79,27 @@
                     if($scope.bpTypeName === 'OSImage'){
                         blueprintCreation.newEnt.providers = $scope.templateSelected.providerId;
                         $scope.isOSImage = true;
-                        blueprintCreation.getAWSProviderImage();
+                        blueprintCreation.getProviderImage();
                     }
                 });
             };
 
-            blueprintCreation.getAWSProviderImage = function(){
+            //get azure providers.
+
+            blueprintCreation.getAzureProviders = function(){
+                bpCreateSer.getAzureProviders().then(function(data){
+                    blueprintCreation.providerListingAzure = data;
+                    if($scope.bpTypeName === 'OSImage'){
+                        blueprintCreation.newEnt.providers = $scope.templateSelected.providerId;
+                        $scope.isOSImage = true;
+                        blueprintCreation.getProviderImage();
+                    }
+                });
+            };
+
+            blueprintCreation.getProviderImage = function(){
                 $scope.isImageLoading = true;
-                $scope.isRegionKeyPairLoading = true;
+                $scope.isRegionKeyPairLoading = true;      
                 bpCreateSer.getImageLists(blueprintCreation.newEnt.providers).then(function(data){
                     if(blueprintCreation.newEnt.providers){
                         blueprintCreation.imageListing = data;
@@ -92,13 +119,23 @@
                         };
                     }
                 });
-                bpCreateSer.getAWSProviderWithId(blueprintCreation.newEnt.providers).then(function(data){
-                    if(blueprintCreation.newEnt.providers){
-                        blueprintCreation.regionListing = data.keyPairs[0].region;
-                        blueprintCreation.keyPairListing = data.keyPairs[0].keyPairName;
-                        $scope.isRegionKeyPairLoading = false;
-                    }
-                });
+                if($scope.providerType === 'AWS'){
+                    bpCreateSer.getAWSProviderWithId(blueprintCreation.newEnt.providers).then(function(data){
+                        if(blueprintCreation.newEnt.providers){
+                            blueprintCreation.regionListing = data.keyPairs[0].region;
+                            blueprintCreation.keyPairListing = data.keyPairs[0].keyPairName;
+                            $scope.isRegionKeyPairLoading = false;
+                        }
+                    });    
+                } else if($scope.providerType === 'AZURE'){
+                    bpCreateSer.getAzureLocations(blueprintCreation.newEnt.providers).then(function(data){
+                        if(blueprintCreation.newEnt.providers){
+                            blueprintCreation.regionListingAzure = data.Locations.Location;
+                            $scope.isRegionKeyPairLoading = false;
+                        }
+                    })
+                }
+                
             };
 
             blueprintCreation.getInstanceType = function(){
@@ -108,44 +145,81 @@
                         $scope.imageIdentifier = imageDetails[i].imageIdentifier; 
                     }
                 }
-                $scope.isInstanceTypeLoading = true;
-                bpCreateSer.getInstanceType().then(function(data){
-                    if(blueprintCreation.newEnt.images){
-                        blueprintCreation.instanceType = data;    
-                        $scope.isInstanceTypeLoading = false;
-                    }
-                });
-            };
+                if($scope.providerType === 'AWS'){
+                    $scope.isInstanceTypeLoading = true;
+                    bpCreateSer.getInstanceType().then(function(data){
+                        if(blueprintCreation.newEnt.images){
+                            blueprintCreation.instanceType = data;    
+                            $scope.isInstanceTypeLoading = false;
+                        }
+                    });
+                }
+            };    
 
-            blueprintCreation.postVpcs = function(){
+            blueprintCreation.listVpcs = function(){
                 $scope.isVPCLoading = true;
-                bpCreateSer.postVpcs(blueprintCreation.newEnt.providers,blueprintCreation.newEnt.region).then(function(data){
-                    if(blueprintCreation.newEnt.region){
-                        blueprintCreation.vpcListing = data.Vpcs;    
-                        $scope.isVPCLoading = false;
+                if($scope.providerType === 'AWS'){
+                    bpCreateSer.postVpcs(blueprintCreation.newEnt.providers,blueprintCreation.newEnt.region).then(function(data){
+                        if(blueprintCreation.newEnt.region){
+                            blueprintCreation.vpcListing = data.Vpcs;    
+                            $scope.isVPCLoading = false;
+                        }
+                    });    
+                } else if($scope.providerType === 'AZURE'){
+                    bpCreateSer.getAzureVPC(blueprintCreation.newEnt.providers).then(function(data){
+                        if(blueprintCreation.newEnt.region){
+                            var azureVpc = data.VirtualNetworkSites.VirtualNetworkSite;
+                            for(var i =0; i<azureVpc.length;i++){
+                                if(blueprintCreation.newEnt.region === azureVpc[i].Location){
+                                    blueprintCreation.vpcListing.push(azureVpc[i]);
+                                    $scope.isVPCLoading = false;        
+                                }
+                            }
+                        }
+                    });
+                    var regionInstanceType = blueprintCreation.regionListingAzure;
+                    for(var i=0;i<regionInstanceType.length;i++){
+                        if(blueprintCreation.newEnt.region === regionInstanceType[i].Name){
+                            blueprintCreation.instanceType = regionInstanceType[i].ComputeCapabilities.VirtualMachinesRoleSizes.RoleSize;
+                            console.log(blueprintCreation.instanceType);
+                            $scope.isInstanceTypeLoading = false;
+                        }
                     }
-                });
+                }
             };
 
             blueprintCreation.postSubnets = function() {
                 $scope.isSubnetLoading = true;
-                bpCreateSer.postSubnets(blueprintCreation.newEnt.vpcId,blueprintCreation.newEnt.providers,blueprintCreation.newEnt.region).then(function(data){
-                    if(blueprintCreation.newEnt.vpcId){
-                        blueprintCreation.subnetListing = data.Subnets;
-                        $scope.isSubnetLoading = false;
-                    }    
-                });
-            };
-
-            blueprintCreation.postSecurityGroups = function() {
-                $scope.isSecurityGroupLoading = true;
-                bpCreateSer.postSecurityGroups(blueprintCreation.newEnt.vpcId,blueprintCreation.newEnt.providers,blueprintCreation.newEnt.region).then(function(data){
-                    if(blueprintCreation.newEnt.vpcId){
-                        blueprintCreation.securityGroupListing = data;
-                        $scope.isSecurityGroupLoading = false;
-                    }    
-                });
-            };
+                if($scope.providerType === 'AWS'){
+                    bpCreateSer.postSubnets(blueprintCreation.newEnt.vpcId,blueprintCreation.newEnt.providers,blueprintCreation.newEnt.region).then(function(data){
+                        if(blueprintCreation.newEnt.vpcId){
+                            blueprintCreation.subnetListing = data.Subnets;
+                            $scope.isSubnetLoading = false;
+                        }    
+                    });    
+                } else if($scope.providerType === 'AZURE'){
+                    var subnetsAzure = blueprintCreation.vpcListing;
+                    for(var i =0;i<subnetsAzure.length;i++){
+                        if(blueprintCreation.newEnt.vpcId === subnetsAzure[i].Id){
+                            blueprintCreation.subnetListingAzure = subnetsAzure[i].Subnets.Subnet;
+                            $scope.isSubnetLoading = false;
+                        }  
+                    }
+                }
+            };    
+            
+            if($scope.providerType === 'AWS'){
+                blueprintCreation.postSecurityGroups = function() {
+                    $scope.isSecurityGroupLoading = true;
+                    bpCreateSer.postSecurityGroups(blueprintCreation.newEnt.vpcId,blueprintCreation.newEnt.providers,blueprintCreation.newEnt.region).then(function(data){
+                        if(blueprintCreation.newEnt.vpcId){
+                            blueprintCreation.securityGroupListing = data;
+                            $scope.isSecurityGroupLoading = false;
+                        }    
+                    });
+                };    
+            }
+            
 
             blueprintCreation.getOrgBUProjDetails = function() {
                 bpCreateSer.getOrgBuProj().then(function(data){
@@ -261,7 +335,11 @@
                         $scope.previousEnabled = true;
                         $scope.isSubmitVisible = true;
                         blueprintCreation.getOperatingSytems();
-                        blueprintCreation.getAWSProviders();
+                        if($scope.providerType === 'AWS'){
+                            blueprintCreation.getAWSProviders();    
+                        } else if ($scope.providerType === 'AZURE'){
+                            blueprintCreation.getAzureProviders();    
+                        }
                         blueprintCreation.getOrgBUProjDetails();
                         if($scope.bpTypeName === 'CloudFormation'){
                             blueprintCreation.getCFTParams();
@@ -319,6 +397,7 @@
                         imageId:blueprintCreation.newEnt.images,
                         providerId:blueprintCreation.newEnt.providers,
                         region:blueprintCreation.newEnt.region,
+                        templateType:$state.params.templateObj.templatetype,
                         name:blueprintCreation.newEnt.blueprintName
                     };
 
@@ -329,8 +408,11 @@
                     }
 
                     if($scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'SoftwareStack') {
-                        blueprintCreateJSON.blueprintType = "instance_launch";
-                        blueprintCreateJSON.templateType = $state.params.templateObj.templatetype;
+                        if($scope.providerType === 'AWS'){
+                            blueprintCreateJSON.blueprintType = "instance_launch";    
+                        } else if($scope.providerType === 'AZURE'){
+                            blueprintCreateJSON.blueprintType = "azure_launch";    
+                        } 
                     }
 
                     if($scope.bpTypeName === 'CloudFormation'){
@@ -347,7 +429,6 @@
                         blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
                         var cftInstances = [];
                         angular.forEach(blueprintCreation.newEnt.cftModelResources , function(value, key) {
-                            console.log(key , value);
                             var instanceObj = {
                                 logicalId: key,
                                 username: value,
@@ -362,16 +443,20 @@
                     if($scope.templateSelected.templatescookbooks){
                         blueprintCreateJSON.runlist = $scope.templateSelected.templatescookbooks.split(',');    
                     }
-
-                    blueprintCreateJSON.securityGroupIds = [];
-                    for(var i =0;i<blueprintCreation.securityGroupListing.length;i++){
-                        if(blueprintCreation.securityGroupListing[i]._isChecked){
-                            blueprintCreateJSON.securityGroupIds.push(blueprintCreation.securityGroupListing[i].GroupId);
-                        }
+                    if($scope.providerType === 'AWS'){
+                        blueprintCreateJSON.securityGroupIds = [];
+                        for(var i =0;i<blueprintCreation.securityGroupListing.length;i++){
+                            if(blueprintCreation.securityGroupListing[i]._isChecked){
+                                blueprintCreateJSON.securityGroupIds.push(blueprintCreation.securityGroupListing[i].GroupId);
+                            }
+                        }    
                     }
-
+                    
                     if(blueprintCreation.appUrlList && blueprintCreation.appUrlList.length){
                         blueprintCreateJSON.appUrls = blueprintCreation.appUrlList;
+                    }
+                    if($scope.providerType === 'AZURE'){
+                        blueprintCreateJSON.securityGroupPorts = blueprintCreation.newEnt.blueprintSecurityGroupPort;
                     }
                     var reqBody = {
                         blueprintData: blueprintCreateJSON
