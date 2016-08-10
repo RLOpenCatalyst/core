@@ -188,7 +188,7 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
         });
 };
 
-UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instance,callback) {
+UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instanceId,instance,callback) {
     var updateObj={};
     if(instance.state === 'terminated'){
         updateObj['state'] = instance.state;
@@ -203,9 +203,9 @@ UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstance
         updateObj['environmentTag'] = instance.environmentTag;
         updateObj['projectTag'] = instance.projectTag;
     }
-    this.update({
-        "platformId": instance.platformId,
-    }, {
+    UnassignedInstances.update({
+        "_id": ObjectId(instanceId)
+    },{
         $set: updateObj
     }, function(err, data) {
         if (err) {

@@ -2006,7 +2006,7 @@ var InstancesDao = function() {
         });
     };
 
-    this.updateInstanceStatus = function(instance,callback) {
+    this.updateInstanceStatus = function(instanceId,instance,callback) {
         var updateObj={};
         if(instance.state === 'terminated'){
             updateObj['state'] = instance.state;
@@ -2022,8 +2022,8 @@ var InstancesDao = function() {
             updateObj['projectTag'] = instance.projectTag;
         }
         Instances.update({
-            "platformId": instance.platformId,
-        }, {
+            "_id": ObjectId(instanceId)
+        },{
             $set: updateObj
         }, function(err, data) {
             if (err) {

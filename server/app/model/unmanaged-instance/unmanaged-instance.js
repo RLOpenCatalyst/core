@@ -270,29 +270,29 @@ UnmanagedInstanceSchema.statics.getInstancesByProviderIdOrgIdAndPlatformId = fun
 	);
 };
 
-UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceStatus(instance,callback) {
-	var updateObj = {};
-	if (instance.state === 'terminated') {
+UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceStatus(instanceId,instance,callback) {
+	var updateObj={};
+	if(instance.state === 'terminated'){
 		updateObj['state'] = instance.state;
 		updateObj['isDeleted'] = true;
 		updateObj['tags'] = instance.tags;
 		updateObj['environmentTag'] = instance.environmentTag;
 		updateObj['projectTag'] = instance.projectTag;
-	} else {
+	}else{
 		updateObj['state'] = instance.state;
 		updateObj['isDeleted'] = false;
 		updateObj['tags'] = instance.tags;
 		updateObj['environmentTag'] = instance.environmentTag;
 		updateObj['projectTag'] = instance.projectTag;
 	}
-	this.update({
-		"platformId": instance.platformId,
-	}, {
+	UnmanagedInstance.update({
+			"_id": ObjectId(instanceId)
+	},{
 		$set: updateObj
-	}, function (err, data) {
+	}, function(err, data) {
 		if (err) {
 			logger.error("Failed to update assigned Instance status data", err);
-			callback(err, null);
+			callback(err,null);
 			return;
 		}
 		callback(null, data);
