@@ -5,7 +5,7 @@
             var blueprintCreation = this;
             //to get the templates listing.
             if($state.params && $state.params.subItem && $state.params.templateObj){
-                $scope.providerType = $state.params.subItem;
+                $scope.providerType = $state.params.subItem.toUpperCase();
                 $scope.bpTypeName = $state.params.templateObj.templatetypename;    
             }
             $scope.logo = 'images/global/cat-logo.png';
