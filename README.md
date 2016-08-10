@@ -103,9 +103,16 @@ Otherwise you can file your issue in the RLCatalyst project and we will make sur
 To decrease the back and forth in issues, and to help us get to the bottom of them quickly, we use the issue template below.  You can copy/paste this template into the issue you are opening and edit it accordingly::
 
 ```
+  Bug description : [Description About Bug]
+
   Version:[Version of the project installed]
 
   Environment:[Details about the environment such as the Operating System, cookbook details, etc.]
+   Catalyst Version:[Tag or Latest Version]
+   OS Type and Version :
+   Versions of MongoDB , NodeJS:
+   Browser Type and Version:
+   Chef Client and Server Version:
 
   Scenario:[What you are trying to achieve and you can't?]
 
