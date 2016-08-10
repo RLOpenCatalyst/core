@@ -25,3 +25,9 @@ compositeBlueprintValidator.create = {
         "projectId": Joi.string().max(40).required()
     }
 };
+
+compositeBlueprintValidator.multiDelete = {
+    body: {
+        "compositeBlueprints": Joi.required()
+    }
+};
