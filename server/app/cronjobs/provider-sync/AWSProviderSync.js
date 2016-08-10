@@ -196,16 +196,16 @@ function tagMappingForInstances(instances,provider,next){
                     var catalystEnvironmentName = null;
                     var assignmentFound = false;
                     if (projectTag && environmentTag && (instance.isDeleted === false)
-                        && (instance.projectTag) && (instance.environmentTag)) {
+                        && (projectTag.name in instance.tags) && (environmentTag.name in instance.tags)) {
                         for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                            if (projectTag.catalystEntityMapping[y].tagValue == instance.projectTag) {
+                            if (projectTag.catalystEntityMapping[y].tagValue === instance.projectTag || projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
                                 catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
                                 catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
                                 break;
                             }
                         }
                         for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                            if (environmentTag.catalystEntityMapping[y].tagValue == instance.environmentTag) {
+                            if (environmentTag.catalystEntityMapping[y].tagValue === instance.environmentTag || environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
                                 catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
                                 catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
                                 break;

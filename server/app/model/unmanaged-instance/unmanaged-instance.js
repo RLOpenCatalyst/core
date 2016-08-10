@@ -271,15 +271,24 @@ UnmanagedInstanceSchema.statics.getInstancesByProviderIdOrgIdAndPlatformId = fun
 };
 
 UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceStatus(instanceId,instance,callback) {
+	var updateObj={};
 	if(instance.state === 'terminated'){
-		instance['isDeleted'] = true;
+		updateObj['state'] = instance.state;
+		updateObj['isDeleted'] = true;
+		updateObj['tags'] = instance.tags;
+		updateObj['environmentTag'] = instance.environmentTag;
+		updateObj['projectTag'] = instance.projectTag;
 	}else{
-		instance['isDeleted'] = false;
-	};
+		updateObj['state'] = instance.state;
+		updateObj['isDeleted'] = false;
+		updateObj['tags'] = instance.tags;
+		updateObj['environmentTag'] = instance.environmentTag;
+		updateObj['projectTag'] = instance.projectTag;
+	}
 	UnmanagedInstance.update({
 			"_id": ObjectId(instanceId)
 	},{
-		$set: instance
+		$set: updateObj
 	}, function(err, data) {
 		if (err) {
 			logger.error("Failed to update assigned Instance status data", err);

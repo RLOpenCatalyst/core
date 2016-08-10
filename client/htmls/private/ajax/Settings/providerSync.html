@@ -1569,19 +1569,27 @@
                         }
                     },
                     {"data": "state","orderable" : true  },
-                    {"data": "projectTag" ,"orderable" : false,
+                    {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(data !== null) {
-                                return '<input class="form-control projectTagName"  type="text" value="' + data + '"/>';
+                            if(full.projectTag !== null){
+                                var tagValue = full.projectTag;
+                                return '<input class="form-control projectTagName" type="text" value="' + tagValue + '"/>';
+                            }else if(envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
+                                var tagValue = full.tags[envProjectMappingObject.project];
+                                return '<input class="form-control projectTagName"  type="text" value="' + tagValue + '"/>';
                             }else{
                                 return '<input class="form-control projectTagName" type="text" value=""/>';
                             }
                         }
                     },
-                    {"data": "environmentTag" ,"orderable" : false,
+                    {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(data !== null) {
-                                return '<input class="form-control envTagName" type="text" value="' + data + '"/>';
+                            if(full.environmentTag !== null){
+                                var tagValue = full.environmentTag;
+                                return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
+                            }else if(envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
+                                var tagValue = full.tags[envProjectMappingObject.environment];
+                                return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
                             }else{
                                 return '<input class="form-control envTagName" type="text" value=""/>';
                             }
