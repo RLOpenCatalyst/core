@@ -671,7 +671,7 @@ var Chef = function(settings) {
                 var jsonFileName = "chefRunjsonAttributes_" + new Date().getTime() + ".json";
                 var jsonAttributesString = options.jsonAttributes; // JSON.stringify(options.jsonAttributes);
                 jsonAttributesString = jsonAttributesString.split('"').join('\\\"');
-                var proc = new Process('knife', ['winrm', options.host, '"echo '+jsonAttributesString+ ' > c:/'+jsonFileName+ ' && chef-client -o ' + runlist.join() + ' --json-attributes c:/'+jsonFileName+' "', '-m', '-P\"' + options.password + '\"', '-x' + options.username], processOptions);
+                var proc = new Process('knife', ['winrm', options.host, '"echo ' + jsonAttributesString + ' > c:/' + jsonFileName + ' && chef-client -o ' + runlist.join() + ' --json-attributes c:/' + jsonFileName + ' "', '-m', '-P\"' + options.password + '\"', '-x' + options.username], processOptions);
                 proc.start();
             } else {
                 logger.debug('host name ==>', options.host);
