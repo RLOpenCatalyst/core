@@ -371,6 +371,7 @@
                             $scope.taskSaving = false;
 							return false;
 						}
+						taskJSON.isSudoFlag = $scope.isSudo.flag;
 						
 						for (var k = 0; k < $scope.scriptTaskList.length; k++) {
 							if ($scope.scriptTaskList[k]._isScriptSelected) {
@@ -409,6 +410,9 @@
 			$scope.isEditMode = false;//default edit mode is false;
             $scope.taskSaving = false;//to disable submit button, dfault false
 			$scope.autoSync = {
+				flag: false
+			};
+			$scope.isSudo = {
 				flag: false
 			};
 			$scope.isParameterized = {
@@ -523,6 +527,7 @@
 						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;
 						$scope.targetType="instance";
+						$scope.optionScriptToggled();
 					}else{
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
 						$scope.isScriptInstanceLoading = false;
@@ -532,7 +537,6 @@
 				}
 				$scope.optionToggled();
 				$scope.optionInstanceToggled();
-				$scope.optionScriptToggled();
 			});
 			workzoneServices.getJenkinsServerList().then(function (response) {
 				var data;
@@ -570,6 +574,7 @@
 				}
 				if(items.taskType === "script") {
 					$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
+					$scope.isSudo.flag = items.taskConfig.isSudo === "false" ? false : true;
 					$scope.isNewTaskPageLoading = false;
 					$scope.changeNodeScriptList();
 				}

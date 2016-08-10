@@ -2006,25 +2006,16 @@ var InstancesDao = function() {
         });
     };
 
-    this.updateInstanceStatus = function(instance,callback) {
-        var updateObj={};
+    this.updateInstanceStatus = function(instanceId,instance,callback) {
         if(instance.state === 'terminated'){
-            updateObj['state'] = instance.state;
-            updateObj['isDeleted'] = true;
-            updateObj['tags'] = instance.tags;
-            updateObj['environmentTag'] = instance.environmentTag;
-            updateObj['projectTag'] = instance.projectTag;
+            instance['isDeleted'] = true;
         }else{
-            updateObj['state'] = instance.state;
-            updateObj['isDeleted'] = false;
-            updateObj['tags'] = instance.tags;
-            updateObj['environmentTag'] = instance.environmentTag;
-            updateObj['projectTag'] = instance.projectTag;
-        }
+            instance['isDeleted'] = false;
+        };
         Instances.update({
-            "platformId": instance.platformId,
-        }, {
-            $set: updateObj
+            "_id": ObjectId(instanceId)
+        },{
+            $set: instance
         }, function(err, data) {
             if (err) {
                 logger.error("Failed to update managed Instance status data", err);

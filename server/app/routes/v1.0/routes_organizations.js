@@ -51,6 +51,7 @@ var validate = require('express-validation');
 var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -1253,18 +1254,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
         taskData.projectId = req.params.projectId;
         taskData.envId = req.params.envId;
         taskData.autoSyncFlag = req.body.taskData.autoSyncFlag;
-
         masterUtil.getParticularProject(req.params.projectId, function(err, project) {
             if (err) {
-                callback({
-                    message: "Failed to get project via project id"
-                }, null);
+                logger.error(err);
+                res.status(500).send("Failed to get project via project id: ", err);
                 return;
             };
             if (project.length === 0) {
-                callback({
-                    "message": "Unable to find Project Information from project id"
-                });
+                logger.error(err);
+                res.status(500).send("Unable to find Project Information from project id: ", err);
                 return;
             }
             taskData.orgName = project[0].orgname;
@@ -1276,18 +1274,73 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 taskData.envName = envName;
-                Task.createNew(taskData, function(err, task) {
-                    if (err) {
-                        logger.err(err);
-                        res.status(500).send("Failed to create task: ", err);
-                        return;
-                    }
-                    res.send(task);
-                    logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
-                });
+                if(taskData.taskType === 'script'){
+                    encryptedParam(taskData.scriptDetails,function(err,encryptedParam){
+                        if(err){
+                            logger.error(err);
+                            res.status(500).send("Failed to encrypted script parameters: ", err);
+                            return;
+                        }else{
+                            taskData.scriptDetails = encryptedParam;
+                            Task.createNew(taskData, function (err, task) {
+                                if (err) {
+                                    logger.error(err);
+                                    res.status(500).send("Failed to create task: ", err);
+                                    return;
+                                }
+                                res.send(task);
+                                logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
+                            });
+                        }
+                    })
+                }else {
+                    Task.createNew(taskData, function (err, task) {
+                        if (err) {
+                            logger.err(err);
+                            res.status(500).send("Failed to create task: ", err);
+                            return;
+                        }
+                        res.send(task);
+                        logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
+                    });
+                }
             });
         });
     });
+
+    function encryptedParam(paramDetails,callback){
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+        var count = 0;
+        var encryptedList = [];
+        for(var i = 0; i < paramDetails.length; i++){
+            (function(param){
+                if(param.scriptParameters.length > 0){
+                    count++;
+                    for(var j = 0; j < param.scriptParameters.length; j++){
+                        (function(scriptParameter){
+                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                                cryptoConfig.decryptionEncoding);
+                            encryptedList.push(encryptedText);
+                            if(encryptedList.length === param.scriptParameters.length){
+                                param.scriptParameters = encryptedList;
+                                encryptedList = [];
+                                return;
+                            }else{
+                                return;
+                            }
+                        })(param.scriptParameters[j]);
+                    }
+                }else{
+                    count++;
+                    return;
+                }
+                if(count === paramDetails.length){
+                    callback(null,paramDetails);
+                }
+            })(paramDetails[i]);
+        }
+    }
 
 
 

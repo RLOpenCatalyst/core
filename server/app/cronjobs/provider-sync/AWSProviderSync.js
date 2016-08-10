@@ -32,7 +32,7 @@ function awsProviderSync() {
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
                                     count++;
-                                    awsProviderSyncForProvider(provider,org.orgname)
+                                    awsProviderSyncForProvider(provider,org._id,org.orgname)
                                 })(providers[j]);
                             }
                             if(count ===providers.length){
@@ -52,11 +52,11 @@ function awsProviderSync() {
     });
 }
 
-function awsProviderSyncForProvider(provider,orgName) {
-    logger.info("EC2 Data Fetching started for Provider "+provider._id);
+function awsProviderSyncForProvider(provider,orgId,orgName) {
+    logger.info("EC2 Data Fetching started for Provider "+provider.providerName);
     async.waterfall([
         function (next) {
-            resourceService.getEC2InstancesInfo(provider,orgName, next);
+            resourceService.getEC2InstancesInfo(provider,orgId,orgName, next);
         },
         function (instances, next) {
             saveEC2Data(instances, next);
@@ -75,7 +75,7 @@ function awsProviderSyncForProvider(provider,orgName) {
             logger.error(err);
             return;
         } else {
-            logger.info("EC2 Data Successfully Added for Provider "+provider._id);
+            logger.info("EC2 Data Successfully Added for Provider "+provider.providerName);
             return;
         }
     });
@@ -94,7 +94,7 @@ function saveEC2Data(ec2Info, callback){
                     count++;
                     return;
                 }else if (managedInstances.length > 0) {
-                    instancesDao.updateInstanceStatus(ec2, function(err, updateInstanceData) {
+                    instancesDao.updateInstanceStatus(managedInstances[0]._id,ec2, function(err, updateInstanceData) {
                         if (err) {
                             logger.error(err);
                             count++;
@@ -113,7 +113,7 @@ function saveEC2Data(ec2Info, callback){
                             count++;
                             return;
                         }else if (assignedInstances.length > 0) {
-                            assignedInstancesDao.updateInstanceStatus(ec2, function(err, updateInstanceData) {
+                            assignedInstancesDao.updateInstanceStatus(assignedInstances[0]._id,ec2, function(err, updateInstanceData) {
                                 if (err) {
                                     logger.error(err);
                                     count++;
@@ -145,7 +145,7 @@ function saveEC2Data(ec2Info, callback){
                                         }
                                     });
                                 }else {
-                                    unassignedInstancesModel.updateInstanceStatus(ec2, function (err, updateInstanceData) {
+                                    unassignedInstancesModel.updateInstanceStatus(unassignedInstances[0]._id,ec2, function (err, updateInstanceData) {
                                         if (err) {
                                             logger.error(err);
                                             count++;

@@ -188,25 +188,16 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
         });
 };
 
-UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instance,callback) {
-    var updateObj={};
+UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instanceId,instance,callback) {
     if(instance.state === 'terminated'){
-        updateObj['state'] = instance.state;
-        updateObj['isDeleted'] = true;
-        updateObj['tags'] = instance.tags;
-        updateObj['environmentTag'] = instance.environmentTag;
-        updateObj['projectTag'] = instance.projectTag;
+        instance['isDeleted'] = true;
     }else{
-        updateObj['state'] = instance.state;
-        updateObj['isDeleted'] = false;
-        updateObj['tags'] = instance.tags;
-        updateObj['environmentTag'] = instance.environmentTag;
-        updateObj['projectTag'] = instance.projectTag;
-    }
-    this.update({
-        "platformId": instance.platformId,
-    }, {
-        $set: updateObj
+        instance['isDeleted'] = false;
+    };
+    UnassignedInstances.update({
+        "_id": ObjectId(instanceId)
+    },{
+        $set: instance
     }, function(err, data) {
         if (err) {
             logger.error("Failed to update Unassigned Instance status data", err);
