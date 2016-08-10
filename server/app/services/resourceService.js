@@ -790,7 +790,7 @@ function getBucketsInfo(provider,orgName,callback) {
     })
 };
 
-function getEC2InstancesInfo(provider,orgName,callback) {
+function getEC2InstancesInfo(provider,orgId,orgName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
@@ -828,7 +828,7 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                         tagInfo[jsonData.Key] = jsonData.Value;
                                     }
                                     var instanceObj = {
-                                        orgId: provider.orgId[0],
+                                        orgId: orgId,
                                         orgName:orgName,
                                         providerId: provider._id,
                                         providerType: 'aws',

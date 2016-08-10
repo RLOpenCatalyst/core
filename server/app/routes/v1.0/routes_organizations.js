@@ -1019,7 +1019,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList', validate(orgValidator.get), getInstanceList);
-    
+
     function getInstanceList(req, res, next) {
         var reqData = {};
         async.waterfall([
@@ -1043,19 +1043,19 @@ module.exports.setRoutes = function(app, sessionVerification) {
             function(instances, next) {
                 apiUtil.paginationResponse(instances, reqData, next);
             }],function(err, results) {
-                if (err) {
-                    res.send({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching Instance."
-                    });
-                } else{
-                    return res.send(results);
-                }
-            });
+            if (err) {
+                res.send({
+                    "errorCode": 500,
+                    "message": "Error occured while fetching Instance."
+                });
+            } else{
+                return res.send(results);
+            }
+        });
     }
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList', validate(orgValidator.get), getTaskList);
-    
+
     function getTaskList(req, res, next) {
         var reqData = {};
         async.waterfall([
@@ -1078,15 +1078,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
             function(tasks, next) {
                 apiUtil.paginationResponse(tasks, reqData, next);
             }],function(err, results) {
-                if (err) {
-                    res.send({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching Task."
-                    });
-                } else{
-                    return res.send(results);
-                }
-            });
+            if (err) {
+                res.send({
+                    "errorCode": 500,
+                    "message": "Error occured while fetching Task."
+                });
+            } else{
+                return res.send(results);
+            }
+        });
     }
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/chefTasks', validate(orgValidator.get), getChefTaskList);
@@ -1130,16 +1130,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
             function(applications, next) {
                 apiUtil.paginationResponse(applications, reqData, next);
             }
-            ],function(err, results) {
-                if (err) {
-                    res.send({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching Blueprints."
-                    });
-                } else{
-                    return res.send(results);
-                }
-            });
+        ],function(err, results) {
+            if (err) {
+                res.send({
+                    "errorCode": 500,
+                    "message": "Error occured while fetching Blueprints."
+                });
+            } else{
+                return res.send(results);
+            }
+        });
     }
 
 
@@ -1316,15 +1316,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
             function(cftData, next) {
                 apiUtil.paginationResponse(cftData, reqData, next);
             }], function(err, results) {
-                if (err) {
-                    res.send({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching CFT."
-                    });
-                } else{
-                    return res.send(results);
-                }
-            });
+            if (err) {
+                res.send({
+                    "errorCode": 500,
+                    "message": "Error occured while fetching CFT."
+                });
+            } else{
+                return res.send(results);
+            }
+        });
     }
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/azureArmList', validate(orgValidator.get), getAzureArmList);
@@ -1332,25 +1332,25 @@ module.exports.setRoutes = function(app, sessionVerification) {
     function getAzureArmList(req, res, next) {
         var reqData = {};
         async.waterfall([
-            function(next) {
-                apiUtil.paginationRequest(req.query, 'azureArms', next);
-            },
-            function(paginationReq, next) {
-                paginationReq['orgId'] = req.params.orgId;
-                paginationReq['bgId'] = req.params.bgId;
-                paginationReq['projectId'] = req.params.projectId;
-                paginationReq['envId'] = req.params.envId;
-                paginationReq['searchColumns'] = ['cloudProviderId', 'deploymentName'];
-                reqData = paginationReq;
-                apiUtil.databaseUtil(paginationReq, next);
-            },
-            function(queryObj, next) {
-                queryObj['pagination'] = true;
-                AzureArm.findByOrgBgProjectAndEnvId(queryObj, next);
-            },
-            function(armsData, next) {
-                apiUtil.paginationResponse(armsData, reqData, next);
-            }],
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'azureArms', next);
+                },
+                function(paginationReq, next) {
+                    paginationReq['orgId'] = req.params.orgId;
+                    paginationReq['bgId'] = req.params.bgId;
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['envId'] = req.params.envId;
+                    paginationReq['searchColumns'] = ['cloudProviderId', 'deploymentName'];
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function(queryObj, next) {
+                    queryObj['pagination'] = true;
+                    AzureArm.findByOrgBgProjectAndEnvId(queryObj, next);
+                },
+                function(armsData, next) {
+                    apiUtil.paginationResponse(armsData, reqData, next);
+                }],
             function(err, results) {
                 if (err) {
                     res.send({
@@ -2318,39 +2318,39 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 });
             });
         });
-            function checkNodeCredentials(credentials,nodeDetail,callback){
-                if(nodeDetail.nodeOs !== 'windows') {
-                    var sshOptions = {
-                        username: credentials.username,
-                        host: nodeDetail.nodeIp,
-                        port: 22,
-                    }
-                    if (credentials.pemFileLocation) {
-                        sshOptions.privateKey = credentials.pemFileLocation;
-                        sshOptions.pemFileData = credentials.pemFileData;
-                    } else {
-                        sshOptions.password = credentials.password;
-                    }
-                    var sshExec = new SSHExec(sshOptions);
-
-                    sshExec.exec('echo Welcome', function (err, retCode) {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        } else if (retCode === 0) {
-                            callback(null, true);
-                        } else {
-                            callback(null, false);
-                        }
-                    }, function (stdOut) {
-                        logger.debug(stdOut.toString('ascii'));
-                    }, function (stdErr) {
-                        logger.error(stdErr.toString('ascii'));
-                    });
-                } else {
-                    callback(null, true);
+        function checkNodeCredentials(credentials,nodeDetail,callback){
+            if(nodeDetail.nodeOs !== 'windows') {
+                var sshOptions = {
+                    username: credentials.username,
+                    host: nodeDetail.nodeIp,
+                    port: 22,
                 }
+                if (credentials.pemFileLocation) {
+                    sshOptions.privateKey = credentials.pemFileLocation;
+                    sshOptions.pemFileData = credentials.pemFileData;
+                } else {
+                    sshOptions.password = credentials.password;
+                }
+                var sshExec = new SSHExec(sshOptions);
+
+                sshExec.exec('echo Welcome', function (err, retCode) {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    } else if (retCode === 0) {
+                        callback(null, true);
+                    } else {
+                        callback(null, false);
+                    }
+                }, function (stdOut) {
+                    logger.debug(stdOut.toString('ascii'));
+                }, function (stdErr) {
+                    logger.error(stdErr.toString('ascii'));
+                });
+            } else {
+                callback(null, true);
             }
+        }
     });
 
     app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/blueprints/docker', function(req, res) {
@@ -2423,7 +2423,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             return;
         });
     });
-    
+
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/blueprintList', validate(orgValidator.applications), getBluePrintList);
 
@@ -2431,51 +2431,51 @@ module.exports.setRoutes = function(app, sessionVerification) {
     function getBluePrintList(req, res, next) {
         var reqData = {};
         async.waterfall([
-                function(next) {
-                    apiUtil.paginationRequest(req.query, 'blueprints', next);
-                },
-                function(paginationReq, next) {
-                    if(req.query.templateType === 'composite'){
-                        paginationReq['organizationId'] = req.params.orgId;
-                        paginationReq['businessGroupId'] = req.params.bgId;
-                        paginationReq['projectId'] = req.params.projectId;
-                        paginationReq['cloudProviderType'] = req.query.providerType;
-                        paginationReq['searchColumns'] = ['name'];
-                    }else{
-                        paginationReq['orgId'] = req.params.orgId;
-                        paginationReq['bgId'] = req.params.bgId;
-                        paginationReq['projectId'] = req.params.projectId;
-                        paginationReq['templateType'] = req.query.templateType;
-                        paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
-                        paginationReq['searchColumns'] = ['name'];
-                    }
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-
-                },
-                function(queryObj, next) {
-                    if(req.query.templateType === 'composite'){
-                        compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next)
-                    }else {
-                        Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj, next);
-                    }
-                },
-                function(blueprints, next) {
-                    if(req.query.pagination === 'true'){
-                        apiUtil.paginationResponse(blueprints, reqData, next);
-                    }else{
-                        next(null,blueprints.docs);
-                    }
-                }], function(err, results) {
-                if (err) {
-                    res.send({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching Blueprints."
-                    });
-                } else{
-                    return res.send(results);
+            function(next) {
+                apiUtil.paginationRequest(req.query, 'blueprints', next);
+            },
+            function(paginationReq, next) {
+                if(req.query.templateType === 'composite'){
+                    paginationReq['organizationId'] = req.params.orgId;
+                    paginationReq['businessGroupId'] = req.params.bgId;
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['cloudProviderType'] = req.query.providerType;
+                    paginationReq['searchColumns'] = ['name'];
+                }else{
+                    paginationReq['orgId'] = req.params.orgId;
+                    paginationReq['bgId'] = req.params.bgId;
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['templateType'] = req.query.templateType;
+                    paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
+                    paginationReq['searchColumns'] = ['name'];
                 }
-            });
+                reqData = paginationReq;
+                apiUtil.databaseUtil(paginationReq, next);
+
+            },
+            function(queryObj, next) {
+                if(req.query.templateType === 'composite'){
+                    compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next)
+                }else {
+                    Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj, next);
+                }
+            },
+            function(blueprints, next) {
+                if(req.query.pagination === 'true'){
+                    apiUtil.paginationResponse(blueprints, reqData, next);
+                }else{
+                    next(null,blueprints.docs);
+                }
+            }], function(err, results) {
+            if (err) {
+                res.send({
+                    "errorCode": 500,
+                    "message": "Error occured while fetching Blueprints."
+                });
+            } else{
+                return res.send(results);
+            }
+        });
     }
 
 }
