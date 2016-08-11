@@ -112,7 +112,7 @@
 <div class="modal fade" id="modalForProviderReport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog " style="">
         <div class="modal-content">
-            <form role="form" id="trackItemUrl">
+            <form role="form" id="providerReport">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">Provider Report
@@ -135,7 +135,7 @@
                             <label for="reportType">Report Type:<span class="control-label redSpan">&nbsp;*</span></label>
                         </div>
                         <div class="col-md-9">
-                            <select id="reportType" name="reportType" class="required form-control width-100" style="vertical-align:central">
+                            <select id="reportType" name="reportType" class="form-control width-100" style="vertical-align:central">
                                 <option value="aggregate">Aggregate</option>
                                 <option value="trends">Trends</option>
                             </select>
@@ -158,8 +158,8 @@
                         <div class="col-md-3">
                             <label for="fromDate">From Date:<span class="control-label redSpan">&nbsp;*</span></label>
                         </div>
-                        <div class="col-md-9">
-                            <input name="fromDate" class="form-control" id="fromDate" />
+                        <div class="col-md-9" id="fromDateDiv">
+                            <input name="fromDate" class="required form-control" id="fromDate" />
                         </div>
                     </div>
                     <div class="row form-row">
@@ -167,7 +167,7 @@
                             <label for="tillDate">Till Date:<span class="control-label redSpan">&nbsp;*</span></label>
                         </div>
                         <div class="col-md-9">
-                            <input name="tillDate" class="form-control" id="tillDate" />
+                            <input name="tillDate" class="required form-control" id="tillDate" />
                         </div>
                     </div>
                 </div>
@@ -193,35 +193,74 @@
 
         // isUserTypeSuperAdmin();
         getProviderData();
-    });
-
-    //when the user closes the modal the childContainer will be hidden..
-    $('#modalForProviderReport').on('hidden.bs.modal', function () {
-        return false;
-    });
-
+        //when the user closes the modal the childContainer will be hidden..
+        $('#modalForProviderReport').on('hidden.bs.modal', function () {
+            return false;
+        });
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
-    $('.providerReportId').click(function (e) {
+        $('.providerReportId').click(function (e) {
+            $('#providerReport').reset();
+        });
+        $('#metric').change(function () {
+            var val = $(this).val();
+            if (val === 'cost') {
+                $('#reportType').removeAttr('disabled');
+                $('#rowFromDate').slideDown();
+            } else {
+                $('#rowFromDate').slideUp();
+                $('#reportType').val('trends');
+                $('#reportType').attr('disabled', 'disabled');
+            }
+        });
+        $('#fromDate').datepicker();
+        $('#tillDate').datepicker();
+        $('#metric').trigger('change');
+        $('#providerReport').submit(function (e) {
+            debugger;
+            $('#fromDate-error').remove();
+            var isValidator = $('#providerReport').valid();
+            if (!isValidator) {
+                e.preventDefault();
+                return false;
+            } else {
 
-    });
-    
-    $('#metric').change(function(){
-        var val = $(this).val();
-        if(val === 'cost'){
-            $('#reportType').removeAttr('disabled');
-            $('#rowFromDate').slideDown();
-        }else{
-            $('#rowFromDate').slideUp();
-            $('#reportType').val('trends');
-            $('#reportType').attr('disabled', 'disabled');
-        }
-    });
-    
-    $('#fromDate').datepicker();
-    $('#tillDate').datepicker();
-    
-    $('#metric').trigger('change');
 
+                e.preventDefault();
+                var formData = $(this).serializeArray();
+                $.ajax({
+                    method: "GET",
+                    url: "/aws/data",
+                    data: formData,
+                    success: function (data) {
+                        var A = [['n', 'sqrt(n)']];
+                        for (var j = 1; j < 10; ++j) {
+                            A.push([j, Math.sqrt(j)]);
+                        }
+
+                        var csvRows = [];
+                        for (var i = 0, l = A.length; i < l; ++i) {
+                            csvRows.push(A[i].join(','));
+                        }
+
+                        var csvString = csvRows.join("%0A");
+                        var a = document.createElement('a');
+                        a.href = 'data:attachment/csv,' + csvString;
+                        a.target = '_blank';
+                        a.download = 'myFile.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                    },
+                    error: function (jqxhr) {
+                        bootbox.alert(jqxhr.status);
+                    },
+                    failure: function (data) {
+                        bootbox.alert(data);
+                    }
+                });
+            }
+            return false;
+        });
+    });
     function isUserTypeSuperAdmin() {
         $.get('/d4dMasters/loggedInUser', function (data) {
             if (!data.isSuperAdmin) {
@@ -229,7 +268,6 @@
             }
             getProviderData();
         });
-
     }
 
     function getOrganizationList(callback) {
@@ -250,7 +288,6 @@
 
             }
             callback();
-
         });
     }
 
@@ -270,7 +307,6 @@
             success: function (data, success) {
                 data = typeof data == "string" ? JSON.parse(data) : data;
                 d4ddata = data;
-
                 getProviderDataopenstack();
             },
             error: function (jqxhr) {
@@ -281,7 +317,6 @@
                 bootbox.alert(data);
             }
         });
-
     }
 
     function getProviderDataopenstack() {
@@ -299,13 +334,10 @@
             data: reqBody,
             success: function (data, success) {
                 data = typeof data == "string" ? JSON.parse(data) : data;
-
                 for (var u = 0; u < data.length; u++) {
                     d4ddata.push(data[u]);
                 }
                 getProviderDatahppubliccloud();
-
-
                 // getOrganizationList();
 
             },
@@ -317,7 +349,6 @@
                 bootbox.alert(data);
             }
         });
-
     }
 
     function getProviderDatahppubliccloud() {
@@ -335,7 +366,6 @@
             data: reqBody,
             success: function (data, success) {
                 data = typeof data == "string" ? JSON.parse(data) : data;
-
                 for (var u = 0; u < data.length; u++) {
                     d4ddata.push(data[u]);
                 }
@@ -353,7 +383,6 @@
                 bootbox.alert(data);
             }
         });
-
     }
 
     function getProviderDatavmware() {
@@ -371,7 +400,6 @@
             data: reqBody,
             success: function (data, success) {
                 data = typeof data == "string" ? JSON.parse(data) : data;
-
                 for (var u = 0; u < data.length; u++) {
                     d4ddata.push(data[u]);
                 }
@@ -380,9 +408,6 @@
                 getOrganizationList(function () {
                     startup();
                 });
-
-
-
             },
             error: function (jqxhr) {
                 removeLoader();
@@ -392,7 +417,6 @@
                 bootbox.alert(data);
             }
         });
-
     }
 
     function getProviderDataAzure() {
@@ -409,12 +433,10 @@
             data: reqBody,
             success: function (data, success) {
                 data = typeof data == "string" ? JSON.parse(data) : data;
-
                 for (var u = 0; u < data.length; u++) {
                     d4ddata.push(data[u]);
                 }
                 getProviderDatavmware();
-
                 // getOrganizationList();
                 // getOrganizationList(function(){
                 //      startup();
@@ -429,7 +451,6 @@
                 bootbox.alert(data);
             }
         });
-
     }
 
     function startup() {
@@ -508,19 +529,15 @@
                                 inputC.html(v);
                         } else
                             inputC.html(v);
-
                     }
                 }
             });
-
             var sRow = $(".rowtemplate").clone();
             sRow.removeClass("hidden");
             sRow.removeClass("rowtemplate");
             // $('#envtable').append(sRow);
             imageTD = $('.rowtemplate').find("[datatype='image']");
-
             editButton = $('.rowtemplate').find("[title='Edit']");
-
             if (idFieldValue) {
                 if (imageTD) {
                     if (imageTD.length > 0) {
@@ -530,10 +547,8 @@
                             imageTD.html(''); //fix for image tag gettnig embedded. - Vinod
                         } else
                             imgpath = '/d4dMasters/image/' + idFieldValue + '__' + imageTD.attr('datafieldoriginal') + '__' + imageTD.html();
-
                         imageTD.html('');
                         imageTD.append($('<img src="' + imgpath + '" style="height:28px;width:auto"/>'));
-
                     }
 
                 }
@@ -622,10 +637,8 @@
                         syncButton.removeClass('btn-xs');
                         syncButton.addClass('btn-sg');
                         syncButton.addClass('tableactionbutton tableactionbuttonpadding');
-
                     } else {
                         syncButton.hide();
-
                     }
                 }
 
@@ -639,10 +652,8 @@
                         reportButton.addClass('btn-sg');
                         reportButton.addClass('tableactionbutton');
                         reportButton.addClass('providerReportId');
-
                     } else {
                         reportButton.hide();
-
                     }
                 }
 
@@ -728,13 +739,11 @@
         });
         setPopOverForTableFields();
         $(".savespinner").hide();
-
     }
 
     function deleteItemFromProvider(docid, key, value, button) {
         //Determining the provider type before delete
         var provname = 'aws';
-
         if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "OPENSTACK") {
             provname = 'openstack';
         } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "AZURE") {
@@ -758,7 +767,6 @@
                             var $tr = $(button).closest('tr');
                             //$tr.addClass('hidden').remove();
                             var $table = $tr.parents('table');
-
                             if ($.fn.DataTable.isDataTable($table)) {
                                 var $dataTable = $table.DataTable();
                                 $dataTable.row($tr).remove().draw(false);
@@ -791,7 +799,6 @@
                 });
             }
         });
-
     }
 
 </script>
