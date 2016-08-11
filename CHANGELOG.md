@@ -1,7 +1,7 @@
 3.3.0 - August 11th , 2016
 ----------------------------
 * Composite blueprints enhancements
-* Log trail implementation
+* Audit log trail implementation
 * Script executor implementation
 * Chef node import improvements
 * Critical Bug Fixes
