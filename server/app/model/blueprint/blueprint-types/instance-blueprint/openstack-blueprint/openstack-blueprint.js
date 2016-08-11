@@ -35,6 +35,7 @@ var openstackProvider = require('_pr/model/classes/masters/cloudprovider/opensta
 
 var Hppubliccloud = require('_pr/lib/hppubliccloud.js');
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 var fs = require('fs');
 
@@ -213,7 +214,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
             var instance = {
                 name: launchparamsOpenstack.server.name,
                 orgId: launchParams.orgId,
-                orgName:launchParams.orgName,
+                orgName: launchParams.orgName,
                 bgId: launchParams.bgId,
                 bgName: launchParams.bgName,
                 projectId: launchParams.projectId,
@@ -223,7 +224,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                 providerId: self.cloudProviderId,
                 providerType: self.cloudProviderType,
                 keyPairId: 'unknown',
-                region:self.region,
+                region: self.region,
                 chefNodeName: instanceData.server.id,
                 runlist: paramRunList,
                 platformId: instanceData.server.id,
@@ -232,6 +233,8 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                 instanceState: 'pending',
                 bootStrapStatus: 'waiting',
                 users: launchParams.users,
+                instanceType: self.flavor,
+                catUser: launchParams.sessionUser,
                 hardware: {
                     platform: 'unknown',
                     platformVersion: 'unknown',
@@ -281,6 +284,39 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                     timestamp: timestampStarted
                 });
 
+                var instanceLog = {
+                    actionId: actionLog._id,
+                    instanceId: instance.id,
+                    orgName: launchParams.orgName,
+                    bgName: launchParams.bgName,
+                    projectName: launchParams.projectName,
+                    envName: launchParams.envName,
+                    status: "pending",
+                    actionStatus: "waiting",
+                    platformId: instanceData.server.id,
+                    blueprintName: launchParams.blueprintData.name,
+                    data: paramRunList,
+                    platform: "unknown",
+                    os: self.instanceOS,
+                    size: self.flavor,
+                    user: launchParams.sessionUser,
+                    createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
+                    providerType: self.cloudProviderType,
+                    action: "Bootstrap",
+                    logs: [{
+                        err: false,
+                        log: "Waiting for instance ok state",
+                        timestamp: new Date().getTime()
+                    }]
+                };
+
+                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
+                    }
+                });
+
 
                 logger.debug('Returned from Create Instance. About to wait for instance ready state');
 
@@ -325,6 +361,17 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                     log: "Instance was not associated with an IP",
                                     timestamp: timestampStarted
                                 });
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "Instance was not associated with an IP",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
                             }
                             instancesDao.updateInstanceState(instance.id, "running", function(err, updateCount) {
                                 if (err) {
@@ -347,6 +394,17 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                 err: false,
                                 log: "Instance Ready..about to bootstrap",
                                 timestamp: timestampStarted
+                            });
+                            instanceLog.status = "running";
+                            instanceLog.logs = {
+                                err: false,
+                                log: "Instance Ready..about to bootstrap",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
                             });
                             var repoData = {};
                             repoData['projectId'] = launchParams.blueprintData.projectId;
@@ -395,6 +453,18 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Bootstrap failed",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         return;
                                     }
 
@@ -415,12 +485,29 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "success";
+                                        instanceLog.logs = {
+                                            err: false,
+                                            log: "Instance Bootstraped successfully",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         launchParams.infraManager.getNode(instance.chef.chefNodeName, function(err, nodeData) {
                                             if (err) {
                                                 logger.error("Failed chef.getNode", err);
                                                 return;
                                             }
+                                            instanceLog.platform = nodeData.automatic.platform;
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
                                             var hardwareData = {};
                                             hardwareData.architecture = nodeData.automatic.kernel.machine;
                                             hardwareData.platform = nodeData.automatic.platform;
@@ -461,7 +548,18 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             timestamp: timestampEnded
                                         });
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.logs = {
+                                            err: false,
+                                            log: "Bootstrap Failed",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
 
                                     }
 
@@ -473,6 +571,16 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         log: stdOutData.toString('ascii'),
                                         timestamp: new Date().getTime()
                                     });
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: stdOutData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
 
                                 }, function(stdErrData) {
 
@@ -482,6 +590,16 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                         err: true,
                                         log: stdErrData.toString('ascii'),
                                         timestamp: new Date().getTime()
+                                    });
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: stdErrData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
                                     });
 
                                 });

@@ -24,6 +24,8 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var logger = require('_pr/logger')(module);
 var taskService = require('_pr/services/taskService.js')
+var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 
 
@@ -36,6 +38,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
     app.get('/tasks/history/list/all', function(req, res) {
+        logger.debug("------------------ ",JSON.stringify(TaskHistory));
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -46,7 +49,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/tasks/list/all', function(req, res) {
-        Tasks.listTasks(function(err, tasks) {
+        Tasks.listTasks(null, function(err, tasks) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
@@ -126,7 +129,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
                 return;
-            } else if(err) {
+            } else if (err) {
                 logger.error("Failed to execute task.", err);
                 res.status(500).send(err);
                 return;
@@ -163,6 +166,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             return;
                         }
                         if (deleteCount) {
+                            TaskHistory.removeByTaskId(req.params.taskId,function(err,removed){
+                                if(err){
+                                    logger.error("Failed to remove history: ",err);
+                                }
+                            });
                             res.send({
                                 deleteCount: deleteCount
                             });
@@ -431,11 +439,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 res.send(200, history);
-
             });
-
         });
-
     });
 
     app.post('/tasks', function(req, res) {
@@ -453,17 +458,32 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
     });
 
-    app.get('/tasks', function(req, res) {
-        logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-        Tasks.getTasksByOrgBgProjectAndEnvId(req.query.orgId, req.query.bgId, req.query.projectId, req.query.envId, function(err, data) {
-            if (err) {
-                res.send(500);
-                return;
-            }
-            res.send(data);
-        });
-        logger.debug("Exit get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-    });
+    app.get('/tasks', getTaskList);
+
+    function getTaskList(req, res, next) {
+        var reqData = {};
+        async.waterfall(
+            [
+
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'tasks', next);
+                },
+                function(paginationReq, next) {
+                    reqData = paginationReq;
+                    Tasks.listTasks(paginationReq, next);
+                },
+                function(tasks, next) {
+                    apiUtil.paginationResponse(tasks, reqData, next);
+                }
+
+            ],
+            function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
@@ -520,37 +540,4 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
 
     });
-
-    app.post('/task/uploadScript', function(req, res) {
-
-        var fileName = uuid.v4();
-        if (!appConfig.scriptDir) {
-            res.send(500, {
-                message: "Unable to upload to scriptDir"
-            });
-            return;
-        }
-        if (req.files && req.files.file) {
-            console.log(req.files.file);
-            fileName = fileName + '_' + req.files.file.originalFilename;
-            var destPath = appConfig.scriptDir + fileName;
-            console.log(destPath);
-            fileIo.copyFile(req.files.file.path, destPath, function(err) {
-                if (err) {
-                    res.status(500).send({
-                        message: "Unable to save file"
-                    });
-                    return;
-                }
-                res.status(201).send({
-                    filename: fileName
-                });
-            });
-        } else {
-            res.status(400).send({
-                message: "Bad Request"
-            });
-        }
-    });
-
 };

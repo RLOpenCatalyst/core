@@ -8,7 +8,7 @@
 (function(angular) {
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('instanceUpdateChefRunlistCtrl', ['$scope', '$q', 'instanceChefAttribute', '$modalInstance', 'responseFormatter', 'chefSelectorComponent', '$timeout', '$http', 'workzoneServices', '$modal', function($scope, $q, instanceChefAttribute, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices, $modal) {
+		.controller('instanceUpdateChefRunlistCtrl', ['$scope', '$q', 'instanceChefAttribute', '$modalInstance', 'responseFormatter', 'chefSelectorComponent', '$timeout', '$http', 'workzoneServices', '$modal','toastr', function($scope, $q, instanceChefAttribute, $modalInstance, responseFormatter, chefSelectorComponent, $timeout, $http, workzoneServices, $modal,toastr) {
 			/*Open only One Accordian-Group at a time*/
 			$scope.oneAtATime = true;
 			/*Initialising First Accordian-group open on load*/
@@ -70,7 +70,7 @@
 						$modalInstance.close();
 					});
 				} else {
-					alert("Runlist is empty. Please select a cookbook and update");
+					toastr.warning("Runlist is empty. Please select a cookbook and update");
 				}
 			};
 

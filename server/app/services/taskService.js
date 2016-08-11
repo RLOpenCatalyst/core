@@ -16,6 +16,10 @@
 
 var logger = require('_pr/logger')(module);
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
+var instancesDao = require('_pr/model/classes/instance/instance');
 
 const errorType = 'taskService';
 
@@ -71,41 +75,142 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
             }*/
             callback(null, chefTasks);
         }
-    })
+    });
 };
 
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, callback) {
-    if(appData){
+    if (appData) {
         appData['taskId'] = taskId;
     }
     taskDao.getTaskById(taskId, function(err, task) {
         if (err) {
-            var err = new Error('Failed to fetch Task.');
-            err.status = 500;
-            return callback(err, null);
+            var error = new Error('Failed to fetch Task.');
+            error.status = 500;
+            return callback(error, null);
         }
         if (task) {
             var blueprintIds = [];
             if (task.blueprintIds && task.blueprintIds.length) {
-                blueprintIds = task.blueprintIds
+                blueprintIds = task.blueprintIds;
             }
             task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
                 if (err) {
-                    var err = new Error('Failed to execute task.');
-                    err.status = 500;
-                    return callback(err, null);
+                    var error = new Error('Failed to execute task.');
+                    error.status = 500;
+                    return callback(error, null);
                 }
                 if (historyData) {
                     taskRes.historyId = historyData.id;
                 }
-                logger.debug("taskRes::::: ", JSON.stringify(taskRes));
                 callback(null, taskRes);
                 return;
             });
         } else {
-            var err = new Error('Task Not Found.');
-            err.status = 404;
+            var error1 = new Error('Task Not Found.');
+            error1.status = 404;
+            return callback(error1, null);
+        }
+    });
+};
+
+
+
+taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
+    TaskHistory.listHistoryWithPagination(jsonData, function(err, histories) {
+        if (err) {
+            logger.error("Failed to fetch TaskActions: ", err);
             return callback(err, null);
+        }
+        var count = 0;
+        if (histories && histories.docs && histories.docs.length) {
+            for (var i = 0; i < histories.docs.length; i++) {
+                (function(i) {
+                    if (histories.docs[i] && histories.docs[i].taskType == "jenkins") {
+                        histories.docs[i] = JSON.parse(JSON.stringify(histories.docs[i]));
+                        histories.docs[i].jenkinsLog = "/jenkins/" + histories.docs[i].jenkinsServerId + "/jobs/" + histories.docs[i].jobName + "/builds/" + histories.docs[i].buildNumber + "/output";
+                    } else if (histories.docs[i] && histories.docs[i].taskType == "chef") {
+                        for (var p = 0; p < histories.docs[i].executionResults.length; p++) {
+                            (function(p) {
+                                instancesDao.getInstanceById(histories.docs[i].executionResults[p].instanceId, function(err, instance) {
+                                    if (err) {
+                                        logger.error("Failed to fetch instance: ", err);
+                                    }
+                                    if (instance && instance.length) {
+                                        histories.docs[i].executionResults[p].instanceName = instance[0].name;
+                                    }
+                                });
+                            })(p);
+                        }
+                        if (histories.docs[i] && histories.docs[i].blueprintExecutionResults && histories.docs[i].blueprintExecutionResults.length) {
+                            instancesDao.getInstanceById(histories.docs[i].blueprintExecutionResults[0].result[0].instanceId, function(err, instance) {
+                                if (err) {
+                                    logger.error("Failed to fetch instance: ", err);
+                                }
+                                if (instance && instance.length) {
+                                    histories.docs[i].blueprintExecutionResults[0].result[0].instanceName = instance[0].name;
+                                    histories.docs[i].blueprintExecutionResults[0].result[0].actionId = histories.docs[i].blueprintExecutionResults[0].result[0].actionLogId;
+                                    histories.docs[i].executionResults = histories.docs[i].blueprintExecutionResults[0].result;
+                                }
+                            });
+                        }
+                    }
+                    if (histories.docs[i] && histories.docs[i].taskType == "composite") {
+                        if (histories.docs[i].taskHistoryIds && histories.docs[i].taskHistoryIds.length) {
+                            for (var j = 0; j < histories.docs[i].taskHistoryIds.length; j++) {
+                                (function(j) {
+                                    TaskHistory.getHistoryByTaskIdAndHistoryId(histories.docs[i].taskHistoryIds[j].taskId, histories.docs[i].taskHistoryIds[j].historyId, function(err, data) {
+                                        if (err) {
+                                            logger.error("Failed to fetch history: ", err);
+                                        }
+                                        if (data) {
+                                            if (data.taskType == "jenkins") {
+                                                data = JSON.parse(JSON.stringify(data));
+                                                data.jenkinsLog = "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output";
+                                                histories.docs[i].executionResults.push(data);
+                                            } else {
+                                                if(data.blueprintExecutionResults && data.blueprintExecutionResults.length){
+                                                    data.blueprintExecutionResults[0].result[0].actionId = data.blueprintExecutionResults[0].result[0].actionLogId;
+                                                    data.executionResults = data.blueprintExecutionResults[0].result;
+                                                    
+                                                }
+                                                var c = 0;
+                                                for (var k = 0; k < data.executionResults.length; k++) {
+                                                    (function(k) {
+                                                        instancesDao.getInstanceById(data.executionResults[k].instanceId, function(err, instance) {
+                                                            c++;
+                                                            if (err) {
+                                                                logger.error("Failed to fetch instance: ", err);
+                                                            }
+                                                            if (instance && instance.length) {
+                                                                data.executionResults[k].instanceName = instance[0].name;
+                                                                //histories.docs[i].executionResults.push(data);
+                                                            }
+                                                            if (data.executionResults.length == c) {
+                                                                histories.docs[i].executionResults.push(data);
+                                                            }
+                                                        });
+                                                    })(k);
+                                                }
+                                            }
+                                        }
+                                        //if (histories.docs[i] && histories.docs[i].executionResults)
+                                        //histories.docs[i].executionResults.push(data);
+                                    });
+                                })(j);
+                            }
+                        }
+                    }
+                    count++;
+
+                    if (count == histories.docs.length) {
+                        setTimeout(function() {
+                            return callback(null, histories);
+                        }, 2000);
+                    }
+                })(i);
+            }
+        } else {
+            return callback(null, histories);
         }
     });
 };

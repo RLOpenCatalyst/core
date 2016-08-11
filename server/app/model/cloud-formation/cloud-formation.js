@@ -167,30 +167,15 @@ CloudFormationSchema.statics.createNew = function(cfData, callback) {
 
 
 CloudFormationSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
-    if(jsonData.pageSize) {
-        jsonData['searchColumns'] = ['stackName', 'status'];
-        ApiUtils.databaseUtil(jsonData, function (err, databaseCall) {
+    if(jsonData.pagination) {
+        CloudFormation.paginate(jsonData.queryObj, jsonData.options, function (err, cftData) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
-                return callback(err);
+                return callback(err,null);
             }
-            else{
-                CloudFormation.paginate(databaseCall.queryObj, databaseCall.options, function (err, cftData) {
-                    if (err) {
-                    var err = new Error('Internal server error');
-                    err.status = 500;
-                    return callback(err);
-                }
-                else if (!cftData) {
-                    var err = new Error('Cloud Formation is not found');
-                    err.status = 404;
-                    return callback(err);
-                }
-                else
-                    return callback(null, cftData);
-            });
-            }
+            return callback(null, cftData);
+
         });
     }
     else{
