@@ -61,10 +61,8 @@
                               </label>
                               <select name="providerId" ng-model="bpCreate.newEnt.providers" class="chooseOSProvider width-100 form-control" ng-change="bpCreate.getProviderImage();" ng-disabled="isOSImage" required>
                                  <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" value="">Select Provider</option>
-                                 <option ng-if="providerType === 'AWS' && templateSelected.templatetypename === 'SoftwareStack'" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
-                                 <option ng-if="providerType === 'AWS' && templateSelected.osType" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
-                                 <option ng-if="providerType === 'AZURE' && templateSelected.templatetypename === 'SoftwareStack'" ng-repeat="providerDetail in bpCreate.providerListingAzure" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
-                                 <option ng-if="providerType === 'AZURE' && templateSelected.osType" ng-repeat="providerDetail in bpCreate.providerListingAzure" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                                 <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
+                                 <option ng-if="templateSelected.osType" ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15">
@@ -84,7 +82,7 @@
                               </label>
                               <input ng-model="bpCreate.newEnt.blueprintSecurityGroupPort" name="blueprintSecurityGroupPortInput" class="form-control" type="text" autofocus="autofocus" required placeholder="Enter ports separated by comma">
                            </div>
-                           <div class="col-lg-6 col-md-6 margintop15">
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
                               <label for="region">Choose Region:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.region.$touched && newBlueprintForm.region.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
@@ -95,7 +93,27 @@
                                  <option ng-repeat="location in bpCreate.regionListingAzure" ng-if="providerType === 'AZURE'" value="{{location.Name}}">{{location.Name}}</option>
                               </select>
                            </div>
-                           <div class="col-lg-6 col-md-6 margintop15">
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType === 'OPENSTACK'">
+                              <label for="flavour">Choose Flavour:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.flavour.$touched && newBlueprintForm.flavour.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.flavour" name="flavour" class="width-100 form-control" required>
+                                 <option value="">Select Flavour</option>
+                                 <!-- <option ng-repeat="flavours in bpCreate.flavourListing" value="{{location.Name}}">{{location.Name}}</option> -->
+                              </select>
+                           </div>
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType === 'OPENSTACK'">
+                              <label for="network">Choose Network:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.network.$touched && newBlueprintForm.network.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.network" name="network" class="width-100 form-control" required>
+                                 <option value="">Select Network</option>
+                                 <!-- <option ng-repeat="flavours in bpCreate.flavourListing" value="{{location.Name}}">{{location.Name}}</option> -->
+                              </select>
+                           </div>
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
                               <label for="vpcId">Choose VPC:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.vpcId.$touched && newBlueprintForm.vpcId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isVPCLoading" type="inline"></loading>
@@ -106,7 +124,7 @@
                                  <option ng-if="providerType === 'AZURE'" ng-repeat="vpcDetailsAzure in bpCreate.vpcListing" value="{{vpcDetailsAzure.Id}}">{{vpcDetailsAzure.Name}}</option>
                               </select>
                            </div>
-                           <div class="col-lg-6 col-md-6 margintop15">
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType !=='VMWARE'">
                               <label for="subnetId">Choose Subnet:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.subnetId.$touched && newBlueprintForm.subnetId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isSubnetLoading" type="inline"></loading>
@@ -127,35 +145,49 @@
                                  <option value="{{bpCreate.keyPairListing}}">{{bpCreate.keyPairListing}}</option>
                               </select>
                            </div>
-                           <div class="col-lg-6 col-md-6 margintop15">
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
                               <label for="instancesize">Instance Type:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.instancesize.$touched && newBlueprintForm.instancesize.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isInstanceTypeLoading" type="inline"></loading>
                               </label>
-                              <select ng-model="bpCreate.newEnt.instanceType" name="instancesize" class="chooseOrganization width-100 chooseSelect form-control" required>
+                              <select ng-model="bpCreate.newEnt.instanceType" name="instancesize" class="width-100 chooseSelect form-control" required>
                                  <option value="">Select Instanace Type</option>
                                  <option ng-if="providerType === 'AWS'" ng-repeat="instanceType in bpCreate.instanceType[0].hvm" value="{{instanceType}}">{{instanceType}}</option>
                                  <option ng-if="providerType === 'AZURE'" ng-repeat="instanceType in bpCreate.instanceType" value="{{instanceType}}">{{instanceType}}</option>
                               </select>
                            </div>
-                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType ==='AWS'">
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType ==='AWS'   || providerType ==='OPENSTACK'">
                               <label for="checkbox-toggle">Security Group:<span class="red">&nbsp;*</span>
                                  <loading size="small" name="isSecurityGroupLoading" type="inline"></loading>
                               </label>
-                              <div class="col-lg-6 securityGroupComponent">
+                              <div class="col-lg-6 securityGroupComponent" ng-if="providerType === 'AWS'">
                                  <ul>
                                     <li ng-repeat="securityGroupDetails in bpCreate.securityGroupListing" id="securityGroupIds" name="securityGroupIds"  class="input-group col-md-12 widthBox"><label class="checkbox check-list"><input class="checkbox-list" type="checkbox" ng-checked="securityGroupDetails._isChecked" ng-model="securityGroupDetails._isChecked" name="bpCreate.newEnt.securityGroupCheck"/>{{securityGroupDetails.GroupId}} | {{securityGroupDetails.GroupName}} </label></li>
                                  </ul>
                               </div>
+                              <select  ng-model="bpCreate.newEnt.securityGroup" name="securityGroup" class="width-100 chooseSelect form-control" required ng-if="providerType ==='OPENSTACK'">
+                                 <option value="">Select Security Group</option>
+                                 <!-- <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option> -->
+                              </select>
                            </div>
-                           <div class="col-lg-6 col-md-6 margintop15">
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
                               <label for="instanceCount">Instances to Launch:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.instanceCount.$touched && newBlueprintForm.instanceCount.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isImageLoading" type="inline"></loading>
                               </label>
-                              <select  ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="chooseOrganization width-100 chooseSelect form-control" required>
+                              <select  ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="width-100 chooseSelect form-control" required>
                                  <option value="">Select No. Of Instances</option>
                                  <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-6 col-md-6 margintop15" ng-if="providerType === 'VMWARE'">
+                              <label for="dataStore">Choose Data Store:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.dataStore.$touched && newBlueprintForm.dataStore.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.dataStore" name="dataStore" class="width-100 form-control" required>
+                                 <option value="">Select Data Store </option>
+                                 <option ng-repeat="storeName in bpCreate.dataStore" value="{{storeName.name}}">{{storeName.name}}</option>
                               </select>
                            </div>
                            <!--To add the Swipe Functionality-->                            
