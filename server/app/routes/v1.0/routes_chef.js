@@ -1,40 +1,44 @@
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 // This file act as a Controller which contains chef server related all end points.
 
 
 var Chef = require('_pr/lib/chef');
-var EC2 = require('_pr/lib/ec2');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var environmentsDao = require('_pr/model/d4dmasters/environments.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
+var chefDao = require('_pr/model/dao/chefDao.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var fileIo = require('_pr/lib/utils/fileio');
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
 var taskStatusModule = require('_pr/model/taskstatus');
 var credentialCryptography = require('_pr/lib/credentialcryptography');
-var Curl = require('_pr/lib/utils/curl.js');
 var errorResponses = require('./error_responses');
 var waitForPort = require('wait-for-port');
 var logger = require('_pr/logger')(module);
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var Docker = require('_pr/model/docker.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var SSHExec = require('_pr/lib/utils/sshexec');
+
 
 module.exports.setRoutes = function(app, verificationFunc) {
 
@@ -159,17 +163,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
     app.post('/chef/servers/:serverId/sync/nodes', function(req, res) {
-
-
         var taskStatusObj = null;
         var chef = null;
         var reqBody = req.body;
         var projectId = reqBody.projectId;
         var orgId = reqBody.orgId;
         var bgId = reqBody.bgId;
-        var envId = reqBody.envId;
         var count = 0;
-
         var users = reqBody.users;
         if (!projectId) {
             res.send(400);
@@ -179,7 +179,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
             res.send(400);
             return;
         }
-
         var insertNodeInMongo = function(node, callback) {
             var platformId = '';
             if (!node.automatic) {
@@ -189,7 +188,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
             if (node.automatic.ipaddress) {
                 nodeIp = node.automatic.ipaddress;
             }
-
             if (node.automatic.cloud) {
                 if (node.automatic.cloud.public_ipv4 && node.automatic.cloud.public_ipv4 !== 'null') {
                     nodeIp = node.automatic.cloud.public_ipv4;
@@ -200,7 +198,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     }
                 }
             }
-
             var hardwareData = {
                 platform: 'unknown',
                 platformVersion: 'unknown',
@@ -231,14 +228,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
             if (!runlist) {
                 runlist = [];
             }
-
             if (hardwareData.platform === 'windows') {
                 hardwareData.os = "windows";
             }
-
             function getCredentialsFromReq(callback) {
                 var credentials = {};
-
                 if (reqBody.credentials && reqBody.credentials.pemFileData) {
                     credentials = reqBody.credentials;
                     credentials.pemFileLocation = appConfig.tempDir + uuid.v4();
@@ -252,7 +246,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     });
 
                 } else {
-
                     if (!reqBody.credentials) {
                         var tempPemFileLocation = appConfig.tempDir + uuid.v4();
                         fileIo.copyFile(appConfig.aws.pemFileLocation + appConfig.aws.pemFile, tempPemFileLocation, function() {
@@ -272,96 +265,114 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     }
                 }
             }
-
             getCredentialsFromReq(function(err, credentials) {
                 if (err) {
                     logger.debug("unable to get credetials from request ", err);
                     callback(err, null);
                     return;
                 }
-                credentialCryptography.encryptCredential(credentials, function(err, encryptedCredentials) {
+                credentialCryptography.encryptCredential(credentials, function (err, encryptedCredentials) {
                     if (err) {
                         logger.debug("unable to encrypt credentials == >", err);
                         callback(err, null);
                         return;
                     }
-
-                    logger.debug('nodeip ==> ', nodeIp);
-                    logger.debug('alive ==> ', node.isAlive);
-                    var instance = {
-                        name: node.name,
-                        orgId: orgId,
-                        bgId: bgId,
-                        projectId: projectId,
-                        envId: node.envId,
-                        chefNodeName: node.name,
-                        runlist: runlist,
-                        platformId: platformId,
-                        instanceIP: nodeIp,
-                        instanceState: 'running',
-                        bootStrapStatus: 'success',
-                        hardware: hardwareData,
-                        credentials: encryptedCredentials,
-                        users: users,
-                        chef: {
-                            serverId: req.params.serverId,
-                            chefNodeName: node.name
-                        },
-                        blueprintData: {
-                            blueprintName: node.name,
-                            templateId: "chef_import",
-                            iconPath: "../private/img/templateicons/chef_import.png"
-                        }
-                    }
-
-                    instancesDao.createInstance(instance, function(err, data) {
+                    configmgmtDao.getEnvNameFromEnvId(node.envId, function (err, envName) {
                         if (err) {
-                            logger.debug(err, 'occured in inserting node in mongo');
-                            callback(err, null);
+                            callback({
+                                message: "Failed to get env name from env id"
+                            }, null);
                             return;
+                        };
+                        if (!envName) {
+                            callback({
+                                "message": "Unable to find environment name from environment id"
+                            });
+                            return;
+                        };
+                        var nodeDetails = {
+                            nodeIp : nodeIp,
+                            nodeOs:hardwareData.os,
+                            nodeName:node.name,
+                            nodeEnv:envName
                         }
-                        logsDao.insertLog({
-                            referenceId: data._id,
-                            err: false,
-                            log: "Node Imported",
-                            timestamp: new Date().getTime()
-                        });
-
-                        var _docker = new Docker();
-                        _docker.checkDockerStatus(data._id, function(err, retCode) {
+                        checkNodeCredentials(credentials,nodeDetails,function(err,credentialStatus) {
                             if (err) {
-                                logger.error("Failed _docker.checkDockerStatus", err);
+                                logger.debug("Invalid Credentials  ", err);
+                                callback(err, null);
                                 return;
-                            }
-                            logger.debug('Docker Check Returned:' + retCode);
-                            if (retCode == '0') {
-                                instancesDao.updateInstanceDockerStatus(data._id, "success", '', function(data) {
-                                    logger.debug('Instance Docker Status set to Success');
+                            } else if (credentialStatus) {
+                                var instance = {
+                                    name: node.name,
+                                    orgId: orgId,
+                                    bgId: bgId,
+                                    projectId: projectId,
+                                    envId: node.envId,
+                                    orgName: reqBody.orgName,
+                                    bgName: reqBody.bgName,
+                                    projectName: reqBody.projectName,
+                                    environmentName: envName,
+                                    chefNodeName: node.name,
+                                    runlist: runlist,
+                                    platformId: platformId,
+                                    instanceIP: nodeIp,
+                                    instanceState: 'running',
+                                    bootStrapStatus: 'success',
+                                    hardware: hardwareData,
+                                    credentials: encryptedCredentials,
+                                    users: users,
+                                    chef: {
+                                        serverId: req.params.serverId,
+                                        chefNodeName: node.name
+                                    },
+                                    blueprintData: {
+                                        blueprintName: node.name,
+                                        templateId: "chef_import",
+                                        iconPath: "../private/img/templateicons/chef_import.png"
+                                    }
+                                }
+                                instancesDao.createInstance(instance, function (err, data) {
+                                    if (err) {
+                                        logger.debug(err, 'occured in inserting node in mongo');
+                                        callback(err, null);
+                                        return;
+                                    }
+                                    logsDao.insertLog({
+                                        referenceId: data._id,
+                                        err: false,
+                                        log: "Node Imported",
+                                        timestamp: new Date().getTime()
+                                    });
+                                    var _docker = new Docker();
+                                    _docker.checkDockerStatus(data._id, function (err, retCode) {
+                                        if (err) {
+                                            logger.error("Failed _docker.checkDockerStatus", err);
+                                            return;
+                                        }
+                                        logger.debug('Docker Check Returned:' + retCode);
+                                        if (retCode == '0') {
+                                            instancesDao.updateInstanceDockerStatus(data._id, "success", '', function (data) {
+                                                logger.debug('Instance Docker Status set to Success');
+                                            });
+                                        }
+                                    });
+                                    callback(null, data);
                                 });
-
+                            } else {
+                                callback({message: "Invalid Credentials"}, null);
                             }
-                        });
-
-
-
-                        callback(null, data);
-
+                        })
                     });
-
                 });
             });
-
         }
-
         function updateTaskStatusNode(nodeName, msg, err, i) {
             count++;
             var status = {};
             status.nodeName = nodeName;
             status.message = msg;
             status.err = err;
-
             logger.debug('taskstatus updated');
-
             if (count == reqBody.selectedNodes.length) {
                 logger.debug('setting complete');
                 taskstatus.endTaskStatus(true, status);
@@ -369,10 +380,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 logger.debug('setting task status');
                 taskstatus.updateTaskStatus(status);
             }
-
         };
-
-        function importNodes(nodeList) {
+        function importNodes(nodeList, chefDetail) {
             taskStatusModule.getTaskStatus(null, function(err, obj) {
                 if (err) {
                     res.send(500);
@@ -388,13 +397,17 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 updateTaskStatusNode(nodeName, "Unable to import node " + nodeName, true, count);
                                 return;
                             } else {
-
-                                logger.debug('creating env ==>', node.chef_environment);
-                                logger.debug('orgId ==>', orgId);
-                                logger.debug('bgid ==>', bgId);
-                                // logger.debug('node ===>', node);
-                                environmentsDao.createEnv(node.chef_environment, orgId, bgId, projectId, function(err, data) {
-
+                                var envObj = {
+                                    projectname:reqBody.projectName,
+                                    projectname_rowid:projectId,
+                                    orgname:reqBody.orgName,
+                                    orgname_rowid:orgId,
+                                    configname:chefDetail.configname,
+                                    configname_rowid:chefDetail.rowid,
+                                    environmentname:node.chef_environment,
+                                    id:'3'
+                                };
+                                environmentsDao.createEnv(envObj, function(err, data) {
                                     if (err) {
                                         logger.debug(err, 'occured in creating environment in mongo');
                                         updateTaskStatusNode(node.name, "Unable to import node : " + node.name, true, count);
@@ -442,8 +455,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                             }
                                             insertNodeInMongo(node, function(err, nodeData) {
                                                 if (err) {
-                                                    updateTaskStatusNode(nodeName, "Unknown error occured while importing " + node.name + ". Cannot import this node.", true, count);
-                                                    return;
+                                                    if(err.message){
+                                                        updateTaskStatusNode(nodeName, "The username or password/pemfile you entered is incorrect.", true, count);
+                                                        return;
+                                                    }else {
+                                                        updateTaskStatusNode(nodeName, "Unknown error occured while importing " + node.name + ". Cannot import this node.", true, count);
+                                                        return;
+                                                    }
                                                 }
                                                 updateTaskStatusNode(nodeName, "Node Imported : " + nodeName, false, count);
                                             });
@@ -464,7 +482,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
             });
 
         }
-
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 res.send(500);
@@ -482,20 +499,48 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 hostedChefUrl: chefDetails.url,
             });
             if (reqBody.selectedNodes.length) {
-                importNodes(reqBody.selectedNodes);
+                importNodes(reqBody.selectedNodes, chefDetails);
             } else {
                 res.send(400);
                 return;
             }
         });
+        function checkNodeCredentials(credentials,nodeDetail,callback) {
+            if (nodeDetail.nodeOs !== 'windows') {
+                var sshOptions = {
+                    username: credentials.username,
+                    host: nodeDetail.nodeIp,
+                    port: 22,
+                };
+                if (credentials.pemFileLocation) {
+                    sshOptions.privateKey = credentials.pemFileLocation;
+                    sshOptions.pemFileData = credentials.pemFileData;
+                } else {
+                    sshOptions.password = credentials.password;
+                }
+                var sshExec = new SSHExec(sshOptions);
 
-
-
+                sshExec.exec('echo Welcome', function (err, retCode) {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    } else if (retCode === 0) {
+                        callback(null, true);
+                    } else {
+                        callback(null, false);
+                    }
+                }, function (stdOut) {
+                    logger.debug(stdOut.toString('ascii'));
+                }, function (stdErr) {
+                    logger.error(stdErr.toString('ascii'));
+                });
+            } else {
+                callback(null, true);
+            }
+        }
     });
 
     app.post('/chef/environments/create/:serverId', function(req, res) {
-
-
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 res.send(500);
@@ -530,7 +575,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     app.get('/chef/servers/:serverId/cookbooks', function(req, res) {
-
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 res.send(500);
@@ -565,7 +609,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     app.get('/chef/servers/:serverId/cookbooks/:cookbookName', function(req, res) {
-
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 res.send(500);
@@ -582,7 +625,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-
             chef.getCookbook(req.params.cookbookName, function(err, cookbooks) {
                 logger.debug(err);
                 if (err) {
@@ -593,12 +635,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     return;
                 }
             });
-
-
         });
-
     });
-
 
     app.get('/chef/servers/:serverId/cookbooks/:cookbookName/download', function(req, res) {
 
@@ -743,7 +781,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
 
-    app.post('/chef/servers/:serverId/nodes/:nodename/updateEnv', function(req, res) {
+    app.post('/chef/servers/:serverId/nodes/:nodeName/updateEnv', function(req, res) {
         configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
             if (err) {
                 logger.debug(err);
@@ -761,18 +799,23 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.updateNodeEnvironment(req.params.nodename, req.body.envName, function(err, success) {
+            chef.updateNodeEnvironment(req.params.nodeName, req.body.envName, function(err, success) {
                 if (err) {
                     res.send(500);
                     return;
-                } else {
-                    if (success) {
-                        res.send(200);
-                        return;
-                    } else {
-                        res.send(500);
-                        return;
-                    }
+                }else if (success) {
+                        chefDao.updateChefNodeEnv(req.params.nodeName,req.body.envName,function(err,data){
+                            if(err){
+                                res.send(500);
+                                return;
+                            }else{
+                                res.send(200);
+                                return;
+                            }
+                        })
+                }else {
+                    res.send(500);
+                    return;
                 }
             });
         });
@@ -1294,4 +1337,34 @@ module.exports.setRoutes = function(app, verificationFunc) {
         });
     });
 
+    app.get("/chef/nodeList", function(req, res) {
+        var reqObj = {};
+        async.waterfall(
+            [
+                function (next) {
+                    apiUtil.changeRequestForJqueryPagination(req.query, next);
+                },
+                function (reqData, next) {
+                    reqObj = reqData;
+                    apiUtil.paginationRequest(reqData, 'chefNodes', next);
+                },
+                function (paginationReq, next) {
+                    paginationReq['searchColumns'] = ['chefNodeIp', 'chefNodeName',"chefNodePlatform"];
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function (queryObj, next) {
+                    chefDao.getNodesByServerId(queryObj, next);
+                },
+                function (nodes, next) {
+                    apiUtil.changeResponseForJqueryPagination(nodes, reqObj, next);
+                },
+
+            ], function (err, results) {
+                if (err){
+                    res.send(err);
+                }else{
+                    res.send(results);
+                }
+            });
+    });
 };
