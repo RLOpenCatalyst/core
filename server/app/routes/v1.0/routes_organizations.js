@@ -1325,25 +1325,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             if(encryptedList.length === param.scriptParameters.length){
                                 param.scriptParameters = encryptedList;
                                 encryptedList = [];
-                                return;
-                            }else{
-                                return;
                             }
                         })(param.scriptParameters[j]);
                     }
                 }else{
                     count++;
-                    return;
                 }
                 if(count === paramDetails.length){
                     callback(null,paramDetails);
+                    return;
                 }
             })(paramDetails[i]);
         }
     }
-
-
-
+    
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', validate(orgValidator.get), getCftList);
 

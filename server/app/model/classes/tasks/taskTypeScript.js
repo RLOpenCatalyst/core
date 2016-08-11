@@ -57,6 +57,7 @@ scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nex
 	var instanceIds = this.nodeIds;
 	var sudoFlag = this.isSudo;
 	var scriptDetails = this.scriptDetails;
+	var instanceResultList = [];
 	if (!(instanceIds && instanceIds.length)) {
 		if (typeof onExecute === 'function') {
 			onExecute({
@@ -164,7 +165,6 @@ scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nex
 	})
 	function instanceOnCompleteHandler(err, status, instanceId, executionId, actionId) {
 		var overallStatus = 0;
-		var instanceResultList = [];
 		var result = {
 			instanceId: instanceId,
 			status: 'success'
