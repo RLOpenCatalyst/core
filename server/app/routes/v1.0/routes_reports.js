@@ -13,7 +13,7 @@
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     /**
-     * @api {get} /reports/cost?type=<reportType>&filterBy=organizationId:<organizationId>&period=<period>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>
+     * @api {get} /reports/cost?type=<reportType>&filterBy=organizationId:<organizationId>&period=<period>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval<INTERVAL>
      * 										                    									Get aggregate cost
      * @apiName generateCostReports
      * @apiGroup reports
@@ -22,6 +22,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} type                                              Report type (trend/aggregate)
      * @apiParam {String} filterBy                                          Catalyst entity. Multiple entities can be specified using +
      * @apiParam {String} period                                            Cost aggregation period Ex: hour, day, week, month, year, 5years, 10years
+     * @apiParam {Number} interval                                          Frequency interval in seconds Ex: 60,300, 3600
      * @apiParam {Date} timeStamp                                           End Time Stamp. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-08-12T00:00:00
      * @apiParam {String} [splitUpBy="All possible catalyst entity types"]	Split up cost by particular catalyst entity type. For Ex: organization, businessUnit, project, providerType, provider, environment, resourceType, resource
      *
@@ -37,7 +38,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     }
 
     /**
-     * @api {get} /reports/usage?resource=<resourceId>&fromTimeStamp=<startDate>&toTimeStamp=<endDate>&metric=<METRIC>&interval
+     * @api {get} /reports/usage?resource=<resourceId>&fromTimeStamp=<startDate>&toTimeStamp=<endDate>&metric=<METRIC>&interval=<INTERVAL>
      * 										                    									Get usage trend.
      * @apiName getUsageReport
      * @apiGroup reports
@@ -46,12 +47,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} resource                          ResourceId
      * @apiParam {Date} fromTimeStamp						Start Time Stamp, inclusive. Format YYYY-MM-DDTHH:MM:SS. For Ex: 2016-07-29T00:00:00
      * @apiParam {Date} toTimeStamp							End Time Stamp, exclusive. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-07-29T00:05:00
-     * @apiParam {String} interval							Frequency. For Ex: 1_MINUTE, 5_MINUTES, 1_HOUR, 6_HOURS, 1_MONTH, 6_MONTHS, 1_YEAR
+     * @apiParam {Number} interval                          Frequency interval in seconds Ex: 60,300, 3600
      * @apiParam {String} [metric="All Metrics"]			Filter particular metrics. For Ex: CPUUtilization,DiskReadBytes
      * @apiParam {String} [statistics="All Statistics"]		Filter particular statistics. For Ex: Average,Minimum
      *
      * @apiExample Sample_Request_1
-     * 		/reports/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&period=1_MINUTE
+     * 		/reports/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&interval=1_MINUTE
      *
      * @apiSuccess {csv}   report                                            Usage report in CSV
      *
