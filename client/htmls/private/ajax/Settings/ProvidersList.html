@@ -216,15 +216,12 @@
         $('#tillDate').datepicker();
         $('#metric').trigger('change');
         $('#providerReport').submit(function (e) {
-            debugger;
             $('#fromDate-error').remove();
             var isValidator = $('#providerReport').valid();
             if (!isValidator) {
                 e.preventDefault();
                 return false;
             } else {
-
-
                 e.preventDefault();
                 var formData = $(this).serializeArray();
                 $.ajax({
