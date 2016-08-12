@@ -67,6 +67,10 @@ var ResourceMetricsSchema = new Schema({
         type: Date,
         required: true
     },
+    interval: {
+        type: Number,
+        required: true
+    },
     metrics: Schema.Types.Mixed
 });
 
@@ -95,6 +99,22 @@ ResourceMetricsSchema.statics.removeResourceUsageByProviderId = function(provide
         callback(null, data);
     });
 };
+
+ResourceMetricsSchema.statics.getByParams = function(resourceId, interval, startTime, endTime, callback) {
+	var query = ResourceMetrics.find();
+	query.where('resourceId').eq('57983942dff2c49223fd6f01');
+	query.where('interval').eq(interval);
+	query.where('startTime').gte(startTime);
+	query.where('endTime').lte(endTime);
+	query.select('metrics');
+	query.exec(function (err, docs) {
+		if(err){
+			callback(err, null);
+		}else{
+			callback(null, docs);
+		}
+	});
+}
 
 var ResourceMetrics = mongoose.model('ResourceMetrics', ResourceMetricsSchema);
 module.exports = ResourceMetrics;

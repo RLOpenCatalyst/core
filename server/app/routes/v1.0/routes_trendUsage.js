@@ -415,6 +415,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
 	app.get("/analytics/trend/usage", getTrendUsage);
 	function getTrendUsage(req, res, next) {
-		
+		res.status(200).send(req.query);
 	}
 }

@@ -72,7 +72,7 @@ CatLogger.prototype.emitlog = function(data){
 var logger = new winston.Logger({
     transports: [
         new winston.transports.DailyRotateFile({
-            level: 'debug',
+            level: 'log',
             datePattern: '.yyyy-MM-dd',
             filename: 'catalyst.log',
             dirname:log_folder,
@@ -85,7 +85,7 @@ var logger = new winston.Logger({
             name:'cat-file-log'
         }),
         new winston.transports.Console({
-            level: 'debug',
+            level: 'log',
             handleExceptions: true,
             json: false,
             colorize: true,
@@ -101,7 +101,7 @@ var logger = new winston.Logger({
 var express_logger = new winston.Logger({
     transports: [
         new winston.transports.DailyRotateFile({
-            level: 'debug',
+            level: 'log',
             datePattern: '.yyyy-MM-dd',
             filename: 'access.log',
             dirname:log_folder,
