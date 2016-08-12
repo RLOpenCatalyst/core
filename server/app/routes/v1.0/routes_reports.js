@@ -10,6 +10,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+var json2csv = require('json2csv');
+
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     /**
@@ -34,7 +36,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
     app.get("/reports/cost", getCostReport)
     function getCostReport(req, res, next) {
+        // dummy csv data
+        var result = {
+            "totalCost": 100,
+            "period": "month",
+            "fromTime": "2016-08-01T00:00:00",
+            "toTime": "2016-08-12T00:00:00",
+            "interval": 86400
+        }
 
+        res.header("content-type", "text/csv")
+        res.status(200).send(json2csv({data: result,
+            fields: ['totalCost', 'period', 'fromTime', 'toTime', 'interval']}));
     }
 
     /**
@@ -59,7 +72,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
     app.get("/reports/usage", getUsageReport)
     function getUsageReport(req, res, next) {
+        // dummy csv data
+        var result = {
+            "totalCost": 100,
+            "period": "month",
+            "fromTime": "2016-08-01T00:00:00",
+            "toTime": "2016-08-12T00:00:00",
+            "interval": 86400
+        }
 
+        res.header("content-type", "text/csv")
+        res.status(200).send(json2csv({data: result,
+            fields: ['totalCost', 'period', 'fromTime', 'toTime', 'interval']}));
     }
 
 }
