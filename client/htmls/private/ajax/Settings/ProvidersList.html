@@ -53,7 +53,7 @@
                                         <!-- <td datafield="accountid"></td> -->
                                         <td>
                                             <div class="btn-group">
-                                                <a class="btn btn-xs btn-info pull-left" data-backdrop="false" data-toggle="modal" title="Report">
+                                                <a class="btn btn-xs btn-info pull-left providerReport" href="#modalForProviderReport" data-backdrop="false" data-toggle="modal" title="Report">
                                                     <i class="ace-icon fa fa-file-excel-o bigger-120"></i>
                                                 </a>
                                                 <a class="btn btn-xs btn-info pull-left" title="Sync Instances">
@@ -132,48 +132,60 @@
                     </div>
                     <div class="row form-row" id="rowReportType">
                         <div class="col-md-3">
-                            <label for="reportType">Report Type:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="type">Report Type:<span class="control-label redSpan">&nbsp;*</span></label>
                         </div>
                         <div class="col-md-9">
-                            <select id="reportType" name="reportType" class="form-control width-100" style="vertical-align:central">
+                            <select id="type" name="type" class="form-control width-100" style="vertical-align:central">
                                 <option value="aggregate">Aggregate</option>
-                                <option value="trends">Trends</option>
+                                <option value="trend">Trend</option>
                             </select>
                         </div>
                     </div>
-                    <div class="row form-row">
+                    <div class="row form-row" id="rowPeriod">
+                        <div class="col-md-3">
+                            <label for="period">Period<span class="control-label redSpan">&nbsp;*</span></label>
+                        </div>
+                        <div class="col-md-9">
+                            <select id="period" name="period" class="required form-control width-100" style="vertical-align:central">
+                                <option value="hour">Hour</option>
+                                <option value="day">Day</option>
+                                <option value="week">Week</option>
+                                <option value="month">Month</option>
+                                <option value="year">Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row form-row" id="rowInterval">
                         <div class="col-md-3">
                             <label for="interval">Interval<span class="control-label redSpan">&nbsp;*</span></label>
                         </div>
                         <div class="col-md-9">
                             <select id="interval" name="interval" class="required form-control width-100" style="vertical-align:central">
-                                <option value="daily">Daily</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="monthly">Monthly</option>
-                                <option value="yearly">Yearly</option>
+                                <option value="300">5 Min</option>
+                                <option value="3600">1 Hour</option>
+                                <option value="86400">1 Day</option>
                             </select>
                         </div>
                     </div>
                     <div class="row form-row" id="rowFromDate">
                         <div class="col-md-3">
-                            <label for="fromDate">From Date:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="fromTimeStamp">From Date:<span class="control-label redSpan">&nbsp;*</span></label>
                         </div>
-                        <div class="col-md-9" id="fromDateDiv">
-                            <input name="fromDate" class="required form-control" id="fromDate" />
+                        <div class="col-md-9">
+                            <input name="fromTimeStamp" class="required form-control" id="fromTimeStamp" />
                         </div>
                     </div>
                     <div class="row form-row">
                         <div class="col-md-3">
-                            <label for="tillDate">Till Date:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="toTimeStamp">Till Date:<span class="control-label redSpan">&nbsp;*</span></label>
                         </div>
                         <div class="col-md-9">
-                            <input name="tillDate" class="required form-control" id="tillDate" />
+                            <input name="toTimeStamp" class="required form-control" id="toTimeStamp" />
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
-                    <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
+                    <a class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
                     <button type="submit" id="downloadReport" class="btn btn-primary" value="Download"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Download</button>
                 </div>
             </form>
@@ -190,33 +202,65 @@
         if (!hasCreateProviderPermission) {
             $('#newProvider').addClass('hidden');
         }
-
+        var providerId = null;
         // isUserTypeSuperAdmin();
         getProviderData();
+
+        function serializeRemove(thisArray, thisName) {
+            "use strict";
+            return thisArray.filter(function (item) {
+                return item.name != thisName;
+            });
+        }
+        
+        $('.providerReport').click(function (e) {
+            debugger;
+            providerId = $(this).data('providerid');
+        });
         //when the user closes the modal the childContainer will be hidden..
         $('#modalForProviderReport').on('hidden.bs.modal', function () {
+            $('#providerReport').reset();
             return false;
         });
-//when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
-        $('.providerReportId').click(function (e) {
-            $('#providerReport').reset();
-        });
+
         $('#metric').change(function () {
             var val = $(this).val();
-            if (val === 'cost') {
-                $('#reportType').removeAttr('disabled');
+            if (val === 'usage') {
+                $('#type').val('trend');
+                $('#type').attr('disabled', 'disabled');
                 $('#rowFromDate').slideDown();
+                $('#rowPeriod').slideUp();
             } else {
+                $('#type').removeAttr('disabled');
                 $('#rowFromDate').slideUp();
-                $('#reportType').val('trends');
-                $('#reportType').attr('disabled', 'disabled');
+                $('#rowPeriod').slideDown();
+            }
+            $('#type').trigger('change');
+        });
+        $('#type').change(function () {
+            var val = $(this).val();
+            if (val === 'aggregate') {
+                $('#rowInterval').slideUp();
+            } else {
+                $('#rowInterval').slideDown();
             }
         });
-        $('#fromDate').datepicker();
-        $('#tillDate').datepicker();
+        $('#fromTimeStamp').datetimepicker(
+            {
+                dateFormat: 'yy-mm-dd',
+                timeFormat: 'HH:mm:ss'
+            }
+        );
+        $('#toTimeStamp').datetimepicker(
+            {
+                dateFormat: 'yy-mm-dd',
+                timeFormat: 'HH:mm:ss'
+            }
+        );
         $('#metric').trigger('change');
         $('#providerReport').submit(function (e) {
-            $('#fromDate-error').remove();
+            debugger;
+            $('#fromTimeStamp-error').remove();
             var isValidator = $('#providerReport').valid();
             if (!isValidator) {
                 e.preventDefault();
@@ -224,10 +268,43 @@
             } else {
                 e.preventDefault();
                 var formData = $(this).serializeArray();
+                var filterByObject = {
+                    name: "filterBy",
+                    value: "providerId:" + providerId
+                };
+
+                var toTimeStamp = $('#toTimeStamp').val();
+                var toTimeStampUTC = new Date(toTimeStamp).toISOString().slice(0, 19);
+                formData.push(filterByObject);
+                formData = serializeRemove(formData, 'fromTimeStamp');
+                formData = serializeRemove(formData, 'toTimeStamp');
+                formData = serializeRemove(formData, 'metric');
+                if ($('#metric').val() === 'usage') {
+                    var fromTimeStamp = $('#fromTimeStamp').val();
+                    var fromTimeStampUTC = new Date(fromTimeStamp).toISOString().slice(0, 19);
+                    formData = serializeRemove(formData, 'period');
+                    formData.push({
+                        name: "fromTimeStamp",
+                        value: fromTimeStampUTC
+                    });
+                    formData.push({
+                        name: "toTimeStamp",
+                        value: toTimeStampUTC
+                    });
+                } else {
+                    if ($('#type').val() === 'aggregate') {
+                        formData = serializeRemove(formData, 'interval');
+                    }
+                    formData.push({
+                        name: "timeStamp",
+                        value: toTimeStampUTC
+                    });
+                }
                 $.ajax({
                     method: "GET",
                     url: "/aws/data",
                     data: formData,
+                    contentType: 'text/csv',
                     success: function (data) {
                         var A = [['n', 'sqrt(n)']];
                         for (var j = 1; j < 10; ++j) {
@@ -642,19 +719,15 @@
                 var reportButton = $('.rowtemplate').find('a[title="Report"]');
                 if (reportButton && reportButton.length > 0) {
                     if (providerType === 'AWS') {
-
-                        reportButton.attr("href", "#modalForProviderReport");
                         reportButton.attr("data-providerId", idFieldValue);
                         reportButton.removeClass('btn-xs');
                         reportButton.addClass('btn-sg');
                         reportButton.addClass('tableactionbutton');
-                        reportButton.addClass('providerReportId');
                     } else {
                         reportButton.hide();
                     }
                 }
-
-
+                
                 //setting the delete button
 
                 var deletebutton = $('.rowtemplate').find("[title='Delete']");
