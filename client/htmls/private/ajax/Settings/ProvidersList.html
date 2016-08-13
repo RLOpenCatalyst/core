@@ -195,6 +195,7 @@
 
 <script>
     $(document).ready(function () {
+
         var hasCreateProviderPermission = false;
         if (haspermission('provider', 'create')) {
             hasCreateProviderPermission = true;
@@ -202,24 +203,24 @@
         if (!hasCreateProviderPermission) {
             $('#newProvider').addClass('hidden');
         }
-        var providerId = null;
         // isUserTypeSuperAdmin();
         getProviderData();
 
+        var providerId = null;
         function serializeRemove(thisArray, thisName) {
             "use strict";
             return thisArray.filter(function (item) {
                 return item.name != thisName;
             });
         }
-        
-        $('.providerReport').click(function (e) {
-            debugger;
+        $(document).on("click", ".providerReport", function () {
             providerId = $(this).data('providerid');
         });
-        //when the user closes the modal the childContainer will be hidden..
+
+        //when the user closes the modal the form will be reset
         $('#modalForProviderReport').on('hidden.bs.modal', function () {
-            $('#providerReport').reset();
+            $('#providerReport')[0].reset();
+            $('span.error').empty().hide();
             return false;
         });
 
@@ -300,29 +301,21 @@
                         value: toTimeStampUTC
                     });
                 }
+                var url = '/reports/'+$('#metric').val();
+                var fileName = $('#metric').val()+ $('#type').val().capitalize()+'Report.csv';
                 $.ajax({
                     method: "GET",
-                    url: "/aws/data",
+                    url: url,
                     data: formData,
                     contentType: 'text/csv',
                     success: function (data) {
-                        var A = [['n', 'sqrt(n)']];
-                        for (var j = 1; j < 10; ++j) {
-                            A.push([j, Math.sqrt(j)]);
-                        }
-
-                        var csvRows = [];
-                        for (var i = 0, l = A.length; i < l; ++i) {
-                            csvRows.push(A[i].join(','));
-                        }
-
-                        var csvString = csvRows.join("%0A");
                         var a = document.createElement('a');
-                        a.href = 'data:attachment/csv,' + csvString;
+                        a.href = 'data:attachment/csv,' + encodeURIComponent(data);
                         a.target = '_blank';
-                        a.download = 'myFile.csv';
+                        a.download = fileName;
                         document.body.appendChild(a);
                         a.click();
+                        $(a).remove();
                     },
                     error: function (jqxhr) {
                         bootbox.alert(jqxhr.status);
@@ -727,7 +720,7 @@
                         reportButton.hide();
                     }
                 }
-                
+
                 //setting the delete button
 
                 var deletebutton = $('.rowtemplate').find("[title='Delete']");
