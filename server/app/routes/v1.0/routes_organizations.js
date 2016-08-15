@@ -75,7 +75,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 	app.all('/organizations/*', sessionVerification);
 
-	app.get('/organizations/getTreeNew', function(req, res) {
+
+
+
+	/*app.get('/organizations/getTreeNew', function(req, res) {
 		logger.debug("Enter get() for /organizations/getTreeNew");
 		var loggedInUser = req.session.user.cn;
 		masterUtil.getLoggedInUser(loggedInUser, function(err, anUser) {
@@ -243,9 +246,361 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			}); //getTeamsOrgBuProjForUser
 			//} //else
 		}); // getLoggedInUser()
+	});*/
+
+	app.get('/organizations/getTreeNew', function(req, res) {
+		var loggedInUser = req.session.user.cn;
+		masterUtil.getLoggedInUser(loggedInUser, function(err, anUser) {
+			if (err) {
+				res.status(500).send("Failed to fetch User.");
+				return;
+			}else if (!anUser) {
+				res.status(500).send("Invalid User.");
+				return;
+			}else {
+				masterUtil.getAllSettingsForUser(loggedInUser, function (err, objperms) {
+					var orgTree = [];
+					if (err) {
+						logger.debug("Hit an error in getAllSettingsForUser : " + err);
+						res.send(orgTree);
+						return;
+					}else if (JSON.stringify(objperms) === 'null' || objperms.length === 0) {
+						logger.debug("No Object found.");
+						res.send(orgTree);
+						return;
+					}else {
+						d4dModelNew.d4dModelMastersOrg.find({
+							id: 1,
+							active: true,
+							rowid: {
+								$in: objperms[0].orgs
+							}
+						}, function (err, orgs) {
+							if (err) {
+								logger.debug("Hit an error in get Active Organizations : " + err);
+								res.send(orgTree);
+								return;
+							} else if (orgs.length > 0) {
+								for (var i = 0; i < orgs.length; i++) {
+									(function (org) {
+										orgTree.push({
+											name: org.orgname,
+											orgid: org.rowid,
+											rowid: org.rowid,
+											businessGroups: [],
+											environments: []
+										});
+										d4dModelNew.d4dModelMastersProductGroup.find({
+											id: 2,
+											orgname_rowid: org.rowid,
+											rowid: {
+												$in: objperms[0].bunits
+											}
+										}, function (err, bgs) {
+											if (err) {
+												logger.debug("Hit an error in get Active Business Group : " + err);
+												res.send(orgTree);
+												return;
+											} else if (bgs.length > 0) {
+												for (var j = 0; j < bgs.length; j++) {
+													(function (bg) {
+														for (var k = 0; k < orgTree.length; k++) {
+															(function (bgTree) {
+																if (bg.orgname_rowid[0] === bgTree.rowid) {
+																	bgTree.businessGroups.push({
+																		name: bg.productgroupname,
+																		rowid: bg.rowid,
+																		projects: []
+																	});
+																	d4dModelNew.d4dModelMastersTeams.find({
+																		id: 21,
+																		orgname_rowid: org.rowid,
+																		productgroupname_rowid: bg.rowid,
+																		rowid: {
+																			$in: objperms[0].teams
+																		}
+																	}, function (err, teams) {
+																		if (err) {
+																			logger.debug("Hit an error in get Active Team : " + err);
+																			res.send(orgTree);
+																			return;
+																		} else if (teams.length > 0) {
+																			var checkDuplicateList = [];
+																			var count = 0;
+																			for (var l = 0; l < teams.length; l++) {
+																				(function (team) {
+																					count++;
+																					for (var m = 0; m < bgTree.businessGroups.length; m++) {
+																						(function(teamTree){
+																							if (team.orgname_rowid[0] === bgTree.rowid && team.productgroupname_rowid === teamTree.rowid) {
+																								var projectIds = team.projectname_rowid.split(',');
+																								var projectNames = team.projectname.split(',');
+																								for (var n = 0; n < projectIds.length; n++) {
+																									if (checkDuplicateList.indexOf(projectIds[n]) === -1) {
+																										checkDuplicateList.push(projectIds[n]);
+																										var envIds = team.environmentname_rowid.split(',');
+																										var envNames = team.environmentname.split(',');
+																										var envList = [];
+																										for (var o = 0; o < envIds.length; o++) {
+																											envList.push({
+																												name: envNames[o],
+																												rowid: envIds[o]
+																											})
+																										}
+																										if (envList.length === envIds.length) {
+																											teamTree.projects.push({
+																												name: projectNames[n],
+																												rowid: projectIds[n],
+																												environments: envList
+																											});
+																											bgTree.environments = envList;
+																										}
+																									}
+																								}
+																							}
+																						})(bgTree.businessGroups[m]);
+																					}
+																				})(teams[l]);
+																			}
+																			if(orgs.length === orgTree.length && bgs.length === orgTree[0].businessGroups.length && count === teams.length){
+																				res.send(orgTree);
+																				return;
+																			}
+																		} else {
+																			logger.debug("Not found any Teams");
+																			res.send(orgTree);
+																			return;
+																		}
+																	})
+																}
+															})(orgTree[k]);
+														}
+													})(bgs[j]);
+												}
+											} else {
+												logger.debug("Not found any BUs");
+												res.send(orgTree);
+												return;
+											}
+										});
+									})(orgs[i]);
+								}
+							} else {
+								logger.debug("No Org found.");
+								res.send(orgTree);
+								return;
+							}
+						});
+					}
+				})
+			}
+		})
 	});
 
 	app.get('/organizations/getTreeForbtv', function(req, res) {
+		var loggedInUser = req.session.user.cn;
+		masterUtil.getLoggedInUser(loggedInUser, function(err, anUser) {
+			if (err) {
+				res.status(500).send("Failed to fetch User.");
+				return;
+			} else if (!anUser) {
+				res.status(500).send("Invalid User.");
+				return;
+			} else {
+				masterUtil.getAllSettingsForUser(loggedInUser, function (err, objperms) {
+					var orgTree = [];
+					if (err) {
+						logger.debug("Hit an error in getAllSettingsForUser : " + err);
+						res.send(orgTree);
+						return;
+					} else if (JSON.stringify(objperms) === 'null' || objperms.length === 0) {
+						logger.debug("No Object found.");
+						res.send(orgTree);
+						return;
+					} else {
+						d4dModelNew.d4dModelMastersOrg.find({
+							id: 1,
+							active: true,
+							rowid: {
+								$in: objperms[0].orgs
+							}
+						}, function (err, orgs) {
+							if (err) {
+								logger.debug("Hit an error in get Active Organizations : " + err);
+								res.send(orgTree);
+								return;
+							} else if (orgs.length > 0) {
+								for (var i = 0; i < orgs.length; i++) {
+									(function (org) {
+										orgTree.push({
+											name: org.orgname,
+											text: org.orgname,
+											rowid: org.rowid,
+											href: 'javascript:void(0)',
+											icon: 'fa fa-building ',
+											nodes: [],
+											borderColor: '#000',
+											businessGroups: [],
+											selectable: false,
+											itemtype: 'org',
+											environments: []
+										});
+										d4dModelNew.d4dModelMastersProductGroup.find({
+											id: 2,
+											orgname_rowid: org.rowid,
+											rowid: {
+												$in: objperms[0].bunits
+											}
+										}, function (err, bgs) {
+											if (err) {
+												logger.debug("Hit an error in get Active Business Group : " + err);
+												res.send(orgTree);
+												return;
+											} else if (bgs.length > 0) {
+												for (var j = 0; j < bgs.length; j++) {
+													(function (bg) {
+														for (var k = 0; k < orgTree.length; k++) {
+															(function (bgTree) {
+																if (bg.orgname_rowid[0] === bgTree.rowid) {
+																	bgTree.businessGroups.push({
+																		name: bg.productgroupname,
+																		text: bg.productgroupname,
+																		rowid: bg.rowid,
+																		href: 'javascript:void(0)',
+																		nodes: [],
+																		projects: []
+																	});
+																	bgTree.nodes.push({
+																		name: bg.productgroupname,
+																		text: bg.productgroupname.substring(0, 21),
+																		orgname: bgTree.name,
+																		orgid: bgTree.rowid,
+																		icon: 'fa fa-fw fa-1x fa-group',
+																		rowid: bg.rowid,
+																		borderColor: '#000',
+																		href: 'javascript:void(0)',
+																		nodes: [],
+																		selectable: false,
+																		itemtype: 'bg',
+																		projects: []
+																	});
+																	d4dModelNew.d4dModelMastersTeams.find({
+																		id: 21,
+																		orgname_rowid: org.rowid,
+																		productgroupname_rowid: bg.rowid,
+																		rowid: {
+																			$in: objperms[0].teams
+																		}
+																	}, function (err, teams) {
+																		if (err) {
+																			logger.debug("Hit an error in get Active Tesm : " + err);
+																			res.send(orgTree);
+																			return;
+																		} else if (teams.length > 0) {
+																			var checkDuplicateList = [];
+																			var count = 0;
+																			for (var l = 0; l < teams.length; l++) {
+																				(function (team) {
+																					count++;
+																					for (var m = 0; m < bgTree.businessGroups.length; m++) {
+																						(function(teamTree){
+																							if (team.orgname_rowid[0] === bgTree.rowid && team.productgroupname_rowid === teamTree.rowid) {
+																								var projectIds = team.projectname_rowid.split(',');
+																								var projectNames = team.projectname.split(',');
+																								for (var n = 0; n < projectIds.length; n++) {
+																									if (checkDuplicateList.indexOf(projectIds[n]) === -1) {
+																										checkDuplicateList.push(projectIds[n]);
+																										console.log(projectIds[n]);
+																										var envIds = team.environmentname_rowid.split(',');
+																										var envNames = team.environmentname.split(',');
+																										var envList = [];
+																										for (var o = 0; o < envIds.length; o++) {
+																											envList.push({
+																												text: envNames[o],
+																												href: '#ajax/Dev.html?org=' + bgTree.rowid + '&bg=' + teamTree.rowid + '&projid=' + projectIds[n] + '&envid=' + envIds[o],
+																												orgname: bgTree.name,
+																												orgid: bgTree.rowid,
+																												rowid: envIds[o],
+																												projname: projectNames[n],
+																												bgname: teamTree.name,
+																												itemtype: 'env',
+																												tooltip: envNames[o],
+																												icon: 'fa fa-fw fa-1x fa-desktop'
+																											});
+																										}
+																										if (envList.length === envIds.length) {
+																											teamTree.projects.push({
+																												name: projectNames[n],
+																												environments: envIds
+																											});
+																											if (!bgTree.envId) {
+																												bgTree.bgId = bg.rowid;
+																												bgTree.projId = projectIds[n];
+																												if (envList.length > 0) {
+																													bgTree.envId = envList[0].rowid
+																												}
+																											}
+																											var selectable = !!appConfig.features.appcard
+																											bgTree.nodes[0].nodes.push({
+																												name: projectNames[n],
+																												text: projectNames[n],
+																												rowid: projectIds[n],
+																												orgname: bgTree.name,
+																												orgid: bgTree.rowid,
+																												bgname: teamTree.name,
+																												icon: 'fa fa-fw fa-1x fa-tasks',
+																												nodes: envList,
+																												borderColor: '#000',
+																												selectable: selectable,
+																												itemtype: 'proj',
+																												href: selectable ? '#ajax/ProjectSummary.html?org=' + bgTree.rowid + '&bg=' + teamTree.rowid + '&projid=' + projectIds[n] : 'javascript:void(0)',
+																												environments: envIds
+																											});
+																											bgTree.environments=envNames;
+																										}
+																									}
+																								}
+																							}
+																						})(bgTree.businessGroups[m]);
+																					}
+																				})(teams[l]);
+																			}
+																			if(orgs.length === orgTree.length && bgs.length === orgTree[0].businessGroups.length && count === teams.length){
+																				res.send(orgTree);
+																				return;
+																			}
+																		} else {
+																			logger.debug("Not found any Teams");
+																			res.send(orgTree);
+																			return;
+																		}
+																	})
+																}
+															})(orgTree[k]);
+														}
+													})(bgs[j]);
+												}
+											} else {
+												logger.debug("Not found any BUs");
+												res.send(orgTree);
+												return;
+											}
+										});
+									})(orgs[i]);
+								}
+							} else {
+								logger.debug("No Org found.");
+								res.send(orgTree);
+								return;
+							}
+						});
+					}
+				})
+			}
+		})
+	});
+
+	/*app.get('/organizations/getTreeForbtv', function(req, res) {
 		logger.debug("Enter get() for /organizations/getTreeForbtv");
 		var loggedInUser = req.session.user.cn;
 		masterUtil.getLoggedInUser(loggedInUser, function(err, anUser) {
@@ -474,7 +829,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 			//} // else
 		}); // check hasperm
 	});
-
+*/
 
 	app.get('/organizations/getTree', function(req, res) {
 		logger.debug("Enter get() for /organizations/getTree");
@@ -730,8 +1085,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 		//validating if user has permission to save a blueprint
 		logger.debug('Verifying User permission set');
-		console.log(req.body);
-		console.log(JSON.stringify(req.body));
 		var user = req.session.user;
 		var category = 'blueprints';
 		var permissionto = 'create';

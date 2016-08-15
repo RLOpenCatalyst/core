@@ -2191,6 +2191,18 @@ var MasterUtil = function() {
             return callback(null,templates);
         });
     };
+
+    this.getTeamByProjectId = function(projectId, callback) {
+        d4dModelNew.d4dModelMastersTeams.find({
+            id: 21,
+            projectname_rowid: {$regex: projectId}
+        },function(err,teams){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,teams);
+        });
+    }
 }
 
 module.exports = new MasterUtil();

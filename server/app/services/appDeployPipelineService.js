@@ -112,11 +112,14 @@ function callBackReturn(data,callback){
 function getProjectFromMaster(projectId,callback){
     var responseProjectList=[];
     var responseProject={};
-    masterUtil.getParticularProject(projectId,function(err,project){
-        responseProject['_id'] = project[0]._id;
-        responseProject['projectId'] = project[0].rowid;
-        responseProject['envSequence'] = project[0].environmentname.split(",");
-        responseProject['envId'] = project[0].environmentname.split(",");
+    masterUtil.getTeamByProjectId(projectId,function(err,team){
+        if(err){
+            callback(err,null);
+        }
+        responseProject['_id'] = team[0]._id;
+        responseProject['projectId'] = team[0].projectname_rowid;
+        responseProject['envSequence'] = team[0].environmentname.split(",");
+        responseProject['envId'] = team[0].environmentname.split(",");
         responseProjectList.push(responseProject);
         callback(null, responseProjectList);
     });

@@ -2584,7 +2584,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     folderpath = rowFLD["folderpath"];
                                             }
                                             //if env is saved then it should be associated with project.
-                                            if (req.params.id == '3') {
+                                           /* if (req.params.id == '3') {
                                                 var projId = bodyJson['projectname_rowid'].split(",");
                                                 for (var proj = 0; proj < projId.length; proj++) {
                                                     d4dModelNew.d4dModelMastersProjects.find({
@@ -2596,7 +2596,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         }
                                                     });
                                                 }
-                                            }
+                                            }*/
                                             //resetting the orgname to empty string when a template type file is uploaded.
                                             if (req.params.id == '17') {
                                                 req.params.orgname = "undefined";
@@ -2758,7 +2758,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         });
                                     }
 
-                                    if (req.params.id === "3") {
+                                 /*   if (req.params.id === "3") {
                                         d4dModelNew.d4dModelMastersProjects.find({
                                             environmentname_rowid: {
                                                 $regex: bodyJson['rowid']
@@ -2769,7 +2769,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 dissociateProjectWithEnv(projs, bodyJson);
                                             }
                                         });
-                                    }
+                                    }*/
 
                                     logger.debug("Rowid: %s", bodyJson["rowid"]);
                                     var currowid = bodyJson["rowid"];
@@ -2794,7 +2794,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             folderpath = bodyJson["folderpath"];
 
                                         //if env is saved then it should be associated with project.
-                                        if (req.params.id == '3') {
+                                        /*if (req.params.id == '3') {
                                             var projId = bodyJson['projectname_rowid'].split(",");
                                             for (var proj = 0; proj < projId.length; proj++) {
                                                 d4dModelNew.d4dModelMastersProjects.find({
@@ -2806,7 +2806,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     }
                                                 });
                                             }
-                                        }
+                                        }*/
                                         if (req.params.id === '21') {
                                             var projectName = bodyJson["projectname"];
                                             d4dModelNew.d4dModelMastersTeams.update({

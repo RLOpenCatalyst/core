@@ -39,7 +39,7 @@ table.dataTable thead td, table.dataTable thead th{
                                        
                                        <div class="col-lg-6 col-md-6" style="margin-top:25px;">
                                           <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
-                                          <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['productgroupname','environmentname','teamname']"  cdata="catalyst" cat-validation="required">
+                                          <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['productgroupname','teamname']"  cdata="catalyst" cat-validation="required">
                                              <option value="">Select Organization</option>
                                           </select>
                                        </div>
@@ -56,7 +56,7 @@ table.dataTable thead td, table.dataTable thead th{
                                         </div>-->
                                       <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
                                   <label for="category">Assign Teams:<span class="control-label redSpan">&nbsp;*</span></label>
-                                  <div id="teamName" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row" class="input-group from-control col-md-12 widthBox"  sourcepath="21" cdata="catalyst" linkedto="orgname" cat-validation="onechecked">
+                                  <div id="teamname" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row" class="input-group from-control col-md-12 widthBox"  sourcepath="21" cdata="catalyst" linkedto="orgname" cat-validation="onechecked">
                                   </div>
                               </div>
                                         <div class="col-lg-6 col-md-6">
@@ -530,7 +530,7 @@ function getDockerServer(){
                        }
                       // debugger;
                        if($(this).attr('linkedfields')){
-                           
+
                            $(this).change(function(){
                              //  debugger;
                                var curCtrl = $(this);
@@ -925,12 +925,11 @@ function getDockerServer(){
    inLineReady();
    
    function getSettingsNavFor(orgName) {
-   var getBG = getRelatedValues(2, "orgname", orgName, "productgroupname");
-   var getEnv = getRelatedValues(3, "orgname", orgName, "environmentname");
-   var getProj = getRelatedValues(4, "orgname", orgName, "projectname");
-   var retJson = { "Business Group": getBG, "Environments": getEnv, "Projects": getProj };
-   return (retJson);
-   
+       var getBG = getRelatedValues(2, "orgname", orgName, "productgroupname");
+       var getTeam = getRelatedValues(3, "orgname", orgName, "environmentname");
+       var getProj = getRelatedValues(4, "orgname", orgName, "projectname");
+       var retJson = { "Business Group": getBG,  "Projects": getProj };
+       return (retJson);
    }
 </script>
 <script>
