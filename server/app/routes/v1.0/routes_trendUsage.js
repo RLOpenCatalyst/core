@@ -14,10 +14,14 @@
  limitations under the License.
 */
 
+
+var logger = require('_pr/logger')(module);
+var async = require('async');
+var analyticsService = require('_pr/services/analyticsService');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	
 	/**
-     * @api {get} /analytics/trend/usage?resource=<resourceId>&fromTimeStamp=<startDate>&toTimeStamp=<endDate>&seggregateBy=<INTERVAL>&metric=<METRIC>
+     * @api {get} /analytics/trend/usage?resource=<resourceId>&fromTimeStamp=<startDate>&toTimeStamp=<endDate>&interval=<INTERVAL>&metric=<METRIC>
      * 										                    									Get usage trend.
      * @apiName getTrendUsage
      * @apiGroup analytics
@@ -27,25 +31,26 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} resource																	ResourceId
      * @apiParam {Date} fromTimeStamp																Start Time Stamp, inclusive. Format YYYY-MM-DDTHH:MM:SS. For Ex: 2016-07-29T00:00:00
      * @apiParam {Date} toTimeStamp																	End Time Stamp, exclusive. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-07-29T00:05:00																
-     * @apiParam {String} period																	Frequency. For Ex: 1_MINUTE, 5_MINUTES, 1_HOUR, 6_HOURS, 1_MONTH, 6_MONTHS, 1_YEAR
+     * @apiParam {String} interval																	Frequency in seconds. For Ex: 3600
      * @apiParam {String} [metric="All Metrics"]													Filter particular metrics. For Ex: CPUUtilization,DiskReadBytes
      * @apiParam {String} [statistics="All Statistics"]												Filter particular statistics. For Ex: Average,Minimum
      *
      * @apiExample Sample_Request_1
-     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&period=1_MINUTE 
+     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&interval=1_MINUTE 
      * 
      * @apiExample Sample_Request_2
-     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&period=1_MINUTE&metric=CPUUtilization
+     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&interval=1_MINUTE&metric=CPUUtilization
      * 
      * @apiExample Sample_Request_3
-     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&period=1_MINUTE&metric=CPUUtilization&statistics=Average,Minimum
+     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&interval=1_MINUTE&metric=CPUUtilization&statistics=Average,Minimum
      * 
      * @apiExample Sample_Request_4
-     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T24:00:00&period=1_HOUR&metric=CPUUtilization
+     * 		/analytics/trend/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T24:00:00&interval=1_HOUR&metric=CPUUtilization
      * 
      * @apiSuccess {Object}   trend 	                 		  Trend
      * @apiSuccess {Object}   trend.METRIC	    				  Usage Metric Name
      * @apiSuccess {String}   trend.METRIC.unit	    		      Usage Metric Unit
+     * @apiSuccess {String}   trend.METRIC.symbol	    		  Usage Metric Symbol
      * @apiSuccess {Object[]} trend.METRIC.datePoints  		      Usage Metric DataPoints
      * @apiSuccess {Date}     trend.METRIC.datePoints.fromTime    Usage Metric Start Time
      * @apiSuccess {Date}     trend.METRIC.datePoints.toTime      Usage Metric End Time
@@ -59,6 +64,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *  {
 		  "CPUUtilization": {
 		    "unit": "Percentage",
+		    "symbol": "%",
 		    "dataPoints": [
 		      {
 		        "fromTime": "2016-07-29T00:00:01",
@@ -99,6 +105,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		  },
 		  "DiskReadBytes": {
 		    "unit": "Bytes",
+		    "symbol": "Bytes",
 		    "dataPoints": [
 		      {
 		        "fromTime": "2016-07-29T00:00:01",
@@ -145,6 +152,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * {
 		  "CPUUtilization": {
 		    "unit": "Percentage",
+		    "symbol": "%",
 		    "dataPoints": [
 		      {
 		        "fromTime": "2016-07-29T00:00:01",
@@ -191,6 +199,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * {
 		  "CPUUtilization": {
 		    "unit": "Percentage",
+		    "symbol": "%",
 		    "dataPoints": [
 		      {
 		        "fromTime": "2016-07-29T00:00:01",
@@ -232,6 +241,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * {
 		  "CPUUtilization": {
 		    "unit": "Percentage",
+		    "symbol": "%",
 		    "dataPoints": [
 		      {
 		        "fromTime": "2016-07-29T00:00:01",
@@ -415,6 +425,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
 	app.get("/analytics/trend/usage", getTrendUsage);
 	function getTrendUsage(req, res, next) {
-		res.status(200).send(req.query);
+		/*res.status(200).send(req.query);*/
+		async.waterfall([
+            /* @TODO Check if user has access to the specified organization
+             * 1. Check for validation of query parameters
+             * 2. Get the organizational details for the resource
+             * 3. Check if the user is authorized to access the resource details
+             * 4. Make a query to get the usage metrics details
+             * 
+             */
+            function(callback) {
+            	analyticsService.getTrendUsage(req.query.resourceId, req.query.interval, req.query.startTime, req.query.endTime, callback);
+            }
+        ], function(err, usageMetrics) {
+            if(err) {
+            	next(err);
+            } else {
+            	console.log("Usage Metrics: "+JSON.stringify(usageMetrics, null, 4));
+                res.status(200).send(usageMetrics);
+            }
+        });
 	}
 }
