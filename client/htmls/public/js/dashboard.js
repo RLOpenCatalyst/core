@@ -503,9 +503,9 @@ $(document).ready(function () {
         $('#trackedAssignedInstancesAllProviderTableContainer').hide();
     });
     var previousChartId = null;
-    function setCurrentChart(chartId){
+    function setCurrentChart(chartId) {
         $('#' + chartId).slideDown("slow");
-        previousChartId =  chartId;       
+        previousChartId = chartId;
         $(window).trigger('resize');
     }
     $('#metricSelector').change(function () {
@@ -514,9 +514,9 @@ $(document).ready(function () {
             $('#' + previousChartId).slideUp("slow", function () {
                 setCurrentChart(chartId);
             });
-        }else{
+        } else {
             setCurrentChart(chartId);
-        }        
+        }
     });
 
     //Function to get the specific provider usages.
@@ -531,280 +531,88 @@ $(document).ready(function () {
         var tsYesterday = ts - (24 * 3600);
         var fromTimeString = new Date(tsYesterday * 1000).toISOString().slice(0, 19);
 
-        //1_MINUTE, 5_MINUTES, 1_HOUR, 6_HOURS, 1_MONTH, 6_MONTHS, 1_YEAR
-        var seggregateBy = '1_HOUR';
-        var url = '/analytics/trend/usage?resource=' + instanceId + '&fromTimeStamp=' + fromTimeString + '&toTimeStamp=' + toTimeString + '&seggregateBy=' + seggregateBy;
+        //in seconds
+        var interval = '3600'; // 1 hour
+        var url = '/analytics/trend/usage?resource=' + instanceId + '&fromTimeStamp=' + fromTimeString + '&toTimeStamp=' + toTimeString + '&interval=' + interval;
         $.ajax(url)
-            .done(function () {
-                $('#chartCPUUtilization').empty();
-                var chartCPUUtilization = new Morris.Line({
-                    element: 'chartCPUUtilization',
-                    resize: true,
-                    data: [
-                        {
-                            "fromTime": "2016-07-29T00:00:01",
-                            "toTime": "2016-07-29T01:00:00",
-                            "maximum": 0.83,
-                            "minimum": 0,
-                            "average": 0.035
-                        },
-                        {
-                            "fromTime": "2016-07-29T01:00:01",
-                            "toTime": "2016-07-29T02:00:00",
-                            "maximum": 0.82,
-                            "minimum": 0.81,
-                            "average": 0.81
-                        },
-                        {
-                            "fromTime": "2016-07-29T02:00:01",
-                            "toTime": "2016-07-29T03:00:00",
-                            "maximum": 0.35,
-                            "minimum": 0.33,
-                            "average": 0.34
-                        },
-                        {
-                            "fromTime": "2016-07-29T03:00:01",
-                            "toTime": "2016-07-29T04:00:00",
-                            "maximum": 0,
-                            "minimum": 0,
-                            "average": 0
-                        },
-                        {
-                            "fromTime": "2016-07-29T04:00:01",
-                            "toTime": "2016-07-29T05:00:00",
-                            "maximum": 0.12,
-                            "minimum": 0.12,
-                            "average": 0.12
-                        },
-                        {
-                            "fromTime": "2016-07-29T05:00:01",
-                            "toTime": "2016-07-29T06:00:00",
-                            "maximum": 0.83,
-                            "minimum": 0,
-                            "average": 0.035
-                        },
-                        {
-                            "fromTime": "2016-07-29T06:00:01",
-                            "toTime": "2016-07-29T07:00:00",
-                            "maximum": 0.82,
-                            "minimum": 0.81,
-                            "average": 0.81
-                        },
-                        {
-                            "fromTime": "2016-07-29T07:00:01",
-                            "toTime": "2016-07-29T08:00:00",
-                            "maximum": 0.35,
-                            "minimum": 0.33,
-                            "average": 0.34
-                        },
-                        {
-                            "fromTime": "2016-07-29T08:00:01",
-                            "toTime": "2016-07-29T09:00:00",
-                            "maximum": 0,
-                            "minimum": 0,
-                            "average": 0
-                        },
-                        {
-                            "fromTime": "2016-07-29T09:00:01",
-                            "toTime": "2016-07-29T10:00:00",
-                            "maximum": 0.12,
-                            "minimum": 0.12,
-                            "average": 0.12
-                        },
-                        {
-                            "fromTime": "2016-07-29T10:00:01",
-                            "toTime": "2016-07-29T11:00:00",
-                            "maximum": 0.83,
-                            "minimum": 0,
-                            "average": 0.035
-                        },
-                        {
-                            "fromTime": "2016-07-29T11:00:01",
-                            "toTime": "2016-07-29T12:00:00",
-                            "maximum": 0.82,
-                            "minimum": 0.81,
-                            "average": 0.81
-                        },
-                        {
-                            "fromTime": "2016-07-29T12:00:01",
-                            "toTime": "2016-07-29T13:00:00",
-                            "maximum": 0.35,
-                            "minimum": 0.33,
-                            "average": 0.34
-                        },
-                        {
-                            "fromTime": "2016-07-29T13:00:01",
-                            "toTime": "2016-07-29T14:00:00",
-                            "maximum": 0,
-                            "minimum": 0,
-                            "average": 0
-                        },
-                        {
-                            "fromTime": "2016-07-29T14:00:01",
-                            "toTime": "2016-07-29T15:00:00",
-                            "maximum": 0.12,
-                            "minimum": 0.12,
-                            "average": 0.12
-                        },
-                        {
-                            "fromTime": "2016-07-29T15:00:01",
-                            "toTime": "2016-07-29T16:00:00",
-                            "maximum": 0.83,
-                            "minimum": 0,
-                            "average": 0.035
-                        },
-                        {
-                            "fromTime": "2016-07-29T16:00:01",
-                            "toTime": "2016-07-29T17:00:00",
-                            "maximum": 0.82,
-                            "minimum": 0.81,
-                            "average": 0.81
-                        },
-                        {
-                            "fromTime": "2016-07-29T17:00:01",
-                            "toTime": "2016-07-29T18:00:00",
-                            "maximum": 0.35,
-                            "minimum": 0.33,
-                            "average": 0.34
-                        },
-                        {
-                            "fromTime": "2016-07-29T18:00:01",
-                            "toTime": "2016-07-29T19:00:00",
-                            "maximum": 0,
-                            "minimum": 0,
-                            "average": 0
-                        },
-                        {
-                            "fromTime": "2016-07-29T19:00:01",
-                            "toTime": "2016-07-29T20:00:00",
-                            "maximum": 0.12,
-                            "minimum": 0.12,
-                            "average": 0.12
-                        },
-                        {
-                            "fromTime": "2016-07-29T20:00:01",
-                            "toTime": "2016-07-29T21:00:00",
-                            "maximum": 0,
-                            "minimum": 0,
-                            "average": 0
-                        },
-                        {
-                            "fromTime": "2016-07-29T21:00:01",
-                            "toTime": "2016-07-29T22:00:00",
-                            "maximum": 0.12,
-                            "minimum": 0.12,
-                            "average": 0.12
-                        },
-                        {
-                            "fromTime": "2016-07-29T22:00:01",
-                            "toTime": "2016-07-29T23:00:00",
-                            "maximum": 0,
-                            "minimum": 0,
-                            "average": 0
-                        },
-                        {
-                            "fromTime": "2016-07-29T23:00:01",
-                            "toTime": "2016-07-29T24:00:00",
-                            "maximum": 0.12,
-                            "minimum": 0.12,
-                            "average": 0.12
-                        }
-                    ],
-                    xkey: 'toTime',
-                    ykeys: ['average'],
-                    labels: ['Utilization'],
-                    lineColors: ['#3c8dbc'],
-                    postUnits: '%',
-                    hideHover: 'auto'
-                });
-                $('#chartNetworkOut').empty();
-                var NetworkOut = new Morris.Line({
-                    element: 'chartNetworkOut',
-                    resize: true,
-                    data: [
-                        {y: '2011 Q1', item1: 2666},
-                        {y: '2011 Q2', item1: 2778},
-                        {y: '2011 Q3', item1: 4912},
-                        {y: '2011 Q4', item1: 3767},
-                        {y: '2012 Q1', item1: 6810},
-                        {y: '2012 Q2', item1: 5670},
-                        {y: '2012 Q3', item1: 4820},
-                        {y: '2012 Q4', item1: 15073},
-                        {y: '2013 Q1', item1: 10687},
-                        {y: '2013 Q2', item1: 8432}
-                    ],
-                    xkey: 'y',
-                    ykeys: ['item1'],
-                    labels: ['Item 1'],
-                    lineColors: ['#A52A2A'],
-                    hideHover: 'auto'
-                });
-                $('#chartNetworkIn').empty();
-                var NetworkIn = new Morris.Line({
-                    element: 'chartNetworkIn',
-                    resize: true,
-                    data: [
-                        {y: '2011 Q1', item1: 2666},
-                        {y: '2011 Q2', item1: 2778},
-                        {y: '2011 Q3', item1: 4912},
-                        {y: '2011 Q4', item1: 3767},
-                        {y: '2012 Q1', item1: 6810},
-                        {y: '2012 Q2', item1: 5670},
-                        {y: '2012 Q3', item1: 4820},
-                        {y: '2012 Q4', item1: 15073},
-                        {y: '2013 Q1', item1: 10687},
-                        {y: '2013 Q2', item1: 8432}
-                    ],
-                    xkey: 'y',
-                    ykeys: ['item1'],
-                    labels: ['Item 1'],
-                    lineColors: ['#00008B'],
-                    hideHover: 'auto'
-                });
-                $('#chartDiskReadBytes').empty();
-                var DiskReadBytes = new Morris.Line({
-                    element: 'chartDiskReadBytes',
-                    resize: true,
-                    data: [
-                        {y: '2011 Q1', item1: 2666},
-                        {y: '2011 Q2', item1: 2778},
-                        {y: '2011 Q3', item1: 4912},
-                        {y: '2011 Q4', item1: 3767},
-                        {y: '2012 Q1', item1: 6810},
-                        {y: '2012 Q2', item1: 5670},
-                        {y: '2012 Q3', item1: 4820},
-                        {y: '2012 Q4', item1: 15073},
-                        {y: '2013 Q1', item1: 10687},
-                        {y: '2013 Q2', item1: 8432}
-                    ],
-                    xkey: 'y',
-                    ykeys: ['item1'],
-                    labels: ['Item 1'],
-                    lineColors: ['#006400'],
-                    hideHover: 'auto'
-                });
-                $('#chartDiskWriteBytes').empty();
-                var DiskWriteBytes = new Morris.Line({
-                    element: 'chartDiskWriteBytes',
-                    resize: true,
-                    data: [
-                        {y: '2011 Q1', item1: 2666},
-                        {y: '2011 Q2', item1: 2778},
-                        {y: '2011 Q3', item1: 4912},
-                        {y: '2011 Q4', item1: 3767},
-                        {y: '2012 Q1', item1: 6810},
-                        {y: '2012 Q2', item1: 5670},
-                        {y: '2012 Q3', item1: 4820},
-                        {y: '2012 Q4', item1: 15073},
-                        {y: '2013 Q1', item1: 10687},
-                        {y: '2013 Q2', item1: 8432}
-                    ],
-                    xkey: 'y',
-                    ykeys: ['item1'],
-                    labels: ['Item 1'],
-                    lineColors: ['#2F4F4F'],
-                    hideHover: 'auto'
-                });
+            .done(function (data) {
+
+                //CPU Utilization Graph
+                if (data.CPUUtilization) {
+                    $('#chartCPUUtilization').empty();
+                    var chartCPUUtilization = new Morris.Line({
+                        element: 'chartCPUUtilization',
+                        resize: true,
+                        data: data.CPUUtilization.dataPoints,
+                        xkey: 'toTime',
+                        ykeys: ['average'],
+                        labels: ['Utilization'],
+                        lineColors: ['#3c8dbc'],
+                        postUnits: data.CPUUtilization.symbol,
+                        hideHover: 'auto'
+                    });
+                }
+
+                //Network Out Graph
+                if (data.NetworkOut) {
+                    $('#chartNetworkOut').empty();
+                    var NetworkOut = new Morris.Line({
+                        element: 'chartNetworkOut',
+                        resize: true,
+                        data: data.NetworkOut.dataPoints,
+                        xkey: 'toTime',
+                        ykeys: ['average'],
+                        labels: ['Network Out'],
+                        lineColors: ['#A52A2A'],
+                        postUnits: data.NetworkOut.symbol,
+                        hideHover: 'auto'
+                    });
+                }
+                //Network In Graph
+                if (data.NetworkIn) {
+                    $('#chartNetworkIn').empty();
+                    var NetworkIn = new Morris.Line({
+                        element: 'chartNetworkIn',
+                        resize: true,
+                        data: data.NetworkIn.dataPoints,
+                        xkey: 'toTime',
+                        ykeys: ['average'],
+                        labels: ['Network In'],
+                        lineColors: ['#00008B'],
+                        postUnits: data.NetworkIn.symbol,
+                        hideHover: 'auto'
+                    });
+                }
+                //Disk Read Graph
+                if (data.DiskReadBytes) {
+                    $('#chartDiskReadBytes').empty();
+                    var DiskReadBytes = new Morris.Line({
+                        element: 'chartDiskReadBytes',
+                        resize: true,
+                        data: data.DiskReadBytes.dataPoints,
+                        xkey: 'toTime',
+                        ykeys: ['average'],
+                        labels: ['Disk Read'],
+                        lineColors: ['#006400'],
+                        postUnits: data.DiskReadBytes.symbol,
+                        hideHover: 'auto'
+                    });
+                }
+                //Disk Read Graph
+                if (data.DiskWriteBytes) {
+                    $('#chartDiskWriteBytes').empty();
+                    var DiskWriteBytes = new Morris.Line({
+                        element: 'chartDiskWriteBytes',
+                        resize: true,
+                        data: data.DiskWriteBytes.dataPoints,
+                        xkey: 'toTime',
+                        ykeys: ['average'],
+                        labels: ['Disk Write'],
+                        lineColors: ['#2F4F4F'],
+                        postUnits: data.DiskWriteBytes.symbol,
+                        hideHover: 'auto'
+                    });
+                }
                 $('#metricSelector').trigger('change');
             })
             .fail(function () {
