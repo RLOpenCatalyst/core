@@ -8,7 +8,7 @@
 (function (angular) {
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('cpServicesCtrl', ['$scope', '$rootScope', 'workzoneServices', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'instanceFactories', function ($scope, $rootScope, workzoneServices, $modal, $timeout, uiGridOptionsClient, uiGridConstants, instanceFactories) {
+		.controller('cpServicesCtrl', ['$scope', '$rootScope', 'workzoneServices', '$modal', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'instanceFactories','toastr', function ($scope, $rootScope, workzoneServices, $modal, $timeout, uiGridOptionsClient, uiGridConstants, instanceFactories,toastr) {
 			var cpInstance = $scope.$parent.cpInstance;
 			$scope.isServicePageLoading = true;
 			var helper = {
@@ -32,7 +32,7 @@
 						},
 						function () {
 							$scope.inactiveGrid = false;
-							alert("Unable to delete service");
+							toastr.error("Unable to delete service");
 						}
 					);
 				},
@@ -47,7 +47,7 @@
 				$scope.cpServicesGridOptions.data='tabData';
 				$scope.cpServicesGridOptions.columnDefs = [
 					{ name:'Service Name',field:'servicename',cellTooltip: true},
-					{ name:'Actions',cellTemplate:'<span ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon cursor {{actionItem.bg}}" ng-click="grid.appScope.serviceAction(row.entity, actionItem.actionType);">'+
+					{ name:'Actions',cellTemplate:'<span title="{{actionItem.actionType}}" ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon cursor {{actionItem.bg}}" ng-click="grid.appScope.serviceAction(row.entity, actionItem.actionType);">'+
 					'<i class="fa {{actionItem.icon}} white"></i></span>' ,cellTooltip: true, enableSorting: false},
 					{ name:'Options',cellTemplate: '<span title="Delete" class="cp-service-icon btn-danger cursor" ng-click="grid.appScope.deleteService(row.entity, rowRenderIndex);">'+
 					'<i class="fa fa-trash-o white"></i></span>',cellTooltip: true, enableSorting: false}
@@ -64,7 +64,7 @@
 							},100);
 						}, function () {
 							$scope.isServicePageLoading = false;
-							alert('An error occurred while getting service list');
+							toastr.error('An error occurred while getting service list');
 						});
 					}else{
 						$scope.isServicePageLoading = false;
@@ -107,7 +107,7 @@
 				$scope.cpServivceListView();
 			};
 			$scope.init();
-		}]).controller('addServiceCtrl', ['$scope', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', 'serviceTabItems', 'cacheServices', 'instanceFactories', function ($scope, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, serviceTabItems, cacheServices, instanceFactories) {
+		}]).controller('addServiceCtrl', ['$scope', '$modalInstance', '$timeout', 'uiGridOptionsClient', 'uiGridConstants', 'workzoneServices', 'serviceTabItems', 'cacheServices', 'instanceFactories', 'toastr',function ($scope, $modalInstance, $timeout, uiGridOptionsClient, uiGridConstants, workzoneServices, serviceTabItems, cacheServices, instanceFactories,toastr) {
 			$scope.serviceIds = serviceTabItems.serviceIds;
 			var cpInstance = serviceTabItems.inspectInstance;
 			var cacheKey = 'chefServerServices_' + cpInstance.chef.serverId;
@@ -136,7 +136,7 @@
 				$scope.cpAddServicesGridOptions.columnDefs = [
 					{ name:'Select',cellTemplate:'<input type="checkbox" ng-click="grid.appScope.toggleSelection(row.entity.rowid)" />',cellTooltip: true},
 					{ name:'Name',field:'servicename',cellTooltip: true},
-					{ name:'Actions',cellTemplate:'<span ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon {{actionItem.bg}}">'+
+					{ name:'Actions',cellTemplate:'<span title="{{actionItem.actionType}}" ng-repeat="actionItem in row.entity.actionData" class="cp-service-icon {{actionItem.bg}}">'+
 					'<i class="fa {{actionItem.icon}} white"></i></span>',cellTooltip: true}
 				];
 			};
@@ -165,10 +165,10 @@
 								$scope.tabAddServicesData = addServiceGridData;
 							}, function () {
 								$scope.tabAddServicesData = addServiceGridData;
-								alert('An error occurred while getting service commands');
+								toastr.error('An error occurred while getting service commands');
 							});
 						}, function () {
-							alert('An error occurred while getting service list');
+							toastr.error('An error occurred while getting service list');
 						});
 					}
 				},

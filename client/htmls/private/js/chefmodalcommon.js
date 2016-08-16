@@ -571,16 +571,24 @@ function $chefCookbookRoleSelector(catorgname, callback, selectedRunlist, readMo
     $chefItemdiv.find("#btnaddToRunlist").on('click', function() {
         var $options = $chefItemdiv.find('#cookbooksrecipesList option:selected');
         var $selectedList = $chefItemdiv.find("#cookbooksrecipesselectedList");
+        var $runList = $chefItemdiv.find("#cookbooksrecipesselectedList option:not(:selected)");
+        var runListTexts= [];
+        $runList.each(function(){
+            var $this = $(this);
+            runListTexts.push($this.val())
+        });
         $options.each(function() {
             var $this = $(this);
-            $selectedList.append($this.clone());
+            if(runListTexts.indexOf($this.val()) === -1) {
+                $selectedList.append($this.clone());
+            }
             $this.hide();
         });
     });
 
     $chefItemdiv.find("#btnremoveFromRunlist").on('click', function() {
-        var $instanceCookbookList = $chefItemdiv.find('#cookbooksrecipesList');
 
+        var $instanceCookbookList = $chefItemdiv.find('#cookbooksrecipesList');
         $chefItemdiv.find("#cookbooksrecipesselectedList option:selected").each(function() {
             var $this = $(this);
             var value = $this.val();

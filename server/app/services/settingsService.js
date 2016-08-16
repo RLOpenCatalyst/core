@@ -23,6 +23,7 @@ const errorType = 'settingsService';
 
 var settingsService = module.exports = {};
 
+
 settingsService.updateTeamDataByEnv = function updateTeamDataByEnv(enviornment,callback){
     async.waterfall([
         function(next){
@@ -120,18 +121,18 @@ settingsService.updateTeamDataByProject = function updateTeamDataByProject(proje
                 next(null,masterTeamData);
             }
         }
-    ],function(err,results){
+    ],function(err,results) {
         if (err) {
-            logger.error("Error while updating Project in Master Data Team "+err);
-            callback(err,null);
+            logger.error("Error while updating Project in Master Data Team " + err);
+            callback(err, null);
             return;
-        }else{
-            callback(null,results);
+        } else {
+            callback(null, results);
             return;
         }
+    });
+}
 
-    })
-};
 
 function changeArrayToString(list,str){
     var resultStr='';
@@ -153,3 +154,4 @@ function changeArrayToString(list,str){
         return resultStr;
     }
 }
+

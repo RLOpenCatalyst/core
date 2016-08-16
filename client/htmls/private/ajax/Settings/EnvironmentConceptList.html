@@ -110,7 +110,9 @@
                                         CreateTableFromJson(3,'environmentname' , 'CreateEnvironmentConcept.html'); //3 is for 
                                         $('#envtable').dataTable({
                                             "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
-                                            "pagingType": "full_numbers"
+                                            "pagingType": "full_numbers",
+                                            "retrieve": true,
+                                            "destroy":true
                                         });
                                         $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
                                         $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');

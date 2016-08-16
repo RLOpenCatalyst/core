@@ -342,7 +342,6 @@ var MasterUtil = function() {
             }
         });
     }
-
     // Return all Dockers
     this.getDockers = function(orgList, callback) {
         var dockerList = [];
@@ -1796,6 +1795,19 @@ var MasterUtil = function() {
             } else {
                 callback(null, null);
                 return;
+            }
+        });
+    };
+
+    this.getChefDetailsByOrgId = function(orgId, callback) {
+        d4dModelNew.d4dModelMastersConfigManagement.find({
+            orgname_rowid: orgId,
+            "id": '10'
+        }, function(err, chefDetails) {
+            if (err) {
+                callback(err, null);
+            }else {
+                callback(null, chefDetails);
             }
         });
     };

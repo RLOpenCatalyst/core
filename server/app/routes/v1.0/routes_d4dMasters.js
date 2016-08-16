@@ -1870,30 +1870,30 @@ module.exports.setRoutes = function(app, sessionVerification) {
     }
 
     function dissociateTeamWithEnv(teams, bodyJson) {
-            for(var i = 0; i < teams.length; i++) {
-                (function(team) {
-                    var teamEnvId = team.environmentname_rowid.split(",");
-                    var teamEnvName = team.environmentname.split(",");
-                    d4dModelNew.d4dModelMastersTeams.update({
-                        rowid: team.rowid,
-                        id: '4'
-                    }, {
-                        $set: {
-                            environmentname_rowid: removeStringFromArray(teamEnvId, bodyJson['rowid']),
-                            environmentname: removeStringFromArray(teamEnvName, bodyJson['environmentname'])
-                        }
-                    }, {
-                        upsert: false
-                    }, function (err, data) {
-                        if (err) {
-                            logger.debug('Err while updating d4dModelMastersTeams' + err);
-                            return;
-                        }
-                        logger.debug('Updated team ' + team.teamname + ' with env : ');
+        for(var i = 0; i < teams.length; i++) {
+            (function(team) {
+                var teamEnvId = team.environmentname_rowid.split(",");
+                var teamEnvName = team.environmentname.split(",");
+                d4dModelNew.d4dModelMastersTeams.update({
+                    rowid: team.rowid,
+                    id: '4'
+                }, {
+                    $set: {
+                        environmentname_rowid: removeStringFromArray(teamEnvId, bodyJson['rowid']),
+                        environmentname: removeStringFromArray(teamEnvName, bodyJson['environmentname'])
+                    }
+                }, {
+                    upsert: false
+                }, function (err, data) {
+                    if (err) {
+                        logger.debug('Err while updating d4dModelMastersTeams' + err);
                         return;
-                    });
-                })(teams[i]);
-            };
+                    }
+                    logger.debug('Updated team ' + team.teamname + ' with env : ');
+                    return;
+                });
+            })(teams[i]);
+        };
     };
 
     function dissociateTeamWithProject(teams, bodyJson) {
@@ -2827,7 +2827,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         });
                                     }
 
-                                  if (req.params.id === "3") {
+                                    if (req.params.id === "3") {
                                         d4dModelNew.d4dModelMastersTeams.find({
                                             environmentname_rowid: {
                                                 $regex: bodyJson['rowid']
