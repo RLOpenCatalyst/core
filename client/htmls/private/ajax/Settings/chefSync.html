@@ -80,57 +80,49 @@
          
           
           <div class="col-lg-6">
-            
               <label for="exampleInputEmail1">Organization</label>
                 <select id="chefImportOrgSelect"  class="width-100 aaa" disabled>
-                  
                 </select>
-            
           </div>
 
           
 
           <div class="col-lg-6 topNew">  
               <label for="exampleInputEmail1">Business Groups<span class="control-label redSpan">&nbsp;*</span></label>
-
               <select id="chefImportBgSelect"  class="width-100 aaaaa" cdata="catalyst" cat-validation="required" autofocus>
-
-                
               </select>
-            
           </div>
 
 
           
           
-        <div class="col-lg-6" style="display:none">
-          
+       <!-- <div class="col-lg-6" style="display:none">
             <label for="exampleInputEmail1">Environment<span class="control-label redSpan">&nbsp;*</span></label>
             <div class="">
               <select id="chefImportEnvSelect"  class="width-100" >
-                    
               </select>
             </div>
-          
-        </div>
+        </div>-->
 
           <div class="col-lg-6" style="margin-top:20px;">
-            <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
-            
-              <select id="chefImportProjectSelect"  class="width-100">
+            <label for="exampleInputEmail1">Team<span class="control-label redSpan">&nbsp;*</span></label>
+              <select id="chefImportTeamSelect"  class="width-100">
               </select>
-            
           </div>
 
+          <div class="col-lg-6" style="margin-top:20px;">
+              <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
+              <select id="chefImportProjectSelect"  class="width-100">
+              </select>
+          </div>
+
+
+
           <div class="col-lg-6 credentialSection" style="margin-top:20px;">
-        
             <label for="exampleInputEmail1">Username<span class="control-label redSpan">&nbsp;*</span></label>
-            
             <input type="text" name="importUsernameInput" class="form-control" id="importUsernameInput" required value="" autofocus>
               <b class="tooltip tooltip-top-right">
               <i class="fa fa-user txt-color-teal"></i> Please enter Instance Username</b>
-          
-        
           </div>
       
           <div class="col-lg-6" style="margin-top:20px;">
@@ -145,26 +137,17 @@
           
       
       <div class="col-lg-6" style="display:none">
-        
           <label for="exampleInputEmail1">Provider</label>
-          
           <select id="chefImportProviderSelect"  class="form-control" cat-validation="required">
-                
           </select>
-        
-        
       </div>
       
       
       <div class="col-lg-6 credentialSection authPassword" style="margin-top:20px;">
-        
           <label for="exampleInputEmail1">Password</label>
-          
           <input type="password" class="form-control" id="importPasswordInput" required="true" cdata="catalyst" cat-validation="required"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-initialvalue="" style="visibility:hidden;">Required</span>
             <b class="tooltip tooltip-top-right">
             <i class="fa fa-lock txt-color-teal"></i> Please enter Instance Password</b>
-          
-        
       </div>
 
       <div class="col-lg-6 credentialSection authPemFile" style="margin-top:20px;">
@@ -307,7 +290,7 @@ $(function() {
     var $orgListInput = $('#chefImportOrgSelect');
     var $bgList = $('#chefImportBgSelect');
     var $projectList = $('#chefImportProjectSelect');
-    var $envList = $('#chefImportEnvSelect');
+    var $teamList = $('#chefImportTeamSelect');
 
 
     $('.nodeListContainer').append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
@@ -357,36 +340,30 @@ $(function() {
             if (bgName == 'choose') {
                 return;
             }
-            $projectList.empty();
-            $projectList.append($('<option></option>').val('choose').html('Choose'));
+            $teamList.empty();
+            $teamList.append($('<option></option>').val('choose').html('Choose'));
 
-            var getProjs = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
-            // alert(JSON.stringify(getProjs));
-            for (var i = 0; i < getProjs.length; i++) {
-               if(getProjs[i].indexOf('|') >= 0)
-                {
-                    var txtval = getProjs[i].split('|');
-                    $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+            var getTeam = getRelatedValues_Top(21, "productgroupname_rowid", bgName, "teamname");
+            for (var i = 0; i < getTeam.length; i++) {
+                if (getTeam[i].indexOf('|') >= 0) {
+                    var txtval = getTeam[i].split('|');
+                    $teamList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
                 }
             }
         });
-        $projectList.change(function(e) {
-            var projName = $(this).val();
-            if (projName == 'choose') {
+        $teamList.change(function(e) {
+            var teamName = $(this).val();
+            if (teamName == 'choose') {
                 return;
             }
-            var getEnvs_ = getRelatedValues_Top_rowid(4, "rowid", projName, "environmentname");
-            //debugger;
-            //alert(JSON.stringify(getEnvs_));
-            var getEnvs = getEnvs_.toString().replace(/"/g, '').split(',');
-            // alert(getEnvs.length);
-            // var getEnvs = JSON.parse(getEnvs_);
-            for (var i = 0; i < getEnvs.length; i++) {
-              if(getEnvs[i].indexOf('|') >= 0)
-                {
-                    var txtval = getEnvs[i].split('|');
-                   $envList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
-                  // alert('Env: ' + txtval[0] + ' ' +  txtval[1]);
+            $projectList.empty();
+            $projectList.append($('<option></option>').val('choose').html('Choose'));
+            var getProject_ = getRelatedValues_Top_rowid(21, "rowid", teamName, "projectname");
+            var getProject = getProject_.toString().replace(/"/g, '').split(',');
+            for (var i = 0; i < getProject.length; i++) {
+                if (getProject[i].indexOf('|') >= 0) {
+                    var txtval = getProject[i].split('|');
+                    $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
                 }
             }
         });
@@ -659,10 +636,16 @@ $(function() {
   $('.importNodesBtn').click(function(e) {
     var $checkBoxes = $('.nodeCheckBox:checked');
     var reqBody = {};
-    reqBody.orgId = $orgListInput.val();
-    reqBody.bgId = $bgList.val();
-    reqBody.projectId = $projectList.val();
-    reqBody.envID = $envList.val();
+      reqBody.orgId = $orgListInput.val();
+      reqBody.bgId = $bgList.val();
+      reqBody.projectId = $projectList.val();
+      reqBody.teamId = $teamList.val();
+      //Added By Durgesh
+      reqBody.orgName = $orgListInput.find('option:selected').text();
+      reqBody.bgName = $bgList.find('option:selected').text();
+      reqBody.projectName = $projectList.find('option:selected').text();
+      reqBody.teamName = $teamList.find('option:selected').text();
+      //End By Durgesh
 
 
     if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {

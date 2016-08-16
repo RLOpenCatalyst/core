@@ -393,12 +393,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 													var instance = {
 														name: unmanagedInstance.platformId,
 														orgId: req.body.orgId,
+														orgName: req.body.orgName,
 														bgId: req.body.bgId,
+														bgName: req.body.bgName,
+														teamId: req.body.teamId,
+														teamName: req.body.teamName,
 														projectId: req.body.projectId,
-														//Added by Durgesh For Project Name
 														projectName: req.body.projectName,
-														//End By Durgesh
 														envId: req.body.envId,
+														environmentName: req.body.environmentName,
 														providerId: provider._id,
 														providerType: 'aws',
 														providerData: {

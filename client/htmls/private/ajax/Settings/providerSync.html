@@ -1356,11 +1356,23 @@
                 }
             });
             $teamList.change(function(e) {
-                var projName = $(this).val();
-                if (projName == 'choose') {
+                var teamName = $(this).val();
+                if (teamName == 'choose') {
                     return;
                 }
-                var getEnvs_ = getRelatedValues_Top_rowid(4, "rowid", projName, "environmentname");
+                $projectList.empty();
+                $projectList.append($('<option></option>').val('choose').html('Choose'));
+                var getProject_ = getRelatedValues_Top_rowid(21, "rowid", teamName, "projectname");
+                var getProject = getProject_.toString().replace(/"/g, '').split(',');
+                for (var i = 0; i < getProject.length; i++) {
+                    if (getProject[i].indexOf('|') >= 0) {
+                        var txtval = getProject[i].split('|');
+                        $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
+                }
+                $envList.empty();
+                $envList.append($('<option></option>').val('choose').html('Choose'));
+                var getEnvs_ = getRelatedValues_Top_rowid(21, "rowid", teamName, "environmentname");
                 var getEnvs = getEnvs_.toString().replace(/"/g, '').split(',');
                 for (var i = 0; i < getEnvs.length; i++) {
                     if (getEnvs[i].indexOf('|') >= 0) {
@@ -1747,11 +1759,13 @@
             reqBody.bgId = $bgList.val();
             reqBody.projectId = $projectList.val();
             reqBody.envId = $envList.val();
+            reqBody.teamId = $teamList.val();
             //Added By Durgesh
             reqBody.orgName = $orgListInput.find('option:selected').text();
             reqBody.bgName = $bgList.find('option:selected').text();
             reqBody.projectName = $projectList.find('option:selected').text();
             reqBody.environmentName = $envList.find('option:selected').text();
+            reqBody.teamName = $teamList.find('option:selected').text();
             //End By Durgesh
             reqBody.configManagmentId = $infraManagerList.val();
 
