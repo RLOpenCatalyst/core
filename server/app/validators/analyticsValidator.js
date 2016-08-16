@@ -16,3 +16,12 @@
 var Joi = require('joi');
 
 var analyticsValidator = module.exports = {};
+
+analyticsValidator.trendUsageList = {
+	    body: {
+	        "name": Joi.string().max(40).required(),
+	        "organizationId": Joi.string().max(40).required(),
+	        "businessGroupId": Joi.string().max(40).required(),
+	        "projectId": Joi.string().max(40).required()
+	    }
+	};
