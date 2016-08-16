@@ -26,7 +26,20 @@ var moment = require('moment');
  * date - JavaScript Date
  * return - 2016-08-09T13:11:46Z
  */
-function getDateInUTC(date, callback) {
+function getDateInUTC(date) {
+	if( typeof date === 'undefined' || date === null ){
+		return null;
+	}else{
+		return moment.utc(date).format();
+	}
+}
+
+/*
+ * Get Date in UTC Format
+ * date - JavaScript Date
+ * return - 2016-08-09T13:11:46Z
+ */
+function getDateInUTCAsync(date, callback) {
 	if( typeof date === 'undefined' || date === null ){
 		var err = new Error("Invalid date");
 		callback(err, null);
@@ -42,7 +55,7 @@ function getDateInUTC(date, callback) {
  * return - 2016-08-09T13:11:00Z
  * 
  */
-function getStartOfAMinuteInUTC(date, callback) {
+function getStartOfAMinuteInUTCAsync(date, callback) {
 	if( typeof date === 'undefined' || date === null ){
 		var err = new Error("Invalid date");
 		callback(err, null);
@@ -57,7 +70,7 @@ function getStartOfAMinuteInUTC(date, callback) {
  * date - JavaScript Date
  * return - 2016-08-09T13:00:00Z
  */
-function getStartOfAHourInUTC(date, callback) {
+function getStartOfAHourInUTCAsync(date, callback) {
 	if( typeof date === 'undefined' || date === null ){
 		var err = new Error("Invalid date");
 		callback(err, null);
@@ -73,7 +86,7 @@ function getStartOfAHourInUTC(date, callback) {
  * date - JavaScript Date
  * return - 2016-08-09T00:00:00Z
  */
-function getStartOfADayInUTC(date, callback) {
+function getStartOfADayInUTCAsync(date, callback) {
 	if( typeof date === 'undefined' || date === null ){
 		var err = new Error("Invalid date");
 		callback(err, null);
@@ -88,7 +101,7 @@ function getStartOfADayInUTC(date, callback) {
 /*
  * Get Start of a month in UTC
  */
-function getStartOfAMonthInUTC(date, callback) {
+function getStartOfAMonthInUTCAsync(date, callback) {
 	if( typeof date === 'undefined' || date === null ){
 		var err = new Error("Invalid date");
 		callback(err, null);
@@ -104,7 +117,7 @@ function getStartOfAMonthInUTC(date, callback) {
 /*
  * Get Start of a year in UTC
  */
-function getStartOfAYearInUTC(date, callback) {
+function getStartOfAYearInUTCAsync(date, callback) {
 	if( typeof date === 'undefined' || date === null ){
 		var err = new Error("Invalid date");
 		callback(err, null);
@@ -119,9 +132,10 @@ function getStartOfAYearInUTC(date, callback) {
 }
 
 var momentDateUtil = module.exports = {};
-momentDateUtil.getUTCDate = getUTCDate;
-momentDateUtil.getStartOfAMinute = getStartOfAMinute;
-momentDateUtil.getStartOfAHour = getStartOfAHour;
-momentDateUtil.getStartOfADay = getStartOfADay;
-momentDateUtil.getStartOfAMonth = getStartOfAMonth;
-momentDateUtil.getStartOfAYear = getStartOfAYear;
+momentDateUtil.getDateInUTC = getDateInUTC;
+momentDateUtil.getDateInUTCAsync = getDateInUTCAsync;
+momentDateUtil.getStartOfAMinuteInUTCAsync = getStartOfAMinuteInUTCAsync;
+momentDateUtil.getStartOfAHourInUTCAsync = getStartOfAHourInUTCAsync;
+momentDateUtil.getStartOfADayInUTCAsync = getStartOfADayInUTCAsync;
+momentDateUtil.getStartOfAMonthInUTCAsync = getStartOfAMonthInUTCAsync;
+momentDateUtil.getStartOfAYearInUTCAsync = getStartOfAYearInUTCAsync;

@@ -26,17 +26,24 @@ var instanceService = require('_pr/services/instanceService');
 var async = require('async');
 var resourceService = require('_pr/services/resourceService');
 var resources = require('_pr/model/resources/resources');
+var dateUtil = require('_pr/lib/utils/dateUtil');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
-AggregateAWSUsage.interval = '*/5 * * * *';
+AggregateAWSUsage.interval = '* * * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
+
+var startTimeInUTC;
+var endTimeInUTC;
+var period = 3600;
+
 /**
  *
  */
 function aggregateAWSUsage() {
-    MasterUtils.getAllActiveOrg(function(err, orgs) {
+	initialize();
+	MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
             logger.error(err);
         }else if(orgs.length > 0){
@@ -51,7 +58,7 @@ function aggregateAWSUsage() {
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
                                     count++;
-                                    aggregateEC2UsageForProvider(provider)
+                                    aggregateEC2UsageForProvider(provider, startTimeInUTC, endTimeInUTC, period)
                                 })(providers[j]);
                             }
                             if(count ===providers.length){
@@ -75,32 +82,52 @@ function aggregateAWSUsage() {
     });
 }
 
+function initialize(){
+	var endTimeInLocal = new Date();
+	dateUtil.getStartOfAHourInUTCAsync(endTimeInLocal, function(err, utcDate){
+		if(err){
+			console.log("Error: "+err);
+		}else{
+			endTimeInUTC = utcDate;
+		}
+	});
+	
+	var startTimeInLocal = new Date(endTimeInLocal.getTime() - 1*60*60*1000);
+	dateUtil.getStartOfAHourInUTCAsync(startTimeInLocal, function(err, utcDate){
+		if(err){
+			console.log("Error: "+err);
+		}else{
+			startTimeInUTC = utcDate;
+		}
+	});
+}
+
 /**
  *
  * @param provider
  */
-function aggregateEC2UsageForProvider(provider) {
+function aggregateEC2UsageForProvider(provider, startTime, endTime, period) {
     async.waterfall([
         function (next) {
             logger.info('AWS Service usage aggregation for provider: ' + provider._id + ' started');
             instanceService.getTrackedInstancesForProvider(provider, next);
         },
         function (provider, instances, next) {
-            async.parallel({
+        	async.parallel({
                 managed: function (callback) {
-                    generateEC2UsageMetricsForProvider(provider, instances.managed, callback);
+                    generateEC2UsageMetricsForProvider(provider, instances.managed, startTime, endTime, period, callback);
                 },
                 unmanaged: function (callback) {
-                    generateEC2UsageMetricsForProvider(provider, instances.unmanaged, callback);
+                    generateEC2UsageMetricsForProvider(provider, instances.unmanaged, startTime, endTime, period, callback);
                 },
                 unassigned: function (callback) {
-                    generateEC2UsageMetricsForProvider(provider, instances.unassigned, callback);
+                    generateEC2UsageMetricsForProvider(provider, instances.unassigned, startTime, endTime, period, callback);
                 },
                 s3BucketUsageMetrics: function (callback) {
-                    generateS3UsageMetricsForProvider(provider, callback);
+                    generateS3UsageMetricsForProvider(provider, startTime, endTime, period, callback);
                 },
                 rdsUsageMetrics: function (callback) {
-                    generateRDSUsageMetricsForProvider(provider, callback);
+                    generateRDSUsageMetricsForProvider(provider, startTime, endTime, period, callback);
                 }
             }, function (err, results) {
                 if (err) {
@@ -153,13 +180,13 @@ function aggregateEC2UsageForProvider(provider) {
  * @param instances
  * @param callback
  */
-function generateEC2UsageMetricsForProvider(provider, instances, callback) {
+function generateEC2UsageMetricsForProvider(provider, instances, startTime, endTime, period, callback) {
     async.waterfall([
         function (next) {
-            resourceService.getEC2InstanceUsageMetrics(provider, instances, next);
+            resourceService.getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, period, next);
         },
         function (ec2UsageMetrics, next) {
-            saveResourceUsageMetrics(ec2UsageMetrics, next);
+        	saveResourceUsageMetrics(ec2UsageMetrics, next);
         }
     ], function (err, results) {
         if (err) {
@@ -170,13 +197,13 @@ function generateEC2UsageMetricsForProvider(provider, instances, callback) {
     });
 }
 
-function generateS3UsageMetricsForProvider(provider, callback) {
+function generateS3UsageMetricsForProvider(provider, startTime, endTime, period, callback) {
     async.waterfall([
         function(next){
             resources.getResourcesByProviderResourceType(provider._id,'S3',next);
         },
         function(bucketData,next){
-            resourceService.getS3BucketsMetrics(provider,bucketData,next);
+            resourceService.getS3BucketsMetrics(provider, bucketData, startTime, endTime, period, next);
         },
         function(bucketMetrics,next){
             saveResourceUsageMetrics(bucketMetrics,next);
@@ -190,13 +217,13 @@ function generateS3UsageMetricsForProvider(provider, callback) {
     });
 }
 
-function generateRDSUsageMetricsForProvider(provider, callback) {
+function generateRDSUsageMetricsForProvider(provider, startTime, endTime, period, callback) {
     async.waterfall([
         function(next){
             resources.getResourcesByProviderResourceType(provider._id,'RDS',next);
         },
         function(dbInstances,next){
-            resourceService.getRDSDBInstanceMetrics(provider,dbInstances,next);
+            resourceService.getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, period, next);
         },
         function(rdsUsageMetrics,next){
             saveResourceUsageMetrics(rdsUsageMetrics,next);

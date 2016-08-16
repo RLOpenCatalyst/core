@@ -67,7 +67,7 @@ var compositeBlueprints = require('./routes_compositeBlueprints');
 var blueprintFrames = require('./routes_blueprintFrames');
 var analytics = require('./routes_analytics');
 var reports = require('./routes_reports')
-
+var trendUsage = require('./routes_trendUsage');
 var cors = require('cors');
 /*
  * @TODO
@@ -162,6 +162,8 @@ module.exports.setRoutes = function(app) {
     compositeBlueprints.setRoutes(app, sessionVerificationFunc);
 
     blueprintFrames.setRoutes(app, sessionVerificationFunc);
+    
+    trendUsage.setRoutes(app, sessionVerificationFunc);
 
     analytics.setRoutes(app, sessionVerificationFunc);
 
