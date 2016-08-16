@@ -497,6 +497,13 @@
                         </div>
                     </div>
                     <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Team<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncTeamSelect"  class="width-100 form-control">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
                         <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
                         <div class="input-groups">
                             <select id="providerSyncProjectSelect"  class="width-100 form-control">
@@ -1226,6 +1233,7 @@
 
         var $orgListInput = $('#providerSyncOrgSelect').attr('disabled', 'disabled');
         var $bgList = $('#providerSyncBgSelect');
+        var $teamList = $('#providerSyncTeamSelect');
         var $projectList = $('#providerSyncProjectSelect');
         var $envList = $('#providerSyncEnvSelect');
         var $infraManagerList = $('#providerSyncInfraManagerSelect');
@@ -1336,18 +1344,18 @@
                 if (bgName == 'choose') {
                     return;
                 }
-                $projectList.empty();
-                $projectList.append($('<option></option>').val('choose').html('Choose'));
+                $teamList.empty();
+                $teamList.append($('<option></option>').val('choose').html('Choose'));
 
-                var getProjs = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
-                for (var i = 0; i < getProjs.length; i++) {
-                    if (getProjs[i].indexOf('|') >= 0) {
-                        var txtval = getProjs[i].split('|');
-                        $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                var getTeam = getRelatedValues_Top(21, "productgroupname_rowid", bgName, "teamname");
+                for (var i = 0; i < getTeam.length; i++) {
+                    if (getTeam[i].indexOf('|') >= 0) {
+                        var txtval = getTeam[i].split('|');
+                        $teamList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
                     }
                 }
             });
-            $projectList.change(function(e) {
+            $teamList.change(function(e) {
                 var projName = $(this).val();
                 if (projName == 'choose') {
                     return;

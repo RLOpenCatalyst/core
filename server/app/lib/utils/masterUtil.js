@@ -2194,14 +2194,66 @@ var MasterUtil = function() {
 
     this.getTeamByProjectId = function(projectId, callback) {
         d4dModelNew.d4dModelMastersTeams.find({
-            id: 21,
-            projectname_rowid: {$regex: projectId}
+            id: "21",
+            environmentname_rowid: {$regex: projectId}
         },function(err,teams){
             if(err){
                 return callback(err,null);
             }
             callback(null,teams);
         });
+    }
+
+    this.getTeamByEnvId = function(envId, callback) {
+        d4dModelNew.d4dModelMastersTeams.find({
+            id: "21",
+            environmentname_rowid: {$regex: envId}
+        },function(err,teams){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,teams);
+        });
+    }
+
+    this.updateParticularTeam = function(teamData, callback) {
+        if(teamData.action === 'env') {
+            d4dModelNew.d4dModelMastersTeams.update({
+                id: "21",
+                rowid: teamData.teamId
+            }, {
+                $set: {
+                    environmentname: teamData.envNames,
+                    environmentname_rowid: teamData.envIds
+                }
+            }, {
+                upsert: false
+            }, function (err, teams) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(null, teams);
+                }
+            });
+        }else{
+            d4dModelNew.d4dModelMastersTeams.update({
+                id: "21",
+                rowid: teamData.teamId
+            }, {
+                $set: {
+                    projectname: teamData.projectNames,
+                    projectname_rowid: teamData.projectIds
+                }
+            }, {
+                upsert: false
+            }, function (err, teams) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(null, teams);
+                }
+            });
+        }
     }
 }
 

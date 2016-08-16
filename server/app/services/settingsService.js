@@ -23,39 +23,106 @@ const errorType = 'settingsService';
 
 var settingsService = module.exports = {};
 
-settingsService.updateProjectData = function updateProjectData(enviornment,callback){
+settingsService.updateTeamDataByEnv = function updateTeamDataByEnv(enviornment,callback){
     async.waterfall([
         function(next){
-            masterUtil.getParticularProject(enviornment.projectname_rowid,next);
+            masterUtil.getTeamByEnvId(enviornment.rowid,next);
         },
-        function(masterProjectData,next){
-            if(masterProjectData.length > 0){
-                var envNames=masterProjectData[0].environmentname.split(",");
-                var envIds=masterProjectData[0].environmentname_rowid.split(",");
-                if(envNames.indexOf(enviornment.environmentname) === -1 && envIds.indexOf(environmentname_rowid) === -1){
-                    next(null,null);
-                }else{
-                    var projectObj={
-                        projectId:enviornment.projectname_rowid,
-                        envNames:changeArrayToString(envNames,enviornment.environmentname),
-                        envIds:changeArrayToString(envIds,enviornment.rowid)
-                    }
-                    next(null,projectObj);
+        function(masterTeamData,next){
+            if(masterTeamData.length > 0){
+                var count = 0;
+                for(var i = 0; i < masterTeamData.length; i++){
+                    (function(team){
+                        var envNames=team.environmentname.split(",");
+                        var envIds=team.environmentname_rowid.split(",");
+                        if(envNames.indexOf(enviornment.environmentname) === -1 && envIds.indexOf(enviornment.rowid) === -1){
+                            count++;
+                            if(count === masterTeamData.length){
+                                next(null,masterTeamData)
+                            }
+                        }else{
+                            var teamObj={
+                                teamId:team.rowid,
+                                envNames:changeArrayToString(envNames,enviornment.environmentname),
+                                envIds:changeArrayToString(envIds,enviornment.rowid),
+                                action:'env'
+                            }
+                            masterUtil.updateParticularTeam(teamObj,function(err,data){
+                                if(err){
+                                    next(err,null);
+                                }
+                                count++;
+                                teamObj = {};
+                                if(count === masterTeamData.length){
+                                    next(null,masterTeamData)
+                                }
+                            });
+                            next(null,teamObj);
+                        }
+                    })(masterTeamData[i]);
                 }
             }else{
-                next(null,null);
-            }
-        },
-        function(updatedMasterProjectObj,next){
-            if(updatedMasterProjectObj){
-                masterUtil.updateParticularProject(updatedMasterProjectObj,next);
-            }else{
-                next(null,updatedMasterProjectObj);
+                next(null,masterTeamData);
             }
         }
     ],function(err,results){
         if (err) {
-            logger.error("Error while updating Environments in Master Data Project "+err);
+            logger.error("Error while updating Environments in Master Data Team "+err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+
+    })
+};
+
+settingsService.updateTeamDataByProject = function updateTeamDataByProject(project,callback){
+    async.waterfall([
+        function(next){
+            masterUtil.getTeamByProjectId(project.rowid,next);
+        },
+        function(masterTeamData,next){
+            if(masterTeamData.length > 0){
+                var count = 0;
+                for(var i = 0; i < masterTeamData.length; i++){
+                    (function(team){
+                        var projectNames=team.projectname.split(",");
+                        var projectIds=team.projectname_rowid.split(",");
+                        if(projectNames.indexOf(project.projectname) === -1 && projectIds.indexOf(project.rowid) === -1){
+                            count++;
+                            if(count === masterTeamData.length){
+                                next(null,masterTeamData)
+                            }
+                        }else{
+                            var teamObj={
+                                teamId:team.rowid,
+                                projectNames:changeArrayToString(projectNames,project.projectname),
+                                projectIds:changeArrayToString(projectIds,project.rowid),
+                                action:'project'
+                            }
+                            masterUtil.updateParticularTeam(teamObj,function(err,data){
+                                if(err){
+                                    next(err,null);
+                                }
+                                count++;
+                                teamObj = {};
+                                if(count === masterTeamData.length){
+                                    next(null,masterTeamData)
+                                }
+                            });
+                            next(null,teamObj);
+                        }
+                    })(masterTeamData[i]);
+                }
+            }else{
+                next(null,masterTeamData);
+            }
+        }
+    ],function(err,results){
+        if (err) {
+            logger.error("Error while updating Project in Master Data Team "+err);
             callback(err,null);
             return;
         }else{
@@ -79,5 +146,10 @@ function changeArrayToString(list,str){
             }
         }
     }
-    return resultStr;
+    if(resultStr.slice(-1) === ','){
+        var res = resultStr.slice(0,-1);
+        return res;
+    }else{
+        return resultStr;
+    }
 }
