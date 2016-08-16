@@ -435,7 +435,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
              * 
              */
             function(callback) {
-            	analyticsService.getTrendUsage(req.query.resourceId, req.query.interval, req.query.startTime, req.query.endTime, callback);
+            	analyticsService.getTrendUsage(req.query.resource, req.query.interval, req.query.fromTimeStamp, req.query.toTimeStamp, callback);
             }
         ], function(err, usageMetrics) {
             if(err) {
