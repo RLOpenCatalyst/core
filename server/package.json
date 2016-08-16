@@ -70,7 +70,8 @@
 		"fast-csv":"2.0.0",
 		"fs":"0.0.2",
         "cors": "2.7.1",
-        "events": "1.1.1"
+        "events": "1.1.1",
+        "json2csv": "3.6.2"
     },
     "devDependencies": {
         "grunt": "0.4.5",
