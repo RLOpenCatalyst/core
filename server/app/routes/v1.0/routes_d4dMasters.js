@@ -728,6 +728,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     }
                     if (orgList.length === 0 && req.params.id === '21') {
                         d4dModelNew.d4dModelMastersTeams.find({
+                            loginname: {
+                                $regex: loggedInUser
+                            },
                             id: "21"
                         }, function(err, data) {
                             if (err) {
@@ -849,7 +852,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                     } else if (req.params.id === '21') {
                         // For Team
-                        masterUtil.getTeams(orgList, function(err, teamList) {
+                        masterUtil.getTeams(orgList,loggedInUser, function(err, teamList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Team.');
                             }
@@ -1005,7 +1008,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                     } else if (req.params.id === '21') {
                         // For Team
-                        masterUtil.getTeams(orgList, function(err, teamList) {
+                        masterUtil.getTeams(orgList,loggedInUser, function(err, teamList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Team.');
                             }

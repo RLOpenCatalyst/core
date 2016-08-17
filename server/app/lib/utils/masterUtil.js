@@ -752,7 +752,7 @@ var MasterUtil = function() {
     }
 
 
-    this.getTeams = function(orgList, callback) {
+    this.getTeams = function(orgList,username, callback) {
         var teamList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -762,7 +762,11 @@ var MasterUtil = function() {
         d4dModelNew.d4dModelMastersTeams.find({
             orgname_rowid: {
                 $in: rowIds
-            }
+            },
+            loginname:{
+                $regex:username
+            },
+            id:'21'
         }, function(err, teams) {
             if (err) {
                 callback(err, null);
@@ -2208,6 +2212,19 @@ var MasterUtil = function() {
         d4dModelNew.d4dModelMastersTeams.find({
             id: "21",
             projectname_rowid: {$regex: projectId}
+        },function(err,teams){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,teams);
+        });
+    }
+
+    this.getTeamByProjectIdUserName = function(projectId,username, callback) {
+        d4dModelNew.d4dModelMastersTeams.find({
+            id: "21",
+            projectname_rowid: {$regex: projectId},
+            loginname: {$regex: username}
         },function(err,teams){
             if(err){
                 return callback(err,null);

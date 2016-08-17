@@ -20,18 +20,19 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var appDeployPipeline = require('_pr/model/app-deploy/appdeploy-pipeline');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var uuid = require('node-uuid');
 
 const errorType = 'appDeployPipeline';
 
 var appDeployPipelineService = module.exports = {};
 
-appDeployPipelineService.getProjectByProjectId=function getProjectByProjectId(projectId,callback){
+appDeployPipelineService.getAppDeployPipeLineConfigData=function getAppDeployPipeLineConfigData(projectId,username,callback){
     async.parallel({
             pipeLineConfiguration: function (callback) {
                 appDeployPipeline.getAppDeployPipelineByProjectId(projectId, callback);
             },
             projectBasedConfiguration: function (callback) {
-                getProjectFromMaster(projectId, callback);
+                getAppDeployPipeLineConfigDataFromMaster(projectId,username, callback);
             }
         },function(err,results){
             if (err) {
@@ -88,7 +89,7 @@ appDeployPipelineService.updateAppDeployPipeLineEnviornment=function updateAppDe
             if(appDeployPipelineConfig.length > 0){
                 updateAppConfigEnv(appDeployPipelineConfig[0],enviornment.environmentname,next);
             }else{
-                callBackReturn(appDeployPipelineConfig,next);
+                next(null,appDeployPipelineConfig);
             }
         }
     ],function(err,results){
@@ -104,24 +105,37 @@ appDeployPipelineService.updateAppDeployPipeLineEnviornment=function updateAppDe
     })
 };
 
-
-function callBackReturn(data,callback){
-    callback(null,data);
-};
-
-function getProjectFromMaster(projectId,callback){
-    var responseProjectList=[];
+function getAppDeployPipeLineConfigDataFromMaster(projectId,username,callback){
+    var responseProjectList=[],envNameList=[];
     var responseProject={};
-    masterUtil.getTeamByProjectId(projectId,function(err,team){
+    masterUtil.getTeamByProjectIdUserName(projectId,username,function(err,teams){
         if(err){
             callback(err,null);
+        }else if(teams.length > 0){
+            var count = 0;
+            for(var i = 0; i < teams.length;i++){
+                (function(team){
+                    count++;
+                    var envNames = team.environmentname.split(",");
+                    for(var j = 0; j < envNames.length;j++){
+                        if(envNameList.indexOf(envNames[j]) === -1){
+                            envNameList.push(envNames[j]);
+                        }
+                    }
+                    if(count === teams.length){
+                        responseProject['_id'] = uuid.v4();
+                        responseProject['projectId'] = projectId;
+                        responseProject['envSequence'] = envNameList;
+                        responseProject['envId'] = envNameList;
+                        responseProjectList.push(responseProject);
+                        callback(null, responseProjectList);
+                    }
+                })(teams[i]);
+            }
+
+        }else{
+            callback(null, teams);
         }
-        responseProject['_id'] = team[0]._id;
-        responseProject['projectId'] = team[0].projectname_rowid;
-        responseProject['envSequence'] = team[0].environmentname.split(",");
-        responseProject['envId'] = team[0].environmentname.split(",");
-        responseProjectList.push(responseProject);
-        callback(null, responseProjectList);
     });
 };
 

@@ -400,8 +400,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 return;
                             } else {
                                 var envObj = {
-                                    projectname:reqBody.projectName,
-                                    projectname_rowid:projectId,
+                                    teamname:reqBody.teamName,
+                                    teamname_rowid:reqBody.teamId,
                                     orgname:reqBody.orgName,
                                     orgname_rowid:orgId,
                                     configname:chefDetail.configname,
