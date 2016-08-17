@@ -173,6 +173,13 @@
                         </div>
                     </div>
                     <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Team<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="chefImportTeamSelect"  class="width-100 form-control">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
                         <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
                         <div class="input-groups">
                             <select id="chefImportProjectSelect"  class="width-100 form-control">
@@ -395,6 +402,7 @@
         };
         var $orgListInput = $('#chefImportOrgSelect');
         var $bgList = $('#chefImportBgSelect');
+        var $teamList = $('#chefImportTeamSelect');
         var $projectList = $('#chefImportProjectSelect');
 
         $('#buttonForIP').click(function(e) {
@@ -444,6 +452,22 @@
             }
             return (result);
         };
+        function getRelatedValues_Top_rowid(jsonID, comparedField, filterByValue, outputField) {
+            var result = [];
+            readMasterJson_Top(jsonID);
+            if (d4ddata) {
+                $.each(d4ddata, function(k, v) {
+                    if (v[comparedField] == filterByValue && v[outputField]) {
+                        var rowids = v[outputField + '_rowid'].split(',');
+                        var txts = v[outputField].split(',');
+                        for (var i = 0; i < txts.length; i++) {
+                            result.push(rowids[i] + '|' + txts[i]);
+                        }
+                    }
+                });
+            }
+            return (result);
+        }
         function readMasterJson_Top(section) {
             $.ajax({
                 type: "get",
@@ -473,18 +497,36 @@
                 }
 
             }
-            $bgList.change(function (e) {
+
+            $bgList.change(function(e) {
                 var bgName = $(this).val();
                 if (bgName == 'choose') {
                     return;
                 }
+                $teamList.empty();
+                $teamList.append($('<option></option>').val('choose').html('Choose'));
+
+                var getTeam = getRelatedValues_Top(21, "productgroupname_rowid", bgName, "teamname");
+                for (var i = 0; i < getTeam.length; i++) {
+                    if (getTeam[i].indexOf('|') >= 0) {
+                        var txtval = getTeam[i].split('|');
+                        $teamList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
+                }
+            });
+            $teamList.change(function(e) {
+                var teamName = $(this).val();
+                if (teamName == 'choose') {
+                    return;
+                }
                 $projectList.empty();
                 $projectList.append($('<option></option>').val('choose').html('Choose'));
-                var projects = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
-                for (var i = 0; i < projects.length; i++) {
-                    if (projects[i].indexOf('|') >= 0) {
-                        var txtVal = projects[i].split('|');
-                        $projectList.append($('<option></option>').val(txtVal[0]).html(txtVal[1]));
+                var getProject_ = getRelatedValues_Top_rowid(21, "rowid", teamName, "projectname");
+                var getProject = getProject_.toString().replace(/"/g, '').split(',');
+                for (var i = 0; i < getProject.length; i++) {
+                    if (getProject[i].indexOf('|') >= 0) {
+                        var txtval = getProject[i].split('|');
+                        $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
                     }
                 }
             });
@@ -496,9 +538,12 @@
             reqBody.orgId = $orgListInput.val();
             reqBody.bgId = $bgList.val();
             reqBody.projectId = $projectList.val();
+            reqBody.teamId = $teamList.val();
             reqBody.orgName = $orgListInput.find('option:selected').text();
             reqBody.bgName = $bgList.find('option:selected').text();
             reqBody.projectName = $projectList.find('option:selected').text();
+            reqBody.teamName = $teamList.find('option:selected').text();
+
             if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
                 alert('Please Select a Business Group & Project');
                 return;

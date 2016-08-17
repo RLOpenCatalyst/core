@@ -2207,7 +2207,79 @@ var MasterUtil = function() {
     this.getTeamByProjectId = function(projectId, callback) {
         d4dModelNew.d4dModelMastersTeams.find({
             id: "21",
-            environmentname_rowid: {$regex: projectId}
+            projectname_rowid: {$regex: projectId}
+        },function(err,teams){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,teams);
+        });
+    }
+
+    this.getTeamByUserId = function(userId, callback) {
+        d4dModelNew.d4dModelMastersTeams.find({
+            id: "21",
+            loginname_rowid: {$regex: userId}
+        },function(err,teams){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,teams);
+        });
+    }
+
+    this.getEnvironmentByTeam = function(teamId, callback) {
+        d4dModelNew.d4dModelMastersEnvironments.find({
+            id: "3",
+            teamname_rowid: {$regex: teamId}
+        },function(err,envs){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,envs);
+        });
+    }
+
+    this.getProjectByTeam = function(teamId, callback) {
+        d4dModelNew.d4dModelMastersProjects.find({
+            id: "4",
+            teamname_rowid: {$regex: teamId}
+        },function(err,projects){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,projects);
+        });
+    }
+
+    this.getUserByTeam = function(teamId, callback) {
+        d4dModelNew.d4dModelMastersUsers.find({
+            id: "7",
+            teamname_rowid: {$regex: teamId}
+        },function(err,users){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,users);
+        });
+    }
+
+    this.getUserById = function(userId, callback) {
+        d4dModelNew.d4dModelMastersUsers.find({
+            id: "7",
+            rowid: userId
+        },function(err,users){
+            if(err){
+                return callback(err,null);
+            }
+            callback(null,users);
+        });
+    }
+
+    this.getTeamById = function(teamId, callback) {
+        d4dModelNew.d4dModelMastersTeams.find({
+            id: "21",
+            rowid: teamId
         },function(err,teams){
             if(err){
                 return callback(err,null);
@@ -2228,6 +2300,86 @@ var MasterUtil = function() {
         });
     }
 
+    this.updateParticularEnv = function(envData,callback){
+        d4dModelNew.d4dModelMastersEnvironments.update({
+            id: "3",
+            rowid: envData.envId
+        }, {
+            $set: {
+                teamname: envData.teamNames,
+                teamname_rowid: envData.teamIds
+            }
+        }, {
+            upsert: false
+        }, function (err, envs) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, envs);
+            }
+        });
+    };
+
+    this.updateProjectByTeam = function(projectData,callback){
+        d4dModelNew.d4dModelMastersProjects.update({
+            id: "4",
+            rowid: projectData.projectId
+        }, {
+            $set: {
+                teamname: projectData.teamNames,
+                teamname_rowid: projectData.teamIds
+            }
+        }, {
+            upsert: false
+        }, function (err, projects) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, projects);
+            }
+        });
+    };
+
+    this.updateUserByTeam = function(userData,callback){
+        d4dModelNew.d4dModelMastersUsers.update({
+            id: "21",
+            rowid: userData.userId
+        }, {
+            $set: {
+                teamname: userData.teamNames,
+                teamname_rowid: userData.teamIds
+            }
+        }, {
+            upsert: false
+        }, function (err, users) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, users);
+            }
+        });
+    };
+
+    this.updateEnvByTeam = function(envData,callback){
+        d4dModelNew.d4dModelMastersEnvironments.update({
+            id: "3",
+            rowid: envData.envId
+        }, {
+            $set: {
+                teamname: envData.teamNames,
+                teamname_rowid: envData.teamIds
+            }
+        }, {
+            upsert: false
+        }, function (err, envs) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, envs);
+            }
+        });
+    };
+
     this.updateParticularTeam = function(teamData, callback) {
         if(teamData.action === 'env') {
             d4dModelNew.d4dModelMastersTeams.update({
@@ -2237,6 +2389,24 @@ var MasterUtil = function() {
                 $set: {
                     environmentname: teamData.envNames,
                     environmentname_rowid: teamData.envIds
+                }
+            }, {
+                upsert: false
+            }, function (err, teams) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(null, teams);
+                }
+            });
+        }else if(teamData.action === 'user'){
+            d4dModelNew.d4dModelMastersTeams.update({
+                id: "21",
+                rowid: teamData.teamId
+            }, {
+                $set: {
+                    loginname: teamData.userNames,
+                    loginname_rowid: teamData.userIds
                 }
             }, {
                 upsert: false
