@@ -325,6 +325,8 @@
 					$tr.append($tdData);
 					if (managnedData[i].actionStatus == 'success') {
 						$tdActionStatus = $("<img title='success' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+					} else if (managnedData[i].actionStatus == 'pending') {
+						$tdActionStatus = $("<img title='pending' class ='statusIcon' src = '../private/img/aws_logo_paused.png' alt='statusType'/>");
 					} else if (managnedData[i].actionStatus == 'failed') {
 						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
 					} else {
