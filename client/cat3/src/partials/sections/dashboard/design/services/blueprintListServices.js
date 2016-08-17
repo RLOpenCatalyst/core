@@ -3,19 +3,20 @@
     angular.module('design.BpList',[])
         .service('blueprintService',['$rootScope','$http','$q','toastr','$state','$modal','confirmbox','designServices',function ($rootScope,$http,$q,toastr,$state,$modal,confirmbox,designServices) {
             var bpServ={};
-             bpServ.createList = function(){
+             bpServ.createList = function(bpType){
                 var organObjectId=[];
                 ///organObjectId.envOptions=$rootScope.organObject[$rootScope.organNewEnt.org].environments;
                 if($rootScope.organObject){
+                    var tempType=(bpType) ? bpType :$state.params.templateObj.templatetype;
+                    var pagination =(bpType) ? false :true;
                     organObjectId.org =$rootScope.organObject[$rootScope.organNewEnt.org].rowid;
                     organObjectId.buss=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].rowid;
                     organObjectId.proj=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].projects[$rootScope.organNewEnt.proj].rowid;
                     var params = {
-                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination=true&templateType='+$state.params.templateObj.templatetype+'&providerType='+angular.lowercase($state.params.subItem)
+                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='+angular.lowercase($state.params.subItem)
                     };
                     return designServices.promiseGet(params);
                 }
-
             };
             bpServ.launchBp = function (id) {
                 $modal.open({
@@ -84,17 +85,21 @@
                     bodyText: 'Are you sure you would like to remove the selected blueprints ?'
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
+                    var bPIds=[];
+                    if(angular.isArray(ids)){
+                        bPIds=ids;
+                    } else {
+                        bPIds.push(ids);
+                    }
                     var params = {
                         url: '/blueprints',
-                        data:{
-                            "blueprints":ids
-                        }
+                        data:{blueprints:bPIds}
                     };
-                    designServices.promiseDelete(params).then(function(){
+                    return designServices.promiseDelete(params).then(function(){
+                        toastr.success('Successfully deleted');
                         angular.each(ids,function (val) {
                             angular.element('#'+val).hide();
                         });
-                        toastr.success('Successfully deleted');
                     });
                 });
             };

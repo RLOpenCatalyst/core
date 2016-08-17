@@ -12,7 +12,7 @@
  * All modules/feature will be through
  * */
 
-var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
+var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','dndLists',
 	'global.login',
 	'global.breadcrumb',
 	'authentication',

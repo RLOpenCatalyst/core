@@ -350,7 +350,8 @@ function softwareStackListing() {
                                             "organizationId":$('#orgnameSelectExisting').val(),
                                             "businessGroupId": $('#bgListInputExisting').val(),
                                             "projectId": $('#projectListInputExisting').val(),
-                                            "blueprints": blueprintsList
+                                            "blueprints": blueprintsList,
+					"cloudProviderType": 'aws'
                                         };    
                                     }
                                     // for edit and create of composite blueprint..

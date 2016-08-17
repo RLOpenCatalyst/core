@@ -40,6 +40,8 @@ function analyticsCtrl($scope, $rootScope,$state,analyticsServices) {
     $scope.Text = "State Params Example : " + $rootScope.stateParams.activeSection;
     $rootScope.$emit('HEADER_NAV_CHANGE','ANALYTICS');
     analytic.envChange = function () {
+        treeNames.push(analytic.env.name);
+        $rootScope.$emit('treeNameUpdate', treeNames);
     };
 }
 
