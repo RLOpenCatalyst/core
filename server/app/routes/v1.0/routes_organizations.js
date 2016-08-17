@@ -2444,12 +2444,22 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         paginationReq['cloudProviderType'] = req.query.providerType;
                         paginationReq['searchColumns'] = ['name'];
                     }else{
+                        if(req.query.templateType === 'arm'){
+                            paginationReq['orgId'] = req.params.orgId;
+                            paginationReq['bgId'] = req.params.bgId;
+                            paginationReq['projectId'] = req.params.projectId;
+                            paginationReq['templateType'] = req.query.templateType;
+                           // paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
+                            paginationReq['searchColumns'] = ['name'];
+                    }else{
                         paginationReq['orgId'] = req.params.orgId;
                         paginationReq['bgId'] = req.params.bgId;
                         paginationReq['projectId'] = req.params.projectId;
                         paginationReq['templateType'] = req.query.templateType;
                         paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
                         paginationReq['searchColumns'] = ['name'];
+                    }
+                        
                     }
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);

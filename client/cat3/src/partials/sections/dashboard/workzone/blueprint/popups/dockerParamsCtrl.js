@@ -19,6 +19,9 @@
 			//assigning items to fullParams. items gives a string which is the dockerLaunchParams.
 			fullParams = items;
 			//splitting the additional startup from the full params and assigning to scope.
+			if(fullParams === undefined){
+                return false;
+            }
 			var execparam = fullParams.split(' -exec');
 			var startupparam;
 			var startupCommand;

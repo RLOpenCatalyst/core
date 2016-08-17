@@ -211,6 +211,33 @@
 				};
 				return designServices.promiseGet(params);
 			};
+			//get the armTemplate file details.
+			blueprintServices.getARMTemplateParams = function (armTemplateFileName) {
+				var params = {
+					url: '/d4dMasters/cftTemplate?templateFile=' + armTemplateFileName,
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+			//get the resource group based upon the provider.
+			blueprintServices.getProviderResourceGroup = function (providerId) {
+				var params = {
+					url: '/azure-arm/'+ providerId + '/resourceGroups'
+				};
+				return designServices.promiseGet(params);
+			};
+			//post the azureEvalVM.
+			blueprintServices.postAzureVM = function (armParameters,armVMEvalVariables,armVMS) {
+				var params = {
+					url: '/azure-arm/evaluateVMs',
+					data: {
+	                    'parameters': armParameters,
+              			'variables': armVMEvalVariables,
+              			'vms': armVMS
+                	}
+				};
+				return designServices.promisePost(params);
+			};
 
 			//services listed for openstack blueprints save and update.
 			//listing down openstack providers
