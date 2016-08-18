@@ -817,6 +817,24 @@ var MasterUtil = function() {
         });
     }
 
+    this.getOrgByRowId = function(orgRowId, callback) {
+        var orgList = [];
+        d4dModelNew.d4dModelMastersOrg.find({
+            rowid: orgRowId
+        }, function(err, orgs) {
+            if (orgs) {
+                for (var i = 0; i < orgs.length; i++) {
+                    if (orgs[i].id === '1') {
+                        orgList.push(orgs[i]);
+                    }
+                }
+                callback(null, orgList);
+            } else {
+                callback(err, null);
+            }
+        });
+    }
+
     // Now not in use
     getOrgsByRowIds = function(orgIds, callback) {
         var orgList = [];
