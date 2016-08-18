@@ -96,9 +96,9 @@ label {
 }
 
 .cardLogo {
-  height: 52px;
+  height: 64px;
   padding-top: 11px;
-  margin-top: 20px;
+  margin-top: 5px;
   margin-left: 8px;
 }
 
@@ -125,4 +125,46 @@ label {
 
 .appCreateBtn {
   margin-bottom: 10px; 
+}
+.search {
+  width: 100% !important;
+  position: relative;
+  font-size: 18px;
+  padding-top: 0px;
+  label {
+    position: absolute;
+    left:24px;
+    top: 6px;
+  }
+}
+.search .search-input, .search .hint {
+  padding-left: 24px;
+  padding-right: 16px;
+  border-radius: 23px;
+  height: 30px !important;
+  outline: none !important;
+  font-size: 11px;
+}
+.bp-select{
+  font-size: 11px !important;
+  height: 28px !important;
+  display: inline !important;
+  width: auto !important;
+}
+.bp-panel-body{
+  max-height: 200px;
+  min-height: 200px;
+  overflow-y: auto;
+}
+.activeLi{
+  background: #E2E2E2 !important;
+}
+.bpListComp :hover{
+  cursor:move !important;
+}
+.badge :hover{
+  cursor: pointer !important;
+}
+.bp-list-grid {
+  height: 67vh;
 }

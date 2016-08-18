@@ -2,9 +2,14 @@
    <div id="create-bp" class="col-lg-12">
       <div id="content">
          <div next-text="Next" previous-text="Previous">
+            <div ng-if="bpTypeName === 'Composite'">
+               <form name="compositeBlueprintCreation" novalidate>
+                  <span ng-include="'src/partials/sections/dashboard/design/view/createComposite.html'"></span>
+               </form>
+            </div>
             <form name="newBlueprintForm" novalidate>
                <div ng-show="steps[0].isDisplayed">
-                  <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in templateList" ng-if="bpTypeName === templateDetail.templatetypename" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
+                  <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in templateList" ng-if="bpTypeName == templateDetail.templatetypename" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li>
                            <img style="height:40px;width:auto;" alt="templateLogo" ng-src="{{logo}}">
@@ -477,8 +482,9 @@
       </div>
    </div>
    <div class="pager">
-      <button class="btn" ng-click="previous()" ng-disabled="!previousEnabled">Previous</button>
-      <button class="btn" ng-show="isNextVisible" ng-click="next()" ng-disabled="!nextEnabled">Next</button>
-      <button class="btn" ng-show="isSubmitVisible" ng-disabled="newBlueprintForm.$invalid" ng-click="submit()">Save</button>
+      <button class="btn  cat-btn-update" ng-click="previous()" ng-disabled="!previousEnabled" ng-show="!isSubmitComposite">Previous</button>
+      <button class="btn cat-btn-update" ng-show="isNextVisible" ng-click="next()" ng-disabled="!nextEnabled">Next</button>
+      <button class="btn  cat-btn-update" ng-show="isSubmitVisible" ng-disabled="newBlueprintForm.$invalid" ng-click="submit()">Save</button>
+      <button class="btn  cat-btn-update" ng-show="isSubmitComposite" ng-disabled="compositeBlueprintCreation.$invalid" ng-click="compositeSave()">Save</button>
    </div>
 </div>
