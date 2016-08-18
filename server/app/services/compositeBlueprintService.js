@@ -41,6 +41,7 @@ var credentialcryptography = require('_pr/lib/credentialcryptography');
 var InstanceBlueprint = require('_pr/model/blueprint/blueprint-types/instance-blueprint/instance-blueprint');
 
 var appConfig = require('_pr/config');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 const errorType = 'composite-blueprints';
 
@@ -49,42 +50,89 @@ var compositeBlueprintService = module.exports = {};
 compositeBlueprintService.SUCCESS_EVENT = 'success';
 compositeBlueprintService.FAILED_EVENT = 'failed';
 
+compositeBlueprintService.checkCompositeBlueprintAccess
+    = function checkCompositeBlueprintAccess(orgs, compositeBlueprintId, callback) {
+    compositeBlueprintService.getCompositeBlueprint(compositeBlueprintId, function(err, compositeBlueprint) {
+        if (err) {
+            return callback(err);
+        }
+
+        var authorized = orgs.reduce(function(a, b) {
+            if (b == compositeBlueprint.organizationId)
+                return true || a;
+            else
+                return false || a;
+        }, false);
+
+        if (!authorized) {
+            var err = new Error('Forbidden. Access denied to delete composite blueprint');
+            err.status = 403;
+            return callback(err);
+        } else {
+            return callback(null, compositeBlueprint);
+        }
+    });
+};
+
+compositeBlueprintService.checkCompositeBlueprintsAccess
+    = function checkCompositeBlueprintsAccess(orgIds, compositeBlueprintIds, callback) {
+    var query = {
+        '_id': {'$in': compositeBlueprintIds},
+        'organizationId': {'$in': orgIds}
+    };
+
+    compositeBlueprintModel.countByQuery(query, function(err, compositeBlueprintsCount) {
+        if (err) {
+            return callback(err);
+        }
+
+        console.log(compositeBlueprintsCount);
+        var authorized = (compositeBlueprintsCount == compositeBlueprintIds.length);
+
+        if (!authorized) {
+            var err = new Error('Forbidden. Access denied to delete all composite blueprints specified');
+            err.status = 403;
+            return callback(err);
+        } else {
+            return callback(null, compositeBlueprintIds);
+        }
+    });
+};
+
 compositeBlueprintService.populateComposedBlueprints
     = function populateComposedBlueprints(compositeBlueprint, callback) {
-    if(!('blueprints' in compositeBlueprint)) {
-        var err = new Error('Bad Request');
-        err.status = 400;
-        return callback(err);
+    if (!('blueprints' in compositeBlueprint)) {
+        return callback(null, compositeBlueprint);
     }
 
     //@TODO allowed length should be read from config
-    if(compositeBlueprint.blueprints.length <= 0 || compositeBlueprint.blueprints.length > 5) {
+    if (compositeBlueprint.blueprints.length <= 0 || compositeBlueprint.blueprints.length > 5) {
         var err = new Error('Bad Request');
         err.status = 400;
         return callback(err);
     }
 
     var blueprintsMap = {};
-    for(var i = 0; i < compositeBlueprint.blueprints.length; i++) {
-        (function (blueprint) {
+    for (var i = 0; i < compositeBlueprint.blueprints.length; i++) {
+        (function(blueprint) {
             blueprintsMap[blueprint.id] = i;
         })(compositeBlueprint.blueprints[i]);
     }
 
     blueprintModel.getByIds(Object.keys(blueprintsMap), function(err, blueprints) {
-        if(err) {
+        if (err) {
             logger.error(err);
             var err = new Error('Internal Server Error');
             err.status = 500;
             return callback(err);
-        } else if(blueprints.length != compositeBlueprint.blueprints.length) {
+        } else if (blueprints.length != compositeBlueprint.blueprints.length) {
             logger.error(err);
             var err = new Error('Bad Request');
             err.status = 400;
             return callback(err);
         } else {
-            for(var j = 0; j < blueprints.length; j++) {
-                (function (blueprintEntry) {
+            for (var j = 0; j < blueprints.length; j++) {
+                (function(blueprintEntry) {
                     var tempBlueprint = blueprintEntry;
                     tempBlueprint.blueprintConfig.infraManagerData.versionsList[0].attributes
                         = compositeBlueprint.blueprints[blueprintsMap[blueprintEntry._id]].attributes;
@@ -99,14 +147,14 @@ compositeBlueprintService.populateComposedBlueprints
 
 compositeBlueprintService.validateCompositeBlueprintCreateRequest
     = function validateCompositeBlueprintCreateRequest(compositeBlueprint, callback) {
-    if(!('blueprints' in compositeBlueprint)) {
+    if (!('blueprints' in compositeBlueprint)) {
         var err = new Error('Bad Request');
         err.status = 400;
         return callback(err);
     }
 
     //@TODO allowed length should be read from config
-    if(compositeBlueprint.length <= 0 || compositeBlueprint.length > 5) {
+    if (compositeBlueprint.length <= 0 || compositeBlueprint.length > 5) {
         var err = new Error('Bad Request');
         err.status = 400;
         return callback(err);
@@ -116,9 +164,9 @@ compositeBlueprintService.validateCompositeBlueprintCreateRequest
     var blueprintType = compositeBlueprint.blueprints[0].blueprintType;
     var providerId = compositeBlueprint.blueprints[0].blueprintConfig.cloudProviderId;
 
-    for(var i = 0; i < compositeBlueprint.blueprints.length; i++) {
-        (function (blueprint) {
-            if((blueprint.blueprintType != blueprintType)
+    for (var i = 0; i < compositeBlueprint.blueprints.length; i++) {
+        (function(blueprint) {
+            if ((blueprint.blueprintType != blueprintType)
                 || (blueprint.blueprintConfig.cloudProviderId != providerId)) {
                 var err = new Error('Bad Request');
                 err.status = 400;
@@ -132,7 +180,7 @@ compositeBlueprintService.validateCompositeBlueprintCreateRequest
 
 compositeBlueprintService.createCompositeBlueprint
     = function createCompositeBlueprint(compositeBlueprint, callback) {
-    compositeBlueprintModel.createNew(compositeBlueprint, function (err, compositeBlueprint) {
+    compositeBlueprintModel.createNew(compositeBlueprint, function(err, compositeBlueprint) {
         //@TODO To be generalized
         if (err && err.name == 'ValidationError') {
             logger.error(err);
@@ -152,7 +200,7 @@ compositeBlueprintService.createCompositeBlueprint
 
 compositeBlueprintService.getCompositeBlueprint
     = function getCompositeBlueprint(compositeBlueprintId, callback) {
-    compositeBlueprintModel.getById(compositeBlueprintId, function (err, compositeBlueprint) {
+    compositeBlueprintModel.getById(compositeBlueprintId, function(err, compositeBlueprint) {
         if (err) {
             var err = new Error('Internal Server Error');
             err.status = 500;
@@ -167,29 +215,79 @@ compositeBlueprintService.getCompositeBlueprint
     });
 };
 
+// @TODO authorization based on user organization should be handled
 compositeBlueprintService.getCompositeBlueprintsList
     = function getCompositeBlueprintsList(userOrganizationIds, filterParameters, callback) {
     var query = {};
 
-    if('organizationId' in filterParameters) {
-        query.organizationId = filterParameters.organizationId;
-    } else {
-        query.organizationId = {$in: userOrganizationIds};
-    }
-
-    /*query.businessGroupId
-        = ('businessGroupId' in filterParameters)?filterParameters.businessGroupId:null;
-
-    query.projectId
-        = ('projectId' in filterParameters)?filterParameters.projectId:null;*/
-
-    compositeBlueprintModel.getAll(query, function(err, compositeBlueprints) {
+    compositeBlueprintModel.getAll(filterParameters, function(err, compositeBlueprints) {
         if (err) {
             var err = new Error('Internal Server Error');
             err.status = 500;
             return callback(err);
         } else if (compositeBlueprints) {
             return callback(null, compositeBlueprints);
+        }
+    });
+};
+
+compositeBlueprintService.updateCompositeBlueprint
+    = function updateCompositeBlueprint(compositeBlueprint, updateFields, callback) {
+    var fields = {};
+    if ('name' in updateFields) {
+        fields.name = updateFields.name;
+        compositeBlueprint.name = updateFields.name;
+    }
+
+    if ('blueprints' in updateFields) {
+        fields.blueprints = updateFields.blueprints;
+        compositeBlueprint.blueprints = updateFields.blueprints;
+    }
+
+    compositeBlueprintModel.updateById(compositeBlueprint._id, fields, function(err, result) {
+        if (err || !result) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            callback(err);
+        } else if (result) {
+            callback(null, compositeBlueprint);
+        }
+    });
+};
+
+// @TODO State of blueprintframes to be accounted for while developing blueprintframe state APIs
+compositeBlueprintService.deleteCompositeBlueprint
+    = function deleteCompositeBlueprint(compositeBlueprintId, callback) {
+    compositeBlueprintModel.deleteById(compositeBlueprintId, function(err, deleted) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if (!deleted) {
+            var err = new Error('Composite blueprint not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
+        }
+    });
+};
+
+compositeBlueprintService.deleteCompositeBlueprints
+    = function deleteCompositeBlueprints(compositeBlueprintIds, callback) {
+    compositeBlueprintModel.deleteAll(compositeBlueprintIds, function(err, deleted) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if (!deleted) {
+            var err = new Error('Composite blueprints not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
         }
     });
 };
@@ -205,7 +303,7 @@ compositeBlueprintService.formatCompositeBlueprint
         blueprints: compositeBlueprint.blueprints
     };
 
-    if(!('blueprints' in compositeBlueprint)) {
+    if (!('blueprints' in compositeBlueprint)) {
         var err = new Error('Formatting error');
         err.status = 400;
         return callback(err);
@@ -223,30 +321,31 @@ compositeBlueprintService.formatCompositeBlueprint
 };
 
 compositeBlueprintService.formatCompositeBlueprintsList
-    = function formatCompositeBlueprintsList(compositeBlueprints, callback) {
+    = function formatCompositeBlueprintsList(ownerUpdatedList, compositeBlueprints, callback) {
     var compositeBlueprintsList = [];
 
-    if(compositeBlueprints.length == 0)
-        return callback(null, compositeBlueprintsList);
+    if (ownerUpdatedList.length == 0)
+        return callback(null, {compositeBlueprints: {}, metadata: compositeBlueprints.metaData});
 
-    for(var i = 0; i < compositeBlueprints.length; i++) {
+    for (var i = 0; i < ownerUpdatedList.length; i++) {
         (function(compositeBlueprint) {
             compositeBlueprintService.formatCompositeBlueprint(compositeBlueprint,
                 function(err, formattedCompositeBlueprint) {
-                    if(err) {
+                    if (err) {
                         return callback(err);
                     } else {
                         compositeBlueprintsList.push(formattedCompositeBlueprint);
                     }
 
-                    if(compositeBlueprintsList.length == compositeBlueprints.length) {
+                    if (compositeBlueprintsList.length == ownerUpdatedList.length) {
                         var compositeBlueprintsListObject = {
-                            'compositeBlueprints': compositeBlueprintsList
+                            'compositeBlueprints': compositeBlueprintsList,
+                            'metadata': compositeBlueprints.metaData
                         };
                         return callback(null, compositeBlueprintsListObject);
                     }
-            });
-        })(compositeBlueprints[i]);
+                });
+        })(ownerUpdatedList[i]);
     }
 };
 
@@ -259,7 +358,7 @@ compositeBlueprintService.launchComposedBlueprint
         stackName: null,
         sessionUser: userName
     };
-    compositeBlueprintService.launch(blueprint, options, function (err, launchData) {
+    compositeBlueprintService.launch(blueprint, options, function(err, launchData) {
         if (err) {
             logger.error(err);
             var err = new Error('Internal Server Error');
@@ -272,14 +371,14 @@ compositeBlueprintService.launchComposedBlueprint
 // @TODO FSM module should be generic
 compositeBlueprintService.createBlueprintFrame
     = function createBlueprintFrame(compositeBlueprint, environmentId, userName, callback) {
-    if((compositeBlueprint == null) || !('blueprints' in compositeBlueprint)) {
+    if ((compositeBlueprint == null) || !('blueprints' in compositeBlueprint)) {
         var err = new Error('Bad Request');
         err.status = 400;
         return callback(err);
     }
 
     var stateMap = {};
-    for(var i = 0; i < compositeBlueprint.blueprints.length; i++) {
+    for (var i = 0; i < compositeBlueprint.blueprints.length; i++) {
         (function(i) {
             var blueprint = compositeBlueprint.blueprints[i];
             stateMap[blueprint._id] = {};
@@ -287,14 +386,14 @@ compositeBlueprintService.createBlueprintFrame
             stateMap[blueprint._id].instances = [];
 
             stateMap[blueprint._id].transitions = {};
-            if(i+1 < compositeBlueprint.blueprints.length) {
-                stateMap[blueprint._id].transitions['success'] = compositeBlueprint.blueprints[i+1]._id;
+            if (i + 1 < compositeBlueprint.blueprints.length) {
+                stateMap[blueprint._id].transitions['success'] = compositeBlueprint.blueprints[i + 1]._id;
                 stateMap[blueprint._id].transitions['failed'] = null;
             } else {
                 stateMap[blueprint._id].transitions['failed'] = null;
                 stateMap[blueprint._id].transitions['success'] = '#';
             }
-        }) (i);
+        })(i);
     }
 
     var blueprintFrame = {
@@ -304,7 +403,7 @@ compositeBlueprintService.createBlueprintFrame
         state: compositeBlueprint.blueprints[0]._id,
         stateMap: stateMap
     };
-    blueprintFrameModel.createNew(blueprintFrame, function (err, blueprintFrame) {
+    blueprintFrameModel.createNew(blueprintFrame, function(err, blueprintFrame) {
         //@TODO To be generalized
         if (err && err.name == 'ValidationError') {
             logger.error(err);
@@ -325,8 +424,7 @@ compositeBlueprintService.createBlueprintFrame
 };
 
 //@TODO Design of event handler to be improved
-compositeBlueprintService.getCompositeBlueprintEventEmitter
-    = function getCompositeBlueprintEventEmitter() {
+compositeBlueprintService.getCompositeBlueprintEventEmitter = function getCompositeBlueprintEventEmitter() {
     var eventEmitter = new events.EventEmitter();
 
     eventEmitter.on(compositeBlueprintService.SUCCESS_EVENT,
@@ -337,28 +435,27 @@ compositeBlueprintService.getCompositeBlueprintEventEmitter
     return eventEmitter;
 };
 
-compositeBlueprintService.successEventHandler
-    = function successEventHandler(eventData) {
-    if(!'blueprintFrameId' in eventData) {
+compositeBlueprintService.successEventHandler = function successEventHandler(eventData) {
+    if (!'blueprintFrameId' in eventData) {
         logger.error('Event data is invalid');
         return;
     }
 
-    blueprintFrameModel.getById(eventData.blueprintFrameId, function (err, blueprintFrame) {
+    blueprintFrameModel.getById(eventData.blueprintFrameId, function(err, blueprintFrame) {
         if (err) {
             logger.error('Internal Server Error');
         } else if (!blueprintFrame) {
             logger.error('Blueprint frame not found');
         } else if (blueprintFrame) {
             // State transition
-            if('instances' in eventData) {
+            if ('instances' in eventData) {
                 blueprintFrame.stateMap[blueprintFrame.state].instances = eventData.instances;
             }
 
             blueprintFrame.state
                 = blueprintFrame.stateMap[blueprintFrame.state].transitions[compositeBlueprintService.SUCCESS_EVENT];
 
-            if(blueprintFrame.state != '#') {
+            if (blueprintFrame.state != '#') {
                 compositeBlueprintService.launchComposedBlueprint(blueprintFrame._id,
                     blueprintFrame.stateMap[blueprintFrame.state].blueprint,
                     blueprintFrame.environmentId, blueprintFrame.blueprintOwnerName);
@@ -369,21 +466,20 @@ compositeBlueprintService.successEventHandler
     });
 };
 
-compositeBlueprintService.failedEventHandler
-    = function failedEventHandler(eventData) {
-    if(!'blueprintFrameId' in eventData) {
+compositeBlueprintService.failedEventHandler = function failedEventHandler(eventData) {
+    if (!'blueprintFrameId' in eventData) {
         logger.error('Event data is invalid');
         return;
     }
 
-    blueprintFrameModel.getById(eventData.blueprintFrameId, function (err, blueprintFrame) {
+    blueprintFrameModel.getById(eventData.blueprintFrameId, function(err, blueprintFrame) {
         if (err) {
             logger.error('Internal Server Error');
         } else if (!blueprintFrame) {
             logger.error('Blueprint frame not found');
         } else if (blueprintFrame) {
             // State transition
-            if('instances' in eventData) {
+            if ('instances' in eventData) {
                 blueprintFrame.stateMap[blueprintFrame.state].instances = eventData.instances;
             }
 
@@ -402,7 +498,7 @@ compositeBlueprintService.launch = function launch(blueprint, opts, callback) {
         infraManagerData: blueprint.blueprintConfig.infraManagerData
     };
     var self = blueprint;
-    masterUtil.getParticularProject(self.projectId,function(err,project) {
+    masterUtil.getParticularProject(self.projectId, function(err, project) {
         if (err) {
             callback({
                 message: "Failed to get project via project id"
@@ -462,34 +558,35 @@ compositeBlueprintService.launch = function launch(blueprint, opts, callback) {
                 chef.getEnvironment(envName, function(err, env) {
                     if (err) {
                         logger.error("Failed chef.getEnvironment", err);
-                        callback(err,null);
+                        callback(err, null);
                         return;
                     }
-                        var launchOptions = {
-                            infraManager: chef,
-                            ver: opts.ver,
-                            envName: envName,
-                            envId: opts.envId,
-                            stackName: opts.stackName,
-                            blueprintName: self.name,
-                            orgId: self.orgId,
-                            orgName:project[0].orgname,
-                            bgId: self.bgId,
-                            bgName:project[0].productgroupname,
-                            projectId: self.projectId,
-                            projectName:project[0].projectname,
-                            appUrls: appUrls,
-                            sessionUser: opts.sessionUser,
-                            users: self.users
-                        };
-                        launchOptions.blueprintData = new blueprintModel(self);
+                    var launchOptions = {
+                        infraManager: chef,
+                        ver: opts.ver,
+                        envName: envName,
+                        envId: opts.envId,
+                        stackName: opts.stackName,
+                        blueprintName: self.name,
+                        orgId: self.orgId,
+                        orgName: project[0].orgname,
+                        bgId: self.bgId,
+                        bgName: project[0].productgroupname,
+                        projectId: self.projectId,
+                        projectName: project[0].projectname,
+                        appUrls: appUrls,
+                        sessionUser: opts.sessionUser,
+                        users: self.users
+                    };
+                    launchOptions.blueprintData = new blueprintModel(self);
 
-                        if('blueprintFrameId' in opts) {
-                            launchOptions.blueprintFrameId = opts.blueprintFrameId;
-                        }
+                    if ('blueprintFrameId' in opts) {
+                        launchOptions.blueprintFrameId = opts.blueprintFrameId;
+                    }
 
-                        compositeBlueprintService.launchAWSBlueprint(blueprint,
-                            launchOptions, function(err, launchData) {
+                    compositeBlueprintService.launchAWSBlueprint(blueprint,
+                        launchOptions,
+                        function(err, launchData) {
                             callback(err, launchData);
                         });
                 });
@@ -502,8 +599,7 @@ compositeBlueprintService.launch = function launch(blueprint, opts, callback) {
 // @TODO To be refactored
 compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(blueprint, launchParams, callback) {
     var self = blueprint.blueprintConfig.cloudProviderData;
-    var compositeBlueprintEventEmitter
-        = compositeBlueprintService.getCompositeBlueprintEventEmitter();
+    var compositeBlueprintEventEmitter = compositeBlueprintService.getCompositeBlueprintEventEmitter();
     var eventData = {
         'blueprintFrameId': launchParams.blueprintFrameId,
         'instances': []
@@ -552,7 +648,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                 }
 
                 var awsSettings;
-                if(aProvider.isDefault) {
+                if (aProvider.isDefault) {
                     awsSettings = {
                         "isDefault": true,
                         "region": aKeyPair.region,
@@ -609,14 +705,14 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                 var paramRunList = [];
                 var paramAttributes = [];
                 if (blueprint.blueprintConfig.infraManagerData.versionsList.length > 0) {
-                    if('runlist' in blueprint.blueprintConfig.infraManagerData.versionsList[0])
+                    if ('runlist' in blueprint.blueprintConfig.infraManagerData.versionsList[0])
                         paramRunList = blueprint.blueprintConfig.infraManagerData.versionsList[0].runlist;
 
-                    if('attributes' in blueprint.blueprintConfig.infraManagerData.versionsList[0])
+                    if ('attributes' in blueprint.blueprintConfig.infraManagerData.versionsList[0])
                         paramAttributes = blueprint.blueprintConfig.infraManagerData.versionsList[0].attributes;
                 }
 
-                ec2.launchInstance(anImage.imageIdentifier, self.instanceType, securityGroupIds, self.subnetId, 'D4D-' + launchParams.blueprintName, aKeyPair.keyPairName, self.instanceCount, function (err, instanceDataAll) {
+                ec2.launchInstance(anImage.imageIdentifier, self.instanceType, securityGroupIds, self.subnetId, 'D4D-' + launchParams.blueprintName, aKeyPair.keyPairName, self.instanceCount, function(err, instanceDataAll) {
                     if (err) {
                         logger.error("launchInstance Failed >> ", err);
                         compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
@@ -634,7 +730,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                         var instance = {
                             name: launchParams.blueprintName,
                             orgId: launchParams.orgId,
-                            orgName:launchParams.orgName,
+                            orgName: launchParams.orgName,
                             bgId: launchParams.bgId,
                             bgName: launchParams.bgName,
                             projectId: launchParams.projectId,
@@ -644,7 +740,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                             providerId: blueprint.blueprintConfig.cloudProviderId,
                             providerType: blueprint.blueprintConfig.cloudProviderType,
                             keyPairId: self.keyPairId,
-                            region:aKeyPair.region,
+                            region: aKeyPair.region,
                             chefNodeName: instanceData.InstanceId,
                             runlist: paramRunList,
                             attributes: paramAttributes,
@@ -685,7 +781,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
 
 
                         logger.debug('Creating instance in catalyst');
-                        instancesDao.createInstance(instance, function (err, data) {
+                        instancesDao.createInstance(instance, function(err, data) {
                             if (err) {
                                 logger.error("Failed to create Instance", err);
                                 compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
@@ -694,9 +790,43 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                 });
                                 return;
                             }
+                            var timestampStarted = new Date().getTime();
                             instance = data;
                             instance.id = data._id;
+                            var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
+                            var instanceLog = {
+                                actionId: actionLog._id,
+                                instanceId: instance.id,
+                                orgName: launchParams.orgName,
+                                bgName: launchParams.bgName,
+                                projectName: launchParams.projectName,
+                                envName: launchParams.envName,
+                                status: instanceData.State.Name,
+                                actionStatus: "waiting",
+                                platformId: instanceData.InstanceId,
+                                blueprintName: launchParams.blueprintData.name,
+                                data: paramRunList,
+                                platform: "unknown",
+                                os: self.instanceOS,
+                                size: self.instanceType,
+                                user: launchParams.sessionUser,
+                                startedOn: new Date().getTime(),
+                                createdOn: new Date().getTime(),
+                                providerType: blueprint.blueprintConfig.cloudProviderType,
+                                action: "Bootstrap",
+                                logs: [{
+                                    err: false,
+                                    log: "Starting instance",
+                                    timestamp: new Date().getTime()
+                                }]
+                            };
 
+                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+                            
                             //Returning handle when all instances are created
                             newinstanceIDs.push(instance.id);
                             logger.debug('Lengths ---- ' + newinstanceIDs.length + '  ' + instancesLength);
@@ -706,8 +836,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                     "message": "instance launch success"
                                 });
                             }
-                            var timestampStarted = new Date().getTime();
-                            var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
+
                             var logsReferenceIds = [instance.id, actionLog._id];
                             logsDao.insertLog({
                                 referenceId: logsReferenceIds,
@@ -717,7 +846,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                             });
                             //For windows instance handle another check..
 
-                            ec2.waitForInstanceRunnnigState(instance.platformId, function (err, instanceData) {
+                            ec2.waitForInstanceRunnnigState(instance.platformId, function(err, instanceData) {
                                 if (err) {
                                     var timestamp = new Date().getTime();
                                     logsDao.insertLog({
@@ -727,11 +856,23 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                         timestamp: timestamp
                                     });
                                     logger.error("waitForInstanceRunnnigState returned an error  >>", err);
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: "Instance ready state wait failed. Unable to bootstrap",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLog.actionStatus = "failed";
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     return;
                                 }
                                 logger.debug("Enter waitForInstanceRunnnigState :", instanceData);
                                 instance.instanceIP = instanceData.PublicIpAddress || instanceData.PrivateIpAddress;
-                                instancesDao.updateInstanceIp(instance.id, instance.instanceIP, function (err, updateCount) {
+                                instancesDao.updateInstanceIp(instance.id, instance.instanceIP, function(err, updateCount) {
                                     if (err) {
                                         logger.error("instancesDao.updateInstanceIp Failed ==>", err);
                                         return;
@@ -739,7 +880,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                     logger.debug('Instance ip upadated');
                                 });
 
-                                instancesDao.updateInstanceState(instance.id, instanceData.State.Name, function (err, updateCount) {
+                                instancesDao.updateInstanceState(instance.id, instanceData.State.Name, function(err, updateCount) {
                                     if (err) {
                                         logger.error("error(date instance state err ==>", err);
                                         return;
@@ -754,15 +895,33 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                     log: "waiting for instance state to be ok",
                                     timestamp: new Date().getTime()
                                 });
-                                ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function (err) {
+                                instanceLog.status = instanceData.State.Name;
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "waiting for instance state to be ok",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function(err) {
                                     if (err) {
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
                                             err: true,
                                             log: "Instance ok state wait failed. Unable to bootstrap",
-                                            timestamp:  new Date().getTime()
+                                            timestamp: new Date().getTime()
                                         });
                                         logger.error('intance wait failed ==> ', err);
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
                                         return;
                                     }
 
@@ -773,10 +932,10 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                     var cryptoConfig = appConfig.cryptoSettings;
                                     var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
                                     //cryptography.decryptFile(instance.credentials.pemFileLocation, cryptoConfig.decryptionEncoding, tempUncryptedPemFileLoc, cryptoConfig.encryptionEncoding, function(err) {
-                                    credentialcryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
+                                    credentialcryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
 
                                         if (err) {
-                                            instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                            instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
                                                 if (err) {
                                                     logger.error("Unable to set instance bootstarp status", err);
                                                 } else {
@@ -789,6 +948,18 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                 err: true,
                                                 log: "Unable to decrpt pem file. Bootstrap failed",
                                                 timestamp: timestampEnded
+                                            });
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
+                                            instanceLog.logs = {
+                                                err: true,
+                                                log: "Unable to decrpt pem file. Bootstrap failed",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
                                             });
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
 
@@ -806,7 +977,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                         }
 
                                         launchParams.blueprintData.getCookBookAttributes(instance, repoData, function(err, jsonAttributes) {
-                                            logger.debug("jsonAttributes::::: ",JSON.stringify(jsonAttributes));
+                                            logger.debug("jsonAttributes::::: ", JSON.stringify(jsonAttributes));
                                             var runlist = instance.runlist;
                                             //logger.debug("launchParams.blueprintData.extraRunlist: ", JSON.stringify(launchParams.blueprintData.extraRunlist));
                                             if ('extraRunlist' in launchParams.blueprintData) {
@@ -827,10 +998,10 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                             };
 
 
-                                            launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function (err, code) {
+                                            launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function(err, code) {
 
                                                 if (decryptedCredentials.pemFileLocation) {
-                                                    fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
+                                                    fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
                                                         if (err) {
                                                             logger.error("Unable to delete temp pem file =>", err);
                                                         } else {
@@ -843,8 +1014,20 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                 logger.debug('process stopped ==> ', err, code);
                                                 if (err) {
                                                     logger.error("knife launch err ==>", err);
-                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
 
+                                                    });
+                                                    instanceLog.endedOn = new Date().getTime();
+                                                    instanceLog.actionStatus = "failed";
+                                                    instanceLog.logs = {
+                                                        err: true,
+                                                        log: "Bootstrap failed",
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
                                                     });
                                                     var timestampEnded = new Date().getTime();
                                                     logsDao.insertLog({
@@ -859,11 +1042,23 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                     compositeBlueprintEventEmitter.emit(compositeBlueprintService.FAILED_EVENT, eventData);
                                                 } else {
                                                     if (code == 0) {
-                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
+                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function(err, updateData) {
                                                             if (err) {
                                                                 logger.error("Unable to set instance bootstarp status. code 0", err);
                                                             } else {
                                                                 logger.debug("Instance bootstrap status set to success");
+                                                            }
+                                                        });
+                                                        instanceLog.endedOn = new Date().getTime();
+                                                        instanceLog.actionStatus = "success";
+                                                        instanceLog.logs = {
+                                                            err: false,
+                                                            log: "Instance Bootstraped successfully",
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
                                                             }
                                                         });
                                                         var timestampEnded = new Date().getTime();
@@ -876,11 +1071,17 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
 
 
-                                                        launchParams.infraManager.getNode(instance.chefNodeName, function (err, nodeData) {
+                                                        launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                             if (err) {
                                                                 logger.error("Failed chef.getNode", err);
                                                                 return;
                                                             }
+                                                            instanceLog.platform = nodeData.automatic.platform;
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                }
+                                                            });
                                                             var hardwareData = {};
                                                             hardwareData.architecture = nodeData.automatic.kernel.machine;
                                                             hardwareData.platform = nodeData.automatic.platform;
@@ -894,7 +1095,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                                 hardwareData.memory.free = nodeData.automatic.memory.free;
                                                             }
                                                             hardwareData.os = instance.hardware.os;
-                                                            instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
+                                                            instancesDao.setHardwareDetails(instance.id, hardwareData, function(err, updateData) {
                                                                 if (err) {
                                                                     logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
                                                                 } else {
@@ -904,7 +1105,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                             //Checking docker status and updating
                                                             var _docker = new Docker();
                                                             _docker.checkDockerStatus(instance.id,
-                                                                function (err, retCode) {
+                                                                function(err, retCode) {
                                                                     if (err) {
                                                                         logger.error("Failed _docker.checkDockerStatus", err);
                                                                         res.send(500);
@@ -914,7 +1115,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                                     }
                                                                     logger.debug('Docker Check Returned:' + retCode);
                                                                     if (retCode == '0') {
-                                                                        instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
+                                                                        instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
                                                                             logger.debug('Instance Docker Status set to Success');
                                                                         });
 
@@ -926,11 +1127,23 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                         eventData.instances = [instance.id];
                                                         compositeBlueprintEventEmitter.emit(compositeBlueprintService.SUCCESS_EVENT, eventData);
                                                     } else {
-                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
                                                             if (err) {
                                                                 logger.error("Unable to set instance bootstarp status code != 0", err);
                                                             } else {
                                                                 logger.debug("Instance bootstrap status set to failed");
+                                                            }
+                                                        });
+                                                        instanceLog.endedOn = new Date().getTime();
+                                                        instanceLog.actionStatus = "failed";
+                                                        instanceLog.logs = {
+                                                            err: false,
+                                                            log: "Bootstrap Failed",
+                                                            timestamp: new Date().getTime()
+                                                        };
+                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update instanceLog: ", err);
                                                             }
                                                         });
                                                         var timestampEnded = new Date().getTime();
@@ -947,7 +1160,18 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                     }
                                                 }
 
-                                            }, function (stdOutData) {
+                                            }, function(stdOutData) {
+
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    log: stdOutData.toString('ascii'),
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
 
                                                 logsDao.insertLog({
                                                     referenceId: logsReferenceIds,
@@ -956,7 +1180,18 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                                     timestamp: new Date().getTime()
                                                 });
 
-                                            }, function (stdErrData) {
+                                            }, function(stdErrData) {
+
+                                                instanceLog.logs = {
+                                                    err: true,
+                                                    log: stdErrData.toString('ascii'),
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
 
                                                 //retrying 4 times before giving up.
                                                 logsDao.insertLog({

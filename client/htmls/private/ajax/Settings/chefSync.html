@@ -1,882 +1,659 @@
 <style>
-  .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-    border-top: 0px !important;
-  }
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        border-top: 0px !important;
+    }
 
-  tr.show-settings:hover .settings{
-    display:block;
-  }
+    tr.show-settings:hover .settings{
+        display:block;
+    }
 
-  div.settings{
-    display:none;
-    width: 32px;
-    height: 18px;
-  }
-  .dropdown-content{
-    border-radius: 5px;
-      left: -30px;
-      min-width: 98px;
-      right: 0;
-  }
-  .show-settings input{
-    border: 1px solid #999;
-  }
-  .show-settings input, span{
-    height: 20px;
-  }
+    div.settings{
+        display:none;
+        width: 32px;
+        height: 18px;
+    }
 
+    .dropdown-content{
+        border-radius: 5px;
+        left: -30px;
+        min-width: 98px;
+        right: 0;
+    }
+
+    .show-settings input{
+        border: 1px solid #999;
+    }
+
+    .marginSpaceTop {
+        margin-top:20px;
+    }
+    .styleRight{
+        float:right;
+        margin-top: 4px;
+    }
+    .border-grey{
+        border: 1px solid #ddd;
+    }
+    .colorGreen{
+        color:green;
+    }
+    .spanformSaveCSS{
+        float: left;
+        margin-right: 7px;
+        margin-top: 7px;
+    }
+    .marginbottomCSS{
+        margin-bottom: 0px !important;
+    }
+    .margin-top10{
+        margin-top: 10px;
+    }
+    .margin-top45{
+        margin-top: 45px;
+    }
+    .marginbottom0{
+        margin-bottom: 0px;
+    }
+    .saveBtnTagsCSS{
+        float: right;
+        font-size: 10px;
+        padding: 2px 4px;
+    }
+    .fntsize13mrgtop45{
+        font-size:13px;
+        margin-top:45px !important;
+    }
+    .marginleft200{
+        margin-left:200px;
+    }
+    .left0{
+        left:0px !important;
+    }
+    .fnt14clr666{
+        color:#666;
+        font-size:14px;
+    }
+    .fntsize13mrgtop10{
+        font-size:13px;
+        margin-top:10px;
+    }
+    .marginleft5right25{
+        margin-left:5px;
+        margin-right:25px;
+    }
+    .marginleft14{
+        margin-left: 14px;
+    }
+    .margintop-25left250{
+        margin-top: -25px;
+        margin-left: 250px;
+    }
+    .width-90{
+        width:90%;
+    }
+    input[type=search] {
+        border-color: #ddd !important;
+    }
+    .tagsContainer .dataTables_wrapper .dataTables_paginate .paginate_button{
+        font-size: 12px !important;
+        padding: 7px;
+    }
+    #tagsTable_info{
+        font-size: 12px !important;
+    }
 </style>
 
-<div class="clearfix"></div>
+<!--button to navigate back to provider list-->
+<button class="btn btn-minier btn-primary styleRight" onclick="window.history.back();"><i class="ace-icon ace-icon fa fa-chevron-left bigger-110"></i>&nbsp;List of Chef Servers</button>
+
+<!--tabs start here-->
 <ul class="nav nav-tabs " role="tablist">
-  <li class="active"><a href="#organiz" role="tab" data-toggle="tab">Nodes</a></li>
+    <li  class="active">
+        <a href="#nodesId" role="tab" data-toggle="tab" data-toggle="tooltip" title="Nodes">Nodes</a>
+    </li>
 </ul>
 
-<!-- Tab panes -->
-<div  class="tab-content nodeListContainer">
-  <div  class="tab-pane active tabContent table-responsive" id="organiz" style="display:none">
-    <table class="table table-hover table-bordered" style="font-size:13px;margin-bottom:55px";>
-    
-    <thead>
-      <tr>
-        <th style="text-align: center">Node Name</th>
-        <th style="text-align: center">IP Address</th>
-        <th style="text-align: center">FQDN</th>
-        <th style="text-align: center">Platform</th>
-        <th style="text-align: center">Uptime</th>
-      
-        <th style="text-align: center">Environment</th>
-      
-        <th style="text-align: center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-  
-
-    </tbody>
-  </table>
-   <footer class="footer">
-      <div style="text-align:center" class="clearfix form-actions">
-        <div>
-            <input type="button" id="buttonForIP" style="margin-left:200px;" value="Import Nodes" class="btn btn-primary showChefImportNodesModalBtn">
+<div class="tab-content nodesContainer">
+    <div  class="tab-pane active" id="nodesId" style="display: none">
+        <div class="col-lg-12 margin-top10">
+            <div  class="tab-pane active nodesListContainer" id="organiz">
+                <div  class="tabContent table-responsive" id="nodeListDiv" >
+                    <table class="table table-hover table-bordered text-center fntsize13mrgtop45" id="nodeListTable">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Node Name</th>
+                            <th class="text-center">IP Address</th>
+                            <th class="text-center">FQDN</th>
+                            <th class="text-center">Platform</th>
+                            <th class="text-center">Uptime</th>
+                            <th class="text-center">Environment</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="managedInstance">
+                        </tbody>
+                    </table>
+                    <footer class="footer">
+                        <div style="text-align:center" class="clearfix form-actions">
+                            <div>
+                                <input type="button" id="buttonForIP" style="margin-left:200px;" value="Import Nodes" class="btn btn-primary showChefImportNodesModalBtn">
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
         </div>
-      </div>
-    </footer>
-  <!-- <div style="text-align:center"> <input type="button" class="btn btn-primary showChefImportNodesModalBtn" value="Import Nodes"/> </div> -->
-
+    </div>
+</div>
+<div class="alert alert-warning dataBagFailure hidden">
+    <img style="width:50px;height:40px" src="img/warning.png" alt="warning"/>
+    <span style="margin-left:40px;">The ChefServer credentials are incorrect.</span>
 </div>
 
-</div>  
-
+<!--import instance modal-->
 <div class="modal fade" id="chefImportNodesModal" data-backdrop="static">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form action="" id="myForm12" autocomplete="off">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">Import Nodes</h4>
-      </div>
-      <div class="modal-body modalbody-height">
-         
-          
-          <div class="col-lg-6">
-            
-              <label for="exampleInputEmail1">Organization</label>
-                <select id="chefImportOrgSelect"  class="width-100 aaa" disabled>
-                  
-                </select>
-            
-          </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="" id="myForm12" autocomplete="off">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Import Nodes</h4>
+                </div>
+                <div class="modal-body modalbody-height">
+                    <div class="col-lg-6 marginSpaceTop">
+                        <label for="exampleInputEmail1">Organization</label>
+                        <select id="chefImportOrgSelect"  class="width-100 aaa" disabled>
+                        </select>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop">
+                        <label for="exampleInputEmail1">Business Groups<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="chefImportBgSelect"  class="width-100 form-control" cdata="catalyst" cat-validation="required" autofocus>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Team<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="chefImportTeamSelect"  class="width-100 form-control">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="chefImportProjectSelect"  class="width-100 form-control">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection marginSpaceTop" >
+                        <label for="exampleInputEmail1">Username<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <input type="text" name="importUsernameInput" class="form-control" id="importUsernameInput" required value="" autofocus>
+                            <b class="tooltip tooltip-top-right">
+                                <i class="fa fa-user txt-color-teal"></i> Please enter Node Username</b>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
+                        <label for="">Choose Authentication Type</label>
+                        <div class="input-groups">
+                            <select id="pemFileDropdown2"  class="authenticationType width-100 form-control" cdata="catalyst" cat-validation="required">
+                                <option value="password">Password</option>
+                                <option value="pemFile">Pem File</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection authPassword marginSpaceTop">
+                        <label for="exampleInputEmail1">Password</label>
+                        <div class="input-groups">
+                            <input type="password" class="form-control" id="importPasswordInput" required="true" cdata="catalyst" cat-validation="required"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-initialvalue="" style="visibility:hidden;">Required</span>
+                            <b class="tooltip tooltip-top-right">
+                                <i class="fa fa-lock txt-color-teal"></i> Please enter Node Password</b>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 credentialSection authPemFile marginSpaceTop" >
+                        <div class="smart-forms">
+                            <label for="exampleInputEmail1">Pem File</label>
+                            <div class="input-groups">
+                                <label for="" name="field" class="file">
+                                    <span class="button btn-primary">Browse</span>
+                                    <input id="importPemfileInput" type="file" class="gui-file" onchange="$(this).next().val(this.files[0].name)">
+                                    <input type="text" readonly="" class="gui-input">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 hidden" style="margin-top:15px;">
+                        <label class="">Assign Users<span class="control-label redSpan">&nbsp;*</span></label>
 
-          
+                        <div class="userListLoadingContainer"></div>
+                        <select class="custom-scroll" multiple="" id="userListSelect" style="display:none" cdata="catalyst" cat-validation="required">
+                            <option value="1">User1</option>
+                            <option value="2">User2</option>
+                            <option value="3">User3</option>
+                            <option value="4">User4</option>
+                            <option value="5">User5</option>
+                        </select>
 
-          <div class="col-lg-6 topNew">  
-              <label for="exampleInputEmail1">Business Groups<span class="control-label redSpan">&nbsp;*</span></label>
-
-              <select id="chefImportBgSelect"  class="width-100 aaaaa" cdata="catalyst" cat-validation="required" autofocus>
-
-                
-              </select>
-            
-          </div>
-
-
-          
-          
-        <div class="col-lg-6" style="display:none">
-          
-            <label for="exampleInputEmail1">Environment<span class="control-label redSpan">&nbsp;*</span></label>
-            <div class="">
-              <select id="chefImportEnvSelect"  class="width-100" >
-                    
-              </select>
-            </div>
-          
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="marginForButtons">
+                        <label id="saveSpinner" class="hidden"><img class="marginleft5right25" src="img/select2-spinner.gif"></label>
+                        <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                        <button type="button" class="btn btn-primary importNodesBtn">Import</button>
+                    </div>
+                </div>
+            </form>
         </div>
-
-          <div class="col-lg-6" style="margin-top:20px;">
-            <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
-            
-              <select id="chefImportProjectSelect"  class="width-100">
-              </select>
-            
-          </div>
-
-          <div class="col-lg-6 credentialSection" style="margin-top:20px;">
-        
-            <label for="exampleInputEmail1">Username<span class="control-label redSpan">&nbsp;*</span></label>
-            
-            <input type="text" name="importUsernameInput" class="form-control" id="importUsernameInput" required value="" autofocus>
-              <b class="tooltip tooltip-top-right">
-              <i class="fa fa-user txt-color-teal"></i> Please enter Instance Username</b>
-          
-        
-          </div>
-      
-          <div class="col-lg-6" style="margin-top:20px;">
-            <label for="">Choose Authentication Type</label>
-            <select id="pemFileDropdown2"  class="authenticationType width-100" cdata="catalyst" cat-validation="required">
-              <option value="password">Password</option>
-              <option value="pemFile">Pem File</option>
-            </select>
-          
-          </div>
-
-          
-      
-      <div class="col-lg-6" style="display:none">
-        
-          <label for="exampleInputEmail1">Provider</label>
-          
-          <select id="chefImportProviderSelect"  class="form-control" cat-validation="required">
-                
-          </select>
-        
-        
-      </div>
-      
-      
-      <div class="col-lg-6 credentialSection authPassword" style="margin-top:20px;">
-        
-          <label for="exampleInputEmail1">Password</label>
-          
-          <input type="password" class="form-control" id="importPasswordInput" required="true" cdata="catalyst" cat-validation="required"><span data-val-controltovalidate="orgname" id="MainContent_Req_orgname" data-val="true" data-val-initialvalue="" style="visibility:hidden;">Required</span>
-            <b class="tooltip tooltip-top-right">
-            <i class="fa fa-lock txt-color-teal"></i> Please enter Instance Password</b>
-          
-        
-      </div>
-
-      <div class="col-lg-6 credentialSection authPemFile" style="margin-top:20px;">
-        <div class="smart-forms">
-            <label for="exampleInputEmail1">Pem File</label>
-            <label for="" name="field" class="file">
-                <span class="button btn-primary">Browse</span>
-                <input id="importPemfileInput" type="file" class="gui-file">
-                <input type="text" readonly="" class="gui-input">
-            </label>
-        </div>
-      </div>
-
-     
-      <div class="col-lg-6 hidden" style="margin-top:15px;">
-          <label class="">Assign Users<span class="control-label redSpan">&nbsp;*</span></label>
-          
-              <div class="userListLoadingContainer"></div>
-              <select class="custom-scroll" multiple="" id="userListSelect" style="display:none" cdata="catalyst" cat-validation="required">
-                  <option value="1">User1</option>
-                  <option value="2">User2</option>
-                  <option value="3">User3</option>
-                  <option value="4">User4</option>
-                  <option value="5">User5</option>
-              </select> 
-          
-      </div>
-    
-    
-         
-      </div>
-      <div class="modal-footer">
-          <div class="marginForButtons">
-            <label id="saveSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
-          <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
-          <button type="button" class="btn btn-primary importNodesBtn">Import</button>
-        </div>
-      </div>
-      </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <div class="modal fade" id="chefImportNodesResultModal" data-backdrop="static">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">Importing Nodes</h4>
-      </div>
-      <div class="modal-body">
-      </div>
-       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Importing Nodes</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
 <script type="text/javascript">
+    $(document).ready(function(e) {
+        var hasChefImportPermission = false;
+        if(haspermission("instancelaunch","execute")){
+            hasChefImportPermission=true;
+        }
+        if(!hasChefImportPermission){
+            $('#buttonForIP').addClass('hidden');
+        }
+        var urlParams = {};
+        (window.onpopstate = function () {
+            var url = window.location.href;
+            var indexOfQues = url.lastIndexOf("?");
+            if (indexOfQues != -1) {
+                var sub = url.substring(indexOfQues + 1);
+                urlParams.chefId = sub;
+            }
+        })();
+        $('.nodesContainer').append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
+        $.get('../chef/servers/' + urlParams.chefId + '/environments', function(envList) {
+            $('.nodesContainer img').remove();
+            $("#nodesId").toggle();
+            var $envSelect = '<select class ="width100 " id="chefEnv" currentEnv="">';
+            for (var j = 0; j < envList.length; j++) {
+                $envSelect = $envSelect + '<option value="' + envList[j] + '">' + envList[j] + '</option>';
+            }
+            $envSelect = $envSelect + '</select>';
+            $('#nodeListTable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "destroy": true,
+                "ajax": '/chef/nodeList?filterBy=chefServerId:' + urlParams.chefId,
+                "createdRow": function (row, data) {
+                    $(row).attr({"nodeName": data.chefNodeName})
+                },
+                "columns": [
+                    {"data": "chefNodeName", "orderable": true},
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.chefNodeIp ? full.chefNodeIp : '-';
+                        }
+                    },
+                    {
+                        "data": "chefNodeFqdn", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.chefNodeFqdn ? full.chefNodeFqdn : '-';
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.chefNodePlatform ? full.chefNodePlatform : '-';
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return full.chefNodeUpTime ? full.chefNodeUpTime : '-';
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            if (full.chefNodeEnv) {
+                                return $envSelect;
+                            }
+                        }
+                    },
+                    {
+                        "data": "", "orderable": false,
+                        "render": function (data, type, full, meta) {
+                            return '<input type="checkbox" class="nodeCheckBox" value="' + $('<div/>').text(full.chefNodeName).html() + '">';
+                        }
+                    },
+                ]});
+        }).fail(function(jxhr){
+            $('.nodesContainer img').remove();
+            $('.dataBagFailure').removeClass('hidden');
+        });
 
-$(document).ready(function(){
-  var hasChefImportPermission = false;
-   if(haspermission("instancelaunch","execute")){
-    hasChefImportPermission=true;
-   }
-   if(!hasChefImportPermission){
-      $('#buttonForIP').addClass('hidden');
-   }
-});
+        var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
+        $.get('../users', function(userList) {
+            var $userListSelect = $('#userListSelect').empty();
+            userList = JSON.parse(userList);
+            userList.sort(function(a, b) {
+                var keyA = Object.keys(a);
+                var keyB = Object.keys(b);
+                if (keyA[0] < keyB[0]) return -1;
+                if (keyA[0] > keyB[0]) return 1;
+                return 0;
+            });
+            for (var i = 0; i < userList.length; i++) {
+                var keys = Object.keys(userList[i]);
+                var $option = $('<option></option>').append(keys[0]).val(keys[0]);
+                if(sessionUser.cn){
+                    if(keys[0] == sessionUser.cn)
+                        $option.attr('selected','selected');
+                }
+                $userListSelect.append($option);
+            }
+            $loadingContainer.hide();
+            $userListSelect.show();
 
 
+        }).error(function() {
+            $loadingContainer.empty().append('Unable to load users. Please try again later.');
+        });
 
-$('#buttonForIP').click(function(e){
-  $('#saveSpinner').addClass('hidden');
-  $('.importNodesBtn').removeAttr('disabled');
-  var perm = haspermission('instancelaunch','execute');
-  
-  //alert(perm);
-  if(!perm)
-  {
-    
-    bootbox.alert('Insufficient permission to perform operation.');
-    $('#chefImportNodesModal').modal('hide');
-    return;
-  }
-  else{
-     var $checkBoxes = $('.nodeCheckBox:checked');
-     if (!$checkBoxes.length) {
-        alert('Please Choose nodes first');
-        return;
-     }
-    $('#chefImportNodesModal').modal('show');
-    $('#chefImportBgSelect').select2('val', 'All');
-    $('#chefImportProjectSelect').select2('val', 'All');
-    $('#myForm12').trigger("reset");
-    $('#pemFileDropdown2').change();
-    }
-});
+        $('#nodeListTable tbody').on( 'change', '#chefEnv', chefEnvironmentControl);
 
-$(document).ready(function() {
-    $('#pemFileDropdown2').select2();
-    $('#chefImportBgSelect').select2();
-    $('#chefImportProjectSelect').select2();
-    $('#chefImportEnvSelect').select2();
-    $(document).on('shown.bs.modal', function(e) {
-      $('[autofocus]', e.target).focus();
-    });
-});
+        function chefEnvironmentControl(){
+            var nodeName = $(this).parents('tr').attr('nodeName');
+            var newEnvName = $(this).val();
+            bootbox.confirm("Are you sure you would want to change the environment?<br/>Note:<br/>Change will done on the chef server.", function(result) {
+                if (result) {
+                    $.post('/chef/servers/'+urlParams.chefId+'/nodes/'+nodeName+'/updateEnv',{
+                        envName:newEnvName
+                    },function(res){
+                        $(this).attr('currentEnv', newEnvName);
+                    }).fail(function(){
+                        bootbox.alert('Unable to change environment. Please try again later');
+                        $(this).val($(this).attr('currentEnv'));
+                        $(this).change();
+                    });
+                    return;
+                } else {
+                    $(this).val($(this).attr('currentEnv'));
+                    $(this).change();
+                }
+            });
+        };
+        var $orgListInput = $('#chefImportOrgSelect');
+        var $bgList = $('#chefImportBgSelect');
+        var $teamList = $('#chefImportTeamSelect');
+        var $projectList = $('#chefImportProjectSelect');
 
-$(".authPassword").show();
-$(".authPemFile").hide();
-$('.authenticationType').change(function(e) {
-    if (this.value == "password") {
+        $('#buttonForIP').click(function(e) {
+            $('#saveSpinner').addClass('hidden');
+            $('.importNodesBtn').removeAttr('disabled');
+            var perm = haspermission('instancelaunch', 'execute');
+
+            if (!perm) {
+                bootbox.alert('Insufficient permission to perform operation.');
+                $('#chefImportNodesModal').modal('hide');
+                return;
+            } else {
+                var $checkBoxes = $('.nodeCheckBox:checked');
+                if (!$checkBoxes.length) {
+                    bootbox.alert('Please Choose corresponding checkbox for nodes impoert');
+                    return;
+                }
+                $('#chefImportNodesModal').modal('show');
+                $('#myForm12').trigger("reset");
+                $('#pemFileDropdown2').change();
+            }
+        });
+
         $(".authPassword").show();
         $(".authPemFile").hide();
-    } else {
-        $(".authPassword").hide();
-        $(".authPemFile").show();
-    }
-});
-
-
-
-drawBreadCrumb1();
-var urlParams = {};
-(window.onpopstate = function() {
-    var url = window.location.href;
-    var indexOfQues = url.lastIndexOf("?");
-    if (indexOfQues != -1) {
-        var sub = url.substring(indexOfQues + 1);
-        console.log(sub);
-        urlParams.chefId = sub;
-
-    }
-
-})();
-$(function() {
-
-    var $orgListInput = $('#chefImportOrgSelect');
-    var $bgList = $('#chefImportBgSelect');
-    var $projectList = $('#chefImportProjectSelect');
-    var $envList = $('#chefImportEnvSelect');
-
-
-    $('.nodeListContainer').append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
-
-    $.get('../chef/servers/' + urlParams.chefId, function(data) {
-        console.log('chefServer ==>', data);
-        $orgListInput.append($('<option></option>').val(data.orgname_rowid).html(data.orgname_new).attr('selected', 'selected'));
-        $orgListInput.select2();
-        var getProviders = getRelatedValues_Top(9, "providername", '', "providername");
-        var $providerlist = $('#chefImportProviderSelect');
-        $providerlist.append($('<option></option>').val('choose').html('Choose'));
-        for (var i = 0; i < getProviders.length; i++) {
-            $providerlist.append($('<option></option>').val(getProviders[i]).html(getProviders[i]));
-        }
-        $providerlist.append($('<option></option>').val('azure').html('Azure Data Center'));
-        $providerlist.append($('<option></option>').val('datacenter').html('Data Center'));
-
-        $providerlist.change(function(e) {
-            var val = $providerlist.val();
-            if (val == 'datacenter' || val == 'azure') {
-                $('.credentialSection').show();
+        $('.authenticationType').change(function(e) {
+            if (this.value == "password") {
+                $(".authPassword").show();
+                $(".authPemFile").hide();
             } else {
-                $('.credentialSection').hide();
-            }
-
-
-        });
-
-        $bgList.empty();
-        $bgList.append($('<option></option>').val('choose').html('Choose'));
-        //alert('Org Rowid' + data.orgname_rowid);
-        var getBGs = getRelatedValues_Top(2, "orgname_rowid", data.orgname_rowid, "productgroupname");
-        //alert('getBGs ' + JSON.stringify(getBGs));
-        for (var i = 0; i < getBGs.length; i++) {
-            if(getBGs[i].indexOf('|') >= 0)
-            {
-              var txtval = getBGs[i].split('|');
-              $bgList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
-            }
-            
-        }
-
-
-
-        $bgList.change(function(e) {
-            var bgName = $(this).val();
-            if (bgName == 'choose') {
-                return;
-            }
-            $projectList.empty();
-            $projectList.append($('<option></option>').val('choose').html('Choose'));
-
-            var getProjs = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
-            // alert(JSON.stringify(getProjs));
-            for (var i = 0; i < getProjs.length; i++) {
-               if(getProjs[i].indexOf('|') >= 0)
-                {
-                    var txtval = getProjs[i].split('|');
-                    $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
-                }
-            }
-        });
-        $projectList.change(function(e) {
-            var projName = $(this).val();
-            if (projName == 'choose') {
-                return;
-            }
-            var getEnvs_ = getRelatedValues_Top_rowid(4, "rowid", projName, "environmentname");
-            //debugger;
-            //alert(JSON.stringify(getEnvs_));
-            var getEnvs = getEnvs_.toString().replace(/"/g, '').split(',');
-            // alert(getEnvs.length);
-            // var getEnvs = JSON.parse(getEnvs_);
-            for (var i = 0; i < getEnvs.length; i++) {
-              if(getEnvs[i].indexOf('|') >= 0)
-                {
-                    var txtval = getEnvs[i].split('|');
-                   $envList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
-                  // alert('Env: ' + txtval[0] + ' ' +  txtval[1]);
-                }
+                $(".authPassword").hide();
+                $(".authPemFile").show();
             }
         });
 
-        $.get('../chef/servers/' + urlParams.chefId + '/environments', function(envList) { //getting the list of env
-            if (envList) {
+        var serviceURL = "../d4dMasters/";
 
-                var envlist = envList.toString().split(',');
-                var $envselect = $('<select></select>').addClass('envselect').addClass('form-control').addClass('width100').addClass('padding0');
-                for (var j = 0; j < envList.length; j++) {
-                    $envselect.append('<option value="' + envList[j] + '">' + envList[j] + '</option>');
-                }
-                $.get('../chef/servers/' + urlParams.chefId + '/nodes', function(nodeList) {
-                    $('.nodeListContainer img').remove();
-
-                    var $tableBody = $('.table-hover tbody');
-
-                    //restricting to first 5 to change the below to nodeList.length
-                    for (var i = 0; i < nodeList.length; i++) {
-                        var $tr = $('<tr></tr>').addClass('show-settings').attr('data-nodeName', nodeList[i]);
-                        $tr.append($('<td></td>').addClass('chef-nodeName').append(nodeList[i]));
-                        $tr.append($('<td></td>').addClass('chef-ip').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
-                        $tr.append($('<td></td>').addClass('chef-fqdn').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
-                        $tr.append($('<td></td>').addClass('chef-platform').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
-                        $tr.append($('<td></td>').addClass('chef-uptime').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
-
-                        $tr.append($('<td></td>').addClass('chef-env').append('<img class="center-block" style="height:20px;width:20px;" src="img/loading.gif" />'));
-                        $nodecheckboxlabel = $('<label></label>').addClass('checkbox');
-                        $nodecheckboxinput = $('<input class="nodeCheckBox smart-form" data-nodeName="' + nodeList[i] + '" type="checkbox" name="nodesChecked"/><i class="margin-left40per"></i>');
-                        $nodecheckboxlabel.append($nodecheckboxinput);
-
-                        // $tr.append($('<td></td>').addClass('chef-checkbox').append($('<input class="nodeCheckBox" data-nodeName="'+nodeList[i]+'" type="checkbox" name="nodesChecked"/>'))); 
-                        $tr.append($('<td></td>').addClass('chef-checkbox smart-form').append($nodecheckboxlabel));
-                        $tr.find('td').css({
-                            'text-align': 'center'
-                        })
-                        $tableBody.append($tr);
-
-                        $.get('../chef/servers/' + urlParams.chefId + '/nodes/' + nodeList[i], function(node) {
-                            var $tr = $tableBody.find('tr[data-nodeName="' + node.name + '"]');
-                            var ip = 'unknown';
-                            if (node.automatic.ipaddress) {
-                                ip = node.automatic.ipaddress;
-                            }
-                            $tr.find('.chef-ip').empty().append('<span>' + ip + '</span>');
-
-                            var fqdn = 'unknown';
-                            if (node.automatic.fqdn) {
-                                fqdn = node.automatic.fqdn;
-                            }
-                            $tr.find('.chef-fqdn').empty().append('<span>' + fqdn + '</span>');
-                            var platform = 'unknown';
-                            if (node.automatic.platform) {
-                                platform = node.automatic.platform;
-                            }
-                            $tr.find('.chef-platform').empty().append('<span>' + platform + '</span>');
-
-                            var uptime = 'unknown';
-                            if (node.automatic.uptime) {
-                                uptime = node.automatic.uptime;
-                            }
-                            $tr.find('.chef-uptime').empty().append('<span>' + uptime + '</span>');
-
-
-
-
-                            var environment = 'unknown';
-                            if (node.chef_environment) {
-                                environment = node.chef_environment;
-                            }
-                            var $tempenv = $envselect.clone();
-                            $tempenv.val(environment).attr('currentEnv', environment);
-                            $tempenv.change(function() {
-                                if ($(this).val() == $(this).attr('currentEnv')) {
-                                    return;
-                                }
-                                $that = $(this);
-                                bootbox.confirm("Are you sure you would want to change the environment?<br/>Note:<br/>Change will done on the chef server.", function(result) {
-                                    if (result) {
-                                        var nodeName = $that.parents('tr').attr('data-nodeName'); 
-                                        $.post('/chef/servers/'+urlParams.chefId+'/nodes/'+nodeName+'/updateEnv',{
-                                          envName:$that.val()
-                                        },function(res){
-                                           console.log(res);  
-                                           $that.attr('currentEnv', $that.val());
-                                        }).fail(function(){
-                                          bootbox.alert('Unable to change environment. Please try again later');
-                                          $that.val($that.attr('currentEnv'));
-                                          $that.change();
-                                        });
-                                        return;
-                                    } else {
-                                        $that.val($that.attr('currentEnv'));
-                                        $that.change();
-                                    }
-                                });
-
-                            });
-
-
-                            $tr.find('.chef-env').empty().append($tempenv); //.append('<span>'+environment+'</span>');
-                            $tr.find('.envselect').select2();
-                            $tr.find('.nodeCheckBox').data('node', node);
-
-                        });
-
-
+        function getRelatedValues_Top(jsonID, comparedField, filterByValue, outputField) {
+            var result = [];
+            readMasterJson_Top(jsonID);
+            if (d4ddata) {
+                $.each(d4ddata, function(k, v) {
+                    if (v[comparedField] == filterByValue && v[outputField]) {
+                        result.push(v['rowid'] + '|' + v[outputField]);
                     }
-
-
-                    $('#organiz').show();
-
-                }).fail(function(jxhr){
-                    var $nodeListContainer = $('.nodeListContainer');
-                    $nodeListContainer.find('img').remove();
-                    var $spanError = $('<span></span>').css({color:'red', 'margin-left': '39%'});
-                    if (jxhr.responseJSON) {
-                        $spanError.html(jxhr.responseJSON.message);
-                    } else {
-                        $spanError.html("Server Behaved Unexpectedly");
-                    }
-                    $nodeListContainer.append($spanError);
-                }); //end get '../chef/servers/'
+                });
             }
-        }).fail(function(jxhr){
-
-          var $nodeListContainer = $('.nodeListContainer');
-          $nodeListContainer.find('img').remove();
-          var $spanError = $('<span></span>').css({color:'red', 'margin-left': '39%'});
-          console.log(jxhr);
-          if(jxhr.responseJSON) {
-             $spanError.html(jxhr.responseJSON.message);
-          } else {
-            $spanError.html("Server Behaved Unexpectedly");
-          }
-          $nodeListContainer.append($spanError);
-
-        });
-
-
-    });
-
-    var serviceURL = "../d4dMasters/";
-
-    function getRelatedValues_Top(jsonID, comparedField, filterByValue, outputField) {
-        var result = [];
-        readMasterJson_Top(jsonID);
-        //formData = d4ddata.masterjson;
-        //alert('Top' + JSON.stringify(d4ddata));
-        if (d4ddata) {
-          //alert('grvt:' + JSON.stringify(d4ddata))  ;
-            $.each(d4ddata, function(k, v) {
-                
-                if (v[comparedField] == filterByValue && v[outputField]) {
-                    result.push(v['rowid'] + '|' + v[outputField]);
-                }
-
-            });
-
-        }
-        //alert(result.toString());
-        return (result);
-    }
-    function getRelatedValues_Top_rowid(jsonID, comparedField, filterByValue, outputField) {
-        var result = [];
-        readMasterJson_Top(jsonID);
-        //formData = d4ddata.masterjson;
-        //alert('Top' + JSON.stringify(d4ddata));
-        if (d4ddata) {
-          //alert('grvt:' + JSON.stringify(d4ddata))  ;
-            $.each(d4ddata, function(k, v) {
-                
-                if (v[comparedField] == filterByValue && v[outputField]) {
-                    var rowids = v[outputField + '_rowid'].split(',');
-                    var txts = v[outputField].split(',');
-                    for(var i =0; i < txts.length;i++){
-                      result.push(rowids[i] + '|' + txts[i]);
-                    }
-                    
-                }
-
-            });
-
-        }
-        //alert(result.toString());
-        return (result);
-    }
-
-
-    function getRelatedValues_Top__old(jsonID, comparedField, filterByValue, outputField) {
-        var result = [];
-
-        readMasterJson_Top(jsonID);
-        formData = d4ddata.masterjson;
-        // var comparedField = "orgname";
-        //  var filterByValue = "Scholastic";
-        //  var outputField = "productgroupname";
-
-        //debugger;
-        $.each(eval(formData.rows.row), function(i, item) {
-            $.each(item.field, function(k, item1) {
-
-                if (item1.name == comparedField && (item1.values.value == filterByValue || filterByValue == '')) {
-                    // alert(item1.values.value);
-                    //found the row, now get the next column
-                    // debugger;
-                    $.each(item.field, function(j, item2) {
-                        if (item2.name == outputField) {
-                            //  alert(item2.values.value);
-                            result.push(item2.values.value);
+            return (result);
+        };
+        function getRelatedValues_Top_rowid(jsonID, comparedField, filterByValue, outputField) {
+            var result = [];
+            readMasterJson_Top(jsonID);
+            if (d4ddata) {
+                $.each(d4ddata, function(k, v) {
+                    if (v[comparedField] == filterByValue && v[outputField]) {
+                        var rowids = v[outputField + '_rowid'].split(',');
+                        var txts = v[outputField].split(',');
+                        for (var i = 0; i < txts.length; i++) {
+                            result.push(rowids[i] + '|' + txts[i]);
                         }
-                    });
+                    }
+                });
+            }
+            return (result);
+        }
+        function readMasterJson_Top(section) {
+            $.ajax({
+                type: "get",
+                dataType: "text",
+                async: false,
+                url: serviceURL + "readmasterjsonnew/" + section,
+                success: function(data) {
+                    d4ddata = JSON.parse(data);
+                },
+                failure: function(data) {
+                    bootbox.alert(data.toString());
+                }
+            });
+            return (d4ddata);
+        };
+
+        $.get('../chef/servers/' + urlParams.chefId, function(data) {
+            $orgListInput.append($('<option></option>').val(data.orgname_rowid).html(data.orgname_new).attr('selected', 'selected'));
+            $orgListInput.select2();
+            $bgList.empty();
+            $bgList.append($('<option></option>').val('choose').html('Choose'));
+            var businessGroups = getRelatedValues_Top(2, "orgname_rowid", data.orgname_rowid, "productgroupname");
+            for (var i = 0; i < businessGroups.length; i++) {
+                if (businessGroups[i].indexOf('|') >= 0) {
+                    var txtVal = businessGroups[i].split('|');
+                    $bgList.append($('<option></option>').val(txtVal[0]).html(txtVal[1]));
+                }
+
+            }
+
+            $bgList.change(function(e) {
+                var bgName = $(this).val();
+                if (bgName == 'choose') {
+                    return;
+                }
+                $teamList.empty();
+                $teamList.append($('<option></option>').val('choose').html('Choose'));
+
+                var getTeam = getRelatedValues_Top(21, "productgroupname_rowid", bgName, "teamname");
+                for (var i = 0; i < getTeam.length; i++) {
+                    if (getTeam[i].indexOf('|') >= 0) {
+                        var txtval = getTeam[i].split('|');
+                        $teamList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
+                }
+            });
+            $teamList.change(function(e) {
+                var teamName = $(this).val();
+                if (teamName == 'choose') {
+                    return;
+                }
+                $projectList.empty();
+                $projectList.append($('<option></option>').val('choose').html('Choose'));
+                var getProject_ = getRelatedValues_Top_rowid(21, "rowid", teamName, "projectname");
+                var getProject = getProject_.toString().replace(/"/g, '').split(',');
+                for (var i = 0; i < getProject.length; i++) {
+                    if (getProject[i].indexOf('|') >= 0) {
+                        var txtval = getProject[i].split('|');
+                        $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
                 }
             });
         });
-        //alert(jsonID + ' ' + result.toString());
-        return (result);
-    }
 
-    function readMasterJson_Top_old(section) {
+        $('.importNodesBtn').click(function (e) {
+            var $checkBoxes = $('.nodeCheckBox:checked');
+            var reqBody = {};
+            reqBody.orgId = $orgListInput.val();
+            reqBody.bgId = $bgList.val();
+            reqBody.projectId = $projectList.val();
+            reqBody.teamId = $teamList.val();
+            reqBody.orgName = $orgListInput.find('option:selected').text();
+            reqBody.bgName = $bgList.find('option:selected').text();
+            reqBody.projectName = $projectList.find('option:selected').text();
+            reqBody.teamName = $teamList.find('option:selected').text();
 
-        $.ajax({
-            type: "get",
-            dataType: "text",
-
-            async: false,
-            url: serviceURL + "readmasterjson/" + section,
-            success: function(data) {
-                // alert(data.toString());   
-                d4ddata = JSON.parse(data);
-            },
-            failure: function(data) {
-                alert(data.toString());
+            if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
+                alert('Please Select a Business Group & Project');
+                return;
+            }
+            reqBody.selectedNodes = [];
+            $checkBoxes.each(function () {
+                reqBody.selectedNodes.push($(this).val());
+            });
+            reqBody.credentials = {};
+            reqBody.credentials.username = $('#importUsernameInput').val();
+            var $dropdown = $('#pemFileDropdown2');
+            if (!($dropdown.val() === 'pemFile')) {
+                reqBody.credentials.password = $('#importPasswordInput').val();
+                if (!reqBody.credentials.username) {
+                    alert('Please Enter Username');
+                    return;
+                }
+                if (!reqBody.credentials.password) {
+                    alert('Please Enter Password or Choose a Pem file');
+                    return;
+                }
+                reqBody.users = $('#userListSelect').val();
+                if (!reqBody.users || !reqBody.users.length) {
+                    alert('Please Choose Users');
+                    return;
+                }
+                makeRequest();
+            } else {
+                var pemFileInput = $('#importPemfileInput').get(0);
+                if (!reqBody.credentials.username) {
+                    alert('Please Enter Username');
+                    return;
+                }
+                if (!pemFileInput.files.length) {
+                    alert('Please Choose a Pem file');
+                    return;
+                }
+                reqBody.users = $('#userListSelect').val();
+                if (!reqBody.users || !reqBody.users.length) {
+                    alert('Please Choose Users');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    // Render thumbnail.
+                    reqBody.credentials.pemFileData = e.target.result;
+                    makeRequest();
+                };
+                // Read in the image file as a data URL.
+                reader.readAsText(pemFileInput.files[0]);
+            }
+            function makeRequest() {
+                $('#saveSpinner').removeClass('hidden');
+                $('.importNodesBtn').attr('disabled', 'disabled');
+                $.post('../chef/servers/' + urlParams.chefId + '/sync/nodes', reqBody, function (data) {
+                    var $chefResultModalContainer = $('#chefImportNodesResultModal');
+                    var $modalBody = $chefResultModalContainer.find('.modal-body');
+                    $modalBody.empty();
+                    var $progressBar = $('<progress value="0" max="' + reqBody.selectedNodes.length + '"></progress>').css({
+                        width: '100%'
+                    });
+                    var $msgDiv = $('<div class="messageDiv"></div>').css({
+                        width: '100%'
+                    });
+                    $modalBody.append($progressBar).append($msgDiv);
+                    $('#saveSpinner').addClass('hidden');
+                    $('#chefImportNodesModal').modal('hide');
+                    $chefResultModalContainer.modal('show');
+                    var timeout;
+                    function pollTaskStatus(taskId, timestamp) {
+                        timeout = setTimeout(function () {
+                            $.get('../taskstatus/' + taskId + '/status?timestamp=' + timestamp, function (data) {
+                                if (!data.completed) {
+                                    if (data.statusList && data.statusList.length) {
+                                        $progressBar.val(data.statusList.length);
+                                        $msgDiv.empty();
+                                        for (var i = 0; i < data.statusList.length; i++) {
+                                            $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                        }
+                                        pollTaskStatus(taskId, data.statusList[data.statusList.length - 1].timestamp);
+                                    } else {
+                                        pollTaskStatus(taskId, timestamp);
+                                    }
+                                } else {
+                                    if (data.statusList && data.statusList.length) {
+                                        $progressBar.val(data.statusList.length);
+                                        $msgDiv.empty();
+                                        for (var i = 0; i < data.statusList.length; i++) {
+                                            $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
+                                        }
+                                    }
+                                    $progressBar.val(reqBody.selectedNodes.length);
+                                    if (reqBody.selectedNodes.length) {
+                                        var nodeData = $($checkBoxes[0]).data('node');
+                                        if (nodeData && nodeData.chef_environment) {
+                                            //$chefResultModalContainer.modal('hide');
+                                            loadTreeFuncNew();
+                                            //window.location.href = '#ajax/Dev.html?org='+reqBody.orgId+'&projid='+reqBody.projectId+'&envid='+nodeData.chef_environment;
+                                        }
+                                    }
+                                }
+                            })
+                        }, 1000);
+                    }
+                    pollTaskStatus(data.taskId, 0);
+                }).error(function () {
+                    loadChefNodes();
+                    alert('Unable to import instances. Please try again later');
+                });
             }
         });
-        return (d4ddata);
-    }
-
-    function readMasterJson_Top(section) {
-        //alert(serviceURL + "readmasterjsonnew/" + section);
-        $.ajax({
-            type: "get",
-            dataType: "text",
-            async: false,
-            url: serviceURL + "readmasterjsonnew/" + section,
-            success: function(data) {
-               // alert(JSON.stringify(data));   
-                d4ddata = JSON.parse(data);
-            },
-            failure: function(data) {
-                alert(data.toString());
-            }
-        });
-        return (d4ddata);
-    }
-
-
-    /*$('.showChefImportNodesModalBtn').click(function(e) {
-        var $checkBoxes = $('.nodeCheckBox:checked');
-        if (!$checkBoxes.length) {
-            alert('Please Choose nodes first');
-            return;
-        }
-        //$('#chefImportNodesModal').modal('show');
-    });*/
-    $('#importPemfileInput').change(function() {
-        //console.log(this.files);
-        $(this).next().val(this.files[0].name);
     });
-  $('.importNodesBtn').click(function(e) {
-    var $checkBoxes = $('.nodeCheckBox:checked');
-    var reqBody = {};
-    reqBody.orgId = $orgListInput.val();
-    reqBody.bgId = $bgList.val();
-    reqBody.projectId = $projectList.val();
-    reqBody.envID = $envList.val();
-
-
-    if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
-      alert('Please Select a Business Group & Project');
-      return;
-    }
-
-
-
-    reqBody.selectedNodes = [];
-    $checkBoxes.each(function() {
-      reqBody.selectedNodes.push($(this).attr('data-nodeName'));
-    });
-
-    reqBody.credentials = {};
-    reqBody.credentials.username = $('#importUsernameInput').val();
-
-    var $dropdown = $('#pemFileDropdown2');
-    if (!($dropdown.val() === 'pemFile')) {
-      reqBody.credentials.password = $('#importPasswordInput').val();
-      if (!reqBody.credentials.username) {
-        alert('Please Enter Username');
-        return;
-      }
-      if (!reqBody.credentials.password) {
-        alert('Please Enter Password or Choose a Pem file');
-        return;
-      }
-      reqBody.users = $('#userListSelect').val();
-      if (!reqBody.users || !reqBody.users.length) {
-        alert('Please Choose Users');
-        return;
-      }
-      console.log(reqBody);
-
-      makeRequest();
-    } else {
-      var pemFileInput = $('#importPemfileInput').get(0);
-      if (!reqBody.credentials.username) {
-        alert('Please Enter Username');
-        return;
-      }
-      if (!pemFileInput.files.length) {
-        alert('Please Choose a Pem file');
-        return;
-      }
-
-      reqBody.users = $('#userListSelect').val();
-      if (!reqBody.users || !reqBody.users.length) {
-        alert('Please Choose Users');
-        return;
-      }
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        // Render thumbnail.
-        reqBody.credentials.pemFileData = e.target.result;
-
-        makeRequest();
-
-      };
-      // Read in the image file as a data URL.
-      reader.readAsText(pemFileInput.files[0]);
-
-    }
-
-    function makeRequest() {
-      $('#saveSpinner').removeClass('hidden');
-      $('.importNodesBtn').attr('disabled', 'disabled');
-      console.log(reqBody);
-      $.post('../chef/servers/' + urlParams.chefId + '/sync/nodes', reqBody, function(data) {
-        console.log(data);
-        var $chefResultModalContainer = $('#chefImportNodesResultModal');
-        var $modalBody = $chefResultModalContainer.find('.modal-body');
-        $modalBody.empty();
-        var $progressBar = $('<progress value="0" max="' + reqBody.selectedNodes.length + '"></progress>').css({
-          width: '100%'
-        });
-        var $msgDiv = $('<div class="messageDiv"></div>').css({
-          width: '100%'
-        });
-
-        $modalBody.append($progressBar).append($msgDiv);
-        $('#saveSpinner').addClass('hidden');
-
-        $('#chefImportNodesModal').modal('hide');
-        $chefResultModalContainer.modal('show');
-        var timeout;
-        var count = 0;
-
-        function pollTaskStatus(taskId, timestamp) {
-          timeout = setTimeout(function() {
-            $.get('../taskstatus/' + taskId + '/status?timestamp=' + timestamp, function(data) {
-              console.log(data);
-              if (!data.completed) {
-                if (data.statusList && data.statusList.length) {
-
-                  $progressBar.val(data.statusList.length);
-                  $msgDiv.empty();
-                  for (var i = 0; i < data.statusList.length; i++) {
-                    $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
-                  }
-
-                  pollTaskStatus(taskId, data.statusList[data.statusList.length - 1].timestamp);
-                } else {
-                  pollTaskStatus(taskId, timestamp);
-                }
-              } else {
-                if (data.statusList && data.statusList.length) {
-                  $progressBar.val(data.statusList.length);
-                  $msgDiv.empty();
-                  for (var i = 0; i < data.statusList.length; i++) {
-                    $msgDiv.append($('<div></div>').append(data.statusList[i].status.message));
-                  }
-                }
-                $progressBar.val(reqBody.selectedNodes.length);
-                if (reqBody.selectedNodes.length) {
-
-                  var nodeData = $($checkBoxes[0]).data('node');
-                  if (nodeData && nodeData.chef_environment) {
-                    //$chefResultModalContainer.modal('hide');
-                    loadTreeFuncNew();
-                    //window.location.href = '#ajax/Dev.html?org='+reqBody.orgId+'&projid='+reqBody.projectId+'&envid='+nodeData.chef_environment;
-
-                  }
-                }
-              }
-            })
-          }, 1000);
-
-        }
-        pollTaskStatus(data.taskId, 0);
-        //Refreshing the workzone tree
-
-      }).error(function() {
-        alert('Unable to import instances. Please try again later');
-      });
-    }
-
-  });
-});
-
-
-(function() {
-  
-    var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
-    $.get('../users', function(userList) {
-        var $userListSelect = $('#userListSelect').empty();
-        userList = JSON.parse(userList);
-        userList.sort(function(a, b) {
-            var keyA = Object.keys(a);
-            var keyB = Object.keys(b);
-
-            if (keyA[0] < keyB[0]) return -1;
-            if (keyA[0] > keyB[0]) return 1;
-            return 0;
-        });
-        for (var i = 0; i < userList.length; i++) {
-            var keys = Object.keys(userList[i]);
-            var $option = $('<option></option>').append(keys[0]).val(keys[0]);
-            if(sessionUser.cn){
-              if(keys[0] == sessionUser.cn)
-                $option.attr('selected','selected');
-            }
-            $userListSelect.append($option);
-        }
-
-        $loadingContainer.hide();
-        $userListSelect.show();
-        
-         
-    }).error(function() {
-        $loadingContainer.empty().append('Unable to load users. Please try again later.');
-    });
-})();
-
-
-</script>
-<script>
-var b = $('#tabContent tr td').width();
-var c = $('#tabContent tr ').width();
-b = c;
-$('.tabContent tr').find('span').on('click', function() {
-    var w = $(this).width();
-    var h = $(this).height();
-    var a = $(this).html();
-    $(this).hide();
-    $(this).parent().children('input').show().focus().val(a);
-    $(this).parent().children('input').css({
-        "width": w + 'px'
-    });
-});
-
-$('.tabContent tr').find('input').on('blur', function() {
-    var inputVal = $(this).val();
-    $(this).hide();
-    $(this).parent().children('span').show().html(inputVal);
-});
-</script>
-
-<script>
-$(document).ready(function() {
-
-    $('#myForm12').submit(function() {
-      
-        $(this).validate();
-
-
-        if ($(this).valid) {
-            /*alert('valid form submitted'); // for demo*/
-            if (!saveform('12')) return false;;
-        } else {
-            alert('invalid valid form submitted'); // for demo
-        }
-        return false; // for demo
-    });
-});
 </script>

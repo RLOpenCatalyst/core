@@ -43,6 +43,7 @@ var fs = require('fs');
 var nexus = require('_pr/lib/nexus.js');
 var utils = require('_pr/model/classes/utils/utils.js');
 var AppData = require('_pr/model/app-deploy/app-data');
+var instancesDao = require('_pr/model/classes/instance/instance');
 
 
 var instanceService = module.exports = {};
@@ -73,7 +74,7 @@ function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
                 var err = new Error('Instance not found');
                 err.status = 404;
                 return callback(err);
-            } else if(instance && instance.providerId != providerId) {
+            } else if (instance && instance.providerId != providerId) {
                 var err = new Error('Forbidden');
                 err.status = 403;
                 return callback(err);
@@ -119,15 +120,15 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
     if ('orgName' in queryObjectAndCondition)
         delete filterQuery.queryObj['$and'][0].orgName;
 
-    if(orgIds.length > 0) {
-        if(queryObjectAndCondition.providerId) {
+    if (orgIds.length > 0) {
+        if (queryObjectAndCondition.providerId) {
             filterQuery.queryObj['$and'][0].orgId = {
                 '$in': orgIds
             }
-        }else{
+        } else {
             filterQuery.queryObj['$and'][0] = {
-                providerId:{'$ne':null},
-                orgId:{'$in': orgIds}
+                providerId: { '$ne': null },
+                orgId: { '$in': orgIds }
             }
         }
     }
@@ -233,11 +234,11 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
                 function(err, data) {
                     if (err) {
                         logger.error(err);
-                        if(err.code === 'AccessDenied'){
+                        if (err.code === 'AccessDenied') {
                             var err = new Error('Update tag failed, Invalid keys or Permission Denied');
                             err.status = 500;
                             return callback(err);
-                        }else {
+                        } else {
                             var err = new Error('Internal server error');
                             err.status = 500;
                             return callback(err);
@@ -342,11 +343,11 @@ function updateAWSInstanceTag(provider, instance, tags, callback) {
         function(err, data) {
             if (err) {
                 logger.error(err);
-                if(err.code === 'AccessDenied'){
+                if (err.code === 'AccessDenied') {
                     var err = new Error('Update tag failed, Invalid keys or Permission Denied');
                     err.status = 500;
                     return callback(err);
-                }else {
+                } else {
                     var err = new Error('Internal server error');
                     err.status = 500;
                     return callback(err);
@@ -431,15 +432,15 @@ function getTrackedInstancesForProvider(provider, next) {
     );
 }
 
-function getTrackedInstances(query,category, next) {
+function getTrackedInstances(query, category, next) {
     async.parallel([
             function(callback) {
-                if(category === 'managed'){
+                if (category === 'managed') {
                     instancesModel.getAll(query, callback);
-                }else if(category === 'assigned'){
+                } else if (category === 'assigned') {
                     unManagedInstancesModel.getAll(query, callback);
-                }else{
-                    callback(null,[]);
+                } else {
+                    callback(null, []);
                 }
             }
         ],
@@ -524,7 +525,7 @@ function createTrackedInstancesResponse(instances, callback) {
         instanceObj.providerId = instance.providerId;
         instanceObj.environmentName = instance.environmentName;
         instanceObj.providerType = instance.providerType;
-        instanceObj.instanceState = instance.instanceState ? instance.instanceState:instance.state;
+        instanceObj.instanceState = instance.instanceState ? instance.instanceState : instance.state;
         instanceObj.bgId = ('bgId' in instance) ? instance.bgId : null;
 
         if (('hardware' in instance) && ('os' in instance.hardware))
@@ -541,9 +542,8 @@ function createTrackedInstancesResponse(instances, callback) {
         else
             instanceObj.ip = null;
 
-        instanceObj.usage = ('usage' in instance)?instance.usage:null;
-        instanceObj.cost = (('cost' in instance) && instance.cost)? (instance.cost.symbol + ' ' + parseFloat(instance.cost.aggregateInstanceCost).toFixed(2)):0;
-
+        instanceObj.usage = ('usage' in instance) ? instance.usage : null;
+        instanceObj.cost = (('cost' in instance) && instance.cost) ? (instance.cost.symbol + ' ' + parseFloat(instance.cost.aggregateInstanceCost).toFixed(2)) : 0;
         return instanceObj;
     });
 
@@ -1178,53 +1178,126 @@ function getCookBookAttributes(instance, callback) {
     }
 };
 
-function removeInstanceById(instanceId,callback){
-        containerModel.deleteContainerByInstanceId(instanceId, function (err, container) {
-            if (err) {
-                logger.error("Container deletion Failed >> ", err);
-                callback(err, null);
-                return;
-            } else {
-                instancesModel.removeInstanceById(instanceId, function (err, data) {
-                    if (err) {
-                        logger.error("Instance deletion Failed >> ", err);
-                        callback(err, null);
-                        return;
-                    }
-                    callback(err, data);
-                });
-            }
-        });
-}
+instanceService.getInstanceActionList = function getInstanceActionList(callback) {
 
-function removeInstancesByProviderId(providerId,callback){
-    async.parallel({
-        managedInstance: function(callback){
-            instancesModel.removeInstancesByProviderId(providerId,callback);
-        },
-        assignedInstance: function(callback){
-            unManagedInstancesModel.removeInstancesByProviderId(providerId,callback);
-        },
-        unassignedInstance: function(callback){
-            unassignedInstancesModel.removeInstancesByProviderId(providerId,callback);
-        },
-        resources: function(callback){
-            resources.removeResourcesByProviderId(providerId,callback);
-        },
-        resourcesCost: function(callback){
-            resourceCost.removeResourceCostByProviderId(providerId,callback);
-        },
-        resourcesUsage: function(callback){
-            resourceUsage.removeResourceUsageByProviderId(providerId,callback);
-        },
-        resourcesTags: function(callback){
-            tagsModel.removeTagsByProviderId(providerId,callback);
+    instancesDao.listInstances(function(err, list) {
+        if (err) {
+            logger.debug("Error while fetching instance actionLog: ", err);
+            return callback(err, null);
         }
-    },function(err,results){
-        if(err){
-            callback(err,null);
-        }else{
-            callback(null,results);
+        var count = 0;
+        if (list && list.length) {
+            var actionLogs = [];
+            for (var i = 0; i < list.length; i++) {
+                (function(i) {
+                    if (list[i].instanceState != "terminated" && list[i].actionLogs && list[i].actionLogs.length) {
+                        for (var j = 0; j < list[i].actionLogs.length; j++) {
+                            if (list[i].actionLogs[j].name != "Orchestration") {
+                                list[i].actionLogs[j] = JSON.parse(JSON.stringify(list[i].actionLogs[j]));
+                                list[i].actionLogs[j]['orgName'] = list[i].orgName;
+                                list[i].actionLogs[j]['bgName'] = list[i].bgName;
+                                list[i].actionLogs[j]['projectName'] = list[i].projectName;
+                                list[i].actionLogs[j]['environmentName'] = list[i].environmentName;
+                                list[i].actionLogs[j]['instanceState'] = list[i].instanceState;
+                                list[i].actionLogs[j]['bootStrapStatus'] = list[i].bootStrapStatus;
+                                list[i].actionLogs[j]['platformId'] = list[i].platformId;
+                                list[i].actionLogs[j]['instanceIP'] = list[i].instanceIP;
+                                list[i].actionLogs[j]['providerType'] = list[i].providerType;
+                                list[i].actionLogs[j]['instanceType'] = list[i].instanceType;
+                                list[i].actionLogs[j]['os'] = list[i].hardware.os;
+                                list[i].actionLogs[j]['platform'] = list[i].hardware.platform;
+                                list[i].actionLogs[j]['instanceId'] = list[i]._id;
+                                list[i].actionLogs[j]['blueprintName'] = list[i].blueprintData.blueprintName;
+                                actionLogs.push(list[i].actionLogs[j]);
+                            }
+                        }
+                    }
+                    count++;
+                    if (list.length == count) {
+                        return callback(null, actionLogs);
+                    }
+                })(i);
+            }
+
+        } else {
+            return callback(null, list);
+        }
+    })
+};
+
+instanceService.getInstanceAction = function getInstanceAction(actionId, callback) {
+    instancesDao.getActionLogsById(actionId, function(err, action) {
+        if (err) {
+            logger.error("Failed to fetch Instance Action: ", err);
+            return callback(err, null);
+        }
+        if (action && action.length) {
+            var instanceAction = JSON.parse(JSON.stringify(action[0].actionLogs[0]));
+            logsDao.getLogsByReferenceId(actionId, null, function(err, data) {
+                if (err) {
+                    logger.error("Failed to fetch Logs: ", err);
+                    res.send(500);
+                    return;
+                }
+                instanceAction['logs'] = data;
+                return callback(null, instanceAction);
+            });
+
+        } else {
+            var error = new Error("Action not found.");
+            error.status = 404;
+            return callback(error, null);
+        }
+    });
+};
+
+function removeInstanceById(instanceId, callback) {
+    containerModel.deleteContainerByInstanceId(instanceId, function(err, container) {
+        if (err) {
+            logger.error("Container deletion Failed >> ", err);
+            callback(err, null);
+            return;
+        } else {
+            instancesModel.removeInstanceById(instanceId, function(err, data) {
+                if (err) {
+                    logger.error("Instance deletion Failed >> ", err);
+                    callback(err, null);
+                    return;
+                }
+                callback(err, data);
+            });
+        }
+    });
+};
+
+function removeInstancesByProviderId(providerId, callback) {
+    async.parallel({
+        managedInstance: function(callback) {
+            instancesModel.removeInstancesByProviderId(providerId, callback);
+        },
+        assignedInstance: function(callback) {
+            unManagedInstancesModel.removeInstancesByProviderId(providerId, callback);
+        },
+        unassignedInstance: function(callback) {
+            unassignedInstancesModel.removeInstancesByProviderId(providerId, callback);
+        },
+        resources: function(callback) {
+            resources.removeResourcesByProviderId(providerId, callback);
+        },
+        resourcesCost: function(callback) {
+            resourceCost.removeResourceCostByProviderId(providerId, callback);
+        },
+        resourcesUsage: function(callback) {
+            resourceUsage.removeResourceUsageByProviderId(providerId, callback);
+        },
+        resourcesTags: function(callback) {
+            tagsModel.removeTagsByProviderId(providerId, callback);
+        }
+    }, function(err, results) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, results);
         }
     })
 }

@@ -1,3 +1,10 @@
+3.3.0 - August 11th , 2016
+----------------------------
+* Composite blueprints enhancements
+* Audit log trail implementation
+* Script executor implementation
+* Chef node import improvements
+* Critical Bug Fixes
 
 3.2.1 - July 8th , 2016
 ----------------------------

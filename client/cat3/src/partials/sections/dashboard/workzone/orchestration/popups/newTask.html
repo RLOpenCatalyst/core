@@ -30,11 +30,11 @@
 								<br />
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
 									<select name="taskType" class="form-control" ng-model="taskType" ng-disabled="isEditMode" required>
-									   <option selected="selected" value="chef">{{taskTypes['chef'].name}}</option>
-									   <option ng-show="!createChefJob" value="jenkins">{{taskTypes['jenkins'].name}}</option>
-									   <option ng-show="!createChefJob" value="composite">{{taskTypes['composite'].name}}</option>
-									   <option ng-show="!createChefJob" value="puppet">{{taskTypes['puppet'].name}}</option>
-									   <option ng-show="!createChefJob" value="script">{{taskTypes['script'].name}}</option>
+										<option selected="selected" value="chef">{{taskTypes['chef'].name}}</option>
+										<option ng-show="!createChefJob" value="jenkins">{{taskTypes['jenkins'].name}}</option>
+										<option ng-show="!createChefJob" value="composite">{{taskTypes['composite'].name}}</option>
+										<option ng-show="!createChefJob" value="puppet">{{taskTypes['puppet'].name}}</option>
+										<option ng-show="!createChefJob" value="script">{{taskTypes['script'].name}}</option>
 									</select>
 								</span>
 							</div>
@@ -73,10 +73,27 @@
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
 									<select class="form-control" name="jobName" ng-disabled="!jenkinsServerSelect" ng-change="changeJobURL();" ng-model="$parent.jenkinJobSelected" required>
 										<option value="">Select</option>
-									   	<option ng-repeat="job in jenkinServerJobList" value="{{job.name}}">{{job.name}}</option>
+										<option ng-repeat="job in jenkinServerJobList" value="{{job.name}}">{{job.name}}</option>
 									</select>
 								</span>
 							</div>
+							<!--for script adding the scriptType dropdown -->
+							<!--commented will be used in future-->
+							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
+								<label class="control-label">Script Type
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.scriptType.$touched && newTaskForm.scriptType.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select class="form-control" name="scriptType" ng-model="$parent.scriptTypeSelelct" ng-change="changeNodeScriptList();" required>
+										<option value="">Select</option>
+										<option value="Bash">Bash</option>
+									</select>
+								</span>
+							</div>
+							<!--scriptType ending here -->
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
 								<label class="control-label">Job Description</label>
 								<textarea id="chefDescription" rows="9" cols="15" name="description" ng-model="description"></textarea>
@@ -94,35 +111,51 @@
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
 									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-									<loading name="isTargetTypesLoading" size="medium" type="block" align="left"></loading>
+										<loading name="isTargetTypesLoading" size="medium" type="block" align="left"></loading>
 										<div ng-show="!isTargetTypesLoading" class="row margin0">
-				                            
-				                                <div class="radio-instances col-lg-4 no-padding">
-				                                    <input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
-				                                    <label for="rdInstance" class="lable-align">Nodes</label>
-				                                </div>
-				                                <div class="radio-blueprints col-lg-5 no-padding">
-				                                    <input type="radio" name="nodesSpecification" value="blueprint" ng-model="targetType" id="rdBlueprint"/>
-				                                    <label for="rdBlueprint" class="lable-align">Blueprints</label>
-				                                </div>
-				                                <div class="radio-roles col-lg-3 no-padding">
-				                                    <input type="radio" name="nodesSpecification" value="role" ng-model="targetType" id="rdRole"/>
-				                                    <label for="rdRole" class="lable-align">Roles</label>
-				                                </div>
-				                            
-				                        </div>
+
+											<div class="radio-instances col-lg-4 no-padding">
+												<input type="radio" name="nodesSpecification" id="rdInstance" ng-click="onChangeTargetType('instance')" value="instance" ng-model="targetType" />
+												<label for="rdInstance" class="lable-align">Nodes</label>
+											</div>
+											<div class="radio-blueprints col-lg-5 no-padding">
+												<input type="radio" name="nodesSpecification" value="blueprint"  ng-click="onChangeTargetType('blueprint')" ng-model="targetType" id="rdBlueprint"/>
+												<label for="rdBlueprint" class="lable-align">Blueprints</label>
+											</div>
+											<div class="radio-roles col-lg-3 no-padding">
+												<input type="radio" name="nodesSpecification" value="role" ng-click="onChangeTargetType('role')" ng-model="targetType" id="rdRole"/>
+												<label for="rdRole" class="lable-align">Roles</label>
+											</div>
+
+										</div>
+										<div ng-show="targetType==='instance'">
+											<label class="checkbox check-list">
+												Select All : &nbsp;<input type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAll()" ng-model="$parent.isAllSelected" title="Select All">
+											</label>
+										</div>
+										<div ng-show="targetType==='blueprint'">
+											<label class="checkbox check-list cursor" ng-click="clearBluePrintSelection()">
+												<span class="clear-selection blue">Clear Selection</span>
+											</label>
+										</div>
+										<div ng-show="targetType==='role'">
+											<label class="checkbox check-list cursor" ng-click="clearRoleSelection()">
+												<span class="clear-selection blue">Clear Selection</span>
+											</label>
+										</div>
+										<div class="clearfix"></div>
 										<div class="select-nodes">
 											<ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
+														<input type="checkbox" ng-change="optionToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
 													</label>
 												</li>
 											</ul>
 											<ul ng-show="targetType==='blueprint'">
 												<li ng-repeat="blueprint in chefBluePrintList">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="blueprint._isBlueprintSelected" ng-model="blueprint._isBlueprintSelected" class="checkbox-list">{{blueprint.name}}
+														<input name="blueprint" ng-value="blueprint._id" type="radio" ng-model="blueprint._isBlueprintSelected" class="radiobutton-list blueprint-{{blueprint._isBlueprintSelected}}">{{blueprint.name}}
 													</label>
 												</li>
 											</ul>
@@ -130,7 +163,7 @@
 											<ul ng-show="targetType==='role'">
 												<li ng-repeat="r in chefRoleList">
 													<label class="checkbox check-list">
-														<input name="roleRadioBtn" type="radio" ng-checked="role.name === r " ng-model="role.name" class="checkbox-list" value="{{r}}">{{r}}
+														<input name="roleRadioBtn" type="radio" ng-checked="role.name === r " ng-model="role.name" class="radiobutton-list" value="{{r}}">{{r}}
 													</label>
 												</li>
 											</ul>
@@ -151,14 +184,14 @@
 										<div class="view-runlist">
 											<table class="table table-bordered text-center">
 												<thead>
-													<tr>
-														<th class="text-center">View Runlist</th>
-													</tr>
+												<tr>
+													<th class="text-center">View Runlist</th>
+												</tr>
 												</thead>
 												<tbody>
-													<tr ng-repeat="val in chefrunlist">
-														<td>{{val.value}}</td>
-													</tr>
+												<tr ng-repeat="val in chefrunlist">
+													<td>{{val.value}}</td>
+												</tr>
 												</tbody>
 											</table>
 										</div>
@@ -178,70 +211,70 @@
 									<thead>
 									</thead>
 									<tbody>
-										<tr>
-											<td class="jobParam">Auto sync:</td>
-											<td>
-												<div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
-													<div class="jenkins-auto-sync-radio">
-														<input type="radio" id="radio_yes" name="auto_sync" ng-value="true" ng-model="autoSync.flag"> 
-														<label class="lable-align">Yes</label>
-													</div>
-													<div class="jenkins-auto-sync-radio">
-														<input type="radio" id="radio_no" name="auto_sync" ng-value="false" checked="checked" ng-model="autoSync.flag"> 
-														<label class="lable-align">No</label>
-													</div>
+									<tr>
+										<td class="jobParam">Auto sync:</td>
+										<td>
+											<div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+												<div class="jenkins-auto-sync-radio">
+													<input type="radio" id="radio_yes" name="auto_sync" ng-value="true" ng-model="autoSync.flag">
+													<label class="lable-align">Yes</label>
 												</div>
-												<div class="col-lg-1 col-md-1">
-													<i class="fa fa-question-circle" title="This feature fetches the entire Jenkins job history for the particular job"></i>
+												<div class="jenkins-auto-sync-radio">
+													<input type="radio" id="radio_no" name="auto_sync" ng-value="false" checked="checked" ng-model="autoSync.flag">
+													<label class="lable-align">No</label>
 												</div>
-											</td>
-										</tr>
-										<tr>
-											<td class="jobParam">Job Url:</td>
-											<td>
-												<div class="col-lg-11 col-md-11">
+											</div>
+											<div class="col-lg-1 col-md-1">
+												<i class="fa fa-question-circle" title="This feature fetches the entire Jenkins job history for the particular job"></i>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="jobParam">Job Url:</td>
+										<td>
+											<div class="col-lg-11 col-md-11">
 													<span id="spinnerForUrl" class="hidden">
 													</span>
-													<input type="text" disabled="" class="jenkinsJobURL form-control" ng-model="jobUrl">
-												</div>
-												<div class="col-lg-1 col-md-1">
-													<!--<img style="width:16px;height:16px;margin-top:8px;" id="helpImage" tabindex="50" class="hidden" data-toggle="popover" data-placement="left" data-content="This is the URL for a particular JOB selected by the User available in the Jenkins Server" src="img/help.png" data-original-title="" title="" />-->
-												</div>
-											</td>
-										</tr>
-										<tr>
-											<td class="jobParam">Job Links:
-											</td>
-											<td>
-												<div class="col-lg-11 col-md-11 col-sm-11 col-xs-11 jobTable">
+												<input type="text" disabled="" class="jenkinsJobURL form-control" ng-model="jobUrl">
+											</div>
+											<div class="col-lg-1 col-md-1">
+												<!--<img style="width:16px;height:16px;margin-top:8px;" id="helpImage" tabindex="50" class="hidden" data-toggle="popover" data-placement="left" data-content="This is the URL for a particular JOB selected by the User available in the Jenkins Server" src="img/help.png" data-original-title="" title="" />-->
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="jobParam">Job Links:
+										</td>
+										<td>
+											<div class="col-lg-11 col-md-11 col-sm-11 col-xs-11 jobTable">
 														<span class="pull-right">
 															<i class="fa fa-plus-circle cursor" title="Add Job Links" ng-click="openAddJobLink('new');"></i>
 														</span>
-													<div id="dbNameTable_wrapper" class="dataTables_wrapper no-footer">
-														<div id="tableJobList_wrapper" class="dataTables_wrapper no-footer">
-															<table class="table table-bordered">
-																<thead>
-																	<tr class="rowCustomStyle" role="row">
-																		<th>Job Links</th>
-																		<th>Action</th>
-																	</tr>
-																</thead>
-																<tbody id="jobListSave">
-																	<tr ng-repeat="jobLink in jobResultURL">
-																		<td>{{jobLink}}</td>
-																		<td><button type="button" ng-click="removeJobLink(jobLink);"><i class="fa fa-trash-o"></i></button></td>
-																		</td>
-																	</tr>
-																</tbody>
-															</table>
-														</div>
+												<div id="dbNameTable_wrapper" class="dataTables_wrapper no-footer">
+													<div id="tableJobList_wrapper" class="dataTables_wrapper no-footer">
+														<table class="table table-bordered">
+															<thead>
+															<tr class="rowCustomStyle" role="row">
+																<th>Job Links</th>
+																<th>Action</th>
+															</tr>
+															</thead>
+															<tbody id="jobListSave">
+															<tr ng-repeat="jobLink in jobResultURL">
+																<td>{{jobLink}}</td>
+																<td><button type="button" ng-click="removeJobLink(jobLink);"><i class="fa fa-trash-o"></i></button></td>
+																</td>
+															</tr>
+															</tbody>
+														</table>
 													</div>
 												</div>
-												<div class="col-lg-1 col-md-1">
-													<i class="fa fa-question-circle" title="This is a URL pattern for the job result or job output"></i>
-												</div>
-											</td>
-										</tr>
+											</div>
+											<div class="col-lg-1 col-md-1">
+												<i class="fa fa-question-circle" title="This is a URL pattern for the job result or job output"></i>
+											</div>
+										</td>
+									</tr>
 									</tbody>
 								</table>
 							</div>
@@ -250,21 +283,21 @@
 									<label class="lable-align">This Job is parameterized</label>
 								</div>
 								<div class="jenkins-auto-sync-radio">
-									<input type="radio" name="paramCheck" ng-value="true" ng-model="isParameterized.flag"> 
+									<input type="radio" name="paramCheck" ng-value="true" ng-model="isParameterized.flag">
 									<label class="lable-align">Yes</label>
 								</div>
 								<div class="jenkins-auto-sync-radio">
-									<input  class="marginleft15" type="radio" ng-model="isParameterized.flag" name="paramCheck" ng-value="false"> 
+									<input  class="marginleft15" type="radio" ng-model="isParameterized.flag" name="paramCheck" ng-value="false">
 									<label class="lable-align">No</label>
 								</div>
 							</div>
 							<div class="col-lg-12 col-md-12 add-job-parameters" ng-show="isParameterized.flag">
-							  <div class="col-lg-12 col-md-12 add-parameters">
+								<div class="col-lg-12 col-md-12 add-parameters">
 								<span class="pull-right">
 									<i class="fa fa-plus-circle cursor" title="Add Parameters" ng-click="addJenkinsParams('new')"></i>
 								</span>
-								 <table class="table table-striped table-bordered table-hover dataTable no-footer">
-									<thead>
+									<table class="table table-striped table-bordered table-hover dataTable no-footer">
+										<thead>
 										<tr class="rowCustomStyle" role="row">
 											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Name">Name</td>
 											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Description">Type
@@ -273,8 +306,8 @@
 											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Execute">Description</td>
 											<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="History">Action</td>
 										</tr>
-									</thead>
-									<tbody>
+										</thead>
+										<tbody>
 										<tr ng-repeat="params in jenkinsParamsList">
 											<td>{{params.name}}</td>
 											<td>{{params.parameterName}}</td>
@@ -282,13 +315,10 @@
 											<td>{{params.description}}</td>
 											<td><button type="button" ng-click="removeJenkinsParams(params);"><i class=" fa fa-trash-o"></i></button></td>
 										</tr>
-									</tbody>
-								</table>
-							  </div>
-							  <!-- <div class="col-lg-1 col-md-1 addParameters hidden">
-								 <img style="width:16px;height:16px;margin-top:8px;" data-toggle="popover" tabindex="50" data-placement="left" data-content="User can define Jenkins Parameters for this Build" src="img/help.png"/>
-							  </div> -->
-						   </div>
+										</tbody>
+									</table>
+								</div>
+							</div>
 						</section>
 					</div>
 					<!--Second Column:Composite -->
@@ -349,35 +379,76 @@
 							</header>
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-										<div class="row margin0">
-			                                <div class="radio-instances col-lg-6 no-padding">
-			                                    <input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
-			                                    <label for="rdInstance" class="lable-align">Nodes</label>
-			                                </div>                  
-				                        </div>
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 script-task">
+										<loading name="isScriptNodesLoading" size="medium" type="block" align="left"></loading>
+										<div class="row margin0" ng-show="!isScriptNodesLoading">
+											<div class="radio-instances col-lg-6 no-padding">
+												<input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
+												<label for="rdInstance" class="lable-align">Nodes</label>
+											</div>
+											<label class="checkbox check-list checkboxStyling">
+												Select All : &nbsp;<input  type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAllScriptInstance()" ng-model="$parent.isAllInstanceScriptSelected" title="Select All ">
+											</label>
+										</div>
+
 										<div class="select-nodes">
+											<!-- <loading name="isScriptInstanceLoading" size="large" type="block" align="center"></loading> -->
 											<ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
+														<input type="checkbox" ng-change="optionInstanceToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
 													</label>
 												</li>
 											</ul>
 										</div>
 									</div>
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 authScriptFile control-margin">
-										<label class="script-file">Script File
-											<span class="control-label red">&nbsp;*</span>
-										</label>
-										<div class="input-groups">
-											<input type="file" name="scriptFileInput" id="scriptFileInput" class="form-control form-controls" ngf-select="" ng-model="$parent.scriptFile" accept=".sh" required="" onchange="angular.element(this).scope().setFile(this)">
-											<span class="pull-left">
-												<label title="Please choose a script file" class="choose-file cursor" for="scriptFileInput">Choose File</label>
-											</span>
-											<div title="{{currentFileMetadata.name || scriptFileNameEdit}}" class="file-name">&nbsp;&nbsp;&nbsp;{{currentFileMetadata.name || scriptFileNameEdit}}</div>
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+										<div class="row margin0">
+											<div class="col-lg-6 no-padding">
+												<label for="scripts" class="lable-align">Script List</label>
+											</div>
+											<label ng-show="scriptSelectAll" class="checkbox check-list checkboxStyling">
+												Select All : &nbsp;<input type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAllScripts()" ng-model="$parent.isAllScriptSelected" title="Select All ">
+											</label>
+										</div>
+										<div class="select-nodes">
+											<ul>
+												<li ng-repeat="script in scriptTaskList">
+													<label class="checkbox check-list">
+														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
+														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
+													</label>
+												</li>
+											</ul>
 										</div>
 									</div>
+									<!--for showing the radio buttons for script params-->
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="scriptParamShow">
+
+										<div class="jenkins-job-parameter-text">
+											<span class="lable-align"><b>{{selectedScript.name}}</b>&nbsp;Parameters</span>
+											<i class="fa fa-plus-circle cursor" title="Add Script Parameters" ng-click="addScriptParams(selectedScript)"></i>
+										</div>
+										<!--script params ends here-->
+										<!--table for adding the script params starts here-->
+										<div class="col-lg-12 col-md-12 add-parameters">
+											<table class="table table-striped table-bordered table-hover dataTable no-footer">
+												<thead>
+												<tr class="rowCustomStyle" role="row">
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Parameter">Parameter</td>
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Action">Action</td>
+												</tr>
+												</thead>
+												<tbody>
+												<tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
+													<td>{{param}}</td>
+													<td><button type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button></td>
+												</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<!--table ends here-->
 								</div>
 							</div>
 						</section>
@@ -387,15 +458,20 @@
 		</div>
 
 		<div class="modal-footer">
-            <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
-				<i class="fa fa-times black"></i> Cancel
-			</button>
-			<button  type="submit" class="btn cat-btn-update" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid || taskSaving">
-				<i class="fa fa-check white"></i> Save
-			</button>
-			<button type="submit" class="btn cat-btn-update" ng-if="isEditMode">
-				<i class="fa fa-check white"></i> Update
-			</button>
+			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" >
+				<span class="pull-left inputValidationMsg" ><h5 ng-bind="inputValidationMsg"></h5></span>
+			</div>
+			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12" >
+				<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+					<i class="fa fa-times black"></i> Cancel
+				</button>
+				<button  type="submit" class="btn cat-btn-update" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid || taskSaving">
+					<i class="fa fa-check white"></i> Save
+				</button>
+				<button type="submit" class="btn cat-btn-update" ng-if="isEditMode">
+					<i class="fa fa-check white"></i> Update
+				</button>
+			</div>
 		</div>
 	</form>
 </div>

@@ -55,6 +55,7 @@ function getTreeDetails(){
                 reqBodyNew.bgId = $bgList.val();
                 reqBodyNew.projectId = $projectList.val();
                 reqBodyNew.envId = $envList.val();
+                initializeCompositeBP();
                 var blueprintTypeList = ["docker", "aws_cf", "instance_launch"];
                 for(var i =0;i<blueprintTypeList.length;i++){
                     $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws?blueprintType='+blueprintTypeList[i]+'', function(data) {
@@ -109,6 +110,7 @@ function getTreeDetails(){
         }
     }); //getTreeNew gets over here
 }
+
 var runlistCheckAttribute;
 var versionAttr = [];
 function softwareStackListing() {
@@ -159,9 +161,7 @@ function softwareStackListing() {
                 $projectListforcopy.trigger('change');
             });
             var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
-            function createBpAttributes(list){
-
-            }
+           
             $('#projectListInputExisting').change(function(e) {
                 var reqBodyNew = {};
                 $spinnerProject.removeClass('hidden');
@@ -170,6 +170,37 @@ function softwareStackListing() {
                 reqBodyNew.projectId = $projectList.val();
                 reqBodyNew.envId = $envList.val();
                 var blueprintTypeList = "instance_launch";
+                var compositeBPId = $('#compositeBlueprintID').val();
+                var selectedElements = [];
+                var selectedElementsIds=[];
+                var selectAttribute=[];
+                    if(compositeBPId){
+                        $.ajax({
+                            type: "get",
+                            dataType: "json",
+                            async: false,
+                            url: '/composite-blueprints/' + compositeBPId,
+                            success: function(compositeData) {
+                                $('#compositeSpinner').addClass('hidden');
+                                if(compositeData){
+                                    $('#blueprintName').val(compositeData.name);
+                                    for(var i=0;i<compositeData.blueprints.length;i++){
+                                        var compositeRightSideListing = {
+                                            "className": "blueprintClass",
+                                            "value": compositeData.blueprints[i].name,
+                                            "data": {
+                                                "key": compositeData.blueprints[i].name,
+                                                "value": compositeData.blueprints[i]._id
+                                            }
+                                        }
+                                        selectedElementsIds.push(compositeData.blueprints[i]._id);
+                                        selectAttribute[compositeData.blueprints[i]._id]=compositeData.blueprints[i];
+                                    }
+                                    
+                                }
+                            }
+                        });
+                    }
                 $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/aws?blueprintType=' + blueprintTypeList + '', function(data) {
                     //Syncing up the tree view based on url
                     var list = [], bpAttributes = [];
@@ -184,7 +215,10 @@ function softwareStackListing() {
                                 "bpData": data.blueprints[i]
                             }
                         };
-                        var option='<option data-value="' + data.blueprints[i]._id + '" value="'+data.blueprints[i]._id+'" >'+data.blueprints[i].version+'</option>';
+                        var optText=1;
+                        if(data.blueprints[i].version){ optText= data.blueprints[i].version;}
+                        var option='<option data-value="' + data.blueprints[i]._id + '" value="'+data.blueprints[i]._id+'" >'+optText+'</option>';
+                        bpAttributes[data.blueprints[i]._id] = data.blueprints[i];
                         if(data.blueprints[i] && data.blueprints[i].versions){
                             for (var kk = 0; kk < data.blueprints[i].versions.length; kk++) {
                                 var varLop= data.blueprints[i].versions[kk];
@@ -194,15 +228,27 @@ function softwareStackListing() {
                         versionOptions[data.blueprints[i]._id]=option;
                         if(data.blueprints[i] && data.blueprints[i].versions){
                             for (var l = 0; l < data.blueprints[i].versions.length; l++) {
+                                if(selectedElementsIds.indexOf(data.blueprints[i].versions[l].id) !== -1){
+                                    item.data.value=data.blueprints[i].versions[l].id;
+                                    bpAttributes[data.blueprints[i].versions[l].id] = selectAttribute[data.blueprints[i].versions[l].id];
+                                }
                                 versionOptions[data.blueprints[i].versions[l].id]=option;
                             }
                         }
-                        bpAttributes[data.blueprints[i]._id] = data.blueprints[i];
-                        list.push(item);
+
+                        if(!compositeBPId){
+                            list.push(item);
+                        } else{
+                             if(selectedElementsIds.indexOf(item.data.value) === -1){
+                               list.push(item);
+                            } else{
+                                 selectedElements.push(item);
+                            }
+                        }
                     }
-                    var selectedElements = [];
-                    var compsiteBlueprint = window.chefSelectorComponent({
-                        scopeElement: '#compsiteBlueprintSelecter',
+                    
+                    var compositeBlueprintSelector = window.chefSelectorComponent({
+                        scopeElement: '#compositeBlueprintSelector',
                         optionList: list,
                         selectorList: selectedElements,
                         isSortList: true,
@@ -211,6 +257,7 @@ function softwareStackListing() {
                         isPriorityEnable: true,
                         isExcludeDataFromOption: false,
                     });
+                    
                     // select blueprint for edit
                     if ($('#selectorList').val() == null) {
                         $('#attributeBlue').hide();
@@ -231,15 +278,11 @@ function softwareStackListing() {
                     });
                     $('#selectorList').change(function() {
                        // manage accordion
-                        editRunListAttribute();
-                        if (!$('#collapsed').hasClass('collapsed')) {
-                            $('#collapsed').trigger('click');
-                        }
                         $('.bpVersion').html(versionOptions[$('#selectorList').val()])
                         $('.bpVersion').val($('#selectorList').val());
+                        editRunListAttribute();
                     });
                     function editRunListAttribute () {
-                        $tasksRunlist.clear().draw();
                         var $table = $('#attributesViewListTable').removeClass('hidden');
                         var $tbody = $table.find('tbody').empty();
                         $('#attributeBlue').show();
@@ -250,28 +293,30 @@ function softwareStackListing() {
                         //assigning the value to the attribute reader.
                         runlistCheckAttribute = runlistForTable;
                         $selectVer.unbind().click(function(e) {
-                            $('#CollapseEditRunlistParam').show();
                             $tasksRunlist.clear().draw();
                             $table.find('tbody').empty();
                             var lastversion = $('.bpVersion').val(); //default version
                             $.get('/blueprints/' + lastversion, function(blueprintdata) {
-                                $('#CollapseEditRunlistParam').show();
                                 var blueprintRunlistOnChange = blueprintdata.blueprintConfig.infraManagerData.versionsList[0].runlist;
                                 createRunlistTable(blueprintRunlistOnChange);
                                 runlistCheckAttribute = blueprintRunlistOnChange;
                                 // on save of composite blueprint
-
                             });
                         })
                     }
 
                     $('#saveCompBlup').unbind().click(function(e) {
                         if(!$('#blueprintName').val()){
-                            alert('Please enter Composite Blueprint name!');
+                            $('.blueprintName span').removeClass('hidden');
                             return true;
-                        } if($('#selectorList option').length == 0){
-                            alert('Please Select Blueprint!');
+                        }else {
+                            $('.blueprintName span').addClass('hidden');
+                        }
+                        if($('#selectorList option').length == 0){
+                            $('.selectorList-option .error').removeClass('hidden');
                             return true;
+                        }else {
+                            $('.selectorList-option .error').addClass('hidden');
                         }
                         bootbox.confirm({
                             message: "Are you sure you want to save the Composite Blueprint? Press Ok To continue",
@@ -290,27 +335,41 @@ function softwareStackListing() {
                                             attributes: versionAttr[$(this).val()]
                                         });
                                     });
-
-                                    var url, bpData = {};
-                                    url = '../composite-blueprints/';
-                                    reqBody = {
-                                        "name": blueprintName,
-                                        "organizationId":$('#orgnameSelectExisting').val(),
-                                        "businessGroupId": $('#bgListInputExisting').val(),
-                                        "projectId": $('#projectListInputExisting').val(),
-                                        "blueprints": blueprintsList
-                                    };
-
+                                    var url;
+                                    if(compositeBPId){
+                                        methodName = "PATCH";
+                                        url = '../composite-blueprints/' + compositeBPId;
+                                        reqBody = {
+                                            "name": blueprintName,
+                                            "blueprints": blueprintsList
+                                        }
+                                    }else{
+                                        methodName = "POST";
+                                        url = '../composite-blueprints/';
+                                        reqBody = {
+                                            "name": blueprintName,
+                                            "organizationId":$('#orgnameSelectExisting').val(),
+                                            "businessGroupId": $('#bgListInputExisting').val(),
+                                            "projectId": $('#projectListInputExisting').val(),
+                                            "blueprints": blueprintsList
+                                        };    
+                                    }
+                                    // for edit and create of composite blueprint..
                                     $.ajax({
-                                        method: "POST",
+                                        method: methodName,
                                         url: url,
                                         data: reqBody,
                                         success: function(data, success) {
                                             bootbox.hideAll();
-                                            alert('Successfully Created a Composite Blueprint');
-                                            $('.previous').trigger('click');
-                                            initializeCompositeBP();
-                                        },
+                                            if(compositeBPId){
+                                                toastr.success('Successfully updated Composite Blueprint&nbsp;-' +  blueprintName);
+                                                closeCompositeEdit();
+                                            } else{
+                                                toastr.success('Successfully created Composite Blueprint&nbsp;-' +  blueprintName); 
+                                                $('.previous').trigger('click');
+                                            }
+                                                initializeCompositeBP();
+                                            },
                                         error: function(jxhr) {
                                             var msg = "Server Behaved Unexpectedly";
                                             if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -318,16 +377,7 @@ function softwareStackListing() {
                                             } else if (jxhr.responseText) {
                                                 msg = jxhr.responseText;
                                             }
-                                            bootbox.alert(msg);
-                                        },
-                                        failure: function(jxhr) {
-                                            var msg = "Server Behaved Unexpectedly";
-                                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                                msg = jxhr.responseJSON.message;
-                                            } else if (jxhr.responseText) {
-                                                msg = jxhr.responseText;
-                                            }
-                                            bootbox.alert(msg);
+                                            toastr.error(msg);
                                         }
                                     });
                                     return false;
@@ -412,22 +462,23 @@ var checkandupdateRunlistTable = function() {
 }
 
 function createRunlistTable(runlist) {
-    $tasksRunlist.clear().draw();
+    var $runlistList = $('#tableRunlistForBlueprint tbody');
+    var newtr='<tr class="runlistRow"><td>No data available</td></tr>';
     for (i = 0; i < runlist.length; i++) {
-        var $runlistList = $('#tableRunlistForBlueprint');
-        var $tr = $('<tr class="runlistRow"></tr>');
+        newtr = $('<tr class="runlistRow"></tr>');
         var $tdName = $('<td class="runlistDescription">' + runlist[i] + '</td>');
-        $tr.append($tdName);
-        $runlistList.append($tr);
-        $tasksRunlist.row.add($tr).draw();
+        newtr.append($tdName);
     }
+    $('#tableRunlistForBlueprint tbody').empty();
+    $runlistList.append(newtr);
+    $('#attributesViewListTable tbody').empty();
 }
 
 
 function editAtrributesHandlers() {
     var runlist = runlistCheckAttribute;
     if (runlist.length == 0) {
-        alert('Please choose a runlist first');
+        toastr.warning('Please choose a runlist first');
         return false;
     }
     var $modal = $('#editAttributesModalContainer');
@@ -551,9 +602,9 @@ function editAtrributesHandlers() {
 
 function createAttribTableRowFromJson(attributes) {
     var $table = $('#attributesViewListTable').removeClass('hidden');
-    var $tbody = $table.find('tbody').empty();
+    $('#attributesViewListTable tbody').empty();
+    var $tbody = $table.find('tbody');
     var versionSelectDropdown  = $('.bpVersion').val();
-    
     versionAttr[versionSelectDropdown] = attributes;
     for (var j = 0; j < attributes.length; j++) {
         var attributeObj = attributes[j].jsonObj;
@@ -590,7 +641,7 @@ function createAttribTableRowFromJson(attributes) {
                         var $tdAttributeVal = $('<td/>').html(obj[keys[i]]);
                     }
                     $tr.append($tdAttributeKey).append($tdAttributeVal);
-                    $tbody.append($tr);
+                    $('#attributesViewListTable tbody').append($tr);
                 }
             }
         }
@@ -599,42 +650,6 @@ function createAttribTableRowFromJson(attributes) {
 }
 
 
-function saveAtrributesHandler(e) {
-    var $modal = $('#editAttributesModalContainer');
-    var $tbody = $modal.find('.attributesEditTableBody');
-    var $input = $tbody.find('.attribValueInput');
-    var attributes = [];
-    for (var j = 0; j < $input.length; j++) {
-        var $this = $($input[j]);
-        var attributeKey = $this.attr('data-attribKey');
-        var attribValue = $this.val();
-        if (attribValue) {
-            var attribPathParts = attributeKey.split('/');
-            var attributeObj = {};
-            var currentObj = attributeObj;
-            for (var i = 0; i < attribPathParts.length; i++) {
-                if (!currentObj[attribPathParts[i]]) {
-                    if (i === attribPathParts.length - 1) {
-                        currentObj[attribPathParts[i]] = attribValue;
-                        continue;
-                    } else {
-                        currentObj[attribPathParts[i]] = {};
-                    }
-                }
-                currentObj = currentObj[attribPathParts[i]];
-            }
-            attributes.push({
-                name: $this.attr('data-attribName'),
-                jsonObj: attributeObj
-            });
-        } else {
-            if ($this.attr('data-attributeRequired') === 'true') {
-                alert("Please fill in the required attributes");
-                return false;
-            }
-        }
-    }
-    createAttribTableRowFromJson(attributes);
-    $modal.modal('hide');
-}
+
+
 

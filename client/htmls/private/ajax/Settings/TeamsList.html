@@ -34,6 +34,7 @@
                                         <td>Name</td>
                                         <td>Users</td>
                                         <td>Projects</td>
+                                        <td>Environments</td> 
                                         <td>Organization</td>
                                         <!-- <td>Business Group</td>
                                         <td>Project</td>
@@ -47,6 +48,7 @@
                                         <td datafield="teamname"></td>
                                         <td datafield="loginname" datatype="list"></td>
                                         <td datafield="projectname" datatype="list"></td>
+                                        <td datafield="environmentname" datatype="list"></td>
                                         <td datafield="orgname"></td>
                                        <!--  <td datafield="productgroupname"></td>
                                         <td datafield="projectname"></td>
@@ -73,6 +75,7 @@
                                             <td>Name</td>
                                             <td>Users</td>
                                             <td>Projects</td>
+                                            <td>Environments</td>
                                             <td>Organization</td>
                                             <!-- <td>Business Group</td>
                                             <td>Project</td>
@@ -125,7 +128,9 @@
                                         var tab = 'envtable';
                                         $('#envtable').dataTable({
                                             "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
-                                            "pagingType": "full_numbers"
+                                            "pagingType": "full_numbers",
+                                            "retrieve": true,
+                                            "destroy":true
                                         });
                                         $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
                                         $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');

@@ -134,6 +134,17 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    teamId: {
+        type: String,
+        required: false,
+        trim: true,
+        validate: schemaValidator.bgIdValidator
+    },
+    teamName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     projectId: {
         type: String,
         required: true,
@@ -192,7 +203,6 @@ var InstanceSchema = new Schema({
     users: [{
         type: String,
         trim: true,
-        //required: true,
         validate: schemaValidator.catalystUsernameValidator
     }],
     hardware: {
@@ -204,6 +214,18 @@ var InstanceSchema = new Schema({
             free: String,
         },
         os: String,
+    },
+    network:{
+        subnet:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        vpc:{
+            type: String,
+            required: false,
+            trim: true
+        }
     },
     chef: {
         serverId: {
@@ -283,10 +305,20 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
-    isDeleted:{
+    instanceType: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    catUser: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    isDeleted: {
         type: Boolean,
-        required:false,
-        default:false
+        required: false,
+        default: false
     }
 });
 
@@ -326,8 +358,6 @@ var InstancesDao = function() {
     this.getInstanceById = function(instanceId, callback) {
         Instances.find({
             "_id": new ObjectId(instanceId)
-        }, {
-            'actionLogs': false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getInstanceById (%s)", instanceId, err);
@@ -358,7 +388,7 @@ var InstancesDao = function() {
 
     this.getInstancesWithContainersByOrgId = function(orgId, callback) {
         var queryObj = {
-            orgId:orgId
+            orgId: orgId
         }
         queryObj['docker.dockerEngineStatus'] = 'success';
         Instances.find(queryObj, function(err, data) {
@@ -389,6 +419,17 @@ var InstancesDao = function() {
         });
     };
 
+    this.listInstances = function listInstances(callback) {
+        Instances.find(function(err, data) {
+            if (err) {
+                logger.error("Failed to getInstances :: ", err);
+                callback(err, null);
+                return;
+            }
+            return callback(null, data);
+        });
+    };
+
     this.getInstances = function(instanceIds, callback) {
         logger.debug("Enter getInstances :: ", instanceIds);
         var queryObj = {};
@@ -402,7 +443,7 @@ var InstancesDao = function() {
             'actionLogs': false
         }, function(err, data) {
             if (err) {
-                logger.error("Failed to getInstances :: ", instanceIds, err);
+                logger.error("Failed to getInstances :: ", err);
                 callback(err, null);
                 return;
             }
@@ -411,6 +452,40 @@ var InstancesDao = function() {
         });
 
     };
+
+    this.getInstanceList = function getInstanceList(jsonData, callback) {
+        if (jsonData && jsonData.pageSize) {
+            jsonData['searchColumns'] = ['platformId', 'instanceState', 'bootStrapStatus', 'orgName', 'bgName', 'projectName', 'environmentName'];
+            apiUtils.databaseUtil(jsonData, function(err, databaseCall) {
+                if (err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    return callback(err);
+                } else {
+                    databaseCall.queryObj['$or'] = [{ "instanceState": "running" }, { "instanceState": "stopped" }, { "instanceState": "pending" }];
+                    Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
+                        if (err) {
+                            logger.error(err);
+                            var err = new Error('Internal server error');
+                            err.status = 500;
+                            return callback(err);
+                        } else {
+                            return callback(null, instances);
+                        }
+                    });
+                }
+            });
+        } else {
+            Instances.find(function(err, data) {
+                if (err) {
+                    logger.error("Failed to getInstances :: ", err);
+                    callback(err, null);
+                    return;
+                }
+                return callback(null, data);
+            });
+        }
+    }
 
 
     this.getInstancesByProjectAndEnvId = function(projectId, envId, instanceType, userName, callback) {
@@ -474,8 +549,9 @@ var InstancesDao = function() {
                     err.status = 500;
                     return callback(err);
                 } else if (instances.docs.length === 0) {
-                    return callback(null,instances);
+                    return callback(null, instances);
                 } else {
+
                     // @TODO Workaround to avoid circular dependency to be addressed
                     var tasks = require('_pr/model/classes/tasks/tasks.js');
                     var instanceList = instances.docs;
@@ -485,11 +561,10 @@ var InstancesDao = function() {
                             if (instance.taskIds.length > 0) {
                                 tasks.getTaskByIds(instance.taskIds, function(err, tasks) {
                                     if (err) {
-                                        var err = new Error('Internal server error');
-                                        err.status = 500;
-                                        return callback(err);
+                                        logger.error(err);
+                                        return ;
                                     } else if (tasks.length === 0) {
-                                        return callback(null, instances);
+                                        return;
                                     } else {
                                         count++;
                                         var taskObj = {};
@@ -526,7 +601,7 @@ var InstancesDao = function() {
                 bgId: jsonData.bgId,
                 projectId: jsonData.projectId,
                 envId: jsonData.envId,
-                isDeleted : false
+                isDeleted: false
             }
             if (jsonData.instanceType) {
                 queryObj['blueprintData.templateType'] = jsonData.instanceType;
@@ -677,7 +752,7 @@ var InstancesDao = function() {
     };
 
     this.getAll = function getAll(query, callback) {
-        query.queryObj.isDeleted =  false;
+        query.queryObj.isDeleted = false;
         Instances.paginate(query.queryObj, query.options,
             function(err, instances) {
                 if (err) {
@@ -1004,9 +1079,9 @@ var InstancesDao = function() {
             }
         }, {
             upsert: false
-        },function (err, data) {
+        }, function(err, data) {
             if (err) {
-                logger.error("Failed to removeTerminatedInstanceById (%s)",instanceId, err);
+                logger.error("Failed to removeTerminatedInstanceById (%s)", instanceId, err);
                 callback(err, null);
                 return;
             }
@@ -1014,21 +1089,21 @@ var InstancesDao = function() {
         });
     };
     this.removeInstanceById = function(instanceId, callback) {
-            Instances.remove({
-                "_id": ObjectId(instanceId)
-            }, function (err, data) {
-                if (err) {
-                    logger.error("Failed to removeInstanceById (%s)", instanceId, err);
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-            });
+        Instances.remove({
+            "_id": ObjectId(instanceId)
+        }, function(err, data) {
+            if (err) {
+                logger.error("Failed to removeInstanceById (%s)", instanceId, err);
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
     };
 
-    this.removeInstancesByProviderId = function(providerId,callback) {
-        var queryObj={};
-        queryObj['providerId'] =providerId;
+    this.removeInstancesByProviderId = function(providerId, callback) {
+        var queryObj = {};
+        queryObj['providerId'] = providerId;
         Instances.remove(queryObj, function(err, data) {
             if (err) {
                 return callback(err, null);
@@ -1582,7 +1657,6 @@ var InstancesDao = function() {
         if (!nodeNames) {
             nodeNames = [];
         }
-        logger.debug('serverId -->', chefServerId);
         Instances.find({
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
@@ -1596,12 +1670,10 @@ var InstancesDao = function() {
                 logger.error("getInstancesFilterByNotChefServerIdAndNodeNames", err);
                 callback(err, null);
                 return;
-            }
-            logger.debug("Exit getInstancesFilterByNotChefServerIdAndNodeNames ");
-            if (data) {
+            }else if(data){
                 callback(null, data);
             } else {
-                callback(null, null);
+                callback(null, []);
             }
         });
     };
@@ -1631,7 +1703,7 @@ var InstancesDao = function() {
     this.getAllInstances = function(callback) {
         logger.debug("Enter getAllInstances");
 
-        Instances.find({},function(err, data) {
+        Instances.find({}, function(err, data) {
             if (err) {
                 logger.error("Failed getAllInstances", err);
                 callback(err, null);
@@ -1826,26 +1898,26 @@ var InstancesDao = function() {
         });
     };
 
-    this.NormalizedInstances=function(jsonData,fieldName,callback){
-        var queryObj={};
-        if(jsonData.filterBy){
+    this.NormalizedInstances = function(jsonData, fieldName, callback) {
+        var queryObj = {};
+        if (jsonData.filterBy) {
             queryObj = jsonData.filterBy;
         }
-        queryObj['orgId']= jsonData.orgId;
-        queryObj['bgId']= jsonData.bgId;
-        queryObj['projectId']= jsonData.projectId;
-        queryObj['envId']= jsonData.envId;
-        Instances.find(queryObj,function(err,instances){
-            if(err){
+        queryObj['orgId'] = jsonData.orgId;
+        queryObj['bgId'] = jsonData.bgId;
+        queryObj['projectId'] = jsonData.projectId;
+        queryObj['envId'] = jsonData.envId;
+        Instances.find(queryObj, function(err, instances) {
+            if (err) {
                 logger.error(err);
                 callback(err, null);
                 return;
             }
-            var count=0;
-            for(var i =0;i < instances.length;i++) {
-                (function(instance){
+            var count = 0;
+            for (var i = 0; i < instances.length; i++) {
+                (function(instance) {
                     count++;
-                    var normalized=instance[fieldName];
+                    var normalized = instance[fieldName];
                     Instances.update({
                         "_id": new ObjectId(instance._id)
                     }, {
@@ -1854,14 +1926,14 @@ var InstancesDao = function() {
                         }
                     }, {
                         upsert: false
-                    },function(err,updatedInstance){
-                        if(err){
+                    }, function(err, updatedInstance) {
+                        if (err) {
                             logger.error(err);
                             callback(err, null);
                             return;
                         }
-                        if(instances.length === count){
-                            callback(null,updatedInstance);
+                        if (instances.length === count) {
+                            callback(null, updatedInstance);
                         }
                     });
                 })(instances[i]);
@@ -1878,7 +1950,7 @@ var InstancesDao = function() {
             "chef.chefNodeName": {
                 '$in': nodesName
             },
-            "isDeleted":false
+            "isDeleted": false
         }, function(err, instances) {
             if (err) {
                 logger.error("Failed searchByChefServerAndNodeNames ", err);
@@ -1896,12 +1968,12 @@ var InstancesDao = function() {
         logger.debug('nodesName ==>', nodesName);
 
         Instances.find({
-            "envId":envId,
+            "envId": envId,
             "chef.serverId": chefServerId,
             "chef.chefNodeName": {
                 '$in': nodesName
             },
-            "isDeleted":false
+            "isDeleted": false
         }, function(err, instances) {
             if (err) {
                 logger.error("Failed searchByChefServerAndNodeNames ", err);
@@ -1913,6 +1985,96 @@ var InstancesDao = function() {
         });
 
     }
+
+    this.updateInstance = function updateInstance(instanceId, instanceData, callback) {
+        Instances.update({
+            _id: new ObjectId(instanceId)
+        }, {
+            $set: instanceData
+        }, {
+            upsert: false
+        }, function(err, instance) {
+            if (err) {
+                logger.debug("Got error while updating Instance: ", err);
+                return callback(err, null);
+            }
+            return callback(null, instance);
+        });
+    }
+
+    this.getActionLogsById = function(actionId, callback) {
+        logger.debug("Enter getActionLogById ", actionId);
+        Instances.find({
+            "actionLogs._id": new ObjectId(actionId),
+        }, function(err, data) {
+            if (err) {
+                logger.debug("Failed to getActionLogById ", err);
+                callback(err, null);
+                return;
+            }
+            logger.debug("Exit getActionLogById ", JSON.stringify(data));
+            return callback(null, data);
+        });
+    };
+
+    this.updateInstanceStatus = function(instanceId,instance,callback) {
+        var updateObj={};
+        if(instance.state === 'terminated'){
+            updateObj['state'] = instance.state;
+            updateObj['isDeleted'] = true;
+            updateObj['tags'] = instance.tags;
+            updateObj['environmentTag'] = instance.environmentTag;
+            updateObj['projectTag'] = instance.projectTag;
+        }else{
+            updateObj['state'] = instance.state;
+            updateObj['isDeleted'] = false;
+            updateObj['tags'] = instance.tags;
+            updateObj['environmentTag'] = instance.environmentTag;
+            updateObj['projectTag'] = instance.projectTag;
+        }
+        Instances.update({
+            "_id": ObjectId(instanceId)
+        },{
+            $set: updateObj
+        }, function(err, data) {
+            if (err) {
+                logger.error("Failed to update managed Instance status data", err);
+                callback(err,null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
+
+    this.getInstancesByProviderIdOrgIdAndPlatformId = function (orgId,providerId, platformId, callback) {
+        var params = {
+            'orgId': orgId,
+            'providerId': providerId,
+            'platformId': platformId
+        };
+        Instances.find(params,
+            function(err, instances) {
+                if (err) {
+                    logger.error("Could not get instance for ",orgId, providerId, platformId, err);
+                    return callback(err, null);
+                } else if(instances.length > 0) {
+                    return callback(null, instances);
+                } else {
+                    return callback(null, []);
+                }
+            }
+        );
+    };
+
+    this.getAllTerminatedInstances = function(orgId,callback) {
+        Instances.find({"orgId":orgId,"instanceState":"terminated"}, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
 };
 
 module.exports = new InstancesDao();

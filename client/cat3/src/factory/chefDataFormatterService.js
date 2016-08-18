@@ -164,7 +164,6 @@
 				},
 				identifyAvailableChefNode: function (totalNodeList, selectedNode) {
 					for (var i = 0; i < totalNodeList.length; i++) {
-						console.log(arrayUtil.isValueAvailable(selectedNode, totalNodeList[i]._id));
 						if (_.indexOf(selectedNode, totalNodeList[i]._id) !== -1) {
 							totalNodeList[i]._isNodeSelected = true;
 						} else {
@@ -176,7 +175,7 @@
 				identifyAvailableBlueprint: function (totalBlueprintList, selectedBlueprint) {
 					for (var i = 0; i < totalBlueprintList.length; i++) {
 						if (_.indexOf(selectedBlueprint, totalBlueprintList[i]._id) !== -1) {
-							totalBlueprintList[i]._isBlueprintSelected = true;
+							totalBlueprintList[i]._isBlueprintSelected = totalBlueprintList[i]._id;
 						} else {
 							totalBlueprintList[i]._isBlueprintSelected = false;
 						}
@@ -185,6 +184,16 @@
 				},
 				identifyAvailablePuppetNode: function (totalNodeList, selectedNode) {
 					return this.identifyAvailableChefNode(totalNodeList, selectedNode);
+				},
+				identifyAvailableScript: function (totalScriptList, selectedScript) {
+					for (var i = 0; i < totalScriptList.length; i++) {
+						if (_.indexOf(selectedScript, totalScriptList[i]._id) !== -1) {
+							totalScriptList[i]._isScriptSelected = true;
+						} else {
+							totalScriptList[i]._isScriptSelected = false;
+						}
+					}
+					return totalScriptList;
 				},
 				formatSelectedChefRunList: function (list) {
 					var l = list && list.length ? list.length : 0, t = [];

@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('workzone.orchestration')
-        .controller('confirmJobRunCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices', function ($scope, $modalInstance, items, workzoneServices) {
+        .controller('confirmJobRunCtrl', ['$scope', '$modalInstance', 'items', 'workzoneServices','toastr', function ($scope, $modalInstance, items, workzoneServices,toastr) {
             $scope.isJobRunExecuting = false;
             $scope.cancel = function () {
                 $modalInstance.dismiss('cancel');
@@ -24,9 +24,9 @@
                         error = error.responseText || error;
                         $scope.isJobRunExecuting = false;
                         if (error.message) {
-                            alert(error.message);
+                            toastr.error(error.message);
                         } else {
-                            alert(error);
+                            toastr.error(error);
                         }
                     }
                 );
