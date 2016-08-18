@@ -716,7 +716,7 @@ function getRDSDBInstanceMetrics(provider, dbInstances, callback) {
     }
 };
 
-function getBucketsInfo(provider,orgId,orgName,callback) {
+function getBucketsInfo(provider,orgName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
@@ -742,7 +742,7 @@ function getBucketsInfo(provider,orgId,orgName,callback) {
                     (function(bucket) {
                         var bucketObj = {
                             masterDetails:{
-                                orgId:orgId,
+                                orgId:provider.orgId[0],
                                 orgName:orgName
                             },
                             providerDetails:{
@@ -790,7 +790,7 @@ function getBucketsInfo(provider,orgId,orgName,callback) {
     })
 };
 
-function getEC2InstancesInfo(provider,orgId,orgName,callback) {
+function getEC2InstancesInfo(provider,orgName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
@@ -828,7 +828,7 @@ function getEC2InstancesInfo(provider,orgId,orgName,callback) {
                                         tagInfo[jsonData.Key] = jsonData.Value;
                                     }
                                     var instanceObj = {
-                                        orgId: orgId,
+                                        orgId: provider.orgId[0],
                                         orgName:orgName,
                                         providerId: provider._id,
                                         providerType: 'aws',
@@ -862,7 +862,7 @@ function getEC2InstancesInfo(provider,orgId,orgName,callback) {
     }
 };
 
-function getRDSInstancesInfo(provider,orgId,orgName,callback) {
+function getRDSInstancesInfo(provider,orgName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
@@ -889,7 +889,7 @@ function getRDSInstancesInfo(provider,orgId,orgName,callback) {
                     (function(dbInstance) {
                         var rdsDbInstanceObj = {
                             masterDetails:{
-                                orgId:orgId,
+                                orgId:provider.orgId[0],
                                 orgName:orgName
                             },
                             providerDetails:{
