@@ -409,22 +409,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.status(500).send(errorResponses.db.error);
                     return;
                 } else {
-                    containerDao.deleteContainerByInstanceId(req.params.instanceId, function(err, container) {
+                    instancesDao.removeInstanceById(req.params.instanceId, function(err, data) {
                         if (err) {
-                            logger.error("Container deletion Failed >> ", err);
-                            callback(err, null);
+                            logger.error("Instance deletion Failed >> ", err);
+                            res.status(500).send(errorResponses.db.error);
                             return;
-                        } else {
-                            instancesDao.removeInstanceById(req.params.instanceId, function(err, data) {
-                                if (err) {
-                                    logger.error("Instance deletion Failed >> ", err);
-                                    res.status(500).send(errorResponses.db.error);
-                                    return;
-                                }
-                                logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
-                                res.send(200);
-                            });
                         }
+                        logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
+                        res.send(200);
                     });
                 }
             });
