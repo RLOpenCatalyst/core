@@ -359,6 +359,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             tocheck.push('instances');
                             fieldname = "projectId";
                             break;
+
                     }
 
                     masterUtil.getTemplateTypesById(req.params.fieldvalue, function(err, templateTypeData) {
@@ -417,22 +418,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (dbtype) {
                                             var item = '\"' + req.params.fieldname + '\"';
                                             logger.debug("About to delete Master Type: %s : % : %", dbtype, item, req.params.fieldvalue);
-                                            if(fieldname.indexOf('environmentname') === -1) {
-                                                eval('d4dModelNew.' + dbtype).remove({
-                                                    rowid: req.params.fieldvalue
-                                                }, function (err) {
-                                                    if (err) {
-                                                        logger.debug("Hit an errror on delete : %s", err);
-                                                        res.send(500);
-                                                        return;
-                                                    } else {
-                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
-                                                        res.send(200);
-                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
-                                                        return;
-                                                    }
-                                                }); //end findOne
-                                            }else{
+                                            if(req.params.id === '3') {
                                                 masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, environment) {
                                                     if (err) {
                                                         logger.debug("Hit an errror to get Environment Name : %s", err);
@@ -446,13 +432,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 logger.debug("Hit an errror on delete : %s", err);
                                                                 res.send(500);
                                                                 return;
-                                                            }else {
-                                                                settingsService.updateProjectData(environment,function(err,projectData){
+                                                            } else {
+                                                                settingsService.updateTeamDataByEnv(environment, function (err, teamData) {
                                                                     if (err) {
                                                                         logger.debug("Hit an error on updating the Project Master Data : %s", err);
                                                                         res.send(500);
                                                                         return;
-                                                                    }else {
+                                                                    } else {
                                                                         appDeployPipelineService.updateAppDeployPipeLineEnviornment(environment, function (err, data) {
                                                                             if (err) {
                                                                                 logger.debug("Hit an error on updating the PipeLine Configuration : %s", err);
@@ -468,6 +454,105 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         }); //end findOne
                                                     }
                                                 })
+                                            }else if(req.params.id === '4'){
+                                                    masterUtil.getParticularProject(req.params.fieldvalue, function (err, project) {
+                                                        if (err) {
+                                                            logger.debug("Hit an errror to get project : %s", err);
+                                                            res.send(500);
+                                                            return;
+                                                        } else {
+                                                            eval('d4dModelNew.' + dbtype).remove({
+                                                                rowid: req.params.fieldvalue
+                                                            }, function (err) {
+                                                                if (err) {
+                                                                    logger.debug("Hit an errror on delete : %s", err);
+                                                                    res.send(500);
+                                                                    return;
+                                                                } else {
+                                                                    settingsService.updateTeamDataByProject(project[0], function (err, teamData) {
+                                                                        if (err) {
+                                                                            logger.debug("Hit an error on updating the Project Master Data : %s", err);
+                                                                            res.send(500);
+                                                                            return;
+                                                                        }
+                                                                        res.send(200);
+                                                                        return;
+                                                                    })
+                                                                }
+                                                            });
+                                                        }
+                                                    })
+                                            }else if(req.params.id === '21'){
+                                                masterUtil.getTeamById(req.params.fieldvalue, function (err, team) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror to get project : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        eval('d4dModelNew.' + dbtype).remove({
+                                                            rowid: req.params.fieldvalue
+                                                        }, function (err) {
+                                                            if (err) {
+                                                                logger.debug("Hit an errror on delete : %s", err);
+                                                                res.send(500);
+                                                                return;
+                                                            } else {
+                                                                settingsService.updateMasterDataByTeam(team[0], function (err, teamData) {
+                                                                    if (err) {
+                                                                        logger.debug("Hit an error on updating the Master Data : %s", err);
+                                                                        res.send(500);
+                                                                        return;
+                                                                    }
+                                                                    res.send(200);
+                                                                    return;
+                                                                })
+                                                            }
+                                                        });
+                                                    }
+                                                    })
+                                            }else if(req.params.id === '7'){
+                                                masterUtil.getUserById(req.params.fieldvalue, function (err, user) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror to get project : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        eval('d4dModelNew.' + dbtype).remove({
+                                                            rowid: req.params.fieldvalue
+                                                        }, function (err) {
+                                                            if (err) {
+                                                                logger.debug("Hit an errror on delete : %s", err);
+                                                                res.send(500);
+                                                                return;
+                                                            } else {
+                                                                settingsService.updateTeamDataByUser(user[0], function (err, teamData) {
+                                                                    if (err) {
+                                                                        logger.debug("Hit an error on updating the Master Data : %s", err);
+                                                                        res.send(500);
+                                                                        return;
+                                                                    }
+                                                                    res.send(200);
+                                                                    return;
+                                                                })
+                                                            }
+                                                        });
+                                                    }
+                                                })
+                                            } else {
+                                                eval('d4dModelNew.' + dbtype).remove({
+                                                    rowid: req.params.fieldvalue
+                                                }, function (err) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror on delete : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
+                                                        res.send(200);
+                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                        return;
+                                                    }
+                                                });
                                             }
                                         }
                                     }); //end configmgmtDao
@@ -643,6 +728,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     }
                     if (orgList.length === 0 && req.params.id === '21') {
                         d4dModelNew.d4dModelMastersTeams.find({
+                            loginname: {
+                                $regex: loggedInUser
+                            },
                             id: "21"
                         }, function(err, data) {
                             if (err) {
@@ -764,7 +852,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                     } else if (req.params.id === '21') {
                         // For Team
-                        masterUtil.getTeams(orgList, function(err, teamList) {
+                        masterUtil.getTeams(orgList,loggedInUser, function(err, teamList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Team.');
                             }
@@ -920,7 +1008,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                     } else if (req.params.id === '21') {
                         // For Team
-                        masterUtil.getTeams(orgList, function(err, teamList) {
+                        masterUtil.getTeams(orgList,loggedInUser, function(err, teamList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Team.');
                             }
@@ -1683,7 +1771,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         } catch (e) {}
     }
 
-    function updateProjectWithEnv(project, bodyJson) {
+    function updateTeamWithEnv(team, bodyJson) {
         d4dModelNew.d4dModelMastersEnvironments.find({
             id: "3",
             rowid: bodyJson['rowid']
@@ -1693,17 +1781,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
             } else if (envs.length > 0) {
                 var newEnv = '';
                 var envName = '';
-                if (project.environmentname_rowid !== '' && project.environmentname !== '') {
-                    var projectEnvId = project.environmentname_rowid.split(",");
-                    var projectEnvName = project.environmentname.split(",");
-                    if (projectEnvId.indexOf(bodyJson['rowid']) !== -1 && projectEnvName.indexOf(bodyJson['environmentname']) !== -1) {
-                        newEnv = project.environmentname_rowid + ',' + bodyJson['rowid'];
-                        envName = project.environmentname + ',' + bodyJson['environmentname'];
-                    } else if (projectEnvId.indexOf(bodyJson['rowid']) !== -1) {
-                        var index = projectEnvId.indexOf(bodyJson['rowid']);
-                        projectEnvName[index] = bodyJson['environmentname'];
-                        newEnv = project.environmentname_rowid;
-                        envName = changeArrayToString(projectEnvName);
+                if (team.environmentname_rowid && team.environmentname && team.environmentname_rowid !== '' && team.environmentname !== '') {
+                    var teamEnvId = team.environmentname_rowid.split(",");
+                    var teamEnvName = team.environmentname.split(",");
+                    if (teamEnvId.indexOf(bodyJson['rowid']) === -1 && teamEnvName.indexOf(bodyJson['environmentname']) === -1) {
+                        newEnv = team.environmentname_rowid + ',' + bodyJson['rowid'];
+                        envName = team.environmentname + ',' + bodyJson['environmentname'];
+                    } else if (teamEnvId.indexOf(bodyJson['rowid']) !== -1) {
+                        var index = teamEnvId.indexOf(bodyJson['rowid']);
+                        teamEnvName[index] = bodyJson['environmentname'];
+                        newEnv = team.environmentname_rowid;
+                        envName = changeArrayToString(teamEnvName);
                     } else {
                         return;
                     }
@@ -1711,9 +1799,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     newEnv = bodyJson['rowid'];
                     envName = bodyJson['environmentname'];
                 }
-                d4dModelNew.d4dModelMastersProjects.update({
-                    rowid: project.rowid,
-                    id: '4'
+                d4dModelNew.d4dModelMastersTeams.update({
+                    rowid: team.rowid,
+                    id: '21'
                 }, {
                     $set: {
                         environmentname_rowid: newEnv,
@@ -1721,12 +1809,116 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     }
                 }, {
                     upsert: false
-                }, function (err, data1) {
+                }, function (err, data) {
                     if (err) {
-                        logger.debug('Err while updating d4dModelMastersProjects' + err);
+                        logger.debug('Err while updating d4dModelMastersTeams' + err);
                         return;
                     }
-                    logger.debug('Updated project ' + project.projectname + ' with env : ' + envName);
+                    logger.debug('Updated Team ' + team.teamname + ' with env : ' + envName);
+                    return;
+                });
+            }else {
+                return;
+            }
+        });
+    };
+
+    function updateTeamWithProject(team, bodyJson) {
+        d4dModelNew.d4dModelMastersProjects.find({
+            id: "4",
+            rowid: bodyJson['rowid']
+        }, function(err, projects) {
+            if (err) {
+                logger.debug("Failed to fetch Project.", err);
+            } else if (projects.length > 0) {
+                var newProject = '';
+                var projectName = '';
+                if (team.projectname_rowid !== '' && team.projectname !== '') {
+                    var teamProjectId = team.projectname_rowid.split(",");
+                    var teamProjectName = team.projectname.split(",");
+                    if (teamProjectId.indexOf(bodyJson['rowid']) === -1 && teamProjectName.indexOf(bodyJson['projectname']) === -1) {
+                        newProject = team.projectname_rowid + ',' + bodyJson['rowid'];
+                        projectName = team.projectname + ',' + bodyJson['projectname'];
+                    } else if (teamProjectId.indexOf(bodyJson['rowid']) !== -1) {
+                        var index = teamProjectId.indexOf(bodyJson['rowid']);
+                        teamProjectName[index] = bodyJson['projectname'];
+                        newProject = team.projectname_rowid;
+                        projectName = changeArrayToString(teamProjectName);
+                    } else {
+                        return;
+                    }
+                } else {
+                    newProject = bodyJson['rowid'];
+                    projectName = bodyJson['projectname'];
+                }
+                d4dModelNew.d4dModelMastersTeams.update({
+                    rowid: team.rowid,
+                    id: '21'
+                }, {
+                    $set: {
+                        projectname_rowid: newProject,
+                        projectname: projectName
+                    }
+                }, {
+                    upsert: false
+                }, function (err, data) {
+                    if (err) {
+                        logger.debug('Err while updating d4dModelMastersTeams' + err);
+                        return;
+                    }
+                    logger.debug('Updated Team ' + team.teamname + ' with project : ');
+                    return;
+                });
+            }else {
+                return;
+            }
+        });
+    };
+
+    function updateTeamWithUser(team, bodyJson) {
+        d4dModelNew.d4dModelMastersUsers.find({
+            id: "7",
+            rowid: bodyJson['rowid']
+        }, function(err, users) {
+            if (err) {
+                logger.debug("Failed to fetch User.", err);
+            } else if (users.length > 0) {
+                var newUserId = '';
+                var newUserName = '';
+                if (team.loginname_rowid !== '' && team.loginname !== '') {
+                    var teamUserId = team.loginname_rowid.split(",");
+                    var teamUserName = team.loginname.split(",");
+                    if (teamUserId.indexOf(bodyJson['rowid']) === -1 && teamUserName.indexOf(bodyJson['loginname']) === -1) {
+                        newUserId = team.loginname_rowid + ',' + bodyJson['rowid'];
+                        newUserName = team.loginname + ',' + bodyJson['loginname'];
+                    }else if (teamUserId.indexOf(bodyJson['rowid']) !== -1) {
+                        var index = teamUserId.indexOf(bodyJson['rowid']);
+                        teamUserName[index] = bodyJson['loginname'];
+                        newUserId = team.loginname_rowid;
+                        newUserName = changeArrayToString(teamUserName);
+                    }else {
+                        return;
+                    }
+                } else {
+                    newUserId = bodyJson['rowid'];
+                    newUserName = bodyJson['loginname'];
+                }
+                d4dModelNew.d4dModelMastersTeams.update({
+                    rowid: team.rowid,
+                    id: '21'
+                }, {
+                    $set: {
+                        loginname_rowid: newUserId,
+                        loginname: newUserName
+                    }
+                }, {
+                    upsert: false
+                }, function (err, data) {
+                    if (err) {
+                        logger.debug('Err while updating d4dModelMastersTeams' + err);
+                        return;
+                    }
+                    logger.debug('Updated Team ' + team.teamname + ' with project : ');
                     return;
                 });
             }else {
@@ -1753,7 +1945,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
         return missing;
 
     }
-
     function changeArrayToString(list){
         var resultStr='';
         for(var i = 0; i < list.length; i++){
@@ -1766,7 +1957,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
             return resultStr;
         }
     }
-
 
     function removeStringFromArray(list,str){
         var resultStr='';
@@ -1789,32 +1979,88 @@ module.exports.setRoutes = function(app, sessionVerification) {
         }
     }
 
-
-
-    function dissociateProjectWithEnv(projects, bodyJson) {
-        for(var i = 0; i < projects.length; i++) {
-            (function(project) {
-                var projectEnvId = project.environmentname_rowid.split(",");
-                var projectEnvName = project.environmentname.split(",");
-                d4dModelNew.d4dModelMastersProjects.update({
-                    rowid: project.rowid,
-                    id: '4'
+    function dissociateTeamWithEnv(teams, bodyJson) {
+        for(var i = 0; i < teams.length; i++) {
+            (function(team) {
+                var teamEnvId = team.environmentname_rowid.split(",");
+                var teamEnvName = team.environmentname.split(",");
+                d4dModelNew.d4dModelMastersTeams.update({
+                    rowid: team.rowid,
+                    id: '21'
                 }, {
                     $set: {
-                        environmentname_rowid: removeStringFromArray(projectEnvId, bodyJson['rowid']),
-                        environmentname: removeStringFromArray(projectEnvName, bodyJson['environmentname'])
+                        environmentname_rowid: removeStringFromArray(teamEnvId, bodyJson['rowid']),
+                        environmentname: removeStringFromArray(teamEnvName, bodyJson['environmentname'])
                     }
                 }, {
                     upsert: false
-                }, function (err, data1) {
+                }, function (err, data) {
                     if (err) {
-                        logger.debug('Err while updating d4dModelMastersProjects' + err);
+                        logger.debug('Err while updating d4dModelMastersTeams' + err);
                         return;
                     }
-                    logger.debug('Updated project ' + project.projectname + ' with env : ' + envName);
+                    logger.debug('Updated team ' + team.teamname + ' with env : ');
                     return;
                 });
-            })(projects[i]);
+            })(teams[i]);
+        };
+    };
+
+    function dissociateTeamWithProject(teams, bodyJson) {
+        for(var i = 0; i < teams.length; i++) {
+            (function(team) {
+                var teamProjectId = team.projectname_rowid.split(",");
+                var teamProjectName = team.projectname.split(",");
+                d4dModelNew.d4dModelMastersTeams.update({
+                    rowid: team.rowid,
+                    id: '21'
+                }, {
+                    $set: {
+                        projectname_rowid: removeStringFromArray(teamProjectId, bodyJson['rowid']),
+                        projectname: removeStringFromArray(teamProjectName, bodyJson['projectname'])
+                    }
+                }, {
+                    upsert: false
+                }, function (err, data) {
+                    if (err) {
+                        logger.debug('Err while updating d4dModelMastersTeams' + err);
+                        return;
+                    }
+                    logger.debug('Updated team ' + team.teamname + ' with project : ');
+                    return;
+                });
+            })(teams[i]);
+        };
+    };
+
+    function dissociateTeamWithUser(teams, bodyJson) {
+        console.log("Durgesh");
+        console.log(JSON.stringify(teams));
+        console.log(JSON.stringify(bodyJson));
+        console.log("*****************8");
+        for(var i = 0; i < teams.length; i++) {
+            (function(team) {
+                var teamUserId = team.loginname_rowid.split(",");
+                var teamUserName = team.loginname.split(",");
+                d4dModelNew.d4dModelMastersTeams.update({
+                    rowid: team.rowid,
+                    id: '21'
+                }, {
+                    $set: {
+                        loginname_rowid: removeStringFromArray(teamUserId, bodyJson['rowid']),
+                        loginname: removeStringFromArray(teamUserName, bodyJson['loginname'])
+                    }
+                }, {
+                    upsert: false
+                }, function (err, data) {
+                    if (err) {
+                        logger.debug('Err while updating d4dModelMastersTeams' + err);
+                        return;
+                    }
+                    logger.debug('Updated team ' + team.teamname + ' with team : ');
+                    return;
+                });
+            })(teams[i]);
         };
     };
 
@@ -2545,18 +2791,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 else
                                                     folderpath = rowFLD["folderpath"];
                                             }
-                                            //if env is saved then it should be associated with project.
                                             if (req.params.id == '3') {
-                                                var projectIds = bodyJson['projectname_rowid'].split(",");
-                                                for (var i = 0; i < projectIds.length; i++) {
-                                                    d4dModelNew.d4dModelMastersProjects.findOne({
-                                                        rowid: projectIds[i],
-                                                        id: "4"
-                                                    }, function(err,project) {
-                                                        if (!err) {
-                                                            updateProjectWithEnv(project, bodyJson);
-                                                        }
-                                                    });
+                                                var teamIds = bodyJson['teamname_rowid'].split(",");
+                                                console.log("***********************");
+                                                for (var i = 0; i < teamIds.length; i++) {
+                                                    (function(team){
+                                                        d4dModelNew.d4dModelMastersTeams.findOne({
+                                                            rowid: team,
+                                                            id: "21"
+                                                        }, function(err, teams) {
+                                                            if (!err) {
+                                                                updateTeamWithEnv(teams, bodyJson);
+                                                            }
+                                                        });
+                                                    })(teamIds[i]);
                                                 }
                                             }
                                             //resetting the orgname to empty string when a template type file is uploaded.
@@ -2719,18 +2967,46 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                         });
                                     }
+
                                     if (req.params.id === "3") {
-                                        d4dModelNew.d4dModelMastersProjects.find({
+                                        d4dModelNew.d4dModelMastersTeams.find({
                                             environmentname_rowid: {
                                                 $regex: bodyJson['rowid']
                                             },
-                                            id: "4"
-                                        }, function(err,project) {
+                                            id: "21"
+                                        }, function(err, teams) {
                                             if (!err) {
-                                                dissociateProjectWithEnv(project, bodyJson);
+                                                dissociateTeamWithEnv(teams, bodyJson);
                                             }
                                         });
-                                    }
+                                    };
+
+                                    if (req.params.id === "4") {
+                                        d4dModelNew.d4dModelMastersTeams.find({
+                                            projectname_rowid: {
+                                                $regex: bodyJson['rowid']
+                                            },
+                                            id: "21"
+                                        }, function(err, teams) {
+                                            if (!err) {
+                                                dissociateTeamWithProject(teams, bodyJson);
+                                            }
+                                        });
+                                    };
+
+                                    if (req.params.id === "7") {
+                                        d4dModelNew.d4dModelMastersTeams.find({
+                                            loginname_rowid: {
+                                                $regex: bodyJson['rowid']
+                                            },
+                                            id: "21"
+                                        }, function(err, teams) {
+                                            if (!err) {
+                                                dissociateTeamWithUser(teams, bodyJson);
+                                            }
+                                        });
+                                    };
+
                                     logger.debug("Rowid: %s", bodyJson["rowid"]);
                                     var currowid = bodyJson["rowid"];
                                     delete rowtoedit._id; //fixing the issue of
@@ -2753,18 +3029,50 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         else
                                             folderpath = bodyJson["folderpath"];
 
-                                        //if env is saved then it should be associated with project.
+                                        //if env is saved then it should be associated with team.
                                         if (req.params.id == '3') {
-                                            var projectIds = bodyJson['projectname_rowid'].split(",");
-                                            for (var i = 0; i < projectIds.length; i++) {
-                                                d4dModelNew.d4dModelMastersProjects.findOne({
-                                                    rowid: projectIds[i],
-                                                    id: "4"
-                                                }, function(err,project) {
-                                                    if (!err) {
-                                                        updateProjectWithEnv(project, bodyJson);
-                                                    }
-                                                });
+                                            var teamIds = bodyJson['teamname_rowid'].split(",");
+                                            for (var i = 0; i < teamIds.length; i++) {
+                                                (function(team){
+                                                    d4dModelNew.d4dModelMastersTeams.findOne({
+                                                        rowid: team,
+                                                        id: "21"
+                                                    }, function(err, teams) {
+                                                        if (!err) {
+                                                            updateTeamWithEnv(teams, bodyJson);
+                                                        }
+                                                    });
+                                                })(teamIds[i]);
+                                            }
+                                        }
+                                        if (req.params.id == '4') {
+                                            var teamIds = bodyJson['teamname_rowid'].split(",");
+                                            for (var i = 0; i < teamIds.length; i++) {
+                                                (function(team){
+                                                    d4dModelNew.d4dModelMastersTeams.findOne({
+                                                        rowid: teamIds[i],
+                                                        id: "21"
+                                                    }, function(err, teams) {
+                                                        if (!err) {
+                                                            updateTeamWithProject(teams, bodyJson);
+                                                        }
+                                                    });
+                                                })(teamIds[i]);
+                                            }
+                                        }
+                                        if (req.params.id == '7') {
+                                            var teamIds = bodyJson['teamname_rowid'].split(",");
+                                            for (var i = 0; i < teamIds.length; i++) {
+                                                (function(team){
+                                                    d4dModelNew.d4dModelMastersTeams.findOne({
+                                                        rowid: teamIds[i],
+                                                        id: "21"
+                                                    }, function(err, teams) {
+                                                        if (!err) {
+                                                            updateTeamWithUser(teams, bodyJson);
+                                                        }
+                                                    });
+                                                })(teamIds[i]);
                                             }
                                         }
                                         if (req.params.id === '21') {
@@ -2781,6 +3089,42 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }, function(err, updateCount) {
                                                 if (err) {
                                                     logger.debug("Team update Fail..", err);
+                                                }
+                                                if(bodyJson["projectname_rowid"] && bodyJson["projectname_rowid"] !== '') {
+                                                    d4dModelNew.d4dModelMastersProjects.update({
+                                                        rowid: bodyJson["projectname_rowid"],
+                                                        id: "4"
+                                                    }, {
+                                                        $set: {
+                                                            teamname: bodyJson["teamname"],
+                                                            teamname_rowid: bodyJson["rowid"]
+                                                        }
+                                                    }, {
+                                                        upsert: false
+                                                    }, function(err, updateCount) {
+                                                        if (err) {
+                                                            logger.debug("Project update Fail..", err);
+                                                        }
+
+                                                    });
+                                                }
+                                                if(bodyJson["environmentname_rowid"] && bodyJson["environmentname_rowid"] !== ''){
+                                                    d4dModelNew.d4dModelMastersEnvironments.update({
+                                                        rowid: bodyJson["environmentname_rowid"],
+                                                        id: "3"
+                                                    }, {
+                                                        $set: {
+                                                            teamname: bodyJson["teamname"],
+                                                            teamname_rowid: bodyJson["rowid"]
+                                                        }
+                                                    }, {
+                                                        upsert: false
+                                                    }, function(err, updateCount) {
+                                                        if (err) {
+                                                            logger.debug("Env update Fail..", err);
+                                                        }
+
+                                                    });
                                                 }
                                             });
                                         }

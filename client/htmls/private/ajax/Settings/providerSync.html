@@ -497,6 +497,13 @@
                         </div>
                     </div>
                     <div class="col-lg-6 marginSpaceTop" >
+                        <label for="exampleInputEmail1">Team<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="input-groups">
+                            <select id="providerSyncTeamSelect"  class="width-100 form-control">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 marginSpaceTop" >
                         <label for="exampleInputEmail1">Project<span class="control-label redSpan">&nbsp;*</span></label>
                         <div class="input-groups">
                             <select id="providerSyncProjectSelect"  class="width-100 form-control">
@@ -1226,6 +1233,7 @@
 
         var $orgListInput = $('#providerSyncOrgSelect').attr('disabled', 'disabled');
         var $bgList = $('#providerSyncBgSelect');
+        var $teamList = $('#providerSyncTeamSelect');
         var $projectList = $('#providerSyncProjectSelect');
         var $envList = $('#providerSyncEnvSelect');
         var $infraManagerList = $('#providerSyncInfraManagerSelect');
@@ -1336,23 +1344,35 @@
                 if (bgName == 'choose') {
                     return;
                 }
-                $projectList.empty();
-                $projectList.append($('<option></option>').val('choose').html('Choose'));
+                $teamList.empty();
+                $teamList.append($('<option></option>').val('choose').html('Choose'));
 
-                var getProjs = getRelatedValues_Top(4, "productgroupname_rowid", bgName, "projectname");
-                for (var i = 0; i < getProjs.length; i++) {
-                    if (getProjs[i].indexOf('|') >= 0) {
-                        var txtval = getProjs[i].split('|');
-                        $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                var getTeam = getRelatedValues_Top(21, "productgroupname_rowid", bgName, "teamname");
+                for (var i = 0; i < getTeam.length; i++) {
+                    if (getTeam[i].indexOf('|') >= 0) {
+                        var txtval = getTeam[i].split('|');
+                        $teamList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
                     }
                 }
             });
-            $projectList.change(function(e) {
-                var projName = $(this).val();
-                if (projName == 'choose') {
+            $teamList.change(function(e) {
+                var teamName = $(this).val();
+                if (teamName == 'choose') {
                     return;
                 }
-                var getEnvs_ = getRelatedValues_Top_rowid(4, "rowid", projName, "environmentname");
+                $projectList.empty();
+                $projectList.append($('<option></option>').val('choose').html('Choose'));
+                var getProject_ = getRelatedValues_Top_rowid(21, "rowid", teamName, "projectname");
+                var getProject = getProject_.toString().replace(/"/g, '').split(',');
+                for (var i = 0; i < getProject.length; i++) {
+                    if (getProject[i].indexOf('|') >= 0) {
+                        var txtval = getProject[i].split('|');
+                        $projectList.append($('<option></option>').val(txtval[0]).html(txtval[1]));
+                    }
+                }
+                $envList.empty();
+                $envList.append($('<option></option>').val('choose').html('Choose'));
+                var getEnvs_ = getRelatedValues_Top_rowid(21, "rowid", teamName, "environmentname");
                 var getEnvs = getEnvs_.toString().replace(/"/g, '').split(',');
                 for (var i = 0; i < getEnvs.length; i++) {
                     if (getEnvs[i].indexOf('|') >= 0) {
@@ -1747,11 +1767,13 @@
             reqBody.bgId = $bgList.val();
             reqBody.projectId = $projectList.val();
             reqBody.envId = $envList.val();
+            reqBody.teamId = $teamList.val();
             //Added By Durgesh
             reqBody.orgName = $orgListInput.find('option:selected').text();
             reqBody.bgName = $bgList.find('option:selected').text();
             reqBody.projectName = $projectList.find('option:selected').text();
             reqBody.environmentName = $envList.find('option:selected').text();
+            reqBody.teamName = $teamList.find('option:selected').text();
             //End By Durgesh
             reqBody.configManagmentId = $infraManagerList.val();
 

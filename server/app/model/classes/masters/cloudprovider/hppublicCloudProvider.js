@@ -181,7 +181,7 @@ hppubliccloudProviderSchema.statics.gethppubliccloudProvidersForOrg = function(o
     logger.debug("Enter getAWSProvidersForOrg");
     var orgIds = [];
     for (var x = 0; x < orgList.length; x++) {
-        orgIds.push(orgList[x]._id);
+        orgIds.push(orgList[x].rowid);
     }
     logger.debug("org id: ", orgIds);
     this.find({

@@ -36,37 +36,38 @@ function Env() {
                         callback(err, null);
                         return;
                     } else {
-                        d4dModelNew.d4dModelMastersProjects.findOne({
+                        d4dModelNew.d4dModelMastersTeams.findOne({
                             orgname_rowid: envObj.orgname_rowid,
-                            rowid: envObj.projectname_rowid,
-                            id: '4'
-                        }, function (err, projectData) {
+                            rowid: envObj.teamname_rowid,
+                            id: '21'
+                        }, function (err, teamData) {
                             if (err) {
                                 callback(err, null);
                                 return;
                             } else {
                                 var newEnvId = '', newEnvName = '';
-                                if (projectData.environmentname_rowid !== '' && projectData.environmentname !== '') {
-                                    var envIds = projectData.environmentname_rowid.split(',');
-                                    var envNames = projectData.environmentname.split(',');
-                                    if (envIds.indexOf(envObj.rowid) >= 0 && envNames.indexOf(envObj.environmentname) >= 0) {
-                                        logger.debug("In Callback Env found in list");
+                                if (teamData.environmentname_rowid && teamData.environmentname && teamData.environmentname_rowid !== '' && teamData.environmentname !== '') {
+                                    var envIds = teamData.environmentname_rowid.split(',');
+                                    var envNames = teamData.environmentname.split(',');
+                                    if (envIds.indexOf(envObj.rowid) === -1 && envNames.indexOf(envObj.environmentname) === -1) {
+                                        newEnvId = teamData.environmentname_rowid + ',';
+                                        newEnvName = teamData.environmentname + ',';
+                                    }else{
+                                        logger.debug("In Callback Env found in Team");
                                         callback(null, envObj.rowid);
                                         return;
                                     }
-                                    newEnvId = projectData.environmentname_rowid + ',';
-                                    newEnvName = projectData.environmentname + ',';
                                 }
                                 newEnvId += envObj.rowid;
                                 newEnvName += envObj.environmentname;
-                                d4dModelNew.d4dModelMastersProjects.update({
+                                d4dModelNew.d4dModelMastersTeams.update({
                                     orgname_rowid: envObj.orgname_rowid,
-                                    rowid: envObj.projectname_rowid,
-                                    id: '4'
+                                    rowid: envObj.teamname_rowid,
+                                    id: '21'
                                 }, {
                                     environmentname_rowid: newEnvId,
                                     environmentname: newEnvName
-                                }, function (err, projectUpdateStatus) {
+                                }, function (err, data) {
                                     if (err) {
                                         callback(err, null);
                                         return;
@@ -79,56 +80,57 @@ function Env() {
                         });
                     }
                 });
-            }else if (envdata.projectname_rowid !== '' && envdata.projectname !== '') {
-                var newProjectId = '', newProjectName = '';
-                var projectIds = envdata.projectname_rowid.split(',');
-                var projectNames = envdata.projectname.split(',');
-                if (projectIds.indexOf(envObj.projectname_rowid) === -1 && projectNames.indexOf(envObj.projectname) === -1) {
-                    newProjectId = envdata.projectname_rowid + ',' + envObj.projectname_rowid;
-                    newProjectName = envdata.projectname + ',' + envObj.projectname;
+            }else if (envdata.teamname_rowid && envdata.teamname && envdata.teamname_rowid !== '' && envdata.teamname !== '') {
+                var newTeamId = '', newTeamName = '';
+                var teamIds = envdata.teamname_rowid.split(',');
+                var teamNames = envdata.teamname.split(',');
+                if (teamIds.indexOf(envObj.teamname_rowid) === -1 && teamNames.indexOf(envObj.teamname) === -1) {
+                    newTeamId = envdata.teamname_rowid + ',' + envObj.teamname_rowid;
+                    newTeamName = envdata.teamname + ',' + envObj.teamname;
                     d4dModelNew.d4dModelMastersEnvironments.update({
                         environmentname: envObj.environmentname,
                         orgname_rowid: envObj.orgname_rowid,
                         id: '3'
                     }, {
-                        projectname_rowid: newProjectId,
-                        projectname: newProjectName
-                    }, function (err, envUpdateStatus) {
+                        teamname_rowid: newTeamId,
+                        teamname: newTeamName
+                    }, function (err, data) {
                         if (err) {
                             callback(err, null);
                             return;
                         } else {
-                            d4dModelNew.d4dModelMastersProjects.findOne({
+                            d4dModelNew.d4dModelMastersTeams.findOne({
                                 orgname_rowid: envObj.orgname_rowid,
-                                rowid: envObj.projectname_rowid,
-                                id: '4'
-                            }, function (err, projectData) {
+                                rowid: envObj.teamname_rowid,
+                                id: '21'
+                            }, function (err, team) {
                                 if (err) {
                                     callback(err, null);
                                     return;
                                 } else {
                                     var newEnvId = '', newEnvName = '';
-                                    if (projectData.environmentname_rowid !== '' && projectData.environmentname !== '') {
-                                        var envIds = projectData.environmentname_rowid.split(',');
-                                        var envNames = projectData.environmentname.split(',');
-                                        if (envIds.indexOf(envdata.rowid) >= 0 && envNames.indexOf(envdata.environmentname) >= 0) {
+                                    if (team.environmentname_rowid && team.environmentname && team.environmentname_rowid !== '' && team.environmentname !== '') {
+                                        var envIds = team.environmentname_rowid.split(',');
+                                        var envNames = team.environmentname.split(',');
+                                        if (envIds.indexOf(envdata.rowid) === -1 && envNames.indexOf(envdata.environmentname) === -1) {
+                                            newEnvId = team.environmentname_rowid + ',';
+                                            newEnvName = team.environmentname + ',';
+                                        }else{
                                             logger.debug("In Callback Env found in list");
                                             callback(null, envdata.rowid);
                                             return;
                                         }
-                                        newEnvId = projectData.environmentname_rowid + ',';
-                                        newEnvName = projectData.environmentname + ',';
                                     }
                                     newEnvId += envdata.rowid;
                                     newEnvName += envdata.environmentname;
-                                    d4dModelNew.d4dModelMastersProjects.update({
+                                    d4dModelNew.d4dModelMastersTeams.update({
                                         orgname_rowid: envObj.orgname_rowid,
-                                        rowid: envObj.projectname_rowid,
-                                        id: '4'
+                                        rowid: envObj.teamname_rowid,
+                                        id: '21'
                                     }, {
                                         environmentname_rowid: newEnvId,
                                         environmentname: newEnvName
-                                    }, function (err, projectUpdateStatus) {
+                                    }, function (err, teamUpdateStatus) {
                                         if (err) {
                                             callback(err, null);
                                             return;
@@ -142,37 +144,38 @@ function Env() {
                         };
                     })
                 } else {
-                    d4dModelNew.d4dModelMastersProjects.findOne({
+                    d4dModelNew.d4dModelMastersTeams.findOne({
                         orgname_rowid: envObj.orgname_rowid,
-                        rowid: envObj.projectname_rowid,
+                        rowid: envObj.teamname_rowid,
                         id: '4'
-                    }, function (err, projectData) {
+                    }, function (err, team) {
                         if (err) {
                             callback(err, null);
                             return;
                         } else {
                             var newEnvId = '', newEnvName = '';
-                            if (projectData.environmentname_rowid !== '' && projectData.environmentname !== '') {
-                                var envIds = projectData.environmentname_rowid.split(',');
-                                var envNames = projectData.environmentname.split(',');
-                                if (envIds.indexOf(envdata.rowid) >= 0 && envNames.indexOf(envdata.environmentname) >= 0) {
+                            if (team.environmentname_rowid !== '' && team.environmentname !== '') {
+                                var envIds = team.environmentname_rowid.split(',');
+                                var envNames = team.environmentname.split(',');
+                                if (envIds.indexOf(envdata.rowid) === -1 && envNames.indexOf(envdata.environmentname) === -1) {
+                                    newEnvId = team.environmentname_rowid + ',';
+                                    newEnvName = team.environmentname + ',';
+                                }else{
                                     logger.debug("In Callback Env found in list");
                                     callback(null, envdata.rowid);
                                     return;
                                 }
-                                newEnvId = projectData.environmentname_rowid + ',';
-                                newEnvName = projectData.environmentname + ',';
                             }
                             newEnvId += envdata.rowid;
                             newEnvName += envdata.environmentname;
-                            d4dModelNew.d4dModelMastersProjects.update({
+                            d4dModelNew.d4dModelMastersTeams.update({
                                 orgname_rowid: envObj.orgname_rowid,
-                                rowid: envObj.projectname_rowid,
-                                id: '4'
+                                rowid: envObj.teamname_rowid,
+                                id: '21'
                             }, {
                                 environmentname_rowid: newEnvId,
                                 environmentname: newEnvName
-                            }, function (err, projectUpdateStatus) {
+                            }, function (err, data) {
                                 if (err) {
                                     callback(err, null);
                                     return;
@@ -190,44 +193,45 @@ function Env() {
                     orgname_rowid: envObj.orgname_rowid,
                     id: '3'
                 }, {
-                    projectname_rowid: envObj.projectname_rowid,
-                    projectname: envObj.projectname
-                }, function (err, envUpdateStatus) {
+                    teamname_rowid: envObj.teamname_rowid,
+                    teamname: envObj.teamname
+                }, function (err, data) {
                     if (err) {
                         callback(err, null);
                         return;
                     } else {
-                        d4dModelNew.d4dModelMastersProjects.findOne({
+                        d4dModelNew.d4dModelMastersTeams.findOne({
                             orgname_rowid: envObj.orgname_rowid,
-                            rowid: envObj.projectname_rowid,
-                            id: '4'
-                        }, function (err, projectData) {
+                            rowid: envObj.teamname_rowid,
+                            id: '21'
+                        }, function (err, team) {
                             if (err) {
                                 callback(err, null);
                                 return;
                             } else {
                                 var newEnvId = '', newEnvName = '';
-                                if (projectData.environmentname_rowid !== '' && projectData.environmentname !== '') {
-                                    var envIds = projectData.environmentname_rowid.split(',');
-                                    var envNames = projectData.environmentname.split(',');
-                                    if (envIds.indexOf(envdata.rowid) >= 0 && envNames.indexOf(envdata.environmentname) >= 0) {
+                                if (team.environmentname_rowid !== '' && team.environmentname !== '') {
+                                    var envIds = team.environmentname_rowid.split(',');
+                                    var envNames = team.environmentname.split(',');
+                                    if (envIds.indexOf(envdata.rowid) === -1 && envNames.indexOf(envdata.environmentname) === -1) {
+                                        newEnvId = team.environmentname_rowid + ',';
+                                        newEnvName = team.environmentname + ',';
+                                    }else{
                                         logger.debug("In Callback Env found in list");
                                         callback(null, envdata.rowid);
                                         return;
                                     }
-                                    newEnvId = projectData.environmentname_rowid + ',';
-                                    newEnvName = projectData.environmentname + ',';
                                 }
                                 newEnvId += envdata.rowid;
                                 newEnvName += envdata.environmentname;
-                                d4dModelNew.d4dModelMastersProjects.update({
+                                d4dModelNew.d4dModelMastersTeams.update({
                                     orgname_rowid: envObj.orgname_rowid,
-                                    rowid: envObj.projectname_rowid,
-                                    id: '4'
+                                    rowid: envObj.teamname_rowid,
+                                    id: '21'
                                 }, {
                                     environmentname_rowid: newEnvId,
                                     environmentname: newEnvName
-                                }, function (err, projectUpdateStatus) {
+                                }, function (err, data) {
                                     if (err) {
                                         callback(err, null);
                                         return;
