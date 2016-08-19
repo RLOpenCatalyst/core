@@ -11,7 +11,7 @@ var toPairs = require('lodash.topairs');
 var async = require('async');
 
 var DockerContainerSync = Object.create(CatalystCronJob);
-DockerContainerSync.interval = '*/2 * * * *';
+DockerContainerSync.interval = '*/5 * * * *';
 DockerContainerSync.execute = dockerContainerSync;
 
 module.exports = DockerContainerSync;
