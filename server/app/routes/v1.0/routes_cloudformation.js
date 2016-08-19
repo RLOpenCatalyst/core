@@ -29,6 +29,7 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Chef = require('_pr/lib/chef.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var containerDao = require('_pr/model/container');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -71,19 +72,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.delete('/cloudformation/:cfId', function(req, res) {
-
-        function removeInstanceFromDb(instanceId) {
-            instancesDao.removeInstancebyId(req.params.instanceId, function(err, data) {
-                if (err) {
-                    logger.error("Instance deletion Failed >> ", err);
-                    res.status(500).send(errorResponses.db.error);
-                    return;
-                }
-                logger.debug("Exit delete() for /instances/%s", req.params.instanceid);
-                res.send(200);
-            });
-        }
-
 
         CloudFormation.getById(req.params.cfId, function(err, cloudFormation) {
             if (err) {
@@ -149,27 +137,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     return;
                                 }
                                 var instanceIds = [];
-                                for (var i = 0; i < instances.length; i++) {
-                                    instanceIds.push(instances[i].id);
-                                    chef.deleteNode(instances[i].chef.chefNodeName, function(err, nodeData) {
-                                        if (err) {
-                                            logger.debug("Failed to delete node ", err);
-                                            if (err.chefStatusCode && err.chefStatusCode === 404) {
-
-                                            } else {
-
-                                            }
-                                            return;
-                                        }
-                                        logger.debug("Successfully removed instance from db.");
-                                    });
-                                    instanceLogModel.removeByInstanceId(instances[i].id, function(err, removed) {
-                                        if (err) {
-                                            logger.error("Failed to remove instance Log: ", err);
-                                        }
-                                    });
+                                if(instances.length > 0) {
+                                    for (var i = 0; i < instances.length; i++) {
+                                        (function(instance) {
+                                            instanceIds.push(instance.id);
+                                            chef.deleteNode(instance.chef.chefNodeName, function (err, nodeData) {
+                                                if (err) {
+                                                    logger.debug("Failed to delete node ", err);
+                                                    return;
+                                                }
+                                                logger.debug("Successfully removed instance from db.");
+                                            });
+                                            instanceLogModel.removeByInstanceId(instance.id, function (err, removed) {
+                                                if (err) {
+                                                    logger.error("Failed to remove instance Log: ", err);
+                                                    return;
+                                                }
+                                            });
+                                            containerDao.deleteContainerByInstanceId(instance.id, function (err, container) {
+                                                if (err) {
+                                                    logger.error("Container deletion Failed >> ", err);
+                                                    return;
+                                                }
+                                            });
+                                        })(instances[i]);
+                                    }
                                 }
-
                                 instancesDao.removeInstancebyCloudFormationId(cloudFormation.id, function(err, deletedData) {
                                     if (err) {
                                         logger.error("Unable to delete stack instances from db", err);
