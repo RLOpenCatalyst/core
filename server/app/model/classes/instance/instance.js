@@ -2010,7 +2010,7 @@ var InstancesDao = function() {
     this.updateInstanceStatus = function(instanceId, instance, callback) {
         var updateObj = {};
         if (instance.state === 'terminated') {
-            updateObj['state'] = instance.state;
+            updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = true;
             updateObj['tags'] = instance.tags;
             updateObj['environmentTag'] = instance.environmentTag;
@@ -2020,8 +2020,8 @@ var InstancesDao = function() {
                     logger.error("Failed to remove instance Log: ", err);
                 }
             });
-        } else {
-            updateObj['state'] = instance.state;
+        }else {
+            updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = false;
             updateObj['tags'] = instance.tags;
             updateObj['environmentTag'] = instance.environmentTag;
