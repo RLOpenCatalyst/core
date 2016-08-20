@@ -31,13 +31,14 @@ var validate = require('express-validation');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/app-deploy-pipeline/*', sessionVerificationFunc);
 
-    app.get('/app-deploy-pipeline/project/:projectId',validate(appDeployValidator.get),getProject);
+    app.get('/app-deploy-pipeline/project/:projectId',validate(appDeployValidator.get),getAppDeployPipeLineConfigData);
 
-    function getProject(req, res, next) {
+    function getAppDeployPipeLineConfigData(req, res, next) {
+        var loggedInUser = req.session.user.cn;
         async.waterfall(
             [
                 function (next) {
-                    appDeployPipelineService.getProjectByProjectId(req.params.projectId, next);
+                    appDeployPipelineService.getAppDeployPipeLineConfigData(req.params.projectId,loggedInUser, next);
                 }
             ],
             function (err, results) {

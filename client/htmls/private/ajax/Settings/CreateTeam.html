@@ -23,27 +23,42 @@
                               <div>
                                  <!-- widget content -->
                                  <div class="widget-body no-padding">
-                                  <div class="col-lg-12 ipLEFT">
+                                     <!--<div class="col-lg-12 ipLEFT">
                                   <div class="col-lg-6 col-md-6 ipWidth">
                                           <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
                                           <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
                                           <br>
                                           <input autofocus name="ctl00$MainContent$orgname" value="" id="teamname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max22,nospace"  unique="true"  uniqueconditionedby="teamname">
-                                       </div>
-                                       </div>
-                                       <div class="col-lg-6 col-md-6 projectRepo">
-                                          <label for="name">Description:</label>
-                                          <input name="ctl00$MainContent$orgname" value="" id="description" class="form-control" type="text"  cdata="catalyst" maxlength="50">
-                                       </div>
+                                  </div>
+                                     </div>-->
+
+                                     <div class="col-lg-6 col-md-6 projectRepo">
+                                         <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                         <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                         <br>
+                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="teamname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max22,nospace"  unique="true"  uniqueconditionedby="teamname">
+                                     </div>
+                                     <div class="col-lg-6 col-md-6 projectRepo">
+                                         <label for="name">Description:</label>
+                                         <input name="ctl00$MainContent$orgname" value="" id="description" class="form-control" type="text"  cdata="catalyst" maxlength="50">
+                                     </div>
+
+
                                   <div class="col-lg-6 col-md-6 projectRepo">
                                           <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
-                                          <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['projectname','loginname']"  cdata="catalyst" cat-validation="required">
+                                          <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['projectname','loginname','productgroupname','environmentname']"  cdata="catalyst" cat-validation="required">
                                              <option value="">Select Organization</option>
                                           </select>
-                                       </div>
+                                  </div>
+                                     <div class="col-lg-6 col-md-6 projectRepo">
+                                         <label for="">Business Group:<span class="control-label redSpan">&nbsp;*</span></label>
+                                         <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname"  cdata="catalyst" cat-validation="required">
+                                             <option value="">Select Business Group</option>
+                                         </select>
+                                     </div>
                                     
                                  <div class="col-lg-6 col-md-6 smart-form"  style="margin-top:25px;">
-                                    <label for="category">Users:</label>
+                                    <label for="category">Assign Users:</label>
                                     <div  id="loginname" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row"  class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" sourcepath="7" cdata="catalyst" linkedto="orgname">
                                     </div>
                                  </div>
@@ -52,11 +67,11 @@
                                     <div  id="projectname" sourcepath="4" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row"  class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" cdata="catalyst" linkedto="orgname" >
                                     </div>
                                  </div>
-                                 <!-- <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
-                                 <label for="category">Environments:</label>
+                                 <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
+                                 <label for="category">Assign Environments:</label>
                                     <div  id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row"  linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst">
                                     </div>
-                                 </div> -->
+                                 </div>
 
                                  
                                  <!-- end widget content -->
@@ -200,7 +215,7 @@
                 /*alert('valid form submitted'); // for demo*/
                if(!saveform('21'))return false;;
            }else{
-                alert('invalid valid form submitted'); // for demo
+                alert('invalid form submitted'); // for demo
            }
            return false; // for demo
        });

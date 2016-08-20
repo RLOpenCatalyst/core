@@ -227,6 +227,14 @@ var d4dMastersEnvironments = new mongoose.Schema({
         type: String,
         trim: true
     },
+    teamname: {
+        type: String,
+        trim: true
+    },
+    teamname_rowid: {
+        type: String,
+        trim: true
+    },
     rowid: {
         type: String,
         required: true,
@@ -298,6 +306,14 @@ var d4dMastersTeams = new mongoose.Schema({
         type: String,
         trim: true
     },
+    environmentname: {
+        type: String,
+        trim: true
+    },
+    environmentname_rowid: {
+        type: String,
+        trim: true
+    },
     orgname: {
         type: [String],
         required: false,
@@ -305,6 +321,14 @@ var d4dMastersTeams = new mongoose.Schema({
     },
     orgname_rowid: {
         type: [String],
+        trim: true
+    },
+    productgroupname: {
+        type: String,
+        trim: true
+    },
+    productgroupname_rowid: {
+        type: String,
         trim: true
     },
     description: {
@@ -360,6 +384,14 @@ var d4dMastersProjects = new mongoose.Schema({
         trim: true
     },
     environmentname_rowid: {
+        type: String,
+        trim: true
+    },
+    teamname: {
+        type: String,
+        trim: true
+    },
+    teamname_rowid: {
         type: String,
         trim: true
     },

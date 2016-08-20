@@ -120,14 +120,14 @@ function compareObject(a, b) {
     }
 };
 appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjectId(jsonData, callback) {
-    masterUtil.getParticularProject(jsonData.projectId, function(err, project) {
+    masterUtil.getTeamByProjectId(jsonData.projectId, function(err, team) {
         if (err) {
-            logger.debug("Failed to fetch  Project");
+            logger.debug("Failed to fetch  Team");
             callback(err, null);
             return;
         }
-        if (project.length === 0) {
-            logger.debug("There is no Project configured.");
+        if (team.length === 0) {
+            logger.debug("There is no Team configured.");
             callback(null, []);
             return;
         } else {
@@ -139,7 +139,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                 }
                 var appDeployList = [];
                 var appDeployObj = {};
-                var environments = project[0].environmentname.split(",");
+                var environments = team[0].environmentname.split(",");
                 var distinctAppDeployAppNameVersion = appDeployResults.data;
                 if (distinctAppDeployAppNameVersion.length > 0) {
                     for (var i = 0; i < distinctAppDeployAppNameVersion.length; i++) {
@@ -270,14 +270,14 @@ appDeployService.getAppDeployHistoryListByProjectId = function getAppDeployHisto
 };
 
 appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListByProjectId(jsonData, callback) {
-    masterUtil.getParticularProject(jsonData.projectId, function(err, project) {
+    masterUtil.getTeamByProjectId(jsonData.projectId, function(err, team) {
         if (err) {
-            logger.debug("Failed to fetch  Project");
+            logger.debug("Failed to fetch  Team");
             callback(err, null);
             return;
         }
-        if (project.length === 0) {
-            logger.debug("There is no Project configured.");
+        if (team.length === 0) {
+            logger.debug("There is no Team configured.");
             callback(null, []);
             return;
         } else {
@@ -289,7 +289,7 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                 }
                 var pipeLineViewList = [];
                 var pipeLineViewObj = {};
-                var environments = project[0].environmentname.split(",");
+                var environments = team[0].environmentname.split(",");
                 var applicationNames = distinctAppDeployApplicationNames.data;
                 if (applicationNames.length > 0) {
                     for (var i = 0; i < applicationNames.length; i++) {
