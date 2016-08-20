@@ -2020,13 +2020,13 @@ var InstancesDao = function() {
     this.updateInstanceStatus = function(instanceId,instance,callback) {
         var updateObj={};
         if(instance.state === 'terminated'){
-            updateObj['state'] = instance.state;
+            updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = true;
             updateObj['tags'] = instance.tags;
             updateObj['environmentTag'] = instance.environmentTag;
             updateObj['projectTag'] = instance.projectTag;
         }else{
-            updateObj['state'] = instance.state;
+            updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = false;
             updateObj['tags'] = instance.tags;
             updateObj['environmentTag'] = instance.environmentTag;
