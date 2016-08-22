@@ -596,15 +596,15 @@
                                 //Determining the provider type before delete
                                 var provname = 'aws';
 
-                                if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "OPENSTACK") {
+                                if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() === "OPENSTACK" || $(button).closest('tr').find('td[datafield="providerType"]').first().text() === "openstack" ) {
                                     provname = 'openstack';
-                                } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "AZURE") {
+                                } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() === "AZURE" || $(button).closest('tr').find('td[datafield="providerType"]').first().text() === "azure") {
                                     provname = 'azure';
-                                } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "VMWARE") {
+                                } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() === "VMWARE" || $(button).closest('tr').find('td[datafield="providerType"]').first().text() === "vmware") {
                                     provname = 'vmware';
-                                } else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() == "HPPUBLICCLOUD") {
+                                } /*else if ($(button).closest('tr').find('td[datafield="providerType"]').first().text() === "HPPUBLICCLOUD" || $(button).closest('tr').find('td[datafield="providerType"]').first().text() === "AZURE") {
                                     provname = 'hppubliccloud';
-                                }
+                                }*/
 
                                 bootbox.confirm('You are about to remove this item \" ' + $(button).closest('tr').find('td').first().html() + ' \"', function(result) {
                                     if (result) {

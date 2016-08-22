@@ -2034,10 +2034,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
     };
 
     function dissociateTeamWithUser(teams, bodyJson) {
-        console.log("Durgesh");
-        console.log(JSON.stringify(teams));
-        console.log(JSON.stringify(bodyJson));
-        console.log("*****************8");
         for(var i = 0; i < teams.length; i++) {
             (function(team) {
                 var teamUserId = team.loginname_rowid.split(",");
@@ -2758,8 +2754,25 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 res.send(500);
                                                 return;
                                             }
-                                            res.send(200);
-                                            return;
+                                            var teamIds = bodyJson['teamname_rowid'].split(",");
+                                            var count = 0;
+                                            for (var i = 0; i < teamIds.length; i++) {
+                                                (function(team){
+                                                    d4dModelNew.d4dModelMastersTeams.findOne({
+                                                        rowid: team,
+                                                        id: "21"
+                                                    }, function(err, teams) {
+                                                        count++;
+                                                        if (!err) {
+                                                            updateTeamWithProject(teams, bodyJson);
+                                                            if(count === teamIds.length){
+                                                                res.send(200);
+                                                                return;
+                                                            }
+                                                        }
+                                                    });
+                                                })(teamIds[i]);
+                                            }
                                         });
                                     } else if (req.params.id === '26') {
                                         bodyJson['groupid'] = JSON.parse(bodyJson['groupid']);
@@ -2793,7 +2806,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                             if (req.params.id == '3') {
                                                 var teamIds = bodyJson['teamname_rowid'].split(",");
-                                                console.log("***********************");
                                                 for (var i = 0; i < teamIds.length; i++) {
                                                     (function(team){
                                                         d4dModelNew.d4dModelMastersTeams.findOne({
@@ -3044,13 +3056,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     });
                                                 })(teamIds[i]);
                                             }
-                                        }
+                                        };
                                         if (req.params.id == '4') {
                                             var teamIds = bodyJson['teamname_rowid'].split(",");
                                             for (var i = 0; i < teamIds.length; i++) {
                                                 (function(team){
                                                     d4dModelNew.d4dModelMastersTeams.findOne({
-                                                        rowid: teamIds[i],
+                                                        rowid: team,
                                                         id: "21"
                                                     }, function(err, teams) {
                                                         if (!err) {
@@ -3059,13 +3071,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     });
                                                 })(teamIds[i]);
                                             }
-                                        }
+                                        };
                                         if (req.params.id == '7') {
                                             var teamIds = bodyJson['teamname_rowid'].split(",");
                                             for (var i = 0; i < teamIds.length; i++) {
                                                 (function(team){
                                                     d4dModelNew.d4dModelMastersTeams.findOne({
-                                                        rowid: teamIds[i],
+                                                        rowid: team,
                                                         id: "21"
                                                     }, function(err, teams) {
                                                         if (!err) {
@@ -3074,7 +3086,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     });
                                                 })(teamIds[i]);
                                             }
-                                        }
+                                        };
                                         if (req.params.id === '21') {
                                             var projectName = bodyJson["projectname"];
                                             d4dModelNew.d4dModelMastersTeams.update({
