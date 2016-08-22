@@ -1,12 +1,9 @@
 /*
  Copyright [2016] [Relevance Lab]
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
  http://www.apache.org/licenses/LICENSE-2.0
-
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -172,7 +169,7 @@ function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInst
             r53Cost += Number(data[costIndex]);
         }else if(data[prodIndex] === "Amazon Simple Storage Service") {
             s3Cost += Number(data[costIndex]);
-           if (bucketNames.indexOf(data[21]) >=0) {
+            if (bucketNames.indexOf(data[21]) >=0) {
                 var bucketCostMetricsObj = {};
                 bucketCostMetricsObj['usageCost'] = Number(data[costIndex]);
                 bucketCostMetricsObj['resourceId'] = data[21];
@@ -364,77 +361,77 @@ function getTotalCost(provider,callback)
 
 
 function getCostForServices(provider,callback) {
-        var cryptoConfig = appConfig.cryptoSettings;
-        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-        var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
-            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-        var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
-            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-        var cwConfig = {
-            access_key: decryptedAccessKey,
-            secret_key: decryptedSecretKey,
-            region:"us-east-1"
-        };
-        cw = new CW(cwConfig);
-        var endDate= new Date();
-        var startDate = new Date(endDate.getTime() - (1000*60*60*6));
-        var startDateOne = new Date(endDate.getTime() - (1000*60*60*24));
-        /*This the Dimension that is required to passed for different services*/
-        var ec2Dim = [ { Name: 'ServiceName',Value: 'AmazonEC2'},{ Name: 'Currency', Value: 'USD'} ];
-        var rdsDim = [ { Name: 'ServiceName',Value: 'AmazonRDS'},{ Name: 'Currency', Value: 'USD'} ];
-        var ec2Cost = 0, rdsCost = 0;
-        /*Getting the cost of EC2 & RDS for the current day*/
-        cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentCost)
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var cwConfig = {
+        access_key: decryptedAccessKey,
+        secret_key: decryptedSecretKey,
+        region:"us-east-1"
+    };
+    cw = new CW(cwConfig);
+    var endDate= new Date();
+    var startDate = new Date(endDate.getTime() - (1000*60*60*6));
+    var startDateOne = new Date(endDate.getTime() - (1000*60*60*24));
+    /*This the Dimension that is required to passed for different services*/
+    var ec2Dim = [ { Name: 'ServiceName',Value: 'AmazonEC2'},{ Name: 'Currency', Value: 'USD'} ];
+    var rdsDim = [ { Name: 'ServiceName',Value: 'AmazonRDS'},{ Name: 'Currency', Value: 'USD'} ];
+    var ec2Cost = 0, rdsCost = 0;
+    /*Getting the cost of EC2 & RDS for the current day*/
+    cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentCost)
+    {
+        if(err){
+            callback(err,null);
+        }
+        cw.getTotalCost(startDateOne,endDate,'Minimum',ec2Dim,function(err,yesterdayCost)
         {
             if(err){
                 callback(err,null);
             }
-            cw.getTotalCost(startDateOne,endDate,'Minimum',ec2Dim,function(err,yesterdayCost)
+            ec2Cost = presentCost['Maximum'] - yesterdayCost['Minimum'];
+        });
+        cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRdsCost)
+        {
+            if(err){
+                callback(err,null);
+            }
+            cw.getTotalCost(startDateOne,endDate,'Minimum',rdsDim,function(err,yesterdayRdsCost)
             {
                 if(err){
                     callback(err,null);
                 }
-                ec2Cost = presentCost['Maximum'] - yesterdayCost['Minimum'];
-            });
-            cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRdsCost)
-            {
-                if(err){
-                    callback(err,null);
-                }
-                cw.getTotalCost(startDateOne,endDate,'Minimum',rdsDim,function(err,yesterdayRdsCost)
-                {
+                rdsCost = presentRdsCost['Maximum'] - yesterdayRdsCost['Minimum'];
+                var awsResourceCostObject = {
+                    organisationId: provider.orgId,
+                    providerId: provider._id,
+                    providerType: provider.providerType,
+                    providerName: provider.providerName,
+                    resourceType: "serviceCost",
+                    resourceId: "serviceCost",
+                    aggregateResourceCost:ec2Cost + rdsCost,
+                    costMetrics : {
+                        ec2Cost:ec2Cost,
+                        rdsCost:rdsCost,
+                        currency:'USD',
+                        symbol:"$"
+                    },
+                    updatedTime : Date.parse(endDate),
+                    startTime: Date.parse(endDate),
+                    endTime: Date.parse(startDateOne)
+                };
+                resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
                     if(err){
                         callback(err,null);
+                    } else{
+                        callback(null,resourceCostData);
                     }
-                    rdsCost = presentRdsCost['Maximum'] - yesterdayRdsCost['Minimum'];
-                    var awsResourceCostObject = {
-                        organisationId: provider.orgId,
-                        providerId: provider._id,
-                        providerType: provider.providerType,
-                        providerName: provider.providerName,
-                        resourceType: "serviceCost",
-                        resourceId: "serviceCost",
-                        aggregateResourceCost:ec2Cost + rdsCost,
-                        costMetrics : {
-                            ec2Cost:ec2Cost,
-                            rdsCost:rdsCost,
-                            currency:'USD',
-                            symbol:"$"
-                        },
-                        updatedTime : Date.parse(endDate),
-                        startTime: Date.parse(endDate),
-                        endTime: Date.parse(startDateOne)
-                    };
-                    resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                        if(err){
-                            callback(err,null);
-                        } else{
-                            callback(null,resourceCostData);
-                        }
-                    })
-                });
+                })
             });
         });
+    });
 }
 
 function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, period, callback) {
@@ -471,7 +468,7 @@ function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, per
     }
 
     /*var endTime = new Date();
-    var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
+     var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
             if(('providerData' in instances[j]) && (typeof instances[j].providerData !== undefined)
@@ -500,19 +497,19 @@ function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, per
                         if(err) {
                             logger.error(err)
                         } else {
-                        	/* TODO: To split up into different entries.*/
-                        	/* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-                        	
-                        	/* Currently modifying the start time and end time with the period.
-                        	 * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                        	 * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                        	 * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                        	 * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                        	 */
-                        	var dbEndTime = startTime;
-                        	var dbStartTime = getStartTime(dbEndTime, period);
-                        	
-                        	instanceUsageMetrics.push({
+                            /* TODO: To split up into different entries.*/
+                            /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                            /* Currently modifying the start time and end time with the period.
+                             * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                             * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                             * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                             * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                             */
+                            var dbEndTime = startTime;
+                            var dbStartTime = getStartTime(dbEndTime, period);
+
+                            instanceUsageMetrics.push({
                                 providerId: provider._id,
                                 providerType: provider.providerType,
                                 orgId: provider.orgId[0],
@@ -574,52 +571,52 @@ function getS3BucketsMetrics(provider, buckets, startTime, endTime, period, call
         };
     }
     /*var endTime= new Date();
-    var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
+     var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
     for(var i = 0; i < buckets.length; i++) {
         (function(bucket) {
-                cw = new CW(amazonConfig);
-                async.parallel({
-                        BucketSizeBytes: function (callback) {
-                            cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, period, callback);
-                        },
-                        NumberOfObjects: function (callback) {
-                            cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, period, callback);
-                        }
+            cw = new CW(amazonConfig);
+            async.parallel({
+                    BucketSizeBytes: function (callback) {
+                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, period, callback);
                     },
-                    function (err, results) {
-                        if(err) {
-                            logger.error(err)
-                        } else {
-                        	/* TODO: To split up into different entries.*/
-                        	/* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-                        	
-                        	/* Currently modifying the start time and end time with the period.
-                        	 * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                        	 * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                        	 * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                        	 * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                        	 */
-                        	var dbEndTime = startTime;
-                        	var dbStartTime = getStartTime(dbEndTime, period);
-                        	
-                        	bucketUsageMetrics.push({
-                                providerId: provider._id,
-                                providerType: provider.providerType,
-                                orgId: provider.orgId[0],
-                                resourceId: bucket._id,
-                                platform: 'AWS',
-                                platformId: bucket.resourceDetails.bucketName,
-                                resourceType: 'S3',
-                                startTime: dbStartTime,
-                                endTime: dbEndTime,
-                                interval: period,
-                                metrics: results
-                            });
-                        }
-                        if(bucketUsageMetrics.length == bucketWithMetrics) {
-                            callback(null, bucketUsageMetrics);
-                        }
-                    });
+                    NumberOfObjects: function (callback) {
+                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, period, callback);
+                    }
+                },
+                function (err, results) {
+                    if(err) {
+                        logger.error(err)
+                    } else {
+                        /* TODO: To split up into different entries.*/
+                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                        /* Currently modifying the start time and end time with the period.
+                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                         */
+                        var dbEndTime = startTime;
+                        var dbStartTime = getStartTime(dbEndTime, period);
+
+                        bucketUsageMetrics.push({
+                            providerId: provider._id,
+                            providerType: provider.providerType,
+                            orgId: provider.orgId[0],
+                            resourceId: bucket._id,
+                            platform: 'AWS',
+                            platformId: bucket.resourceDetails.bucketName,
+                            resourceType: 'S3',
+                            startTime: dbStartTime,
+                            endTime: dbEndTime,
+                            interval: period,
+                            metrics: results
+                        });
+                    }
+                    if(bucketUsageMetrics.length == bucketWithMetrics) {
+                        callback(null, bucketUsageMetrics);
+                    }
+                });
         })(buckets[i]);
     }
 };
@@ -656,7 +653,7 @@ function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, peri
         };
     }
     /*var endTime= new Date();
-    var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
+     var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
     for(var i = 0; i < dbInstances.length; i++) {
         (function(rds) {
             cw = new CW(amazonConfig);
@@ -720,19 +717,19 @@ function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, peri
                     if(err) {
                         logger.error(err)
                     } else {
-                    	
-                    	/* TODO: To split up into different entries.*/
-                    	/* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
-                    	
-                    	/* Currently modifying the start time and end time with the period.
-                    	 * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
-                    	 * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
-                    	 * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
-                    	 * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
-                    	 */
-                    	var dbEndTime = startTime;
-                    	var dbStartTime = getStartTime(dbEndTime, period);
-                    	
+
+                        /* TODO: To split up into different entries.*/
+                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                        /* Currently modifying the start time and end time with the period.
+                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                         */
+                        var dbEndTime = startTime;
+                        var dbStartTime = getStartTime(dbEndTime, period);
+
                         rdsUsageMetrics.push({
                             providerId: provider._id,
                             providerType: provider.providerType,
@@ -987,7 +984,7 @@ function bulkUpdateResourceProviderTags(provider, bulkResources, callback){
 }
 
 function bulkUpdateUnassignedResourceTags(bulkResources, callback){
-   for (var i = 0; i < bulkResources.length; i++) {
+    for (var i = 0; i < bulkResources.length; i++) {
         (function(j) {
             var params = {
                 '_id': bulkResources[j].id
@@ -1094,8 +1091,8 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
 }
 
 function getStartTime(endTime, period){
-	var startTime = new Date(endTime);
-	var subtractedDateInMilliSeconds = startTime.getTime() - (period*1000);
-	var subtractedDate = new Date(subtractedDateInMilliSeconds);
-	return dateUtil.getDateInUTC(subtractedDate); 
+    var startTime = new Date(endTime);
+    var subtractedDateInMilliSeconds = startTime.getTime() - (period*1000);
+    var subtractedDate = new Date(subtractedDateInMilliSeconds);
+    return dateUtil.getDateInUTC(subtractedDate);
 }

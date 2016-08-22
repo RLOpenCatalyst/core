@@ -35,6 +35,21 @@ function getDateInUTC(date) {
 }
 
 /*
+ * Get Start of a month in UTC
+ */
+function getStartOfAMonthInUTC(date, callback) {
+	if( typeof date === 'undefined' || date === null ) {
+		return null;
+	}else{
+		var dateStartOfMonth = moment.utc(date).seconds(0);
+		dateStartOfMonth = moment.utc(dateStartOfMonth).minute(0);
+		dateStartOfMonth = moment.utc(dateStartOfMonth).hour(0);
+		dateStartOfMonth = moment.utc(dateStartOfMonth).date(1);
+		return dateStartOfMonth.format();
+	}
+}
+
+/*
  * Get Date in UTC Format
  * date - JavaScript Date
  * return - 2016-08-09T13:11:46Z
@@ -139,3 +154,4 @@ momentDateUtil.getStartOfAHourInUTCAsync = getStartOfAHourInUTCAsync;
 momentDateUtil.getStartOfADayInUTCAsync = getStartOfADayInUTCAsync;
 momentDateUtil.getStartOfAMonthInUTCAsync = getStartOfAMonthInUTCAsync;
 momentDateUtil.getStartOfAYearInUTCAsync = getStartOfAYearInUTCAsync;
+momentDateUtil.getStartOfAMonthInUTC = getStartOfAMonthInUTC;
