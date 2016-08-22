@@ -16,8 +16,6 @@ const async = require('async')
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-    app.use(json2xls.middleware)
-
     // @TODO Reconsider providing different end points for trend and aggregate
     /**
      * @api {get} /reports/cost?type=<reportType>&filterBy=organizationId:<organizationId>&period=<period>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval<INTERVAL>
@@ -58,13 +56,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     }
 
     /**
-     * @api {get} /reports/usage?resource=<resourceId>&fromTimeStamp=<startDate>&toTimeStamp=<endDate>&metric=<METRIC>&interval=<INTERVAL>
+     * @api {get} /reports/usage?resourceType=<resourceType>&fromTimeStamp=<startDate>&toTimeStamp=<endDate>&metric=<METRIC>&interval=<INTERVAL>
      * 										                    									Get usage trend.
      * @apiName getUsageReport
      * @apiGroup reports
      * @apiVersion 1.0.0
      *
-     * @apiParam {String} resource                          ResourceId
+     * @apiParam {String} resourceType                      Resource type Ex: EC2, RDS, S3
      * @apiParam {Date} fromTimeStamp						Start Time Stamp, inclusive. Format YYYY-MM-DDTHH:MM:SS. For Ex: 2016-07-29T00:00:00
      * @apiParam {Date} toTimeStamp							End Time Stamp, exclusive. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-07-29T00:05:00
      * @apiParam {Number} interval                          Frequency interval in seconds Ex: 60,300, 3600
@@ -72,7 +70,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} [statistics="All Statistics"]		Filter particular statistics. For Ex: Average,Minimum
      *
      * @apiExample Sample_Request_1
-     * 		/reports/usage?resourceType=EC2&resourceId=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&interval=1_MINUTE
+     * 		/reports/usage?resourceType=EC2&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&interval=3600
      *
      * @apiSuccess {csv}   report                                            Usage report in CSV
      *
