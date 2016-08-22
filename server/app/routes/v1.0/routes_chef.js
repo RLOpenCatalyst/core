@@ -343,6 +343,42 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                         log: "Node Imported",
                                         timestamp: new Date().getTime()
                                     });
+                                    var instance = data;
+                                    instance.id = data._id;
+                                    instance._id = data._id;
+                                    var timestampStarted = new Date().getTime();
+                                    var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarted);
+                                    var instanceLog = {
+                                        actionId: actionLog._id,
+                                        instanceId: instance.id,
+                                        orgName: reqBody.orgName,
+                                        bgName: reqBody.bgName,
+                                        projectName: reqBody.projectName,
+                                        envName: envName,
+                                        status: "running",
+                                        bootStrap: "success",
+                                        platformId: platformId,
+                                        blueprintName: node.name,
+                                        data: runlist,
+                                        platform: hardwareData.platform,
+                                        os: hardwareData.os,
+                                        size: "",
+                                        user: req.session.user.cn,
+                                        startedOn: new Date().getTime(),
+                                        createdOn: new Date().getTime(),
+                                        providerType: "",
+                                        action: "Imported From ChefServer",
+                                        logs: [{
+                                            err: false,
+                                            log: "Node Imported",
+                                            timestamp: new Date().getTime()
+                                        }]
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
                                     var _docker = new Docker();
                                     _docker.checkDockerStatus(data._id, function (err, retCode) {
                                         if (err) {

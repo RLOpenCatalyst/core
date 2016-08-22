@@ -120,12 +120,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			if (aProvider) {
 				AWSKeyPair.getAWSKeyPairByProviderId(aProvider._id, function(err, keyPair) {
-					masterUtil.getOrgById(aProvider.orgId[0], function(err, orgs) {
+					masterUtil.getOrgByRowId(aProvider.orgId[0], function(err, orgs) {
 						if (err) {
 							res.status(500).send("Not able to fetch org.");
 							return;
 						}
-
 						if (orgs.length > 0) {
 							if (keyPair) {
 								var dommyProvider = {
@@ -253,7 +252,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								res.status(500).send("Failed to create Provider.");
 								return;
 							}
-							masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+							masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 								if (err) {
 									res.status(500).send("Not able to fetch org.");
 									return;
@@ -385,7 +384,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				return;
 			}
 			if (aProvider) {
-				masterUtil.getOrgById(aProvider.orgId[0], function(err, orgs) {
+				masterUtil.getOrgByRowId(aProvider.orgId[0], function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -534,7 +533,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send(errorResponses.db.error);
 					return;
 				}
-				masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+				masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -750,7 +749,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 
-							masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+							masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 								if (err) {
 									res.status(500).send("Not able to fetch org.");
 									return;
