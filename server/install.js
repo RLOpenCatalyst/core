@@ -107,6 +107,7 @@ function getDefaultsConfig() {
             max_record_limit : 200,
             record_limit : 50
         },
+        trackMenu:['Capacity','Providers','Health','Telemetry','CI/CD','Service Delivery'],
         puppet: {
             puppetReposDirName: 'puppet-repos',
 
