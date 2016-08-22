@@ -248,6 +248,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 						res.send(orgTree);
 						return;
 					} else {
+						logger.debug("================================ ",JSON.stringify(objperms));
 						d4dModelNew.d4dModelMastersOrg.find({
 							id: 1,
 							active: true,

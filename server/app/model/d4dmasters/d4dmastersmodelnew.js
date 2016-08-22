@@ -607,12 +607,12 @@ var d4dMastersUsers = new mongoose.Schema({
     },
     teamname: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     teamname_rowid: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     active: {
