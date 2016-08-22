@@ -26,7 +26,7 @@ $(document).ready(function() {
         url: '../track',
         success: function(data, success) {
             if (data.length === 0) {
-                var str = '<div class="alert alert-warning noTrackItems"><img style="width:50px;height:40px" src="img/warning.png" alt="warning"/><span style="margin-left:20px;font-size:18px;">Navigate to Settings to add Dashoboard Items.</span></div>'
+                var str = '<div class="alert alert-warning noTrackItems"><img style="width:50px;height:40px" src="img/warning.png" alt="warning"/><span style="margin-left:20px;font-size:18px;">Navigate to Settings to add Dashboard Items.</span></div>'
                 $('#content').html(str);
             }
         }
