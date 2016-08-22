@@ -107,7 +107,37 @@ reportsService.getUsageTrends = function getUsageTrends(query, callback) {
 }
 
 reportsService.formatCostAggregateToXlsx = function formatCostAggregateToXlsx(aggregateCostData, callback) {
-    callback(null, aggregateCostData)
+    console.log(aggregateCostData)
+    var formattedAggregateData = []
+
+    formattedAggregateData.push({
+        Service: 'EC2',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.ec2Cost * 100) / 100
+    })
+    formattedAggregateData.push({
+        Service: 'S3',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.s3Cost * 100) / 100
+    })
+    formattedAggregateData.push({
+        Service: 'RDS',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.rdCost * 100) / 100
+    })
+    formattedAggregateData.push({
+        Service: 'VPC',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.vpcCost * 100) / 100
+    })
+    formattedAggregateData.push({
+        Service: 'Route 53',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.r53Cost * 100) / 100
+    })
+
+    formattedAggregateData.push({})
+    formattedAggregateData.push({
+        Service: 'Total montly running cost',
+        Cost: Math.round(aggregateCostData.aggregateResourceCost * 100) / 100
+    })
+
+    callback(null, formattedAggregateData)
 }
 
 reportsService.formatCostTrendsToXlsx = function formatCostTrendsToXlsx(costTrendsData, callback) {
