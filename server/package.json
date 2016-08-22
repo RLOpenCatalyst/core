@@ -71,7 +71,8 @@
 		"fs":"0.0.2",
         "cors": "2.7.1",
         "events": "1.1.1",
-        "json2csv": "3.6.2"
+        "moment": "2.14.1",
+        "json2xls": "0.1.2"
     },
     "devDependencies": {
         "grunt": "0.4.5",

@@ -10,10 +10,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-var json2csv = require('json2csv');
+const json2xls = require('json2xls');
+const reportsService = require('_pr/services/reportsService')
+const async = require('async')
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
+    app.use(json2xls.middleware)
+
+    // @TODO Reconsider providing different end points for trend and aggregate
     /**
      * @api {get} /reports/cost?type=<reportType>&filterBy=organizationId:<organizationId>&period=<period>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval<INTERVAL>
      * 										                    									Get aggregate cost
@@ -36,18 +41,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
     app.get("/reports/cost", getCostReport)
     function getCostReport(req, res, next) {
-        // dummy csv data
-        var result = {
-            "totalCost": 100,
-            "period": "month",
-            "fromTime": "2016-08-01T00:00:00",
-            "toTime": "2016-08-12T00:00:00",
-            "interval": 86400
-        }
-
-        res.header("content-type", "text/csv")
-        res.status(200).send(json2csv({data: result,
-            fields: ['totalCost', 'period', 'fromTime', 'toTime', 'interval']}));
+        //@TODO Authorization to be implemented after fixing provider schema
+        async.waterfall([
+            function(next) {
+                reportsService.getCost(req.query, next)
+            }
+        ], function(err, costDataFile) {
+            if(err) {
+                next(err)
+            } else {
+                res.xls('data.xlsx', costDataFile)
+            }
+        });
     }
 
     /**
