@@ -59,6 +59,10 @@ reportsService.getCost = function getCost(query, callback) {
                     dateUtil.getStartOfAMonthInUTC(query.toTimeStamp))}})
                 break
             default:
+                var err = new Error('Invalid request')
+                err.status = 400;
+                err.messages = ['Query not supported']
+                return callback(err)
                 break
         }
     }
@@ -66,7 +70,6 @@ reportsService.getCost = function getCost(query, callback) {
     // defaults to day
     /*if('interval' in query) {
      }*/
-    console.log(dbAndCriteria);
     if ('type' in query) {
         switch (query.type) {
             case 'aggregate':
@@ -108,7 +111,45 @@ reportsService.formatCostAggregateToXlsx = function formatCostAggregateToXlsx(ag
 }
 
 reportsService.formatCostTrendsToXlsx = function formatCostTrendsToXlsx(costTrendsData, callback) {
-    callback(null, costTrendsData)
+    var formattedTrendsData = []
+    var ec2TotalCost = 0
+    var rdsTotalCost = 0
+    var totalCost   = 0
+
+    for(var i = 0; i < costTrendsData.length; i++) {
+        var endDate = new Date(costTrendsData[i].endTime)
+        var endDateString = dateUtil.getDateInUTC(endDate).toString().substring(0, 10)
+
+        if(endDate.getHours() == 00 && endDate.getMinutes() == 00) {
+            ec2TotalCost += costTrendsData[i].costMetrics.ec2Cost
+            rdsTotalCost += costTrendsData[i].costMetrics.rdsCost
+            totalCost += costTrendsData[i].aggregateResourceCost
+
+            formattedTrendsData.push({
+                'Date': endDateString,
+                'EC2 Cost': Math.round(costTrendsData[i].costMetrics.ec2Cost * 100) / 100,
+                'RDS Cost': Math.round(costTrendsData[i].costMetrics.rdsCost * 100) / 100,
+                'Total Cost': Math.round(costTrendsData[i].aggregateResourceCost * 100) / 100
+            })
+        }
+    }
+
+    if(formattedTrendsData.length == 0) {
+        var err = new Error('Invalid request')
+        err.status = 400;
+        err.messages = ['No data available for this request']
+        return callback(err)
+    } else {
+        formattedTrendsData.push({})
+        formattedTrendsData.push({
+            'Date': 'Monthly running cost',
+            'EC2 Cost': Math.round(ec2TotalCost * 100) / 100,
+            'RDS Cost': Math.round(rdsTotalCost * 100) / 100,
+            'Total Cost': Math.round(totalCost * 100) / 100
+        })
+
+        return callback(null, formattedTrendsData)
+    }
 }
 
 reportsService.formatUsageTrendsToXlsx = function formatUsageTrendsToXlsx(usageTrendsData, callback) {
