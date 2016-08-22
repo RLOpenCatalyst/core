@@ -14,24 +14,25 @@
  limitations under the License.
  */
 
-const logger = require('_pr/logger')(module);
+const logger = require('_pr/logger')(module)
 const dateUtil = require('_pr/lib/utils/dateUtil')
-const resourceMetricsModel = require('_pr/model/resource-metrics');
-const resourceCostsModel = require('_pr/model/resource-costs');
-const appConfig = require('_pr/config');
+const resourceMetricsModel = require('_pr/model/resource-metrics')
+const resourceCostsModel = require('_pr/model/resource-costs')
+const appConfig = require('_pr/config')
+const reportsDirectory = appConfig.reportsDir
 
 var reportsService = module.exports = {}
 
 // @TODO Query builder to be made generic and reused in analytics after schema changes
 reportsService.parseFilterBy = function parseFilterBy(filterByString) {
-    var filterQuery = {};
+    var filterQuery = {}
 
-    var filters = filterByString.split('+');
+    var filters = filterByString.split('+')
     for (var i = 0; i < filters.length; i++) {
-        var filter = filters[i].split(':');
-        var filterQueryValues = filter[1].split(",");
+        var filter = filters[i].split(':')
+        var filterQueryValues = filter[1].split(",")
 
-        filterQuery[filter[0]] = {'$in': filterQueryValues};
+        filterQuery[filter[0]] = {'$in': filterQueryValues}
     }
 
     return filterQuery;
@@ -48,6 +49,11 @@ reportsService.getCost = function getCost(query, callback) {
     if ('toTimeStamp' in query) {
         // Calculate start and end time
         dbAndCriteria.push({endTime: {$lte: Date.parse(query.toTimeStamp)}})
+    } else {
+        var err = new Error('Invalid request')
+        err.status = 400;
+        err.messages = ['To time stamp is mandatory']
+        return callback(err)
     }
     // Reports generated only for AWS
     dbAndCriteria.push({providerType: 'AWS'})
@@ -81,7 +87,7 @@ reportsService.getCost = function getCost(query, callback) {
                         err.messages = [err.message]
                         return callback(err)
                     } else {
-                        reportsService.formatCostAggregateToXlsx(aggregateCostData, callback)
+                        reportsService.formatCostAggregateReport(aggregateCostData, callback)
                     }
                 })
                 break
@@ -94,7 +100,7 @@ reportsService.getCost = function getCost(query, callback) {
                         err.messages = [err.message]
                         return callback(err)
                     } else {
-                        reportsService.formatCostTrendsToXlsx(costTrendsData, callback)
+                        reportsService.formatCostTrendsReport(costTrendsData, callback)
                     }
                 })
                 break
@@ -106,11 +112,44 @@ reportsService.getUsageTrends = function getUsageTrends(query, callback) {
 
 }
 
-reportsService.formatCostAggregateToXlsx = function formatCostAggregateToXlsx(aggregateCostData, callback) {
-    callback(null, aggregateCostData)
+reportsService.formatCostAggregateReport = function formatCostAggregateReport(aggregateCostData, callback) {
+    var formattedAggregateData = []
+
+    formattedAggregateData.push({
+        Service: 'EC2',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.ec2Cost * 100) / 100
+    })
+    formattedAggregateData.push({
+        Service: 'S3',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.s3Cost * 100) / 100
+    })
+    formattedAggregateData.push({
+        Service: 'RDS',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.rdCost * 100) / 100
+    })
+    formattedAggregateData.push({
+        Service: 'VPC',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.vpcCost * 100) / 100
+    })
+    formattedAggregateData.push({
+        Service: 'Route 53',
+        Cost: Math.round(aggregateCostData.costMetrics.serviceCost.r53Cost * 100) / 100
+    })
+
+    formattedAggregateData.push({})
+    formattedAggregateData.push({
+        Service: 'Total montly running cost',
+        Cost: Math.round(aggregateCostData.aggregateResourceCost * 100) / 100
+    })
+
+    callback(null, {
+        fileName: 'reports-cost-aggregate-',
+        fields: ['Service', 'Cost'],
+        data: formattedAggregateData
+    })
 }
 
-reportsService.formatCostTrendsToXlsx = function formatCostTrendsToXlsx(costTrendsData, callback) {
+reportsService.formatCostTrendsReport = function formatCostTrendsReport(costTrendsData, callback) {
     var formattedTrendsData = []
     var ec2TotalCost = 0
     var rdsTotalCost = 0
@@ -148,10 +187,14 @@ reportsService.formatCostTrendsToXlsx = function formatCostTrendsToXlsx(costTren
             'Total Cost': Math.round(totalCost * 100) / 100
         })
 
-        return callback(null, formattedTrendsData)
+        callback(null, {
+            fileName: 'reports-cost-trends-',
+            fields: ['Date', 'EC2 Cost', 'RDS Cost', 'Total Cost'],
+            data: formattedTrendsData
+        })
     }
 }
 
-reportsService.formatUsageTrendsToXlsx = function formatUsageTrendsToXlsx(usageTrendsData, callback) {
+reportsService.formatUsageTrendsReport = function formatUsageTrendsReport(usageTrendsData, callback) {
 
 }
