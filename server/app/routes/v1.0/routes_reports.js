@@ -10,7 +10,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-const json2xls = require('json2xls');
+const json2csv = require('json2csv')
 const reportsService = require('_pr/services/reportsService')
 const async = require('async')
 
@@ -46,11 +46,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             function(next) {
                 reportsService.getCost(req.query, next)
             }
-        ], function(err, costDataFile) {
+        ], function(err, costReport) {
             if(err) {
                 next(err)
             } else {
-                res.xls('data.xlsx', costDataFile)
+                res.header("content-type", "text/csv")
+                res.status(200).send(json2csv({data: costReport.data,
+                    fields: costReport.fields}));
             }
         });
     }
@@ -70,7 +72,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} [statistics="All Statistics"]		Filter particular statistics. For Ex: Average,Minimum
      *
      * @apiExample Sample_Request_1
-     * 		/reports/usage?resource=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&interval=1_MINUTE
+     * 		/reports/usage?resourceType=EC2&resourceId=5790c31edff2c49223fd6efa&fromTimeStamp=2016-07-29T00:00:00&toTimeStamp=2016-07-29T00:05:00&interval=1_MINUTE
      *
      * @apiSuccess {csv}   report                                            Usage report in CSV
      *
