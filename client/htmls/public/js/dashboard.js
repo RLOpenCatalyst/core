@@ -33,9 +33,6 @@ $(document).ready(function() {
     $('#vmwareProvidersView').empty();
     $('#hpPlublicCloudProvidersView').empty();
     $('#azureProvidersView').empty();
-    if(totalcountproviders == 0) {
-      $('#totalProviders').append(totalcountproviders);
-    }
     if (totalcountproviders > 0) {
       var $presentProviderView = $('.infrastructureClass');
       $presentProviderView.show();
@@ -390,6 +387,7 @@ $(document).ready(function() {
         })(m);
       }
     } else {
+      $('#totalProviders').append(totalcountproviders);
       $('.noProviderView').show();
     }
   }).fail(function() {
