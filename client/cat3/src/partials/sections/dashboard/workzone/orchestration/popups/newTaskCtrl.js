@@ -42,6 +42,13 @@
 			$scope.optionScriptToggled = function() {
 				$scope.isAllScriptSelected = $scope.scriptTaskList.every(function(itm){ return  itm._isScriptSelected; })
 			}
+			$scope.isSudoSelected = function(val) {
+				if(val == "true") {
+					$scope.isSudo = true;
+				} else {
+					$scope.isSudo = false;
+				}
+			}
 			//default values for new task
 			angular.extend($scope, {
 				taskTypes: {
@@ -355,6 +362,8 @@
 					if ($scope.taskType === "script") {
 						taskJSON.nodeIds = [];
 						taskJSON.scriptDetails = [];
+						taskJSON.isSudo = $scope.isSudo;
+						console.log(taskJSON.isSudo);
 						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
 							if ($scope.chefInstanceList[si]._isNodeSelected) {
 								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
@@ -519,11 +528,13 @@
 				/*Identifying the nodes and script list and checking for task type to be script*/
 				if ($scope.taskType === "script") {
 					if($scope.isEditMode){
+						$scope.isSudo=items.taskConfig.isSudo;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
 						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;
 						$scope.targetType="instance";
 					}else{
+						$scope.isSudo = false;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
 						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;
