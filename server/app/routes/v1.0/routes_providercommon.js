@@ -59,7 +59,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return;
             }
 
-            MasterUtils.getOrgById(provider.orgId[0], function(err, orgs) {
+            MasterUtils.getOrgByRowId(provider.orgId[0], function(err, orgs) {
                 if (err) {
                     res.status(500).send({
                         message: "Server Behaved Unexpectedly"
