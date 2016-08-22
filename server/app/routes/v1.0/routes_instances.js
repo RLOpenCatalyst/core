@@ -276,7 +276,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.delete('/instances/:instanceId', function(req, res) {
         logger.debug("Enter delete() for /instances/%s", req.params.instanceId);
-        instancesDao.getInstanceById(req.params.instanceId, function(err, instances) {
+        instancesDao.getInstanceById(req.params.instanceId, function (err, instances) {
             if (err) {
                 logger.debug("Failed to fetch Instance ", err);
                 res.status(500).send(errorResponses.db.error);
@@ -284,7 +284,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
             if (instances.length) {
                 var instance = instances[0];
-                Task.getTasksByNodeIds([req.params.instanceId], function(err, tasks) {
+                Task.getTasksByNodeIds([req.params.instanceId], function (err, tasks) {
                     if (err) {
                         logger.debug("Failed to fetch tasks by node id ", err);
                         res.status(500).send(errorResponses.db.error);
@@ -314,7 +314,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             return;
                         }
 
-                        masterUtil.getCongifMgmtsById(infraManagerId, function(err, infraManagerDetails) {
+                        masterUtil.getCongifMgmtsById(infraManagerId, function (err, infraManagerDetails) {
                             if (err) {
                                 logger.debug("Failed to fetch Infra Manager Details ", err);
                                 res.status(500).send(errorResponses.db.error);
@@ -337,7 +337,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     chefValidationPemFile: infraManagerDetails.validatorpemfile,
                                     hostedChefUrl: infraManagerDetails.url,
                                 });
-                                chef.deleteNode(instance.chef.chefNodeName, function(err, nodeData) {
+                                chef.deleteNode(instance.chef.chefNodeName, function (err, nodeData) {
                                     if (err) {
                                         logger.debug("Failed to delete node ", err);
                                         if (err.chefStatusCode && err.chefStatusCode === 404) {
@@ -346,7 +346,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             res.send(500);
                                         }
                                     } else {
-                                        chefDao.removeChefNodeByChefName(instance.chef.chefNodeName,function(err,data) {
+                                        chefDao.removeChefNodeByChefName(instance.chef.chefNodeName, function (err, data) {
                                             if (err) {
                                                 logger.error(err, 'occured in removing chef node in mongo');
                                                 callback(err, null);
@@ -369,7 +369,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 }
 
                                 var puppet = new Puppet(puppetSettings);
-                                puppet.deleteNode(instance.puppet.puppetNodeName, function(err, deleted) {
+                                puppet.deleteNode(instance.puppet.puppetNodeName, function (err, deleted) {
                                     if (err) {
                                         logger.debug("Failed to delete node ", err);
                                         if (typeof err.retCode !== 'undefined' && err.retCode === 24) {
@@ -398,24 +398,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            instanceLogModel.removeByInstanceId(req.params.instanceId, function(err, removed) {
+            instanceLogModel.removeByInstanceId(req.params.instanceId, function (err, removed) {
                 if (err) {
                     logger.error("Failed to remove instance Log: ", err);
-                }
-            });
-            containerDao.deleteContainerByInstanceId(req.params.instanceId, function(err, container) {
-                if (err) {
-                    logger.error("Container deletion Failed >> ", err);
                     res.status(500).send(errorResponses.db.error);
                     return;
                 } else {
-                    containerDao.deleteContainerByInstanceId(req.params.instanceId, function(err, container) {
+                    containerDao.deleteContainerByInstanceId(req.params.instanceId, function (err, container) {
                         if (err) {
                             logger.error("Container deletion Failed >> ", err);
-                            callback(err, null);
+                            res.status(500).send(errorResponses.db.error);
                             return;
                         } else {
-                            instancesDao.removeInstanceById(req.params.instanceId, function(err, data) {
+                            instancesDao.removeInstanceById(req.params.instanceId, function (err, data) {
                                 if (err) {
                                     logger.error("Instance deletion Failed >> ", err);
                                     res.status(500).send(errorResponses.db.error);
