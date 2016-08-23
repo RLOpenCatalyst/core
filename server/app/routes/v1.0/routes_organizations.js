@@ -155,7 +155,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																			res.send(orgTree);
 																			return;
 																		} else if (teams.length > 0) {
-																			var checkDuplicateList = [];
+																			var checkDuplicateProjectList = [];
+																			var checkDuplicateEnvList = [];
 																			var count = 0;
 																			for (var l = 0; l < teams.length; l++) {
 																				(function (team) {
@@ -166,8 +167,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																								var projectIds = team.projectname_rowid.split(',');
 																								var projectNames = team.projectname.split(',');
 																								for (var n = 0; n < projectIds.length; n++) {
-																									if (checkDuplicateList.indexOf(projectIds[n]) === -1) {
-																										checkDuplicateList.push(projectIds[n]);
+																									if (checkDuplicateProjectList.indexOf(projectIds[n]) === -1) {
+																										checkDuplicateProjectList.push(projectIds[n]);
 																										var envIds = team.environmentname_rowid.split(',');
 																										var envNames = team.environmentname.split(',');
 																										var envList = [];
@@ -183,6 +184,31 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																												rowid: projectIds[n],
 																												environments: envList
 																											});
+																											bgTree.environments = envList;
+																										}
+																									}else{
+																										var envList = teamTree.projects[n].environments;
+																										var envIds = team.environmentname_rowid.split(',');
+																										var envNames = team.environmentname.split(',');
+																										var envCount = 0;
+																										for (var o = 0; o < envList.length; o++) {
+																											checkDuplicateEnvList.push(envList[o].name);
+																										};
+																										if(checkDuplicateEnvList.length === envList.length) {
+																											for (var p = 0; p < envIds.length; p++) {
+																												if (checkDuplicateEnvList.indexOf(envNames[p]) === -1) {
+																													envCount++;
+																													envList.push({
+																														name: envNames[p],
+																														rowid: envIds[p]
+																													})
+																												}else{
+																													envCount++;
+																												}
+																											}
+																										}
+																										if(envCount === envIds.length) {
+																											teamTree.projects[n].environments = envList;
 																											bgTree.environments = envList;
 																										}
 																									}
@@ -328,7 +354,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																			res.send(orgTree);
 																			return;
 																		} else if (teams.length > 0) {
-																			var checkDuplicateList = [];
+																			var checkDuplicateProjectList = [];
+																			var checkDuplicateEnvList = [];
 																			var count = 0;
 																			for (var l = 0; l < teams.length; l++) {
 																				(function (team) {
@@ -339,9 +366,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																								var projectIds = team.projectname_rowid.split(',');
 																								var projectNames = team.projectname.split(',');
 																								for (var n = 0; n < projectIds.length; n++) {
-																									if (checkDuplicateList.indexOf(projectIds[n]) === -1) {
-																										checkDuplicateList.push(projectIds[n]);
-																										console.log(projectIds[n]);
+																									if (checkDuplicateProjectList.indexOf(projectIds[n]) === -1) {
+																										checkDuplicateProjectList.push(projectIds[n]);
 																										var envIds = team.environmentname_rowid.split(',');
 																										var envNames = team.environmentname.split(',');
 																										var envList = [];
@@ -372,7 +398,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																												}
 																											}
 																											var selectable = !!appConfig.features.appcard
-																											bgTree.nodes[0].nodes.push({
+																											bgTree.nodes[m].nodes.push({
 																												name: projectNames[n],
 																												text: projectNames[n],
 																												rowid: projectIds[n],
@@ -388,6 +414,41 @@ module.exports.setRoutes = function(app, sessionVerification) {
 																												environments: envIds
 																											});
 																											bgTree.environments=envNames;
+																										}
+																									}else{
+																										var envList = bgTree.nodes[m].nodes[n].nodes;
+																										var envIds = team.environmentname_rowid.split(',');
+																										var envNames = team.environmentname.split(',');
+																										var envCount = 0;
+																										for (var o = 0; o < envList.length; o++) {
+																											checkDuplicateEnvList.push(envList[o].text);
+																										}
+																										if(checkDuplicateEnvList.length === envList.length){
+																											for (var p = 0; p < envIds.length; p++) {
+																												if(checkDuplicateEnvList.indexOf(envNames[p]) === -1) {
+																													envCount++;
+																													envList.push({
+																														text: envNames[p],
+																														href: '#ajax/Dev.html?org=' + bgTree.rowid + '&bg=' + teamTree.rowid + '&projid=' + projectIds[n] + '&envid=' + envIds[p],
+																														orgname: bgTree.name,
+																														orgid: bgTree.rowid,
+																														rowid: envIds[o],
+																														projname: projectNames[n],
+																														bgname: teamTree.name,
+																														itemtype: 'env',
+																														tooltip: envNames[p],
+																														icon: 'fa fa-fw fa-1x fa-desktop'
+																													});
+																													bgTree.environments.push(envNames[p]);
+																													teamTree.projects[n].environments.push(envIds[p]);
+																												}else{
+																													envCount++;
+																												}
+																											}
+																										}
+																										if (envCount === envIds.length) {
+																											var selectable = !!appConfig.features.appcard;
+																											bgTree.nodes[m].nodes[n].nodes = envList;
 																										}
 																									}
 																								}

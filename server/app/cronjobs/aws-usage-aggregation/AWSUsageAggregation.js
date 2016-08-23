@@ -41,7 +41,7 @@ function aggregateAWSUsage() {
         }else if(orgs.length > 0){
             for(var i = 0; i < orgs.length; i++){
                 (function(org){
-                    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
+                    AWSProvider.getAWSProvidersByOrgId(org.rowid, function(err, providers) {
                         if(err) {
                             logger.error(err);
                             return;

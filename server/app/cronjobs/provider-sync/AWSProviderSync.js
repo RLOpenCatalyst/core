@@ -23,7 +23,7 @@ function awsProviderSync() {
         }else if(orgs.length > 0){
             for(var i = 0; i < orgs.length; i++){
                 (function(org){
-                    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
+                    AWSProvider.getAWSProvidersByOrgId(org.rowid, function(err, providers) {
                         if(err) {
                             logger.error(err);
                             return;
@@ -32,7 +32,7 @@ function awsProviderSync() {
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
                                     count++;
-                                    awsProviderSyncForProvider(provider,org._id,org.orgname)
+                                    awsProviderSyncForProvider(provider,org.rowid,org.orgname)
                                 })(providers[j]);
                             }
                             if(count ===providers.length){
