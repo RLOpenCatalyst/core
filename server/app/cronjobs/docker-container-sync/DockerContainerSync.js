@@ -67,12 +67,13 @@ function dockerContainerSync(){
                     callback(err,null);
                     return;
                 }else if(orgs.length > 0){
+                    var orgCount = 0;
                     for(var i = 0; i < orgs.length; i++){
                         (function(org){
+                            orgCount++;
                             instancesDao.getInstancesWithContainersByOrgId(org.rowid, function(err, instances) {
                                 if(err) {
                                     logger.error(err);
-                                    callback(err,null);
                                     return;
                                 }else if(instances.length > 0){
                                     var count = 0;
@@ -82,17 +83,20 @@ function dockerContainerSync(){
                                             aggregateDockerContainerForInstance(instance)
                                         })(instances[j]);
                                     }
-                                    if(count === instances.length){
+                                    if(count === instances.length && orgCount === org.length){
                                         callback(null,instances);
                                         return;
                                     }
                                 }else{
                                     logger.info("There is no Instance in "+org.orgname+" Organization who have docker installed");
-                                    callback(null,instances);
-                                    return;
+                                    if(orgCount === org.length){
+                                        callback(null,instances);
+                                        return;
+                                    }else{
+                                        return;
+                                    }
                                 }
                             });
-
                         })(orgs[i]);
                     }
 
