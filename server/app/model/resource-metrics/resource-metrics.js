@@ -118,5 +118,26 @@ ResourceMetricsSchema.statics.getByParams = function(resourceId, interval, start
 	});
 };
 
+ResourceMetricsSchema.statics.getList = function getList(query, callback) {
+    ResourceMetrics.aggregate(
+        [
+            { $match: {$and: query }},
+            {
+                $sort: {
+                    startTime: 1
+                }
+            }
+        ],
+        function(err, usageMetricsEntries) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+            } else {
+                callback(null,usageMetricsEntries)
+            }
+        }
+    )
+};
+
 var ResourceMetrics = mongoose.model('ResourceMetrics', ResourceMetricsSchema);
 module.exports = ResourceMetrics;

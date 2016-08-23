@@ -19,7 +19,6 @@ const dateUtil = require('_pr/lib/utils/dateUtil')
 const resourceMetricsModel = require('_pr/model/resource-metrics')
 const resourceCostsModel = require('_pr/model/resource-costs')
 const appConfig = require('_pr/config')
-const reportsDirectory = appConfig.reportsDir
 
 var reportsService = module.exports = {}
 
@@ -52,7 +51,7 @@ reportsService.getCost = function getCost(query, callback) {
     } else {
         var err = new Error('Invalid request')
         err.status = 400;
-        err.messages = ['To time stamp is mandatory']
+        err.errors = ['To time stamp is mandatory']
         return callback(err)
     }
     // Reports generated only for AWS
@@ -67,7 +66,7 @@ reportsService.getCost = function getCost(query, callback) {
             default:
                 var err = new Error('Invalid request')
                 err.status = 400;
-                err.messages = ['Query not supported']
+                err.errors = ['Query not supported']
                 return callback(err)
                 break
         }
@@ -84,7 +83,7 @@ reportsService.getCost = function getCost(query, callback) {
                     if(err) {
                         var err = new Error('Internal Server Error')
                         err.status = 500;
-                        err.messages = [err.message]
+                        err.errors = [err.message]
                         return callback(err)
                     } else {
                         reportsService.formatCostAggregateReport(aggregateCostData, callback)
@@ -97,7 +96,7 @@ reportsService.getCost = function getCost(query, callback) {
                     if(err) {
                         var err = new Error('Internal Server Error')
                         err.status = 500;
-                        err.messages = [err.message]
+                        err.errors = [err.message]
                         return callback(err)
                     } else {
                         reportsService.formatCostTrendsReport(costTrendsData, callback)
@@ -108,10 +107,50 @@ reportsService.getCost = function getCost(query, callback) {
     }
 }
 
+/**
+ *
+ * @param query
+ * @param callback
+ * @returns {*}
+ */
 reportsService.getUsageTrends = function getUsageTrends(query, callback) {
+    var dbAndCriteria = []
 
+    dbAndCriteria.push({resourceType: 'EC2'})
+
+    if(('fromTimeStamp' in query) && ('toTimeStamp' in query)) {
+        dbAndCriteria.push({startTime: {$gte: new Date(query.fromTimeStamp)}})
+        dbAndCriteria.push({endTime: {$lte: new Date(query.toTimeStamp)}})
+    } else {
+        var err = new Error('Invalid request')
+        err.status = 400
+        err.errors = ['mandatory parameters not specified']
+        return callback(err)
+    }
+
+    if ('filterBy' in query) {
+        dbAndCriteria.push(reportsService.parseFilterBy(query.filterBy))
+    }
+
+    dbAndCriteria.push({interval: 3600})
+
+    resourceMetricsModel.getList(dbAndCriteria, function(err, usageMetricsTrends) {
+        if(err) {
+            var err = new Error('Internal Server Error')
+            err.status = 500;
+            err.errors = [err.message]
+            return callback(err)
+        } else {
+            reportsService.formatUsageTrendsReport(usageMetricsTrends, callback)
+        }
+    })
 }
 
+/**
+ *
+ * @param aggregateCostData
+ * @param callback
+ */
 reportsService.formatCostAggregateReport = function formatCostAggregateReport(aggregateCostData, callback) {
     var formattedAggregateData = []
 
@@ -143,12 +182,18 @@ reportsService.formatCostAggregateReport = function formatCostAggregateReport(ag
     })
 
     callback(null, {
-        fileName: 'reports-cost-aggregate-',
+        fileName: 'reports-cost-aggregate',
         fields: ['Service', 'Cost'],
         data: formattedAggregateData
     })
 }
 
+/**
+ *
+ * @param costTrendsData
+ * @param callback
+ * @returns {*}
+ */
 reportsService.formatCostTrendsReport = function formatCostTrendsReport(costTrendsData, callback) {
     var formattedTrendsData = []
     var ec2TotalCost = 0
@@ -176,7 +221,7 @@ reportsService.formatCostTrendsReport = function formatCostTrendsReport(costTren
     if(formattedTrendsData.length == 0) {
         var err = new Error('Invalid request')
         err.status = 400;
-        err.messages = ['No data available for this request']
+        err.errors = ['No data available for this request']
         return callback(err)
     } else {
         formattedTrendsData.push({})
@@ -188,13 +233,39 @@ reportsService.formatCostTrendsReport = function formatCostTrendsReport(costTren
         })
 
         callback(null, {
-            fileName: 'reports-cost-trends-',
+            fileName: 'reports-cost-trends',
             fields: ['Date', 'EC2 Cost', 'RDS Cost', 'Total Cost'],
             data: formattedTrendsData
         })
     }
 }
 
+/**
+ *
+ * @param usageTrendsData
+ * @param callback
+ */
 reportsService.formatUsageTrendsReport = function formatUsageTrendsReport(usageTrendsData, callback) {
+    var formattedUsageTrends = []
 
+    for(var i = 0; i < usageTrendsData.length; i++) {
+        var startTimeString = dateUtil.getDateInUTC(usageTrendsData[i].startTime).toString()
+        var endTimeString = dateUtil.getDateInUTC(usageTrendsData[i].endTime).toString()
+
+        formattedUsageTrends.push({
+            'Start time': startTimeString.substring(0, 10) + ' ' + startTimeString.substring(11, 19),
+            'End time': endTimeString.substring(0, 10) + ' ' + endTimeString.substring(11, 19),
+            'Instance ID': usageTrendsData[i].platformId,
+            'Min. CPU Utilization': usageTrendsData[i].metrics.CPUUtilization.minimum,
+            'Avg. CPU Utilization': usageTrendsData[i].metrics.CPUUtilization.average,
+            'Max. CPU Utilization': usageTrendsData[i].metrics.CPUUtilization.maximum
+        })
+    }
+
+    callback(null, {
+        fileName: 'reports-usage-trends',
+        fields: ['Start time', 'End time', 'Instance ID', 'Min. CPU Utilization',
+            'Avg. CPU Utilization', 'Max. CPU Utilization'],
+        data: formattedUsageTrends
+    })
 }

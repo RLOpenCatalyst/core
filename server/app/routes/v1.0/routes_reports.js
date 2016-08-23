@@ -50,9 +50,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             } else {
                 res.header("content-type", "text/csv")
                 res.status(200).send(json2csv({data: costReport.data,
-                    fields: costReport.fields}));
+                    fields: costReport.fields}))
             }
-        });
+        })
     }
 
     /**
@@ -77,18 +77,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
     app.get("/reports/usage", getUsageReport)
     function getUsageReport(req, res, next) {
-        // dummy csv data
-        var result = {
-            "totalCost": 100,
-            "period": "month",
-            "fromTime": "2016-08-01T00:00:00",
-            "toTime": "2016-08-12T00:00:00",
-            "interval": 86400
-        }
-
-        res.header("content-type", "text/csv")
-        res.status(200).send(json2csv({data: result,
-            fields: ['totalCost', 'period', 'fromTime', 'toTime', 'interval']}));
+        async.waterfall([
+            function(next) {
+                reportsService.getUsageTrends(req.query, next)
+            }
+        ], function(err, usageTrendsReport) {
+            if(err) {
+                next(err)
+            } else {
+                res.header("content-type", "text/csv")
+                res.status(200).send(json2csv({data: usageTrendsReport.data,
+                    fields: usageTrendsReport.fields}))
+            }
+        })
     }
-
 }
