@@ -26,14 +26,14 @@
                                                             <select id="providertype" name="providerType" unique="true" uniqueconditionedby="orgname" class="chooseOrganization width-100" style="vertical-align: central" cat-validation="required" cdata="catalyst" skiprowid="yes" onchange="UtilityMethods.providerChanged($(this).val());">
                                                                 <option value="">Select Provider</option>
                                                                 <option value="AWS">AWS</option>
-                                                                <option value="OPENSTACK">OpenStack</option>
-                                                                <option value="VMWARE">VMware</option>
-                                                                <option value="AZURE">Azure</option>
+                                                                <option value="OPENSTACK">OPENSTACK</option>
+                                                                <option value="VMWARE">VMWARE</option>
+                                                                <option value="AZURE">AZURE</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-lg-6 col-md-6">
                                                             <label for="">Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                                            <input name="providerName" placeholder="Enter Name of the Provider" id="name" class="form-control" type="text" cdata="catalyst" cat-validation="required" cat-validation-openstack="required" cat-validation-azure="required" cat-validation-vmware="required">
+                                                            <input name="providerName" placeholder="Enter Name of the Provider" id="name" class="form-control" type="text" cdata="catalyst" cat-validation="required,max15,nospace" cat-validation-openstack="required,max15,nospace" cat-validation-azure="required,max15,nospace" cat-validation-vmware="required,max15,nospace">
                                                         </div>
                                                     </div>
                                                     <div class="row foraws">
