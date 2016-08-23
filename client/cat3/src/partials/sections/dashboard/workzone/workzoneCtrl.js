@@ -131,7 +131,7 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 			};
 		}
 		function treeDefaultSelection() {
-			if($('[data-nodetype="env"]').length){
+			if($('[data-nodetype="env"]').text() && $('[data-nodetype="env"]').length){
 				$('[data-nodetype="env"]').eq(0).click();	
 			}else{
 				if(modulePerms.settingsAccess()){

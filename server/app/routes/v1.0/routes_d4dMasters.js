@@ -2713,8 +2713,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         if (err) {
                                                             logger.debug("Error : ", err);
                                                         }
-                                                        teamData[0].loginname = teamData[0].loginname + "," + bodyJson["loginname"];
-                                                        teamData[0].loginname_rowid = teamData[0].loginname_rowid + "," + bodyJson["rowid"];
+                                                        if(teamData[0].loginname){
+                                                            teamData[0].loginname = teamData[0].loginname + "," + bodyJson["loginname"];
+                                                            teamData[0].loginname_rowid = teamData[0].loginname_rowid + "," + bodyJson["rowid"];
+                                                        }
                                                         if (teamData[0].loginname.length > 0 && teamData[0].loginname_rowid.length > 0) {
                                                             if (teamData[0].loginname.substring(0, 1) == ',') {
                                                                 teamData[0].loginname = teamData[0].loginname.substring(1);
