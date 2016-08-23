@@ -1087,6 +1087,10 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                     } else {
                         actualVersion = version;
                     }
+                    var appInfo = {
+                        name: artifactId,
+                        version: actualVersion
+                    };
 
                     // Update app-data for promote
                     var nodeIds = [];
@@ -1130,7 +1134,11 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                     });
 
                     var attributeObj = utils.mergeObjects(objectArray);
-                    callback(null, attributeObj);
+                    var returnedObj = {
+                        appInfo: appInfo,
+                        attributeObj: attributeObj
+                    };
+                    callback(null, returnedObj);
                     return;
                 });
             } else {
@@ -1220,7 +1228,15 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                 "applicationNodeIP": instance.instanceIP
             }
         });
+        var appInfo = {
+            name: blueprint.docker.image,
+            version: blueprint.docker.imageTag
+        };
         var attrs = utils.mergeObjects(objectArray);
+        var returnedObj = {
+            appInfo: appInfo,
+            attributeObj: attrs
+        };
         // Update app-data for promote
         var nodeIds = [];
         nodeIds.push(instance.id);
@@ -1273,11 +1289,15 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
             })
         });
 
-        callback(null, attrs);
+        callback(null, returnedObj);
         return;
     } else {
         var attributeObj = utils.mergeObjects(objectArray);
-        callback(null, attributeObj);
+        var returnedObj = {
+            appInfo: {},
+            attributeObj: attributeObj
+        };
+        callback(null, returnedObj);
         return;
         /*process.nextTick(function() {
          callback(null, {});
@@ -1323,7 +1343,7 @@ BlueprintSchema.statics.getBlueprintsByProjectIdOrEnvId = function(id, callback)
             projectId: id
         }, {
             chefServerId: id
-        },{
+        }, {
             envId: id
         }]
     }

@@ -9,10 +9,19 @@
 	"use strict";
 	angular.module('workzone.instance')
 		.controller('viewRunListCtrl', ['$scope', '$modalInstance', 'items', function($scope, $modalInstance, items) {
-			$scope.cookbookList = items.runlist;
+			$scope.items = items;
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
+			if(items.viewType === 'appVersion' &&  items.appInfo && items.appInfo.length){
+				$scope.appInfo =[];
+				for(var i=0; i< items.appInfo.length; i++){
+					$scope.appInfo.push(items.appInfo[i].version);
+				}
+				return true;
+			}else{
+				$scope.cookbookList = items.runlist;
+			}
 		}
 	]);
 })(angular);
