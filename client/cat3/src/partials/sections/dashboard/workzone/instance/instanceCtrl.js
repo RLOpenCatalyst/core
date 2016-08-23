@@ -115,6 +115,7 @@
 						'<i title="Edit Instance Name" class="pull-right fa fa-pencil edit-instance-name cursor"></i>'+
 						'</span>', cellTooltip: true},
 						{ name:'Ip Address', displayName:'IP Address', field:'instanceIP',cellTooltip: true},
+						{ name:'App Versions', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewAppVersions(row.entity)">View App Versions</span>', cellTooltip: true},
 						{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
 						{ name:'Status', width: 90,enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
 						{ name:'Log Info', width: 90,enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
@@ -337,12 +338,22 @@
 				});
 			};
 			$scope.operationSet.viewRunList = function(inst){
+				angular.extend(inst,{viewType:'runList'});
 				var promise = instanceOperations.viewRunList(inst);
 				promise.then(function(resolveMessage) {
 					console.log("Promise resolved viewRunList:" + resolveMessage);
 				}, function(rejectMessage) {
 					console.log("Promise rejected viewRunList:" + rejectMessage);
 				});
+			};
+			$scope.operationSet.viewAppVersions = function(inst){
+				angular.extend(inst,{viewType:'appVersion'});
+				instanceOperations.viewRunList(inst);
+				/*promise.then(function(resolveMessage) {
+					console.log("Promise resolved viewAppVersions:" + resolveMessage);
+				}, function(rejectMessage) {
+					console.log("Promise rejected viewAppVersions:" + rejectMessage);
+				});*/
 			};
 			$scope.operationSet.updateCookbook = function(inst) {
 				var promise = instanceOperations.updateCookbook(inst);

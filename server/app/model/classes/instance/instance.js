@@ -215,13 +215,13 @@ var InstanceSchema = new Schema({
         },
         os: String,
     },
-    network:{
-        subnet:{
+    network: {
+        subnet: {
             type: String,
             required: false,
             trim: true
         },
-        vpc:{
+        vpc: {
             type: String,
             required: false,
             trim: true
@@ -319,7 +319,11 @@ var InstanceSchema = new Schema({
         type: Boolean,
         required: false,
         default: false
-    }
+    },
+    appInfo: [{
+        name: String,
+        version: String
+    }]
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -562,7 +566,7 @@ var InstancesDao = function() {
                                 tasks.getTaskByIds(instance.taskIds, function(err, tasks) {
                                     if (err) {
                                         logger.error(err);
-                                        return ;
+                                        return;
                                     } else if (tasks.length === 0) {
                                         return;
                                     } else {
@@ -1670,7 +1674,7 @@ var InstancesDao = function() {
                 logger.error("getInstancesFilterByNotChefServerIdAndNodeNames", err);
                 callback(err, null);
                 return;
-            }else if(data){
+            } else if (data) {
                 callback(null, data);
             } else {
                 callback(null, []);
@@ -2017,15 +2021,15 @@ var InstancesDao = function() {
         });
     };
 
-    this.updateInstanceStatus = function(instanceId,instance,callback) {
-        var updateObj={};
-        if(instance.state === 'terminated'){
+    this.updateInstanceStatus = function(instanceId, instance, callback) {
+        var updateObj = {};
+        if (instance.state === 'terminated') {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = true;
             updateObj['tags'] = instance.tags;
             updateObj['environmentTag'] = instance.environmentTag;
             updateObj['projectTag'] = instance.projectTag;
-        }else{
+        } else {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = false;
             updateObj['tags'] = instance.tags;
@@ -2034,19 +2038,19 @@ var InstancesDao = function() {
         }
         Instances.update({
             "_id": ObjectId(instanceId)
-        },{
+        }, {
             $set: updateObj
         }, function(err, data) {
             if (err) {
                 logger.error("Failed to update managed Instance status data", err);
-                callback(err,null);
+                callback(err, null);
                 return;
             }
             callback(null, data);
         });
     };
 
-    this.getInstancesByProviderIdOrgIdAndPlatformId = function (orgId,providerId, platformId, callback) {
+    this.getInstancesByProviderIdOrgIdAndPlatformId = function(orgId, providerId, platformId, callback) {
         var params = {
             'orgId': orgId,
             'providerId': providerId,
@@ -2055,9 +2059,9 @@ var InstancesDao = function() {
         Instances.find(params,
             function(err, instances) {
                 if (err) {
-                    logger.error("Could not get instance for ",orgId, providerId, platformId, err);
+                    logger.error("Could not get instance for ", orgId, providerId, platformId, err);
                     return callback(err, null);
-                } else if(instances.length > 0) {
+                } else if (instances.length > 0) {
                     return callback(null, instances);
                 } else {
                     return callback(null, []);
@@ -2066,12 +2070,35 @@ var InstancesDao = function() {
         );
     };
 
-    this.getAllTerminatedInstances = function(orgId,callback) {
-        Instances.find({"orgId":orgId,"instanceState":"terminated"}, function(err, data) {
+    this.getAllTerminatedInstances = function(orgId, callback) {
+        Instances.find({ "orgId": orgId, "instanceState": "terminated" }, function(err, data) {
             if (err) {
                 return callback(err, null);
             } else {
                 callback(null, data);
+            }
+        });
+    };
+
+    this.updateAppInfo = function(instanceId, appInfo, callback) {
+        logger.debug("Enter updateAppInfo ", instanceId, appInfo);
+        Instances.update({
+            "_id": new ObjectId(instanceId),
+        }, {
+            $push: {
+                "appInfo": appInfo
+            }
+        }, {
+            upsert: false
+        }, function(err, data) {
+            if (err) {
+                if (typeof callback === 'function') {
+                    callback(err, null);
+                }
+                return;
+            }
+            if (typeof callback === 'function') {
+                callback(err, data);
             }
         });
     };
