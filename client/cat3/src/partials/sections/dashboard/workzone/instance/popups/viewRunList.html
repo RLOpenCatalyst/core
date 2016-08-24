@@ -3,17 +3,29 @@
 		<span class="close" ng-click="cancel()">×</span>
 		<h4 class="modal-title">
 			<i class="fa fa-outdent"></i>&nbsp;
-			Runlists
+			<span ng-show="items.viewType === 'runList'">
+			Runlists</span>
+			<span ng-show="items.viewType === 'appVersion'">
+			App Versions</span>
 		</h4>
 	</div>
 
 	<div class="modal-body">
-		<div class="alert alert-info text-center" ng-show="!cookbookList.length">
-			<span>There are no runlists available for this instance.</span>
+		<div class="alert alert-info text-center" ng-show="items.viewType === 'runList' && !cookbookList.length" >
+			<span >There are no runlists available for this instance.</span>
 		</div>
-		<div ng-show="cookbookList.length">
+		<div class="alert alert-info text-center" ng-show="items.viewType === 'appVersion' && !appInfo.length" >
+			<span >There are no app version available for this instance.</span>
+		</div>
+		
+		<div ng-show="items.viewType === 'runList' && cookbookList.length">
 			<div class="cookbook-list" ng-repeat="cookbook in cookbookList">
 				<span>{{cookbook}}</span>
+			</div>
+		</div>
+		<div ng-show=" items.viewType === 'appVersion' && appInfo.length">
+			<div class="cookbook-list">
+				<span ng-bind-html="appInfo"></span>
 			</div>
 		</div>
 	</div>

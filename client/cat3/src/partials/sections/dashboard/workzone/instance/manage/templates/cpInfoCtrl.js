@@ -19,6 +19,7 @@
 			$scope.isSixthOpen = true;
 			$scope.taskInfo = [];
 			$scope.bpInfo = [];
+			$scope.appInfo = [];
 			var cpInstance = $scope.$parent.cpInstance;  
 			var hardwareInfo = {},
 				softwareInfo = {},
@@ -38,6 +39,11 @@
 					}
 				}
 			};
+			var appVersion=[];
+			for(var i=0; i< cpInstance.appInfo.length; i++){
+				appVersion.push(cpInstance.appInfo[i].version);
+			}
+			cpInstance['appVersion'] = appVersion;
 
 			$scope.instInfo = cpInstance;
 			$scope.appUrlInfo = cpInstance.appUrls;

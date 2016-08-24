@@ -539,6 +539,11 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             appName = appData.appName;
                             appVersion = appData.docker.imageTag;
                         }
+                        var appInfo = {
+                            name: appName,
+                            version: appVersion
+                        };
+                        instancesDao.updateAppInfo(instance._id, appInfo);
                         nodeIds.push(instance.instanceIP);
                         masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
                             var appDataObj = {

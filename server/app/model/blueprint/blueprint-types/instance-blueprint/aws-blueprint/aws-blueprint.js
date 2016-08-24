@@ -482,7 +482,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 nodeName: instance.chef.chefNodeName,
                                                 environment: launchParams.envName,
                                                 instanceOS: instance.hardware.os,
-                                                jsonAttributes: jsonAttributes,
+                                                jsonAttributes: jsonAttributes.attributeObj,
                                                 instancePassword: decryptedCredentials.password
                                             };
 
@@ -526,7 +526,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         timestamp: timestampEnded
                                                     });
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                                    instancesDao.updateAppInfo(instance.id,jsonAttributes.appInfo);
 
                                                 } else {
                                                     if (code == 0) {
@@ -557,7 +557,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
+                                                        instancesDao.updateAppInfo(instance.id,jsonAttributes.appInfo);
 
                                                         launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                             if (err) {
@@ -640,7 +640,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-
+                                                        instancesDao.updateAppInfo(instance.id,jsonAttributes.appInfo);
                                                     }
                                                 }
 
