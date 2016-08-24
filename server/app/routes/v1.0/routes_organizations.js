@@ -384,7 +384,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         orgCount++;
                                                         for(var n = 0; n < tree.businessGroups.length;n++){
                                                             (function(bgTree){
-                                                                bgCount++
+                                                                bgCount++;
                                                                 d4dModelNew.d4dModelMastersTeams.find({
                                                                     id: 21,
                                                                     orgname_rowid: tree.rowid,
@@ -432,7 +432,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                                 }
                                                                                             }
                                                                                             if (envList.length === envIds.length) {
-                                                                                                bgTree.projects.push({
+                                                                                                tree.businessGroups[0].projects.push({
                                                                                                     name: projectNames[p],
                                                                                                     environments: envIds
                                                                                                 });
@@ -462,7 +462,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                                 tree.environments = envNames;
                                                                                             }
                                                                                         } else {
-                                                                                            var envList = bgTree.projects[p].environments;
+                                                                                            var envList = tree.nodes[0].nodes[p].nodes;
                                                                                             var envIds = team.environmentname_rowid.split(',');
                                                                                             var envNames = team.environmentname.split(',');
                                                                                             var envCount = 0;
@@ -483,16 +483,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                                         tooltip: envNames[r],
                                                                                                         icon: 'fa fa-fw fa-1x fa-desktop'
                                                                                                     });
-                                                                                                    tree.environments.push(envNames[p]);
-                                                                                                    bgTree.projects[p].environments.push(envIds[r]);
+                                                                                                    tree.environments.push(envNames[r]);
+                                                                                                    tree.businessGroups[0].projects[p].environments.push(envIds[r]);
                                                                                                 } else {
                                                                                                     envCount++;
                                                                                                 }
+                                                                                                if (envCount === envIds.length) {
+                                                                                                    tree.nodes[0].nodes[p].nodes = envList;
+                                                                                                }
                                                                                             }
-                                                                                            if (envCount === envIds.length) {
-                                                                                                var selectable = !!appConfig.features.appcard;
-                                                                                                tree.nodes[0].nodes[r].nodes = envList;
-                                                                                            }
+
                                                                                         }
                                                                                         if(orgCount === orgs.length && bgCount === bgs.length
                                                                                             && teamCount === teams.length && projectCount === checkDuplicateProjectList.length
