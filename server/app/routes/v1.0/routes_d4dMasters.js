@@ -1696,7 +1696,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 if (project.environmentname_rowid !== '' && project.environmentname !== '') {
                     var projectEnvId = project.environmentname_rowid.split(",");
                     var projectEnvName = project.environmentname.split(",");
-                    if (projectEnvId.indexOf(bodyJson['rowid']) !== -1 && projectEnvName.indexOf(bodyJson['environmentname']) !== -1) {
+                    if (projectEnvId.indexOf(bodyJson['rowid']) === -1 && projectEnvName.indexOf(bodyJson['environmentname']) === -1) {
                         newEnv = project.environmentname_rowid + ',' + bodyJson['rowid'];
                         envName = project.environmentname + ',' + bodyJson['environmentname'];
                     } else if (projectEnvId.indexOf(bodyJson['rowid']) !== -1) {

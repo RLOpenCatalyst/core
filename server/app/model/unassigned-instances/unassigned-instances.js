@@ -161,7 +161,8 @@ UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId = function getByP
 
 UnassignedInstancesSchema.statics.getUnAssignedInstancesByProviderId = function getUnAssignedInstancesByProviderId(providerId, callback) {
     var params = {
-        providerId: providerId
+        providerId: providerId,
+        isDeleted:false
     };
     this.find(params, function (err, instances) {
         if (err) {

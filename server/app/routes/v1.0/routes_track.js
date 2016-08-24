@@ -20,6 +20,8 @@ limitations under the License.
 var logger = require('_pr/logger')(module);
 var Track = require('_pr/model/track/track');
 var errorResponses = require('./error_responses');
+var appConfig = require('_pr/config');
+var async = require('async');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -27,16 +29,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     // Get all track
     app.get('/track', function(req, res) {
-        Track.getTracks(function(err, tracks) {
+        async.waterfall([
+            function(next){
+                Track.getTracks(next);
+            },
+            function(tracks,next){
+                trackFormatData(tracks,next);
+            }
+        ],function(err,results){
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
             }
-            if (tracks) {
-                res.send(200, tracks);
-                return;
-            }
-        });
+            res.send(200, results);
+            return;
+        })
     });
 
     // Create track
@@ -187,3 +194,26 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 };
+
+function trackFormatData(tracks,next){
+    if(tracks.length > 0){
+        var trackMenuList = appConfig.trackMenu;
+        var trackList = []
+        for(var i = 0; i < trackMenuList.length;i++){
+            (function(trackMenu){
+                for(var j = 0;j < tracks.length; j++){
+                    if(trackMenu === tracks[j].type){
+                        trackList.push(tracks[j]);
+                    }
+                }
+            })(trackMenuList[i]);
+        }
+        if(trackList.length === tracks.length){
+            next(null,trackList);
+            return;
+        }
+    }else{
+        next(null,tracks);
+        return;
+    }
+}
