@@ -913,8 +913,8 @@ var MasterUtil = function() {
                                     (function (team) {
                                         if (catObj.teams.indexOf(team.rowid) === -1) {
                                             catObj.teams.push(team.rowid);
-                                            async.parallel({
-                                                orgIds: function (callback) {
+                                            async.waterfall([
+                                                function(next){
                                                     d4dModelNew.d4dModelMastersOrg.find({
                                                         rowid: {
                                                             $in: team.orgname_rowid
@@ -935,81 +935,90 @@ var MasterUtil = function() {
                                                                     }
                                                                 })(orgs[k]);
                                                                 if(orgCount === orgs.length){
-                                                                    callback(null,orgIdList);
+                                                                    next(null,orgIdList);
                                                                     return;
                                                                 }
                                                             }
                                                         }else {
-                                                            callback(null, orgIdList);
+                                                            next(null, orgIdList);
                                                             return;
                                                         }
                                                     });
                                                 },
-                                                bgIds: function (callback) {
-                                                    d4dModelNew.d4dModelMastersProductGroup.find({
-                                                        rowid: {
-                                                            $in: team.productgroupname_rowid
-                                                        },
-                                                        id: "2"
-                                                    }, function (err, bgs) {
-                                                        if (err) {
-                                                            callback(err, null);
-                                                        }else if (bgs.length > 0) {
-                                                            var bgCount = 0;
-                                                            for (var l = 0; l < bgs.length; l++) {
-                                                                (function(bg){
-                                                                    bgCount++;
-                                                                    if(bgIdList.indexOf(bg.rowid) === -1){
-                                                                        bgIdList.push(bg.rowid);
+                                                function(orgIds,next) {
+                                                    catObj.orgs = orgIds;
+                                                    async.parallel({
+                                                        bgIds: function (callback) {
+                                                            d4dModelNew.d4dModelMastersProductGroup.find({
+                                                                orgname_rowid: {
+                                                                    $in: orgIds
+                                                                },
+                                                                id: "2"
+                                                            }, function (err, bgs) {
+                                                                if (err) {
+                                                                    callback(err, null);
+                                                                }else if (bgs.length > 0) {
+                                                                    var bgCount = 0;
+                                                                    for (var l = 0; l < bgs.length; l++) {
+                                                                        (function(bg){
+                                                                            bgCount++;
+                                                                            if(bgIdList.indexOf(bg.rowid) === -1){
+                                                                                bgIdList.push(bg.rowid);
+                                                                            }
+                                                                        })(bgs[l]);
+                                                                        if(bgCount === bgs.length){
+                                                                            callback(null,bgIdList);
+                                                                            return;
+                                                                        }
                                                                     }
-                                                                })(bgs[l]);
-                                                                if(bgCount === bgs.length){
-                                                                    callback(null,bgIdList);
+                                                                }else {
+                                                                    callback(null, bgIdList);
                                                                     return;
                                                                 }
-                                                            }
-                                                        }else {
-                                                            callback(null, bgIdList);
-                                                            return;
-                                                        }
-                                                    });
-                                                },
-                                                projectIds: function (callback) {
-                                                    d4dModelNew.d4dModelMastersProjects.find({
-                                                        rowid: {
-                                                            $in: team.projectname_rowid
+                                                            });
                                                         },
-                                                        id: "4"
-                                                    }, function (err, projects) {
-                                                        if (err) {
-                                                            callback(err, null);
-                                                        }else if (projects.length > 0) {
-                                                            var projectCount = 0;
-                                                            for (var m = 0; m < projects.length; m++) {
-                                                                (function(project){
-                                                                    projectCount++;
-                                                                    if(projectIdList.indexOf(project.rowid) === -1){
-                                                                        projectIdList.push(project.rowid);
+                                                        projectIds: function (callback) {
+                                                            d4dModelNew.d4dModelMastersProjects.find({
+                                                                orgname_rowid: {
+                                                                    $in: orgIds
+                                                                },
+                                                                id: "4"
+                                                            }, function (err, projects) {
+                                                                if (err) {
+                                                                    callback(err, null);
+                                                                }else if (projects.length > 0) {
+                                                                    var projectCount = 0;
+                                                                    for (var m = 0; m < projects.length; m++) {
+                                                                        (function(project){
+                                                                            projectCount++;
+                                                                            if(projectIdList.indexOf(project.rowid) === -1){
+                                                                                projectIdList.push(project.rowid);
+                                                                            }
+                                                                        })(projects[m]);
+                                                                        if(projectCount === projects.length){
+                                                                            callback(null,projectIdList);
+                                                                            return;
+                                                                        }
                                                                     }
-                                                                })(projects[m]);
-                                                                if(projectCount === projects.length){
-                                                                    callback(null,projectIdList);
+                                                                }else {
+                                                                    callback(null, projectIdList);
                                                                     return;
                                                                 }
-                                                            }
-                                                        }else {
-                                                            callback(null, projectIdList);
-                                                            return;
+                                                            });
                                                         }
-                                                    });
-                                                }
-                                            }, function (err, results) {
+
+                                                    },function(err,results){
+                                                        if (err) {
+                                                            next(err, null);
+                                                        }
+                                                        catObj.projects = results.projectIds;
+                                                        catObj.bunits = results.bgIds;
+                                                        next(null,catObj);
+                                                    })
+                                                }],function (err, results) {
                                                 if (err) {
                                                     callback(err, null);
                                                 }
-                                                catObj.orgs = results.orgIds;
-                                                catObj.projects = results.projectIds;
-                                                catObj.bunits = results.bgIds;
                                                 returnObj.push(catObj);
                                                 catObj = {};
                                                 if (returnObj.length === teams.length) {
