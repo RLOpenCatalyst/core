@@ -184,7 +184,7 @@
 					//Showing the log for Tasks
 					function pollLogs(timestamp, delay, clearData) {
 						var url = '/audit-trail/task-action/' + taskActionId+'/logs';
-						url = url + '?timestamp=' + timestamp;
+						url = url + '?timestamp='+timestamp;
 						timeout = setTimeout(function() {
 							$.ajax({
 							  url: url,
@@ -195,25 +195,25 @@
 									$modalBody.empty();
 								}
 								var $table = $('<table></table>');
-								for (var i = 0; i < data.logs.length; i++) {
+								for (var i = 0; i < data.length; i++) {
 									var $rowDiv = $('<tr class="row rowSpacing"></tr>');
 									var timeString;
-									if(data.logs[i].timestamp){
-										timeString = new Date().setTime(data.logs[i].timestamp);
+									if(data[i].timestamp){
+										timeString = new Date().setTime(data[i].timestamp);
 									}
 									var date = new Date(timeString).toLocaleString();
 									var logStr ="";
-									if(data.logs[i].log){
-										logStr = data.logs[i].log;
+									if(data[i].log){
+										logStr = data[i].log;
 									}
-									if (data.logs[i].err) {
+									if (data[i].err) {
 										$rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:red;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + logStr + '</span>'));
 									} else {
 										$rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:DarkBlue;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + logStr + '</span>'));
 									}
 									$table.append($rowDiv);
-									lastTimestamp = data.logs[i].timestamp;
-									if (data.logs[i]) {
+									lastTimestamp = data[i].timestamp;
+									if (data[i]) {
 										$modalBody.append($table);
 										$modalBody.scrollTop($modalBody[0].scrollHeight + 100);
 									}
