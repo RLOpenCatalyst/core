@@ -263,7 +263,7 @@
         );
         $('#metric').trigger('change');
         $('#providerReport').submit(function (e) {
-            debugger;
+            // debugger;
             $('#fromTimeStamp-error').remove();
             var isValidator = $('#providerReport').valid();
             if (!isValidator) {
@@ -300,7 +300,7 @@
                         formData = serializeRemove(formData, 'interval');
                     }
                     formData.push({
-                        name: "timeStamp",
+                        name: "toTimeStamp",
                         value: toTimeStampUTC
                     });
                 }
