@@ -39,7 +39,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     },
                     function(paginationReq, next) {
                         if(paginationReq.filterBy.resourceType === 'S3'){
-                            paginationReq['searchColumns'] = ['resourceDetails.bucketName','resourceDetails.bucketOwnerName','resourceDetails.bucketSize'];
+                            paginationReq['searchColumns'] = ['resourceDetails.bucketName','resourceDetails.bucketOwnerName'];
                         }else if(paginationReq.filterBy.resourceType === 'RDS') {
                             paginationReq['searchColumns'] = ['resourceDetails.dbName','resourceDetails.dbEngine','resourceDetails.dbInstanceClass','resourceDetails.region'];
                         }
