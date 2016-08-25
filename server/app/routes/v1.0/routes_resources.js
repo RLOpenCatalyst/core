@@ -39,9 +39,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     },
                     function(paginationReq, next) {
                         if(paginationReq.filterBy.resourceType === 'S3'){
-                            paginationReq['searchColumns'] = ['resourceDetails.bucketName'];
+                            paginationReq['searchColumns'] = ['resourceDetails.bucketName','resourceDetails.bucketOwnerName','resourceDetails.bucketSize'];
                         }else if(paginationReq.filterBy.resourceType === 'RDS') {
-                            paginationReq['searchColumns'] = ['resourceDetails.dbName','resourceDetails.dbEngine'];
+                            paginationReq['searchColumns'] = ['resourceDetails.dbName','resourceDetails.dbEngine','resourceDetails.dbInstanceClass','resourceDetails.region'];
                         }
                         apiUtil.databaseUtil(paginationReq, next);
                     },
