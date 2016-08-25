@@ -1379,8 +1379,6 @@ var InstancesDao = function() {
         });
 
     };
-
-
     //action logs
     function insertActionLog(instanceId, logData, callback) {
         var actionLog = new ActionLog(logData);
@@ -1574,6 +1572,24 @@ var InstancesDao = function() {
             name: ACTION_LOG_TYPES.BOOTSTRAP.name,
             completed: false,
             success: false,
+            user: user,
+            timeStarted: timestampStarted,
+            actionData: {
+                runlist: runlist
+            }
+        };
+        var logId = insertActionLog(instanceId, log, callback);
+        log._id = logId;
+        return log;
+    };
+
+    this.insertBootstrapActionLogForChef = function(instanceId, runlist, user, timestampStarted, callback) {
+        logger.debug("Enter insertBootstrapActionLogForChef ", instanceId, runlist, user, timestampStarted);
+        var log = {
+            type: ACTION_LOG_TYPES.BOOTSTRAP.type,
+            name: ACTION_LOG_TYPES.BOOTSTRAP.name,
+            completed: true,
+            success: true,
             user: user,
             timeStarted: timestampStarted,
             actionData: {
