@@ -50,8 +50,8 @@ reportsService.getCost = function getCost(query, callback) {
         dbAndCriteria.push({endTime: {$lte: Date.parse(query.toTimeStamp)}})
     } else {
         var err = new Error('Invalid request')
-        err.status = 400;
-        err.errors = ['To time stamp is mandatory']
+        err.status = 400
+        err.errors = [{messages: 'To time stamp is mandatory'}]
         return callback(err)
     }
     // Reports generated only for AWS
@@ -65,8 +65,8 @@ reportsService.getCost = function getCost(query, callback) {
                 break
             default:
                 var err = new Error('Invalid request')
-                err.status = 400;
-                err.errors = ['Query not supported']
+                err.status = 400
+                err.errors = [{messages: 'Query not supported'}]
                 return callback(err)
                 break
         }
@@ -82,8 +82,8 @@ reportsService.getCost = function getCost(query, callback) {
                 resourceCostsModel.getLatestCost(dbAndCriteria, function(err, aggregateCostData) {
                     if(err) {
                         var err = new Error('Internal Server Error')
-                        err.status = 500;
-                        err.errors = [err.message]
+                        err.status = 500
+                        err.errors = [{messages: err.message}]
                         return callback(err)
                     } else {
                         reportsService.formatCostAggregateReport(aggregateCostData, callback)
@@ -95,8 +95,8 @@ reportsService.getCost = function getCost(query, callback) {
                 resourceCostsModel.getCostsList(dbAndCriteria, function(err, costTrendsData) {
                     if(err) {
                         var err = new Error('Internal Server Error')
-                        err.status = 500;
-                        err.errors = [err.message]
+                        err.status = 500
+                        err.errors = [{messages: err.message}]
                         return callback(err)
                     } else {
                         reportsService.formatCostTrendsReport(costTrendsData, callback)
@@ -124,7 +124,7 @@ reportsService.getUsageTrends = function getUsageTrends(query, callback) {
     } else {
         var err = new Error('Invalid request')
         err.status = 400
-        err.errors = ['mandatory parameters not specified']
+        err.errors = [{messages: 'mandatory parameters not specified'}]
         return callback(err)
     }
 
@@ -137,8 +137,8 @@ reportsService.getUsageTrends = function getUsageTrends(query, callback) {
     resourceMetricsModel.getList(dbAndCriteria, function(err, usageMetricsTrends) {
         if(err) {
             var err = new Error('Internal Server Error')
-            err.status = 500;
-            err.errors = [err.message]
+            err.status = 500
+            err.errors = [{messages: err.message}]
             return callback(err)
         } else {
             reportsService.formatUsageTrendsReport(usageMetricsTrends, callback)
@@ -220,8 +220,8 @@ reportsService.formatCostTrendsReport = function formatCostTrendsReport(costTren
 
     if(formattedTrendsData.length == 0) {
         var err = new Error('Invalid request')
-        err.status = 400;
-        err.errors = ['No data available for this request']
+        err.status = 400
+        err.errors = [{messages: 'No data available for this request'}]
         return callback(err)
     } else {
         formattedTrendsData.push({})
