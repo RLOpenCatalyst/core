@@ -321,7 +321,8 @@
                         $(a).remove();
                     },
                     error: function (jqxhr) {
-                        bootbox.alert(jqxhr.status);
+                        var data = JSON.parse(jqxhr.responseText);
+                        bootbox.alert(data.errors[0]);
                     },
                     failure: function (data) {
                         bootbox.alert(data);
