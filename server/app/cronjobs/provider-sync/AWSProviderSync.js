@@ -5,6 +5,7 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var async = require('async');
 var resourceService = require('_pr/services/resourceService');
+var instanceService = require('_pr/services/instanceService');
 var tagsModel = require('_pr/model/tags');
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var instancesDao = require('_pr/model/classes/instance/instance');
@@ -94,7 +95,7 @@ function saveEC2Data(ec2Info, callback){
                     count++;
                     return;
                 }else if (managedInstances.length > 0) {
-                    instancesDao.updateInstanceStatus(managedInstances[0]._id,ec2, function(err, updateInstanceData) {
+                    instanceService.instanceSyncWithAWS(managedInstances[0]._id,ec2, function(err, updateInstanceData) {
                         if (err) {
                             logger.error(err);
                             count++;
