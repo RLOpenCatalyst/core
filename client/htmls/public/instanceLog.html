@@ -287,6 +287,8 @@
 						$tdStatus = $("<img title='terminated' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
 					}else if (managnedData[i].status == 'deleted') {
 						$tdStatus = $("<img title='deleted' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					}else if (managnedData[i].status == 'shutting-down') {
+						$tdStatus = $("<img title='shutting-down' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
 					}else {
 						$tdStatus = $("<img title='unknown' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
 					}
