@@ -86,8 +86,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     function getManagedInstancesList(req, res, next) {
         var reqObj = {};
-        async.waterfall(
-            [
+        async.waterfall([
                 function(next) {
                     apiUtil.changeRequestForJqueryPagination(req.query, next);
                 },
@@ -97,7 +96,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
+                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState','platformId','hardware.os','projectName','environmentName'];
                     apiUtil.databaseUtil(paginationReq, next);
                 },
                 function(queryObj, next) {
@@ -127,7 +126,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
+                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState','platformId','hardware.os','projectName','environmentName'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },
@@ -159,7 +158,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId'];
+                    paginationReq['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },
@@ -194,7 +193,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId'];
+                    paginationReq['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     apiUtil.databaseUtil(paginationReq, next);
                 },
                 function(queryObj, next) {
@@ -1517,7 +1516,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId'];
+                    paginationReq['searchColumns'] = ['ip', 'platformId','os','state'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },

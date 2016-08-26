@@ -229,7 +229,7 @@
 					if(managnedData[i].platformId) {
 						instanceId = managnedData[i].platformId;
 					} else {
-						instanceId = managnedData[i].instanceId;
+						instanceId = managnedData[i].blueprintName;
 					}
 					var $tr = $('<tr class="instanceLogTrail"></tr>').attr('data-id', instanceId);
 					var createdOn = new Date(managnedData[i].createdOn).toLocaleString();

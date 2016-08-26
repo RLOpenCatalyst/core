@@ -145,12 +145,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         if (timestamp) {
             timestamp = parseInt(timestamp);
         }
-
         async.waterfall(
             [
-
                 function(next) {
-                    instanceLogModel.pollInstanceActionLog(req.params.actionId, timestamp, next);
+                    logsDao.getLogsByReferenceId(req.params.actionId, timestamp, next);
                 }
             ],
             function(err, results) {
