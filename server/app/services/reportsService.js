@@ -72,6 +72,13 @@ reportsService.getCost = function getCost(query, callback) {
         }
     }
 
+    if('interval' in query && query.interval != 86400) {
+        var err = new Error('Invalid request')
+        err.status = 400
+        err.errors = [{messages: 'Query not supported'}]
+        return callback(err)
+    }
+
     // defaults to day
     /*if('interval' in query) {
      }*/
@@ -132,7 +139,14 @@ reportsService.getUsageTrends = function getUsageTrends(query, callback) {
         dbAndCriteria.push(reportsService.parseFilterBy(query.filterBy))
     }
 
-    dbAndCriteria.push({interval: 3600})
+    if('interval' in query && query.interval != 3600) {
+        var err = new Error('Invalid request')
+        err.status = 400
+        err.errors = [{messages: 'Query not supported'}]
+        return callback(err)
+    } else {
+        dbAndCriteria.push({interval: 3600})
+    }
 
     resourceMetricsModel.getList(dbAndCriteria, function(err, usageMetricsTrends) {
         if(err) {
