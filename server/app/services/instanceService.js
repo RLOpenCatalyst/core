@@ -1315,10 +1315,12 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                 var timestampStarted = new Date().getTime();
                 var user = instance.catUser ? instance.catUser : 'superadmin';
                 var action ='';
-                if(instanceData.state === 'stopped'){
+                if(instanceData.state === 'stopped' || instanceData.state === 'stopping'){
                     action = 'Stop';
                 }else if(instanceData.state === 'terminated'){
                     action ='Terminated'
+                }else if(instanceData.state === 'shutting-down'){
+                    action ='Shutting-Down'
                 }else{
                     action ='Start';
                 };

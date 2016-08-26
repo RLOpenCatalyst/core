@@ -704,6 +704,14 @@
         }
         $('#myForm54').ajaxForm({
             beforeSubmit: function(arr, $form, options) {
+                if (location.toString().indexOf('?new') === -1) {
+                    var orgValue = $('#orgId').val();
+                    arr.push({name:'orgId',value:orgValue,type:'select-one',required:false})
+                }
+                if (location.toString().indexOf('?new') === -1 && $('#providertype').val() == 'AZURE') {
+                    var azureSubscriptionId = $('#azureSubscriptionId').val();
+                    arr.push({name:'azureSubscriptionId',value:orgValue,type:'text',required:false})
+                }
                 // return false to cancel submit
                 if ($('#providertype').val() == 'OPENSTACK' || $('#providertype').val() == 'HPPUBLICCLOUD') {
                     if (isFormValidOpenStack(null, 'cat-validation-openstack')) {

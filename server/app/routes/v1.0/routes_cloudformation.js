@@ -29,6 +29,8 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Chef = require('_pr/lib/chef.js');
 var containerDao = require('_pr/model/container');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -151,6 +153,51 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 if (err) {
                                                     logger.error("Container deletion Failed >> ", err);
                                                     return;
+                                                }
+                                            });
+                                            var instanceLog = {
+                                                actionId: "",
+                                                instanceId: instance._id,
+                                                orgName: instance.orgName,
+                                                bgName: instance.bgName,
+                                                projectName: instance.projectName,
+                                                envName: instance.environmentName,
+                                                status: 'shutting-down',
+                                                actionStatus: "success",
+                                                platformId: instance.platformId,
+                                                blueprintName: instance.blueprintData.blueprintName,
+                                                data: instance.runlist,
+                                                platform: instance.hardware.platform,
+                                                os: instance.hardware.os,
+                                                size: instance.instanceType,
+                                                user: req.session.user.cn,
+                                                createdOn: new Date().getTime(),
+                                                startedOn: new Date().getTime(),
+                                                providerType: instance.providerType,
+                                                action: "Shutting-Down",
+                                                logs: []
+                                            };
+                                            var timestampStarted = new Date().getTime();
+                                            var actionLog = instancesDao.insertDeleteActionLog(instance._id, req.session.user.cn, timestampStarted);
+                                            var logReferenceIds = [instance._id];
+                                            if (actionLog) {
+                                                logReferenceIds.push(actionLog._id);
+                                            }
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Shutting-Down",
+                                                timestamp: timestampStarted
+                                            });
+                                            instanceLog.actionId = actionLog._id;
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: "Instance Shutting-Down",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
                                                 }
                                             });
                                         })(instances[i]);
