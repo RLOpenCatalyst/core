@@ -187,7 +187,7 @@
                                                     <div class="row forazure azureBlock">
                                                         <div class="col-lg-6 col-md-6 margintop20">
                                                             <label for="">Enter Subscription Id:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
-                                                            <input name="azureSubscriptionId" id="azureSubscriptionId" class="form-control" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Subscription Id">
+                                                            <input name="azureSubscriptionId" id="azureSubscriptionId" class="form-control secretInfo" type="text" cdata="catalyst" cat-validation-azure="required" placeholder="Enter the Subscription Id">
                                                         </div>
                                                         <div class="col-lg-6 col-md-6 margintop20">
                                                             <label for="">Enter Client Id:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
@@ -663,7 +663,7 @@
                 $vmwareInputs.attr('cat-validation-vmware', 'required');
                 $azureInputs.attr('cat-validation-azure', 'required');
                 $openStack.attr('cat-validation-openstack', 'required');
-
+               // loadKeyPair(null, null, false, region, providerId);
             } else {
 
                 $secretInfo.attr('disabled', 'disabled');
