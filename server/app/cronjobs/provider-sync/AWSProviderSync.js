@@ -10,6 +10,8 @@ var tagsModel = require('_pr/model/tags');
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var assignedInstancesDao = require('_pr/model/unmanaged-instance');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 
 var AWSProviderSync = Object.create(CatalystCronJob);
@@ -62,15 +64,36 @@ function awsProviderSyncForProvider(provider,orgName) {
         function (instances, next) {
             saveEC2Data(instances, next);
         },
-        function(instanceSaveData,next){
-            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id,next);
+        function(instances,next){
+            async.parallel({
+                instanceSync: function(callback){
+                    instanceSyncWithAWS(instances,provider._id,callback);
+                },
+                assignedInstance: function(callback){
+                    async.waterfall([
+                        function(next){
+                            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id,next)
+                        },
+                        function(unassignedInstances,next){
+                            tagMappingForInstances(unassignedInstances,provider,next);
+                        },
+                        function(assignedInstances,next){
+                            saveAssignedInstances(assignedInstances,next);
+                        }
+                    ],function(err,results){
+                        if(err){
+                            callback(err,null);
+                        }
+                        callback(null,results);
+                    })
+                }
+            },function(err,results){
+                if(err){
+                    next(err,null);
+                }
+                next(null,results);
+            });
         },
-        function(unassignedInstances,next){
-            tagMappingForInstances(unassignedInstances,provider,next);
-        },
-        function(assignedInstances,next){
-            saveAssignedInstances(assignedInstances,next);
-        }
     ],function (err, results) {
         if (err) {
             logger.error(err);
@@ -294,4 +317,170 @@ function saveAssignedInstances(assignedInstances,callback){
     }else{
         callback(null,assignedInstances);
     }
+}
+
+function instanceSyncWithAWS(ec2Instances,providerId,callback){
+    if(ec2Instances.length > 0){
+        var ec2InstanceIds = [];
+        for(var i = 0;i < ec2Instances.length;i++){
+            ec2InstanceIds.push(ec2Instances[i].platformId);
+        }
+        if(ec2InstanceIds.length === ec2Instances.length){
+            async.parallel({
+                instance:function(callback){
+                    instancesDao.getInstanceByProviderId(providerId,function(err,instances){
+                        if(err){
+                            callback(err,null);
+                        }else if(instances.length > 0){
+                            var instanceCount = 0;
+                            for(var j = 0;j < instances.length;j++){
+                                (function(instance){
+                                   if(ec2InstanceIds.indexOf(instance.platformId) !== -1){
+                                       instanceCount++;
+                                       if(instanceCount === instances.length){
+                                           callback(null,instances);
+                                           return;
+                                       }
+                                   }else{
+                                       instancesDao.removeTerminatedInstanceById(instance._id,function(err,data){
+                                           if(err){
+                                               instanceCount++;
+                                               logger.error(err);
+                                               return;
+                                           }
+                                           instanceCount++;
+                                           var timestampStarted = new Date().getTime();
+                                           var user = instance.catUser ? instance.catUser : 'superadmin';
+                                           var actionLog = instancesDao.insertInstanceStatusActionLog(instance._id, user,'terminated', timestampStarted);
+                                           var logReferenceIds = [instance._id, actionLog._id];
+                                           logsDao.insertLog({
+                                               referenceId: logReferenceIds,
+                                               err: false,
+                                               log: "Instance : terminated",
+                                               timestamp: timestampStarted
+                                           });
+                                           var instanceLog = {
+                                               actionId: actionLog._id,
+                                               instanceId: instance._id,
+                                               orgName: instance.orgName,
+                                               bgName: instance.bgName,
+                                               projectName: instance.projectName,
+                                               envName: instance.environmentName,
+                                               status: 'terminated',
+                                               actionStatus: "success",
+                                               platformId: instance.platformId,
+                                               blueprintName: instance.blueprintData.blueprintName,
+                                               data: instance.runlist,
+                                               platform: instance.hardware.platform,
+                                               os: instance.hardware.os,
+                                               size: instance.instanceType,
+                                               user: user,
+                                               createdOn: new Date().getTime(),
+                                               startedOn: new Date().getTime(),
+                                               providerType: instance.providerType,
+                                               action: 'Terminated',
+                                               logs: []
+                                           };
+                                           instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                               if (err) {
+                                                   logger.error("Failed to create or update instanceLog: ", err);
+                                               }
+                                           });
+                                           if(instanceCount === instances.length){
+                                               callback(null,instances);
+                                               return;
+                                           }
+                                       })
+                                   }
+                                    
+                                })(instances[j]);
+                            }
+                        }else{
+                            callback(null,instances);
+                        }
+                    });
+                },
+                assignedInstance:function(callback){
+                    assignedInstancesDao.getInstanceByProviderId(providerId,function(err,assignedInstances){
+                        if(err){
+                            callback(err,null);
+                        }else if(assignedInstances.length > 0){
+                            var assignedInstanceCount = 0;
+                            for(var k = 0;k < assignedInstances.length;k++){
+                                (function(assignedInstance){
+                                    if(ec2InstanceIds.indexOf(assignedInstance.platformId) !== -1){
+                                        assignedInstanceCount++;
+                                        if(assignedInstanceCount === assignedInstances.length){
+                                            callback(null,assignedInstances);
+                                            return;
+                                        }
+                                    }else{
+                                        assignedInstancesDao.removeInstanceById(assignedInstance._id,function(err,data){
+                                            if(err){
+                                                assignedInstanceCount++;
+                                                logger.error(err);
+                                                return;
+                                            }
+                                            assignedInstanceCount++;
+                                            if(assignedInstanceCount === assignedInstances.length){
+                                                callback(null,assignedInstances);
+                                                return;
+                                            }
+                                        })
+                                    }
+
+                                })(assignedInstances[k]);
+                            }
+                        }else{
+                            callback(null,assignedInstances);
+                        }
+                    });
+                },
+                unassignedInstance:function(callback){
+                    unassignedInstancesModel.getUnAssignedInstancesByProviderId(providerId,function(err,unAssignedInstances){
+                        if(err){
+                            callback(err,null);
+                        }else if(unAssignedInstances.length > 0){
+                            var unAssignedInstanceCount = 0;
+                            for(var l = 0;l < unAssignedInstances.length;l++){
+                                (function(unAssignedInstance){
+                                    if(ec2InstanceIds.indexOf(unAssignedInstance.platformId) !== -1){
+                                        unAssignedInstanceCount++;
+                                        if(unAssignedInstanceCount === unAssignedInstances.length){
+                                            callback(null,unAssignedInstances);
+                                            return;
+                                        }
+                                    }else{
+                                        unassignedInstancesModel.removeTerminatedInstanceById(unAssignedInstance._id,function(err,data){
+                                            if(err){
+                                                unAssignedInstanceCount++;
+                                                logger.error(err);
+                                                return;
+                                            }
+                                            unAssignedInstanceCount++;
+                                            if(unAssignedInstanceCount === unAssignedInstances.length){
+                                                callback(null,unAssignedInstances);
+                                                return;
+                                            }
+                                        })
+                                    }
+
+                                })(unAssignedInstances[l]);
+                            }
+                        }else{
+                            callback(null,unAssignedInstances);
+                        }
+                    });
+                }
+            },function(err,results){
+                if(err){
+                    callback(err,null);
+                }
+                callback(null,results);
+            })
+        }
+    }else{
+        callback(null,ec2Instances);
+    }
+
 }

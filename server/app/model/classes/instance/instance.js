@@ -400,7 +400,8 @@ var InstancesDao = function() {
         logger.debug("Enter getInstanceByProviderId (%s)", providerId);
 
         Instances.find({
-            providerId: providerId
+            providerId: providerId,
+            isDeleted: false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getInstanceByProviderId (%s)", providerId, err);
@@ -1069,7 +1070,8 @@ var InstancesDao = function() {
             "_id": ObjectId(instanceId)
         }, {
             $set: {
-                isDeleted: true
+                isDeleted: true,
+                instanceState: 'terminated'
             }
         }, {
             upsert: false

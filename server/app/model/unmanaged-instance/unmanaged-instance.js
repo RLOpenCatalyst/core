@@ -157,7 +157,8 @@ UnmanagedInstanceSchema.statics.getByProviderId = function(jsonData, callback) {
 UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, callback) {
 	logger.debug("Enter getInstanceByProviderId (%s)", providerId);
 	this.find({
-		providerId: providerId
+		providerId: providerId,
+		isDeleted:false
 	}, function(err, data) {
 		if (err) {
 			logger.error("Failed getInstanceByProviderId (%s)", providerId, err);
@@ -236,7 +237,8 @@ UnmanagedInstanceSchema.statics.removeInstanceById = function(instanceId, callba
 			"_id": ObjectId(instanceId)
 		}, {
 			$set: {
-				isDeleted: true
+				isDeleted: true,
+				state: 'terminated'
 			}
 		}, {
 			upsert: false

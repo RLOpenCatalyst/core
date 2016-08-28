@@ -1354,11 +1354,6 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                     action: action,
                     logs: []
                 };
-                instanceLog.logs.push({
-                    err: false,
-                    log: "Instance :"+instanceData.state,
-                    timestamp: new Date().getTime()
-                });
                 instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                     if (err) {
                         logger.error("Failed to create or update instanceLog: ", err);

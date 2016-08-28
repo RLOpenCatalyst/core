@@ -290,6 +290,25 @@ UnassignedInstancesSchema.statics.getInstancesByProviderIdOrgIdAndPlatformId = f
         }
     );
 };
+UnassignedInstancesSchema.statics.removeTerminatedInstanceById = function(instanceId, callback) {
+    this.update({
+        "_id": ObjectId(instanceId)
+    }, {
+        $set: {
+            isDeleted: true,
+            state: 'terminated'
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to removeTerminatedInstanceById (%s)", instanceId, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
 
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);
 module.exports = UnassignedInstances;
