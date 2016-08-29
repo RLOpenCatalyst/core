@@ -2487,7 +2487,8 @@ var MasterUtil = function() {
         d4dModelNew.d4dModelMastersZabbixServer.find({
             orgname_rowid: {
                 $in: rowIds
-            }
+            },
+            id: "30"
         }, function(err, configMgmt) {
             if (configMgmt) {
                 configmgmtDao.getRowids(function(err, rowidlist) {

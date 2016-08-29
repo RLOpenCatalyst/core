@@ -22,11 +22,9 @@ var Zabbix = require('_pr/lib/zabbix');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/zabbix/*', sessionVerificationFunc);
 
-    app.post('/zabbix/host', function(req, res) {
+    app.get('/zabbix/instance/:instanceId/host', function(req, res) {
         var zabbix = new Zabbix({
-            /*"username": req.body.jirausername,
-            "password": req.body.jirapassword,
-            "url": req.body.jiraurl*/
+            "instanceId": req.params.instanceId
         });
         zabbix.getHost(function(error, data) {
             logger.debug("method called...");
