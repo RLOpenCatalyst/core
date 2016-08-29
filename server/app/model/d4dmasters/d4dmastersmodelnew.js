@@ -1355,12 +1355,12 @@ var d4dMastersZabbixServer = new mongoose.Schema({
         type: String,
         trim: true
     },
-    username: {
+    zabbixusername: {
         type: String,
         required: true,
         trim: true
     },
-    password: {
+    zabbixpassword: {
         type: String,
         required: true,
         trim: true

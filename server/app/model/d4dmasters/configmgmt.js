@@ -109,6 +109,10 @@ function Configmgmt() {
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 callback(null, 'd4dModelMastersNexusServer');
                 break;
+            case "30":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersZabbixServer');
+                break;
         }
     };
 
@@ -182,6 +186,10 @@ function Configmgmt() {
             case "26":
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 return ('nexusserver');
+                break;
+            case "30":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('zabbixserver');
                 break;
 
         };
@@ -962,7 +970,7 @@ function Configmgmt() {
 
 
     this.getListNew = function(mastername, fieldname, callback) {
-        logger.debug(mastername);
+        logger.debug("hi: ",mastername);
         this.getDBModelFromID(mastername, function(err, dbtype) {
             if (err) {
                 logger.debug("Hit and error:" + err);
