@@ -485,7 +485,8 @@
 					return $http.post(fullUrl(url),compositeBlueprint,Auth.getHeaderObject());
 				},
 				getAllCompsiteBlueprint:function () {
-					var url ='/composite-blueprints';
+					var p = workzoneEnvironment.getEnvParams();
+					var url ='/composite-blueprints?filterBy=organizationId:'+p.org+'+businessGroupId:'+p.bg+'+projectId:'+p.proj;
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getCompsiteBlueprintInfo:function (compositeBlueprintId) {
