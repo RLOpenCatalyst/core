@@ -1330,6 +1330,47 @@ var d4dMastersNexusServer = new mongoose.Schema({
 var d4dModelMastersNexusServer = mongoose.model('d4dModelMastersNexusServer', d4dMastersNexusServer, 'd4dmastersnew');
 
 
+var d4dMastersZabbixServer = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    name: {
+        type: String,
+        trim: true,
+        required: true
+    },
+    orgname: {
+        type: [String],
+        required: true,
+        trim: true
+    },
+    orgname_rowid: {
+        type: [String],
+        trim: true,
+        required: true,
+    },
+    rowid: {
+        type: String,
+        trim: true
+    },
+    username: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    password: {
+        type: String,
+        required: true,
+        trim: true
+    }
+}, {
+    collection: 'd4dmastersnew'
+});
+var d4dModelMastersZabbixServer = mongoose.model('d4dModelMastersZabbixServer', d4dMastersZabbixServer, 'd4dmastersnew');
+
+
 module.exports = d4dModelNew;
 module.exports.d4dModelMastersOrg = d4dModelMastersOrg;
 module.exports.d4dModelMastersProductGroup = d4dModelMastersProductGroup;
@@ -1353,3 +1394,4 @@ module.exports.d4dModelMastersImages = d4dModelMastersImages;
 module.exports.d4dModelMastersJira = d4dModelMastersJira;
 module.exports.d4dModelMastersPuppetServer = d4dModelMastersPuppetServer;
 module.exports.d4dModelMastersNexusServer = d4dModelMastersNexusServer;
+module.exports.d4dModelMastersZabbixServer = d4dModelMastersZabbixServer;

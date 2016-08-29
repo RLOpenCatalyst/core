@@ -71,7 +71,8 @@
 		"fs":"0.0.2",
         "cors": "2.7.1",
         "events": "1.1.1",
-        "gridfs-stream":"1.1.1"
+        "gridfs-stream":"1.1.1",
+        "zabbix-node":"0.2.0"
     },
     "devDependencies": {
         "grunt": "0.4.5",
