@@ -23,7 +23,7 @@ function awsRDSS3ProviderSync() {
         }else if(orgs.length > 0){
             for(var i = 0; i < orgs.length; i++){
                 (function(org){
-                    AWSProvider.getAWSProvidersByOrgId(org._id, function(err, providers) {
+                    AWSProvider.getAWSProvidersByOrgId(org.rowid, function(err, providers) {
                         if(err) {
                             logger.error(err);
                             return;
@@ -53,15 +53,15 @@ function awsRDSS3ProviderSync() {
 }
 
 function awsRDSS3ProviderSyncForProvider(provider,orgName) {
-    logger.info("S3/RDS Data Fetching started for Provider "+provider._id);
+    logger.info("S3/RDS Data Fetching started for Provider "+provider.providerName);
     async.waterfall([
         function (next) {
             async.parallel({
                 s3: function (callback) {
-                    resourceService.getBucketsInfo(provider, orgName, callback);
+                    resourceService.getBucketsInfo(provider,orgName, callback);
                 },
                 rds: function (callback) {
-                    resourceService.getRDSInstancesInfo(provider, orgName, callback);
+                    resourceService.getRDSInstancesInfo(provider,orgName, callback);
                 }
             }, function (err, results) {
                 if (err) {
@@ -104,7 +104,7 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
             logger.error(err);
             return;
         } else {
-            logger.info("S3/RDS Data Successfully Added for Provider "+provider._id);
+            logger.info("S3/RDS Data Successfully Added for Provider "+provider.providerName);
             return;
         }
     });

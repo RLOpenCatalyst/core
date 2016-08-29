@@ -22,6 +22,7 @@ var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService = require('_pr/services/taskService.js');
 var AppData = require('_pr/model/app-deploy/app-data');
+var uuid = require('node-uuid');
 
 const errorType = 'appDeploy';
 
@@ -130,7 +131,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
             callback(null, []);
             return;
         } else {
-            appDeploy.getDistinctAppDeployAppNameVersionByProjectId(jsonData, function (err, appDeployResults) {
+            appDeploy.getDistinctAppDeployAppNameVersionByProjectId(jsonData, function(err, appDeployResults) {
                 if (err) {
                     logger.debug("Failed to fetch App Deploy Versions");
                     callback(err, null);
@@ -142,8 +143,8 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                 var distinctAppDeployAppNameVersion = appDeployResults.data;
                 if (distinctAppDeployAppNameVersion.length > 0) {
                     for (var i = 0; i < distinctAppDeployAppNameVersion.length; i++) {
-                        (function (appNameVersion) {
-                            appDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId, appNameVersion, function (err, appDeploys) {
+                        (function(appNameVersion) {
+                            appDeploy.getLatestAppDeployListByProjectIdAppNameVersionId(jsonData.projectId, appNameVersion, function(err, appDeploys) {
                                 if (err) {
                                     logger.debug("Failed to fetch App Deploy");
                                     callback(err, null);
@@ -159,7 +160,7 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                     "version": appDeploys[0].applicationVersion
                                 };
                                 for (var k = 0; k < appDeploys.length; k++) {
-                                    (function (appDeploy) {
+                                    (function(appDeploy) {
                                         appDeployObj[appDeploy.envName] = {
                                             "id": appDeploy.id,
                                             "applicationInstanceName": appDeploy.applicationInstanceName,
@@ -181,7 +182,8 @@ appDeployService.getAppDeployListByProjectId = function getAppDeployListByProjec
                                 appDeployList.push(appDeployObj);
                                 if (distinctAppDeployAppNameVersion.length === appDeployList.length) {
                                     var response = {};
-                                    response[jsonData.id] = appDeployList.sort(function(a, b){return a.applicationInstanceName-b.applicationInstanceName});
+                                    response[jsonData.id] = appDeployList.sort(function(a, b) {
+                                        return a.applicationInstanceName - b.applicationInstanceName });
                                     response['metaData'] = {
                                         totalRecords: appDeployResults.totalRecords,
                                         pageSize: jsonData.pageSize,
@@ -278,8 +280,8 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
             logger.debug("There is no Project configured.");
             callback(null, []);
             return;
-        }else {
-            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function (err, distinctAppDeployApplicationNames) {
+        } else {
+            appDeploy.getDistinctAppDeployApplicationNameByProjectId(jsonData, function(err, distinctAppDeployApplicationNames) {
                 if (err) {
                     logger.debug("Failed to fetch App Deploy Versions");
                     callback(err, null);
@@ -330,7 +332,8 @@ appDeployService.getPipeLineViewListByProjectId = function getPipeLineViewListBy
                                 pipeLineViewList.push(pipeLineViewObj);
                                 if (pipeLineViewList.length === applicationNames.length) {
                                     var response = {};
-                                    response['pipeLineView'] = pipeLineViewList.sort(function(a, b){return a-b});
+                                    response['pipeLineView'] = pipeLineViewList.sort(function(a, b) {
+                                        return a - b });
                                     response['metaData'] = {
                                         totalRecords: distinctAppDeployApplicationNames.totalRecords,
                                         pageSize: jsonData.pageSize,
@@ -382,6 +385,11 @@ appDeployService.appDeployOrUpgrade = function appDeployOrUpgrade(reqBody, isUpg
             appData['nexus']['taskId'] = taskId;
         }
         if (docker) {
+            var containerValue = uuid.v4();
+            if (!docker.containerName) {
+                docker.containerName = containerValue;
+            }
+
             appData['docker'] = docker;
             appData.docker['nodeIds'] = task.nodeIds;
             appData.docker['taskId'] = taskId;
@@ -453,6 +461,7 @@ appDeployService.promoteApp = function promoteApp(reqBody, callback) {
                         return callback(err, null);
                     }
                     logger.debug("Successfully save app-data: ", JSON.stringify(savedData));
+                    applicationData['promote'] = true;
                     return callback(null, applicationData);
                 });
 

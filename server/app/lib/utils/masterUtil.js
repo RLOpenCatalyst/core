@@ -342,7 +342,6 @@ var MasterUtil = function() {
             }
         });
     }
-
     // Return all Dockers
     this.getDockers = function(orgList, callback) {
         var dockerList = [];
@@ -800,6 +799,25 @@ var MasterUtil = function() {
         logger.debug("Incomming orgid: ", orgId);
         d4dModelNew.d4dModelMastersOrg.find({
             _id: new ObjectId(orgId)
+        }, function(err, orgs) {
+            if (orgs) {
+                for (var i = 0; i < orgs.length; i++) {
+                    if (orgs[i].id === '1') {
+                        orgList.push(orgs[i]);
+                    }
+                }
+                callback(null, orgList);
+            } else {
+                callback(err, null);
+            }
+        });
+    }
+
+    this.getOrgByRowId = function(orgId, callback) {
+        var orgList = [];
+        d4dModelNew.d4dModelMastersOrg.find({
+            rowid: orgId,
+            id:'1'
         }, function(err, orgs) {
             if (orgs) {
                 for (var i = 0; i < orgs.length; i++) {
@@ -1796,6 +1814,19 @@ var MasterUtil = function() {
             } else {
                 callback(null, null);
                 return;
+            }
+        });
+    };
+
+    this.getChefDetailsByOrgId = function(orgId, callback) {
+        d4dModelNew.d4dModelMastersConfigManagement.find({
+            orgname_rowid: orgId,
+            "id": '10'
+        }, function(err, chefDetails) {
+            if (err) {
+                callback(err, null);
+            }else {
+                callback(null, chefDetails);
             }
         });
     };

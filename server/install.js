@@ -36,6 +36,7 @@ function getDefaultsConfig() {
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
+        javaLibDir: currentDirectory + '/app',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
@@ -67,7 +68,7 @@ function getDefaultsConfig() {
             }
         },
         constantData: {
-            common_field: ['envId', 'providerId', 'orgId', 'bgId', 'projectId'],
+            common_field: ['envId', 'providerId', 'orgId', 'bgId','organizationId','businessGroupId', 'projectId','templateType','blueprintConfig.cloudProviderType','cloudProviderType'],
             sort_field: ['name', 'description'],
             filterReferanceData: {
                 "unmanagedInstances": [{
@@ -92,12 +93,21 @@ function getDefaultsConfig() {
                 "appDeploy" : "envId",
                 "trackedInstances": "providerType",
                 "resources":"createdOn",
-                "unassignedInstances":"state"
+                "instanceLogs":"createdOn",
+                "taskLogs":"timestampStarted",
+                "unassignedInstances":"state",
+                "unassignedInstances":"state",
+                "scripts":"name",
+                "unassignedInstances":"state",
+                "chefNodes":"createdOn",
+                "blueprints":"name",
+                'compositeBlueprints':"name"
             },
             skip_Records : 1,
             max_record_limit : 200,
             record_limit : 50
         },
+        trackMenu:['Capacity','Providers','Health','Telemetry','CI/CD','Service Delivery'],
         puppet: {
             puppetReposDirName: 'puppet-repos',
 

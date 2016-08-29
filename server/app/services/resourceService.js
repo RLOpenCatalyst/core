@@ -19,6 +19,7 @@ var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
+var EC2 = require('_pr/lib/ec2.js');
 var RDS = require('_pr/lib/rds.js');
 var resourceCost = require('_pr/model/resource-costs');
 var csv = require("fast-csv");
@@ -37,6 +38,7 @@ resourceService.getRDSDBInstanceMetrics=getRDSDBInstanceMetrics;
 resourceService.bulkUpdateResourceProviderTags=bulkUpdateResourceProviderTags;
 resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTags;
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
+resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 
 
 function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
@@ -577,10 +579,10 @@ function getS3BucketsMetrics(provider, buckets, startTime, endTime, period, call
             cw = new CW(amazonConfig);
             async.parallel({
                     BucketSizeBytes: function (callback) {
-                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, callback);
                     },
                     NumberOfObjects: function (callback) {
-                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, callback);
                     }
                 },
                 function (err, results) {
@@ -824,6 +826,77 @@ function getBucketsInfo(provider,orgName,callback) {
             }
         }
     })
+};
+
+function getEC2InstancesInfo(provider,orgName,callback) {
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var ec2Config = {
+        access_key: decryptedAccessKey,
+        secret_key: decryptedSecretKey
+    };
+    var regionCount = 0;
+    var regions = appConfig.aws.regions;
+    var awsInstanceList=[];
+    for (var i = 0; i < regions.length; i++) {
+        (function (region) {
+            ec2Config.region = region.region;
+            var ec2 = new EC2(ec2Config);
+            ec2.describeInstances(null, function(err, awsRes) {
+                if (err) {
+                    logger.error("Unable to fetch instances from aws", err);
+                    return;
+                }
+                var reservations = awsRes.Reservations;
+                if(reservations.length >0) {
+                    regionCount++;
+                    for (var j = 0; j < reservations.length; j++) {
+                        if (reservations[j].Instances && reservations[j].Instances.length) {
+                            var awsInstances = reservations[j].Instances;
+                            for (var k = 0; k < awsInstances.length; k++) {
+                                (function (instance) {
+                                    var tags = instance.Tags;
+                                    var tagInfo = {};
+                                    for (var l = 0; l < tags.length; l++) {
+                                        var jsonData = tags[l];
+                                        tagInfo[jsonData.Key] = jsonData.Value;
+                                    }
+                                    var instanceObj = {
+                                        orgId: provider.orgId[0],
+                                        orgName:orgName,
+                                        providerId: provider._id,
+                                        providerType: 'aws',
+                                        providerData: region,
+                                        platformId: instance.InstanceId,
+                                        ip: instance.PublicIpAddress || null,
+                                        os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
+                                        state: instance.State.Name,
+                                        subnetId: instance.SubnetId,
+                                        vpcId: instance.VpcId,
+                                        privateIpAddress: instance.PrivateIpAddress,
+                                        tags:tagInfo,
+                                        environmentTag:tagInfo.Environment,
+                                        projectTag:tagInfo.Owner
+                                    }
+                                    awsInstanceList.push(instanceObj);
+                                    instanceObj = {};
+                                })(awsInstances[k]);
+                            }
+                        }
+                    }
+                }else{
+                    regionCount++;
+                }
+                if (regionCount === regions.length) {
+                    callback(null, awsInstanceList);
+                }
+            });
+        })(regions[i]);
+    }
 };
 
 function getRDSInstancesInfo(provider,orgName,callback) {

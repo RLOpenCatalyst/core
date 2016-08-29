@@ -69,6 +69,9 @@ var analytics = require('./routes_analytics');
 var reports = require('./routes_reports')
 var trendUsage = require('./routes_trendUsage');
 var cors = require('cors');
+var auditTrail = require('./routes_audit_trails');
+var scripts = require('./routes_scripts');
+var fileUpload = require('./routes_fileUpload');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -159,6 +162,8 @@ module.exports.setRoutes = function(app) {
 
     serviceStatus.setRoutes(app, sessionVerificationFunc);
 
+    auditTrail.setRoutes(app, sessionVerificationFunc);
+
     compositeBlueprints.setRoutes(app, sessionVerificationFunc);
 
     blueprintFrames.setRoutes(app, sessionVerificationFunc);
@@ -168,6 +173,11 @@ module.exports.setRoutes = function(app) {
     analytics.setRoutes(app, sessionVerificationFunc);
 
     reports.setRoutes(app, sessionVerificationFunc);
+
+    scripts.setRoutes(app, sessionVerificationFunc);
+
+    fileUpload.setRoutes(app, sessionVerificationFunc);
+
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');

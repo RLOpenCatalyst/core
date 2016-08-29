@@ -346,7 +346,7 @@
 
                                     for (var i = 0; i < d4ddata.length; i++) {
                                         for (var x = 0; x < data.length; x++) {
-                                            if (d4ddata[i].orgId[0] == data[x]._id) {
+                                            if (d4ddata[i].orgId[0] == data[x].rowid) {
                                                 d4ddata[i].orgName = data[x].orgname;
                                                 break;
                                             }
@@ -382,7 +382,9 @@
                                 var tab = 'envtable';
                                 $('#envtable').dataTable({
                                     "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
-                                    "pagingType": "full_numbers"
+                                    "pagingType": "full_numbers",
+                                    "retrieve": true,
+                                    "destroy":true
                                 });
                                 $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
                                 $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');

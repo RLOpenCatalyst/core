@@ -34,7 +34,6 @@
                                         <td>Name</td>
                                         <td>Organization</td>
                                         <td>Chef Server Name</td>
-                                        <td>Puppet Server Name</td>
                                         <td>Projects</td>
                                         <td class="">Action</td>
                                     </tr>
@@ -44,7 +43,6 @@
                                         <td datafield="environmentname"></td>
                                         <td datafield="orgname"></td>
                                         <td datafield="configname"></td>
-                                         <td datafield="puppetservername"></td>
                                         <td datafield="projectname" datatype="list"></td>
                                         <td>
                                             <div class="btn-group tableactionWidth">
@@ -67,7 +65,6 @@
                                             <td>Name</td>
                                             <td>Organization</td>
                                             <td>Chef Server Name</td>
-                                            <td>Puppet Server Name</td>
                                             <td>Projects</td>
                                             <td class="">Action</td>
                                         </tr>
@@ -110,7 +107,9 @@
                                         CreateTableFromJson(3,'environmentname' , 'CreateEnvironmentConcept.html'); //3 is for 
                                         $('#envtable').dataTable({
                                             "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
-                                            "pagingType": "full_numbers"
+                                            "pagingType": "full_numbers",
+                                            "retrieve": true,
+                                            "destroy":true
                                         });
                                         $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
                                         $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');

@@ -311,17 +311,6 @@ $(document).ready(function () {
                             return 'OpenStack';
                         }
                     }
-                },
-                {"data": "", "orderable": false,
-                    "render": function (data, type, full, meta) {
-                        return full.cost ? full.cost.symbol + ' ' + parseFloat(full.cost.aggregateInstanceCost).toFixed(2) : '-';
-                    }
-                },
-                {"data": "usage", "orderable": false,
-                    "render": function (data, type, full, meta) {
-                        return full.usage ? '<span>' + full.usage.CPUUtilization.average + '&nbsp;%</span>' +
-                            '<a class="btn btn-primary btn-sm width25padding4marginleft10 specProviderUsages pull-right" title="Usage Details" data-usage=' + full._id + '><i class="fa fa-list"></i></a>' : '-';
-                    }
                 }
             ]
         });
@@ -516,6 +505,7 @@ $(document).ready(function () {
             });
         } else {
             setCurrentChart(chartId);
+
         }
     });
 

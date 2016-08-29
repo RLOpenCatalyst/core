@@ -232,22 +232,36 @@
 
 		//Add selected from optionList to SelectorList
 		function addDblClickListener() {
-			var $this = $(event.target),
-				obj = {};
-			$selectorList.append($this.clone().data('json', $this.data('json')));
-			$this.hide();
-			var currentValue = [{
-				value: $this.val(),
-				className: $this.attr('class')
-			}];
 			var currentList = [];
+			var currentValue = [];
 			$selectorList.find('option').each(function() {
-				obj = {
+				var obj = {
 					value: $(this).val(),
 					className: $(this).attr('class')
 				};
 				currentList.push(obj);
 			});
+			var $this = $(event.target);
+			var obj = {
+				value: $this.val(),
+				className: $this.attr('class')
+			};
+			var duplicateCheck = false;
+			if(currentList.length === 0){
+				duplicateCheck = false;
+			}else{
+				for(var i = 0; i < currentList.length; i++){
+					if(currentList[i].value === obj.value && currentList[i].className === obj.className){
+						duplicateCheck = true;
+					}
+				}
+			}
+			if(duplicateCheck === false){
+				$selectorList.append($this.clone().data('json', $this.data(
+					'json')));
+			}
+			$this.hide();
+			currentValue.push(obj);
 			var operationType = "add";
 
 			broadCastRegisteredEvents(currentValue, currentList, operationType);
@@ -290,23 +304,35 @@
 			var currentValue = [];
 			var currentList = [];
 			var obj = {};
-			$options.each(function() {
-				var $this = $(this);
-				$selectorList.append($this.clone().data('json', $this.data(
-					'json')));
-				$this.hide();
-				obj = {
-					value: $this.val(),
-					className: $this.attr('class')
-				};
-				currentValue.push(obj);
-			});
 			$selectorList.find('option').each(function() {
 				obj = {
 					value: $(this).val(),
 					className: $(this).attr('class')
 				};
 				currentList.push(obj);
+			});
+			$options.each(function() {
+				var $this = $(this);
+				obj = {
+					value: $this.val(),
+					className: $this.attr('class')
+				};
+				var duplicateCheck = false;
+				if(currentList.length === 0){
+					duplicateCheck = false;
+				}else{
+					for(var i = 0; i < currentList.length; i++){
+						if(currentList[i].value === obj.value && currentList[i].className === obj.className){
+							duplicateCheck = true;
+						}
+					}
+				}
+				if(duplicateCheck === false){
+					$selectorList.append($this.clone().data('json', $this.data(
+						'json')));
+				}
+				$this.hide();
+				currentValue.push(obj);
 			});
 			var operationType = "add";
 			broadCastRegisteredEvents(currentValue, currentList, operationType);
