@@ -150,7 +150,7 @@ var InstanceLog = function() {
                     error.status = 500;
                     return callback(error);
                 } else {
-                    databaseCall.queryObj['$or'] = [{ "status": "running" }, { "status": "stopped" }, { "status": "pending" }];
+                    databaseCall.queryObj['$or'] = [{ "status": "running" }, { "status": "stopped" }, { "status": "pending" },{ "status": "terminated" },{ "status": "waiting" },{ "status": "deleted" }];
                     InstanceLogs.paginate(databaseCall.queryObj, databaseCall.options, function(err, instanceActions) {
                         if (err) {
                             logger.error(err);
