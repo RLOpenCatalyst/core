@@ -626,6 +626,9 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 								case "CloudFormation":
 									imgpath = '/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png';
 									break;
+								case "Composite":
+									imgpath = '/d4dMasters/image/ba52a37d-c1e4-47bd-9391-327a95008a61__designtemplateicon__composite.png';
+									break;
 							}
 						}
 					} else {
@@ -651,6 +654,9 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 								break;
 							case "CloudFormation":
 								imgpath = '/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png';
+								break;
+							case "Composite":
+								imgpath = '/d4dMasters/image/ba52a37d-c1e4-47bd-9391-327a95008a61__designtemplateicon__composite.png';
 								break;
 						}
 					}
@@ -1277,8 +1283,7 @@ function readform(formID) {
 					$.each(tempJSON, function(i, item) {
 						_rowid = item['rowid'];
 						$.each(item, function(k, v) { //columns
-							//console.log('1 k:' + k + ' 1 v :' + JSON.stringify(v));
-							if (k == curSelect.attr("id") && curSelect.attr("ignoreoption") != v) {
+							if (k == curSelect.attr("id") && curSelect.attr("ignoreoption") != v && curSelect.attr("ignoreComposite") != v) {
 								curSelect.append('<option value="' + v + '" rowid = "' + _rowid + '">' + v + '</option>');
 							}
 						});
