@@ -543,7 +543,12 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             name: appName,
                             version: appVersion
                         };
-                        instancesDao.updateAppInfo(instance._id, appInfo);
+                        instancesDao.updateAppInfo(instance._id, appInfo,function(err,data1){
+                            if(err){
+                                logger.debug("Error: ",err);
+                            }
+                            logger.debug("data: ",JSON.stringify(data1));
+                        });
                         nodeIds.push(instance.instanceIP);
                         masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
                             var appDataObj = {
