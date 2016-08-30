@@ -579,10 +579,14 @@ function getS3BucketsMetrics(provider, buckets, startTime, endTime, period, call
             cw = new CW(amazonConfig);
             async.parallel({
                     BucketSizeBytes: function (callback) {
-                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, callback);
+                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',
+                            [{Name:'BucketName',Value:bucket.resourceDetails.bucketName},
+                                {Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, period, callback);
                     },
                     NumberOfObjects: function (callback) {
-                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, callback);
+                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',
+                            Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],
+                            startTime, endTime, period, callback);
                     }
                 },
                 function (err, results) {
