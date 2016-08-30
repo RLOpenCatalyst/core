@@ -995,18 +995,6 @@ $(document).ready(function() {
 
         $.get('/d4dMasters/readmasterjsonnew/16', function(data) {
             data = JSON.parse(data);
-            data.push({
-                _id: "54bde11187f86fa0130c7563",
-                templatetypename: "Composite",
-                designtemplateicon_filename: "Docker.png",
-                rowid: "b02de7dd-6101-4f0e-a95e-68d74cec86c0",
-                id: "16",
-                __v: 0,
-                active: true,
-                templatetype: "composite",
-                orgname_rowid: ["46d1da9a-d927-41dc-8e9e-7e926d927537"],
-                orgname: ["Phoenix"]
-            });
             var rowLength = data.length;
             var containerTemp = "";
             var selectedrow = false;
@@ -1054,7 +1042,7 @@ $(document).ready(function() {
                             getDesignTypeImg = '/d4dMasters/image/4fdda07b-c1bd-4bad-b1f4-aca3a3d7ebd9__designtemplateicon__Cloudformation.png';
                             break;
                         case "composite":
-                            getDesignTypeImg = 'img/composite.png';
+                            getDesignTypeImg = '/d4dMasters/image/ba52a37d-c1e4-47bd-9391-327a95008a61__designtemplateicon__composite.png';
                             break;
                     }
                     getDesignTypeRowID = data[i]['rowid'];
