@@ -651,6 +651,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 'Content-Type': 'application/json'
                             });
                             var jobj = JSON.parse(JSON.stringify(d4dMasterJson));
+                            if (req.params.id === '30') {
+                                d4dMasterJson.zabbixpassword = cryptography.decryptText(d4dMasterJson.zabbixpassword,
+                                    cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                            }
                             for (var k1 in jobj) {
                                 if (k1.indexOf('_rowid') > 0) {
                                     var flds = k1.split('_');
@@ -2513,6 +2517,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         logger.debug("Inside if for empty");
                         bodyJson["orgname"] = "";
                         bodyJson["orgname_rowid"] = "";
+                    }
+                    if (req.params.id === "30") {
+                        bodyJson["zabbixpassword"] = cryptography.encryptText(bodyJson["zabbixpassword"], cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
                     }
 
                     if (req.params.id === "10") {

@@ -19,13 +19,15 @@ limitations under the License.
 var logger = require('_pr/logger')(module);
 var instancesModel = require('_pr/model/classes/instance/instance');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var appConfig = require('_pr/config');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 var zabbix = require('zabbix-node');
 var Zabbix = function(zabbixSettings) {
     this.getHost = function(callback) {
         d4dModelNew.d4dModelMastersZabbixServer.find({
             id: "30"
-        },function(err, zabbixServer) {
+        }, function(err, zabbixServer) {
             if (err) {
                 logger.debug("failed to fetch zabbix: ", err);
                 return callback(err, null);
@@ -37,9 +39,15 @@ var Zabbix = function(zabbixSettings) {
                         return callback(err, null);
                     }
                     if (instance && instance.length) {
+                        var cryptoConfig = appConfig.cryptoSettings;
+                        var cryptography = new Cryptography(cryptoConfig.algorithm,
+                            cryptoConfig.password);
+
+                        var decryptedPassword = cryptography.decryptText(zabbixServer[0].zabbixpassword,
+                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
                         var zabbixUrl = 'http://' + instance[0].instanceIP + '/zabbix/api_jsonrpc.php';
-                        logger.debug("zabbixUrl: ",zabbixUrl);
-                        var client = new zabbix(zabbixUrl, zabbixServer[0].zabbixusername, zabbixServer[0].zabbixpassword);
+                        logger.debug("zabbixUrl: ", zabbixUrl);
+                        var client = new zabbix(zabbixUrl, zabbixServer[0].zabbixusername, decryptedPassword);
 
                         var token = "";
                         // Should be call login at the first time
@@ -53,7 +61,7 @@ var Zabbix = function(zabbixSettings) {
                             token = body;
 
                             // Then the client has had the token
-                            client.call('service.get', { "auth": token }, function(error1, resp1, body1) {
+                            client.call('application.get', { "auth": token }, function(error1, resp1, body1) {
                                 if (error1) {
                                     logger.debug("Got error1: ", error1);
                                     return callback(error1, null);
