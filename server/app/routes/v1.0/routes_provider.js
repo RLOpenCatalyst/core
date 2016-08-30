@@ -120,12 +120,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			if (aProvider) {
 				AWSKeyPair.getAWSKeyPairByProviderId(aProvider._id, function(err, keyPair) {
-					masterUtil.getOrgById(aProvider.orgId[0], function(err, orgs) {
+					masterUtil.getOrgByRowId(aProvider.orgId[0], function(err, orgs) {
 						if (err) {
 							res.status(500).send("Not able to fetch org.");
 							return;
 						}
-
 						if (orgs.length > 0) {
 							if (keyPair) {
 								var dommyProvider = {
@@ -253,7 +252,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								res.status(500).send("Failed to create Provider.");
 								return;
 							}
-							masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+							masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 								if (err) {
 									res.status(500).send("Not able to fetch org.");
 									return;
@@ -385,7 +384,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				return;
 			}
 			if (aProvider) {
-				masterUtil.getOrgById(aProvider.orgId[0], function(err, orgs) {
+				masterUtil.getOrgByRowId(aProvider.orgId[0], function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -534,7 +533,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send(errorResponses.db.error);
 					return;
 				}
-				masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+				masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -750,7 +749,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 
-							masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+							masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 								if (err) {
 									res.status(500).send("Not able to fetch org.");
 									return;
@@ -882,7 +881,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			if (aProvider) {
 
-				masterUtil.getOrgById(aProvider.orgId[0], function(err, orgs) {
+				masterUtil.getOrgByRowId(aProvider.orgId[0], function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -1029,7 +1028,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							res.status(500).send(errorResponses.db.error);
 							return;
 						}
-						masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+						masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 							if (err) {
 								res.status(500).send("Not able to fetch org.");
 								return;
@@ -1243,7 +1242,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 
-							masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+							masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 								if (err) {
 									res.status(500).send("Not able to fetch org.");
 									return;
@@ -1384,7 +1383,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				logger.debug(aProvider);
 				aProvider = JSON.parse(aProvider)
 				logger.debug(aProvider.orgId);
-				masterUtil.getOrgById(aProvider.orgId[0], function(err, orgs) {
+				masterUtil.getOrgByRowId(aProvider.orgId[0], function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -1439,7 +1438,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send(errorResponses.db.error);
 					return;
 				}
-				masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+				masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -1736,7 +1735,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 
-							masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+							masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 								if (err) {
 									res.status(500).send("Not able to fetch org.");
 									return;
@@ -1870,7 +1869,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 			if (aProvider) {
 
-				masterUtil.getOrgById(aProvider.orgId[0], function(err, orgs) {
+				masterUtil.getOrgByRowId(aProvider.orgId[0], function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -1965,7 +1964,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send(errorResponses.db.error);
 					return;
 				}
-				masterUtil.getOrgById(providerData.orgId, function(err, orgs) {
+				masterUtil.getOrgByRowId(providerData.orgId, function(err, orgs) {
 					if (err) {
 						res.status(500).send("Not able to fetch org.");
 						return;
@@ -2280,7 +2279,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 														return;
 													}
 													AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
-														masterUtil.getOrgById(providerData.orgId, function (err, orgs) {
+														masterUtil.getOrgByRowId(providerData.orgId, function (err, orgs) {
 															if (err) {
 																res.status(500).send("Not able to fetch org.");
 																return;
@@ -2799,11 +2798,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			ec2.describeKeyPairs(function(err, data) {
 				if(err && isDefault) {
 					logger.error("Unable to get AWS Keypairs: ", err);
-					res.status(500).send("Not able to fetch catalyst instance metadata.");
+					// res.status(500).send('Invalid credentials \n' + 'ERROR: ' + err.message);
+					res.status(500).send(err.message);
 					return;
 				} else if (err) {
 					logger.error("Unable to get AWS Keypairs: ", err);
-					res.status(500).send("Invalid AccessKey or SecretKey.");
+					// res.status(500).send('Invalid credentials \n' + ' ERROR: ' + err.message);
+					res.status(500).send(err.message);
 					return;
 				} else {
 					res.send(data);
@@ -2865,7 +2866,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			ec2.getSecurityGroupsForVPC(req.params.vpcId, function(err, data) {
 				if (err) {
 					logger.error("Unable to get AWS Security Groups for VPC.");
-					res.status(500).send("Unable to get AWS Security Groups for VPC.");
+					// res.status(500).send("Unable to get AWS Security Groups for VPC.");
+					res.status(500).send(err.message);
 					return;
 				}
 				res.send(data);
@@ -2928,7 +2930,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			ec2.describeVpcs(function(err, data) {
 				if (err) {
 					logger.error("Unable to describe Vpcs from AWS.", err);
-					res.status(500).send("Unable to Describe Vpcs from AWS.");
+					// res.status(500).send("Unable to Describe Vpcs from AWS.");
+					res.status(500).send(err.message);
 					return;
 				}
 				res.send(data);
@@ -2990,7 +2993,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			ec2.describeSubnets(req.params.vpcId, function(err, data) {
 				if (err) {
 					logger.error("Unable to describeSubnets from AWS.", err);
-					res.status(500).send("Unable to describeSubnets from AWS.");
+					// res.status(500).send("Unable to describeSubnets from AWS.");
+					res.status(500).send(err.message);
 					return;
 				}
 				res.send(data);
@@ -3340,7 +3344,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			ec2.listInstances(function(err, nodes) {
 				if (err) {
 					logger.error("Unable to list nodes from AWS.", err);
-					res.status(500).send("Unable to list nodes from AWS.");
+					// res.status(500).send("Unable to list nodes from AWS.");
+					res.status(500).send(err.message);
 					return;
 				}
 				logger.debug("Success to list nodes from AWS.");
@@ -3409,7 +3414,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			ec2.listActiveInstances(function(err, nodes) {
 				if (err) {
 					logger.debug("Unable to list nodes from AWS.", err);
-					res.send("Unable to list nodes from AWS.", 500);
+					// res.send("Unable to list nodes from AWS.", 500);
+					res.status(500).send(err.message);
 					return;
 				}
 				logger.debug("Success to list nodes from AWS.");

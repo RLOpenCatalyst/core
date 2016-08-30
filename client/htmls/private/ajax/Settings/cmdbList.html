@@ -84,7 +84,7 @@ function createTableFromJson(data) {
 
 						$tr.append('<td scope="col">' + data[i].servicenowusername + '</td>');
 
-						$tr.append('<td scope="col">' + data[i].url + '</td>');
+						$tr.append('<td scope="col"><a target="_blank" href="' + data[i].url + '">'+ data[i].url +'</a></td>');
 
 						$tr.append('<td scope="col">' + data[i].orgname[0] + '</td>');
 

@@ -7,7 +7,7 @@
 (function(angular) {
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('cpInfoCtrl', ['$scope', '$modal', 'workzoneServices', function($scope, $modal, workzoneServices) {
+		.controller('cpInfoCtrl', ['$scope', '$modal', 'workzoneServices','toastr', function($scope, $modal, workzoneServices,toastr) {
 			/*Open only One Accordian-Group all a time*/
 			$scope.oneAtATime = false;
 			/*Opening all Accordian-group on load*/
@@ -54,7 +54,7 @@
 						$scope.bpInfo = response.data;
 					},
 					function(error) {
-						console.log(error.data.errMessage);
+						toastr.error(error.data.errMessage);
 					});
 				}
 			};
@@ -104,7 +104,7 @@
 					var idx = index;
 					$scope.appUrlInfo.splice(idx,1);
 				}, function() {
-					alert("Unable to delete URL please try again later");
+					toastr.error("Unable to delete URL please try again later");
 				});
 			};
 			$scope.inspect = function() {

@@ -61,7 +61,6 @@ var Chef = function(settings) {
     var bootstrapattemptcount = 0;
 
     function initializeChefClient(callback) {
-        logger.debug('User Pem file:', settings.chefUserPemFile);
         if (!chefClient) {
             fileIo.readFile(settings.chefUserPemFile, function(err, key) {
                 if (err) {
@@ -117,7 +116,6 @@ var Chef = function(settings) {
                     callback(true, null);
                     return;
                 }
-
                 var nodeNames = Object.keys(chefResBody);
                 callback(null, nodeNames);
             });
@@ -132,16 +130,15 @@ var Chef = function(settings) {
             }
             chefClient.get('/nodes/' + nodeName, function(err, chefRes, chefResBody) {
                 if (err) {
-                    callback(err, null);
-                    return;
-                }
-                if (chefRes.statusCode === 200) {
-                    callback(null, chefResBody);
-                } else {
-                    callback({
+                    return callback(err, null);
+                }else if (chefRes.statusCode === 200) {
+                    return  callback(null, chefResBody);
+                }else {
+                    return callback(null,{
                         err: "not found",
                         chefStatusCode: chefRes.statusCode
-                    }, null);
+                    });
+
                 }
             });
         });
@@ -542,7 +539,6 @@ var Chef = function(settings) {
             logger.debug('knife command ==> ', 'knife ' + argList.join(' '));
             var proc = new Process('knife', argList, options);
             proc.start();
-
         });
     };
 
@@ -671,10 +667,18 @@ var Chef = function(settings) {
                 }
             }
 
-            logger.debug('host name ==>', options.host);
-            if (!options.password) {}
-            var proc = new Process('knife', ['winrm', options.host, ' "chef-client -o ' + runlist.join() + '"', '-m', '-P\"' + options.password + '\"', '-x' + options.username], processOptions);
-            proc.start();
+            if (options.jsonAttributes) {
+                var jsonFileName = "chefRunjsonAttributes_" + new Date().getTime() + ".json";
+                var jsonAttributesString = options.jsonAttributes; // JSON.stringify(options.jsonAttributes);
+                jsonAttributesString = jsonAttributesString.split('"').join('\\\"');
+                var proc = new Process('knife', ['winrm', options.host, '"echo ' + jsonAttributesString + ' > c:/' + jsonFileName + ' && chef-client -o ' + runlist.join() + ' --json-attributes c:/' + jsonFileName + ' "', '-m', '-P\"' + options.password + '\"', '-x' + options.username], processOptions);
+                proc.start();
+            } else {
+                logger.debug('host name ==>', options.host);
+                if (!options.password) {}
+                var proc = new Process('knife', ['winrm', options.host, ' "chef-client -o ' + runlist.join() + '"', '-m', '-P\"' + options.password + '\"', '-x' + options.username], processOptions);
+                proc.start();
+            }
         }
 
     };

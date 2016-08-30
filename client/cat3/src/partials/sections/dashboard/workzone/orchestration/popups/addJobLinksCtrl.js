@@ -8,7 +8,7 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.orchestration')
-		.controller('addJobLinksCtrl',['$scope', '$modalInstance',function($scope, $modalInstance){
+		.controller('addJobLinksCtrl',['$scope', '$modalInstance','toastr',function($scope, $modalInstance,toastr){
 			function evaluator(){
 				return true;
 			}
@@ -20,7 +20,7 @@
 				if(evaluator($scope.jobLink) && $scope.jobLink){
 					$modalInstance.close($scope.jobLink);
 				}else{
-					alert('Please check the url.');
+					toastr.error('Please check the url.');
 				}
 			};
 		}

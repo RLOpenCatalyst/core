@@ -178,12 +178,12 @@
                                                 <span class="control-label redSpan">&nbsp;*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="instanceCount" name="instanceCount" class="required chooseOrganization width-100 chooseSelect" style="vertical-align:central">
-                                                    <option value="1">1</option>
+                                                  <select id="instanceCount" name="instanceCount" class="required chooseOrganization width-100 chooseSelect form-control" style="vertical-align:central">
+                                                   <!--  <option value="1">1</option>
                                                     <option value="2">2</option>
                                                     <option value="3">3</option>
                                                     <option value="4">4</option>
-                                                    <option value="5">5</option>
+                                                    <option value="5">5</option> -->
                                                   </select>
                                                 </div>
                                               </div>
@@ -1265,7 +1265,7 @@ function getProviderList() {
       console.log(data);
       var str = ' <option value="">Select Provider</option>',
         len = data.length;
-      str += helperConstructOption(data, ['username', 'password', 'providerType'], 'providerName', '_id');
+      str += helperConstructOption(data, ['username', 'password', 'providerType','instanceLimit'], 'providerName', '_id');
       $('#providerId').html(str);
     },
     failure: function(data) {
@@ -1296,6 +1296,17 @@ function getImagesWithOSFilter() {
   function loadData() {
     var providerVal = $('#providerId').val();
     if (providerVal) {
+
+      var $selected = $("#providerId option:selected");
+            var instanceLimit = parseInt($selected.attr('instanceLimit')) || 10;
+            $('#instanceCount').empty();
+            for (var i = 1; i <= instanceLimit; i++) {
+                var $option = $('<option></option>').val(i).html(i);
+                $('#instanceCount').append($option);
+            }
+         
+
+
       $.get("/vmimages/providers/" + providerVal, function(data) {
         var str = ' <option value="">Select Image</option>',
           data = getFilteredList(data, $('#instanceOS').val()),
@@ -2314,7 +2325,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
           });
         } else {
           //setting the instance count drop down
-          $('#instanceCount').val("1").select2();
+          $('#instanceCount').val("1");
           if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
             var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
             $('#instanceOS').val(vmimage.osName);

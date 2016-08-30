@@ -259,20 +259,21 @@
 					};
 					confirmbox.showModal({}, modalOptions).then(function() {
 						workzoneServices.deleteCompsiteBlueprint(compositeBlueprintId).success(function(response) {
-							toastr.success('Successfully deleted composite blueprint',{timeOut: 2000,closeButton: true});
+							$scope.getAllCompsiteBlueprint();
+							toastr.success('Successfully deleted');
 						}).error(function(data) {
-							toastr.error(data.message, 'Error',{timeOut: 2000,closeButton: true});
+							toastr.error(data.message, 'Error');
 						});
 					});
 				},
 
 				launchInstanceCompoBlueprint:function(compositeBlueprintId){
 					var modalOptions = {
-						closeButtonText: ' No ',
-						actionButtonText: ' Yes ',
+						closeButtonText: ' Cancel ',
+						actionButtonText: ' Ok ',
 						actionButtonStyle: 'cat-btn-update',
-						headerText: 'Launch Instance Composite Blueprint',
-						bodyText: 'Are you sure you want to launch the composite blueprint? Press Yes To continue.'
+						headerText: 'Confirmation',
+						bodyText: 'Are you sure you want to launch the Blueprint? Press Ok To continue'
 					};
 					var compBlue={
 						"blueprintId": compositeBlueprintId,
@@ -280,9 +281,9 @@
 					}
 					confirmbox.showModal({}, modalOptions).then(function() {
 						workzoneServices.launchCompsiteBlueprint(compBlue).success(function(response) {
-                            toastr.success('Successfully launched composite blueprint',{timeOut: 2000,closeButton: true});
+                            toastr.success('Successfully launched composite blueprint');
 						}).error(function(data) {
-                            toastr.error(data.message, 'Error',{timeOut: 2000,closeButton: true});
+                            toastr.error(data.message, 'Error');
 						});
 					});
 				}

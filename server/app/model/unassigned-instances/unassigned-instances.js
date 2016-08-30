@@ -166,9 +166,10 @@ UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
 };
 
 UnassignedInstancesSchema.statics.getUnAssignedInstancesByProviderId
-    = function getByProviderId(providerId, callback) {
+    = function getUnAssignedInstancesByProviderId(providerId, callback) {
     var params = {
-        providerId: providerId
+        providerId: providerId,
+        isDeleted:false
     };
     this.find(params, function (err, instances) {
         if (err) {
@@ -183,30 +184,42 @@ UnassignedInstancesSchema.statics.getUnAssignedInstancesByProviderId
 UnassignedInstancesSchema.statics.updateInstance = function updateInstance(params, fields ,callback) {
     this.update(params, fields,
         function(err, data) {
-        if (err) {
-            logger.error("Failed to update unassigned instance data", err);
-            if (typeof callback == 'function') {
-                callback(err, null);
+            if (err) {
+                logger.error("Failed to update unassigned instance data", err);
+                if (typeof callback == 'function') {
+                    callback(err, null);
+                }
+                return;
+            } else if(data && (data.ok == 1)) {
+                return callback(null, data);
             }
-            return;
-        } else if(data && (data.ok == 1)) {
-            return callback(null, data);
-        }
-    });
+        });
 };
 
-UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instance,callback) {
+UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instanceId,instance,callback) {
     var updateObj={};
     if(instance.state === 'terminated'){
         updateObj['state'] = instance.state;
+        updateObj['subnetId']= instance.SubnetId;
+        updateObj['vpcId'] = instance.VpcId;
+        updateObj['privateIpAddress'] = instance.PrivateIpAddress;
         updateObj['isDeleted'] = true;
+        updateObj['tags'] = instance.tags;
+        updateObj['environmentTag'] = instance.environmentTag;
+        updateObj['projectTag'] = instance.projectTag;
     }else{
         updateObj['state'] = instance.state;
+        updateObj['subnetId']= instance.SubnetId;
+        updateObj['vpcId'] = instance.VpcId;
+        updateObj['privateIpAddress'] = instance.PrivateIpAddress;
         updateObj['isDeleted'] = false;
+        updateObj['tags'] = instance.tags;
+        updateObj['environmentTag'] = instance.environmentTag;
+        updateObj['projectTag'] = instance.projectTag;
     }
-    this.update({
-        "platformId": instance.platformId,
-    }, {
+    UnassignedInstances.update({
+        "_id": ObjectId(instanceId)
+    },{
         $set: updateObj
     }, function(err, data) {
         if (err) {
@@ -284,6 +297,48 @@ UnassignedInstancesSchema.statics.updateInstanceCost = function(instanceCostData
             callback(null, data);
         }
     });
+};
+
+UnassignedInstancesSchema.statics.removeInstanceById = function(instanceId,callback) {
+    this.remove({
+        _id: new ObjectId(instanceId)
+    }, function (err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+UnassignedInstancesSchema.statics.getAllTerminatedInstances = function(orgId,callback) {
+    this.find({"orgId":orgId,"state":"terminated"}, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+UnassignedInstancesSchema.statics.getInstancesByProviderIdOrgIdAndPlatformId = function getInstancesByProviderIdOrgIdAndPlatformId(orgId,providerId, platformId, callback) {
+    var params = {
+        'orgId': orgId,
+        'providerId': providerId,
+        'platformId': platformId
+    };
+    this.find(params,
+        function(err, instances) {
+            if (err) {
+                logger.error("Could not get instance for ",orgId, providerId, platformId, err);
+                return callback(err, null);
+            } else if(instances.length > 0) {
+                return callback(null, instances);
+            } else {
+                return callback(null, []);
+            }
+        }
+    );
 };
 
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);

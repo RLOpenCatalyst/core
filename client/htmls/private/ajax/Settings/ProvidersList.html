@@ -27,7 +27,6 @@
                             </a>                                                
                         </div>
                     </div>
-
                 </div>
                 <div class="widget-body">
                     <div class="widget-main widgetHeight">
@@ -350,7 +349,7 @@
             for (var i = 0; i < d4ddata.length; i++) {
                 for (var x = 0; x < data.length; x++) {
                     //alert(d4ddata[i].orgId[0],JSON.stringify(data[x]));
-                    if (d4ddata[i].orgId[0] == data[x]._id) {
+                    if (d4ddata[i].orgId[0] == data[x].rowid) {
                         d4ddata[i].orgName = data[x].orgname;
                         break;
                     }
