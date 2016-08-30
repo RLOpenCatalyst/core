@@ -27,6 +27,7 @@
                             </a>                                                
                         </div>
                     </div>
+
                 </div>
                 <div class="widget-body">
                     <div class="widget-main widgetHeight">
@@ -35,7 +36,6 @@
                                 <thead>
                                     <tr class="rowCustomStyle">
                                         <td>Name</td>
-                                        <!-- <td>Description</td> -->
                                         <td>Provider</td>
                                         <td>Organization </td> 
                                         <td class="">Action</td>
@@ -45,11 +45,8 @@
                                 <tbody>
                                     <tr class="hidden rowtemplate">
                                         <td datafield="providerName"></td>
-
-                                        <!-- <td datafield="description"></td> -->
                                         <td datafield="providerType"></td>
                                         <td datafield="orgName"></td>
-                                        <!-- <td datafield="accountid"></td> -->
                                         <td>
                                             <div class="btn-group">
                                                 <a class="btn btn-xs btn-info pull-left providerReport" href="#modalForProviderReport" data-backdrop="false" data-toggle="modal" title="Report">
@@ -75,10 +72,8 @@
                                 <thead>
                                     <tr class="rowCustomStyle">
                                         <td>Name</td>
-                                        <!-- <td>Description</td> -->
                                         <td>Provider</td>
                                         <td>Organization </td> 
-                                        <!-- <td>Account ID</td> -->
                                         <td class="">Action</td>
                                     </tr>
                                 </thead>
@@ -218,6 +213,11 @@
 
         //when the user closes the modal the form will be reset
         $('#modalForProviderReport').on('hidden.bs.modal', function () {
+            $('#type').removeAttr('disabled');
+            $('#type').trigger('change');
+            $('#rowPeriod').slideDown();
+            $('#rowInterval').slideUp();
+            $('#rowFromDate').slideUp();
             $('#providerReport')[0].reset();
             $('span.error').empty().hide();
             return false;
@@ -228,11 +228,14 @@
             if (val === 'usage') {
                 $('#type').val('trend');
                 $('#type').attr('disabled', 'disabled');
+                $("#interval").val('3600');
+                $("#interval option[value=86400]").attr('disabled','disabled');                
                 $("#interval option[value=3600]").removeAttr('disabled');
                 $('#rowFromDate').slideDown();
                 $('#rowPeriod').slideUp();
             } else {
                 $('#type').removeAttr('disabled');
+                $("#interval option[value=86400]").removeAttr('disabled');                
                 $("#interval").val('86400');
                 $("#interval option[value=3600]").attr('disabled','disabled');                
                 $('#rowFromDate').slideUp();
@@ -250,19 +253,20 @@
         });
         $('#fromTimeStamp').datetimepicker(
             {
-                dateFormat: 'yy-mm-dd',
-                timeFormat: 'HH:mm:ss'
+                timeFormat: 'HH:mm:ss',
+                changeMonth: true,
+                changeYear: true
             }
         );
         $('#toTimeStamp').datetimepicker(
             {
-                dateFormat: 'yy-mm-dd',
-                timeFormat: 'HH:mm:ss'
+                timeFormat: 'HH:mm:ss',
+                changeMonth: true,
+                changeYear: true
             }
         );
         $('#metric').trigger('change');
         $('#providerReport').submit(function (e) {
-            // debugger;
             $('#fromTimeStamp-error').remove();
             var isValidator = $('#providerReport').valid();
             if (!isValidator) {
