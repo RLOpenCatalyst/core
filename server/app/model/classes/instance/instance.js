@@ -2072,7 +2072,10 @@ var InstancesDao = function() {
 
     this.updateInstanceStatus = function(instanceId, instance, callback) {
         var updateObj = {};
-        if (instance.state === 'terminated') {
+        if(instance.status && instance.status === 'shutting-down'){
+            updateObj['instanceState'] = instance.status;
+            updateObj['isDeleted'] = false;
+        }else if (instance.state === 'terminated') {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = true;
             updateObj['tags'] = instance.tags;

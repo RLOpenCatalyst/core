@@ -57,7 +57,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 	}
 
 	app.get('/openstack/:providerid/projects', function(req, res) {
-
+		if(req.params.providerid === null){
+			logger.debug("Provider Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);
@@ -76,7 +80,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
 	app.get('/openstack/:providerid/tenants', function(req, res) {
-
+		if(req.params.providerid === null){
+			logger.debug("Provider Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 			if (openstackconfig) {
 				var openstack = new Openstack(openstackconfig);
@@ -98,7 +106,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 	});
 
 	app.get('/openstack/:providerid/images', function(req, res) {
-
+		if(req.params.providerid === null){
+			logger.debug("Provider Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);
@@ -116,7 +128,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 	});
 
 	app.get('/openstack/:providerid/:tenantId/servers', function(req, res) {
-
+		if(req.params.providerid === null){
+			logger.debug("Provider Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);
@@ -135,8 +151,12 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 	app.get('/openstack/:providerid/networks', function(req, res) {
 		logger.debug('Inside openstack get networks:');
+		if(req.params.providerid === null){
+			logger.debug("Provider Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
-
 			var openstack = new Openstack(openstackconfig);
 			if (openstackconfig.serviceendpoints.network) {
 				openstack.getNetworks(function(err, networks) {
@@ -156,6 +176,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 	app.get('/openstack/:providerid/networks/:networkId', function(req, res) {
 		logger.debug('Inside openstack get networks:');
+		if(req.params.providerid === null || req.params.networkId){
+			logger.debug("Provider Id or Network Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);
@@ -189,6 +214,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 	app.get('/openstack/:providerid/flavors', function(req, res) {
 		logger.debug('Inside openstack get flavors');
+		if(req.params.providerid === null){
+			logger.debug("Provider Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);
@@ -208,6 +238,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 	app.get('/openstack/:providerid/flavors/:flavorId', function(req, res) {
 		logger.debug('Inside openstack get flavors');
+		if(req.params.providerid === null || req.params.flavorId === null){
+			logger.debug("Provider Id or Flavor Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);
@@ -241,6 +276,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
 	app.get('/openstack/:providerid/securityGroups', function(req, res) {
+		if(req.params.providerid === null){
+			logger.debug("Provider Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);
@@ -262,6 +302,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 	});
 
 	app.get('/openstack/:providerid/securityGroups/:securityGroupId', function(req, res) {
+		if(req.params.providerid === null || req.params.securityGroupId === null){
+			logger.debug("Provider Id or Security Group Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);
@@ -344,7 +389,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 	});
 
 	app.get('/openstack/:providerid/tenants/:tenantId/servers/:serverId', function(req, res) {
-
+		if(req.params.providerid === null || req.params.tenantId === null || req.params.serverId === null){
+			logger.debug("Provider Id or Tenant Id or Server Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getopenstackprovider(req.params.providerid, function(err, openstackconfig) {
 
 			var openstack = new Openstack(openstackconfig);

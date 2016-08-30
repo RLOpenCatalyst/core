@@ -425,7 +425,7 @@
                 <form action="">
                   <div class="col-lg-12 awsExisting">
                     <div class="col-lg-4 col-md-4">
-                      <label for="">Choose Organization <span style="color:red">*</span></label>
+                      <label for="">Organization <!--<span style="color:red">*</span>--></label>
                       <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100">
                       </select>
                     </div>
@@ -2815,8 +2815,6 @@ function initializeBlueprintAreaNew(data) {
             getDesignTypeRowID = tdata[i]['rowid'];
             getDesignTypeName = tdata[i]['templatetypename'];
             getDesignType = tdata[i]['templatetype'];
-
-
             //Extracting the TT definitions. Add New Template types
             var $currRolePanel = null;
             //alert(getDesignTypeName);
@@ -2915,7 +2913,7 @@ function initializeBlueprintAreaNew(data) {
 
                         if (data[i].dockerlaunchparameters)
                             $itemBody.attr('dockerlaunchparameters', 't ' + data[i].dockerlaunchparameters);
-                        var $liDockerRepoName = $('<li title="Docker Repo Name" ><i class="fa fa-check-square" style="padding-right:5px"/>' + data[i].dockerreponame + '</li>');
+                       /* var $liDockerRepoName = $('<li title="Docker Repo Name" ><i class="fa fa-check-square" style="padding-right:5px"/>' + data[i].dockerreponame + '</li>');
                         $ul.append($liDockerRepoName);
                         if (data[i].dockerrepotags && data[i].dockerrepotags != '') {
                             $selectVer.empty();
@@ -2923,7 +2921,7 @@ function initializeBlueprintAreaNew(data) {
                             $.each(dockerrepostags, function(k) {
                                 $selectVer.append('<option value="' + dockerrepostags[k] + '">' + dockerrepostags[k] + '</option>');
                             });
-                        }
+                        }*/
                         $selectVer.hide();
                         $selectVerEdit.hide();
                         //for software stack and os image
@@ -2936,9 +2934,9 @@ function initializeBlueprintAreaNew(data) {
                           $blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName);
                           $blueprintReadContainer.find('.modal-body #blueprintProject').val(projName);
                           var $blueprintReadContainerCFT = $(id);
-                          $blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(orgName);
-                          $blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(bgName);
-                          $blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(projName);
+                          $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(orgName);
+                          $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(bgName);
+                          $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(projName);
                         }
                         (function(blueprint) {
                           $liRead.click(function(e) {
@@ -2948,6 +2946,10 @@ function initializeBlueprintAreaNew(data) {
                             //for getting the blueprint name
                             $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);
                             $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
+                            if (!blueprint.version) {
+                              blueprint.version = "1";
+                            }
+                            $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(blueprint.version);
                             getOrgProjDetails($blueprintReadContainerCFT);
                           });
                         })(data[i]);
@@ -2980,7 +2982,7 @@ function initializeBlueprintAreaNew(data) {
                               //for getting the Provider name,Type,Region,KeyPair
                               $.ajax({
                                 type: "GET",
-                                url: "/aws/providers/" + blueprint.blueprintConfig.cloudProviderId,
+                                url: "/vmware/providers/" + blueprint.blueprintConfig.cloudProviderId,
                                 success: function(data) {
                                   $blueprintReadContainer.find('.modal-body #instanceProviderName').val(data.providerName);
                                   $blueprintReadContainer.find('.modal-body #instanceProviderType').val(data.providerType);

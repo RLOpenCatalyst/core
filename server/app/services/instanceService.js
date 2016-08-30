@@ -1329,7 +1329,7 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                 logsDao.insertLog({
                     referenceId: logReferenceIds,
                     err: false,
-                    log: "Instance :"+instanceData.state,
+                    log: "Instance "+instanceData.state,
                     timestamp: timestampStarted
                 });
                 var instanceLog = {

@@ -199,6 +199,9 @@
 						case 'stopped': 
 							colorSuffix = 'stopped';
 							break;
+						 case 'shutting-down':
+							 colorSuffix = 'shutting-down';
+							 break;
 						case 'pending': 
 							colorSuffix = 'pending';
 							break;

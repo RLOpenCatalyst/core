@@ -1457,8 +1457,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
         jsonData['instanceType'] = req.params.instanceType;
         jsonData['userName'] = req.session.user.cn;
         jsonData['blueprintType'] = req.query.blueprintType;
-        jsonData['providerType'] = req.params.provider;
-
+        if(req.params.provider === null || req.params.provider ==='null'){
+            jsonData['providerType'] = 'aws';
+        }else{
+            jsonData['providerType'] = req.params.provider;
+        }
         configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
             if (orgbuprojs.length === 0) {
                 res.send(401, "User not part of team to see project.");
