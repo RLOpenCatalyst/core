@@ -1592,7 +1592,7 @@ var blueprintstartup = function() {
       $('#orgIDCheck').val(selectCheck);
       for (var i = 0; i < rowLength; i += 1) {
         $("#templateContent").empty();
-        if (providerselected && (providerselected == 'vmware' || providerselected == 'openstack' || providerselected == 'hppubliccloud') && data[i]['templatetype'] && data[i]['templatetype'] == 'cft' || data[i]['templatetype'] == 'arm')
+        if (providerselected && (providerselected == 'vmware' || providerselected == 'openstack' || providerselected == 'hppubliccloud') && data[i]['templatetype'] && data[i]['templatetype'] == 'cft' || data[i]['templatetype'] == 'arm' || data[i]['templatetype'] == 'composite')
           continue;
         getDesignTypeImg = data[i]['templatetype'];
         if (selectCheck == data[i].orgname_rowid) {
