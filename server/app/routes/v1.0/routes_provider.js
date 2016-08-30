@@ -165,7 +165,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var vmwarehost = req.body.vmwarehost;
 		var vmwaredc = req.body.vmwaredc;
 		var providerName = req.body.providerName;
-		var providerType = req.body.providerType.toLowerCase();
+		var providerType = req.body.providerType;
 		var pemFileName = null;
 		if(req.files && req.files.azurepem)
 			pemFileName = req.files.azurepem.originalFilename;
@@ -1153,7 +1153,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var azureTenantId = req.body.azureTenantId;
 
 		var providerName = req.body.providerName;
-		var providerType = req.body.providerType.toLowerCase();
+		var providerType = req.body.providerType;
 		var pemFileName = null;
 		if(req.files && req.files.azurepem)
 			pemFileName = req.files.azurepem.originalFilename;

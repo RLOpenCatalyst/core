@@ -154,7 +154,7 @@
 											</ul>
 											<ul ng-show="targetType==='blueprint'">
 												<li ng-repeat="blueprint in chefBluePrintList">
-													<label class="checkbox check-list">
+													<label class="checkbox check-list" ng-if="blueprint.blueprintType === 'instance_launch'">
 														<input name="blueprint" ng-value="blueprint._id" type="radio" ng-model="blueprint._isBlueprintSelected" class="radiobutton-list blueprint-{{blueprint._isBlueprintSelected}}">{{blueprint.name}}
 													</label>
 												</li>

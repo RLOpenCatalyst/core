@@ -468,7 +468,8 @@ taskSchema.statics.createNew = function(taskData, callback) {
             taskType: TASK_TYPE.SCRIPT_TASK,
             nodeIds: taskData.nodeIds,
             scriptTypeName: taskData.scriptTypeName,
-            scriptDetails: taskData.scriptDetails
+            scriptDetails: taskData.scriptDetails,
+            isSudo: taskData.isSudo
         });
     } else {
         callback({

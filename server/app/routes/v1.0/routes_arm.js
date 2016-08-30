@@ -29,6 +29,8 @@ var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudP
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
 var azureTemplateFunctionEvaluater = require('_pr/lib/azureTemplateFunctionEvaluater');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -315,6 +317,51 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             }
                                         }
                                         logger.debug("Successfully removed instance from db.");
+                                    });
+                                    var instanceLog = {
+                                        actionId: "",
+                                        instanceId: instances[i]._id,
+                                        orgName: instances[i].orgName,
+                                        bgName: instances[i].bgName,
+                                        projectName: instances[i].projectName,
+                                        envName: instances[i].environmentName,
+                                        status: instances[i].instanceState,
+                                        actionStatus: "success",
+                                        platformId: instances[i].platformId,
+                                        blueprintName: instances[i].blueprintData.blueprintName,
+                                        data: instances[i].runlist,
+                                        platform: instances[i].hardware.platform,
+                                        os: instances[i].hardware.os,
+                                        size: instances[i].instanceType,
+                                        user: req.session.user.cn,
+                                        createdOn: new Date().getTime(),
+                                        startedOn: new Date().getTime(),
+                                        providerType: instances[i].providerType,
+                                        action: "Deleted",
+                                        logs: []
+                                    };
+                                    var timestampStarted = new Date().getTime();
+                                    var actionLog = instancesDao.insertDeleteActionLog(instances[i]._id, req.session.user.cn, timestampStarted);
+                                    var logReferenceIds = [instances[i]._id];
+                                    if (actionLog) {
+                                        logReferenceIds.push(actionLog._id);
+                                    }
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: false,
+                                        log: "Instance Deleted",
+                                        timestamp: timestampStarted
+                                    });
+                                    instanceLog.actionId = actionLog._id;
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Instance Deleted",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instances[i]._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
                                     });
                                 }
 

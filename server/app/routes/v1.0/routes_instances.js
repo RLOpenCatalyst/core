@@ -291,14 +291,58 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         return;
                     }
                     logger.debug('length ==>', tasks.length);
-                    if (tasks.length) {
+                    if (tasks.length > 0) {
                         res.status(400).send({
                             message: "Instance is associated with task"
                         });
                         return;
 
                     }
-
+                    var instanceLog = {
+                        actionId: "",
+                        instanceId: instances[0]._id,
+                        orgName: instances[0].orgName,
+                        bgName: instances[0].bgName,
+                        projectName: instances[0].projectName,
+                        envName: instances[0].environmentName,
+                        status: instances[0].instanceState,
+                        actionStatus: "pending",
+                        platformId: instances[0].platformId,
+                        blueprintName: instances[0].blueprintData.blueprintName,
+                        data: instances[0].runlist,
+                        platform: instances[0].hardware.platform,
+                        os: instances[0].hardware.os,
+                        size: instances[0].instanceType,
+                        user: req.session.user.cn,
+                        createdOn: new Date().getTime(),
+                        startedOn: new Date().getTime(),
+                        providerType: instances[0].providerType,
+                        action: "Deleted",
+                        logs: []
+                    };
+                    var timestampStarted = new Date().getTime();
+                    var actionLog = instancesDao.insertDeleteActionLog(req.params.instanceId, req.session.user.cn, timestampStarted);
+                    var logReferenceIds = [req.params.instanceId];
+                    if (actionLog) {
+                        logReferenceIds.push(actionLog._id);
+                    }
+                    logsDao.insertLog({
+                        referenceId: logReferenceIds,
+                        err: false,
+                        log: "Instance Deleting",
+                        timestamp: timestampStarted
+                    });
+                    instanceLog.actionId = actionLog._id;
+                    instanceLog.logs = {
+                        err: false,
+                        log: "Instance Deleting",
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
                     if (req.query.chefRemove && req.query.chefRemove === 'true') {
                         var infraManagerData;
                         if (instance.chef && instance.chef.serverId) {
@@ -341,7 +385,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     if (err) {
                                         logger.debug("Failed to delete node ", err);
                                         if (err.chefStatusCode && err.chefStatusCode === 404) {
-                                            removeInstanceFromDb();
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Deleted",
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "success";
+                                            instanceLog.status = "deleted";
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: "Instance Deleted",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                                removeInstanceFromDb();
+                                                logger.debug("Successfully removed instance from db.");
+                                            })
                                         } else {
                                             res.send(500);
                                         }
@@ -352,8 +416,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 callback(err, null);
                                                 return;
                                             }
-                                            removeInstanceFromDb();
-                                            logger.debug("Successfully removed instance from db.");
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Deleted",
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "success";
+                                            instanceLog.status = "deleted";
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: "Instance Deleted",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                                removeInstanceFromDb();
+                                                logger.debug("Successfully removed instance from db.");
+                                            })
                                         });
                                     }
                                 });
@@ -373,20 +456,79 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     if (err) {
                                         logger.debug("Failed to delete node ", err);
                                         if (typeof err.retCode !== 'undefined' && err.retCode === 24) {
-                                            removeInstanceFromDb();
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Deleted",
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "success";
+                                            instanceLog.status = "deleted";
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: "Instance Deleted",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                                removeInstanceFromDb();
+                                                logger.debug("Successfully removed instance from db.");
+                                            })
                                         } else {
                                             res.send(500);
                                         }
                                     } else {
-                                        removeInstanceFromDb();
-                                        logger.debug("Successfully removed instance from db.");
+                                        logsDao.insertLog({
+                                            referenceId: logReferenceIds,
+                                            err: false,
+                                            log: "Instance Deleted",
+                                            timestamp: new Date().getTime()
+                                        });
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "success";
+                                        instanceLog.status = "deleted";
+                                        instanceLog.logs = {
+                                            err: false,
+                                            log: "Instance Deleted",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                            removeInstanceFromDb();
+                                            logger.debug("Successfully removed instance from db.");
+                                        })
                                     }
                                 });
 
                             }
                         });
                     } else {
-                        removeInstanceFromDb();
+                        logsDao.insertLog({
+                            referenceId: logReferenceIds,
+                            err: false,
+                            log: "Instance Deleted",
+                            timestamp: new Date().getTime()
+                        });
+                        instanceLog.endedOn = new Date().getTime();
+                        instanceLog.actionStatus = "success";
+                        instanceLog.status = "deleted";
+                        instanceLog.logs = {
+                            err: false,
+                            log: "Instance Deleted",
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(actionLog._id, req.params.instanceId, instanceLog, function(err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                            removeInstanceFromDb();
+                            logger.debug("Successfully removed instance from db.");
+                        })
                     }
 
                 });
@@ -398,28 +540,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
         function removeInstanceFromDb() {
-            instanceLogModel.removeByInstanceId(req.params.instanceId, function (err, removed) {
+            containerDao.deleteContainerByInstanceId(req.params.instanceId, function (err, container) {
                 if (err) {
-                    logger.error("Failed to remove instance Log: ", err);
+                    logger.error("Container deletion Failed >> ", err);
                     res.status(500).send(errorResponses.db.error);
                     return;
                 } else {
-                    containerDao.deleteContainerByInstanceId(req.params.instanceId, function (err, container) {
+                    instancesDao.removeInstanceById(req.params.instanceId, function (err, data) {
                         if (err) {
-                            logger.error("Container deletion Failed >> ", err);
+                            logger.error("Instance deletion Failed >> ", err);
                             res.status(500).send(errorResponses.db.error);
                             return;
-                        } else {
-                            instancesDao.removeInstanceById(req.params.instanceId, function (err, data) {
-                                if (err) {
-                                    logger.error("Instance deletion Failed >> ", err);
-                                    res.status(500).send(errorResponses.db.error);
-                                    return;
-                                }
-                                logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
-                                res.send(200);
-                            });
                         }
+                        logger.debug("Exit delete() for /instances/%s", req.params.instanceId);
+                        res.send(200);
                     });
                 }
             });
