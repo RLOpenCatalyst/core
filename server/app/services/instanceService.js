@@ -1311,7 +1311,7 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
         },
         function(instances,next){
             var instance = instances[0];
-            if(instance.instanceState !== instanceData.state) {
+            if(instance.instanceState !== instanceData.state && instance.bootStrapStatus ==='success') {
                 var timestampStarted = new Date().getTime();
                 var user = instance.catUser ? instance.catUser : 'superadmin';
                 var action ='';

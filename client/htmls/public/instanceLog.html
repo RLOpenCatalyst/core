@@ -243,11 +243,11 @@
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/openstack.png' alt='provider'/>");
 					} else if (managnedData[i].providerType == 'vmware') {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/vmware-card.png' alt='provider'/>");
-					} else if (managnedData[i].action == 'Imported From ChefServer') {
+					} /*else if (managnedData[i].action == 'Imported From ChefServer') {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/chef.png' alt='provider'/>");
 					} else if (managnedData[i].action == 'Imported From Provider') {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/aws.png' alt='provider'/>");
-					} else {
+					}*/ else {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/rsz_logo.png' alt='provider'/>");
 					}
 					if (managnedData[i].platform == 'ubuntu') {

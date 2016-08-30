@@ -1504,6 +1504,23 @@ var InstancesDao = function() {
         return log;
     };
 
+
+    this.insertDockerActionLog = function(instanceId, user,action,actionId, timestampStarted, callback) {
+        logger.debug("Enter insertDockerActionLog ", instanceId, user, timestampStarted);
+        var log = {
+            type: actionId,
+            name: action,
+            completed: false,
+            success: false,
+            user: user,
+            timeStarted: timestampStarted,
+        };
+        var logId = insertActionLog(instanceId, log, callback);
+        log._id = logId;
+        return log;
+    };
+
+
     this.insertStopActionLog = function(instanceId, user, timestampStarted, callback) {
         logger.debug("Enter insertStopActionLog ", instanceId, user, timestampStarted);
         var log = {
