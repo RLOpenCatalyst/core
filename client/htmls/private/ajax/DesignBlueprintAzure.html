@@ -1834,7 +1834,7 @@ var blueprintstartup = function() {
       $('#orgIDCheck').val(selectCheck);
       for (var i = 0; i < rowLength; i += 1) {
         $("#templateContent").empty();
-        if (data[i]['templatetype'] && data[i]['templatetype'] == 'cft')
+        if (data[i]['templatetype'] && data[i]['templatetype'] == 'cft' || data[i]['templatetype'] == 'composite')
           continue;
         getDesignTypeImg = data[i]['templatetype'];
         if (selectCheck == data[i].orgname_rowid) {
