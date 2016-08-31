@@ -2077,12 +2077,14 @@ var InstancesDao = function() {
         });
     };
 
-    this.updateAppInfo = function(instanceId, appInfo, callback) {
-        logger.debug("Enter updateAppInfo ", instanceId, appInfo);
+    this.updateAppInfo = function(instanceIP, appInfo, callback) {
+        logger.debug("Enter updateAppInfo ", instanceIP, appInfo);
         var appName = appInfo.name;
         var version = appInfo.version;
+        var status = appInfo.status;
+        var appURL = appInfo.appURL;
         Instances.find({
-            "_id": new ObjectId(instanceId)
+            "instanceIP": instanceIP
         }, function(err, data) {
             if (err) {
                 logger.error("Failed to fetch Instance: ", err);
@@ -2091,23 +2093,24 @@ var InstancesDao = function() {
             
             if (data && data.length && data[0].appInfo && data[0].appInfo.length && data[0].appInfo[0].name) {
                 Instances.update({
-                    "_id": new ObjectId(instanceId),
+                    "instanceIP": instanceIP,
                     appInfo: {$elemMatch: { name: appName }}
                 }, {
-                    $set: { "appInfo.$.version": version }
+                    $set: { "appInfo.$.version": version ,"appInfo.$.status": status, "appInfo.$.appURL": appURL}
                 }, {
                     upsert: false
                 }, function(err, data) {
                     if (err) {
-                        logger.error(err);
+                        logger.error("Error while updating appInfo: ",err);
                         return callback(err, null);
                     }
+                    logger.debug("Modified: ",data);
                     return callback(null, data);
                 });
             } else {
                 logger.debug("appInfo   ",JSON.stringify(appInfo));
                 Instances.update({
-                    "_id": new ObjectId(instanceId),
+                    "instanceIP": instanceIP,
                 }, {
                     $push: {
                         "appInfo": appInfo

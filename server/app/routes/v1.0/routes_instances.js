@@ -202,6 +202,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
+    app.post('/instances/app-info/update', function(req, res) {
+        logger.debug("Incomming request from cookbook: ",JSON.stringify(req.body));
+        instancesDao.updateAppInfo(req.body.instanceIP,req.body, function(err, data) {
+            if (err) {
+                logger.error("Failed to update appInfo");
+                return res.status(500).send("Failed to update Instance.");
+            }
+            return res.status(200).send(data);
+        });
+    });
+
     app.all('/instances/*', sessionVerificationFunc);
 
 

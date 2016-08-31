@@ -505,6 +505,12 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                         var appName = "";
                         var nexus = {};
                         var docker = {};
+                        var port = 0;
+                        if (appData.nexus.artifactId === "D4D" || appData.nexus.artifactId === "core") {
+                            port = 3001;
+                        } else {
+                            port = 8080;
+                        }
                         if (appData.nexus) {
                             nexus['rowId'] = appData.nexus.rowId;
                             nexus['repoURL'] = appData.nexus.repoURL;
@@ -538,16 +544,19 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             docker['taskId'] = appData.taskId;
                             appName = appData.appName;
                             appVersion = appData.docker.imageTag;
+                            port = appData.docker.containerPort;
                         }
                         var appInfo = {
                             name: appName,
-                            version: appVersion
+                            version: appVersion,
+                            status: "",
+                            appURL: "http://"+instance.instanceIP+":"+port
                         };
-                        instancesDao.updateAppInfo(instance._id, appInfo,function(err,data1){
-                            if(err){
-                                logger.debug("Error: ",err);
+                        instancesDao.updateAppInfo(instance.instanceIP, appInfo, function(err, data1) {
+                            if (err) {
+                                logger.debug("Error: ", err);
                             }
-                            logger.debug("data: ",JSON.stringify(data1));
+                            logger.debug("data: ", JSON.stringify(data1));
                         });
                         nodeIds.push(instance.instanceIP);
                         masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
