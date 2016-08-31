@@ -8,6 +8,7 @@ var appConfig = require('_pr/config');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var resourceCost = require('_pr/model/resource-costs');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
+var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var instanceService = require('_pr/services/instanceService');
 var resourceService = require('_pr/services/resourceService');
 var S3 = require('_pr/lib/s3.js');
@@ -26,7 +27,8 @@ if (month < 10) {
 };
 var accountNumber = appConfig.aws.s3AccountNumber;
 var fullKey = accountNumber + appConfig.aws.s3CSVFileName + year + "-" + month + ".csv.zip";
-var csvFile = appConfig.aws.s3BucketDownloadFileLocation + accountNumber + appConfig.aws.s3CSVFileName + year + "-" + month + ".csv";
+var csvFile = appConfig.aws.s3BucketDownloadFileLocation + accountNumber
+    + appConfig.aws.s3CSVFileName + year + "-" + month + ".csv";
 
 
 var AggregateAWSCost= Object.create(CatalystCronJob);
@@ -54,7 +56,8 @@ function aggregateAWSCost() {
                                         count++;
                                         aggregateAWSCostForProvider(provider)
                                     }else{
-                                        logger.info("S3 Bucket Name is not present in "+provider.providerName+" for Cost Aggregation ");
+                                        logger.info("S3 Bucket Name is not present in "
+                                            +provider.providerName+" for Cost Aggregation ");
                                         count++;
                                     }
                                 })(providers[j]);
@@ -64,7 +67,8 @@ function aggregateAWSCost() {
                             }
 
                         }else{
-                            logger.info("Please configure Provider in Organization " +org.orgname+" for AWS Cost Aggregation");
+                            logger.info("Please configure Provider in Organization "
+                                +org.orgname+" for AWS Cost Aggregation");
                             return;
                         }
                     });
@@ -80,7 +84,8 @@ function aggregateAWSCost() {
 }
 
 function aggregateAWSCostForProvider(provider) {
-    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' started');
+    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/' +
+        'TagWise Cost aggregation for provider: ' + provider._id + ' started');
     var instanceObj = {};
     var resourceObj = {};
     async.waterfall([
@@ -126,24 +131,34 @@ function aggregateAWSCostForProvider(provider) {
                     },
                     function (resources, next) {
                         resourceObj = resources;
-                        resourceService.getCostForResources(lastModified, provider, resources.bucketNames, resources.instanceIds, resources.rdsDBNames, csvFile, next);
+                        resourceService.getCostForResources(lastModified, provider,
+                            resources.bucketNames, resources.instanceIds, resources.rdsDBNames, csvFile, next);
                     },
                     function (costMetrics, next) {
                         async.parallel({
                             managedCostMetrics: function (callback) {
-                                updateManagedInstanceCost(instanceObj.managed, costMetrics.instanceCostMetrics, callback);
+                                updateManagedInstanceCost(instanceObj.managed,
+                                    costMetrics.instanceCostMetrics, callback);
                             },
                             unManagedCostMetrics: function (callback) {
-                                updateUnManagedInstanceCost(instanceObj.unmanaged, costMetrics.instanceCostMetrics, callback);
+                                updateUnManagedInstanceCost(instanceObj.unmanaged,
+                                    costMetrics.instanceCostMetrics, callback);
+                            },
+                            unassignedCostMetrics: function(callback) {
+                                updateUnassignedInstanceCost(instanceObj.unassigned,
+                                    costMetrics.instanceCostMetrics, callback);
                             },
                             instanceCostMetrics: function (callback) {
-                                saveInstanceResourceCost(instanceObj, costMetrics.instanceCostMetrics, callback);
+                                saveInstanceResourceCost(instanceObj,
+                                    costMetrics.instanceCostMetrics, callback);
                             },
                             bucketCostMetrics: function (callback) {
-                                updateResourceCost(resourceObj.bucketResource, costMetrics.bucketCostMetrics, callback);
+                                updateResourceCost(resourceObj.bucketResource,
+                                    costMetrics.bucketCostMetrics, callback);
                             },
                             rdsDBInstancesMetrics: function (callback) {
-                                updateResourceCost(resourceObj.rdsResource, costMetrics.dbInstanceCostMetrics, callback);
+                                updateResourceCost(resourceObj.rdsResource,
+                                    costMetrics.dbInstanceCostMetrics, callback);
                             }
                         }, function (err, results) {
                             if (err) {
@@ -167,10 +182,12 @@ function aggregateAWSCostForProvider(provider) {
             } else {
                 if (results === false) {
                     logger.info("File updated time is same as DB updated time");
-                    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
+                    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/' +
+                        'Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
                     return;
                 } else {
-                    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
+                    logger.info('AWS ServiceWise/InstanceWise/RegionWise/MonthlyTotal/Today/' +
+                        'Yesterday/TagWise Cost aggregation for provider: ' + provider._id + ' ended');
                     return;
                 }
             }
@@ -373,6 +390,8 @@ function saveInstanceResourceCost(instances,instanceCostMetrics,callback){
     }
 };
 
+// @TODO Resource abstraction to be redefined to include all instances, to reduce code duplication
+
 function updateManagedInstanceCost(instances,instanceCostMetrics, callback) {
     var results = [];
     var instanceCostObj={};
@@ -439,6 +458,39 @@ function updateUnManagedInstanceCost(instances,instanceCostMetrics, callback) {
     };
 };
 
+function updateUnassignedInstanceCost(instances,instanceCostMetrics, callback) {
+    var results = [];
+    var instanceCostObj = {};
+    if (instances.length === 0) {
+        callback(null, results);
+    } else {
+        for (var i = 0; i < instances.length; i++) {
+            var totalCost = 0.0;
+            for (var j = 0; j < instanceCostMetrics.length; j++) {
+                if (instanceCostMetrics[j].resourceId === instances[i].platformId) {
+                    totalCost += Number(instanceCostMetrics[j].usageCost);
+                };
+            };
+            instanceCostObj['resourceId'] = instances[i].platformId;
+            instanceCostObj['cost'] = {
+                aggregateInstanceCost:totalCost,
+                currency:'USD',
+                symbol:"$"
+            };
+            unassignedInstancesModel.updateInstanceCost(instanceCostObj, function (err, result) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    results.push(result);
+                }
+                if (results.length == instances.length) {
+                    callback(null, results);
+                }
+            });
+        };
+    };
+};
+
 function updateResourceCost(resourceData,resourceCostMetrics,callback){
     var results = [];
     var bucketCostObj = {};
@@ -448,9 +500,11 @@ function updateResourceCost(resourceData,resourceCostMetrics,callback){
         for (var i = 0; i < resourceData.length; i++) {
             var totalCost = 0.0;
             for (var j = 0; j < resourceCostMetrics.length; j++) {
-                if(resourceData[i].resourceType === 'S3' && resourceCostMetrics[j].resourceId === resourceData[i].resourceDetails.bucketName) {
+                if(resourceData[i].resourceType === 'S3'
+                    && resourceCostMetrics[j].resourceId === resourceData[i].resourceDetails.bucketName) {
                     totalCost += Number(resourceCostMetrics[j].usageCost);
-                }else if (resourceData[i].resourceType === 'RDS'|| resourceCostMetrics[j].resourceId === resourceData[i].resourceDetails.dbName) {
+                }else if (resourceData[i].resourceType === 'RDS'
+                    || resourceCostMetrics[j].resourceId === resourceData[i].resourceDetails.dbName) {
                     totalCost += Number(resourceCostMetrics[j].usageCost);
                 };
             };
@@ -473,5 +527,3 @@ function updateResourceCost(resourceData,resourceCostMetrics,callback){
         };
     };
 };
-
-

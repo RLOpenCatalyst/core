@@ -22,9 +22,15 @@
 							<td>
 								&nbsp;&nbsp;:&nbsp;&nbsp;
 							</td>
-							<td>
-								{{bpInfo.templateType}}
-							</td>
+                            <td ng-switch on="bpInfo.templateType">
+                                <span ng-switch-when="chef">SoftwareStack</span>
+                                <span ng-switch-when="ami">OSImage</span>
+                                <span ng-switch-when="cft">CloudFormation</span>
+                                <span ng-switch-when="docker">Docker</span>
+                                <span ng-switch-when="arm">ArmTemplate</span>
+                                <span ng-switch-default>NA</span>
+                    </td>
+							
 						</tr>
 						<tr>
 							<td>

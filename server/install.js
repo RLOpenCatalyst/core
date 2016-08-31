@@ -231,6 +231,8 @@ function getDefaultsConfig() {
             appcard: false
         },
         maxInstanceCount: 0,
+        catalystEntityTypes: ['ORGANIZATION', 'BUSINESS_UNIT', 'PROJECT', 'PROVIDER_TYPE',
+            'PROVIDER', 'ENVIRONMENT', 'RESOURCE_TYPE', 'RESOURCE'],
 
         // cronjobTimeDelay: '"* * * * * *"',
 

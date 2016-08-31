@@ -442,6 +442,8 @@ option.script {
  	@include theme-border-color;
  	height: 30px;
  	padding: 5px 15px;
+    position:relative;
+    z-index:3;
  }
 
  .panel-title {

@@ -746,7 +746,7 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                             attributes: paramAttributes,
                             platformId: instanceData.InstanceId,
                             appUrls: launchParams.appUrls,
-                            instanceIP: instanceData.PublicIpAddress || instanceData.PrivateIpAddress,
+                            instanceIP: instanceData.PublicIpAddress || null,
                             instanceState: instanceData.State.Name,
                             bootStrapStatus: 'waiting',
                             users: launchParams.users,
@@ -760,6 +760,9 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                 },
                                 os: self.instanceOS
                             },
+                            vpcId: instanceData.VpcId,
+                            subnetId: instanceData.SubnetId,
+                            privateIpAddress: instanceData.PrivateIpAddress,
                             credentials: {
                                 username: anImage.userName,
                                 pemFileLocation: encryptedPemFileLocation,
@@ -778,7 +781,6 @@ compositeBlueprintService.launchAWSBlueprint = function launchAWSBlueprint(bluep
                                 iconPath: launchParams.blueprintData.iconpath
                             }
                         };
-
 
                         logger.debug('Creating instance in catalyst');
                         instancesDao.createInstance(instance, function(err, data) {
