@@ -1,0 +1,151 @@
+
+<script>
+    $(".login-info").hide();
+    
+</script>
+
+<style>
+    .rowCustomStyle {
+        height: 34px;
+        font-weight: bold;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
+
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h5 class="widget-title" style="color:#4e5964;">
+                    <strong>Jira</strong>
+                    </h5>
+                    <div class="widget-toolbar no-border">
+                        <div>
+                            <a class="btn btn-minier btn-primary" id="refreshpage" href="#ajax/Settings/DockerTemplatesList.html" style="display:none">
+                                <i class="ace-icon ace-icon fa fa-refresh bigger-110"></i>
+                            </a>                     
+                            <a id="newJira" class="btn btn-minier btn-primary" href="index.html#ajax/Settings/CreateJiraConfig.html?new">
+                                <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                                New
+                            </a>                                                
+                        </div>
+                    </div>
+                                            
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main widgetHeight">
+                        <div class="col-md-12" style="padding-left:0px; padding-right:0px;">
+                            <table id="templateTable" class="hidden" cellpadding="5px" width="100%">
+                                <thead>
+                                    <tr class="rowCustomStyle">
+                                        <td>Reference Name</td>
+                                        <td>Jira Location (URL)</td>
+                                        <!-- <td>Jira Username</td> -->
+                                        <td>Organization</td>
+                                        <td>Action</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hidden rowtemplate">
+                                        <td datafield="jiraname"></td>
+                                        <td datafield="jiraurl"></td>
+                                        <!-- <td datafield="bitbucketusername"></td> -->
+                                        <td datafield="orgname"></td>
+                                       <td>
+                                            <div class="btn-group tableactionWidth">
+                                                <a class="btn btn-xs btn-info pull-left" title="Edit">
+                                                    <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                                </a>
+                                                <button class="btn btn-xs btn-danger pull-left" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button>
+                                                
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                                <table id="envtable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                    <thead>
+                                        <tr class="rowCustomStyle">
+                                          <td>Reference Name</td>
+                                        <td>Jira Location (URL)</td>
+                                        <!-- <td>Jira Username</td> -->
+                                        <td>Organization</td>
+                                        <td>Action</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                       
+                                    </tbody>
+                                    
+                                </table> 
+                            
+                             <script>
+                                    $(document).ready(function () {
+                                        $('select').select2();
+                                        startup(); 
+                                    });
+
+                                function isUserTypeSuperAdmin(){
+                                    $.get('/d4dMasters/loggedInUser',function(data){
+                                      if(!data.isSuperAdmin){
+                                      $('#newJira').attr('disabled','disabled');
+                                      }
+                                    });
+                                   
+                                }
+
+                                    function startup() {
+                                       
+                                        //setting the addnew button to launch popup
+                                        $("#addnewitem").attr('data-toggle', 'modal');
+
+                                        CreateTableFromJsonNew(23,'jiraname' , 'CreateJiraConfig.html'); //7 is for users
+                                        var tab = 'envtable';
+                                        $('#' + tab).dataTable({
+                                            "pagingType": "full_numbers"
+                                        });
+                                        $('#' + tab + '_info').detach().appendTo('#tableFooterLeft'); 
+                                        $('#' + tab + '_paginate').detach().appendTo('#tableFooterRight');
+                                        $('#' + tab + '_filter').detach().appendTo('#envtable_tools1');
+                                        $('#' + tab + '_length').detach().appendTo('#envtable_tools2');
+
+                                        //Force opening the left navigation menu
+                                        if ($('#navSettings').is(":visible") == false) {
+                                            $('#navSettings').css("display", '');
+                                            $('#navSettings > ul > li').first().addClass('open');
+                                            $('#navSettings > ul > li > ul').css("display", "none");
+                                            $('#navSettings > ul > li > ul').first().css("display", "block");
+                                        }
+                                        //redrawing the breadcrumb and selecting the tree
+                                        $('#Settings  li').removeClass('active');
+                                        $('#Settings  li').each(function () {
+                                            if ($(this).text().trim() == "Octopus"){
+                                                $(this).addClass('active');
+                                            }
+                                        });
+                                   //     drawBreadCrumb1();
+                                   //isUserTypeSuperAdmin();
+
+                                    }   
+                    
+                        </script>
+                        <div class="col-md-5">
+
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="widget-toolbox padding-8 clearfix">
+                       <div id="tableFooterLeft" class="pull-left"></div>
+                       <div id="tableFooterRight" class="pull-right"></div>
+                    </div>
+                   
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
