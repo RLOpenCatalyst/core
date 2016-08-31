@@ -42,7 +42,15 @@ var ACTION_LOG_TYPES = {
     },
     DELETE: {
         type: 10,
-        name: 'Start'
+        name: 'Delete'
+    },
+    SHUTDOWN: {
+        type: 11,
+        name: 'Shutting-Down'
+    },
+    TERMINATED: {
+        type: 12,
+        name: 'Terminated'
     },
     STOP: {
         type: 4,
@@ -1687,11 +1695,17 @@ var InstancesDao = function() {
             }
         };
         if(instanceState === 'terminated'){
+            log.type = ACTION_LOG_TYPES.TERMINATED.type;
+            log.name = ACTION_LOG_TYPES.TERMINATED.name
+        }else if(instanceState === 'deleted'){
             log.type = ACTION_LOG_TYPES.DELETE.type;
             log.name = ACTION_LOG_TYPES.DELETE.name
         }else if(instanceState === 'stopped'){
             log.type = ACTION_LOG_TYPES.STOP.type;
             log.name = ACTION_LOG_TYPES.STOP.name
+        }else if(instanceState === 'shutting-down'){
+            log.type = ACTION_LOG_TYPES.SHUTDOWN.type;
+            log.name = ACTION_LOG_TYPES.SHUTDOWN.name
         }else{
             log.type = ACTION_LOG_TYPES.START.type;
             log.name = ACTION_LOG_TYPES.START.name  

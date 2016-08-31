@@ -110,6 +110,28 @@ var InstanceLog = function() {
         });
     };
 
+
+
+    this.getLogsByInstanceId = function(instanceId, callback) {
+        var queryObj = {
+            instanceId: instanceId
+        };
+
+        InstanceLogs.find(queryObj, function(err, data) {
+            if (err) {
+                logger.debug("Failed to getLogsByInstanceId ", err);
+                callback(err, null);
+                return;
+            }else if (data && data.length) {
+                return callback(null, data[0]);
+            }else {
+                var error = new Error("ActionLog not found.");
+                error.status = 404;
+                return callback(error, null);
+            }
+        });
+    };
+
     this.getLogsByActionId = function(actionId, callback) {
         var queryObj = {
             actionId: actionId
