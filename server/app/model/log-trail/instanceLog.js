@@ -110,6 +110,28 @@ var InstanceLog = function() {
         });
     };
 
+
+
+    this.getLogsByInstanceId = function(instanceId, callback) {
+        var queryObj = {
+            instanceId: instanceId
+        };
+
+        InstanceLogs.find(queryObj, function(err, data) {
+            if (err) {
+                logger.debug("Failed to getLogsByInstanceId ", err);
+                callback(err, null);
+                return;
+            }else if (data && data.length) {
+                return callback(null, data[0]);
+            }else {
+                var error = new Error("ActionLog not found.");
+                error.status = 404;
+                return callback(error, null);
+            }
+        });
+    };
+
     this.getLogsByActionId = function(actionId, callback) {
         var queryObj = {
             actionId: actionId
@@ -150,7 +172,7 @@ var InstanceLog = function() {
                     error.status = 500;
                     return callback(error);
                 } else {
-                    databaseCall.queryObj['$or'] = [{ "status": "running" }, { "status": "stopped" }, { "status": "pending" },{ "status": "terminated" },{ "status": "waiting" },{ "status": "deleted" }];
+                    databaseCall.queryObj['$or'] = [{ "status": "running" }, { "status": "stopped" }, { "status": "pending" },{ "status": "terminated" },{ "status": "waiting" },{ "status": "deleted" },{ "status": "shutting-down" }];
                     InstanceLogs.paginate(databaseCall.queryObj, databaseCall.options, function(err, instanceActions) {
                         if (err) {
                             logger.error(err);

@@ -959,46 +959,39 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
 };
 
 BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData, callback) {
-    var options = [];
-    options.push({
-        "blueprintConfig.cloudProviderType": jsonData.providerType
-    });
-    if (jsonData.providerType == 'aws') {
-        options.push({
-            "templateType": "cft"
-        });
-    } else if (jsonData.providerType == 'azure') {
-        options.push({
-            "templateType": "arm"
-        });
-    }
-    //handking docker
-    options.push({
-        "templateType": "docker"
-    });
-
     var queryObj = {
         orgId: jsonData.orgId,
         bgId: jsonData.bgId,
-        projectId: jsonData.projectId,
-        $or: options
+        projectId: jsonData.projectId
     };
-    if ('blueprintType' in jsonData) {
+    if (jsonData.blueprintType) {
         queryObj.blueprintType = jsonData.blueprintType;
     }
-
-    logger.debug("Query Obj ", JSON.stringify(queryObj));
-    // if (filterBlueprintType) {
-    //     queryObj.templateType = filterBlueprintType;
-    // }
-
     this.find(queryObj, function(err, blueprints) {
         if (err) {
             callback(err, null);
             return;
         }
-        var blueprints1 = consolidateVersionOnBlueprint(blueprints);
-        callback(null, blueprints1);
+        if(blueprints.length > 0) {
+            var count = 0;
+            var bluePrintList = [];
+            for(var  i = 0; i < blueprints.length; i++){
+                (function(blueprint){
+                    if(blueprint.blueprintConfig.cloudProviderType === jsonData.providerType || blueprint.templateType === 'docker'){
+                        bluePrintList.push(blueprint);
+                        count++;
+                    }else{
+                        count++;
+                    }
+                })(blueprints[i]);
+            }
+            if(count === blueprints.length) {
+                var blueprints1 = consolidateVersionOnBlueprint(bluePrintList);
+                callback(null, blueprints1);
+            }
+        }else{
+            callback(null, blueprints);
+        }
 
     });
 };
