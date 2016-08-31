@@ -89,40 +89,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var reqObj = {};
         async.waterfall(
             [
-                function(next) {
-                    apiUtil.changeRequestForJqueryPagination(req.query, next);
-                },
-                function(reqData, next) {
-                    reqObj = reqData;
-                    apiUtil.paginationRequest(reqData, 'managedInstances', next);
-                },
-                function(paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function(queryObj, next) {
-                    instancesDao.getByProviderId(queryObj, next);
-                },
-                function(managedInstances, next) {
-                    apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
-                },
-
-            ],
-            function(err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
-    };
-
-    app.get('/providers/:providerId/managedInstances', validate(instanceValidator.get), getManagedInstances);
-
-    function getManagedInstances(req, res, next) {
-        var reqData = {};
-        async.waterfall(
-            [
                 function (next) {
                     apiUtil.changeRequestForJqueryPagination(req.query, next);
                 },
@@ -140,6 +106,36 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function (managedInstances, next) {
                     apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
+                }
+            ],
+            function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    };
+
+    app.get('/providers/:providerId/managedInstances', validate(instanceValidator.get), getManagedInstances);
+
+    function getManagedInstances(req, res, next) {
+        var reqData = {};
+        async.waterfall(
+            [
+                function (next) {
+                    apiUtil.paginationRequest(req.query, 'managedInstances', next);
+                },
+                function (paginationReq, next) {
+                    paginationReq['providerId'] = req.params.providerId;
+                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function (queryObj, next) {
+                    instancesDao.getByProviderId(queryObj, next);
+                },
+                function (managedInstances, next) {
+                    apiUtil.paginationResponse(managedInstances, reqData, next);
                 }
             ],
             function(err, results) {
