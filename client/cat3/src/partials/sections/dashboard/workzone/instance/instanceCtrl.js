@@ -116,6 +116,7 @@
 						'</span>', cellTooltip: true},
 						{ name:'Ip Address', displayName:'IP Address', field:'instanceIP',cellTooltip: true},
 						{ name:'App Versions',enableSorting: false , cellTemplate:'<span class="" >{{grid.appScope.operationSet.viewAppVersions(row.entity)}}</span>', cellTooltip: true},
+						{ name:'App Status',enableSorting: false , cellTemplate:'<span class="" >{{grid.appScope.operationSet.viewAppStatus(row.entity)}}</span>', cellTooltip: true},
 						{ name:'RunLists', enableSorting: false , cellTemplate:'<span class="blue cursor" ng-click="grid.appScope.operationSet.viewRunList(row.entity)">View All RunList</span>', cellTooltip: true},
 						{ name:'Status', width: 90,enableSorting: false , cellTemplate:'<div class="status-state {{grid.appScope.getAWSStatus(row.entity.instanceState,1)}}"></div>', cellTooltip: true},
 						{ name:'Log Info', width: 90,enableSorting: false , cellTemplate:'<i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.operationSet.viewLogs(row.entity)" ng-show="grid.appScope.perms.logInfo"></i>', cellTooltip: true},
@@ -357,6 +358,14 @@
 				var appInfo =[];
 				for(var i=0; i< inst.appInfo.length; i++){
 					appInfo.push(inst.appInfo[i].version);
+				}
+				return appInfo.join(",");
+			};
+
+			$scope.operationSet.viewAppStatus = function(inst){
+				var appInfo =[];
+				for(var i=0; i< inst.appInfo.length; i++){
+					appInfo.push(inst.appInfo[i].status);
 				}
 				return appInfo.join(",");
 			};
