@@ -39,11 +39,16 @@
 					}
 				}
 			};
-			var appVersion=[];
+			var appDetails=[];
 			for(var i=0; i< cpInstance.appInfo.length; i++){
-				appVersion.push(cpInstance.appInfo[i].version);
+				var obj = {
+					name: cpInstance.appInfo[i].name,
+					version: cpInstance.appInfo[i].version,
+					status: cpInstance.appInfo[i].status
+				}
+				appDetails.push(obj);
 			}
-			cpInstance['appVersion'] = appVersion;
+			cpInstance['appDetails'] = appDetails;
 
 			$scope.instInfo = cpInstance;
 			$scope.appUrlInfo = cpInstance.appUrls;
