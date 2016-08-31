@@ -102,11 +102,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     // @TODO Relook at pagination to allow validation of query parameters
                     // @TODO Whether databaseUtil should be renamed
                     if(category === 'managed') {
-                        paginationRequest['searchColumns'] = ['instanceIP', 'instanceState'];
+                        paginationRequest['searchColumns'] = ['instanceIP', 'instanceState','platformId','hardware.os','projectName','environmentName'];;
                     }else if(category === 'assigned'){
-                        paginationRequest['searchColumns'] = ['ip', 'state'];
+                        paginationRequest['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     }else{
-                        paginationRequest['searchColumns'] = ['ip', 'state'];
+                        paginationRequest['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     }
                     apiUtil.databaseUtil(paginationRequest, next);
                 },

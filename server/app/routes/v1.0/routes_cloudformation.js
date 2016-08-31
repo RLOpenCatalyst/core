@@ -200,6 +200,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
                                             });
+                                            instancesDao.updateInstanceStatus(instance._id, instanceLog, function(err, instanceData) {
+                                                if (err) {
+                                                    logger.error("Failed to update instance: ", err);
+                                                }
+                                            });
                                         })(instances[i]);
                                     }
                                 }

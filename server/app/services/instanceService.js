@@ -1311,7 +1311,7 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
         },
         function(instances,next){
             var instance = instances[0];
-            if(instance.instanceState !== instanceData.state) {
+            if(instance.instanceState !== instanceData.state && instance.bootStrapStatus ==='success') {
                 var timestampStarted = new Date().getTime();
                 var user = instance.catUser ? instance.catUser : 'superadmin';
                 var action ='';
@@ -1324,43 +1324,36 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                 }else{
                     action ='Start';
                 };
-                var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user,instanceData.state, timestampStarted);
-                var logReferenceIds = [instance._id, actionLog._id];
-                logsDao.insertLog({
-                    referenceId: logReferenceIds,
-                    err: false,
-                    log: "Instance :"+instanceData.state,
-                    timestamp: timestampStarted
-                });
-                var instanceLog = {
-                    actionId: actionLog._id,
-                    instanceId: instance._id,
-                    orgName: instance.orgName,
-                    bgName: instance.bgName,
-                    projectName: instance.projectName,
-                    envName: instance.environmentName,
-                    status: instanceData.state,
-                    actionStatus: "success",
-                    platformId: instance.platformId,
-                    blueprintName: instance.blueprintData.blueprintName,
-                    data: instance.runlist,
-                    platform: instance.hardware.platform,
-                    os: instance.hardware.os,
-                    size: instance.instanceType,
-                    user: user,
-                    createdOn: new Date().getTime(),
-                    startedOn: new Date().getTime(),
-                    providerType: instance.providerType,
-                    action: action,
-                    logs: []
-                };
-                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
-                    if (err) {
-                        logger.error("Failed to create or update instanceLog: ", err);
-                        next(err,null);
-                    }
-                    next(null,logData);
-                });
+                if(instanceData.state === 'terminated'){
+                    instanceLogModel.getLogsByInstanceId(instance._id,function(err,data){
+                        if(err){
+                            logger.error("Failed to get Instance Logs: ", err);
+                            next(err, null);
+                        }
+                        if(data.status === 'shutting-down'){
+                            data.status = 'terminated';
+                            data.action = action;
+                            data.user = user;
+                            logsDao.insertLog({
+                                referenceId: [data.actionId,data.instanceId],
+                                err: false,
+                                log: "Instance " + instanceData.state,
+                                timestamp: timestampStarted
+                            });
+                            instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                    next(err, null);
+                                }
+                                next(null, logData);
+                            });
+                        }else{
+                            createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,next);
+                        }
+                    })
+                }else {
+                    createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,next);
+                }
             }else{
                 next(null,instances);
             }
@@ -1375,4 +1368,44 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
             callback(null, results);
         }
     })
+}
+
+function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,next){
+    var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
+    var logReferenceIds = [instance._id, actionLog._id];
+    logsDao.insertLog({
+        referenceId: logReferenceIds,
+        err: false,
+        log: "Instance " + instanceData.state,
+        timestamp: timestampStarted
+    });
+    var instanceLog = {
+        actionId: actionLog._id,
+        instanceId: instance._id,
+        orgName: instance.orgName,
+        bgName: instance.bgName,
+        projectName: instance.projectName,
+        envName: instance.environmentName,
+        status: instanceState,
+        actionStatus: "success",
+        platformId: instance.platformId,
+        blueprintName: instance.blueprintData.blueprintName,
+        data: instance.runlist,
+        platform: instance.hardware.platform,
+        os: instance.hardware.os,
+        size: instance.instanceType,
+        user: user,
+        createdOn: new Date().getTime(),
+        startedOn: new Date().getTime(),
+        providerType: instance.providerType,
+        action: action,
+        logs: []
+    };
+    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
+        if (err) {
+            logger.error("Failed to create or update instanceLog: ", err);
+            next(err, null);
+        }
+        next(null, logData);
+    });
 }

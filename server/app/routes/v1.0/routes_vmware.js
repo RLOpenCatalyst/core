@@ -59,6 +59,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 	app.get('/vmware/:providerid/datastores', function(req, res) {
 		logger.debug('Inside vmware get datastores');
+		if(req.params.providerid === null){
+			logger.debug("Provider Id is pass as Null in params");
+			res.status(500).send(req.params.providerid);
+			return;
+		}
 		getvmwareprovider(req.params.providerid, function(err, vmwareconfig) {
 			if (vmwareconfig) {
 				var vmware = new VMware(vmwareconfig);
