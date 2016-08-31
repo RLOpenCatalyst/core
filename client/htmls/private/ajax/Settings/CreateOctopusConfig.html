@@ -1,0 +1,161 @@
+<div class="row">
+   <div class="col-md-12">
+      <form action="" id="myForm52">
+         <div class="widget-box">
+            <div class="widget-header">
+               <h4 class="widget-margin" style="color:black;">New Octopus Config  <span id="spnoctopus"></span></h4>
+            </div>
+            <div class="widget-body">
+               <fieldset>
+                  <div class="widget-main">
+                     <section id="widget-grid" class="">
+                        <!-- START ROW -->
+                        <div class="row">
+                           <!-- NEW COL START -->
+                              <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                                 <!-- widget div-->
+                                 <div>
+                                    <!-- widget content -->
+                                    <div class="widget-body no-padding">
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
+                                          </label>
+                                          <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname']" onchange="$('#configname').change();">
+                                             <option value="">Select an Organization</option>
+                                          </select>
+                                       </div>
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="">Name<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="octopusname" class="form-control" type="text"  cdata="catalyst" unique="true"  uniqueconditionedby="octopusname"  cat-validation="required,max15">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                          <label for="">Octopus URL<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="octopusurl" class="form-control" type="text"  cdata="catalyst"  cat-validation="urlcheck,required">
+                                       </div>
+                                       <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                          <label for="">Key <span class="control-label redSpan">&nbsp;*</span>
+                                          </label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="octopuskey" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
+                                       </div>
+                                       <!-- <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                          <label for="">Password <span class="control-label redSpan">&nbsp;*</span></label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="bitbucketpassword" class="form-control" type="text"  cdata="catalyst" cat-validation="required" value="*********">
+                                       </div> -->
+                                    </div>
+                                    <!-- end widget content -->
+                                 </div>
+                                 <!-- end widget div -->
+                              </div>
+                              <!-- end widget -->             
+                        </div>
+                        <!-- END ROW -->
+                     </section>
+                     <!-- end widget grid -->
+                  </div>
+               </fieldset>
+            </div>
+            <div class="widget-toolbox clearfix">
+               <div class="btn-group pull-right">
+                  <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
+                  <i class="ace-icon fa fa-times bigger-110"></i>
+                  Cancel
+                  </a>
+                  <button class="btn btn-primary btn-mini">
+                  <i class="ace-icon fa fa-check bigger-110"></i>
+                  Save
+                  </button>
+               </div>
+            </div>
+         </div>
+      </form>
+   </div>
+</div>
+<!--row ends here-->
+<!--Popup for selecting a cloud provider before proceeding-->
+<script>
+
+//Form Name
+function cancelClicked() {
+  $("#popupSelectProvider").modal('hide');
+  $(".modal-backdrop.fade.in").detach();
+  $('#btncancel').click();
+}
+
+function setfolderpath() { 
+  var folderpath = '';
+  $('#folderpath').val(folderpath);
+}
+
+function validateandsaveform() {
+
+  if (validateForm()) {
+   // setfolderpath();
+    saveform('28');
+  }
+
+}
+
+function inLineReady() {
+
+  $("input[type='text']").on("click", function() {
+    $(this).select();
+    $("#msgOrgName").hide();
+  });
+  $("#popupSelectProvider").modal({
+    keyboard: false,
+    backdrop: "static"
+  });
+  var ten = 27;
+  readformnew('28'); //28 is for octopus
+  //
+
+  $('#content').css("opacity", "1 !important");
+  //Force opening the left navigation menu
+  if ($('#navSettings').is(":visible") == false) {
+    $('#navSettings').css("display", '');
+    $('#navSettings > ul > li').first().addClass('open');
+    $('#navSettings > ul > li > ul').css("display", "none");
+    $('#navSettings > ul > li > ul').first().css("display", "block");
+  }
+  //redrawing the breadcrumb and selecting the tree
+  $('#Settings  li').removeClass('active');
+  $('#Settings  li').each(function() {
+
+    if ($(this).text().trim() == "Docker") {
+
+      $(this).addClass('active');
+    }
+  });
+
+  $('#content').css('opacity', '1 !important');
+  enableUniqueCheckingForInputs(28);
+}
+
+inLineReady();
+   
+</script>
+
+<script>
+
+ $(document).ready(function() {
+   $('select').select2();
+   var isEditActivate = location.href.toString().split('?')[1] === "new" ? false : true;
+
+    if (isEditActivate) {
+      $('#orgname').attr('disabled',true);
+      // $('input#bitbucketpassword').removeAttr('type');
+      // $('input#bitbucketpassword').attr('type', 'password');
+    }
+   $('#myForm52').submit(function() {
+     $(this).validate();
+
+     if ($(this).valid) {
+       validateandsaveform();
+     } else {
+       bootbox.alert('Invalid form submitted'); // for demo
+     }
+     return false; // for demo
+   });
+ });
+       
+</script>

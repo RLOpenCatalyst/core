@@ -85,8 +85,6 @@
           <div class="hiddencollapse treeStyle">TRACK</div>
         </div>
         <div id="trackTree" class="font-size-12"></div>
-        <div id="trackzoomicon" class="zoomout trackzoomicondiv hidden" onclick="zoomdashboard(this);">
-        </div>
       </div>
       <!--track ends here-->
       <div id="Settings_nav" style="display:none;">
@@ -944,38 +942,6 @@ var SettingTreeJson = [{
                 "selectable": true,
                 "icon": "fa fa-lg fa-fw fa-link"
 
-            },{
-                "name": "organizations",
-                "text": "Code Repo",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/BitbucketConfigList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-bitbucket"
-
-            },{
-                "name": "organizations",
-                "text": "Octopus",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/OctopusConfigList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-code"
-
-            },{
-                "name": "organizations",
-                "text": "Jira",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/JiraConfigList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-ticket"
-
-            },{
-                "name": "organizations",
-                "text": "QA Portal",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/FunctionalTestConfigList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-check"
-
             }, {
                 "name": "organizations",
                 "text": "Providers",
@@ -1216,27 +1182,10 @@ function loadTrackTree() {
             event.stopPropagation();
             event.preventDefault();
             event.stopPropagation();
-            if(node['data-href'].indexOf('#/dashboard/') > 0){
-             // alert('yep' + node['data-href']);
-              $('#trackzoomicon').append('[+]').attr('title','Maximize').toggleClass('hidden',6500);
-
-            }
             return false;
         }
     });
 }
-
-var zoomdashboard = function(icondiv){
-  //find out if zoom-out or in
-  $('body').toggleClass('zoom');
-  if($('body').hasClass('zoom')){ //zoomed
-      $('#trackzoomicon').empty().append('[-]').attr('title','Restore');
-  }
-  else{
-    $('#trackzoomicon').empty().append('[+]').attr('title','Maximize');
-  }
-}
-
 
 var treeData;
 

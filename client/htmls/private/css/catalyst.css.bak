@@ -4598,19 +4598,7 @@ input:focus, select:focus, textarea:focus {
     border: none;
     width: auto !important;
 }
-.zoom{
-    height: 117%;
-    margin-left: -254px;
-    margin-top: -111px;
-    width: 118% !important;
-}
-.trackzoomicondiv{
-    color: rgb(0, 0, 0);
-    left: 343px;
-    position: absolute;
-    top: 63px;
-    cursor: pointer;
-}
+
 #createProvider .marginbottom {
     margin-bottom: 10px;
 }
