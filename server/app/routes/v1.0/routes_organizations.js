@@ -390,6 +390,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     orgname_rowid: tree.rowid,
                                                                     productgroupname_rowid: bgTree.rowid
                                                                 }, function(err, teams) {
+                                                                	logger.debug("Hit Team: ",JSON.stringify(teams));
                                                                     if (err) {
                                                                         logger.debug("Hit an error in get Active Team : " + err);
                                                                         res.send(orgTree);
@@ -411,6 +412,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                             var envIds = team.environmentname_rowid.split(',');
                                                                                             var envNames = team.environmentname.split(',');
                                                                                             var envList = [];
+                                                                                            logger.debug("envIds: ",JSON.stringify(envIds));
                                                                                             for (var q = 0; q < envIds.length; q++) {
                                                                                                 if(envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[q]) === -1) {
                                                                                                     checkDuplicateEnvList.push(envNames[q]);

@@ -320,10 +320,7 @@ var InstanceSchema = new Schema({
         required: false,
         default: false
     },
-    appInfo: [{
-        name: String,
-        version: String
-    }]
+    appInfo: [Schema.Types.Mixed]
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -2080,25 +2077,57 @@ var InstancesDao = function() {
         });
     };
 
-    this.updateAppInfo = function(instanceId, appInfo, callback) {
-        logger.debug("Enter updateAppInfo ", instanceId, appInfo);
-        Instances.update({
-            "_id": new ObjectId(instanceId),
-        }, {
-            $push: {
-                "appInfo": appInfo
-            }
-        }, {
-            upsert: false
+    this.updateAppInfo = function(instanceIP, appInfo, callback) {
+        logger.debug("Enter updateAppInfo ", instanceIP, appInfo);
+        var appName = appInfo.name;
+        var version = appInfo.version;
+        var status = appInfo.status;
+        var appURL = appInfo.appURL;
+        Instances.find({
+            "instanceIP": instanceIP
         }, function(err, data) {
             if (err) {
-                if (typeof callback === 'function') {
-                    callback(err, null);
-                }
-                return;
+                logger.error("Failed to fetch Instance: ", err);
+                return callback(err, null);
             }
-            if (typeof callback === 'function') {
-                callback(err, data);
+            
+            if (data && data.length && data[0].appInfo && data[0].appInfo.length && data[0].appInfo[0].name) {
+                Instances.update({
+                    "instanceIP": instanceIP,
+                    appInfo: {$elemMatch: { name: appName }}
+                }, {
+                    $set: { "appInfo.$.version": version ,"appInfo.$.status": status, "appInfo.$.appURL": appURL}
+                }, {
+                    upsert: false
+                }, function(err, data) {
+                    if (err) {
+                        logger.error("Error while updating appInfo: ",err);
+                        return callback(err, null);
+                    }
+                    logger.debug("Modified: ",data);
+                    return callback(null, data);
+                });
+            } else {
+                logger.debug("appInfo   ",JSON.stringify(appInfo));
+                Instances.update({
+                    "instanceIP": instanceIP,
+                }, {
+                    $push: {
+                        "appInfo": appInfo
+                    }
+                }, {
+                    upsert: false
+                }, function(err, data) {
+                    if (err) {
+                        if (typeof callback === 'function') {
+                            callback(err, null);
+                        }
+                        return;
+                    }
+                    if (typeof callback === 'function') {
+                        callback(err, data);
+                    }
+                });
             }
         });
     };

@@ -526,7 +526,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         timestamp: timestampEnded
                                                     });
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                    instancesDao.updateAppInfo(instance.id,jsonAttributes.appInfo);
+                                                    instancesDao.updateAppInfo(instance.instanceIP,jsonAttributes.appInfo);
 
                                                 } else {
                                                     if (code == 0) {
@@ -557,7 +557,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-                                                        instancesDao.updateAppInfo(instance.id,jsonAttributes.appInfo);
+                                                        instancesDao.updateAppInfo(instance.instanceIP,jsonAttributes.appInfo);
 
                                                         launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                             if (err) {
@@ -640,7 +640,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             timestamp: timestampEnded
                                                         });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                        instancesDao.updateAppInfo(instance.id,jsonAttributes.appInfo);
+                                                        instancesDao.updateAppInfo(instance.instanceIP,jsonAttributes.appInfo);
                                                     }
                                                 }
 

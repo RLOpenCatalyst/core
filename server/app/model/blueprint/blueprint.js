@@ -1087,9 +1087,19 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                     } else {
                         actualVersion = version;
                     }
+
+                    // This is hard coded because port is not comming from UI.Will remove once it will come from UI.
+                    var port = 0;
+                    if(artifactId === "D4D" || artifactId === "core"){
+                        port = 3001;
+                    }else{
+                        port = 8080;
+                    }
                     var appInfo = {
                         name: artifactId,
-                        version: actualVersion
+                        version: actualVersion,
+                        status: "",
+                        appURL: "http://"+instance.instanceIP+":"+port
                     };
 
                     // Update app-data for promote
@@ -1230,7 +1240,9 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         });
         var appInfo = {
             name: blueprint.docker.image,
-            version: blueprint.docker.imageTag
+            version: blueprint.docker.imageTag,
+            status: "",
+            appURL: "http://"+instance.instanceIP+":"+blueprint.docker.containerPort
         };
         var attrs = utils.mergeObjects(objectArray);
         var returnedObj = {
