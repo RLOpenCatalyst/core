@@ -146,6 +146,23 @@ function getStartOfAYearInUTCAsync(date, callback) {
 	}
 }
 
+/**
+ * Get date difference in days
+ *
+ * @param endTimestamp
+ * @param startTimestamp
+ */
+function getDateDifferenceInDays(endTimestamp, startTimestamp) {
+	if( typeof endTimestamp === 'undefined' || endTimestamp === null
+		|| typeof startTimestamp === undefined || startTimestamp === null) {
+		return null;
+	} else {
+		var endTimestampUTC = moment.utc(endTimestamp);
+		var startTimestampUTC = moment.utc(startTimestamp);
+		return endTimestampUTC.diff(startTimestampUTC, 'days')
+	}
+}
+
 var momentDateUtil = module.exports = {};
 momentDateUtil.getDateInUTC = getDateInUTC;
 momentDateUtil.getDateInUTCAsync = getDateInUTCAsync;
@@ -155,3 +172,4 @@ momentDateUtil.getStartOfADayInUTCAsync = getStartOfADayInUTCAsync;
 momentDateUtil.getStartOfAMonthInUTCAsync = getStartOfAMonthInUTCAsync;
 momentDateUtil.getStartOfAYearInUTCAsync = getStartOfAYearInUTCAsync;
 momentDateUtil.getStartOfAMonthInUTC = getStartOfAMonthInUTC;
+momentDateUtil.getDateDifferenceInDays = getDateDifferenceInDays;
