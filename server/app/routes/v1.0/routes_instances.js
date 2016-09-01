@@ -205,7 +205,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.post('/instances/app-info/update', function(req, res) {
         logger.debug("Incomming request from cookbook: ",JSON.stringify(req.body));
         instancesDao.updateAppInfo(req.body.instanceIP,req.body, function(err, data) {
-            if (err) {
+            if (err && err === 404) {
+                logger.error("Instance not found.");
+                return res.status(404).send("There is no such instance with IP: "+req.body.instanceIP);
+            }else if (err) {
                 logger.error("Failed to update appInfo");
                 return res.status(500).send("Failed to update Instance.");
             }

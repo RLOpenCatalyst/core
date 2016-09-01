@@ -325,10 +325,12 @@ var d4dMastersTeams = new mongoose.Schema({
     },
     productgroupname: {
         type: String,
+        required: true,
         trim: true
     },
     productgroupname_rowid: {
         type: String,
+        required: true,
         trim: true
     },
     description: {
