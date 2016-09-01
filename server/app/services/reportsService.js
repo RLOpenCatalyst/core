@@ -214,6 +214,7 @@ reportsService.formatCostTrendsReport = function formatCostTrendsReport(costTren
     var rdsTotalCost = 0
     var totalCost   = 0
 
+    // @TODO Get rid of blocking for loop
     for(var i = 0; i < costTrendsData.length; i++) {
         var endDate = new Date(costTrendsData[i].endTime)
         var endDateString = dateUtil.getDateInUTC(endDate).toString().substring(0, 10)
@@ -221,7 +222,8 @@ reportsService.formatCostTrendsReport = function formatCostTrendsReport(costTren
         if(endDate.getHours() == 00 && endDate.getMinutes() == 00) {
             ec2TotalCost += costTrendsData[i].costMetrics.ec2Cost
             rdsTotalCost += costTrendsData[i].costMetrics.rdsCost
-            totalCost += costTrendsData[i].aggregateResourceCost
+            // @TODO Type of aggregatedResourceCost should be changed to number in model
+            totalCost += parseFloat(costTrendsData[i].aggregateResourceCost)
 
             formattedTrendsData.push({
                 'Date': endDateString,
