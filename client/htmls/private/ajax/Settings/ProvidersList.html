@@ -156,8 +156,8 @@
                         <div class="col-md-9">
                             <select id="interval" name="interval" class="required form-control width-100" style="vertical-align:central">
                                 <!--<option value="300">5 Min</option>-->
-                                <option value="3600">1 Hour</option>
-                                <option value="86400">1 Day</option>
+                                <!-- <option value="3600">1 Hour</option>
+                                <option value="86400">1 Day</option> -->
                             </select>
                         </div>
                     </div>
@@ -218,6 +218,7 @@
             $('#rowPeriod').slideDown();
             $('#rowInterval').slideUp();
             $('#rowFromDate').slideUp();
+            $("#interval option[value='3600']").remove();
             $('#providerReport')[0].reset();
             $('span.error').empty().hide();
             return false;
@@ -228,16 +229,16 @@
             if (val === 'usage') {
                 $('#type').val('trend');
                 $('#type').attr('disabled', 'disabled');
+                $("#interval option[value='86400']").remove();
+                $("#interval").append("<option value='3600'>1 Hour</option>")
                 $("#interval").val('3600');
-                $("#interval option[value=86400]").attr('disabled','disabled');                
-                $("#interval option[value=3600]").removeAttr('disabled');
                 $('#rowFromDate').slideDown();
                 $('#rowPeriod').slideUp();
             } else {
                 $('#type').removeAttr('disabled');
-                $("#interval option[value=86400]").removeAttr('disabled');                
+                $("#interval option[value='3600']").remove();
+                $("#interval").append("<option value='86400'>1 Day</option>")
                 $("#interval").val('86400');
-                $("#interval option[value=3600]").attr('disabled','disabled');                
                 $('#rowFromDate').slideUp();
                 $('#rowPeriod').slideDown();
             }
