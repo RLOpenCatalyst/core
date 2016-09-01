@@ -98,10 +98,10 @@
 									<label class="control-label">Run as Sudo:</label>
 									<br />
 									<div class="paddingtop8">
-										<input type="radio" ng-value="true" ng-model="isSudo" ng-click="isSudoSelected('true');" />
-										<label for="rdInstance" class="paddingright15">Yes</label>
-										<input type="radio" ng-value="false" ng-model="isSudo" ng-click="isSudoSelected('false');" />
-										<label for="rdInstance">No</label>
+										<input type="radio" ng-value="true" ng-model="$parent.isSudo" name="scriptIsSudo" />
+										<label for="scriptIsSudo" class="paddingright15">Yes</label>
+										<input type="radio" ng-value="false" ng-model="$parent.isSudo" name="scriptIsSudo" />
+										<label for="scriptIsSudo">No</label>
 									</div>
 								</div>
 							</div>

@@ -21,6 +21,7 @@
 			$scope.scriptParamShow = false;
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
+			$scope.isSudo = false;
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
@@ -41,13 +42,6 @@
 			};
 			$scope.optionScriptToggled = function() {
 				$scope.isAllScriptSelected = $scope.scriptTaskList.every(function(itm){ return  itm._isScriptSelected; })
-			}
-			$scope.isSudoSelected = function(val) {
-				if(val == "true") {
-					$scope.isSudo = true;
-				} else {
-					$scope.isSudo = false;
-				}
 			}
 			//default values for new task
 			angular.extend($scope, {
@@ -363,7 +357,6 @@
 						taskJSON.nodeIds = [];
 						taskJSON.scriptDetails = [];
 						taskJSON.isSudo = $scope.isSudo;
-						console.log(taskJSON.isSudo);
 						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
 							if ($scope.chefInstanceList[si]._isNodeSelected) {
 								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
