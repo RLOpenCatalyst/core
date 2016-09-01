@@ -357,17 +357,28 @@
 				});*/
 				var appInfo =[];
 				for(var i=0; i< inst.appInfo.length; i++){
-					appInfo.push(inst.appInfo[i].version);
+					if(inst.appInfo[i] && inst.appInfo[i].version)
+						appInfo.push(inst.appInfo[i].version);
 				}
-				return appInfo.join(",");
+				if(appInfo && appInfo.length){
+					return appInfo.join(",");
+				} else{
+					return "No Versions";
+				}
+				
 			};
 
 			$scope.operationSet.viewAppStatus = function(inst){
 				var appInfo =[];
 				for(var i=0; i< inst.appInfo.length; i++){
-					appInfo.push(inst.appInfo[i].status);
+					if(inst.appInfo[i] && inst.appInfo[i].status)
+						appInfo.push(inst.appInfo[i].status);
 				}
-				return appInfo.join(",");
+				if(appInfo && appInfo.length){
+					return appInfo.join(",");
+				} else{
+					return "No Status";
+				}
 			};
 			$scope.operationSet.updateCookbook = function(inst) {
 				var promise = instanceOperations.updateCookbook(inst);
