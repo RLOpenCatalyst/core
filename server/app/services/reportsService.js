@@ -135,6 +135,13 @@ reportsService.getUsageTrends = function getUsageTrends(query, callback) {
         return callback(err)
     }
 
+    if(dateUtil.getDateDifferenceInDays(query.toTimeStamp, query.fromTimeStamp) > 10) {
+        var err = new Error('Invalid request')
+        err.status = 400
+        err.errors = [{messages: 'Query range too big'}]
+        return callback(err)
+    }
+
     if ('filterBy' in query) {
         dbAndCriteria.push(reportsService.parseFilterBy(query.filterBy))
     }
