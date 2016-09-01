@@ -61,6 +61,7 @@ var ResourceCostsSchema = new Schema({
         type: Number,
         required: false
     },
+    // @TODO To be changed to Number
     aggregateResourceCost:{
         type:String,
         required:false,
