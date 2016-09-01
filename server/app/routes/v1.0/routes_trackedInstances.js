@@ -106,7 +106,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     }else if(category === 'assigned'){
                         paginationRequest['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     }else{
-                        paginationRequest['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
+                        paginationRequest['searchColumns'] = ['ip', 'platformId','os','state','providerData.region'];
                     }
                     apiUtil.databaseUtil(paginationRequest, next);
                 },

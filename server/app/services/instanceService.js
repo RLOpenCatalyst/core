@@ -439,10 +439,12 @@ function getTrackedInstances(query, category, next) {
             function(callback) {
                 if (category === 'managed') {
                     instancesModel.getAll(query, callback);
-                } else if (category === 'assigned') {
+                }else if (category === 'assigned') {
                     unManagedInstancesModel.getAll(query, callback);
-                } else {
-                    callback(null, []);
+                }else if(category === 'unassigned'){
+                    unassignedInstancesModel.getAll(query,callback);
+                }else{
+                    callback(null, [{docs:[],total:0}]);
                 }
             }
         ],
