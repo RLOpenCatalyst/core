@@ -1085,8 +1085,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         res.send(200);
                                     });
                                     instancesDao.updateActionLog(instance[0]._id, actionLog._id, true, new Date().getTime());
-
-
                                 } else {
                                     logger.debug('Failed running docker command ....');
                                     res.end('Image pull failed check instance log for details');
@@ -1436,7 +1434,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                             logger.error("Failed to create or update instanceLog: ", err);
                                                         }
                                                     });
-                                                    instancesDao.updateActionLog(instance[0]._id, actionLog._id, false, new Date().getTime());
                                                 }
 
                                             });
@@ -1456,6 +1453,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     log: "Done image pull and run.",
                                                     timestamp: new Date().getTime()
                                                 };
+                                                instancesDao.updateActionLog(instance[0]._id, actionLog._id, true, new Date().getTime());
                                                 instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
                                                     if (err) {
                                                         logger.error("Failed to create or update instanceLog: ", err);

@@ -439,10 +439,12 @@ function getTrackedInstances(query, category, next) {
             function(callback) {
                 if (category === 'managed') {
                     instancesModel.getAll(query, callback);
-                } else if (category === 'assigned') {
+                }else if (category === 'assigned') {
                     unManagedInstancesModel.getAll(query, callback);
-                } else {
-                    callback(null, []);
+                }else if(category === 'unassigned'){
+                    unassignedInstancesModel.getAll(query,callback);
+                }else{
+                    callback(null, [{docs:[],total:0}]);
                 }
             }
         ],
@@ -1324,32 +1326,31 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                 }else{
                     action ='Start';
                 };
-                if(instanceData.state === 'terminated'){
-                    instanceLogModel.getLogsByInstanceId(instance._id,function(err,data){
+                if(instanceData.state === 'terminated' && instance.instanceState === 'shutting-down'){
+                    instanceLogModel.getLogsByInstanceIdStatus(instance._id,instance.instanceState,function(err,data){
                         if(err){
                             logger.error("Failed to get Instance Logs: ", err);
                             next(err, null);
                         }
-                        if(data.status === 'shutting-down'){
-                            data.status = 'terminated';
-                            data.action = action;
-                            data.user = user;
-                            logsDao.insertLog({
-                                referenceId: [data.actionId,data.instanceId],
-                                err: false,
-                                log: "Instance " + instanceData.state,
-                                timestamp: timestampStarted
-                            });
-                            instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
-                                if (err) {
-                                    logger.error("Failed to create or update instanceLog: ", err);
-                                    next(err, null);
-                                }
-                                next(null, logData);
-                            });
-                        }else{
-                            createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,next);
-                        }
+                        data.status = 'terminated';
+                        data.action = action;
+                        data.user = user;
+                        data.createdOn = new Date().getTime();
+                        data.startedOn = new Date().getTime();
+                        data.endedOn = new Date().getTime();
+                        logsDao.insertLog({
+                            referenceId: [data.actionId,data.instanceId],
+                            err: false,
+                            log: "Instance " + instanceData.state,
+                            timestamp: timestampStarted
+                        });
+                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                                next(err, null);
+                            }
+                            next(null, logData);
+                        });
                     })
                 }else {
                     createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,next);
@@ -1376,7 +1377,7 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
     logsDao.insertLog({
         referenceId: logReferenceIds,
         err: false,
-        log: "Instance " + instanceData.state,
+        log: "Instance " + instanceState,
         timestamp: timestampStarted
     });
     var instanceLog = {

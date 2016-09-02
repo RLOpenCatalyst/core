@@ -219,68 +219,75 @@ function tagMappingForInstances(instances,provider,next){
                     var catalystEnvironmentId = null;
                     var catalystEnvironmentName = null;
                     var assignmentFound = false;
-                    if (projectTag && environmentTag && (instance.isDeleted === false)
-                        && (projectTag.name in instance.tags) && (environmentTag.name in instance.tags)) {
-                        for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                            if (projectTag.catalystEntityMapping[y].tagValue === instance.projectTag || projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
-                                catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-                                catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
-                                break;
-                            }
-                        }
-                        for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                            if (environmentTag.catalystEntityMapping[y].tagValue === instance.environmentTag || environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
-                                catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-                                catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
-                                break;
-                            }
-                        }
-                        if (catalystProjectId && catalystEnvironmentId) {
-                            assignmentFound = true;
-                        }
-                        if (assignmentFound === true) {
-                            unassignedInstancesModel.removeInstanceById(instance._id, function (err, data) {
-                                if (err) {
-                                    logger.error(err);
-                                    count++;
-                                    return;
-                                }else{
-                                    var assignedInstanceObj = {
-                                        orgId: instance.orgId,
-                                        orgName:instance.orgName,
-                                        projectId:catalystProjectId,
-                                        projectName:catalystProjectName,
-                                        environmentId:catalystEnvironmentId,
-                                        environmentName:catalystEnvironmentName,
-                                        providerId: instance.providerId,
-                                        providerType: instance.providerType,
-                                        providerData: instance.providerData,
-                                        platformId: instance.platformId,
-                                        ip: instance.ip,
-                                        os: instance.os,
-                                        state: instance.state,
-                                        network:instance.network,
-                                        tags:instance.tags,
-                                        environmentTag:instance.environmentTag,
-                                        projectTag:instance.projectTag
-                                    }
-                                    assignedInstanceList.push(assignedInstanceObj);
-                                    assignedInstanceObj = {};
-                                    count++;
-                                    if(count === instances.length){
-                                        next(null, assignedInstanceList);
-                                    }else{
-                                        return;
-                                    }
+                    if(instance.tags) {
+                        if (projectTag && environmentTag && (instance.isDeleted === false)
+                            && (projectTag.name in instance.tags) && (environmentTag.name in instance.tags)) {
+                            for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
+                                if (projectTag.catalystEntityMapping[y].tagValue === instance.projectTag || projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
+                                    catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
                                 }
-                            })
-                        } else {
+                            }
+                            for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                                if (environmentTag.catalystEntityMapping[y].tagValue === instance.environmentTag || environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
+                                    catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
+                                }
+                            }
+                            if (catalystProjectId && catalystEnvironmentId) {
+                                assignmentFound = true;
+                            }
+                            if (assignmentFound === true) {
+                                unassignedInstancesModel.removeInstanceById(instance._id, function (err, data) {
+                                    if (err) {
+                                        logger.error(err);
+                                        count++;
+                                        return;
+                                    } else {
+                                        var assignedInstanceObj = {
+                                            orgId: instance.orgId,
+                                            orgName: instance.orgName,
+                                            projectId: catalystProjectId,
+                                            projectName: catalystProjectName,
+                                            environmentId: catalystEnvironmentId,
+                                            environmentName: catalystEnvironmentName,
+                                            providerId: instance.providerId,
+                                            providerType: instance.providerType,
+                                            providerData: instance.providerData,
+                                            platformId: instance.platformId,
+                                            ip: instance.ip,
+                                            os: instance.os,
+                                            state: instance.state,
+                                            network: instance.network,
+                                            tags: instance.tags,
+                                            environmentTag: instance.environmentTag,
+                                            projectTag: instance.projectTag
+                                        }
+                                        assignedInstanceList.push(assignedInstanceObj);
+                                        assignedInstanceObj = {};
+                                        count++;
+                                        if (count === instances.length) {
+                                            next(null, assignedInstanceList);
+                                        } else {
+                                            return;
+                                        }
+                                    }
+                                })
+                            } else {
+                                count++;
+                                if (count === instances.length) {
+                                    next(null, assignedInstanceList);
+                                }
+                            }
+                        }else {
                             count++;
                             if (count === instances.length) {
                                 next(null, assignedInstanceList);
                             }
                         }
-                    } else {
+                    }else{
                         count++;
                         if (count === instances.length) {
                             next(null, assignedInstanceList);

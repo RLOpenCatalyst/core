@@ -166,6 +166,7 @@ var ApiUtil = function() {
         };
         var filterBy={};
         if(data.filterBy) {
+            console.log(JSON.stringify(data.filterBy));
             var a = data.filterBy.split(" ");
             for (var i = 0; i < a.length; i++) {
                 var b = a[i].split(":");
@@ -204,6 +205,7 @@ var ApiUtil = function() {
             request['search']=decrypt;
         }
         if (typeof callback === 'function') {
+            console.log(JSON.stringify(request));
             callback(null, request);
         }
     }
