@@ -175,6 +175,13 @@ reportsService.getUsageTrends = function getUsageTrends(query, callback) {
 reportsService.formatCostAggregateReport = function formatCostAggregateReport(aggregateCostData, callback) {
     var formattedAggregateData = []
 
+    if(aggregateCostData == null || typeof aggregateCostData === undefined) {
+        var err = new Error('Invalid request')
+        err.status = 400
+        err.errors = [{messages: 'No data available for this request'}]
+        return callback(err)
+    }
+
     formattedAggregateData.push({
         Service: 'EC2',
         Cost: Math.round(aggregateCostData.costMetrics.serviceCost.ec2Cost * 100) / 100
