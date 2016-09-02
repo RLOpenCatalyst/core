@@ -145,12 +145,12 @@ var CW = function(awsSettings) {
     };
 
     // @TODO Try to reduce number of parameters
-    this.getUsageMetrics = function getUsageMetrics(metric, unit,nameSpace, dimensions, startTime, endTime, callback) {
-        var params = {
+    this.getUsageMetrics = function getUsageMetrics(metric, unit,nameSpace, dimensions, startTime, endTime, period, callback) {
+    	var params = {
             EndTime: endTime,
             MetricName: metric,
             Namespace: nameSpace,
-            Period: 86400,
+            Period: period,
             StartTime: startTime,
             Statistics: ['Average', 'Minimum', 'Maximum'],
             Dimensions: dimensions,
@@ -158,22 +158,26 @@ var CW = function(awsSettings) {
         };
         cloudwatch.getMetricStatistics(params,function(err, data) {
             if(err) {
-                callback(err,null);
-            } else if(data.Datapoints.length > 0) {
-                var result = {
-                    average: data.Datapoints[0].Average,
-                    minimum: data.Datapoints[0].Minimum,
-                    maximum: data.Datapoints[0].Maximum
-                };
-                callback(null, result);
+            	callback(err,null);
+            }else if(data.Datapoints.length > 0) {
+            	var result = {
+                        average: data.Datapoints[0].Average,
+                        minimum: data.Datapoints[0].Minimum,
+                        maximum: data.Datapoints[0].Maximum
+                    };
+                	callback(null, result);
             } else if(data.Datapoints.length == 0) {
-                var result = {
-                    average: 0,
-                    minimum: 0,
-                    maximum: 0
-                };
-                callback(null, result);
+                	var result = {
+                        average: 0,
+                        minimum: 0,
+                        maximum: 0
+                    };
+                    callback(null, result);
             }
+            //TODO: Need to every point
+            /*else{
+            	callback(null, data.Datapoints);
+            }*/
         });
     };
     

@@ -49,6 +49,21 @@ var UnmanagedInstanceSchema = new Schema({
 		type:Boolean,
 		default:false,
 		required:false
+	},
+	subnetId: {
+		type: String,
+		required: false,
+		trim: true
+	},
+	vpcId: {
+		type: String,
+		required: false,
+		trim: true
+	},
+	privateIpAddress: {
+		type: String,
+		required: false,
+		trim: true
 	}
 });
 UnmanagedInstanceSchema.plugin(mongoosePaginate);
@@ -274,12 +289,18 @@ UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceSt
 	var updateObj={};
 	if(instance.state === 'terminated'){
 		updateObj['state'] = instance.state;
+		updateObj['subnetId']= instance.subnetId;
+		updateObj['vpcId'] = instance.vpcId;
+		updateObj['privateIpAddress'] = instance.privateIpAddress;
 		updateObj['isDeleted'] = true;
 		updateObj['tags'] = instance.tags;
 		updateObj['environmentTag'] = instance.environmentTag;
 		updateObj['projectTag'] = instance.projectTag;
 	}else{
 		updateObj['state'] = instance.state;
+		updateObj['subnetId']= instance.subnetId;
+		updateObj['vpcId'] = instance.vpcId;
+		updateObj['privateIpAddress'] = instance.privateIpAddress;
 		updateObj['isDeleted'] = false;
 		updateObj['tags'] = instance.tags;
 		updateObj['environmentTag'] = instance.environmentTag;

@@ -42,6 +42,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var SSHExec = require('_pr/lib/utils/sshexec');
 // @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
+
     app.all("/providers/*", sessionVerificationFunc);
     // @TODO To be refactored
     app.get('/providers/:providerId', function(req, res) {
@@ -88,25 +89,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var reqObj = {};
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     apiUtil.changeRequestForJqueryPagination(req.query, next);
                 },
-                function(reqData, next) {
+                function (reqData, next) {
                     reqObj = reqData;
                     apiUtil.paginationRequest(reqData, 'managedInstances', next);
                 },
-                function(paginationReq, next) {
+                function (paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
                     paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
                     apiUtil.databaseUtil(paginationReq, next);
                 },
-                function(queryObj, next) {
+                function (queryObj, next) {
                     instancesDao.getByProviderId(queryObj, next);
                 },
-                function(managedInstances, next) {
+                function (managedInstances, next) {
                     apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
-                },
-
+                }
             ],
             function(err, results) {
                 if (err)
@@ -122,22 +122,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var reqData = {};
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     apiUtil.paginationRequest(req.query, 'managedInstances', next);
                 },
-                function(paginationReq, next) {
+                function (paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
                     paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },
-                function(queryObj, next) {
+                function (queryObj, next) {
                     instancesDao.getByProviderId(queryObj, next);
                 },
-                function(managedInstances, next) {
+                function (managedInstances, next) {
                     apiUtil.paginationResponse(managedInstances, reqData, next);
                 }
-
             ],
             function(err, results) {
                 if (err)
