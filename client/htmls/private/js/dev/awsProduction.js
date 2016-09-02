@@ -1745,6 +1745,10 @@ var saveblueprint = function(tempType) {
                                     //for getting the blueprint name
                                     $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(data.name);
                                     $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(data.templateType);
+                                    if (!data.version) {
+                                        data.version = "1";
+                                    }
+                                    $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(data.version);
                                     getOrgProjBUComparison(data, $blueprintReadContainerCFT);
                                 });
                             }

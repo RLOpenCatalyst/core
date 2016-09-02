@@ -67,19 +67,19 @@ var InstanceLog = function() {
                 logger.debug("Failed to fetch InstanceLogs: ", err);
                 return callback(err, null);
             }
-            if (data && data.length) {
-                var setData = {};
-                var keys = Object.keys(logData);
-                for (var i = 0; i < keys.length; i++) {
-                    setData[keys[i]] = logData[keys[i]];
-                }
-                delete setData['logs'];
+            if (data && data.length > 0) {
                 InstanceLogs.update({
                     actionId: actionId,
                     instanceId: instanceId
                 }, {
-                    $set: setData,
-                    $push: { logs: logData.logs }
+                    $set: {
+                        status:logData.status,
+                        action:logData.action,
+                        user:logData.user,
+                        createdOn: logData.createdOn,
+                        startedOn: logData.startedOn,
+                        endedOn: logData.endedOn
+                    }
                 }, {
                     upsert: false
                 }, function(err, updatedData) {
@@ -112,9 +112,10 @@ var InstanceLog = function() {
 
 
 
-    this.getLogsByInstanceId = function(instanceId, callback) {
+    this.getLogsByInstanceIdStatus = function(instanceId,instanceStatus, callback) {
         var queryObj = {
-            instanceId: instanceId
+            instanceId: instanceId,
+            status:instanceStatus
         };
 
         InstanceLogs.find(queryObj, function(err, data) {

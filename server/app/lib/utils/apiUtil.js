@@ -141,6 +141,10 @@ var ApiUtil = function() {
          reqObj['search'] =   req.search.value;
         }
 
+        if('filterBy' in req){
+            reqObj['filterBy'] =   req.filterBy;
+        }
+
         callback(null,reqObj);
     };
     this.paginationRequest=function(data,key, callback) {

@@ -309,6 +309,7 @@ UnassignedInstancesSchema.statics.removeTerminatedInstanceById = function(instan
         callback(null, data);
     });
 };
+
 UnassignedInstancesSchema.statics.getAll = function getAll(query, callback) {
     query.queryObj.isDeleted =  false;
     this.paginate(query.queryObj, query.options,
@@ -321,5 +322,6 @@ UnassignedInstancesSchema.statics.getAll = function getAll(query, callback) {
         }
     );
 };
+
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);
 module.exports = UnassignedInstances;

@@ -2491,6 +2491,10 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                       //for getting the blueprint name
                       $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(data.name);
                       $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(data.templateType);
+                      if (!data.version) {
+                        data.version = "1";
+                      }
+                      $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(data.version);
                       $.ajax({
                         type: "get",
                         dataType: "json",
