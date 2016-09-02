@@ -29,7 +29,7 @@ var resources = require('_pr/model/resources/resources');
 var dateUtil = require('_pr/lib/utils/dateUtil');
 
 var AggregateAWSUsage = Object.create(CatalystCronJob);
-AggregateAWSUsage.interval = '* */1 * * *';
+AggregateAWSUsage.interval = '0 */1 * * *';
 AggregateAWSUsage.execute = aggregateAWSUsage;
 
 module.exports = AggregateAWSUsage;
