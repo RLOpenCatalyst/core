@@ -120,18 +120,27 @@ var ApiUtil = function() {
     };
 
     this.changeRequestForJqueryPagination=function(req,callback){
-        var columnIndex = parseInt(req.order[0].column);
-        var reqObj={
-            'pageSize': req.length,
-            'page' : req.start === 0 ? 1 : Math.ceil(req.start/req.length)+1,
-            'draw' : req.draw,
-            'filterBy' : req.filterBy,
-            'sortOrder':req.order[0].dir,
-            'sortBy':req.columns[columnIndex].data
+       var reqObj = {};
+
+        if('order' in req) {
+            var columnIndex = parseInt(req.order[0].column);
         }
-        if(req.search.value !== ''){
+
+        if ('draw' in req) {
+            reqObj = {
+                'pageSize': req.length,
+                'page': req.start === 0 ? 1 : Math.ceil(req.start / req.length) + 1,
+                'draw': req.draw,
+                'filterBy': req.filterBy,
+                'sortOrder': req.order[0].dir,
+                'sortBy': req.columns[columnIndex].data
+            }
+        }
+
+        if(('search' in req) && req.search.value !== ''){
          reqObj['search'] =   req.search.value;
         }
+
         callback(null,reqObj);
     };
     this.paginationRequest=function(data,key, callback) {
