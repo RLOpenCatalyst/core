@@ -124,14 +124,10 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
 
     if (orgIds.length > 0) {
         if (queryObjectAndCondition.providerId) {
-            filterQuery.queryObj['$and'][0].orgId = {
-                '$in': orgIds
-            }
+            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds}
         } else {
-            filterQuery.queryObj['$and'][0] = {
-                providerId: { '$ne': null },
-                orgId: { '$in': orgIds }
-            }
+            filterQuery.queryObj['$and'][0].providerId ={ '$ne': null };
+            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds};
         }
     }
 
