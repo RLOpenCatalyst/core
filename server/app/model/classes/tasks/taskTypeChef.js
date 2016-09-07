@@ -189,15 +189,1219 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
         return;
 
     } else {
+        runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete);
+    }
+};
+
+
+function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete) {
+    // SERIAL execution of task
+    logger.debug("SERIAL execution=======", JSON.stringify(self.executionOrder));
+    var executionOrder = true;
+    //if (self.executionOrder === "SERIAL") {
+    if (executionOrder) {
+        logger.debug("SERIAL execution=======");
+        var instanceIds = self.nodeIds;
+        if (!(instanceIds && instanceIds.length)) {
+            if (typeof onExecute === 'function') {
+                onExecute({
+                    message: "Empty Node List"
+                }, null);
+            }
+            return;
+        }
+
+        var count = 0;
+        var overallStatus = 0;
+        var instanceResultList = [];
+        var executionIds = [];
+        var instanceList = [];
+        var executeCount = 0;
+
+        function instanceOnCompleteHandler(err, status, instanceId, executionId, actionId) {
+            logger.debug('Instance onComplete fired', count);
+            count++;
+            var result = {
+                instanceId: instanceId,
+                status: 'success'
+            }
+            if (actionId) {
+                result.actionId = actionId;
+            }
+            if (executionId) {
+                result.executionId = executionId;
+            }
+            if (err) {
+                result.status = 'failed';
+                overallStatus = 1;
+            } else {
+                if (status === 0) {
+                    result.status = 'success';
+                } else {
+                    result.status = 'failed';
+                    overallStatus = 1;
+                }
+            }
+            instanceResultList.push(result);
+            if (!(count < instanceIds.length)) {
+                logger.debug('Type of onComplete: ' + typeof onComplete);
+                if (typeof onComplete === 'function') {
+                    onComplete(null, overallStatus, {
+                        instancesResults: instanceResultList
+                    });
+                }
+            }
+        }
+
+        function execute(id, callback) {
+
+            var obj = {};
+            //merging attributes Objects
+            var attributeObj = {};
+            var objectArray = [];
+            for (var i = 0; i < self.attributes.length; i++) {
+                objectArray.push(self.attributes[i].jsonObj);
+            }
+
+            instancesDao.getInstanceById(id, function(err, instances) {
+                if (err) {
+                    logger.error(err);
+                    if (typeof onExecute === 'function') {
+                        onExecute(err, null);
+                    }
+                    return;
+                }
+                var instance = instances[0];
+                instanceList.push(instance);
+                executeCount++;
+                var timestampStarted = new Date().getTime();
+                var actionLog = instancesDao.insertOrchestrationActionLog(instance._id, self.runlist, userName, timestampStarted);
+                instance.tempActionLogId = actionLog._id;
+                var instanceLog = {
+                    actionId: actionLog._id,
+                    instanceId: instance._id,
+                    orgName: instance.orgName,
+                    bgName: instance.bgName,
+                    projectName: instance.projectName,
+                    envName: instance.environmentName,
+                    status: instance.instanceState,
+                    actionStatus: "pending",
+                    platformId: instance.platformId,
+                    blueprintName: instance.blueprintData.blueprintName,
+                    data: instance.runlist,
+                    platform: instance.hardware.platform,
+                    os: instance.hardware.os,
+                    size: instance.instanceType,
+                    user: userName,
+                    createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
+                    providerType: instance.providerType,
+                    action: "Chef-Task-Run",
+                    logs: []
+                };
+                if (appData) {
+                    if (appData.promote) {
+                        instanceLog.action = "App Promote";
+                    } else {
+                        if (appData.upgrade) {
+                            instanceLog.action = "App Upgrade";
+                        } else {
+                            instanceLog.action = "App Deploy";
+                        }
+                    }
+                }
+
+                var logsReferenceIds = [instance._id, actionLog._id];
+                if (!instance.instanceIP) {
+                    var timestampEnded = new Date().getTime();
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: true,
+                        log: "Instance IP is not defined. Chef Client run failed",
+                        timestamp: timestampEnded
+                    });
+                    instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                    instanceLog.endedOn = new Date().getTime();
+                    instanceLog.actionStatus = "failed";
+                    instanceLog.logs = {
+                        err: true,
+                        log: "Instance IP is not defined. Chef Client run failed",
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+
+                    obj.instanceId = instance._id;
+                    obj.actionLogId = actionLog._id;
+                    obj.chefClientExecutionId = null;
+                    obj.message = "Instance IP is not defined. Chef Client run failed";
+                    obj.status = 1;
+
+                    /*instanceOnCompleteHandler({
+                        message: "Instance IP is not defined. Chef Client run failed"
+                    }, 1, instance._id, null, actionLog._id);*/
+                    callback(obj, null);
+                    return;
+                }
+                // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
+                if (appData) {
+                    if (appData.nexus && appData.nexus.nodeIds && appData.nexus.nodeIds.length) {
+                        logger.debug("Inside nexus....");
+                        objectArray.push({
+                            "rlcatalyst": {
+                                "nexusUrl": appData.nexus.repoURL
+                            }
+                        });
+                        objectArray.push({
+                            "rlcatalyst": {
+                                "version": appData.version
+                            }
+                        });
+                    }
+                    if (appData.docker && appData.docker.nodeIds && appData.docker.nodeIds.length) {
+                        logger.debug("Inside docker....");
+                        var containerValue = uuid.v4();
+                        if (appData.docker.containerName) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "containerId": appData.docker.containerName
+                                }
+                            });
+                        } else {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "containerId": containerValue
+                                }
+                            });
+                        }
+                        if (appData.docker.containerPort) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "containerPort": appData.docker.containerPort
+                                }
+                            });
+                        }
+                        if (appData.docker.image) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "dockerImage": appData.docker.image
+                                }
+                            });
+                        }
+
+                        if (appData.docker.hostPort) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "hostPort": appData.docker.hostPort
+                                }
+                            });
+                        }
+                        if (appData.docker.dockerUser) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "dockerUser": appData.docker.dockerUser
+                                }
+                            });
+                        }
+                        if (appData.docker.dockerPassword) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "dockerPassword": appData.docker.dockerPassword
+                                }
+                            });
+                        }
+                        if (appData.docker.dockerEmailId) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "dockerEmailId": appData.docker.dockerEmailId
+                                }
+                            });
+                        }
+                        if (appData.docker.imageTag) {
+                            objectArray.push({
+                                "rlcatalyst": {
+                                    "imageTag": appData.docker.imageTag
+                                }
+                            });
+                        }
+                    }
+
+                    if (appData.upgrade) {
+                        objectArray.push({
+                            "rlcatalyst": {
+                                "upgrade": appData.upgrade
+                            }
+                        });
+                    }
+                    objectArray.push({
+                        "rlcatalyst": {
+                            "applicationNodeIP": instance.instanceIP
+                        }
+                    });
+                    var nodeIds = [];
+                    var appVersion = "";
+                    var appName = "";
+                    var nexus = {};
+                    var docker = {};
+                    var port = 0;
+                    if (appData.nexus.artifactId === "D4D" || appData.nexus.artifactId === "core") {
+                        port = 3001;
+                    } else {
+                        port = 8080;
+                    }
+                    if (appData.nexus) {
+                        nexus['rowId'] = appData.nexus.rowId;
+                        nexus['repoURL'] = appData.nexus.repoURL;
+                        nexus['nodeIds'] = appData.nexus.nodeIds;
+                        nexus['artifactId'] = appData.nexus.artifactId;
+                        nexus['repository'] = appData.nexus.repository;
+                        nexus['groupId'] = appData.nexus.groupId;
+                        nexus['rowId'] = appData.nexus.rowId;
+                        nexus['taskId'] = appData.taskId;
+                        appName = appData.appName;
+                        appVersion = appData.version;
+                    }
+                    if (appData.docker) {
+                        containerIdOrName = "";
+                        if (appData.docker.containerName) {
+                            containerIdOrName = appData.docker.containerName;
+                        } else {
+                            containerIdOrName = containerValue;
+                        }
+                        docker['rowId'] = appData.docker.rowId;
+                        docker['image'] = appData.docker.image;
+                        docker['containerName'] = containerIdOrName;
+                        docker['containerPort'] = appData.docker.containerPort;
+                        docker['dockerUser'] = appData.docker.dockerUser;
+                        docker['dockerPassword'] = appData.docker.dockerPassword;
+                        docker['dockerEmailId'] = appData.docker.dockerEmailId;
+                        docker['imageTag'] = appData.docker.imageTag;
+                        docker['nodeIds'] = appData.docker.nodeIds;
+                        docker['hostPort'] = appData.docker.hostPort;
+                        docker['rowId'] = appData.docker.rowId;
+                        docker['taskId'] = appData.taskId;
+                        appName = appData.appName;
+                        appVersion = appData.docker.imageTag;
+                        port = appData.docker.containerPort;
+                    }
+                    var appInfo = {
+                        name: appName,
+                        version: appVersion,
+                        status: "",
+                        appURL: "http://" + instance.instanceIP + ":" + port
+                    };
+                    instancesDao.updateAppInfo(instance.instanceIP, appInfo, function(err, data1) {
+                        if (err) {
+                            logger.debug("Error: ", err);
+                        }
+                        logger.debug("data: ", JSON.stringify(data1));
+                    });
+                    nodeIds.push(instance.instanceIP);
+                    masterUtil.getEnvironmentName(instance.envId, function(err, envName) {
+                        var appDataObj = {
+                            "projectId": instance.projectId,
+                            "envName": envName,
+                            "appName": appName,
+                            "version": appVersion,
+                            "nexus": nexus,
+                            "docker": docker
+                        };
+                        AppData.createNewOrUpdate(appDataObj, function(err, data) {
+                            if (err) {
+                                logger.debug("Failed to create or update app-data: ", err);
+                            }
+                            if (data) {
+                                logger.debug("Created or Updated app-data successfully: ", data);
+                            }
+                        });
+                    });
+
+                    //logger.debug("AppDeploy attributes: ", JSON.stringify(objectArray));
+                    var attributeObj = utils.mergeObjects(objectArray);
+                    configmgmtDao.getChefServerDetails(instance.chef.serverId, function(err, chefDetails) {
+                        if (err) {
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
+                            instanceLog.logs = {
+                                err: true,
+                                log: "Chef Data Corrupted. Chef Client run failed",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+                            var timestampEnded = new Date().getTime();
+                            logsDao.insertLog({
+                                referenceId: logsReferenceIds,
+                                err: true,
+                                log: "Chef Data Corrupted. Chef Client run failed",
+                                timestamp: timestampEnded
+                            });
+                            instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+
+                            obj.instanceId = instance._id;
+                            obj.actionLogId = actionLog._id;
+                            obj.chefClientExecutionId = null;
+                            obj.message = err;
+                            obj.status = 1;
+                            callback(obj, null);
+                            //instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
+                            return;
+                        }
+                        if (!chefDetails) {
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
+                            instanceLog.logs = {
+                                err: true,
+                                log: "Chef Data Corrupted. Chef Client run failed",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+                            var timestampEnded = new Date().getTime();
+                            logsDao.insertLog({
+                                referenceId: logsReferenceIds,
+                                err: true,
+                                log: "Chef Data Corrupted. Chef Client run failed",
+                                timestamp: timestampEnded
+                            });
+                            instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+
+                            obj.instanceId = instance._id;
+                            obj.actionLogId = actionLog._id;
+                            obj.chefClientExecutionId = null;
+                            obj.message = "Chef Data Corrupted. Chef Client run failed";
+                            obj.status = 1;
+                            callback(obj, null);
+
+                            /*instanceOnCompleteHandler({
+                                message: "Chef Data Corrupted. Chef Client run failed"
+                            }, 1, instance._id, null, actionLog._id);*/
+                            return;
+                        }
+                        //decrypting pem file
+                        credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
+                            if (err) {
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
+                                instanceLog.logs = {
+                                    err: true,
+                                    log: "Unable to decrypt pem file. Chef run failed",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: true,
+                                    log: "Unable to decrypt pem file. Chef run failed",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+
+
+                                obj.instanceId = instance._id;
+                                obj.actionLogId = actionLog._id;
+                                obj.chefClientExecutionId = null;
+                                obj.message = err;
+                                obj.status = 1;
+                                callback(obj, null);
+
+                                //instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
+                                return;
+                            }
+
+                            ChefClientExecution.createNew({
+                                instanceId: instance._id
+
+                            }, function(err, chefClientExecution) {
+                                if (err) {
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: "Unable to generate chef run execution id. Chef run failed",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logsReferenceIds,
+                                        err: true,
+                                        log: "Unable to generate chef run execution id. Chef run failed",
+                                        timestamp: timestampEnded
+                                    });
+                                    instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+
+                                    obj.instanceId = instance._id;
+                                    obj.actionLogId = actionLog._id;
+                                    obj.chefClientExecutionId = null;
+                                    obj.message = err;
+                                    obj.status = 1;
+                                    callback(obj, null);
+
+                                    //instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
+                                    return;
+                                }
+
+                                var executionIdJsonAttributeObj = {
+                                    catalyst_attribute_handler: {
+                                        catalystCallbackUrl: baseUrl + '/chefClientExecution/' + chefClientExecution.id
+                                    }
+                                };
+
+                                var jsonAttributeObj = utils.mergeObjects([executionIdJsonAttributeObj, attributeObj]);
+                                var jsonAttributesString = JSON.stringify(jsonAttributeObj);
+
+                                var chef = new Chef({
+                                    userChefRepoLocation: chefDetails.chefRepoLocation,
+                                    chefUserName: chefDetails.loginname,
+                                    chefUserPemFile: chefDetails.userpemfile,
+                                    chefValidationPemFile: chefDetails.validatorpemfile,
+                                    hostedChefUrl: chefDetails.url,
+                                });
+
+                                var chefClientOptions = {
+                                    privateKey: decryptedCredentials.pemFileLocation,
+                                    username: decryptedCredentials.username,
+                                    host: instance.instanceIP,
+                                    instanceOS: instance.hardware.os,
+                                    port: 22,
+                                    runlist: self.runlist, // runing service runlist
+                                    jsonAttributes: jsonAttributesString,
+                                    overrideRunlist: true,
+                                    parallel: true
+                                }
+                                if (decryptedCredentials.pemFileLocation) {
+                                    chefClientOptions.privateKey = decryptedCredentials.pemFileLocation;
+                                } else {
+                                    chefClientOptions.password = decryptedCredentials.password;
+                                }
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "Executing Task",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: false,
+                                    log: "Executing Task",
+                                    timestamp: new Date().getTime()
+                                });
+                                chef.runChefClient(chefClientOptions, function(err, retCode) {
+                                    if (decryptedCredentials.pemFileLocation) {
+                                        fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
+                                            if (err) {
+                                                //logger.error("Unable to delete temp pem file =>", err);
+                                            } else {
+                                                logger.debug("temp pem file deleted");
+                                            }
+                                        });
+                                    }
+                                    if (err) {
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Unable to run chef-client",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: true,
+                                            log: 'Unable to run chef-client',
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+
+                                        obj.instanceId = instance._id;
+                                        obj.actionLogId = actionLog._id;
+                                        obj.chefClientExecutionId = chefClientExecution.id;
+                                        obj.message = "Unable to run chef-client";
+                                        obj.status = 1;
+                                        callback(obj, null);
+
+                                        //instanceOnCompleteHandler(err, 1, instance._id, chefClientExecution.id, actionLog._id);
+                                        return;
+                                    }
+                                    if (retCode == 0) {
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "success";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Task execution success",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: false,
+                                            log: 'Task execution success',
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
+
+                                        // Update Instance with docker status.
+                                        var _docker = new Docker();
+                                        _docker.checkDockerStatus(instance._id, function(err, retCode) {
+                                            if (err) {
+                                                logger.error("Failed _docker.checkDockerStatus", err);
+                                                return;
+                                                //res.end('200');
+
+                                            }
+                                            logger.debug('Docker Check Returned:' + retCode);
+                                            if (retCode == '0') {
+                                                instancesDao.updateInstanceDockerStatus(instance._id, "success", '', function(data) {
+                                                    logger.debug('Instance Docker Status set to Success');
+                                                });
+
+                                            }
+                                        });
+
+
+                                        obj.instanceId = instance._id;
+                                        obj.actionLogId = actionLog._id;
+                                        obj.chefClientExecutionId = chefClientExecution.id;
+                                        obj.message = "Task execution success.";
+                                        obj.status = 0;
+                                        callback(null, obj);
+
+                                        //instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
+                                        return;
+                                    } else {
+
+
+                                        //instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
+                                        if (retCode === -5000) {
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
+                                            instanceLog.logs = {
+                                                err: true,
+                                                log: "Host Unreachable",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: 'Host Unreachable',
+                                                timestamp: new Date().getTime()
+                                            });
+
+                                            obj.instanceId = instance._id;
+                                            obj.actionLogId = actionLog._id;
+                                            obj.chefClientExecutionId = chefClientExecution.id;
+                                            obj.message = "Host Unreachable";
+                                            obj.status = 1;
+                                            return callback(obj, null);
+                                        } else if (retCode === -5001) {
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
+                                            instanceLog.logs = {
+                                                err: true,
+                                                log: "Invalid credentials",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: 'Invalid credentials',
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
+
+                                            var _docker = new Docker();
+                                            _docker.checkDockerStatus(instance._id, function(err, retCode) {
+                                                if (err) {
+                                                    logger.error("Failed _docker.checkDockerStatus", err);
+                                                    return;
+                                                    //res.end('200');
+
+                                                }
+                                                //logger.debug('Docker Check Returned:' + retCode);
+                                                if (retCode == '0') {
+                                                    instancesDao.updateInstanceDockerStatus(instance._id, "success", '', function(data) {
+                                                        logger.debug('Instance Docker Status set to Success');
+                                                    });
+
+                                                }
+                                            });
+
+
+                                            obj.instanceId = instance._id;
+                                            obj.actionLogId = actionLog._id;
+                                            obj.chefClientExecutionId = chefClientExecution.id;
+                                            obj.message = "Invalid credentials";
+                                            obj.status = 1;
+                                            return callback(obj, null);
+                                            //instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
+
+                                        } else {
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
+                                            instanceLog.logs = {
+                                                err: true,
+                                                log: "Unknown error occured. ret code = " + retCode,
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: 'Unknown error occured. ret code = ' + retCode,
+                                                timestamp: new Date().getTime()
+                                            });
+                                        }
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: true,
+                                            log: 'Error in running chef-client',
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Error in running chef-client",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                    }
+                                }, function(stdOutData) {
+                                    logsDao.insertLog({
+                                        referenceId: logsReferenceIds,
+                                        err: false,
+                                        log: stdOutData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    });
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: stdOutData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                }, function(stdOutErr) {
+                                    logsDao.insertLog({
+                                        referenceId: logsReferenceIds,
+                                        err: true,
+                                        log: stdOutErr.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    });
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: stdOutErr.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                });
+                            });
+                        });
+
+                    });
+                } else {
+                    logger.debug("AppDeploy attributes: ", JSON.stringify(objectArray));
+                    var attributeObj = utils.mergeObjects(objectArray);
+                    configmgmtDao.getChefServerDetails(instance.chef.serverId, function(err, chefDetails) {
+                        if (err) {
+                            var timestampEnded = new Date().getTime();
+                            logsDao.insertLog({
+                                referenceId: logsReferenceIds,
+                                err: true,
+                                log: "Chef Data Corrupted. Chef Client run failed",
+                                timestamp: timestampEnded
+                            });
+                            instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
+                            instanceLog.logs = {
+                                err: true,
+                                log: "Chef Data Corrupted. Chef Client run failed",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+
+                            obj.instanceId = instance._id;
+                            obj.actionLogId = actionLog._id;
+                            obj.chefClientExecutionId = null;
+                            obj.message = "Chef Data Corrupted. Chef Client run failed";
+                            obj.status = 1;
+                            return callback(obj, null);
+
+                            //instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
+                            //return;
+                        }
+                        if (!chefDetails) {
+                            var timestampEnded = new Date().getTime();
+                            logsDao.insertLog({
+                                referenceId: logsReferenceIds,
+                                err: true,
+                                log: "Chef Data Corrupted. Chef Client run failed",
+                                timestamp: timestampEnded
+                            });
+                            instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
+                            instanceLog.logs = {
+                                err: true,
+                                log: "Chef Data Corrupted. Chef Client run failed",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+
+                            obj.instanceId = instance._id;
+                            obj.actionLogId = actionLog._id;
+                            obj.chefClientExecutionId = null;
+                            obj.message = "Chef Data Corrupted. Chef Client run failed";
+                            obj.status = 1;
+                            return callback(obj, null);
+
+                            /*instanceOnCompleteHandler({
+                                message: "Chef Data Corrupted. Chef Client run failed"
+                            }, 1, instance._id, null, actionLog._id);
+                            return;*/
+                        }
+                        //decrypting pem file
+                        credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
+                            if (err) {
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: true,
+                                    log: "Unable to decrypt pem file. Chef run failed",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
+                                instanceLog.logs = {
+                                    err: true,
+                                    log: "Unable to decrypt pem file. Chef run failed",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+
+                                obj.instanceId = instance._id;
+                                obj.actionLogId = actionLog._id;
+                                obj.chefClientExecutionId = null;
+                                obj.message = "Unable to decrypt pem file. Chef run failed";
+                                obj.status = 1;
+                                return callback(obj, null);
+
+                                //instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
+                                //return;
+                            }
+
+                            ChefClientExecution.createNew({
+                                instanceId: instance._id
+
+                            }, function(err, chefClientExecution) {
+                                if (err) {
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logsReferenceIds,
+                                        err: true,
+                                        log: "Unable to generate chef run execution id. Chef run failed",
+                                        timestamp: timestampEnded
+                                    });
+                                    instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: "Unable to generate chef run execution id. Chef run failed",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+
+                                    obj.instanceId = instance._id;
+                                    obj.actionLogId = actionLog._id;
+                                    obj.chefClientExecutionId = null;
+                                    obj.message = "Unable to generate chef run execution id. Chef run failed";
+                                    obj.status = 1;
+                                    return callback(obj, null);
+
+                                    //instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
+                                    //return;
+                                }
+
+                                var executionIdJsonAttributeObj = {
+                                    catalyst_attribute_handler: {
+                                        catalystCallbackUrl: baseUrl + '/chefClientExecution/' + chefClientExecution.id
+                                    }
+                                };
+
+                                var jsonAttributeObj = utils.mergeObjects([executionIdJsonAttributeObj, attributeObj]);
+                                var jsonAttributesString = JSON.stringify(jsonAttributeObj);
+
+                                var chef = new Chef({
+                                    userChefRepoLocation: chefDetails.chefRepoLocation,
+                                    chefUserName: chefDetails.loginname,
+                                    chefUserPemFile: chefDetails.userpemfile,
+                                    chefValidationPemFile: chefDetails.validatorpemfile,
+                                    hostedChefUrl: chefDetails.url,
+                                });
+
+                                var chefClientOptions = {
+                                    privateKey: decryptedCredentials.pemFileLocation,
+                                    username: decryptedCredentials.username,
+                                    host: instance.instanceIP,
+                                    instanceOS: instance.hardware.os,
+                                    port: 22,
+                                    runlist: self.runlist, // runing service runlist
+                                    jsonAttributes: jsonAttributesString,
+                                    overrideRunlist: true,
+                                    parallel: true
+                                }
+                                if (decryptedCredentials.pemFileLocation) {
+                                    chefClientOptions.privateKey = decryptedCredentials.pemFileLocation;
+                                } else {
+                                    chefClientOptions.password = decryptedCredentials.password;
+                                }
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: false,
+                                    log: "Executing Task",
+                                    timestamp: new Date().getTime()
+                                });
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "Executing Task",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                chef.runChefClient(chefClientOptions, function(err, retCode) {
+                                    if (decryptedCredentials.pemFileLocation) {
+                                        fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
+                                            if (err) {
+                                                logger.error("Unable to delete temp pem file =>", err);
+                                            } else {
+                                                logger.debug("temp pem file deleted");
+                                            }
+                                        });
+                                    }
+                                    if (err) {
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: true,
+                                            log: 'Unable to run chef-client',
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Unable to run chef-client",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+
+                                        obj.instanceId = instance._id;
+                                        obj.actionLogId = actionLog._id;
+                                        obj.chefClientExecutionId = chefClientExecution.id;
+                                        obj.message = "Unable to run chef-client";
+                                        obj.status = 1;
+                                        return callback(obj, null);
+
+                                        //instanceOnCompleteHandler(err, 1, instance._id, chefClientExecution.id, actionLog._id);
+                                        //return;
+                                    }
+                                    if (retCode == 0) {
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: false,
+                                            log: 'Task execution success',
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "success";
+                                        instanceLog.logs = {
+                                            err: false,
+                                            log: "Task execution success",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+
+                                        obj.instanceId = instance._id;
+                                        obj.actionLogId = actionLog._id;
+                                        obj.chefClientExecutionId = chefClientExecution.id;
+                                        obj.message = "Task execution success";
+                                        obj.status = 0;
+                                        return callback(null, obj);
+
+                                        //instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
+                                    } else {
+                                        //instanceOnCompleteHandler(null, retCode, instance._id, chefClientExecution.id, actionLog._id);
+                                        if (retCode === -5000) {
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: 'Host Unreachable',
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
+                                            instanceLog.logs = {
+                                                err: true,
+                                                log: "Host Unreachable",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                            obj.instanceId = instance._id;
+                                            obj.actionLogId = actionLog._id;
+                                            obj.chefClientExecutionId = chefClientExecution.id;
+                                            obj.message = "Host Unreachable";
+                                            obj.status = 1;
+                                            return callback(obj, null);
+                                        } else if (retCode === -5001) {
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: 'Invalid credentials',
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
+                                            instanceLog.logs = {
+                                                err: true,
+                                                log: "Invalid credentials",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+
+                                            obj.instanceId = instance._id;
+                                            obj.actionLogId = actionLog._id;
+                                            obj.chefClientExecutionId = chefClientExecution.id;
+                                            obj.message = "Invalid credentials";
+                                            obj.status = 1;
+                                            return callback(obj, null);
+                                        } else {
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: 'Unknown error occured. ret code = ' + retCode,
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
+                                            instanceLog.logs = {
+                                                err: true,
+                                                log: 'Unknown error occured. ret code = ' + retCode,
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                        }
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: true,
+                                            log: 'Error in running chef-client',
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Error in running chef-client",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+
+                                        obj.instanceId = instance._id;
+                                        obj.actionLogId = actionLog._id;
+                                        obj.chefClientExecutionId = chefClientExecution.id;
+                                        obj.message = "Unknown error occured. ret code";
+                                        obj.status = 1;
+                                        return callback(obj, null);
+                                    }
+                                }, function(stdOutData) {
+                                    logsDao.insertLog({
+                                        referenceId: logsReferenceIds,
+                                        err: false,
+                                        log: stdOutData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    });
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: stdOutData.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                }, function(stdOutErr) {
+                                    logsDao.insertLog({
+                                        referenceId: logsReferenceIds,
+                                        err: true,
+                                        log: stdOutErr.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    });
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: stdOutErr.toString('ascii'),
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                });
+                            });
+                        });
+
+                    });
+                }
+
+                if (typeof onExecute === 'function') {
+                    onExecute(null, {
+                        instances: [instance],
+                    });
+                }
+            });
+        };
+
+        var count = 0;
+
+        function taskComplete(err, obj) {
+            count++;
+            if (err) {
+                instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
+                logger.debug("Encountered with Error: ", err);
+                return;
+            }
+            if (count < instanceIds.length) {
+                logger.debug("execute with task: ");
+                execute(instanceIds[count], taskComplete);
+            } else {
+                logger.debug("Task success");
+                instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
+            }
+        }
+
+        execute(instanceIds[count], taskComplete);
+
+    } else {
+        // PARALLEL execution of task
         //merging attributes Objects
         var attributeObj = {};
         var objectArray = [];
-        for (var i = 0; i < self.attributes.length; i++) {
-            objectArray.push(self.attributes[i].jsonObj);
-        }
+        if (self.attributes)
+            for (var i = 0; i < self.attributes.length; i++) {
+                objectArray.push(self.attributes[i].jsonObj);
+            }
 
-        var instanceIds = this.nodeIds;
-
+        var instanceIds = self.nodeIds;
 
         function getInstances(role, instanceIds, callback) {
             if (role) {
@@ -288,8 +1492,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
             }
 
         }
-        logger.debug('role ==>', self.role);
-        getInstances(self.role, instanceIds, function(err, instances) {
+        //logger.debug('role ==>', self.role);
+        getInstances(this.role, instanceIds, function(err, instances) {
             if (err) {
                 logger.error(err);
                 if (typeof onExecute === 'function') {
@@ -550,7 +1754,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                             name: appName,
                             version: appVersion,
                             status: "",
-                            appURL: "http://"+instance.instanceIP+":"+port
+                            appURL: "http://" + instance.instanceIP + ":" + port
                         };
                         instancesDao.updateAppInfo(instance.instanceIP, appInfo, function(err, data1) {
                             if (err) {
