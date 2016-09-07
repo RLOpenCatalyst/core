@@ -150,3 +150,4 @@ To decrease the back and forth in issues, and to help us get to the bottom of th
 
    Creates an apiDoc of all files within dir myapp/, uses template from dir mytemplate/ and put all output to dir apidoc/.
    Without any parameter, apiDoc generate a documentation from all .cs .dart .erl .go .java .js .php .py .rb .ts files in current dir (incl. subdirs) and writes the output to ./doc/.
+   [![Code Climate](https://codeclimate.com/github/RLOpenCatalyst/core/badges/gpa.svg)](https://codeclimate.com/github/RLOpenCatalyst/core)
