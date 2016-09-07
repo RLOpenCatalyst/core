@@ -1,0 +1,62 @@
+ .form-controls {
+     display: inline;
+     height: 32px;
+     padding: 6px 12px;
+     font-size: 13px;
+     line-height: 1.428571429;
+     color: #555;
+     vertical-align: middle;
+     background-color: #fff;
+     background-image: none;
+     border: 1px solid #ccc;
+     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+     height: 36px;
+ }
+
+ .page-name {
+     font-size: 18px;
+     margin: 5px 0 15px 10px;
+ }
+
+ .providerSelect {
+     float: right;
+ }
+
+ .borderTop {
+     border-top: 1px dashed #ddd;
+ }
+
+ .marginTop20 {
+     margin-top: 20px;
+ }
+
+ .marginBottom15 {
+     margin-bottom: 15px;
+     font-size: 15px;
+ }
+
+ .footer {
+     background: none repeat scroll 0 0 white;
+     bottom: 0;
+     left: 0;
+     position: fixed;
+     right: 0;
+ }
+
+ .form-actions {
+     display: block;
+     padding: 13px 14px 15px;
+     border-top: 1px solid rgba(0, 0, 0, .1);
+     background: rgba(249, 249, 249, .9);
+     margin-left: -13px;
+     margin-right: -13px;
+ }
+
+ .orgClass {
+     font-weight: 200;
+     font-size: 16px;
+ }
+ 
+ .orgWidth {
+     width: 45%;
+ }

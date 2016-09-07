@@ -19,7 +19,7 @@ function getOrgProjBUComparison(data, id) {
             if (bgID == tdata[i].productgroupname_rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintBU').val(tdata[i].productgroupname);
                 $blueprintLaunch.find('.modal-body #blueprintBuEnv').val(tdata[i].productgroupname);
-                $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val((tdata[i].productgroupname);
+                $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(tdata[i].productgroupname);
             }
             if (projID == tdata[i].rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintProject').val(tdata[i].projectname);
