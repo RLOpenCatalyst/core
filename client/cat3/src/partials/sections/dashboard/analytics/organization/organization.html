@@ -1,247 +1,165 @@
 <link rel='stylesheet' href='src/partials/sections/dashboard/analytics/organization/organization.css'>
-<div class="container">
-<div class="col-xs-12 headingDashboard">
-    <div class="pull-left">
-        <h2>Organization Dashboard</h2>
+
+<div id="cloudAnalyticsDashboard">
+    <div class="container">
+        <div class="col-xs-12 headingDashboard">
+            <div class="pull-left">
+                <!-- <h2>{{}} Dashboard</h2> -->
+                <h2>Organization Dashboard</h2>
+            </div>
+            <span class="pull-right filters">
+                <button type="button" title="Filters" class="btn btn-xs cat-btn-update" ng-click="fnShowFilters()">
+                    <i class="fa fa-fw fa-filter white"></i> Filters
+                </button>
+            </span>
+            <!-- <div class="pull-right">
+                <h3>ENVIRONMENT 1</h3>
+                <h4>Cost center:   Cost Center Relevance Lab (15008)</h4>
+            </div> -->
+        </div>
+        <!-- <div style="position: fixed;margin: -33px 0 0 -253px;color: #fff;font-size: 16px;">
+            Provider: 
+            <select>
+                <option>AWS</option>
+                <option>AZURE</option>
+                <option>OPENSTACK</option>
+                <option>VMWARE</option>
+            </select>
+        </div> -->
     </div>
-    <div class="pull-right">
-        <h3>ENVIRONMENT 1</h3>
-        <h4>Cost center:   Cost Center Relevance Lab (15008)</h4>
+
+    <div id="sidebar-wrapper" ng-show="openFilters">
+        <form>
+            <fieldset class="repo-job-details-wrapper">
+                <legend class="repo-job-details-wrapper-inner">Filter:</legend>
+                <div class="col-lg-12 ">
+                    <div class="col-lg-12 col-md-12 form-group">
+                        <label for="">Organisation</label>
+                        <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
+                            <option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-12 col-md-12 form-group">
+                        <label for="">Business Group</label>
+                        <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
+                            <option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-12 col-md-12 form-group">
+                        <label >Project</label>
+                        <select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+                            <option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-12 col-md-12 form-group">
+                        <label >Environment</label>
+                        <select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+                            <option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-12 col-md-12 form-group">
+                        <button type="button" class="btn btn-primary" ng-click="fnApplyFilters();"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
     </div>
-</div>
-</div>
-<div class="clear"></div>
-<section class="col-lg-12" style="margin:20px 10px;">
+
+    <div class="clear"></div>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-left header-wrapper">
+        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 pull-left">
+            <div class="btn-group" role="group" aria-label="...">
+              <!-- <button type="button" class="btn btn-sm btn-warning" ng-click="">DAY</button> --><!-- background-color: #ec971f -->
+              <button type="button" class="btn btn-sm btn-warning" ng-click="">WEEK</button>
+              <button type="button" class="btn btn-sm btn-warning" ng-click="">MONTH</button>
+              <!-- <button type="button" class="btn btn-sm btn-warning" ng-click="">YEAR</button> -->
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pull-left total-cost">
+            <span>Total Cost :</span>
+            <span>{{totalCost}}</span>
+        </div>
+    </div>
     <div>
-    <div class="col-xs-6 pull-left" style="padding: 20px;">
-        <div class="btn-group" role="group" aria-label="...">
-          <button type="button" class="btn btn-sm btn-warning">DAY</button>
-          <button type="button" class="btn btn-sm btn-warning">WEEK</button>
-          <button type="button" class="btn btn-sm btn-warning">MONTH</button>
-          <button type="button" class="btn btn-sm btn-warning">YEAR</button>
+        <div class="row text-center">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-left">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pull-left pie-chart">
+                    <h4><u>Cost across Business Units</u></h4>
+                    <!--place holder for D3 pie-chart-->
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pull-right bar-chart">
+                    <h4><u>Distribution of all services across BU's</u></h4>
+                    <!--place holder for D3 bar-chart-->
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-left line-chart">
+                <h4><u>Daily Trends of Cost across BU's</u></h4>
+                <!--place holder for D3 line-chart-->
+            </div>
         </div>
     </div>
-    
-    <div class="col-xs-6 pull-right" style="text-align:right; padding:20px;">
-    <div class="btn-group" role="group" aria-label="...">
-      <button type="button" class="btn btn-sm btn-info">COST</button>
-      <button type="button" class="btn btn-sm btn-info">USAGE</button>
-    </div>
+    <img src="../cat3/images/Catalyst.png" style="position: absolute;right: 2px;display: none" />
+    <!-- <img src="../cat3/images/org-pie-chart.png" style="margin: 0 0 0 12px;" />
+    <img src="../cat3/images/org-bar-chart.png" style="margin: 0 0 0 70px;" />
+    <img src="../cat3/images/org-trends.png" style="margin: 20px 0 0 150px;" /> -->
+    <!-- <img src="../cat3/images/org-pie-chart-usage.png" style="margin: 0 0 0 12px;" />
+    <img src="../cat3/images/org-bar-chart-usage.png" style="margin: 0 0 0 70px;" />
+    <img src="../cat3/images/org-trends-usage.png" style="margin: 20px 0 0 150px;" /> -->
 </div>
-</div>
-<div class="clear"></div>
-<div class="row col-lg-12 table-width">
-    <div class="col-lg-6 x1">
-        <h2> Aug 2</h2>
-        <div style="margin:16px 0;">
-        <span class="x-form-item-label-default">Spent</span>
-        <span class="title1 pull-right">
-        <span class="scalr-currency">$0.00
-        </span>
-        </span>
-        </div>
-        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
-        <div style="margin:16px 0;">
-        <span class="x-form-item-label-default">24-hour rolling average</span>
-        <span class="title1 pull-right">
-        <span class="scalr-currency">$0.00/hour
-        </span>
-        </span>
-        </div>
-        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
-        <div style="margin:16px 0;">
-        <span class="x-form-item-label-default">Day Estimate</span>
-        <span class="title1 pull-right">
-        <span class="scalr-currency">~ $0.00
-        </span>
-        </span>
-        </div>
-
-        
-    </div>
-    <div class="col-lg-5 x1 col-lg-offset-1">
-        <h2> Cost distribution</h2>
-        <div style="margin:16px 0;">
-        <span class="x-form-item-label-default">Compute</span>
-        <span class="title1 pull-right">
-        <span class="scalr-currency">N/A
-        </span>
-        </span>
-        </div>
-        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
-        <div style="margin:16px 0;">
-        <span class="x-form-item-label-default">Bandwidth</span>
-        <span class="title1 pull-right">
-        <span class="scalr-currency">N/A
-        </span>
-        </span>
-        </div>
-        <div style="border-top: 1px solid #dbdbdb; margin:10px;"></div>
-        <div style="margin:16px 0;">
-        <span class="x-form-item-label-default">Storage</span>
-        <span class="title1 pull-right">
-        <span class="scalr-currency">N/A
-        </span>
-        </span>
-        </div>
-
-        
-    </div>
-</div>
-
-</section>
-
-<section>
-    <div class="row col-lg-12" style="margin-bottom: 20px">
-        <section class="col-lg-12">
-        <div class="box-header">
-            <h3>Graphs <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
-            <img src="images/cloudAnalytics/line-chart-main-1.png" style="margin-left: 160px;height: 400px;margin-top: 10px;"/>
-        </div>
-
-        </section>
-
-    </div>
-</section>
-
-
-<section>
-    <div class="row col-lg-12" style="margin-bottom: 20px">
-        <section class="col-lg-6 col-graph">
-        <div class="box-header">
-            <h3>Graphs <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
-            <img src="images/cloudAnalytics/line-chart.png" style="margin-left: 80px;height: 240px"/>
-        </div>
-
-        </section>
-        <section class="col-lg-6 col-lg-offset-1 col-graph">
-            <div class="box-header">
-            <h3>Sales <span class="fa fa-angle-down pull-right" style="color:#fff;"></span></h3>
-            <img src="images/cloudAnalytics/graph1-new.png" style="margin-left: 107px;height: 240px"/>
-        </div>
-
-        </section>
-
-    </div>
-</section>
-
 
 <style>
-.col-graph {
-    width: 49%;
-}
-.col-lg-offset-1 {
-    margin-left: 1.333%;
-}
-.table-width {
-    background: #f1f5f8;
-    float: none;
-    margin: auto;
-    width: 96%;
-    padding: 10px 0;
-    border: 1px solid #e4e6e6;
-}
-.x1 h2{
-    text-align: center;
-    color: #224164;
-    font-size: 1.2em;
-    border-bottom: 1px dotted #e9e9e9;
-    padding-bottom: 20px;
-}
-.x-form-item-label-default {
-    font-size: 1em;
-    font-weight: 600;
-    color: #3e709d;
-}
-.title1 {
-    font-size: 1.4em;
-    color: #224164;
-    font-weight: bold;
-}
-section.col-lg-6, section.col-lg-5, section.col-lg-12 {
-    border-radius: 3px;
-    box-shadow: 0 2px 2px #ccc;
-    min-height: 300px;
-    background: #fff;
-    border-top: 4px solid #46b8da;
-    padding:0 0 20px 0;
-}
-
-.box-header h3 {
-    background: #46b8da;
-    color: #fff;
-    font-size: 1em;
-    padding: 10px;
-    margin: 0;
-}
-
-    .panelRight {
-       margin: 0 5px;
-    }
-
-    .stats-count-wrapper {
-        padding-bottom: 10px;
-    }
-
-    .tile_stats_count {
-        border-right: 1px solid #ddd;
-    }
-
-    .count-min {
-        font-size: 14px;
-    }
-
-    .widget-fa {
-        font-size: 60px;
-        color: #fff;
+    #cloudAnalyticsDashboard {
+        margin-bottom: 20px;
     }
 
     .active {
         background: #3e648e;
     }
 
-    .navbar-nav > li {
-        line-height: 30px;
-        padding: 0 12px;
-        cursor: pointer;
-    }
     .headingDashboard {
         text-align: right;
         border-bottom: 1px dashed #bbb;
     }
-    .headingDashboard h3{
+
+    .headingDashboard h2 {
+        margin-top: 10px;
+    }
+
+    .headingDashboard h3 {
         font-size: 1em;
     }
-    .headingDashboard h4{
+
+    .headingDashboard h4 {
         font-size: .9em;
         color: #aaa;
     }
 
+    .header-wrapper {
+        padding: 15px 0;
+    }
 
-.fa.pull-right {
-    margin-left: 0.1em;   
-}
+    .total-cost {
+        margin-top: 5px;
+    }
 
+    .fa .pull-right {
+        margin-left: 0.1em;   
+    }
 
+    .filters {
+        margin-top: 9px;
+    }
 
+    #sidebar-wrapper {
+        width: 250px;
+        position: absolute;
+        right: 5px;
+        background: #ddd;
+        z-index: 100;
+    }
 
-.list-group a{
-    padding: 30px 0;
-}
-
-.widget-12 {
-    border: 1px solid #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 1px #e8e8e8, 0 0 15px #f2f2f2 inset;
-    margin: 20px 0;
-    padding: 20px;
-}
-
-
-
-
-
+    .pie-chart, .bar-chart, .line-chart {
+        min-height: 250px;
+        border: 1px dashed #bbb;
+    }
 </style>
-
-
-
