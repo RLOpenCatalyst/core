@@ -383,58 +383,82 @@ function getCostForServices(provider,callback) {
     /*This the Dimension that is required to passed for different services*/
     var ec2Dim = [ { Name: 'ServiceName',Value: 'AmazonEC2'},{ Name: 'Currency', Value: 'USD'} ];
     var rdsDim = [ { Name: 'ServiceName',Value: 'AmazonRDS'},{ Name: 'Currency', Value: 'USD'} ];
-    var ec2Cost = 0, rdsCost = 0;
     /*Getting the cost of EC2 & RDS for the current day*/
-    cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentCost)
-    {
+    async.parallel({
+        ec2Cost:function(callback){
+            var ec2Cost = 0;
+            cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentEC2Cost) {
+                if (err) {
+                    callback(err, null);
+                }
+                cw.getTotalCost(startDateOne, endDate, 'Minimum', ec2Dim, function (err, yesterdayEC2Cost) {
+                    if (err) {
+                        callback(err, null);
+                    }else if (typeof presentEC2Cost === "undefined" && typeof yesterdayEC2Cost === "undefined"){
+                        callback(null,ec2Cost);
+                    }else if(presentEC2Cost.Maximum && yesterdayEC2Cost.Minimum) {
+                        ec2Cost = presentEC2Cost['Maximum'] - yesterdayEC2Cost['Minimum'];
+                        callback(null, ec2Cost);
+                    }else {
+                        callback(null, ec2Cost);
+                    }
+                });
+            });
+        },
+        rdsCost:function(callback){
+            var rdsCost = 0;
+            cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRDSCost) {
+                if (err) {
+                    callback(err, null);
+                }
+                cw.getTotalCost(startDateOne, endDate, 'Minimum', rdsDim, function (err, yesterdayRDSCost) {
+                    if (err) {
+                        callback(err, null);
+                    }else if (typeof presentRDSCost === "undefined" && typeof yesterdayRDSCost === "undefined"){
+                        callback(null,rdsCost);
+                    }else if(presentRDSCost.Maximum && yesterdayRDSCost.Minimum) {
+                        rdsCost = presentRDSCost['Maximum'] - yesterdayRDSCost['Minimum'];
+                        callback(null, rdsCost);
+                    }else {
+                        callback(null, rdsCost);
+                    }
+                });
+            });
+        }
+
+    },function(err,results){
         if(err){
             callback(err,null);
-        }
-        cw.getTotalCost(startDateOne,endDate,'Minimum',ec2Dim,function(err,yesterdayCost)
-        {
-            if(err){
-                callback(err,null);
-            }
-            ec2Cost = presentCost['Maximum'] - yesterdayCost['Minimum'];
-        });
-        cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRdsCost)
-        {
-            if(err){
-                callback(err,null);
-            }
-            cw.getTotalCost(startDateOne,endDate,'Minimum',rdsDim,function(err,yesterdayRdsCost)
-            {
-                if(err){
-                    callback(err,null);
+            return;
+        }else {
+            var awsResourceCostObject = {
+                organisationId: provider.orgId,
+                providerId: provider._id,
+                providerType: provider.providerType,
+                providerName: provider.providerName,
+                resourceType: "serviceCost",
+                resourceId: "serviceCost",
+                aggregateResourceCost: results.ec2Cost + results.rdsCost,
+                costMetrics: {
+                    ec2Cost: results.ec2Cost,
+                    rdsCost: results.rdsCost,
+                    currency: 'USD',
+                    symbol: "$"
+                },
+                updatedTime: Date.parse(endDate),
+                startTime: Date.parse(endDate),
+                endTime: Date.parse(startDateOne)
+            };
+            resourceCost.saveResourceCost(awsResourceCostObject, function (err, resourceCostData) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                } else {
+                    callback(null, resourceCostData);
+                    return;
                 }
-                rdsCost = presentRdsCost['Maximum'] - yesterdayRdsCost['Minimum'];
-                var awsResourceCostObject = {
-                    organisationId: provider.orgId,
-                    providerId: provider._id,
-                    providerType: provider.providerType,
-                    providerName: provider.providerName,
-                    resourceType: "serviceCost",
-                    resourceId: "serviceCost",
-                    aggregateResourceCost:ec2Cost + rdsCost,
-                    costMetrics : {
-                        ec2Cost:ec2Cost,
-                        rdsCost:rdsCost,
-                        currency:'USD',
-                        symbol:"$"
-                    },
-                    updatedTime : Date.parse(endDate),
-                    startTime: Date.parse(endDate),
-                    endTime: Date.parse(startDateOne)
-                };
-                resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                    if(err){
-                        callback(err,null);
-                    } else{
-                        callback(null,resourceCostData);
-                    }
-                })
-            });
-        });
+            })
+        }
     });
 }
 

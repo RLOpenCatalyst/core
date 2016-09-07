@@ -3429,19 +3429,23 @@ function isFormValid(formid) {
 						isValid = false;
 						errormessageforInput(currCtrl.attr('id'), "Atleast 8 characters required.");
 						currCtrl.focus();
-					}
-					if (!/\d/.test(str)) {
-						errormessageforInput(currCtrl.attr('id'), "Atleast a number required.");
-						currCtrl.focus();
-					}
-					if (!/[a-z]/.test(str)) {
-						errormessageforInput(currCtrl.attr('id'), "Atleast a lower case char is required.");
-						currCtrl.focus();
-					}
+					}else{
+						if (!/\d/.test(str)) {
+							isValid = false;
+							errormessageforInput(currCtrl.attr('id'), "Atleast a number required.");
+							currCtrl.focus();
+						}
+						if (!/[a-z]/.test(str)) {
+							isValid = false;
+							errormessageforInput(currCtrl.attr('id'), "Atleast a lower case char is required.");
+							currCtrl.focus();
+						}
 
-					if (!/[!@#$%^&*]/.test(str)) {
-						errormessageforInput(currCtrl.attr('id'), "Atleast a special char is required.");
-						currCtrl.focus();
+						if (!/[!@#$%^&*]/.test(str)) {
+							isValid = false;
+							errormessageforInput(currCtrl.attr('id'), "Atleast a special char is required.");
+							currCtrl.focus();
+						}
 					}
 					break;
 
