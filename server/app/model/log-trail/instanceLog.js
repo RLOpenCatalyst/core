@@ -68,18 +68,20 @@ var InstanceLog = function() {
                 return callback(err, null);
             }
             if (data && data.length > 0) {
+                var logObj = {
+                    status:logData.status,
+                    action:logData.action,
+                    actionStatus:logData.actionStatus,
+                    logs:logData.logs
+                };
+                if(logData.endedOn){
+                    logObj.endedOn = logData.endedOn;
+                };
                 InstanceLogs.update({
                     actionId: actionId,
                     instanceId: instanceId
                 }, {
-                    $set: {
-                        status:logData.status,
-                        action:logData.action,
-                        user:logData.user,
-                        createdOn: logData.createdOn,
-                        startedOn: logData.startedOn,
-                        endedOn: logData.endedOn
-                    }
+                    $set: logObj
                 }, {
                     upsert: false
                 }, function(err, updatedData) {
