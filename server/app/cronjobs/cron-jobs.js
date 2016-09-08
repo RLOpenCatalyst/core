@@ -26,6 +26,7 @@ var dockerContainerSync = require('_pr/cronjobs/docker-container-sync');
 var awsRDSS3ProviderSync = require('_pr/cronjobs/provider-rds-s3-sync');
 var chefSync = require('_pr/cronjobs/chef-sync');
 var appSync = require('_pr/cronjobs/app-sync');
+var taskSync = require('_pr/cronjobs/task-sync');
 
 module.exports.start = function start() {
 
@@ -59,5 +60,9 @@ module.exports.start = function start() {
 	logger.info('App Sync started with interval ==> '+ appSync.getInterval());
 	var appSyncJobId
 		= crontab.scheduleJob(appSync.getInterval(), appSync.execute);
+
+	logger.info('Task Sync started with interval ==> '+ taskSync.getInterval());
+	var taskSyncJobId
+		= crontab.scheduleJob(taskSync.getInterval(), taskSync.execute);
 
 }

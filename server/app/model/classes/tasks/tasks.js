@@ -117,6 +117,18 @@ var taskSchema = new Schema({
         type: String,
         required: true,
         trim: true
+    },
+    userName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    isScheduled: {
+        type: Boolean,
+        default: false
+    },
+    cron: {
+        type: String
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -817,6 +829,19 @@ taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConf
         logger.debug('Updated task:' + updateCount);
         return callback(null, updateCount);
 
+    });
+};
+
+taskSchema.statics.getScheduledTask = function(callback) {
+    this.find({
+        "isScheduled": true
+    }, function(err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        return callback(null, data);
     });
 };
 

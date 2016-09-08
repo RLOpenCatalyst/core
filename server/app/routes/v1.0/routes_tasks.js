@@ -23,7 +23,7 @@ var Application = require('_pr/model/classes/application/application');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var logger = require('_pr/logger')(module);
-var taskService = require('_pr/services/taskService.js')
+var taskService = require('_pr/services/taskService.js');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 

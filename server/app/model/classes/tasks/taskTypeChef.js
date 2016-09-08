@@ -198,7 +198,6 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
 function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete) {
     // SERIAL execution of task
     var executionOrder = self.executionOrder;
-    //if (self.executionOrder === "SERIAL") {
     if (executionOrder === "SERIAL") {
         logger.debug("SERIAL execution:");
         var instanceIds = self.nodeIds;

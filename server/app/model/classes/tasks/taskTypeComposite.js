@@ -162,7 +162,8 @@ function parallelExecution(that, userName, baseUrl, choiceParam, nexusData, blue
                 taskList[t].execute(userName, baseUrl, choiceParam, nexusData, taskList[t].blueprintIds, envId, function(err, taskExecuteData, history) {
                     logger.debug("Calling...");
                     if (err) {
-                        console.error(err);
+                    	onComplete(null, 1);
+                        logger.error("error: "+err);
                         return;
                     }
                     if (!(taskHistory.taskHistoryIds && taskHistory.taskHistoryIds.length)) {
@@ -175,6 +176,7 @@ function parallelExecution(that, userName, baseUrl, choiceParam, nexusData, blue
                     taskHistory.save();
                 }, function(err, status) {
                     if (err) {
+                    	logger.error("error: ",err);
                         if (typeof onComplete === 'function') {
                             onComplete(null, 1);
                         }

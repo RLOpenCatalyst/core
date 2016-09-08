@@ -1319,6 +1319,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         taskData.projectId = req.params.projectId;
         taskData.envId = req.params.envId;
         taskData.autoSyncFlag = req.body.taskData.autoSyncFlag;
+        taskData.userName =  req.session.user.cn;
 
         masterUtil.getParticularProject(req.params.projectId, function(err, project) {
             if (err) {
