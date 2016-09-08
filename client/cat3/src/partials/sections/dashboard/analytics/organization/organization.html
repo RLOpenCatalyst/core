@@ -1,10 +1,9 @@
 <link rel='stylesheet' href='src/partials/sections/dashboard/analytics/organization/organization.css'>
 
 <div id="cloudAnalyticsDashboard">
-    <div class="container">
-        <div class="col-xs-12 headingDashboard">
+    <div class="container1">
+        <div class="col-xs-12 headingDashboard no-padding">
             <div class="pull-left">
-                <!-- <h2>{{}} Dashboard</h2> -->
                 <h2>Organization Dashboard</h2>
             </div>
             <span class="pull-right filters">
@@ -12,27 +11,14 @@
                     <i class="fa fa-fw fa-filter white"></i> Filters
                 </button>
             </span>
-            <!-- <div class="pull-right">
-                <h3>ENVIRONMENT 1</h3>
-                <h4>Cost center:   Cost Center Relevance Lab (15008)</h4>
-            </div> -->
         </div>
-        <!-- <div style="position: fixed;margin: -33px 0 0 -253px;color: #fff;font-size: 16px;">
-            Provider: 
-            <select>
-                <option>AWS</option>
-                <option>AZURE</option>
-                <option>OPENSTACK</option>
-                <option>VMWARE</option>
-            </select>
-        </div> -->
     </div>
 
     <div id="sidebar-wrapper" ng-show="openFilters">
         <form>
             <fieldset class="repo-job-details-wrapper">
                 <legend class="repo-job-details-wrapper-inner">Filter:</legend>
-                <div class="col-lg-12 ">
+                <div class="col-lg-12">
                     <div class="col-lg-12 col-md-12 form-group">
                         <label for="">Organisation</label>
                         <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
@@ -67,7 +53,7 @@
 
     <div class="clear"></div>
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-left header-wrapper">
-        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 pull-left">
+        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 pull-left btn-wrapper">
             <div class="btn-group" role="group" aria-label="...">
               <!-- <button type="button" class="btn btn-sm btn-warning" ng-click="">DAY</button> --><!-- background-color: #ec971f -->
               <button type="button" class="btn btn-sm btn-warning" ng-click="">WEEK</button>
@@ -82,7 +68,7 @@
     </div>
     <div>
         <div class="row text-center">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pull-left">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pull-left pie-chart">
                     <h4><u>Cost across Business Units</u></h4>
                     <!--place holder for D3 pie-chart-->
@@ -98,68 +84,4 @@
             </div>
         </div>
     </div>
-    <img src="../cat3/images/Catalyst.png" style="position: absolute;right: 2px;display: none" />
-    <!-- <img src="../cat3/images/org-pie-chart.png" style="margin: 0 0 0 12px;" />
-    <img src="../cat3/images/org-bar-chart.png" style="margin: 0 0 0 70px;" />
-    <img src="../cat3/images/org-trends.png" style="margin: 20px 0 0 150px;" /> -->
-    <!-- <img src="../cat3/images/org-pie-chart-usage.png" style="margin: 0 0 0 12px;" />
-    <img src="../cat3/images/org-bar-chart-usage.png" style="margin: 0 0 0 70px;" />
-    <img src="../cat3/images/org-trends-usage.png" style="margin: 20px 0 0 150px;" /> -->
 </div>
-
-<style>
-    #cloudAnalyticsDashboard {
-        margin-bottom: 20px;
-    }
-
-    .active {
-        background: #3e648e;
-    }
-
-    .headingDashboard {
-        text-align: right;
-        border-bottom: 1px dashed #bbb;
-    }
-
-    .headingDashboard h2 {
-        margin-top: 10px;
-    }
-
-    .headingDashboard h3 {
-        font-size: 1em;
-    }
-
-    .headingDashboard h4 {
-        font-size: .9em;
-        color: #aaa;
-    }
-
-    .header-wrapper {
-        padding: 15px 0;
-    }
-
-    .total-cost {
-        margin-top: 5px;
-    }
-
-    .fa .pull-right {
-        margin-left: 0.1em;   
-    }
-
-    .filters {
-        margin-top: 9px;
-    }
-
-    #sidebar-wrapper {
-        width: 250px;
-        position: absolute;
-        right: 5px;
-        background: #ddd;
-        z-index: 100;
-    }
-
-    .pie-chart, .bar-chart, .line-chart {
-        min-height: 250px;
-        border: 1px dashed #bbb;
-    }
-</style>
