@@ -3373,7 +3373,7 @@ function isFormValid(formid) {
 					//regex from stackoverflow(check-if-url-is-valid-or-not)
 					if (/(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/.test(str) == false) {
 						isValid = false;
-						errormessageforInput(currCtrl.attr('id'), "&nbsp;<i>Please enter a valid URL.<i>");
+						errormessageforInput(currCtrl.attr('id'), "Please enter a valid URL");
 						currCtrl.focus();
 					}
 					break;

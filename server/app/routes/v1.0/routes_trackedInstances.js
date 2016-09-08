@@ -110,16 +110,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     }
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
-               /* function(filterQuery, next) {
-                    // @TODO Modify to work without sessions as well
-                    userService.getUserOrgs(req.session.user, function(err, orgs) {
-                        if(err) {
-                            next(err);
-                        } else {
-                            instanceService.validateListInstancesQuery(orgs, filterQuery, next);
-                        }
-                    });
-                },*/
+                function(filterQuery, next) {
+                    if(filterQuery.queryObj['$and'][0].orgId){
+                        next(null,filterQuery);
+                    }else {
+                        // @TODO Modify to work without sessions as well
+                        userService.getUserOrgs(req.session.user, function (err, orgs) {
+                            if (err) {
+                                next(err);
+                            } else {
+                                instanceService.validateListInstancesQuery(orgs, filterQuery, next);
+                            }
+                        });
+                    }
+                },
                 function(filterQuery, next) {
                     instanceService.getTrackedInstances(filterQuery,category, next);
                 },

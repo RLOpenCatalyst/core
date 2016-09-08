@@ -1933,7 +1933,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         status: nodeAlive,
                                                         actionStatus: "waiting",
                                                         platformId: req.body.fqdn,
-                                                        blueprintName: "",
+                                                        blueprintName: req.body.fqdn,
                                                         data: [],
                                                         platform: "unknown",
                                                         os: req.body.os,
