@@ -92,6 +92,7 @@ module.exports = function (grunt) {
                     {'catalyst/partials/sections/dashboard/setting/setting.css': 'src/partials/sections/dashboard/setting/setting.scss'},
                     {'catalyst/partials/sections/dashboard/analytics/analytics.css': 'src/partials/sections/dashboard/analytics/analytics.scss'},
                     {'catalyst/partials/sections/dashboard/analytics/analyticsTreeMenu/analyticsTreeMenu.css': 'src/partials/sections/dashboard/analytics/analyticsTreeMenu/analyticsTreeMenu.scss'},
+                    {'catalyst/partials/sections/dashboard/analytics/organization/organization.css': 'src/partials/sections/dashboard/analytics/organization/organization.scss'}
                 ]
             }
         },
