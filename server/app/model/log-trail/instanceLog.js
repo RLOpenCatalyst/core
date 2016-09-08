@@ -72,6 +72,7 @@ var InstanceLog = function() {
                     status:logData.status,
                     action:logData.action,
                     actionStatus:logData.actionStatus,
+                    user:logData.user,
                     logs:logData.logs
                 };
                 if(logData.endedOn){
