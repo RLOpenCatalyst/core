@@ -1516,7 +1516,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId','os','state'];
+                    paginationReq['searchColumns'] = ['ip', 'platformId','os','state','providerData.region'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },
