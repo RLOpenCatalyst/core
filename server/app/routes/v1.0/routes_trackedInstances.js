@@ -112,7 +112,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(filterQuery, next) {
                     if(filterQuery.queryObj['$and'][0].orgId){
-                        next(null,filterQuery);
+                        if(filterQuery.queryObj['$and'][0].providerId){
+                            next(null,filterQuery);
+                        }else{
+                            filterQuery.queryObj['$and'][0].providerId ={ '$ne': null };
+                            next(null,filterQuery);
+                        }
                     }else {
                         // @TODO Modify to work without sessions as well
                         userService.getUserOrgs(req.session.user, function (err, orgs) {
