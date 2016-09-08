@@ -26,91 +26,170 @@ var TaskHistory = require('./taskHistory');
 
 
 var compositeTaskSchema = taskTypeSchema.extend({
-	assignTasks: [String]
+    assignTasks: [String],
+    executionOrder: String
 });
 
 // Instance Method :- run composite task
 
 compositeTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
-	var Tasks;
-	var taskHistory = new TaskHistory();
-	if (!Tasks) {
-		Tasks = require('_pr/model/classes/tasks/tasks.js');
-	}
-	var that = this;
-	Tasks.getTaskByIds(this.assignTasks, function(err, tasks) {
-		if (err) {
-			if (typeof onExecute === 'function') {
-				onExecute(err, null);
-			}
-			return;
-		}
+    var that = this;
+    if (that.executionOrder === "SERIAL") {
+        serialExecution(that, userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete);
+    } else {
+        parallelExecution(that, userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete);
+    }
+};
 
-		if (typeof onExecute === 'function') {
-			onExecute(null, null, taskHistory);
-		}
+function serialExecution(that, userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
+    var Tasks;
+    var taskHistory = new TaskHistory();
+    if (!Tasks) {
+        Tasks = require('_pr/model/classes/tasks/tasks.js');
+    }
+    Tasks.getTaskByIds(this.assignTasks, function(err, tasks) {
+        if (err) {
+            if (typeof onExecute === 'function') {
+                onExecute(err, null);
+            }
+            return;
+        }
+
+        if (typeof onExecute === 'function') {
+            onExecute(null, null, taskHistory);
+        }
 
 
-		task = [];
-		var assignTask = that.assignTasks;
-		for (var i = 0; i < assignTask.length; i++) {
-			for (var j = 0; j < tasks.length; j++) {
-				logger.debug("matched...... ", tasks[j].id);
-				if (assignTask[i] === tasks[j].id) {
-					task.push(tasks[j]);
-				}
-			}
-		}
-		count = 0;
+        task = [];
+        var assignTask = that.assignTasks;
+        for (var i = 0; i < assignTask.length; i++) {
+            for (var j = 0; j < tasks.length; j++) {
+                logger.debug("matched...... ", tasks[j].id);
+                if (assignTask[i] === tasks[j].id) {
+                    task.push(tasks[j]);
+                }
+            }
+        }
+        count = 0;
 
-		logger.debug('tasks length', task.length);
+        logger.debug('tasks length', task.length);
 
-		function executeTasks(count) {
+        function executeTasks(count) {
 
-			task[count].execute(userName, baseUrl, choiceParam, nexusData, task[count].blueprintIds, envId, function(err, taskExecuteData, history) {
-				logger.debug("Calling...");
-				if (err) {
-					console.error(err);
-					return;
-				}
-				if (!(taskHistory.taskHistoryIds && taskHistory.taskHistoryIds.length)) {
-					taskHistory.taskHistoryIds = [];
-				}
-				taskHistory.taskHistoryIds.push({
-					taskId: task[count].id,
-					historyId: history.id
-				});
-				taskHistory.save();
-			}, function(err, status) {
-				if (err) {
-					if (typeof onComplete === 'function') {
-						onComplete(null, 1);
-					}
-					return;
-				}
-				count++;
-				logger.debug("count ", count);
-				if (count < tasks.length) {
-					if (status === 0) {
-						executeTasks(count);
-					} else {
-						onComplete(null, 1);
-					}
-				} else {
-					if (status === 0) {
-						onComplete(null, 0);
-					} else {
-						logger.debug('firing failure');
-						onComplete(null, 1);
-					}
-				}
+            task[count].execute(userName, baseUrl, choiceParam, nexusData, task[count].blueprintIds, envId, function(err, taskExecuteData, history) {
+                logger.debug("Calling...");
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                if (!(taskHistory.taskHistoryIds && taskHistory.taskHistoryIds.length)) {
+                    taskHistory.taskHistoryIds = [];
+                }
+                taskHistory.taskHistoryIds.push({
+                    taskId: task[count].id,
+                    historyId: history.id
+                });
+                taskHistory.save();
+            }, function(err, status) {
+                if (err) {
+                    if (typeof onComplete === 'function') {
+                        onComplete(null, 1);
+                    }
+                    return;
+                }
+                count++;
+                logger.debug("count ", count);
+                if (count < tasks.length) {
+                    if (status === 0) {
+                        executeTasks(count);
+                    } else {
+                        onComplete(null, 1);
+                    }
+                } else {
+                    if (status === 0) {
+                        onComplete(null, 0);
+                    } else {
+                        logger.debug('firing failure');
+                        onComplete(null, 1);
+                    }
+                }
 
-			});
-		}
+            });
+        }
 
-		executeTasks(count);
-	});
-	logger.debug(this.assignTasks);
+        executeTasks(count);
+    });
+    logger.debug(this.assignTasks);
+
+};
+
+function parallelExecution(that, userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
+    logger.debug("parallelExecution:");
+    var Tasks;
+    var taskHistory = new TaskHistory();
+    if (!Tasks) {
+        Tasks = require('_pr/model/classes/tasks/tasks.js');
+    }
+    var assignTask = that.assignTasks;
+    Tasks.getTaskByIds(assignTask, function(err, tasks) {
+        if (err) {
+            if (typeof onExecute === 'function') {
+                onExecute(err, null);
+            }
+            return;
+        }
+
+        if (typeof onExecute === 'function') {
+            onExecute(null, null, taskHistory);
+        }
+
+
+        taskList = [];
+        logger.debug("=====assignTask=== ", JSON.stringify(tasks));
+        for (var i = 0; i < assignTask.length; i++) {
+            for (var j = 0; j < tasks.length; j++) {
+                logger.debug("matched...... ", tasks[j].id);
+                if (assignTask[i] === tasks[j].id) {
+                    taskList.push(tasks[j]);
+                }
+            }
+        }
+        count = 0;
+
+        logger.debug('tasks length', taskList.length);
+        for (var t = 0; t < taskList.length; t++) {
+            (function(t) {
+                taskList[t].execute(userName, baseUrl, choiceParam, nexusData, taskList[t].blueprintIds, envId, function(err, taskExecuteData, history) {
+                    logger.debug("Calling...");
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    if (!(taskHistory.taskHistoryIds && taskHistory.taskHistoryIds.length)) {
+                        taskHistory.taskHistoryIds = [];
+                    }
+                    taskHistory.taskHistoryIds.push({
+                        taskId: taskList[t].id,
+                        historyId: history.id
+                    });
+                    taskHistory.save();
+                }, function(err, status) {
+                    if (err) {
+                        if (typeof onComplete === 'function') {
+                            onComplete(null, 1);
+                        }
+                        return;
+                    }
+                    if (status === 0) {
+                        onComplete(null, 0);
+                    } else {
+                        logger.debug('firing failure');
+                        onComplete(null, 1);
+                    }
+                });
+            })(t);
+        }
+    });
 };
 
 var CompositeTask = mongoose.model('compositeTask', compositeTaskSchema);

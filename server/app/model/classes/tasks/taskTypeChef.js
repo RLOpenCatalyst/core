@@ -47,7 +47,8 @@ var chefTaskSchema = taskTypeSchema.extend({
         name: String,
         jsonObj: {}
     }],
-    role: String
+    role: String,
+    executionOrder: String
 });
 
 //Instance Methods :- getNodes
@@ -196,11 +197,10 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
 
 function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete) {
     // SERIAL execution of task
-    logger.debug("SERIAL execution=======", JSON.stringify(self.executionOrder));
-    var executionOrder = true;
+    var executionOrder = self.executionOrder;
     //if (self.executionOrder === "SERIAL") {
-    if (executionOrder) {
-        logger.debug("SERIAL execution=======");
+    if (executionOrder === "SERIAL") {
+        logger.debug("SERIAL execution:");
         var instanceIds = self.nodeIds;
         if (!(instanceIds && instanceIds.length)) {
             if (typeof onExecute === 'function') {
@@ -215,8 +215,6 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
         var overallStatus = 0;
         var instanceResultList = [];
         var executionIds = [];
-        var instanceList = [];
-        var executeCount = 0;
 
         function instanceOnCompleteHandler(err, status, instanceId, executionId, actionId) {
             logger.debug('Instance onComplete fired', count);
@@ -253,7 +251,7 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
             }
         }
 
-        function execute(id, callback) {
+        function execute(flag, id, callback) {
 
             var obj = {};
             //merging attributes Objects
@@ -272,8 +270,6 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                     return;
                 }
                 var instance = instances[0];
-                instanceList.push(instance);
-                executeCount++;
                 var timestampStarted = new Date().getTime();
                 var actionLog = instancesDao.insertOrchestrationActionLog(instance._id, self.runlist, userName, timestampStarted);
                 instance.tempActionLogId = actionLog._id;
@@ -1363,10 +1359,12 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                     });
                 }
 
-                if (typeof onExecute === 'function') {
-                    onExecute(null, {
-                        instances: [instance],
-                    });
+                if (flag) {
+                    if (typeof onExecute === 'function') {
+                        onExecute(null, {
+                            instances: [instance],
+                        });
+                    }
                 }
             });
         };
@@ -1382,14 +1380,14 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
             }
             if (count < instanceIds.length) {
                 logger.debug("execute with task: ");
-                execute(instanceIds[count], taskComplete);
+                execute(false, instanceIds[count], taskComplete);
             } else {
                 logger.debug("Task success");
                 instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
             }
         }
 
-        execute(instanceIds[count], taskComplete);
+        execute(true, instanceIds[count], taskComplete);
 
     } else {
         // PARALLEL execution of task
