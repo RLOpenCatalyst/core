@@ -150,6 +150,41 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
+	app.get('/aws/providers/organizations/:orgId', function(req, res) {
+		var orgId = req.params.orgId.trim();
+		if (typeof orgId === 'undefined' || orgId === null) {
+			logger.debug("Org Id is not there");
+			res.status(500).send([]);
+			return;
+		}
+		AWSProvider.getAWSProvidersByOrgId(orgId, function(err, providers) {
+			if (err) {
+				logger.error(err);
+				res.status(500).send(errorResponses.db.error);
+				return;
+			}else if (providers.length > 0) {
+				var providerList = [];
+				for(var i = 0;i < providers.length;i++) {
+					var providerObj = {
+						_id: providers[i]._id,
+						id: 9,
+						providerName: providers[i].providerName,
+						providerType: providers[i].providerType,
+						s3BucketName: providers[i].s3BucketName,
+						orgId: providers[i].orgId
+					};
+					providerList.push(providerObj);
+					providerObj ={};
+					if(providerList.length === providers.length) {
+						res.send(providerList);
+					}
+				}
+			} else {
+				res.send(404);
+			}
+		});
+	});
+
 	app.all("/aws/providers/*", sessionVerificationFunc);
 	var cryptoConfig = appConfig.cryptoSettings;
 	var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);

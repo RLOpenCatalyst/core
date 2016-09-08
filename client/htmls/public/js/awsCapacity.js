@@ -1,4 +1,7 @@
 $(document).ready(function() {
+    //toastr config
+    toastr.options.closeButton = true;
+    toastr.options.closeDuration = 2000;
     var urlproviderId,
         managedTotal = 0,
         unmanagedTotal = 0,
@@ -8,13 +11,17 @@ $(document).ready(function() {
         unManagedData = 0,
         unAssignedData = 0;
         $('#instanceActionListLoader').show();
-    
-    function clearInstance(){
+
+    function clearInstance() {
         unmanagedTotal = managedTotal = unassigned = managedunmanagedTotal = 0;
         $('#totalManagedInstances').html(managedTotal);
         $('#totalUnmanagedInstances').html(unmanagedTotal);
         $('#totalUnAssignedInstances').html(unassigned);
         $('#totalInstances').html(managedunmanagedTotal);
+        $('#instanceTableContainer').hide();
+        $('#instanceAssignedContainer').hide();
+        $('#instanceUnAssignedContainer').hide();
+        $('.footer').addClass('hidden');
     }
 
     $("#refreshBtn").click(function() {
@@ -24,62 +31,64 @@ $(document).ready(function() {
         getUnassignedInstances();
     });
 
-    var orgId;
-    $.get("/d4dMasters/readmasterjsonnew/1", function(data){
-        for(var i =0;i<data.length;i++){
+    var orgId, orgProviderId;
+    $.get("/d4dMasters/readmasterjsonnew/1", function(data) {
+        for (var i = 0; i < data.length; i++) {
             $("#orgDropdown").append($("<option></option>").val(data[i].rowid).html(data[i].orgname));
         }
         orgId = data[0].rowid;
-        $("#orgDropdown").change(function(e){
+        $("#orgDropdown").change(function(e) {
             clearInstance();
             orgId = $("#orgDropdown").val();
+            $("#providerDropdown").find("option:gt(0)").remove();
             getManagedInstances();
             getAssignedInstances();
             getUnassignedInstances();
+            awsProviders(orgId);
+            $('#instanceActionListLoader').show();
         });
         $("#orgDropdown").trigger("change");
     });
 
     //ajax call to get the list of aws providiers.
-    $.ajax({
-        type: 'GET',
-        url: '../aws/providers',
-        success: function(data, success) {
-            if (data.length === 0) {
-                $('.providerSelect').addClass('hidden');
-                $('.noTrackItems').removeClass('hidden');
-            } else {
-                for (var i = 0; i < data.length; i++) {
-                    $('.providerSelect').removeClass('hidden');
-                   // $("#providerDropdown").append($("<option></option>").val(data[i]._id).html(data[i].providerName));
-                }
-            }
-        }
-    });
-
-    $.get("/d4dMasters/readmasterjsonnew/4", function(tdata) {
-        for (var i = 0; i < tdata.length; i += 1) {
-            console.log(tdata);
-            var envNames = tdata[i].environmentname;
-            var envIds = tdata[i].environmentname_rowid;
-            var $projectOption = $('<option></option>').val(tdata[i].rowid).html(tdata[i].projectname).attr('envId',envIds).attr('envName',envNames);
-            $('.filterProjectId').append($projectOption);
-            $('.filterProjectId').change(function(e) {
-                $('.filterEnvId').empty();
-                var element = $("option:selected", this);
-                var envCheckId = element.attr("envId").split(',');
-                var envName = element.attr("envName").split(',');  
-                if(envCheckId.length === envName.length){
-                        for (var j = 0; j < envName.length; j++) {
-                        console.log(envName[j]);
-                        var $option = $('<option></option>').val(envName[j]).html(envName[j]);
-                        $('.filterEnvId').append($option);
+    function awsProviders(orgId) {
+        $.ajax({
+            type: 'GET',
+            url: '../aws/providers/organizations/' + orgId,
+            success: function(data, success) {
+                if (data.length === 0) {
+                    $('.providerValues').addClass('hidden');
+                    $('.noProviderView').show();
+                } else {
+                    for (var i = 0; i < data.length; i++) {
+                        $('.noProviderView').hide();
+                        $('.providerValues').removeClass('hidden');
+                        $("#providerDropdown").append($("<option></option>").val(data[i]._id).html(data[i].providerName).attr('rowId', data[i]._id));
                     }
-                }   
-            });
-            $('.filterProjectId').trigger('change');
-        }
-    });
+                    $("#providerDropdown").change(function(e) {
+                        var element = $("option:selected", this);
+                        orgProviderId = element.attr("rowId");
+                        clearInstance();
+                        if (orgProviderId) {
+                            getManagedInstances();
+                            getAssignedInstances();
+                            getUnassignedInstances();
+                        } else {
+                            getManagedInstances();
+                            getAssignedInstances();
+                            getUnassignedInstances();
+                        }
+                    });
+                    $("#providerDropdown").trigger("change");
+                }
+            },
+            error :function() {
+                $('.providerValues').addClass('hidden');
+                $('.noProviderView').show();
+                $('#instanceActionListLoader').hide();
+          }
+        });
+    }
 
     function updateTotalCount(type, count) {
         if (type === "managed") {
@@ -100,43 +109,61 @@ $(document).ready(function() {
         }
     }
 
-    function getManagedInstances(){
+    function getManagedInstances() {
         $('#instanceActionListLoader').show();
+        var urlManagedNoProvider, urlManagedProvider;
+        if (orgProviderId) {
+            urlManagedNoProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+        } else {
+            urlManagedProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId;
+        }
         $.ajax({
             type: "get",
             dataType: "json",
             async: false,
-            url: "../tracked-instances?category=managed&filterBy=orgId:"+orgId,
+            url: (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
             success: function(data) {
                 managedData = data.recordsTotal;
                 updateTotalCount("managed", managedData);
                 $('#instanceActionListLoader').hide();
             }
-        });    
+        });
     }
-    
-    function getAssignedInstances(){
+
+    function getAssignedInstances() {
         $('#instanceActionListLoader').show();
+        var urlManagedNoProvider, urlManagedProvider;
+        if (orgProviderId) {
+            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+        } else {
+            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId;
+        }
         $.ajax({
             type: "get",
             dataType: "json",
             async: false,
-            url: "../tracked-instances?category=assigned&filterBy=orgId:"+orgId,
+            url: (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
             success: function(data) {
                 unManagedData = data.recordsTotal;
                 updateTotalCount("assigned", unManagedData);
                 $('#instanceActionListLoader').hide();
             }
-        });    
+        });
     }
-    
-    function getUnassignedInstances(){
+
+    function getUnassignedInstances() {
         $('#instanceActionListLoader').show();
+        var urlManagedNoProvider, urlManagedProvider;
+        if (orgProviderId) {
+            urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+        } else {
+            urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId;
+        }
         $.ajax({
             type: "get",
             dataType: "json",
             async: false,
-            url: "../tracked-instances?category=unassigned&filterBy=orgId:"+orgId,
+            url: (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
             success: function(data) {
                 unAssignedData = data.recordsTotal;
                 updateTotalCount("unassigned", unAssignedData);
@@ -145,10 +172,11 @@ $(document).ready(function() {
                 updateTotalCount("managedunmanaged", totalInstances);
                 $('#instanceActionListLoader').hide();
             }
-        });    
+        });
     }
-    
+
     $('#totalManagedInstancesMoreInfo').on('click', function() {
+        //$(this).css('box-shadow', '10px 10px 5px #888');
         loadAllManagedInstances();
         $('#instanceTableContainer').show();
         $('#instanceAssignedContainer').hide();
@@ -156,6 +184,7 @@ $(document).ready(function() {
     });
 
     $('#totalUnManagedInstancesMoreInfo').on('click', function() {
+        //$(this).css('box-shadow', '10px 10px 5px #888');
         loadAllUnManagedInstances();
         $('#instanceTableContainer').hide();
         $('#instanceUnAssignedContainer').hide();
@@ -163,6 +192,7 @@ $(document).ready(function() {
     });
 
     $('#totalUnAssignedInstancesMoreInfo').on('click', function() {
+        //$(this).addClass('shadow');
         getUnassignedInstancesWithProjectAndEnv();
         $('#instanceTableContainer').hide();
         $('#instanceAssignedContainer').hide();
@@ -170,12 +200,18 @@ $(document).ready(function() {
     });
 
     function loadAllManagedInstances() {
+        var urlManagedNoProvider, urlManagedProvider;
+        if (orgProviderId) {
+            urlManagedNoProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+        } else {
+            urlManagedProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId;
+        }
         $('.footer').addClass('hidden');
         $('#instanceListTable').DataTable({
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": '/tracked-instances?category=managed&filterBy=orgId:'+orgId,
+            "ajax": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
             "columns": [{
                 "data": "platformId",
                 "orderable": true
@@ -185,7 +221,7 @@ $(document).ready(function() {
                 "render": function(data) {
                     return data ? data : '';
                 }
-            },{
+            }, {
                 "data": "bgName",
                 "orderable": false,
                 "render": function(data) {
@@ -214,12 +250,18 @@ $(document).ready(function() {
     }
 
     function loadAllUnManagedInstances() {
+        var urlManagedNoProvider, urlManagedProvider;
+        if (orgProviderId) {
+            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+        } else {
+            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId;
+        }
         $('.footer').addClass('hidden');
         $('#instanceAssignedTable').DataTable({
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": '/tracked-instances?category=assigned&filterBy=orgId:'+orgId,
+            "ajax": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
             "columns": [{
                 "data": "platformId",
                 "orderable": true
@@ -251,23 +293,23 @@ $(document).ready(function() {
         });
     }
 
-    /*//loading UnAssigned Data
-    function getUnassignedData(key) {
-        
-    };*/
-
-
     function getUnassignedInstancesWithProjectAndEnv() {
+        var urlManagedNoProvider, urlManagedProvider;
+        if (orgProviderId) {
+            urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+        } else {
+            urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId;
+        }
         $('.footer').removeClass('hidden');
         $('#instanceUnassignedTable').DataTable({
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": '/tracked-instances?category=unassigned&filterBy=orgId:'+orgId,
+            "ajax": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
             "createdRow": function(row, data) {
                 $(row).attr({
                     "instanceId": data._id,
-                    "urlproviderId":data.providerId
+                    "urlproviderId": data.providerId
                 })
             },
             "columns": [{
@@ -295,12 +337,9 @@ $(document).ready(function() {
                 "render": function(data, type, full) {
                     if (full.projectTag !== null) {
                         var tagValue = full.projectTag;
-                        return '<input class="form-control projectTagName" type="text" value="' + tagValue + '"/>';
-                    } /*else if (envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
-                        var tagValue = full.tags[envProjectMappingObject.project];
-                        return '<input class="form-control projectTagName"  type="text" value="' + tagValue + '"/>';
-                    }*/ else {
-                        return '<input class="form-control projectTagName" type="text" placeholder="Enter a project tag value" value=""/>';
+                        return '<input class="form-controls projectTagName" type="text" value="' + tagValue + '"/>';
+                    } else {
+                        return '<input class="form-controls projectTagName" type="text" placeholder="Enter a project tag value" value=""/>';
                     }
                 }
             }, {
@@ -309,18 +348,16 @@ $(document).ready(function() {
                 "render": function(data, type, full) {
                     if (full.environmentTag !== null) {
                         var tagValue = full.environmentTag;
-                        return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
-                    } /*else if (envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
-                        var tagValue = full.tags[envProjectMappingObject.environment];
-                        return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
-                    } */else {
-                        return '<input class="form-control envTagName" placeholder="Enter a environment tag value" type="text" value=""/>';
+                        return '<input class="form-controls envTagName" type="text" value="' + tagValue + '"/>';
+                    } else {
+                        return '<input class="form-controls envTagName" placeholder="Enter a environment tag value" type="text" value=""/>';
                     }
                 }
-            },{
-                "data": "platformId","orderable" : false,
-                "render":function(data,type,full,meta){
-                    if(full.platformId){
+            }, {
+                "data": "platformId",
+                "orderable": false,
+                "render": function(data, type, full, meta) {
+                    if (full.platformId) {
                         return '<input class="nodeCheckBox" type="checkbox" val=""/>';
                     }
                 }
@@ -329,73 +366,72 @@ $(document).ready(function() {
     }
 
     $('#unassignedSyncBtn').on('click', function(e) {
-            var updateInstanceTagsObj = {};
-            var updateInstanceTagsArr = [];
-            var providerId,projectTagsMapName,envTagsMapName;
-            var $checkBox_checked = $('#instanceUnassignedTable').find('tbody tr').filter(':has(:checkbox:checked)');
-            if($checkBox_checked.length > 0) {
-                $('#instanceUnassignedTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function () {
-                    //Batch update instances tags
-                    var updateUniqueInstanceTagsObj = {};
-                    providerId = $(this).attr("urlproviderId");
-                    var instanceId = $(this).attr("instanceId");
-                    var envProjectMappingObject = {}; 
-                    var projectTagName = $(this).find('.projectTagName').val();
-                    var envTagName = $(this).find('.envTagName').val();
-                    $.get('/providers/' + providerId + '/tag-mappings', function(tagsListSelected) {
-                        if (tagsListSelected) {
-                            
-                            for (var i = 0; i < tagsListSelected.length; i++) {
-                                var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
-                                var objtagName = tagsListSelected[i].tagName;
-                                //Creating an object to map with unassigned instances(To get data for project and environment in every row)
-                                if (objcatalystEntityType == 'project') {
-                                    envProjectMappingObject['project'] = objtagName;
-                                }
-                                if (objcatalystEntityType == 'environment') {
-                                    envProjectMappingObject['environment'] = objtagName;
-                                }
-                                console.log(envProjectMappingObject.project,envProjectMappingObject.environment);
-                                projectTagsMapName = envProjectMappingObject.project;
-                                envTagsMapName = envProjectMappingObject.environment;
+        var updateInstanceTagsObj = {};
+        var updateInstanceTagsArr = [];
+        var providerId, projectTagsMapName, envTagsMapName;
+        var $checkBox_checked = $('#instanceUnassignedTable').find('tbody tr').filter(':has(:checkbox:checked)');
+        if ($checkBox_checked.length > 0) {
+            $('#instanceUnassignedTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function() {
+                //Batch update instances tags
+                $('#instanceActionListLoader').show();
+                var updateUniqueInstanceTagsObj = {};
+                providerId = $(this).attr("urlproviderId");
+                var instanceId = $(this).attr("instanceId");
+                var envProjectMappingObject = {};
+                var projectTagName = $(this).find('.projectTagName').val();
+                var envTagName = $(this).find('.envTagName').val();
+                $.get('/providers/' + providerId + '/tag-mappings', function(tagsListSelected) {
+                    if (tagsListSelected) {
+                        for (var i = 0; i < tagsListSelected.length; i++) {
+                            var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
+                            var objtagName = tagsListSelected[i].tagName;
+                            //Creating an object to map with unassigned instances(To get data for project and environment in every row)
+                            if (objcatalystEntityType == 'project') {
+                                envProjectMappingObject['project'] = objtagName;
                             }
-                            updateUniqueInstanceTagsObj["id"] = instanceId;
-                            updateUniqueInstanceTagsObj["tags"] = {};
-                            updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
-                            updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
-                            console.log(projectTagName,envTagName);
-                            console.log(updateUniqueInstanceTagsObj);
-                            updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
-                            updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
-                            console.log(updateInstanceTagsObj["instances"],updateInstanceTagsArr);
-                            $.ajax({
-                                url: '/providers/' + providerId + '/unassigned-instances',
-                                data: JSON.stringify(updateInstanceTagsObj),
-                                type: 'PATCH',
-                                contentType: "application/json",
-                                success: function (data) {
-                                    $('.margintop-25left250').fadeIn();
-                                    $('#spanunassignedformSaveId').text('Updated successfully');
-                                    $('.margintop-25left250').delay(2000).fadeOut();
-                                },
-                                error: function (jqxhr) {
-                                    alert(jqxhr.responseJSON.message);
-                                }
-                            }); 
+                            if (objcatalystEntityType == 'environment') {
+                                envProjectMappingObject['environment'] = objtagName;
+                            }
+                            projectTagsMapName = envProjectMappingObject.project;
+                            envTagsMapName = envProjectMappingObject.environment;
                         }
-                    }).fail(function(jxhr) {
-                        var msg = "Tag mappings not loaded as behaved unexpectedly.";
-                        if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                            msg = jxhr.responseJSON.message;
-                        } else if (jxhr.responseText) {
-                            msg = jxhr.responseText;
-                        }
-                        bootbox.alert(msg);
-                    });
-                                       
+                        updateUniqueInstanceTagsObj["id"] = instanceId;
+                        updateUniqueInstanceTagsObj["tags"] = {};
+                        updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
+                        updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
+                        updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
+                        updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
+                        $.ajax({
+                            url: '/providers/' + providerId + '/unassigned-instances',
+                            data: JSON.stringify(updateInstanceTagsObj),
+                            type: 'PATCH',
+                            contentType: "application/json",
+                            success: function(data) {
+                                $('.margintop-25left250').fadeIn();
+                                toastr.success('Tag Updated successfully');
+                                $('.margintop-25left250').delay(2000).fadeOut();
+                                $('#instanceActionListLoader').hide();
+                            },
+                            error: function(jqxhr) {
+                                toastr.error(jqxhr.responseJSON.message);
+                                $('#instanceActionListLoader').hide();
+                            }
+                        });
+                    }
+                }).fail(function(jxhr) {
+                    var msg = "Tag mappings not loaded as behaved unexpectedly.";
+                    if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                        msg = jxhr.responseJSON.message;
+                    } else if (jxhr.responseText) {
+                        msg = jxhr.responseText;
+                    }
+                    toastr.error(msg);
+                    $('#instanceActionListLoader').hide();
                 });
-            }else{
-                alert("Please select corresponding check-box for updating tags");
-            }
-        });
+
+            });
+        } else {
+            toastr.error("Please select corresponding check-box for updating tags");
+        }
+    });
 });

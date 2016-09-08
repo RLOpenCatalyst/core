@@ -8,16 +8,24 @@
       <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
       <link rel="stylesheet" type="text/css" href="css/Dashboard.css">
       <link rel="stylesheet" type="text/css" href="css/capacity.css">
+      <link rel="stylesheet" type="text/css" href="../private/css/toastr.min.css">
       <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
       <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+      <script type="text/javascript" src="../private/js/toastr.min.js"></script>
    </head>
    <body>
       <div id="instanceActionListLoader" style="display: none">
-         <img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
+         <img class="center-block" src="img/loading.gif" />
       </div>
-      <div class="page-name">AWS Capacity Report
-         <span class="providerSelect hidden col-lg-4 col-md-4 col-xs-12">
+      <div class="page-name">AWS Capacity Report&nbsp;
+         <span class="providerSelect providerValues hidden col-lg-4 col-md-4 col-xs-12">
+         <label class="orgClass" for="">Choose AWS Provider:&nbsp;</label>
+         <select class="form-controls orgWidth" id ="providerDropdown">
+            <option value="ALL">All</option>
+         </select>
+         </span>
+         <span class="providerSelect orgNames col-lg-4 col-md-4 col-xs-12">
          <label class="orgClass" for="">Choose Organization:&nbsp;</label>
          <select class="form-controls orgWidth" id ="orgDropdown">
          </select>
@@ -54,7 +62,7 @@
             </span>
          </div>
       </div>
-      <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Spend in Today">
+      <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Assigned Instances">
          <div class="small-box bg-aqua">
             <div class="inner">
                <h3 id="totalUnmanagedInstances">0</h3>
@@ -68,7 +76,7 @@
             </span>
          </div>
       </div>
-      <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Spend in Today">
+      <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total UnAssigned Instances">
          <div class="small-box bg-aqua">
             <div class="inner">
                <h3 id="totalUnAssignedInstances">0</h3>
@@ -82,39 +90,16 @@
             </span>
          </div>
       </div>
-      <!-- <div class=" noProviderView" style="display:none">
+      <div class=" noProviderView" style="display:none">
          <div id="noenvwarning" class="alert alert-warning noEnvWarning text-center">
-             <span>Please launch some Instances </span>
+             <span>Please add some providers to show instances </span>
          </div>
-         </div> -->
+         </div>
       <!--Table to show all the instance actions for all the instances starts here-->
       <div id="instanceTableContainer" class="table-responsive table-responsiveCSS borderTop" style="display:none">
          <div class="marginBottom15 headerTitle">List of Managed Instances&nbsp;
-         <button type="button" title="Filters" class="btn btn-xs btn-primary" data-toggle="collapse" data-target="#filter-managedFilter" id="managedFilter">
-            <i class="fa fa-fw fa-filter white"></i>
-            </button></div>
-         <div class="container">
-            <div id="filter-managedFilter" class="collapse filter-panel">
-               <div class="panel panel-default">
-                  <div class="panel-body">
-                     <form class="form-inline" role="form">
-                        <div class="col-lg-3 col-md-3 col-xs-3">
-                           <label  for="filterProjectId">Project:</label>
-                           <select class="filterProjectId form-controls">
-                           </select>                                
-                        </div>
-                        <!-- form group [rows] -->
-                        <div class="col-lg-3 col-md-6 col-xs-3">
-                           <label for="filterEnvId"> Environment:</label>
-                           <select class="filterEnvId form-controls">
-                           </select>
-                        </div>
-                        <!-- form group [search] -->
-                     </form>
-                  </div>
-               </div>
-            </div>
          </div>
+         
          <table style="width:100%" class="table table-hover table-bordered text-center" id="instanceListTable">
             <thead>
                <tr>
@@ -132,31 +117,6 @@
       </div>
       <div id="instanceAssignedContainer" class="table-responsive table-responsiveCSS borderTop"  style="display:none">
          <div class="marginBottom15 headerTitle">List of Assigned Instances&nbsp;
-         
-         <button type="button" title="Filters" class="btn btn-xs btn-primary" data-toggle="collapse" data-target="#filter-panelAssigned" id="assignedFilter">
-            <i class="fa fa-fw fa-filter white"></i>
-            </button></div>
-         <div class="container">
-            <div id="filter-panelAssigned" class="collapse filter-panel">
-               <div class="panel panel-default">
-                  <div class="panel-body">
-                     <form class="form-inline" role="form">
-                        <div class="col-lg-3 col-md-3 col-xs-3">
-                           <label  for="filterProjectId">Project:</label>
-                           <select class="filterProjectId form-controls">
-                           </select>                                
-                        </div>
-                        <!-- form group [rows] -->
-                        <div class="col-lg-3 col-md-6 col-xs-3">
-                           <label for="filterEnvId"> Environment:</label>
-                           <select class="filterEnvId form-controls">
-                           </select>
-                        </div>
-                        <!-- form group [search] -->
-                     </form>
-                  </div>
-               </div>
-            </div>
          </div>
          <table style="width:100%" class="table table-hover table-bordered text-center" id="instanceAssignedTable">
             <thead>
@@ -175,11 +135,11 @@
       <div id="instanceUnAssignedContainer" class="table-responsive table-responsiveCSS borderTop" style="display:none">
          <div class="marginBottom15 headerTitle">
             List of UnAssigned Instances&nbsp;
-         
-         <button type="button" title="Filters" class="btn btn-xs btn-primary" data-toggle="collapse" data-target="#filter-panel" id="unassignedFilter">
+         </div>
+         <!-- <button type="button" title="Filters" class="btn btn-xs btn-primary" data-toggle="collapse" data-target="#filter-panel" id="unassignedFilter">
             <i class="fa fa-fw fa-filter white"></i>
-            </button></div>
-         <div class="container">
+            </button> -->
+         <!-- <div class="container">
             <div id="filter-panel" class="collapse filter-panel">
                <div class="panel panel-default">
                   <div class="panel-body">
@@ -189,18 +149,18 @@
                            <select class="filterProjectId form-controls">
                            </select>                                
                         </div>
-                        <!-- form group [rows] -->
+                        
                         <div class="col-lg-3 col-md-6 col-xs-3">
                            <label for="filterEnvId"> Environment:</label>
                            <select class="filterEnvId form-controls">
                            </select>
                         </div>
-                        <!-- form group [search] -->
+                        
                      </form>
                   </div>
                </div>
             </div>
-         </div>
+         </div> -->
          <table style="width:100%" class="table table-hover table-bordered text-center" id="instanceUnassignedTable">
             <thead>
                <tr>
@@ -220,9 +180,6 @@
          <div class="clearfix form-actions text-center marginleft200 marginbottom0">
             <div>
                <input type="button" id="unassignedSyncBtn" value="Update Tags" class="btn btn-primary">
-            </div>
-            <div class="margintop-25left250">
-               <span id="spanunassignedformSaveId" class="colorGreen marginleft14"></span>
             </div>
          </div>
       </footer>

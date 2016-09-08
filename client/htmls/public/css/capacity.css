@@ -10,7 +10,8 @@
      background-image: none;
      border: 1px solid #ccc;
      transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-     height: 36px;
+     height: 29px;
+     width:100%;
  }
 
  .page-name {
@@ -32,14 +33,12 @@
 
  .marginBottom15 {
      margin-bottom: 15px;
-     font-size: 15px;
+     font-size: 16px;
  }
 
  .footer {
      background: none repeat scroll 0 0 white;
-     bottom: 0;
      left: 0;
-     position: fixed;
      right: 0;
  }
 
@@ -54,9 +53,30 @@
 
  .orgClass {
      font-weight: 200;
-     font-size: 16px;
+     font-size: 14px;
  }
- 
+
  .orgWidth {
      width: 45%;
  }
+
+ #instanceActionListLoader {
+    opacity: 0.6;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background: #ddd;
+}
+
+.center-block {
+     height: 50px; 
+     width: 50px; 
+     margin-top: 20%; 
+     margin-left: 48%;
+     margin-bottom: 10%; 
+     position: absolute;
+}
+
+tr, tr input {
+     font-size: 12px!important;
+}
