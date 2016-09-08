@@ -1,4 +1,4 @@
- .form-controls {
+.form-controls {
      display: inline;
      height: 32px;
      padding: 6px 12px;
@@ -23,26 +23,26 @@
      float: right;
  }
 
- .borderTop {
+#capacityDashboard .borderTop {
      border-top: 1px dashed #ddd;
  }
 
- .marginTop20 {
+#capacityDashboard .marginTop20 {
      margin-top: 20px;
  }
 
- .marginBottom15 {
+#capacityDashboard .marginBottom15 {
      margin-bottom: 15px;
      font-size: 16px;
  }
 
- .footer {
+#capacityDashboard .footer {
      background: none repeat scroll 0 0 white;
      left: 0;
      right: 0;
  }
 
- .form-actions {
+#capacityDashboard .form-actions {
      display: block;
      padding: 13px 14px 15px;
      border-top: 1px solid rgba(0, 0, 0, .1);
@@ -68,7 +68,7 @@
     background: #ddd;
 }
 
-.center-block {
+img .center-block {
      height: 50px; 
      width: 50px; 
      margin-top: 20%; 
@@ -79,4 +79,8 @@
 
 tr, tr input {
      font-size: 12px!important;
+}
+
+#instanceUnAssignedContainer {
+     min-height: 280px;
 }

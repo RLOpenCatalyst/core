@@ -126,6 +126,11 @@ $(document).ready(function() {
                 managedData = data.recordsTotal;
                 updateTotalCount("managed", managedData);
                 $('#instanceActionListLoader').hide();
+            },
+            error: function(){
+                managedData = 0;
+                updateTotalCount("managed", managedData);
+                $('#instanceActionListLoader').hide();  
             }
         });
     }
@@ -147,6 +152,11 @@ $(document).ready(function() {
                 unManagedData = data.recordsTotal;
                 updateTotalCount("assigned", unManagedData);
                 $('#instanceActionListLoader').hide();
+            },
+            error: function(){
+                unManagedData = 0;
+                updateTotalCount("assigned", unManagedData);
+                $('#instanceActionListLoader').hide();  
             }
         });
     }
@@ -166,6 +176,14 @@ $(document).ready(function() {
             url: (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
             success: function(data) {
                 unAssignedData = data.recordsTotal;
+                updateTotalCount("unassigned", unAssignedData);
+                var totalInstances;
+                totalInstances = managedData + unManagedData + unAssignedData;
+                updateTotalCount("managedunmanaged", totalInstances);
+                $('#instanceActionListLoader').hide();
+            },
+            error: function(){
+                unAssignedData = 0;
                 updateTotalCount("unassigned", unAssignedData);
                 var totalInstances;
                 totalInstances = managedData + unManagedData + unAssignedData;
