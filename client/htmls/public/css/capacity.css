@@ -68,16 +68,7 @@
     background: #ddd;
 }
 
-img .center-block {
-     height: 50px; 
-     width: 50px; 
-     margin-top: 20%; 
-     margin-left: 48%;
-     margin-bottom: 10%; 
-     position: absolute;
-}
-
-tr, tr input {
+#capacityDashboard tr, tr input {
      font-size: 12px!important;
 }
 
