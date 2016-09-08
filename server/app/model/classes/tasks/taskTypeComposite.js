@@ -47,7 +47,7 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
     if (!Tasks) {
         Tasks = require('_pr/model/classes/tasks/tasks.js');
     }
-    Tasks.getTaskByIds(this.assignTasks, function(err, tasks) {
+    Tasks.getTaskByIds(that.assignTasks, function(err, tasks) {
         if (err) {
             if (typeof onExecute === 'function') {
                 onExecute(err, null);
