@@ -39,7 +39,8 @@ var scriptTaskSchema = taskTypeSchema.extend({
             requred: true
         },
         scriptParameters: [String]
-    }]
+    }],
+    executionOrder: String
 });
 
 scriptTaskSchema.methods.getNodes = function() {
@@ -47,12 +48,13 @@ scriptTaskSchema.methods.getNodes = function() {
 };
 
 scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
+    logger.debug("===================== this.executionOrder========= ", JSON.stringify(this));
+    var self = this;
     if (this.executionOrder === "SERIAL") {
-    	// SERIAL EXECUTION
-    	serialExecution(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete);
+        // SERIAL EXECUTION
+        serialExecution(self, userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete);
     } else {
-    	// PARALLEL EXECUTION
-        var self = this;
+        // PARALLEL EXECUTION
         var instanceIds = this.nodeIds;
         var scriptDetails = this.scriptDetails;
         if (!(instanceIds && instanceIds.length)) {
@@ -430,11 +432,9 @@ function removeScriptFile(filePath) {
     })
 }
 
-function serialExecution(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
-
-    var self = this;
-    var instanceIds = this.nodeIds;
-    var scriptDetails = this.scriptDetails;
+function serialExecution(self, userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
+    var instanceIds = self.nodeIds;
+    var scriptDetails = self.scriptDetails;
     if (!(instanceIds && instanceIds.length)) {
         if (typeof onExecute === 'function') {
             onExecute({
@@ -478,9 +478,11 @@ function serialExecution(userName, baseUrl, choiceParam, nexusData, blueprintIds
             }
         }
     }
+    var instanceList = [];
 
     function ecuteTask(id, callback) {
         var obj = {};
+        logger.debug("Executing script on: ", id + "    " + new Date().getTime());
         instancesDao.getInstanceById(id, function(err, instances) {
             if (err) {
                 logger.error(err);
@@ -490,7 +492,7 @@ function serialExecution(userName, baseUrl, choiceParam, nexusData, blueprintIds
                 return;
             }
             var instance = instances[0];
-
+            instanceList.push(instance);
             var timestampStarted = new Date().getTime();
             var actionLog = instancesDao.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
             instance.tempActionLogId = actionLog._id;
@@ -619,11 +621,14 @@ function serialExecution(userName, baseUrl, choiceParam, nexusData, blueprintIds
                                                     //return;
                                                 }
                                                 var cmdLine = 'bash /tmp/' + fileName;
-                                                if (scriptParameters.length > 0) {
-                                                    for (var j = 0; j < scriptParameters.length; j++) {
-                                                        cmdLine = cmdLine + ' "' + scriptParameters[j] + '"';
+                                                if (scriptParameters && scriptParameters.length) {
+                                                    if (scriptParameters.length > 0) {
+                                                        for (var j = 0; j < scriptParameters.length; j++) {
+                                                            cmdLine = cmdLine + ' "' + scriptParameters[j] + '"';
+                                                        }
                                                     }
                                                 }
+
                                                 sshExec.exec(cmdLine, function(err, retCode) {
                                                     if (err) {
                                                         var timestampEnded = new Date().getTime();
@@ -677,6 +682,7 @@ function serialExecution(userName, baseUrl, choiceParam, nexusData, blueprintIds
                                                                 logger.error("Failed to create or update instanceLog: ", err);
                                                             }
                                                         });
+                                                        logger.debug("Task execution success for script");
                                                         //instanceOnCompleteHandler(null, 0, logsReferenceIds[0], null, logsReferenceIds[1]);
                                                         removeScriptFile(desPath);
                                                         obj.message = "Task execution success for script";
@@ -837,29 +843,41 @@ function serialExecution(userName, baseUrl, choiceParam, nexusData, blueprintIds
                     })(scriptDetails[j]);
                 }
             });
-
-            if (typeof onExecute === 'function') {
-                onExecute(null, {
-                    instances: [instance]
-                });
-            }
+            /*if (flag) {
+                if (typeof onExecute === 'function') {
+                    onExecute(null, {
+                        instances: [instance]
+                    });
+                    return;
+                }
+            }*/
         });
     };
 
     var count1 = 0;
 
-    function taskComplete(err, id) {
+    function taskComplete(err, obj) {
         count1++;
         if (err) {
+            if (typeof onExecute === 'function') {
+                onExecute(null, {
+                    instances: instanceList
+                });
+            }
             instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
             logger.debug("Encountered with Error: ", err);
             return;
         }
-        if (count < instanceIds.length) {
+        if (count1 < instanceIds.length) {
             logger.debug("execute with task: ");
-            ecuteTask(instanceIds[count], taskComplete);
+            ecuteTask(instanceIds[count1], taskComplete);
         } else {
             logger.debug("Task success");
+            if (typeof onExecute === 'function') {
+                onExecute(null, {
+                    instances: instanceList
+                });
+            }
             instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
         }
     }

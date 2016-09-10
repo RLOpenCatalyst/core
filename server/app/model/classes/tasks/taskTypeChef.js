@@ -249,8 +249,8 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                 }
             }
         }
-
-        function execute(flag, id, callback) {
+        var instanceList = [];
+        function execute(id, callback) {
 
             var obj = {};
             //merging attributes Objects
@@ -269,6 +269,7 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                     return;
                 }
                 var instance = instances[0];
+                instanceList.push(instance);
                 var timestampStarted = new Date().getTime();
                 var actionLog = instancesDao.insertOrchestrationActionLog(instance._id, self.runlist, userName, timestampStarted);
                 instance.tempActionLogId = actionLog._id;
@@ -1358,13 +1359,13 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                     });
                 }
 
-                if (flag) {
+                /*if (flag) {
                     if (typeof onExecute === 'function') {
                         onExecute(null, {
                             instances: [instance],
                         });
                     }
-                }
+                }*/
             });
         };
 
@@ -1373,20 +1374,30 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
         function taskComplete(err, obj) {
             count++;
             if (err) {
+                if (typeof onExecute === 'function') {
+                    onExecute(null, {
+                        instances: instanceList,
+                    });
+                }
                 instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
                 logger.debug("Encountered with Error: ", err);
                 return;
             }
             if (count < instanceIds.length) {
                 logger.debug("execute with task: ");
-                execute(false, instanceIds[count], taskComplete);
+                execute(instanceIds[count], taskComplete);
             } else {
                 logger.debug("Task success");
+                if (typeof onExecute === 'function') {
+                    onExecute(null, {
+                        instances: instanceList,
+                    });
+                }
                 instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
             }
         }
 
-        execute(true, instanceIds[count], taskComplete);
+        execute(instanceIds[count], taskComplete);
 
     } else {
         // PARALLEL execution of task
