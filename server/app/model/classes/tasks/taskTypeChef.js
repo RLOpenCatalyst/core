@@ -542,7 +542,7 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                             obj.instanceId = instance._id;
                             obj.actionLogId = actionLog._id;
                             obj.chefClientExecutionId = null;
-                            obj.message = err;
+                            obj.message = "Chef Data Corrupted. Chef Client run failed";
                             obj.status = 1;
                             callback(obj, null);
                             //instanceOnCompleteHandler(err, 1, instance._id, null, actionLog._id);
