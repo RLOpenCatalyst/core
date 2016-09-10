@@ -1331,8 +1331,7 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                         data.status = 'terminated';
                         data.action = action;
                         data.user = user;
-                        data.createdOn = new Date().getTime();
-                        data.startedOn = new Date().getTime();
+                        data.actionStatus = "success";
                         data.endedOn = new Date().getTime();
                         logsDao.insertLog({
                             referenceId: [data.actionId,data.instanceId],
