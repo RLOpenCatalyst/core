@@ -16,6 +16,8 @@ var UnmanagedInstanceSchema = new Schema({
 		trim: true
 	},
 	orgName: String,
+	bgId: String,
+	bgName: String,
 	projectId: String,
 	projectName: String,
 	environmentId: String,
@@ -278,14 +280,10 @@ UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceSt
 		updateObj['state'] = instance.state;
 		updateObj['isDeleted'] = true;
 		updateObj['tags'] = instance.tags;
-		updateObj['environmentTag'] = instance.environmentTag;
-		updateObj['projectTag'] = instance.projectTag;
 	}else{
 		updateObj['state'] = instance.state;
 		updateObj['isDeleted'] = false;
 		updateObj['tags'] = instance.tags;
-		updateObj['environmentTag'] = instance.environmentTag;
-		updateObj['projectTag'] = instance.projectTag;
 	}
 	UnmanagedInstance.update({
 			"_id": ObjectId(instanceId)

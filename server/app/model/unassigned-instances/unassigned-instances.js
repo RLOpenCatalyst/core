@@ -38,6 +38,12 @@ var UnassignedInstancesSchema = new Schema({
     },
     providerType: String,
     providerData: Schema.Types.Mixed,
+    bgTag: {
+        type: String,
+        required: false,
+        trim: true,
+        default: null
+    },
     projectTag: {
         type: String,
         required: false,
@@ -195,12 +201,14 @@ UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstance
         updateObj['state'] = instance.state;
         updateObj['isDeleted'] = true;
         updateObj['tags'] = instance.tags;
+        updateObj['bgTag'] = instance.bgTag;
         updateObj['environmentTag'] = instance.environmentTag;
         updateObj['projectTag'] = instance.projectTag;
     }else{
         updateObj['state'] = instance.state;
         updateObj['isDeleted'] = false;
         updateObj['tags'] = instance.tags;
+        updateObj['bgTag'] = instance.bgTag;
         updateObj['environmentTag'] = instance.environmentTag;
         updateObj['projectTag'] = instance.projectTag;
     }

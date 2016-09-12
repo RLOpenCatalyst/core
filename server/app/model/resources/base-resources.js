@@ -49,6 +49,12 @@ var AWSResourcesSchema = function AWSResources() {
             type:String,
             default:Date.now
         },
+        bgTag: {
+            type: String,
+            required: false,
+            trim: true,
+            default: null
+        },
         projectTag: {
             type: String,
             required: false,

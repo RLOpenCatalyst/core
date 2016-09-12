@@ -866,6 +866,7 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                             vpc:instance.VpcId
                                         },
                                         tags:tagInfo,
+                                        bgTag:tagInfo.Name,
                                         environmentTag:tagInfo.Environment,
                                         projectTag:tagInfo.Owner
                                     }

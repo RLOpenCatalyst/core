@@ -303,7 +303,14 @@ $(document).ready(function() {
                 }
             }, {
                 "data": "ip",
-                "orderable": true
+                "orderable": true,
+                "render": function(data, type, full) {
+                    if (data !== null) {
+                        return data;
+                    } else {
+                        return full.privateIpAddress;
+                    }
+                }
             }, {
                 "data": "state",
                 "orderable": true
@@ -339,17 +346,28 @@ $(document).ready(function() {
             }, {
                 "data": "ip",
                 "orderable": true,
-                "render": function(data) {
-                    if (data) {
+                "render": function(data, type, full) {
+                    if (data !== null) {
                         return data;
                     } else {
-                        return '';
+                        return full.privateIpAddress;
                     }
                 }
             }, {
                 "data": "state",
                 "orderable": true
-            }, {
+            },
+                {"data": "" ,"orderable" : false,
+                    "render": function(data, type, full) {
+                        if(full.bgTag !== null){
+                            var tagValue = full.bgTag;
+                            return '<input class="form-control bgTagName" type="text" value="' + tagValue + '"/>';
+                        }else{
+                            return '<input class="form-control bgTagName" type="text" placeholder="Enter a bg tag value" value=""/>';
+                        }
+                    }
+                },
+                {
                 "data": "",
                 "orderable": false,
                 "render": function(data, type, full) {

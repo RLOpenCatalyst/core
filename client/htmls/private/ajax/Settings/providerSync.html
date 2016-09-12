@@ -155,6 +155,13 @@
                                         <div>
                                             <div class="widget-body no-padding">
                                                 <div class="col-lg-6 marginSpaceTop">
+                                                    <label for="bgNameLabel" id="bgNameLabelId" catalystEntitytype="bgName">Business Group</label>
+                                                    <div class="input-groups">
+                                                        <select id="tagsBgSelect"  class="width-100 form-control">
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 marginSpaceTop">
                                                     <label for="projectnameLabel" id="projectnameLabelId" catalystEntitytype="project">Project</label>
                                                     <div class="input-groups">
                                                         <select id="tagsProjectSelect"  class="width-100 form-control">
@@ -191,6 +198,31 @@
 
     <div  class="tab-pane mappingsListContainer" id="mappingsId">
         <div class="row">
+
+            <div class="col-lg-6">
+                <div  class="tabContent table-responsive marginbottomCSS" id="mappingBgIdDiv">
+                    <table class="table table-hover table-bordered text-center fntsize13mrgtop10" id="mappingBgTable">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Catalyst Business Group</th>
+                            <th class="text-center">Business Group Tag Value</th>
+                        </tr>
+                        </thead>
+                        <tbody class="mappingbgtblTbody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="widget-toolbox clearfix">
+                    <div class="btn-group pull-right">
+                        <span id="spanbgMappingSaveId" class="colorGreen spanformSaveCSS"></span>
+                        <button class="btn btn-primary btn-mini btnbgMappingSave">
+                            <i class="ace-icon fa fa-check bigger-110"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-lg-6">
                 <div  class="tabContent table-responsive marginbottomCSS" id="mappingprojectIdDiv">
                     <table class="table table-hover table-bordered text-center fntsize13mrgtop10" id="mappingprojectTable">
@@ -314,6 +346,7 @@
                                 <th class="text-center">OS</th>
                                 <th class="text-center">IP Address</th>
                                 <th class="text-center">Status</th>
+                                <th class="text-center">Bg Tag Value</th>
                                 <th class="text-center">Project Tag Value</th>
                                 <th class="text-center">Env. Tag Value</th>
                                 <th class="text-center">Actions</th>
@@ -380,6 +413,7 @@
                                 <th class="text-center">Instance</th>
                                 <th class="text-center">Type</th>
                                 <th class="text-center">Region</th>
+                                <th class="text-center">Bg Tag Value</th>
                                 <th class="text-center">Project Tag Value</th>
                                 <th class="text-center">Env. Tag Value</th>
                                 <th class="text-center">Actions</th>
@@ -446,6 +480,7 @@
                                 <th class="text-center">Bucket Name</th>
                                 <th class="text-center">Bucket Owner</th>
                                 <th class="text-center">Size(MB)</th>
+                                <th class="text-center">Bg Tag Value</th>
                                 <th class="text-center">Project Tag Value</th>
                                 <th class="text-center">Env. Tag Value</th>
                                 <th class="text-center">Actions</th>
@@ -599,6 +634,20 @@
             "bLengthChange": true,
             "paging": true,
             "bFilter": true,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+        });
+    }
+    if (!$.fn.dataTable.isDataTable('#mappingBgTable')) {
+        var $mappingbgDatatable = $('#mappingBgTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": false,
+            "bFilter": false,
             "aoColumns": [{
                 "bSortable": false
             }, {
@@ -805,18 +854,21 @@
         function loadTagsTabData(tagsListData,providerId) {
             var $projecttagsList = $('#tagsProjectSelect');
             var $envtagsList = $('#tagsEnvSelect');
+            var $bgtagsList = $('#tagsBgSelect');
             $projecttagsList.empty();
             $envtagsList.empty();
+            $bgtagsList.empty();
             $tagsDatatable.clear().draw();
 
             $projecttagsList.append($('<option></option>').val("").html("Choose Project"));
             $envtagsList.append($('<option></option>').val("").html("Choose Environment"));
+            $bgtagsList.append($('<option></option>').val("").html("Choose Business Group"));
             for (var i = 0; i < tagsListData.length; i++) {
                 var $tbody = $('#tagsTable tbody').empty();
                 //For Dropdown
-
                 $projecttagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
                 $envtagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
+                $bgtagsList.append($('<option></option>').val(tagsListData[i].name).html(tagsListData[i].name));
 
                 //For Table
                 var $tr = $('<tr class=""></tr>');
@@ -899,8 +951,10 @@
                     //For tags tab.....
                     var $projecttagsList = $('#tagsProjectSelect');
                     var $envtagsList = $('#tagsEnvSelect');
+                    var $bgtagsList = $('#tagsBgSelect');
                     var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
                     var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
+                    var catalystEntityBgName = $('#bgNameLabelId').attr('catalystEntitytype');
 
                     for(var i=0;i<tagsListSelected.length;i++){
                         var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
@@ -908,6 +962,9 @@
                         var tagValues = tagsListSelected[i].tagValues;
                         var catalystEntityMapping = tagsListSelected[i].catalystEntityMapping;
 
+                        if(objcatalystEntityType == catalystEntityBgName){
+                            $bgtagsList.val(objtagName);
+                        }
                         if(objcatalystEntityType == catalystEntityProjName){
                             $projecttagsList.val(objtagName);
                             //For Mapping tab.....
@@ -961,27 +1018,32 @@
         $('.btntagsFormSave').on('click',function(){
             var $projecttagsList = $('#tagsProjectSelect');
             var $envtagsList = $('#tagsEnvSelect');
+            var $bgtagsList = $('#tagsBgSelect');
 
             var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
             var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
+            var catalystEntityBgName = $('#bgNameLabelId').attr('catalystEntitytype');
 
             var tagsProjSelectedVal = $projecttagsList.val();
             var tagsenvSelectedVal = $envtagsList.val();
+            var tagsbgSelectedVal = $bgtagsList.val();
 
-            if(tagsProjSelectedVal == tagsenvSelectedVal){
+            if((tagsbgSelectedVal == tagsProjSelectedVal) && (tagsbgSelectedVal == tagsenvSelectedVal)){
                 bootbox.alert("Tag name cannot be same to create catalyst entity mapping");
                 return;
             }
 
             //Creating the data to Post for Save tags.
             var tagsData = [{
+                "catalystEntityType": catalystEntityBgName,
+                "tagName": tagsbgSelectedVal
+            },{
                 "catalystEntityType": catalystEntityProjName,
                 "tagName": tagsProjSelectedVal
-            },
-                {
+            },{
                     "catalystEntityType": catalystEntityEnvName,
                     "tagName": tagsenvSelectedVal
-                }];
+            }];
             $.ajax({
                 url: '/providers/'+urlproviderId+'/tag-mappings',
                 method: 'POST',
@@ -1001,8 +1063,30 @@
         });
 
         //Mapping tabs operation starts....
+        getBgData();
         getprojectData();
         getenvironmentData();
+        //For Business Group Mapping
+        function getBgData(){
+            $.get('/d4dMasters/readmasterjsonnew/2', function(bgList) {
+                var orgId = urlorgName;
+                var bgListArr = [];
+                for (var i = 0; i < bgList.length; i++) {
+                    if(orgId == bgList[i].orgname){
+                        bgListArr.push(bgList[i]);
+                    }
+                };
+                bgMappingList(bgListArr);
+            }).fail(function(jxhr) {
+                var msg = "Getting Business Group List Behaved Unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
+        }
         //For Project Mapping
         function getprojectData(){
             $.get('/d4dMasters/readmasterjsonnew/4', function(projectist) {
@@ -1082,6 +1166,47 @@
                         for(var k = 0; k < data.catalystEntityMapping.length; k++){
                             if(envList[i].rowid == data.catalystEntityMapping[k].catalystEntityId){
                                 $mappingenvSelectList.val(data.catalystEntityMapping[k].tagValue);
+                            }
+                        }
+                    }
+                }
+            }).fail(function(jxhr) {
+
+            });
+        }
+
+        function bgMappingList(bgList){
+            $mappingbgDatatable.clear().draw();
+
+            $.get('/providers/'+urlproviderId+'/tag-mappings/bgName', function(data) {
+                if(data){
+                    var $tbody = $('#mappingBgTable tbody').empty();
+                    for(var i = 0; i < bgList.length; i++){
+                        //For Table
+                        var $tr = $('<tr id="'+bgList[i].rowid+'" class=""></tr>');
+
+                        var $tdbgName = $('<td class="mappingbgName"></td>').append(bgList[i].productgroupname);
+                        $tr.append($tdbgName);
+
+                        var $mappingbgSelectList= $('<select class="mappingbgSelectId"></select>');
+                        $mappingbgSelectList.empty();
+                        $mappingbgSelectList.append($('<option></option>').val('').html('-- None --'));
+                        for(var j=0; j< data.tagValues.length; j++){
+                            if(data.tagValues[j] != ''){
+                                $mappingbgSelectList.append($('<option></option>').val(data.tagValues[j]).html(data.tagValues[j]));
+                            }
+                        }
+
+                        var $tdbgTagName = $('<td class="mappingbgTagName"></td>').append($mappingbgSelectList);
+                        $tr.append($tdbgTagName);
+
+
+                        $tbody.append($tr);
+                        $mappingbgDatatable.row.add($tr).draw();
+
+                        for(var k = 0; k < data.catalystEntityMapping.length; k++){
+                            if(bgList[i].rowid == data.catalystEntityMapping[k].catalystEntityId){
+                                $mappingbgSelectList.val(data.catalystEntityMapping[k].tagValue);
                             }
                         }
                     }
@@ -1386,6 +1511,7 @@
                     var envProjectMappingObject = {};
                     var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
                     var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
+                    var catalystEntitybgName = $('#bgNameLabelId').attr('catalystEntitytype');
 
                     for(var i=0;i<tagsListSelected.length;i++){
                         var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
@@ -1397,6 +1523,9 @@
                         }
                         if(objcatalystEntityType == catalystEntityEnvName){
                             envProjectMappingObject['environment'] = objtagName;
+                        }
+                        if(objcatalystEntityType == catalystEntitybgName){
+                            envProjectMappingObject['bgName'] = objtagName;
                         }
                     }
                     if(key==='EC2'){
@@ -1433,8 +1562,12 @@
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
                     {"data": "ip","orderable" : true,
-                        "render": function(data){
-                            return data?data:'';
+                        "render": function(data, type, full) {
+                            if (data !== null) {
+                                return data;
+                            } else {
+                                return full.privateIpAddress;
+                            }
                         }
                     },
                     {"data": "","orderable" : true,
@@ -1470,19 +1603,28 @@
                     {"data": "resourceDetails.dbName",  "orderable" : true},
                     {"data": "resourceDetails.dbEngine","orderable" : true  },
                     {"data": "resourceDetails.region","orderable" : false  },
-                    {"data": "projectTag" ,"orderable" : false,
+                    {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(data !== null) {
-                                return '<input class="form-control projectTagName" type="text" value="' + data + '"/>';
+                            if(full.bgTag && full.bgTag !== null) {
+                                return '<input class="form-control bgTagName" type="text" value="' + full.bgTag + '"/>';
+                            }else{
+                                return '<input class="form-control bgTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.projectTag && full.projectTag !== null) {
+                                return '<input class="form-control projectTagName" type="text" value="' + full.projectTag + '"/>';
                             }else{
                                 return '<input class="form-control projectTagName" type="text" value=""/>';
                             }
                         }
                     },
-                    {"data": "environmentTag" ,"orderable" : false,
+                    {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(data !== null) {
-                                return '<input class="form-control envTagName" type="text" value="' + data + '"/>';
+                            if(full.environmentTag && full.environmentTag !== null) {
+                                return '<input class="form-control envTagName" type="text" value="' + full.environmentTag + '"/>';
                             }else{
                                 return '<input class="form-control envTagName" type="text" value=""/>';
                             }
@@ -1515,19 +1657,28 @@
                     {"data": "resourceDetails.bucketName", "orderable" : true},
                     {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
                     {"data": "resourceDetails.bucketSize","orderable" : true  },
-                    {"data": "projectTag" ,"orderable" : false,
+                    {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(data !== null) {
-                                return '<input class="form-control projectTagName" type="text" value="' + data + '"/>';
+                            if(full.bgTag && full.bgTag !== null) {
+                                return '<input class="form-control bgTagName" type="text" value="' + full.bgTag + '"/>';
+                            }else{
+                                return '<input class="form-control bgTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.projectTag && full.projectTag !== null) {
+                                return '<input class="form-control projectTagName" type="text" value="' + full.projectTag + '"/>';
                             }else{
                                 return '<input class="form-control projectTagName" type="text" value=""/>';
                             }
                         }
                     },
-                    {"data": "environmentTag" ,"orderable" : false,
+                    {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(data !== null) {
-                                return '<input class="form-control envTagName" type="text" value="' + data + '"/>';
+                            if(full.environmentTag && full.environmentTag !== null) {
+                                return '<input class="form-control envTagName" type="text" value="' + full.environmentTag + '"/>';
                             }else{
                                 return '<input class="form-control envTagName" type="text" value=""/>';
                             }
@@ -1560,15 +1711,28 @@
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
                     {"data": "ip","orderable" : true,
-                        "render": function(data){
-                            if(data){
+                        "render": function(data, type, full) {
+                            if (data !== null) {
                                 return data;
-                            }else{
-                                return '';
+                            } else {
+                                return full.privateIpAddress;
                             }
                         }
                     },
                     {"data": "state","orderable" : true  },
+                    {"data": "" ,"orderable" : false,
+                        "render": function(data, type, full) {
+                            if(full.bgTag !== null){
+                                var tagValue = full.bgTag;
+                                return '<input class="form-control bgTagName" type="text" value="' + tagValue + '"/>';
+                            }else if(envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
+                                var tagValue = full.tags[envProjectMappingObject.bgName];
+                                return '<input class="form-control bgTagName"  type="text" value="' + tagValue + '"/>';
+                            }else{
+                                return '<input class="form-control bgTagName" type="text" value=""/>';
+                            }
+                        }
+                    },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
                             if(full.projectTag !== null){

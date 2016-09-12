@@ -2110,14 +2110,10 @@ var InstancesDao = function() {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = true;
             updateObj['tags'] = instance.tags;
-            updateObj['environmentTag'] = instance.environmentTag;
-            updateObj['projectTag'] = instance.projectTag;
         }else {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = false;
             updateObj['tags'] = instance.tags;
-            updateObj['environmentTag'] = instance.environmentTag;
-            updateObj['projectTag'] = instance.projectTag;
         }
         Instances.update({
             "_id": ObjectId(instanceId)
