@@ -1433,8 +1433,12 @@
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
                     {"data": "ip","orderable" : true,
-                        "render": function(data){
-                            return data?data:'';
+                        "render": function(data, type, full){
+                            if(data !== null){
+                                return data;
+                            }else{
+                                return full.privateIpAddress;
+                            }
                         }
                     },
                     {"data": "","orderable" : true,
@@ -1560,11 +1564,11 @@
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
                     {"data": "ip","orderable" : true,
-                        "render": function(data){
-                            if(data){
+                        "render": function(data, type, full){
+                            if(data !== null){
                                 return data;
                             }else{
-                                return '';
+                                return full.privateIpAddress;
                             }
                         }
                     },

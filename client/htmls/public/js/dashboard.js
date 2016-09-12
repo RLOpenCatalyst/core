@@ -347,7 +347,15 @@ $(document).ready(function () {
                         return data ? data : '';
                     }
                 },
-                {"data": "ip", "orderable": true},
+                {"data": "ip", "orderable": true,
+                    "render": function(data, type, full){
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return full.privateIpAddress;
+                        }
+                    }
+                },
                 {"data": "", "orderable": true,
                     "render": function (data, type, full, meta) {
                         return full.region ? full.region : full.providerData ? full.providerData.region : '-';
@@ -391,8 +399,12 @@ $(document).ready(function () {
                     }
                 },
                 {"data": "ip", "orderable": true,
-                    "render": function (data) {
-                        return data ? data : '';
+                    "render": function(data, type, full){
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return full.privateIpAddress;
+                        }
                     }
                 },
                 {"data": "", "orderable": true,
@@ -447,7 +459,15 @@ $(document).ready(function () {
                         return data ? data : '';
                     }
                 },
-                {"data": "ip", "orderable": true},
+                {"data": "ip", "orderable": true,
+                    "render": function(data, type, full){
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return full.privateIpAddress;
+                        }
+                    }
+                },
                 {"data": "state", "orderable": true},
                 {"data": "providerType", "orderable": true,
                     "render": function (data) {
