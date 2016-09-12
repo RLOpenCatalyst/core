@@ -54,7 +54,7 @@ $(document).ready(function() {
     function awsProviders(orgId) {
         $.ajax({
             type: 'GET',
-            url: '../aws/providers/organizations/' + orgId,
+            url: '../aws/providers/org/' + orgId,
             success: function(data, success) {
                 if (data.length === 0) {
                     $('.providerValues').addClass('hidden');
